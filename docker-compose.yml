@@ -1,0 +1,56 @@
+---
+version: "3.9"
+services:
+  redis:
+    image: redis:7.0
+    ports:
+      - 6379:6379
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+    volumes:
+      - redis:/data
+
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      PGUSER: sif
+      POSTGRES_USER: sif
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: sif
+    ports:
+      - 5432:5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "--database", "stocks_in_the_future_development" ]
+      interval: 10s
+    volumes:
+      - postgres:/var/lib/postgresql/data
+
+  stocks:
+    build:
+      dockerfile: Dockerfile.dev
+      context: .
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+    command: bin/docker-entrypoint bin/rails server -b 0.0.0.0
+    ports:
+      - 3000:3000
+    volumes:
+      - .:/rails
+      - bundler:/usr/local/bundle
+
+    environment:
+      RAILS_ENV: development
+      DATABASE_USER: sif
+      DATABASE_HOST: db
+      DATABASE_PASSWORD: password
+
+volumes:
+  redis:
+  postgres:
+  bundler:
