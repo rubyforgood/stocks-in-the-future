@@ -9,7 +9,7 @@ WORKDIR /rails
 
 # Install packages needed to build gems
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y build-essential libpq-dev
+    apt-get install --no-install-recommends -y build-essential libpq-dev curl 
 
 # Start the server by default, this can be overwritten at runtime
 EXPOSE 3000
