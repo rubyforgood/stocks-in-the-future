@@ -1,0 +1,14 @@
+require:
+  - standard
+  - rubocop-rspec
+
+inherit_gem:
+  standard: config/base.yml
+
+AllCops:
+  DisabledByDefault: true
+
+RSpec/DescribeClass:
+  Exclude:
+    - spec/features/**/*
+    - spec/request/**/*
