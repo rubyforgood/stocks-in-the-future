@@ -65,7 +65,6 @@ gem "devise", "~> 4.9"
 gem "view_component"
 
 group :test do
-  gem "rspec-rails"
   gem "capybara"
 end
 
@@ -74,5 +73,9 @@ group :development, :test do
   gem "brakeman"
   gem "standard", require: false
   gem "standard-rails", require: false
+  # RSpec behavioral testing framework for Rails.
+  gem "rspec-rails", "~> 6.0.3"
+  gem 'factory_bot_rails'
+  gem 'faker'
 end
 
