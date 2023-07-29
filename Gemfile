@@ -61,6 +61,7 @@ group :development do
   # gem "spring"
 end
 
+gem "devise", "~> 4.9"
 gem "view_component"
 
 group :test do
@@ -74,3 +75,4 @@ group :development, :test do
   gem "standard", require: false
   gem "standard-rails", require: false
 end
+
