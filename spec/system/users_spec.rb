@@ -1,4 +1,4 @@
-require 'rails_helper'
+require "rails_helper"
 
 RSpec.describe "Users", type: :system do
   before do
@@ -13,7 +13,7 @@ RSpec.describe "Users", type: :system do
       fill_in "Password", with: "test123"
       fill_in "Password confirmation", with: "test123"
 
-      expect {click_on "Sign up"}.to change(User, :count).by(1)
+      expect { click_on "Sign up" }.to change(User, :count).by(1)
     end
   end
 end
