@@ -14,13 +14,14 @@ services:
     image: postgres:15
     restart: always
     environment:
+      PGUSER: sif
       POSTGRES_USER: sif
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: stocks_in_the_future_development
+      POSTGRES_DB: sif
     ports:
       - 5432:5432
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready", "-U", "bwoa", "-d", "bwoa_development"]
+      test: ["CMD-SHELL", "pg_isready", "--database", "stocks_in_the_future_development" ]
       interval: 10s
     volumes:
       - postgres:/var/lib/postgresql/data
@@ -30,8 +31,10 @@ services:
       dockerfile: Dockerfile.dev
       context: .
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000"]
     command: bash -c "bundle check || bundle install && bundle exec rails server -b 0.0.0.0"
