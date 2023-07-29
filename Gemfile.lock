@@ -303,8 +303,8 @@ DEPENDENCIES
   brakeman
   capybara
   debug
-  dockerfile-rails
   devise (~> 4.9)
+  dockerfile-rails
   dotenv-rails
   factory_bot_rails
   faker

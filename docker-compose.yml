@@ -37,7 +37,7 @@ services:
         condition: service_started
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000"]
-    command: bin/docker-entrypoint bin/rails server
+    command: bin/docker-entrypoint bin/rails server -b 0.0.0.0
     ports:
       - 3000:3000
     volumes:

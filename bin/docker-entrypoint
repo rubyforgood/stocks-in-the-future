@@ -2,6 +2,7 @@
 
 if [ "${RAILS_ENV}" != "production" ]; then
   bundle check || bundle install
+  ./bin/rails db:prepare
 fi
 
 # If running the rails server then create or migrate existing database
