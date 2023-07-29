@@ -34,7 +34,7 @@ services:
       - redis
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000"]
-    command: "bundle exec rails server -b 0.0.0.0"
+    command: bash -c "bundle check || bundle install && bundle exec rails server -b 0.0.0.0"
     ports:
       - 3000:3000
     volumes:
