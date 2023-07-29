@@ -1,0 +1,10 @@
+<div class="ticker-list">
+<% @stocks.each do |stock| %>
+  <div>
+    <%= stock[:name] %>
+    (<%= stock[:ticker] %>)
+    <%= stock[:price] %>
+    <span class="<%= stock[:change].positive? ? "positive" : "negative"%>"><%= stock[:change] %></span>
+  </div>
+<% end %>
+</div>
