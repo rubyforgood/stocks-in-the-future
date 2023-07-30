@@ -22,15 +22,15 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      # Add or replace dependency steps here
+    
       - name: Install Ruby and gems
         uses: ruby/setup-ruby@v1.152.0 
         with:
-          bundler-cache: true
-      # Add or replace database setup steps here
+         ruby-version: '3.2.2'
+         bundler-cache: true
+     
       - name: Set up database schema
         run: bin/rails db:schema:load
-      # Add or replace test runners here
+    
       - name: Run tests
         run: bin/rake
-
