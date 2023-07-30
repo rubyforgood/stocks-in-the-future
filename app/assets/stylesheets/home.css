@@ -1,0 +1,22 @@
+.home {
+  color: white;
+  background-color: #00b8b0;
+  display: flex;
+  flex-direction: row;
+}
+
+.home-content {
+  padding: 35px 50px;
+}
+
+.home-header {
+  margin-bottom: 0;
+  font-weight: normal;
+  font-size: 1.4rem;
+}
+
+.home-paragraph {
+  margin-top: 0;
+  line-height: 1.5;
+  margin-bottom: 30px;
+}

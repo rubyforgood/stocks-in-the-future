@@ -1,0 +1,65 @@
+.nav {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 20px;
+}
+
+.logo {
+  width: 300px;
+  margin: -10px;
+}
+
+.nav-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.basic-nav {
+  display: flex;
+  color: #01698c;
+}
+
+.basic-nav-item {
+  text-transform: uppercase;
+}
+
+.basic-nav-item:not(:last-child)::after {
+  content: "|";
+  margin: 0 5px;
+}
+
+.basic-nav-right {
+  justify-content: end;
+  padding-right: 10px;
+}
+
+.fancy-nav {
+  display: flex;
+  color: white;
+}
+
+.home-icon {
+  width: 75px;
+}
+
+.fancy-nav-item.fancy-nav-blue {
+  background-color: #01698c;
+  width: 80px;
+}
+
+.fancy-nav-teal {
+  background-color: #00b8b0;
+}
+
+.fancy-nav-item {
+  text-transform: uppercase;
+  text-decoration: none;
+  width: 110px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  place-content: center;
+  padding-left: 6px;
+  padding-right: 6px;
+}
