@@ -5,7 +5,7 @@ if [ "${RAILS_ENV}" != "production" ]; then
 fi
 
 # If running the rails server then create or migrate existing database
-if [ "${*}" == "./bin/rails server*" ]; then
+if [ "${*}" == ./bin/rails server* ]; then
   ./bin/rails db:prepare
 fi
 
