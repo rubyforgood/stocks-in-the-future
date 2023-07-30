@@ -12,10 +12,14 @@ jobs:
         image: postgres:15
         ports:
           - "5432:5432"
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
         env:
           POSTGRES_DB: sif
           POSTGRES_USER: sif
           POSTGRES_PASSWORD: password
+      redis:
+        image: redis:7.0
+        ports: ["6379:6379"]
     env:
       RAILS_ENV: test
       DATABASE_URL: "postgres://sif:password@localhost:5432/sif"
@@ -27,10 +31,10 @@ jobs:
         uses: ruby/setup-ruby@v1.152.0 
         with:
          ruby-version: '3.2.2'
-         bundler-cache: true
+         bundler-cache: true # runs 'bundle install' and caches installed gems automatically
      
       - name: Set up database schema
-        run: bin/rails db:schema:load
+        run: bundle exec rails db:schema:load
     
-      - name: Run tests
-        run: bin/rake
+      - name: Run tests with rspec
+        run: bundle exec rspec spec
