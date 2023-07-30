@@ -1,4 +1,4 @@
-require 'rails_helper'
+require "rails_helper"
 
 RSpec.describe SchoolYear, type: :model do
   it "has a valid factory" do
