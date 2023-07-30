@@ -1,9 +1,9 @@
 name: "Lint"
 on:
   push:
-    branches: [ "*" ]
+    branches: [ 'main' ]
   pull_request:
-    branches: [ "*" ]
+    types: ['opened', 'reopened', 'synchronize', 'unlocked']
 
 jobs:
   build:
