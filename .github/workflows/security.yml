@@ -1,0 +1,23 @@
+name: "Security"
+on:
+  push:
+    branches: [ 'main' ]
+  pull_request:
+    types: ['opened', 'reopened', 'synchronize', 'unlocked']
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ruby/setup-ruby@v1.152.0  
+        with:
+          ruby-version: '3.2.2'
+          bundler-cache: true  # runs 'bundle install' and caches installed gems automatically
+    
+      - name: Security audit dependencies
+        run: bundle exec bundler-audit check --update 
+
+      - name: Security audit application code
+        run: bundle exec brakeman -q -w2
+
