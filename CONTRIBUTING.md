@@ -37,4 +37,5 @@ Some things that will increase the chance that your pull request is accepted:
 * Be complete and descriptive in your PR summary
 * Use conventions found within the codebase
 * Include tests that fail without your code, and pass with it
+* Clean up your commits such that each commit contains working, discreet bodies of work
 * Update the documentation, the surrounding one, examples elsewhere, guides, whatever is affected by your contribution
