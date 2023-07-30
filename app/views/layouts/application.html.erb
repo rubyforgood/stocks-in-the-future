@@ -11,7 +11,7 @@
 
   <body>
     <%= render(NavComponent.new) %>
-    <%= render(TickerListComponent.new(stocks: [{name: "Netflix", ticker: "NFLX", price: 115, change: 0.033}, {name: "Sony Corporation", ticker: "SNE", price: 58.99, change: -0.01}, {name: "Under Armour", ticker: "AU", price: 18.07, change: 0.79}, {name: "Ford", ticker: "F", price: 9.75, change: -0.03}])) %>
+    <%= render(TickerListComponent.new) %>
     <%= yield %>
     <%= render(FooterComponent.new) %>
   </body>
