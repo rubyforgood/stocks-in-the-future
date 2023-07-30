@@ -1,0 +1,17 @@
+.ticker-list {
+  background-color: #01698c;
+  color: white;
+  padding: 10px;
+  font-weight: bold;
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+}
+
+.ticker-list .positive {
+  color: rgb(99, 207, 99);
+}
+
+.ticker-list .negative {
+  color: red;
+}
