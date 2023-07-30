@@ -22,7 +22,7 @@ jobs:
         run: bundle exec bundler-audit check --update 
 
       - name: Security audit application code
-        run: brakeman -q -w2
+        run: bundle exec brakeman -q -w2
 
       - name: Lint Ruby files
-        run: rubocop --parallel
+        run: bundle exec rubocop --parallel
