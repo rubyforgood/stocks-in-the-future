@@ -45,6 +45,10 @@ gem "bootsnap", require: false
 # Patch-level verification for Bundler 
 gem  "bundler-audit"
 
+# Lint Ruby files
+gem 'rubocop', require: false
+gem 'rubocop-rspec', require: false
+
 # Dockerize a rails app for production
 gem "dockerfile-rails"
 
