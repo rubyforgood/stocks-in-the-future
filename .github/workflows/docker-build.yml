@@ -25,7 +25,7 @@ jobs:
           docker compose up -d
   
       - name: Wait for the database to be ready
-        run: sleep 30s
+        run: sleep 60s
 
       - name: Curl web page 
         working-directory: ./

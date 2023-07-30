@@ -8,17 +8,21 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Install Ruby and gems
-        uses: ruby/setup-ruby@v1.152.0 
+      - uses: actions/checkout@v3
+      - uses: ruby/setup-ruby@v1.152.0  
         with:
-          bundler-cache: true
+          ruby-version: '3.2.2'
+          bundler-cache: true  # runs 'bundle install' and caches installed gems automatically
+    
+      - name: Add vendor directory to path 
+        run:  echo "$GITHUB_WORKSPACE/vendor/bundle/ruby/3.2.0/bin" >> $GITHUB_PATH 
+      
       - name: Security audit dependencies
-        run: bin/bundler-audit --update
+        run: bundle-audit check --update 
+
       - name: Security audit application code
-        run: bin/brakeman -q -w2
+        run: brakeman -q -w2
+
       - name: Lint Ruby files
-        run: bin/rubocop --parallel
+        run: rubocop --parallel
