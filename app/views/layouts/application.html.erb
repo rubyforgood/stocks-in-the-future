@@ -10,6 +10,9 @@
   </head>
 
   <body>
+    <%= render(NavComponent.new) %>
+    <%= render(TickerListComponent.new) %>
     <%= yield %>
+    <%= render(FooterComponent.new) %>
   </body>
 </html>
