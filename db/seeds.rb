@@ -151,21 +151,21 @@ Stocks::Price.new({
 }).write_to_cache(is_latest: true)
 
 Stocks::Price.new({
-  open: 33.82,
-  high: 33.82,
-  low: 32.66,
-  close: 33.02,
-  volume: 33250600.0,
-  adj_high: 33.82,
-  adj_low: 32.66,
-  adj_close: 33.02,
-  adj_open: 33.82,
-  adj_volume: 33284435.0,
+  open: 90.63,
+  high: 91.16,
+  low: 90.19,
+  close: 90.37,
+  volume: 694704.0,
+  adj_high: 91.16,
+  adj_low: 90.19,
+  adj_close: 90.37,
+  adj_open: 90.63,
+  adj_volume: 694704.0,
   split_factor: 1.0,
   dividend: 0.0,
-  symbol: "LUV",
+  symbol: "SNE",
   exchange: "XNYS",
-  date: "2023-07-27T00:00:00+0000"
+  date: "2023-06-26T00:00:00+0000"
 }).write_to_cache(is_latest: true)
 
 Stocks::Price.new({

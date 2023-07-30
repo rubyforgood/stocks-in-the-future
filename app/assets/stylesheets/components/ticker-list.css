@@ -6,6 +6,8 @@
   display: flex;
   flex-direction: row;
   gap: 20px;
+  white-space: nowrap;
+  overflow-x: scroll;
 }
 
 .ticker-list .positive {
