@@ -15,11 +15,11 @@ jobs:
           ruby-version: '3.2.2'
           bundler-cache: true  # runs 'bundle install' and caches installed gems automatically
     
-      - name: Add vendor directory to path 
-        run:  echo "$GITHUB_WORKSPACE/vendor/bundle/ruby/3.2.0/bin" >> $GITHUB_PATH 
+      # - name: Add vendor directory to path 
+      #   run:  echo "$GITHUB_WORKSPACE/vendor/bundle/ruby/3.2.0/bin" >> $GITHUB_PATH 
       
       - name: Security audit dependencies
-        run: bundle-audit; bundler-audit check --update 
+        run: bundle exec bundler-audit check --update 
 
       - name: Security audit application code
         run: brakeman -q -w2
