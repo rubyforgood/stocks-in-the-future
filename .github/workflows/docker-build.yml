@@ -22,7 +22,7 @@ jobs:
       - name: Run containers 
         working-directory: ./
         run: |
-          docker compose up -d
+          docker compose up --wait
   
       - name: Curl web page 
         working-directory: ./
