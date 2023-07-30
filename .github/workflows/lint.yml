@@ -19,7 +19,7 @@ jobs:
         run:  echo "$GITHUB_WORKSPACE/vendor/bundle/ruby/3.2.0/bin" >> $GITHUB_PATH 
       
       - name: Security audit dependencies
-        run: bundle-audit check --update 
+        run: bundler-audit check --update 
 
       - name: Security audit application code
         run: brakeman -q -w2
