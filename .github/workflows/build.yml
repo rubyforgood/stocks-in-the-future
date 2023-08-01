@@ -25,9 +25,13 @@ jobs:
           POSTGRES_DB: sif
           POSTGRES_USER: sif
           POSTGRES_PASSWORD: password
+      redis:
+        image: redis:7.0
+
     env:
       RAILS_ENV: test
       DATABASE_URL: "postgres://sif:password@localhost:5432/sif"
+      REDIS_URL: "redis://localhost:6379/1"
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
