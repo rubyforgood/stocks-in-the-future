@@ -77,9 +77,11 @@ end
 group :development, :test do
   gem "dotenv-rails"
   gem "brakeman"
+  gem "shoulda-matchers"
   gem "standard", require: false
   gem "standard-rails", require: false
   # RSpec behavioral testing framework for Rails.
+  gem "pry"
   gem "rspec-rails", "~> 6.0.3"
   gem "factory_bot_rails"
   gem "faker"
