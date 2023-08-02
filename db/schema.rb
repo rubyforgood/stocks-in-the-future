@@ -24,7 +24,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_30_151848) do
     t.text "name", null: false
     t.bigint "school_id", null: false
     t.bigint "academic_year_id", null: false
-    t.integer "grade", null: false
+    t.integer "grade_level", null: false
     t.bigint "teacher_id", null: false
     t.boolean "active", default: true, null: false
     t.datetime "created_at", null: false
