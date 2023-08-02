@@ -2,8 +2,7 @@ require "rails_helper"
 
 RSpec.describe User, type: :model do
   subject do
-    described_class.new(email: "test@test.com", password: "password", password_confirmation: "password",
-      first_name: "John", last_name: "Doe", username: "johndoe")
+    create(:user)
   end
 
   it "is valid with valid attributes" do
@@ -46,8 +45,8 @@ RSpec.describe User, type: :model do
   end
 
   it "is not valid if the username is not unique" do
-    described_class.create!(email: "test2@test.com", password: "password", password_confirmation: "password",
-      first_name: "John", last_name: "Doe", username: "johndoe")
-    expect(subject).to_not be_valid
+    invalid_user = described_class.new(email: "test2@test.com", password: "password", password_confirmation: "password",
+      first_name: "John", last_name: "Doe", username: "#{subject.username}")
+    expect(invalid_user).to_not be_valid
   end
 end
