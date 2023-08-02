@@ -46,7 +46,12 @@ RSpec.describe User, type: :model do
 
   it "is not valid if the username is not unique" do
     invalid_user = described_class.new(email: "test2@test.com", password: "password", password_confirmation: "password",
-      first_name: "John", last_name: "Doe", username: "#{subject.username}")
+      first_name: "John", last_name: "Doe", username: subject.username.to_s)
     expect(invalid_user).to_not be_valid
+  end
+
+  it "defines role as enum" do
+    is_expected.to define_enum_for(:role)
+      .with_values([:admin, :alumni, :student, :teacher])
   end
 end
