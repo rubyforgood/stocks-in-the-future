@@ -12,5 +12,4 @@ class User < ApplicationRecord
   enum role: %i[admin alumni student teacher]
 
   has_many :cohorts, foreign_key: "teacher_id"
-
 end
