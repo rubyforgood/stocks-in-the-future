@@ -1,8 +1,9 @@
-name: Ensure Docker container for Ruby can build successfully 
+---
+name: Ensure Docker container for Ruby can build successfully
 
 on:
   push:
-    branches: [ 'main' ]
+    branches: ['main']
   pull_request:
     types: ['opened', 'reopened', 'synchronize', 'unlocked']
 
@@ -18,13 +19,13 @@ jobs:
         working-directory: ./
         run: |
            docker compose build
-           
-      - name: Run containers 
+
+      - name: Run containers
         working-directory: ./
         run: |
           docker compose up --wait
-  
-      - name: Curl web page 
+
+      - name: Curl web page
         working-directory: ./
         run: |
           curl -X GET http://localhost:3000
