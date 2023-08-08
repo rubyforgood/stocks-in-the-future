@@ -7,5 +7,6 @@ FactoryBot.define do
     password { Faker::Internet.password }
     password_confirmation { password }
     active { true }
+    role { Faker::Number.between(from: 0, to: 3) }
   end
 end
