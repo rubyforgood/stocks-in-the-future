@@ -37,6 +37,7 @@
 .fancy-nav {
   display: flex;
   color: white;
+  justify-content: end;
 }
 
 .home-icon {

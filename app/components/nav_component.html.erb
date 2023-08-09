@@ -23,10 +23,11 @@
       
       <a class="fancy-nav-teal fancy-nav-item">About SIF</a>
     </div>
-    <div class="basic-nav">
-      <a class="basic-nav-item">Stock Info</a>
-      <a class="basic-nav-item">Current News</a>
-    </div>
+    <% if request.path == "/" %>
+      <%= render(SubNavHomeComponent.new) %>
+    <% elsif request.path == "/teacher/home" %>
+      <%= render(SubNavTeacherComponent.new) %>
+    <% end %>
   </div>
 </nav>
 
