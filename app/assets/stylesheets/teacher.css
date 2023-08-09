@@ -1,0 +1,42 @@
+.teacher-home {
+  display: grid;
+  grid-template-columns: 30% 70%;
+  overflow: hidden;
+}
+
+.teacher-content {
+  background-color: #80cfc8;
+  color: #01698c;
+}
+
+.imp-note-side {
+  padding-top: 40px;
+}
+
+.imp-note-note {
+  font-size: 14px;
+}
+
+.imp-note-list {
+  line-height: 40px;
+}
+
+.image-content {
+  background-color: white;
+}
+
+.teacher-photo {
+  max-height: 80%;
+}
+
+.sif-works {
+  color: rgb(106, 106, 106);
+}
+
+.sif-works-header {
+  padding-left: 30px;
+}
+
+.sif-works-content {
+  line-height: 30px;
+}

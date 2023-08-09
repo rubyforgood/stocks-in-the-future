@@ -1,6 +1,6 @@
 .address-container {
-  background-color: #80cfc8;
-  color: #11506b;
+  background-color: #11506b;
+  color: #80cfc8;
   font-weight: bold;
   display: grid;
   grid-template-columns: 30% 70%;

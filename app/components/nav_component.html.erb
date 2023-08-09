@@ -7,9 +7,20 @@
       <a class="basic-nav-item">FAQ</a>
     </div>
     <div class="fancy-nav">
-      <a class="fancy-nav-blue fancy-nav-item"><%= image_tag "/assets/house.svg", alt: "Home", class: "home-icon"%></a>
+      <% if request.path == "/" %>
+        <a class="fancy-nav-blue fancy-nav-item"><%= image_tag "/assets/house.svg", alt: "Home", class: "home-icon"%></a>
+      <% else %>
+        <%= link_to "Home", root_path, class: "fancy-nav-teal fancy-nav-item" %>
+      <% end %>
+
       <a class="fancy-nav-teal fancy-nav-item">Student</a>
-      <a class="fancy-nav-teal fancy-nav-item">Teacher</a>
+
+      <% if request.path == "/teacher/home" %>
+        <a class="fancy-nav-blue fancy-nav-item"><%= image_tag "/assets/apple-book.svg", alt: "Teacher", class: "teacher-icon"%></a>
+      <% else %>
+        <%= link_to "Teacher", teacher_home_path, class: "fancy-nav-teal fancy-nav-item" %>
+      <% end %>
+      
       <a class="fancy-nav-teal fancy-nav-item">About SIF</a>
     </div>
     <div class="basic-nav">

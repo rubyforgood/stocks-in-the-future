@@ -55,6 +55,7 @@
 .fancy-nav-item {
   text-transform: uppercase;
   text-decoration: none;
+  color: white;
   width: 110px;
   height: 50px;
   display: flex;
