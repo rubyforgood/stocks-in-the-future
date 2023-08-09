@@ -1,0 +1,36 @@
+.address-container {
+  background-color: #80cfc8;
+  color: #11506b;
+  font-weight: bold;
+  display: grid;
+  grid-template-columns: 30% 70%;
+  margin-top: 10px;
+}
+
+.address-label {
+  display: flex;
+  align-items: center;
+  padding-left: 10%;
+  font-size: 30px;
+  border-style: none solid none none;
+  border-width: thin;
+}
+
+.sitf-address {
+  white-space: pre;
+  line-height: 25px;
+  text-align: center;
+}
+
+.socials-container {
+  padding: 0px 0px 20px 30px;
+}
+
+.socials-label {
+  color: #80cfc8;
+}
+
+.social-link {
+  color: #11506b;
+  text-decoration: none;
+}
