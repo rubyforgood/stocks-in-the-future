@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_07_30_151848) do
+ActiveRecord::Schema[7.0].define(version: 2023_08_10_205957) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -34,10 +34,39 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_30_151848) do
     t.index ["teacher_id"], name: "index_cohorts_on_teacher_id"
   end
 
-  create_table "schools", force: :cascade do |t|
-    t.text "name", null: false
+  create_table "school_periods", force: :cascade do |t|
+    t.integer "period_number"
+    t.integer "cohort_id", null: false
+    t.integer "school_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "school_weeks", force: :cascade do |t|
+    t.integer "week_number", default: 0
+    t.integer "cohort_id"
+    t.integer "school_period_id", null: false
+    t.integer "week_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "schools", force: :cascade do |t|
+    t.text "name", null: false
+    t.integer "academic_year_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "student_attendences", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "school_week_id", null: false
+    t.boolean "verified"
+    t.boolean "attended"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["school_week_id"], name: "index_student_attendences_on_school_week_id"
+    t.index ["user_id"], name: "index_student_attendences_on_user_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -56,7 +85,16 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_30_151848) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  create_table "weeks", force: :cascade do |t|
+    t.integer "academic_year_id", null: false
+    t.date "start_date", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   add_foreign_key "cohorts", "academic_years"
   add_foreign_key "cohorts", "schools"
   add_foreign_key "cohorts", "users", column: "teacher_id"
+  add_foreign_key "student_attendences", "school_weeks"
+  add_foreign_key "student_attendences", "users"
 end
