@@ -1,4 +1,4 @@
-class Attendance < ApplicationRecord
+class StudentAttendance < ApplicationRecord
   belongs_to :user
   belongs_to :school_week
 
