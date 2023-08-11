@@ -9,5 +9,7 @@ class User < ApplicationRecord
   validates :last_name, presence: true, length: {maximum: 50}
   validates :username, presence: true, uniqueness: true, length: {maximum: 50}
 
+  enum role: %i[admin alumni student teacher]
+
   has_many :cohorts, foreign_key: "teacher_id"
 end
