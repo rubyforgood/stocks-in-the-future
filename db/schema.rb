@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_08_10_205957) do
+ActiveRecord::Schema[7.0].define(version: 2023_08_11_165329) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -53,20 +53,21 @@ ActiveRecord::Schema[7.0].define(version: 2023_08_10_205957) do
 
   create_table "schools", force: :cascade do |t|
     t.text "name", null: false
-    t.integer "academic_year_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "academic_year_id", null: false
+    t.index ["academic_year_id"], name: "index_schools_on_academic_year_id"
   end
 
-  create_table "student_attendences", force: :cascade do |t|
-    t.bigint "user_id", null: false
+  create_table "student_attendances", force: :cascade do |t|
+    t.bigint "student_id", null: false
     t.bigint "school_week_id", null: false
     t.boolean "verified"
     t.boolean "attended"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["school_week_id"], name: "index_student_attendences_on_school_week_id"
-    t.index ["user_id"], name: "index_student_attendences_on_user_id"
+    t.index ["school_week_id"], name: "index_student_attendances_on_school_week_id"
+    t.index ["student_id"], name: "index_student_attendances_on_student_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -95,6 +96,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_08_10_205957) do
   add_foreign_key "cohorts", "academic_years"
   add_foreign_key "cohorts", "schools"
   add_foreign_key "cohorts", "users", column: "teacher_id"
-  add_foreign_key "student_attendences", "school_weeks"
-  add_foreign_key "student_attendences", "users"
+  add_foreign_key "schools", "academic_years"
+  add_foreign_key "student_attendances", "school_weeks"
+  add_foreign_key "student_attendances", "users", column: "student_id"
 end
