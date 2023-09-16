@@ -280,7 +280,7 @@ GEM
     standard-rails (0.1.0)
       lint_roller (~> 1.0)
       rubocop-rails (~> 2.19.0)
-    stimulus-rails (1.2.1)
+    stimulus-rails (1.2.2)
       railties (>= 6.0.0)
     thor (1.2.2)
     timeout (0.4.0)
