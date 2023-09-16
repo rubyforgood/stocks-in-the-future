@@ -5,8 +5,11 @@ class User < ApplicationRecord
     :recoverable, :rememberable, :validatable
 
   validates :email, presence: true
-  validates :first_name, presence: true, length: { maximum: 50 }
-  validates :last_name, presence: true, length: { maximum: 50 }
-  validates :username, presence: true, uniqueness: true, length: { maximum: 50 }
+  validates :first_name, presence: true, length: {maximum: 50}
+  validates :last_name, presence: true, length: {maximum: 50}
+  validates :username, presence: true, uniqueness: true, length: {maximum: 50}
 
+  enum role: %i[admin alumni student teacher]
+
+  has_many :cohorts, foreign_key: "teacher_id"
 end

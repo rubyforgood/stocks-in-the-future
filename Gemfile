@@ -4,7 +4,7 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 ruby "3.2.2"
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
-gem "rails", "~> 7.0.6"
+gem "rails", "~> 7.0.8"
 
 # The original asset pipeline for Rails [https://github.com/rails/sprockets-rails]
 gem "sprockets-rails"
@@ -13,7 +13,7 @@ gem "sprockets-rails"
 gem "pg", "~> 1.1"
 
 # Use the Puma web server [https://github.com/puma/puma]
-gem "puma", "~> 5.0"
+gem "puma", "~> 6.3"
 
 # Use JavaScript with ESM import maps [https://github.com/rails/importmap-rails]
 gem "importmap-rails"
@@ -28,7 +28,7 @@ gem "stimulus-rails"
 gem "jbuilder"
 
 # Use Redis adapter to run Action Cable in production
-gem "redis", "~> 4.0"
+gem "redis", "~> 5.0"
 
 # Use Kredis to get higher-level data types in Redis [https://github.com/rails/kredis]
 # gem "kredis"
@@ -42,8 +42,8 @@ gem "tzinfo-data", platforms: %i[mingw mswin x64_mingw jruby]
 # Reduces boot times through caching; required in config/boot.rb
 gem "bootsnap", require: false
 
-# Patch-level verification for Bundler 
-gem  "bundler-audit"
+# Patch-level verification for Bundler
+gem "bundler-audit"
 
 # Dockerize a rails app for production
 gem "dockerfile-rails"
@@ -77,9 +77,11 @@ end
 group :development, :test do
   gem "dotenv-rails"
   gem "brakeman"
+  gem "shoulda-matchers"
   gem "standard", require: false
   gem "standard-rails", require: false
   # RSpec behavioral testing framework for Rails.
+  gem "pry-byebug"
   gem "rspec-rails", "~> 6.0.3"
   gem "factory_bot_rails"
   gem "faker"

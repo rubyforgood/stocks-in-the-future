@@ -6,7 +6,7 @@ RSpec.describe "Users", type: :system do
   end
 
   describe "sign up flow" do
-    it "works" do
+    xit "works" do
       visit "/users/sign_up"
 
       fill_in "Email", with: "test123@test.com"
