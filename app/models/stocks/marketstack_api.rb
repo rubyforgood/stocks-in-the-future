@@ -3,39 +3,40 @@ require "json"
 
 # Get stock prices from api with:
 # api = Stocks::MarketstackApi.new(api_key: Rails.application.credentials.marketstack_key)
-# api.get_end_of_day_price("KO,SNE,TWX,DIS,SIRI,F,EA,FB,UA,LUV,GPS")
+# api.get_end_of_day_price(symbols: "KO,SNE,TWX,DIS,SIRI,F,EA,FB,UA,LUV,GPS")
 
 class Stocks::MarketstackApi
-  attr_accessor :api_key
+  MARKETSTACK_URI = URI("http://api.marketstack.com/v1/eod")
 
-  def initialize(attrs)
-    @api_key = attrs[:api_key] if attrs[:api_key].present?
+  attr_reader :api_key
+
+  def initialize(api_key: nil)
+    @api_key = api_key
   end
 
-  def get_end_of_day_price(symbols, date = "latest")
-    return if symbols.blank?
-    return if @api_key.blank?
-    uri_params = {
-      access_key: @api_key,
-      symbols: symbols,
-      date: date,
-      limit: symbols.count(",") + 1
-    }
-    uri = URI("http://api.marketstack.com/v1/eod")
-    uri.query = URI.encode_www_form(uri_params)
-    json = Net::HTTP.get(uri)
+  # date could be "latest" or "YYYY-MM-DD"
+  def get_end_of_day_price(symbols:, date: "latest")
+    return if symbols.blank? || api_key.blank?
+    MARKETSTACK_URI.query = URI.encode_www_form(uri_params(symbols, date))
+    json = Net::HTTP.get(MARKETSTACK_URI)
     api_response = JSON.parse(json)
     parsed = parse_eod_response(api_response["data"])
     parsed.each { |stock_price| stock_price.write_to_cache(is_latest: true) }
   end
 
   def parse_eod_response(prices)
-    parsed = []
-    prices.each do |api_price|
-      price = Stocks::Price.new(api_price)
-      parsed << price
-    end
-    parsed
+    prices.map { |price| Stocks::Price.new(price) }
+  end
+
+  private
+
+  def uri_params(symbols, date)
+    {
+      access_key: api_key,
+      date: date,
+      limit: symbols.count(",") + 1,
+      symbols: symbols
+    }
   end
 end
 

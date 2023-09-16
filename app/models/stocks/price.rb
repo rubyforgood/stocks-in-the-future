@@ -18,8 +18,8 @@ class Stocks::Price
     assign_attrs(attrs) unless attrs.blank?
   end
 
+  # date could be "latest" or "YYYY-MM-DD"
   def get_end_of_day_price(symbol:, date: "latest")
-    # date could be "latest" or "YYYY-MM-DD"
     redis = Redis.new(url: REDIS_HOST)
     cached = redis.get("eod_#{symbol.downcase}_#{date}")
     assign_attrs(JSON.parse(cached)) if cached.present?
@@ -27,7 +27,6 @@ class Stocks::Price
 
   def write_to_cache(is_latest: false, write_historic: false)
     return if @symbol.blank? || @close.blank? || @date.blank?
-    # date could be "latest" or "YYYY-MM-DD"
     redis = Redis.new(url: REDIS_HOST)
     redis.set "eod_#{@symbol.downcase}_#{@date}", to_json if write_historic
     redis.set "eod_#{@symbol.downcase}_latest", to_json if is_latest
