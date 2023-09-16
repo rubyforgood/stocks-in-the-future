@@ -1,7 +1,9 @@
+---
 name: "Lint"
+
 on:
   push:
-    branches: [ 'main' ]
+    branches: ['main']
   pull_request:
     types: ['opened', 'reopened', 'synchronize', 'unlocked']
 
@@ -10,10 +12,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: ruby/setup-ruby@v1.152.0  
+      - uses: ruby/setup-ruby@v1.152.0
         with:
           ruby-version: '3.2.2'
           bundler-cache: true  # runs 'bundle install' and caches installed gems automatically
 
       - name: Lint Ruby files
-        run: bundle exec standardrb 
+        run: bundle exec standardrb
