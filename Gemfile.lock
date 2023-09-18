@@ -103,7 +103,7 @@ GEM
       responders
       warden (~> 1.2.3)
     diff-lcs (1.5.0)
-    dockerfile-rails (1.5.2)
+    dockerfile-rails (1.5.9)
       rails
     dotenv (2.8.1)
     dotenv-rails (2.8.1)
