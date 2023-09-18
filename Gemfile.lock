@@ -104,7 +104,7 @@ GEM
       responders
       warden (~> 1.2.3)
     diff-lcs (1.5.0)
-    dockerfile-rails (1.5.2)
+    dockerfile-rails (1.5.9)
       rails
     dotenv (2.8.1)
     dotenv-rails (2.8.1)
@@ -169,7 +169,7 @@ GEM
     parser (3.2.2.3)
       ast (~> 2.4.1)
       racc
-    pg (1.5.3)
+    pg (1.5.4)
     pry (0.14.2)
       coderay (~> 1.1)
       method_source (~> 1.0)
@@ -304,7 +304,7 @@ GEM
       method_source (~> 1.0)
     warden (1.2.9)
       rack (>= 2.0.9)
-    web-console (4.2.0)
+    web-console (4.2.1)
       actionview (>= 6.0.0)
       activemodel (>= 6.0.0)
       bindex (>= 0.4.0)
@@ -335,7 +335,7 @@ DEPENDENCIES
   faker
   importmap-rails
   jbuilder
-  pg (~> 1.1)
+  pg (~> 1.5)
   pry-byebug
   puma (~> 6.3)
   rails (~> 7.0.8)
