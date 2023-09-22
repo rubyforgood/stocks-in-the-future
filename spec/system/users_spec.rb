@@ -6,14 +6,16 @@ RSpec.describe "Users", type: :system do
   end
 
   describe "sign up flow" do
-    xit "works" do
-      visit "/users/sign_up"
+    let(:user) { FactoryBot.create(:user) }
 
-      fill_in "Email", with: "test123@test.com"
-      fill_in "Password", with: "test123"
-      fill_in "Password confirmation", with: "test123"
+    it "works" do
+      visit "/users/sign_in"
 
-      expect { click_on "Sign up" }.to change(User, :count).by(1)
+      fill_in "Email", with: user.email
+      fill_in "Password", with: user.password
+      click_on "Log in"
+
+      expect(page.current_path).to eq(root_path)
     end
   end
 end
