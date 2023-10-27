@@ -36,11 +36,11 @@ services:
       redis:
         condition: service_started
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000"]
-    command: bin/docker-entrypoint bin/rails server -b 0.0.0.0
+      test: ["CMD", "curl", "-f", "http://localhost:${APP_PORT:-3000}"]
+    command: "bin/docker-entrypoint bin/rails server -b 0.0.0.0 -p ${APP_PORT:-3000}"
     entrypoint: bin/docker-entrypoint
     ports:
-      - 3000:3000
+      - "${APP_PORT:-3000}:${APP_PORT:-3000}"
     volumes:
       - .:/rails
       - bundler:/usr/local/bundle
