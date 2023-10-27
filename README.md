@@ -30,6 +30,21 @@ pending database migrations before starting the rails application. Any
 gem or configuration changes can be applied by restarting the application server:
 `docker compose restart stocks`
 
+If you would like the web server to run on a port other than `3000` (if, for
+example, you had a different rails project already running on that port),
+you can override the application's port by setting `APP_PORT`:
+
+```shell
+export APP_PORT=5000
+docker compose up
+[+] Running 3/3
+# ....
+stocks-in-the-future-stocks-1  | *  Environment: development
+stocks-in-the-future-stocks-1  | *          PID: 1
+stocks-in-the-future-stocks-1  | * Listening on http://0.0.0.0:5000
+stocks-in-the-future-stocks-1  | Use Ctrl-C to stop
+```
+
 ### Running rails commands
 
 To run rails commands, such as `rails generate ...`, it is easiest to step
