@@ -82,7 +82,7 @@ group :development, :test do
   gem "standard-rails", require: false
   # RSpec behavioral testing framework for Rails.
   gem "pry-byebug"
-  gem "rspec-rails", "~> 6.0.3"
+  gem "rspec-rails", "~> 6.1.0"
   gem "factory_bot_rails"
   gem "faker"
 end
