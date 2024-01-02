@@ -86,3 +86,5 @@ group :development, :test do
   gem "factory_bot_rails"
   gem "faker"
 end
+
+gem "administrate", "~> 0.19.0"
