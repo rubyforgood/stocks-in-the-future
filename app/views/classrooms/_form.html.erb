@@ -1,0 +1,37 @@
+<%= form_with(model: classroom) do |form| %>
+  <% if classroom.errors.any? %>
+    <div style="color: red">
+      <h2><%= pluralize(classroom.errors.count, "error") %> prohibited this classroom from being saved:</h2>
+
+      <ul>
+        <% classroom.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.label :grade, style: "display: block" %>
+    <%= form.number_field :grade %>
+  </div>
+
+  <div>
+    <%= form.label :year_id, style: "display: block" %>
+    <%= form.text_field :year_id %>
+  </div>
+
+  <div>
+    <%= form.label :name, style: "display: block" %>
+    <%= form.text_field :name %>
+  </div>
+
+  <div>
+    <%= form.label :school_id, style: "display: block" %>
+    <%= form.text_field :school_id %>
+  </div>
+
+  <div>
+    <%= form.submit %>
+  </div>
+<% end %>

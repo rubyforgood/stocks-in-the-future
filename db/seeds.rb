@@ -7,3 +7,9 @@
 #   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
+
+@year = Year.create(year: 2024)
+
+@school = School.create(name: "Test School", years: [@year])
+
+Classroom.create(name: "Test Class", year: @year, school: @school)
