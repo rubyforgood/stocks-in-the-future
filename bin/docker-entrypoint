@@ -1,12 +1,7 @@
 #!/bin/bash -e
 
-if [ "${RAILS_ENV}" != "production" ]; then
-  bundle check || bundle install
-  ./bin/rails db:prepare
-fi
-
 # If running the rails server then create or migrate existing database
-if [ "${*}" == "./bin/rails server" ]; then
+if [ "${1}" == "./bin/rails" ] && [ "${2}" == "server" ]; then
   ./bin/rails db:prepare
 fi
 
