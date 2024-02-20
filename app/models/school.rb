@@ -1,5 +1,4 @@
 class School < ApplicationRecord
-  belongs_to :academic_year
-
-  has_many :cohorts
+  has_many :school_years
+  has_many :years, through: :school_years
 end
