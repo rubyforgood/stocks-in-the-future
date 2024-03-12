@@ -1,23 +1,20 @@
 {
   "name": "app",
-  "private": "true",
-  "dependencies": {
-    "@popperjs/core": "^2.11.8",
-    "autoprefixer": "^10.4.17",
-    "bootstrap": "^5.3.2",
-    "bootstrap-icons": "^1.11.3",
-    "nodemon": "^3.0.3",
-    "postcss": "^8.4.34",
-    "postcss-cli": "^11.0.0",
-    "sass": "^1.70.0"
-  },
+  "private": true,
   "scripts": {
-    "build:css:compile": "sass ./app/assets/stylesheets/application.bootstrap.scss:./app/assets/builds/application.css --no-source-map --load-path=node_modules",
-    "build:css:prefix": "postcss ./app/assets/builds/application.css --use=autoprefixer --output=./app/assets/builds/application.css",
-    "build:css": "bun run build:css:compile && bun run build:css:prefix",
-    "watch:css": "nodemon --watch ./app/assets/stylesheets/ --ext scss --exec \"bun run build:css\""
+    "build": "bun bun.config.js",
+    "build:css": "tailwindcss -i ./app/assets/stylesheets/application.tailwind.css -o ./app/assets/builds/application.css --minify"
   },
-  "browserslist": [
-    "defaults"
-  ]
+  "dependencies": {
+    "@hotwired/stimulus": "^3.2.2",
+    "@hotwired/turbo-rails": "^8.0.4",
+    "@tailwindcss/aspect-ratio": "^0.4.2",
+    "@tailwindcss/container-queries": "^0.1.1",
+    "@tailwindcss/forms": "^0.5.7",
+    "@tailwindcss/typography": "^0.5.10",
+    "autoprefixer": "latest",
+    "postcss": "latest",
+    "tailwindcss": "latest",
+    "tailwindcss-animate": "^1.0.7"
+  }
 }

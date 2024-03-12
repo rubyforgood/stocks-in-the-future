@@ -1,14 +1,14 @@
-<p style="color: green"><%= notice %></p>
-
-<h1>Classrooms</h1>
-
-<div id="classrooms">
-  <% @classrooms.each do |classroom| %>
-    <%= render classroom %>
-    <p>
-      <%= link_to "Show this classroom", classroom %>
-    </p>
+<div class="w-full">
+  <% if notice.present? %>
+    <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-lg inline-block" id="notice"><%= notice %></p>
   <% end %>
-</div>
 
-<%= link_to "New classroom", new_classroom_path %>
+  <div class="flex justify-between items-center">
+    <h1 class="font-bold text-4xl">Classrooms</h1>
+    <%= link_to "New classroom", new_classroom_path, class: "rounded-lg py-3 px-5 bg-blue-600 text-white block font-medium" %>
+  </div>
+
+  <div id="classrooms" class="min-w-full">
+    <%= render @classrooms %>
+  </div>
+</div>
