@@ -1,22 +1,27 @@
 <div id="<%= dom_id classroom %>">
-  <p>
-    <strong>Grade:</strong>
-    <%= classroom.grade %>
-  </p>
-
-  <p>
-    <strong>Year:</strong>
-    <%= classroom.year_id %>
-  </p>
-
-  <p>
-    <strong>Name:</strong>
+  <p class="my-5">
+    <strong class="block font-medium mb-1">Name:</strong>
     <%= classroom.name %>
   </p>
 
-  <p>
-    <strong>School:</strong>
+  <p class="my-5">
+    <strong class="block font-medium mb-1">Year:</strong>
+    <%= classroom.year_id %>
+  </p>
+
+  <p class="my-5">
+    <strong class="block font-medium mb-1">School:</strong>
     <%= classroom.school_id %>
   </p>
 
+  <p class="my-5">
+    <strong class="block font-medium mb-1">Grade:</strong>
+    <%= classroom.grade %>
+  </p>
+
+  <% if action_name != "show" %>
+    <%= link_to "Show this classroom", classroom, class: "rounded-lg py-3 px-5 bg-gray-100 inline-block font-medium" %>
+    <%= link_to "Edit this classroom", edit_classroom_path(classroom), class: "rounded-lg py-3 ml-2 px-5 bg-gray-100 inline-block font-medium" %>
+    <hr class="mt-6">
+  <% end %>
 </div>
