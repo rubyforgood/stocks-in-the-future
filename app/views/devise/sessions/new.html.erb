@@ -1,0 +1,26 @@
+<div class="flex items-center justify-center min-h-screen">
+  <div class="max-w-sm mx-auto space-y-6">
+    <div class="space-y-2 text-center">
+      <h1 class="text-3xl font-bold">Login</h1>
+      <p class="text-gray-500 dark:text-gray-400">Enter your email below to login to your account</p>
+    </div>
+    <%= render_form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
+      <div class="space-y-4">
+        <div class="space-y-2">
+          <%= f.label :email, label: "Email" %>
+          <%= f.email_field :email, autocomplete: "email" %>
+        </div>
+        <div class="space-y-2">
+          <%= f.label :password %>
+          <%= f.password_field :password, autocomplete: "current-password" %>
+        </div>
+        <% if devise_mapping.rememberable? %>
+          <%= render_checkbox name: "user[remember_me]", label: "Remember Me" %>
+        <% end %>
+        <%= render_button "Login", class: "w-full", type: "submit" %>
+        <%= render_button "Forgot your password?", href: new_password_path(resource_name), variant: :ghost, class: "inline-block w-full text-sm text-center underline", as: :link %>
+      </div>
+    <% end %>
+  </div>
+</div>
+<%= render "devise/shared/links" %>
