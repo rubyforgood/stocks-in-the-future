@@ -9,4 +9,10 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   # root "posts#index"
+
+  # Routes for User Portfolio
+  resources :users, only: [] do
+    resource :portfolio, only: [:show], controller: 'portfolios'
+  end
+  get '/:user_id/portfolio', to: 'portfolios#show'
 end
