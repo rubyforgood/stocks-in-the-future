@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_03_21_015904) do
+ActiveRecord::Schema[7.1].define(version: 2024_03_21_081255) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -30,20 +30,19 @@ ActiveRecord::Schema[7.1].define(version: 2024_03_21_015904) do
     t.json "company_info"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "stock_id", null: false
+    t.bigint "stock_id"
     t.index ["company_name"], name: "index_companies_on_company_name", unique: true
     t.index ["stock_id"], name: "index_companies_on_stock_id"
   end
 
   create_table "portfolio_stocks", force: :cascade do |t|
-    t.bigint "portfolio_id", null: false
-    t.bigint "stock_id", null: false
+    t.bigint "portfolio_id"
+    t.bigint "stock_id"
     t.float "shares"
     t.float "purchase_price"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["portfolio_id"], name: "index_portfolio_stocks_on_portfolio_id"
-    t.index ["stock_id"], name: "index_portfolio_stocks_on_stock_id"
+    t.index ["portfolio_id", "stock_id"], name: "index_portfolio_stocks_on_stock_and_portfolio", unique: true
   end
 
   create_table "portfolio_transactions", force: :cascade do |t|
@@ -119,6 +118,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_03_21_015904) do
     t.string "type"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "classroom_id"
+    t.index ["classroom_id"], name: "index_users_on_classroom_id"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["username"], name: "index_users_on_username", unique: true
   end
@@ -140,4 +141,5 @@ ActiveRecord::Schema[7.1].define(version: 2024_03_21_015904) do
   add_foreign_key "school_years", "schools"
   add_foreign_key "school_years", "years"
   add_foreign_key "stocks", "companies"
+  add_foreign_key "users", "classrooms"
 end
