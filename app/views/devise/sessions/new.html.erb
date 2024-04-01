@@ -7,8 +7,8 @@
     <%= render_form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
       <div class="space-y-4">
         <div class="space-y-2">
-          <%= f.label :email, label: "Email" %>
-          <%= f.email_field :email, autocomplete: "email" %>
+          <%= f.label :username, label: "Username" %>
+          <%= f.text_field :username, autocomplete: "username" %>
         </div>
         <div class="space-y-2">
           <%= f.label :password %>
