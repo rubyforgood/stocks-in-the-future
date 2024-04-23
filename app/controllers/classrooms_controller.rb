@@ -1,5 +1,6 @@
 class ClassroomsController < ApplicationController
   before_action :set_classroom, only: %i[ show edit update destroy ]
+  before_action :authenticate_user!
 
   # GET /classrooms or /classrooms.json
   def index

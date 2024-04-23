@@ -1,0 +1,26 @@
+<div class="flex items-center justify-center min-h-screen">
+  <div class="max-w-sm mx-auto space-y-6">
+    <div class="space-y-2 text-center">
+      <h1 class="text-3xl font-bold">Sign Up</h1>
+      <p class="text-gray-500 dark:text-gray-400">Enter your email below to create an account.</p>
+    </div>
+    <%= render_form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
+      <div class="space-y-4">
+        <div class="space-y-2">
+          <%= f.label :username, label: "Username" %>
+          <%= f.text_field :username, autofocus: true, autocomplete: "username" %>
+        </div>
+        <div class="space-y-2">
+          <%= f.label :password %>
+          <%= f.password_field :password, autocomplete: "new-password" %>
+        </div>
+        <div class="space-y-2">
+          <%= f.label :password_confirmation %>
+          <%= f.password_field :password_confirmation, autocomplete: "new-password" %>
+        </div>
+        <%= render_button "Sign Up", class: "w-full", type: "submit" %>
+        <%= render_button "Sign In", href: new_session_path(resource_name), variant: :ghost, class: "inline-block w-full text-sm text-center underline", as: :link %>
+      </div>
+    <% end %>
+  </div>
+</div>
