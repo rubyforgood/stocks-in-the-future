@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user: one
+  cash_balance: 1.5
+  current_position: 1.5
+  transactions: 
+
+two:
+  user: two
+  cash_balance: 1.5
+  current_position: 1.5
+  transactions: 
