@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_04_24_042515) do
+ActiveRecord::Schema[7.1].define(version: 2024_04_24_154028) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -23,16 +23,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_24_042515) do
     t.datetime "updated_at", null: false
     t.index ["school_id"], name: "index_classrooms_on_school_id"
     t.index ["year_id"], name: "index_classrooms_on_year_id"
-  end
-
-  create_table "companies", force: :cascade do |t|
-    t.string "company_name"
-    t.json "company_info"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.bigint "stock_id"
-    t.index ["company_name"], name: "index_companies_on_company_name", unique: true
-    t.index ["stock_id"], name: "index_companies_on_stock_id"
   end
 
   create_table "portfolio_stocks", force: :cascade do |t|
@@ -85,10 +75,24 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_24_042515) do
   create_table "stocks", force: :cascade do |t|
     t.string "ticker"
     t.json "price_info"
-    t.bigint "company_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["company_id"], name: "index_stocks_on_company_id"
+    t.string "stock_exchange"
+    t.string "company_name"
+    t.string "company_website"
+    t.text "description"
+    t.string "industry"
+    t.text "management"
+    t.integer "employees"
+    t.text "competitor_names"
+    t.decimal "sales_growth", precision: 15, scale: 2
+    t.decimal "industry_avg_sales_growth", precision: 15, scale: 2
+    t.decimal "debt_to_equity", precision: 15, scale: 2
+    t.decimal "industry_avg_debt_to_equity", precision: 15, scale: 2
+    t.decimal "profit_margin", precision: 15, scale: 2
+    t.decimal "industry_avg_profit_margin", precision: 15, scale: 2
+    t.decimal "cash_flow", precision: 15, scale: 2
+    t.decimal "debt", precision: 15, scale: 2
     t.index ["ticker"], name: "index_stocks_on_ticker", unique: true
   end
 
@@ -117,13 +121,11 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_24_042515) do
 
   add_foreign_key "classrooms", "schools"
   add_foreign_key "classrooms", "years"
-  add_foreign_key "companies", "stocks"
   add_foreign_key "portfolio_stocks", "portfolios"
   add_foreign_key "portfolio_stocks", "stocks"
   add_foreign_key "portfolio_transactions", "portfolios"
   add_foreign_key "portfolios", "users"
   add_foreign_key "school_years", "schools"
   add_foreign_key "school_years", "years"
-  add_foreign_key "stocks", "companies"
   add_foreign_key "users", "classrooms"
 end
