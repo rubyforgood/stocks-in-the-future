@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  portfolio: one
+  actor: one
+  transaction_type: 1
+
+two:
+  portfolio: two
+  actor: two
+  transaction_type: 1
