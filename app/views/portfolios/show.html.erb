@@ -11,3 +11,9 @@
     </li>
   <% end %>
 </ul>
+
+<!-- Buy button -->
+<%= link_to "Buy", new_transaction_path(type: 'buy'), class: "btn btn-primary" %>
+
+<!-- Sell button -->
+<%= link_to "Sell", new_transaction_path(type: 'sell'), class: "btn btn-danger" %>

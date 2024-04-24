@@ -14,6 +14,6 @@ class PortfoliosController < ApplicationController
     end
   
     def set_portfolio
-        @portfolio = @user.get_portfolio
+        @portfolio = @user.portfolio
     end
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_03_21_081255) do
+ActiveRecord::Schema[7.1].define(version: 2024_03_21_172856) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -76,27 +76,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_03_21_081255) do
 
   create_table "schools", force: :cascade do |t|
     t.string "name"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
-  create_table "stock_dividends", force: :cascade do |t|
-    t.integer "stock_id"
-    t.date "date"
-    t.float "dividend"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
-  create_table "stock_prices", force: :cascade do |t|
-    t.integer "stock_id"
-    t.date "date"
-    t.float "open"
-    t.float "high"
-    t.float "low"
-    t.float "close"
-    t.integer "volume"
-    t.float "adj_close"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
