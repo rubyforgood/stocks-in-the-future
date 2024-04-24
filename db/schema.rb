@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_03_18_210728) do
+ActiveRecord::Schema[7.1].define(version: 2024_04_24_042515) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -23,6 +23,47 @@ ActiveRecord::Schema[7.1].define(version: 2024_03_18_210728) do
     t.datetime "updated_at", null: false
     t.index ["school_id"], name: "index_classrooms_on_school_id"
     t.index ["year_id"], name: "index_classrooms_on_year_id"
+  end
+
+  create_table "companies", force: :cascade do |t|
+    t.string "company_name"
+    t.json "company_info"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "stock_id"
+    t.index ["company_name"], name: "index_companies_on_company_name", unique: true
+    t.index ["stock_id"], name: "index_companies_on_stock_id"
+  end
+
+  create_table "portfolio_stocks", force: :cascade do |t|
+    t.bigint "portfolio_id", null: false
+    t.bigint "stock_id", null: false
+    t.float "shares"
+    t.float "purchase_price"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["portfolio_id", "stock_id"], name: "index_portfolio_stocks_on_portfolio_and_stock", unique: true
+    t.index ["portfolio_id"], name: "index_portfolio_stocks_on_portfolio_id"
+    t.index ["stock_id"], name: "index_portfolio_stocks_on_stock_id"
+  end
+
+  create_table "portfolio_transactions", force: :cascade do |t|
+    t.bigint "portfolio_id", null: false
+    t.integer "actor_id", null: false
+    t.integer "transaction_type"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["portfolio_id"], name: "index_portfolio_transactions_on_portfolio_id"
+  end
+
+  create_table "portfolios", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.float "cash_balance"
+    t.float "current_position"
+    t.json "transactions"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_portfolios_on_user_id"
   end
 
   create_table "school_years", force: :cascade do |t|
@@ -41,6 +82,16 @@ ActiveRecord::Schema[7.1].define(version: 2024_03_18_210728) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "stocks", force: :cascade do |t|
+    t.string "ticker"
+    t.json "price_info"
+    t.bigint "company_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["company_id"], name: "index_stocks_on_company_id"
+    t.index ["ticker"], name: "index_stocks_on_ticker", unique: true
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", default: ""
     t.string "username", default: "", null: false
@@ -50,6 +101,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_03_18_210728) do
     t.datetime "remember_created_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "classroom_id"
+    t.index ["classroom_id"], name: "index_users_on_classroom_id"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["username"], name: "index_users_on_username", unique: true
@@ -64,6 +117,13 @@ ActiveRecord::Schema[7.1].define(version: 2024_03_18_210728) do
 
   add_foreign_key "classrooms", "schools"
   add_foreign_key "classrooms", "years"
+  add_foreign_key "companies", "stocks"
+  add_foreign_key "portfolio_stocks", "portfolios"
+  add_foreign_key "portfolio_stocks", "stocks"
+  add_foreign_key "portfolio_transactions", "portfolios"
+  add_foreign_key "portfolios", "users"
   add_foreign_key "school_years", "schools"
   add_foreign_key "school_years", "years"
+  add_foreign_key "stocks", "companies"
+  add_foreign_key "users", "classrooms"
 end
