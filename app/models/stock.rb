@@ -1,5 +1,4 @@
 class Stock < ApplicationRecord
-  has_one :company
   has_many :portfolio_stocks
 
   # Retreive general Stock information

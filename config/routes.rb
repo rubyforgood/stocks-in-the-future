@@ -10,4 +10,6 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   root 'schools#index'
+
+  get 'portfolios/:user_id', to: 'portfolios#portfolio', as: 'student_portfolio'
 end
