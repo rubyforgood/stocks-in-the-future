@@ -1,4 +1,20 @@
 Rails.application.routes.draw do
+  namespace :admin do
+    resources :schools
+    resources :school_years
+    resources :classrooms
+    resources :stocks
+
+    # resources :portfolios
+    # resources :portfolio_stocks
+    # resources :portfolio_transactions
+    resources :students
+    resources :teachers
+    resources :users
+    resources :years
+
+    root to: 'classrooms#index'
+  end
   devise_for :users
   resources :classrooms
   resources :schools
