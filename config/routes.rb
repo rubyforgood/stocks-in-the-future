@@ -1,17 +1,17 @@
 Rails.application.routes.draw do
   namespace :admin do
     resources :schools
-    resources :school_years
+    # resources :school_years
     resources :classrooms
     resources :stocks
 
     # resources :portfolios
     # resources :portfolio_stocks
     # resources :portfolio_transactions
-    resources :students
-    resources :teachers
-    resources :users
+    # resources :students
+    # resources :teachers
     resources :years
+    resources :users
 
     root to: 'classrooms#index'
   end

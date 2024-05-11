@@ -1,4 +1,4 @@
-require "administrate/base_dashboard"
+require 'administrate/base_dashboard'
 
 class ClassroomDashboard < Administrate::BaseDashboard
   # ATTRIBUTE_TYPES
@@ -15,7 +15,7 @@ class ClassroomDashboard < Administrate::BaseDashboard
     users: Field::HasMany,
     year: Field::BelongsTo,
     created_at: Field::DateTime,
-    updated_at: Field::DateTime,
+    updated_at: Field::DateTime
   }.freeze
 
   # COLLECTION_ATTRIBUTES
@@ -24,10 +24,9 @@ class ClassroomDashboard < Administrate::BaseDashboard
   # By default, it's limited to four items to reduce clutter on index pages.
   # Feel free to add, remove, or rearrange items.
   COLLECTION_ATTRIBUTES = %i[
-    id
-    grade
     name
     school
+    grade
   ].freeze
 
   # SHOW_PAGE_ATTRIBUTES
@@ -47,11 +46,11 @@ class ClassroomDashboard < Administrate::BaseDashboard
   # an array of attributes that will be displayed
   # on the model's form (`new` and `edit`) pages.
   FORM_ATTRIBUTES = %i[
-    grade
     name
     school
-    users
+    grade
     year
+    users
   ].freeze
 
   # COLLECTION_FILTERS
@@ -69,7 +68,7 @@ class ClassroomDashboard < Administrate::BaseDashboard
   # Overwrite this method to customize how classrooms are displayed
   # across all pages of the admin dashboard.
   #
-  # def display_resource(classroom)
-  #   "Classroom ##{classroom.id}"
-  # end
+  def display_resource(classroom)
+    "#{classroom.name} - #{classroom.school.name}"
+  end
 end
