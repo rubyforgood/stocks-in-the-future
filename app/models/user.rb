@@ -9,6 +9,9 @@ class User < ApplicationRecord
   validates :email, uniqueness: true, presence: false, allow_blank: true
   validates :username, presence: true, uniqueness: true
 
+  # enum on role
+  enum role: %i[student teacher admin]
+
   def email_required?
     false
   end
