@@ -53,6 +53,12 @@ group :development, :test do
 end
 
 group :development do
+  # Check for published security issues
+  gem "bundler-audit"
+
+  # Add a linting command
+  gem "standardrb"
+
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
 
