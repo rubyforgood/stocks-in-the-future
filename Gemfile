@@ -72,3 +72,5 @@ end
 gem "shadcn-ui", "~> 0.0.12"
 
 gem "devise", "~> 4.9"
+
+gem "administrate", "~> 0.20.1"
