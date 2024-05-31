@@ -9,7 +9,7 @@
 # Installation
 
 * Run setup: `bin/setup`
-* Run the Rails server locally: `bundle exec rails s`
+* Run the Rails server locally: `foreman start -f Procfile.dev`
 
 # Contributing
 
