@@ -6,8 +6,10 @@
 #
 one:
   username: abc123
+  classroom: one
 # column: value
 #
 two:
   username: def123
+  classroom: two
 # column: value
