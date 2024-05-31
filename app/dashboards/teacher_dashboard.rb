@@ -11,11 +11,7 @@ class TeacherDashboard < Administrate::BaseDashboard
     id: Field::Number,
     classroom_id: Field::Number,
     email: Field::String,
-    encrypted_password: Field::String,
     portfolio: Field::HasOne,
-    remember_created_at: Field::DateTime,
-    reset_password_sent_at: Field::DateTime,
-    reset_password_token: Field::String,
     username: Field::String,
     created_at: Field::DateTime,
     updated_at: Field::DateTime,
@@ -30,7 +26,6 @@ class TeacherDashboard < Administrate::BaseDashboard
     id
     classroom_id
     email
-    encrypted_password
   ].freeze
 
   # SHOW_PAGE_ATTRIBUTES
@@ -39,11 +34,7 @@ class TeacherDashboard < Administrate::BaseDashboard
     id
     classroom_id
     email
-    encrypted_password
     portfolio
-    remember_created_at
-    reset_password_sent_at
-    reset_password_token
     username
     created_at
     updated_at
@@ -55,11 +46,7 @@ class TeacherDashboard < Administrate::BaseDashboard
   FORM_ATTRIBUTES = %i[
     classroom_id
     email
-    encrypted_password
     portfolio
-    remember_created_at
-    reset_password_sent_at
-    reset_password_token
     username
   ].freeze
 
