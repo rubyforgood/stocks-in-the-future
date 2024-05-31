@@ -1,18 +1,9 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
 if gem list --no-installed --exact --silent foreman; then
-    echo "Installing foreman..."
-    gem install foreman
+  echo "Installing foreman..."
+  gem install foreman
 fi
-
-# Setup Development Environment
-gems=("rubocop" "htmlbeautifier" "solargraph")
-for gem in "${gems[@]}"; do
-    if ! gem list "^$gem$" --installed > /dev/null; then
-        echo "Installing $gem..."
-        gem install "$gem"
-    fi
-done
 
 # Default to port 3000 if not specified
 export PORT="${PORT:-3000}"
