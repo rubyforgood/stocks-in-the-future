@@ -11,8 +11,10 @@
 * Run setup: `bin/setup`
 * Run the Rails server locally: `foreman start -f Procfile.dev`
 
+Access the app via `localhost:5000`
+
 # Contributing
 
 * Please create a new branch for each request
-* Branch name should include issue number
+* Branch name should include issue number. For example: `branchname-23`
 
