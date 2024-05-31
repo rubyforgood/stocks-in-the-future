@@ -18,7 +18,9 @@ FileUtils.chdir APP_ROOT do
   system("bundle check") || system!("bundle install")
 
   # Install JavaScript dependencies
-  system!("bun install")
+  puts "== Installing Javascript dependencies =="
+  system!("npm install --global yarn")
+  system!("yarn install")
 
   puts "\n== Copying sample files =="
   unless File.exist?("config/database.yml")
