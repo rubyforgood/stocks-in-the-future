@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_05_30_235625) do
+ActiveRecord::Schema[7.1].define(version: 2024_05_31_175716) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -23,6 +23,17 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_30_235625) do
     t.datetime "updated_at", null: false
     t.index ["school_id"], name: "index_classrooms_on_school_id"
     t.index ["year_id"], name: "index_classrooms_on_year_id"
+  end
+
+  create_table "orders", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "stock_id", null: false
+    t.decimal "shares"
+    t.integer "status"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["stock_id"], name: "index_orders_on_stock_id"
+    t.index ["user_id"], name: "index_orders_on_user_id"
   end
 
   create_table "portfolio_stocks", force: :cascade do |t|
@@ -73,7 +84,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_30_235625) do
 
   create_table "stocks", force: :cascade do |t|
     t.string "ticker"
-    t.json "price_info"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "stock_exchange"
@@ -92,6 +102,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_30_235625) do
     t.decimal "industry_avg_profit_margin", precision: 15, scale: 2
     t.decimal "cash_flow", precision: 15, scale: 2
     t.decimal "debt", precision: 15, scale: 2
+    t.decimal "price"
     t.index ["ticker"], name: "index_stocks_on_ticker", unique: true
   end
 
@@ -119,6 +130,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_30_235625) do
 
   add_foreign_key "classrooms", "schools"
   add_foreign_key "classrooms", "years"
+  add_foreign_key "orders", "stocks"
+  add_foreign_key "orders", "users"
   add_foreign_key "portfolio_stocks", "portfolios"
   add_foreign_key "portfolio_stocks", "stocks"
   add_foreign_key "portfolio_transactions", "portfolios"

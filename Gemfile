@@ -56,6 +56,8 @@ group :development do
   # Check for published security issues
   gem "bundler-audit"
 
+  gem "pry", "~> 0.14.2"
+  
   # Add a linting command
   gem "standardrb"
 
@@ -80,3 +82,5 @@ gem "shadcn-ui", "~> 0.0.12"
 gem "devise", "~> 4.9"
 
 gem "administrate", "~> 0.20.1"
+
+

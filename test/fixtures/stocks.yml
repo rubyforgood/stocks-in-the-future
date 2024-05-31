@@ -2,10 +2,10 @@
 
 one:
   ticker: MyString
-  price_info: 
-  company: one
+  price: 345
+  
 
 two:
-  ticker: MyString
-  price_info: 
-  company: two
+  ticker: MyString2
+  price: 123 
+  
