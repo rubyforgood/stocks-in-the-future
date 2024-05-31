@@ -1,24 +1,28 @@
-# README
+# Requirements
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+* A ruby version manager such as [rvm](https://rvm.io/rvm/install) or [rbenv](https://formulae.brew.sh/formula/rbenv)
+* Ruby 3.2.3 (Installed via ruby manager ^)
+* [Rails 7](https://guides.rubyonrails.org/)
+* [PostgreSQL](https://www.postgresql.org/)
+* [bun](https://bun.sh/docs/installation)
 
-Things you may want to cover:
+# Installation
 
-* Ruby version
+## Mac Users
 
-* System dependencies
+* Run setup: `bin/setup`
+* Run the Rails server locally: `foreman start -f Procfile.dev`
 
-* Configuration
+## Windows & Linux users
 
-* Database creation
+It is **strongly** recommend to use Docker.
 
-* Database initialization
+## URL
 
-* How to run the test suite
+Access the app via `localhost:5000`
 
-* Services (job queues, cache servers, search engines, etc.)
+# Contributing
 
-* Deployment instructions
+* Please create a new branch for each request
+* Branch name should include issue number. For example: `branchname-23`
 
-* ...
