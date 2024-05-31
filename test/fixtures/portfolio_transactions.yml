@@ -2,8 +2,10 @@
 
 one:
   portfolio: one
+  amount: 10.00
   transaction_type: 1
 
 two:
-  portfolio: two
+  portfolio: one
+  amount: 15.50
   transaction_type: 1

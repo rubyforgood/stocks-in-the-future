@@ -3,6 +3,10 @@ class Portfolio < ApplicationRecord
   has_many :portfolio_transactions
   has_many :portfolio_stocks
 
+  def cash_balance
+    portfolio_transactions.sum(:amount)
+  end
+
   # a User (specifically student) can buy a certain amount of stock
   def buy_stock(ticker, shares)
     stock = Stock.find_by(ticker:)

@@ -53,12 +53,12 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_31_175716) do
     t.integer "transaction_type"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.decimal "amount", precision: 8, scale: 2, null: false
     t.index ["portfolio_id"], name: "index_portfolio_transactions_on_portfolio_id"
   end
 
   create_table "portfolios", force: :cascade do |t|
     t.bigint "user_id", null: false
-    t.float "cash_balance"
     t.float "current_position"
     t.json "transactions"
     t.datetime "created_at", null: false
