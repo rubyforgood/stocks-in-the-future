@@ -52,7 +52,7 @@ services:
       BROWSERSLIST_IGNORE_OLD_DATA: true
 
   stocks-js:
-    image: stocks:dev
+    image: node:lts-alpine
     working_dir: /rails
     tty: true
     command: sh -c "yarn install && yarn build --watch"
@@ -61,7 +61,7 @@ services:
       - node_modules:/rails/node_modules
 
   stocks-css:
-    image: stocks:dev
+    image: node:lts-alpine
     environment:
       BROWSERSLIST_IGNORE_OLD_DATA: true
     working_dir: /rails
