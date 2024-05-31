@@ -4,10 +4,10 @@ one:
   user: one
   cash_balance: 1.5
   current_position: 1.5
-  transactions: 
+  transactions:
 
 two:
   user: two
   cash_balance: 1.5
   current_position: 1.5
-  transactions: 
+  transactions:
