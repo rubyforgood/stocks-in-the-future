@@ -1,0 +1,17 @@
+#!/bin/sh
+
+# if first argument is help or -h or --help, show help
+if [ "$1" = "help" ] || [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+  echo "Usage: $0 [command]"
+  echo "  command: command to run in the stocks container"
+  echo
+  echo "Examples:"
+  echo "  bin/dc rails db:migrate                        # run migrations"
+  echo "  bin/dc rails test                              # run tests"
+  echo "  bin/dc rails console                           # start Rails console"
+  echo "  bin/dc rails generate model Boop name:string   # generate a Rails model"
+  exit 0
+fi
+
+echo "\033[2m> docker compose run stocks $@\033[0m"
+docker compose run --rm --no-deps stocks $@
