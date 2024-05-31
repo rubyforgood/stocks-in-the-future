@@ -3,6 +3,7 @@
 * A ruby version manager such as [rvm](https://rvm.io/rvm/install) or [rbenv](https://formulae.brew.sh/formula/rbenv)
 * Ruby 3.2.3 (Installed via ruby manager ^)
 * [PostgreSQL](https://www.postgresql.org/), if you're not using Docker.
+* [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) and yarn (`npm install -g yarn`)
 
 # Installation
 
