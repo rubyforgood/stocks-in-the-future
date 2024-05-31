@@ -14,6 +14,18 @@ class Admin::StudentsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to admin_student_url(@student)
   end
 
+  test 'should not update with an error' do
+    @student.update_attribute(:username, 'testingusername')
+
+    patch admin_student_url(@student), params: { student: { username: '' } }
+
+    @student.reload
+
+    assert_equal 'testingusername', @student.username
+    assert_response :unprocessable_entity
+    assert_select 'div#error_explanation'
+  end
+
   test 'given a add_fund_amount, creates a transaction' do
     assert_difference('PortfolioTransaction.count', 1) do
       patch admin_student_url(@student), params: { student: { add_fund_amount: '10.50' } }
@@ -25,5 +37,15 @@ class Admin::StudentsControllerTest < ActionDispatch::IntegrationTest
     assert_equal @student.reload.portfolio.portfolio_transactions.last, transaction
 
     assert_redirected_to admin_student_url(@student)
+  end
+
+  test 'given an empty add_fund_amount, does not create a transaction' do
+    assert_difference('PortfolioTransaction.count', 0) do
+      patch admin_student_url(@student), params: { student: { add_fund_amount: '' } }
+    end
+
+    transaction = PortfolioTransaction.last
+
+    assert_equal nil, transaction.amount
   end
 end
