@@ -4,13 +4,11 @@
 * Ruby 3.2.3 (Installed via ruby manager ^)
 * [Rails 7](https://guides.rubyonrails.org/)
 * [PostgreSQL](https://www.postgresql.org/)
+* [bun](https://bun.sh/docs/installation)
 
 # Installation
 
-* Install the gems by running: `bundle install` or `bin/setup`
-
-* Create the database: `bundle exec db:create db:migrate`
-
+* Run setup: `bin/setup`
 * Run the Rails server locally: `bundle exec rails s`
 
 # Contributing
