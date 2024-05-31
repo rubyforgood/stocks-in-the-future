@@ -1,24 +1,20 @@
-# README
+# Requirements
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+* A ruby version manager such as [rvm](https://rvm.io/rvm/install) or [rbenv](https://formulae.brew.sh/formula/rbenv)
+* Ruby 3.2.3 (Installed via ruby manager ^)
+* [Rails 7](https://guides.rubyonrails.org/)
+* [PostgreSQL](https://www.postgresql.org/)
 
-Things you may want to cover:
+# Installation
 
-* Ruby version
+* Install the gems by running: `bundle install` or `bin/setup`
 
-* System dependencies
+* Create the database: `bundle exec db:create db:migrate`
 
-* Configuration
+* Run the Rails server locally: `bundle exec rails s`
 
-* Database creation
+# Contributing
 
-* Database initialization
+* Please create a new branch for each request
+* Branch name should include issue number
 
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
