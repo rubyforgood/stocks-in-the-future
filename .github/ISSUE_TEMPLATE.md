@@ -1,10 +1,10 @@
-*Before filing the ticket you should replace all text between the horizontal rules with your own words. We recommend keeping the headings (optional headings can be left off if you don't need them)*
-
---------
 
 # Summary
 
 Describe an overview of the problem. Provide a general description of the problem it's solving or why this issue should be addressed.
+
+## Things out of Scope
+> **OPTIONAL** List here work that is related and shouldn't be done as part of this issue. This can be work we've decided to never do, or it can be work we've decided to put in a separate issue.
 
 ## Things to Consider
 > **OPTIONAL** If you happen to know that this particular issue will touch other parts of the application in non-obvious ways (maybe there are side effects, or there are other parts of the application that depend on the thing that needs to be changed), you can list them out here. This is an opportunity to share *domain knowledge* that you might have about the problemset.
@@ -16,6 +16,3 @@ Describe an overview of the problem. Provide a general description of the proble
  - [ ] This feature should only be available to admins
  - [ ] Add a test proving that it works
 
--------
-
-The goal here is to minimize the amount of clarification that a user needs in order to get started on the work, as well as reducing the likelihood that a lengthy PR discsussion about the scope of work ensues. This whole project is volunteer-driven, on both sides, so we want to communicate expectations and needs as clearly as possible up front.
