@@ -8,8 +8,16 @@
 
 # Installation
 
+## Mac Users
+
 * Run setup: `bin/setup`
 * Run the Rails server locally: `foreman start -f Procfile.dev`
+
+## Windows & Linux users
+
+It is **strongly** recommend to use Docker.
+
+## URL
 
 Access the app via `localhost:5000`
 
