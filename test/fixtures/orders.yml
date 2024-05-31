@@ -1,7 +1,13 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  year: 1
+  user: one
+  stock: one
+  shares: 9.99
+  status: 
 
 two:
-  year: 2
+  user: two
+  stock: two
+  shares: 9.99
+  status: 
