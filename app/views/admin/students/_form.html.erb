@@ -52,6 +52,18 @@ and renders all form fields for a resource's editable attributes.
         </div>
       <% end %>
     </fieldset>
+    <div class="field-unit">
+      <div class="field-unit__label"><label>Cash balance</label></div>
+      <div class="field-unit__field">
+        <%= sprintf('%.2f', page.resource&.portfolio&.cash_balance || 0)%>
+      </div>
+    </div>
+    <div class="field-unit">
+      <div class="field-unit__label"><label>Add funds</label></div>
+      <div class="field-unit__field">
+        <input step="any" type="number" name="student[add_fund_amount]" id="student_add_fund_amount">
+      </div>
+    </div>
   <% end -%>
 
   <div class="form-actions">

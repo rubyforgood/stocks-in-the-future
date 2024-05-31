@@ -7,7 +7,7 @@ Rails.application.routes.draw do
 
     # resources :portfolios
     # resources :portfolio_stocks
-    # resources :portfolio_transactions
+    resources :portfolio_transactions, except: [:index]
     resources :students
     resources :teachers
     resources :users

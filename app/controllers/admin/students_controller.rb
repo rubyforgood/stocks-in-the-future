@@ -5,7 +5,8 @@ module Admin
 
     def update
       super
-      # send_foo_updated_email(requested_resource)
+
+      create_portfolio_transaction!
     end
 
     # Override this method to specify custom lookup behavior.
@@ -42,5 +43,17 @@ module Admin
 
     # See https://administrate-demo.herokuapp.com/customizing_controller_actions
     # for more information
+    #
+    private
+
+    def create_portfolio_transaction!
+      return unless fund_amount
+
+      PortfolioTransaction.create!(portfolio: requested_resource.portfolio, amount: fund_amount) if fund_amount
+    end
+
+    def fund_amount
+      @fund_amount ||= params['student']['add_fund_amount']
+    end
   end
 end
