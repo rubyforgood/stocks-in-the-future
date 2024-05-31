@@ -2,11 +2,12 @@ module Admin
   class StudentsController < Admin::ApplicationController
     # Overwrite any of the RESTful controller actions to implement custom behavior
     # For example, you may want to send an email after a foo is updated.
-    #
-    # def update
-    #   super
-    #   send_foo_updated_email(requested_resource)
-    # end
+
+    def update
+      super
+
+      create_portfolio_transaction!
+    end
 
     # Override this method to specify custom lookup behavior.
     # This will be used to set the resource for the `show`, `edit`, and `update`
@@ -42,5 +43,17 @@ module Admin
 
     # See https://administrate-demo.herokuapp.com/customizing_controller_actions
     # for more information
+    #
+    private
+
+    def create_portfolio_transaction!
+      return unless fund_amount
+
+      PortfolioTransaction.create!(portfolio: requested_resource.portfolio, amount: fund_amount) if fund_amount
+    end
+
+    def fund_amount
+      @fund_amount ||= params['student']['add_fund_amount']
+    end
   end
 end

@@ -1,8 +1,9 @@
-require "test_helper"
+require 'test_helper'
 
 class PortfolioTest < ActiveSupport::TestCase
-  # test "the truth" do
-  #   assert true
-  # end
-  #TODO: Add tests for the Portfolio model
+  fixtures :portfolios
+  test '#cash_balance' do
+    portfolio = portfolios(:one)
+    assert_equal BigDecimal('25.50'), portfolio.cash_balance
+  end
 end

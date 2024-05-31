@@ -1,4 +1,4 @@
-require "administrate/base_dashboard"
+require 'administrate/base_dashboard'
 
 class PortfolioTransactionDashboard < Administrate::BaseDashboard
   # ATTRIBUTE_TYPES
@@ -9,11 +9,13 @@ class PortfolioTransactionDashboard < Administrate::BaseDashboard
   # on pages throughout the dashboard.
   ATTRIBUTE_TYPES = {
     id: Field::Number,
-    actor: Field::BelongsTo,
     portfolio: Field::BelongsTo,
-    transaction_type: Field::Select.with_options(searchable: false, collection: ->(field) { field.resource.class.send(field.attribute.to_s.pluralize).keys }),
+    transaction_type: Field::Select.with_options(searchable: false, collection: lambda { |field|
+                                                                                  field.resource.class.send(field.attribute.to_s.pluralize).keys
+                                                                                }),
+    amount: Field::Number.with_options(decimals: 2),
     created_at: Field::DateTime,
-    updated_at: Field::DateTime,
+    updated_at: Field::DateTime
   }.freeze
 
   # COLLECTION_ATTRIBUTES
@@ -23,7 +25,6 @@ class PortfolioTransactionDashboard < Administrate::BaseDashboard
   # Feel free to add, remove, or rearrange items.
   COLLECTION_ATTRIBUTES = %i[
     id
-    actor
     portfolio
     transaction_type
   ].freeze
@@ -32,7 +33,6 @@ class PortfolioTransactionDashboard < Administrate::BaseDashboard
   # an array of attributes that will be displayed on the model's show page.
   SHOW_PAGE_ATTRIBUTES = %i[
     id
-    actor
     portfolio
     transaction_type
     created_at
@@ -43,9 +43,9 @@ class PortfolioTransactionDashboard < Administrate::BaseDashboard
   # an array of attributes that will be displayed
   # on the model's form (`new` and `edit`) pages.
   FORM_ATTRIBUTES = %i[
-    actor
     portfolio
     transaction_type
+    amount
   ].freeze
 
   # COLLECTION_FILTERS
