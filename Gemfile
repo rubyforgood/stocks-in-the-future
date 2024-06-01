@@ -39,4 +39,7 @@ end
 group :test do
   gem "capybara"
   gem "selenium-webdriver"
+  gem "webmock"
 end
+
+gem "pundit", "~> 2.3"

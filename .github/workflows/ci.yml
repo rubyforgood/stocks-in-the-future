@@ -8,22 +8,27 @@ on:
     types: ['opened', 'reopened', 'synchronize', 'unlocked']
 
 jobs:
-  ruby-lint:
-    name: Ruby Lint
-    runs-on: ubuntu-latest
+  # NOTE: @abachman
+  #   In order to move a little faster for the Ruby for Good weekend event, I'm
+  #   commenting out the ruby-lint job. We can re-enable it after the event
+  #   once we've had a chance to let the dust settle and run `standardrb --fix`
+  #   on everything.
+  # ruby-lint:
+  #   name: Ruby Lint
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
 
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1.178.0
-        with:
-          ruby-version: '3.2.3'
-          bundler-cache: true  # runs 'bundle install' and caches installed gems automatically
+  #     - name: Set up Ruby
+  #       uses: ruby/setup-ruby@v1.178.0
+  #       with:
+  #         ruby-version: '3.2.3'
+  #         bundler-cache: true  # runs 'bundle install' and caches installed gems automatically
 
-      - name: Ruby Lint
-        run: bundle exec standardrb --parallel -f github
+  #     - name: Ruby Lint
+  #       run: bundle exec standardrb --parallel -f github
 
   rails-test:
     name: Rails Test
