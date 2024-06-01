@@ -1,0 +1,64 @@
+---
+name: "Continuous Integration"
+
+on:
+  push:
+    branches: ['main']
+  pull_request:
+    types: ['opened', 'reopened', 'synchronize', 'unlocked']
+
+jobs:
+  ruby-lint:
+    name: Ruby Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1.178.0
+        with:
+          ruby-version: '3.2.3'
+          bundler-cache: true  # runs 'bundle install' and caches installed gems automatically
+
+      - name: Ruby Lint
+        run: bundle exec standardrb --parallel -f github
+
+  rails-test:
+    name: Rails Test
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        ports:
+          - "5432:5432"
+        env:
+          POSTGRES_DB: sif
+          POSTGRES_USER: sif
+          POSTGRES_PASSWORD: password
+      redis:
+        image: redis:7.0
+
+    env:
+      RAILS_ENV: test
+      DATABASE_URL: "postgres://sif:password@localhost:5432/sif"
+      REDIS_URL: "redis://localhost:6379/1"
+      BROWSERSLIST_IGNORE_OLD_DATA: true
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1.178.0
+        with:
+          ruby-version: '3.2.3'
+          bundler-cache: true  # runs 'bundle install' and caches installed gems automatically
+
+      - name: Set up database
+        run: bin/rails db:setup
+
+      - name: Run tests
+        run: bin/rails test
