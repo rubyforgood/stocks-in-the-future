@@ -26,6 +26,7 @@ group :development, :test do
 
   # a linting tool, to encourage/enforce a consistent code style
   gem "standardrb"
+  gem "standard-rails"
 end
 
 group :development do
