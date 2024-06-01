@@ -1,0 +1,78 @@
+---
+version: "3.9"
+services:
+  redis:
+    image: redis:7.0
+    ports:
+      - 6379
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+    volumes:
+      - redis:/data
+
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      PGUSER: sif
+      POSTGRES_USER: sif
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: sif
+    ports:
+      - 5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "--database", "stocks_in_the_future_development" ]
+      interval: 10s
+    volumes:
+      - postgres:/var/lib/postgresql/data
+
+  stocks:
+    build:
+      dockerfile: Dockerfile.dev
+      context: .
+    image: stocks:dev
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${APP_PORT:-3000}"]
+    command: "bin/docker-entrypoint bin/rails server -b 0.0.0.0 -p ${APP_PORT:-3000}"
+    entrypoint: bin/docker-entrypoint
+    ports:
+      - "${APP_PORT:-3000}:${APP_PORT:-3000}"
+    volumes:
+      - .:/rails
+      - bundler:/usr/local/bundle
+      - node_modules:/rails/node_modules
+    environment:
+      RAILS_ENV: development
+      DATABASE_URL: postgresql://sif:password@db/
+      BROWSERSLIST_IGNORE_OLD_DATA: true
+
+  stocks-js:
+    image: node:lts-alpine
+    working_dir: /rails
+    tty: true
+    command: sh -c "yarn install && yarn build --watch"
+    volumes:
+      - .:/rails
+      - node_modules:/rails/node_modules
+
+  stocks-css:
+    image: node:lts-alpine
+    environment:
+      BROWSERSLIST_IGNORE_OLD_DATA: true
+    working_dir: /rails
+    tty: true
+    command: sh -c "yarn install && yarn build:css --watch=forever"
+    volumes:
+      - .:/rails
+      - node_modules:/rails/node_modules
+
+volumes:
+  redis:
+  postgres:
+  bundler:
+  node_modules:
