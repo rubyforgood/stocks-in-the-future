@@ -33,7 +33,6 @@
 
 # Ignore master key for decrypting credentials and more.
 /config/master.key
-/config/api_keys.rb
 
 # ignore local database.yml
 /config/database.yml
