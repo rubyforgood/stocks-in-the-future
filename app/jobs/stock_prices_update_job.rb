@@ -8,14 +8,15 @@ class StockPricesUpdateJob < ApplicationJob
     stock_symbols.each do |symbol|
       api_request(symbol)
       stock_db = Stock.find_by(ticker: symbol)
-    end
+    end 
   end
 
-  private
+  private 
 
   def api_request(symbol)
     url = "https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=#{symbol}&apikey=#{API_KEY}"
     uri = URI.parse(url)
     print Net::HTTP.get(uri)
-  end
+  end 
 end
+
