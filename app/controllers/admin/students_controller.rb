@@ -47,9 +47,13 @@ module Admin
     private
 
     def create_portfolio_transaction!
-      return unless fund_amount
+      return unless fund_amount.present?
 
-      PortfolioTransaction.create!(portfolio: requested_resource.portfolio, amount: fund_amount) if fund_amount
+      PortfolioTransaction.create!(
+        portfolio: requested_resource.portfolio,
+        amount: fund_amount,
+        transaction_type: 'deposit'
+      )
     end
 
     def fund_amount
