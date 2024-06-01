@@ -24,7 +24,7 @@ class OrdersController < ApplicationController
     @order = Order.new(order_params)
 
     @order.user = current_user
-    @order.stock = Stock.find_by(ticker:order_params[:stock_id])
+    @order.stock = Stock.find(order_params[:stock_id])
 
     console
 
