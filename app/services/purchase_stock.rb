@@ -11,6 +11,10 @@ class PurchaseStock
     process_order!
   end
 
+  def self.execute(order)
+    new(order).execute
+  end
+
   private
 
   def process_order!

@@ -10,7 +10,7 @@ class PurchaseStockTest < ActiveSupport::TestCase
   test "it creates a withdrawl transaction in portfolio_transactions" do
     order = Order.create(stock: Stock.first, shares: 5, status: :pending, user: @student)
     assert_difference("PortfolioTransaction.count") do
-      PurchaseStock.new(order).execute
+      PurchaseStock.execute(order)
     end
 
     portfolio_transaction = PortfolioTransaction.last
@@ -22,7 +22,7 @@ class PurchaseStockTest < ActiveSupport::TestCase
   test "it creates an linked entry in portfolio_stocks" do
     order = Order.create(stock: Stock.first, shares: 5, status: :pending, user: @student)
     assert_difference("PortfolioStock.count") do
-      PurchaseStock.new(order).execute
+      PurchaseStock.execute(order)
     end
     portfolio_stock = PortfolioStock.last
     assert_equal portfolio_stock, order.portfolio_stock
@@ -30,7 +30,7 @@ class PurchaseStockTest < ActiveSupport::TestCase
 
   test "it updates the order status to completed" do
     order = Order.create(stock: Stock.first, shares: 5, status: :pending, user: @student)
-    PurchaseStock.new(order).execute
+    PurchaseStock.execute(order)
     order.reload
 
     assert_equal "completed", order.status
