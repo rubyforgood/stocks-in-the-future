@@ -7,6 +7,7 @@ gem 'rails', '~> 7.1.3', '>= 7.1.3.2'
 gem 'administrate', '~> 0.20.1'
 gem 'bootsnap', require: false
 gem 'cssbundling-rails'
+gem 'delayed_job_active_record'
 gem 'devise', '~> 4.9'
 gem 'jbuilder'
 gem 'jsbundling-rails'
