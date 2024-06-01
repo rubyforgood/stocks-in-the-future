@@ -1,6 +1,6 @@
 class Stock < ApplicationRecord
-  has_many :portfolio_stocks, dependent: :nullify
-  has_many :orders, dependent: :nullify
+  has_many :portfolio_stocks, dependent: :restrict_with_error
+  has_many :orders, dependent: :restrict_with_error
 
   # Retreive general Stock information
   def stock_information
