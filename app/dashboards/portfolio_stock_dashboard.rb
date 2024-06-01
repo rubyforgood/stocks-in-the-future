@@ -14,7 +14,7 @@ class PortfolioStockDashboard < Administrate::BaseDashboard
     shares: Field::Number.with_options(decimals: 2),
     stock: Field::BelongsTo,
     created_at: Field::DateTime,
-    updated_at: Field::DateTime,
+    updated_at: Field::DateTime
   }.freeze
 
   # COLLECTION_ATTRIBUTES

@@ -1,7 +1,7 @@
 class Portfolio < ApplicationRecord
   belongs_to :user
-  has_many :portfolio_transactions
-  has_many :portfolio_stocks
+  has_many :portfolio_transactions, dependent: :destroy
+  has_many :portfolio_stocks, dependent: :destroy
 
   def cash_balance
     portfolio_transactions.sum(:amount)
@@ -22,14 +22,14 @@ class Portfolio < ApplicationRecord
     #   )
     # self.update(cash_balance: self.cash_balance - cost) if transaction.persisted?
 
-    portfolio_stocks.create(stock:, shares:)
+    portfolio_stocks.create!(stock:, shares:)
   end
 
   # a User (specifically student) can sell a certain amount of stock
   def sell_stock(ticker:, shares:)
     stock = Stock.find_by(ticker:)
     portfolio_stock = portfolio_stocks.find_by(stock_id: stock.id)
-    return unless portfolio_stock.present? # the stock we're trying to sell doesn't exist, return
+    return if portfolio_stock.blank? # the stock we're trying to sell doesn't exist, return
 
     # update cash balance with portfolio_transactions
 
@@ -38,8 +38,8 @@ class Portfolio < ApplicationRecord
 
     # error, can't sell more than you have
 
-    portfolio_stock.update(shares: portfolio_stock.shares - shares)
-    portfolio_stock.destroy if portfolio_stock.shares == 0
+    portfolio_stock.update!(shares: portfolio_stock.shares - shares)
+    portfolio_stock.destroy! if portfolio_stock.shares == 0
   end
 
   # a User (usually teacher) can deposit money

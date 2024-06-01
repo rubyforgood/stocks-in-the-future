@@ -8,10 +8,10 @@
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
 
-@year = Year.create(year: 2024)
+@year = Year.create!(year: 2024)
 
-@school = School.create(name: 'Test School', years: [@year])
+@school = School.create!(name: "Test School", years: [@year])
 
-Classroom.create(name: 'Test Class', year: @year, school: @school)
+Classroom.create!(name: "Test Class", year: @year, school: @school)
 
-@user = User.create(username: 'test', password: 'password', password_confirmation: 'password')
+@user = User.create!(username: "test", password: "password", password_confirmation: "password")

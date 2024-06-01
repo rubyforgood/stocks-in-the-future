@@ -16,7 +16,7 @@ class PortfolioDashboard < Administrate::BaseDashboard
     transactions: Field::String.with_options(searchable: false),
     user: Field::BelongsTo,
     created_at: Field::DateTime,
-    updated_at: Field::DateTime,
+    updated_at: Field::DateTime
   }.freeze
 
   # COLLECTION_ATTRIBUTES

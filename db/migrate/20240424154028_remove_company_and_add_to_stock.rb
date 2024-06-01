@@ -1,26 +1,32 @@
 class RemoveCompanyAndAddToStock < ActiveRecord::Migration[7.1]
-  def change
+  def up
     remove_reference :stocks, :company, foreign_key: true
 
     drop_table :companies
 
     add_column :stocks, :stock_exchange, :string
 
-    add_column :stocks, :company_name, :string
-    add_column :stocks, :company_website, :string
-    add_column :stocks, :description, :text
-    add_column :stocks, :industry, :string
-    add_column :stocks, :management, :text
-    add_column :stocks, :employees, :integer
-    add_column :stocks, :competitor_names, :text
+    change_table :stocks, bulk: true do |t|
+      t.string :company_name
+      t.string :company_website
+      t.text :description
+      t.string :industry
+      t.text :management
+      t.integer :employees
+      t.text :competitor_names
 
-    add_column :stocks, :sales_growth, :decimal, precision: 15, scale: 2
-    add_column :stocks, :industry_avg_sales_growth, :decimal, precision: 15, scale: 2
-    add_column :stocks, :debt_to_equity, :decimal, precision: 15, scale: 2
-    add_column :stocks, :industry_avg_debt_to_equity, :decimal, precision: 15, scale: 2
-    add_column :stocks, :profit_margin, :decimal, precision: 15, scale: 2
-    add_column :stocks, :industry_avg_profit_margin, :decimal, precision: 15, scale: 2
-    add_column :stocks, :cash_flow, :decimal, precision: 15, scale: 2
-    add_column :stocks, :debt, :decimal, precision: 15, scale: 2
+      t.decimal :sales_growth, precision: 15, scale: 2
+      t.decimal :industry_avg_sales_growth, precision: 15, scale: 2
+      t.decimal :debt_to_equity, precision: 15, scale: 2
+      t.decimal :industry_avg_debt_to_equity, precision: 15, scale: 2
+      t.decimal :profit_margin, precision: 15, scale: 2
+      t.decimal :industry_avg_profit_margin, precision: 15, scale: 2
+      t.decimal :cash_flow, precision: 15, scale: 2
+      t.decimal :debt, precision: 15, scale: 2
+    end
+  end
+
+  def down
+    raise "Irreversible migration"
   end
 end

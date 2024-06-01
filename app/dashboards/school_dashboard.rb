@@ -13,7 +13,7 @@ class SchoolDashboard < Administrate::BaseDashboard
     school_years: Field::HasMany,
     years: Field::HasMany,
     created_at: Field::DateTime,
-    updated_at: Field::DateTime,
+    updated_at: Field::DateTime
   }.freeze
 
   # COLLECTION_ATTRIBUTES
