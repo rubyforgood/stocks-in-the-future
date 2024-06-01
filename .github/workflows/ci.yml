@@ -57,8 +57,8 @@ jobs:
           ruby-version: '3.2.3'
           bundler-cache: true  # runs 'bundle install' and caches installed gems automatically
 
-      - name: Set up database
-        run: bin/rails db:setup
+      - name: Create a test database
+        run: bin/rails db:create
 
       - name: Run tests
         run: bin/rails test
