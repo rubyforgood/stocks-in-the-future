@@ -15,6 +15,7 @@ class PurchaseStockTest < ActiveSupport::TestCase
 
     portfolio_transaction = PortfolioTransaction.last
     assert_equal "withdrawal", portfolio_transaction.transaction_type
+    assert_equal portfolio_transaction, order.portfolio_transaction
     assert_operator portfolio_transaction.amount, :<, 0
   end
 
@@ -23,6 +24,8 @@ class PurchaseStockTest < ActiveSupport::TestCase
     assert_difference("PortfolioStock.count") do
       PurchaseStock.new(order).execute
     end
+    portfolio_stock = PortfolioStock.last
+    assert_equal portfolio_stock, order.portfolio_stock
   end
 
   test "it updates the order status to completed" do

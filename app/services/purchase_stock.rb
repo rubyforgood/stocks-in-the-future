@@ -15,11 +15,11 @@ class PurchaseStock
 
   def process_order!
     ActiveRecord::Base.transaction do
-      portfolio.portfolio_transactions.create(amount: withdrawal_amount, transaction_type: :withdrawal)
+      transaction = portfolio.portfolio_transactions.create(amount: withdrawal_amount, transaction_type: :withdrawal)
 
-      portfolio.portfolio_stocks.create(stock: order.stock, shares: order.shares, purchase_price: order.stock.price)
+      portfolio_stock = portfolio.portfolio_stocks.create(stock: order.stock, shares: order.shares, purchase_price: order.stock.price)
 
-      order.completed!
+      order.update(portfolio_transaction: transaction, portfolio_stock: portfolio_stock, status: :completed)
     end
   end
 

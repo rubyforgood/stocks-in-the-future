@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_06_01_194906) do
+ActiveRecord::Schema[7.1].define(version: 2024_06_01_200045) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -47,6 +47,10 @@ ActiveRecord::Schema[7.1].define(version: 2024_06_01_194906) do
     t.integer "status"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "portfolio_stock_id"
+    t.bigint "portfolio_transaction_id"
+    t.index ["portfolio_stock_id"], name: "index_orders_on_portfolio_stock_id"
+    t.index ["portfolio_transaction_id"], name: "index_orders_on_portfolio_transaction_id"
     t.index ["stock_id"], name: "index_orders_on_stock_id"
     t.index ["user_id"], name: "index_orders_on_user_id"
   end
@@ -145,6 +149,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_06_01_194906) do
 
   add_foreign_key "classrooms", "schools"
   add_foreign_key "classrooms", "years"
+  add_foreign_key "orders", "portfolio_stocks"
+  add_foreign_key "orders", "portfolio_transactions"
   add_foreign_key "orders", "stocks"
   add_foreign_key "orders", "users"
   add_foreign_key "portfolio_stocks", "portfolios"
