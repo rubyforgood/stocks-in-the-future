@@ -7,6 +7,8 @@
 
 # Installation
 
+How to run the application on your machine.
+
 ## With Docker
 
 Build and start the application with `docker compose up`. Once the application has successfully started, you should be able to visit it at http://localhost:3000/
@@ -40,6 +42,38 @@ Access the app via `localhost:5000`
 
 # Contributing
 
-* Please create a new branch for each request
-* Branch name should include issue number. For example: `branchname-23`
+If you are not already a project contributor, you'll need to create a fork of the project before taking any of the following steps.
+
+* Please create a new branch for each pull request.
+* Branch name should include issue number. For example: `branchname-23`.
+* Write tests.
+* Write code to make the tests pass.
+* Run the test suite and linter to make sure it is good code.
+* Commit your changes to a branch, push to GitHub, and open a Pull Request!
+
+## Development Tools
+
+We use Minitest for testing. You can run the test suite like this
+
+```console
+$ bin/rails db:create    # one time setup
+$ bin/rails test
+
+# in docker
+$ docker compose run stocks bin/rails db:create
+$ docker compose run stocks bin/rails test
+```
+
+We use a Ruby linting and formatting gem called [Standard Ruby](https://github.com/standardrb/standard). You can run it like this:
+
+```console
+$ bin/standardrb         # run the linter and emit errors or warnings
+$ bin/standardrb --fix   # automatically fix errors
+
+# in docker
+$ docker compose run stocks bin/standardrb
+$ docker compose run stocks bin/standardrb --fix
+```
+
+Every Pull Request is checked by a GitHub Action which runs `bin/rails test` and `bin/standardrb`. If either check fails, the Pull Request will get a ❌ instead of the more pleasant ✅.
 
