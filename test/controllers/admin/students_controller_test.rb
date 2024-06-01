@@ -33,6 +33,7 @@ class Admin::StudentsControllerTest < ActionDispatch::IntegrationTest
 
     transaction = PortfolioTransaction.last
 
+    assert_equal 'deposit', transaction.transaction_type
     assert_equal 10.50, transaction.amount
     assert_equal @student.reload.portfolio.portfolio_transactions.last, transaction
 
@@ -43,9 +44,5 @@ class Admin::StudentsControllerTest < ActionDispatch::IntegrationTest
     assert_difference('PortfolioTransaction.count', 0) do
       patch admin_student_url(@student), params: { student: { add_fund_amount: '' } }
     end
-
-    transaction = PortfolioTransaction.last
-
-    assert_equal nil, transaction.amount
   end
 end
