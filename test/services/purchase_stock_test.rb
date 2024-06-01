@@ -1,0 +1,45 @@
+require "test_helper"
+
+# Q: Can transaction cash balance go negative?
+
+class PurchaseStockTest < ActiveSupport::TestCase
+  setup do
+    @student = users(:one)
+  end
+
+  test "it creates a withdrawl transaction in portfolio_transactions" do
+    order = Order.create(stock: Stock.first, shares: 5, status: :pending, user: @student)
+    assert_difference("PortfolioTransaction.count") do
+      PurchaseStock.new(order).execute
+    end
+
+    portfolio_transaction = PortfolioTransaction.last
+    assert_equal "withdrawal", portfolio_transaction.transaction_type
+    assert_operator portfolio_transaction.amount, :<, 0
+  end
+
+  test "it creates an linked entry in portfolio_stocks" do
+    order = Order.create(stock: Stock.first, shares: 5, status: :pending, user: @student)
+    assert_difference("PortfolioStock.count") do
+      PurchaseStock.new(order).execute
+    end
+  end
+
+  test "it updates the order status to completed" do
+    order = Order.create(stock: Stock.first, shares: 5, status: :pending, user: @student)
+    PurchaseStock.new(order).execute
+    order.reload
+
+    assert_equal "completed", order.status
+  end
+
+  test "it does not update order when status is not pending" do
+    order = Order.create(stock: Stock.first, shares: 5, status: :canceled, user: @student)
+
+    PurchaseStock.execute(order)
+
+    order.reload
+
+    assert_equal "canceled", order.status
+  end
+end
