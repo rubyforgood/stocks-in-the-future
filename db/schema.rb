@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_06_01_143331) do
+ActiveRecord::Schema[7.1].define(version: 2024_06_01_194906) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -54,8 +54,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_06_01_143331) do
   create_table "portfolio_stocks", force: :cascade do |t|
     t.bigint "portfolio_id", null: false
     t.bigint "stock_id", null: false
-    t.float "shares"
-    t.float "purchase_price"
+    t.decimal "shares", precision: 15, scale: 2
+    t.decimal "purchase_price", precision: 15, scale: 2
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["portfolio_id", "stock_id"], name: "index_portfolio_stocks_on_portfolio_and_stock", unique: true
