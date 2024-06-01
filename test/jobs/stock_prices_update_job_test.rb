@@ -1,7 +1,7 @@
 require "test_helper"
 
 class StockPricesUpdateJobTest < ActiveJob::TestCase
-  STOCK_URL_MATCHER = %r{https://www\.alphavantage\.co/query\?apikey=asdf&function=GLOBAL_QUOTE&symbol=[A-Z]+}
+  STOCK_URL_MATCHER = %r{https://www\.alphavantage\.co/query\?apikey=[^&]+&function=GLOBAL_QUOTE&symbol=[A-Z]+}
   STOCK_SYMBOLS = ["KO", "SNE", "TWX", "DIS", "SIRI", "F", "EA", "FB", "UA", "LUV", "GPS"]
 
   setup do
