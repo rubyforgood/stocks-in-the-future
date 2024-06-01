@@ -15,14 +15,6 @@ class OrdersControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "should create order" do
-    assert_difference("Order.count") do
-      post orders_url, params: { order: { shares: @order.shares, status: @order.status, stock_id: @order.stock_id, user_id: @order.user_id } }
-    end
-
-    assert_redirected_to order_url(Order.last)
-  end
-
   test "should show order" do
     get order_url(@order)
     assert_response :success
@@ -45,4 +37,21 @@ class OrdersControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to orders_url
   end
-end
+    
+  test "" do
+    sign_in Student.first
+
+    stock_id = Stock.first.id
+    num_shares = 5
+
+    assert_difference("Order.count") do
+      post orders_url, params: { order: { shares: num_shares, stock_id: stock_id } }
+    end
+
+
+    assert_equal(num_shares, Order.last.shares)
+    assert_redirected_to order_url(Order.last)
+  end
+  
+end 
+

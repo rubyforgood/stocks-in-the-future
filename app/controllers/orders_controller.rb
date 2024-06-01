@@ -26,7 +26,6 @@ class OrdersController < ApplicationController
     @order.user = current_user
     @order.stock = Stock.find(order_params[:stock_id])
 
-    console
 
     respond_to do |format|
       if @order.save
