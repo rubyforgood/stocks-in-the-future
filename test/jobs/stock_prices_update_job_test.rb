@@ -14,7 +14,7 @@ class StockPricesUpdateJobTest < ActiveJob::TestCase
           "User-Agent" => "Ruby"
         }
       )
-      .to_return(status: 200, body: "", headers: {})
+      .to_return(status: 200, body: File.open(Rails.root.join('./test/data/global_quote_f.json')), headers: {})
   end
 
   test "makes API calls" do
@@ -23,16 +23,12 @@ class StockPricesUpdateJobTest < ActiveJob::TestCase
   end
 
   test "creates Stock records" do
-    skip("waiting for implementation")
-
     assert_difference("Stock.count", 11) do
       StockPricesUpdateJob.perform_now
     end
   end
 
   test "sets Stock ticker and price" do
-    skip("waiting for implementation")
-
     StockPricesUpdateJob.perform_now
     STOCK_SYMBOLS.each do |ticker|
       stock = Stock.find_by(ticker: ticker)
