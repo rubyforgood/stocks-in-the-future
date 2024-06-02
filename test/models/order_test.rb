@@ -26,5 +26,8 @@ class OrderTest < ActiveSupport::TestCase
     stock = Stock.create(ticker: "EVG", price: 10.00)
     order = Order.create(stock: stock, shares: 5, status: :completed, user: @student)
     assert_equal 50, order.purchase_cost
+    stock = stocks(:one)
+    order = Order.create(stock:, shares: 5, status: :completed, user: @student)
+    assert_equal 1725, order.purchase_cost
   end
 end
