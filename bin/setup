@@ -19,7 +19,7 @@ FileUtils.chdir APP_ROOT do
 
   # Install JavaScript dependencies
   puts "== Installing Javascript dependencies =="
-  system!("npm install --global yarn")
+  system!("npm install --global yarn") rescue nil
   system!("yarn install")
 
   puts "\n== Copying sample files =="
