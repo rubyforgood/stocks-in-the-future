@@ -45,4 +45,21 @@ class PurchaseStockTest < ActiveSupport::TestCase
 
     assert_equal "canceled", order.status
   end
+
+  test "it does not update order if portfolio transaction fails to save" do
+    order = Order.create(stock: Stock.first, shares: 5, status: :pending, user: @student)
+
+    # Simulate failure to create portfolio_transaction by stubbing the create method to return false
+    order.portfolio.portfolio_transactions.stubs(:create!).raises(ActiveRecord::RecordInvalid.new(PortfolioTransaction.new))
+
+    assert_raises(ActiveRecord::RecordInvalid) do
+      PurchaseStock.execute(order)
+    end
+
+    order.reload
+
+    assert_equal "pending", order.status
+    assert_nil order.portfolio_transaction
+    assert_nil order.portfolio_stock
+  end
 end
