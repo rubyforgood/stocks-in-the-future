@@ -34,6 +34,10 @@ $ docker compose run stocks rails test
 
 It is **strongly** recommend to use Docker. See instructions above.
 
+## With Devcontainer
+
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/rubyforgood/stocks-in-the-future/tree/dev-container?quickstart=1)
+
 ## URL
 
 Access the app via `localhost:5000`
