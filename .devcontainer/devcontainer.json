@@ -1,0 +1,19 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/postgres
+{
+  "dockerComposeFile": "docker-compose.devcontainer.yml",
+  "forwardPorts": [3000, 5432],
+  "workspaceFolder": "/workspaces/stocks-in-the-future",
+  "service": "app",
+  "customizations": {
+    "vscode": {
+      "extensions": ["Shopify.ruby-extensions-pack"],
+      "settings": {
+        "rubyLsp.rubyVersionManager": {
+          "identifier": "rvm"
+        }
+      }
+    }
+  },
+  "postCreateCommand": ".devcontainer/post-create.sh"
+ }
