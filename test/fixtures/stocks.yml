@@ -3,9 +3,7 @@
 one:
   ticker: MyString
   price: 345
-  
 
 two:
   ticker: MyString2
-  price: 123 
-  
+  price: 123
