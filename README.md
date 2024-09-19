@@ -38,6 +38,17 @@ It is **strongly** recommend to use Docker. See instructions above.
 
 Access the app via `localhost:5000`
 
+# About Stocks in the Future 
+
+## Mission
+[Stocks in the Future](https://sifonline.org/) is a program with the mission of developing highly motivated middle school students who are eager to learn and dedicated to attending class through the use of incentives coupled with a financial literacy curriculum focused on investing that reinforces Math, Language Arts and Social Studies. Stocks in the Future pushes to educate, encourage, and empower the next generation of financially-literate individuals.
+
+## Ruby for Good
+If you have any questions about an issue, comment on the issue, open a new issue, or ask in [the RubyForGood slack] (https://join.slack.com/t/rubyforgood/shared_invite/zt-2k5ezv241-Ia2Iac3amxDS8CuhOr69ZA). Stocks-in-the-future has a #stocks-in-the-future channel in the Slack. Feel free to join the community! 
+
+## Repo Deployment
+Check out this link for information about the deployment of this repo: https://stocks-in-the-future-2e5bd264d30e.herokuapp.com/
+
 # Contributing
 
 * Please create a new branch for each request
