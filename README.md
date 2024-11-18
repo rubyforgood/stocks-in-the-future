@@ -46,9 +46,6 @@ Access the app via `localhost:5000`
 ## Ruby for Good
 If you have any questions about an issue, comment on the issue, open a new issue, or ask in [the RubyForGood slack] (https://join.slack.com/t/rubyforgood/shared_invite/zt-2k5ezv241-Ia2Iac3amxDS8CuhOr69ZA). Stocks-in-the-future has a #stocks-in-the-future channel in the Slack. Feel free to join the community! 
 
-## Repo Deployment
-Check out this link for information about the deployment of this repo: https://stocks-in-the-future-2e5bd264d30e.herokuapp.com/
-
 # Contributing
 
 * Please create a new branch for each request
