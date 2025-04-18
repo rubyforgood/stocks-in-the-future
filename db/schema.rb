@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_06_01_143331) do
+ActiveRecord::Schema[7.1].define(version: 2025_04_18_002328) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -131,6 +131,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_06_01_143331) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "classroom_id"
+    t.boolean "admin", default: false
     t.index ["classroom_id"], name: "index_users_on_classroom_id"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["username"], name: "index_users_on_username", unique: true

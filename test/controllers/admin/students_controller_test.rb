@@ -3,9 +3,11 @@ require 'test_helper'
 class Admin::StudentsControllerTest < ActionDispatch::IntegrationTest
   setup do
     @student = users(:one)
+    @admin = users(:admin)
   end
 
   test 'should update student email' do
+    sign_in(@admin)
     @student.update_attribute(:email, 'nottest@nottest.com')
 
     patch admin_student_url(@student), params: { student: { email: 'test@test.com' } }
@@ -15,6 +17,7 @@ class Admin::StudentsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'should not update with an error' do
+    sign_in(@admin)
     @student.update_attribute(:username, 'testingusername')
 
     patch admin_student_url(@student), params: { student: { username: '' } }
@@ -27,6 +30,7 @@ class Admin::StudentsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'given a add_fund_amount, creates a transaction' do
+    sign_in(@admin)
     assert_difference('PortfolioTransaction.count', 1) do
       patch admin_student_url(@student), params: { student: { add_fund_amount: '10.50' } }
     end
@@ -41,6 +45,7 @@ class Admin::StudentsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'given an empty add_fund_amount, does not create a transaction' do
+    sign_in(@admin)
     assert_difference('PortfolioTransaction.count', 0) do
       patch admin_student_url(@student), params: { student: { add_fund_amount: '' } }
     end

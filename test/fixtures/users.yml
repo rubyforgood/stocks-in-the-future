@@ -8,11 +8,15 @@ one:
   username: abc123
   classroom: one
   encrypted_password: <%= Devise::Encryptor.digest(User, 'password') %>
+  admin: false
 
-# column: value
-#
 two:
   username: def123
   classroom: two
   encrypted_password: <%= Devise::Encryptor.digest(User, 'password') %>
-# column: value
+  admin: false
+admin:
+  username: admin
+  classroom: one
+  encrypted_password: <%= Devise::Encryptor.digest(User, 'password') %>
+  admin: true
