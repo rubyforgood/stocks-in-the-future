@@ -43,4 +43,4 @@ group :test do
   gem "webmock"
 end
 
-gem "pundit", "~> 2.3"
+gem "pundit", "~> 2.5"
