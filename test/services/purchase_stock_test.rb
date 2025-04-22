@@ -45,7 +45,8 @@ class PurchaseStockTest < ActiveSupport::TestCase
   end
 
   # TODO: Fix this test
-  skip "it does not update order if portfolio transaction fails to save" do
+  test "it does not update order if portfolio transaction fails to save" do
+    skip "Can we update this test to not use a mock?"
     order = Order.create(stock: Stock.first, shares: 5, status: :pending, user: @student)
 
     # Simulate failure to create portfolio_transaction by stubbing the create method to return false
