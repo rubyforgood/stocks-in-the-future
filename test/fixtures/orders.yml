@@ -4,10 +4,11 @@ one:
   user: one
   stock: one
   shares: 9.99
-  status: 
+  status:
 
 two:
   user: two
   stock: two
   shares: 9.99
-  status: 
+  status:
+

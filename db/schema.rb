@@ -47,6 +47,10 @@ ActiveRecord::Schema[7.1].define(version: 2025_04_18_002328) do
     t.integer "status"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "portfolio_stock_id"
+    t.bigint "portfolio_transaction_id"
+    t.index ["portfolio_stock_id"], name: "index_orders_on_portfolio_stock_id"
+    t.index ["portfolio_transaction_id"], name: "index_orders_on_portfolio_transaction_id"
     t.index ["stock_id"], name: "index_orders_on_stock_id"
     t.index ["user_id"], name: "index_orders_on_user_id"
   end
@@ -54,11 +58,11 @@ ActiveRecord::Schema[7.1].define(version: 2025_04_18_002328) do
   create_table "portfolio_stocks", force: :cascade do |t|
     t.bigint "portfolio_id", null: false
     t.bigint "stock_id", null: false
-    t.float "shares"
-    t.float "purchase_price"
+    t.decimal "shares", precision: 15, scale: 2
+    t.decimal "purchase_price", precision: 15, scale: 2
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["portfolio_id", "stock_id"], name: "index_portfolio_stocks_on_portfolio_and_stock", unique: true
+    t.index ["portfolio_id", "stock_id"], name: "index_portfolio_stocks_on_portfolio_and_stock"
     t.index ["portfolio_id"], name: "index_portfolio_stocks_on_portfolio_id"
     t.index ["stock_id"], name: "index_portfolio_stocks_on_stock_id"
   end
@@ -146,6 +150,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_04_18_002328) do
 
   add_foreign_key "classrooms", "schools"
   add_foreign_key "classrooms", "years"
+  add_foreign_key "orders", "portfolio_stocks"
+  add_foreign_key "orders", "portfolio_transactions"
   add_foreign_key "orders", "stocks"
   add_foreign_key "orders", "users"
   add_foreign_key "portfolio_stocks", "portfolios"

@@ -4,10 +4,9 @@ one:
   ticker: MyString
   company_name: MyString
   price: 345
-  
 
 two:
   ticker: MyString2
   company_name: MyString2
   price: 123 
-  
+
