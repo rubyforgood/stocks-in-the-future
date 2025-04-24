@@ -10,7 +10,7 @@ class Admin::StocksControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "create" do
-    params = { stock: { company_name: "Apple Inc." } }
+    params = {stock: {company_name: "Apple Inc."}}
 
     sign_in(users(:admin))
 

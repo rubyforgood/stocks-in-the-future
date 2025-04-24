@@ -14,7 +14,7 @@ class StockPricesUpdateJobTest < ActiveJob::TestCase
           "User-Agent" => "Ruby"
         }
       )
-      .to_return(status: 200, body: File.open(Rails.root.join('./test/data/global_quote_f.json')), headers: {})
+      .to_return(status: 200, body: Rails.root.join("./test/data/global_quote_f.json").open)
   end
 
   test "makes API calls" do

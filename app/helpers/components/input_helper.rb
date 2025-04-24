@@ -10,14 +10,14 @@ module Components::InputHelper
     options[:class] = tw(options[:class])
 
     options.reverse_merge!(
-      label: (options[:lable] || false),
-      required: (options[:required] || false),
-      disabled: (options[:disabled] || false),
-      readonly: (options[:readonly] || false),
-      placeholder: (options[:placeholder] || ""),
-      autocomplete: (options[:autocomplete] || ""),
-      autocapitalize: (options[:autocapitalize] || nil),
-      autocorrect: (options[:autocorrect] || nil)
+      label: options[:lable] || false,
+      required: options[:required] || false,
+      disabled: options[:disabled] || false,
+      readonly: options[:readonly] || false,
+      placeholder: options[:placeholder] || "",
+      autocomplete: options[:autocomplete] || "",
+      autocapitalize: options[:autocapitalize] || nil,
+      autocorrect: options[:autocorrect] || nil
     )
     render partial: "components/ui/input", locals: {
       type:,

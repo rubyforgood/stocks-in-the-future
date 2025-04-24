@@ -29,7 +29,7 @@ class StockDashboard < Administrate::BaseDashboard
     stock_exchange: Field::String,
     ticker: Field::String,
     created_at: Field::DateTime,
-    updated_at: Field::DateTime,
+    updated_at: Field::DateTime
   }.freeze
 
   # COLLECTION_ATTRIBUTES

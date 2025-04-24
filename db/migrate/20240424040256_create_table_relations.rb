@@ -34,7 +34,7 @@ class CreateTableRelations < ActiveRecord::Migration[7.1]
 
       t.timestamps
     end
-    
+
     add_index :stocks, :ticker, unique: true
 
     create_table :portfolio_stocks do |t|
@@ -46,6 +46,6 @@ class CreateTableRelations < ActiveRecord::Migration[7.1]
       t.timestamps
     end
 
-    add_index :portfolio_stocks, [:portfolio_id, :stock_id], unique: true, name: "index_portfolio_stocks_on_portfolio_and_stock"    
+    add_index :portfolio_stocks, [:portfolio_id, :stock_id], unique: true, name: "index_portfolio_stocks_on_portfolio_and_stock"
   end
 end

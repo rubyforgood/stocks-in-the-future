@@ -26,7 +26,18 @@ class OrdersControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should update order" do
-    patch order_url(@order), params: { order: { shares: @order.shares, status: @order.status, stock_id: @order.stock_id, user_id: @order.user_id } }
+    patch(
+      order_url(@order),
+      params: {
+        order: {
+          shares: @order.shares,
+          status: @order.status,
+          stock_id: @order.stock_id,
+          user_id: @order.user_id
+        }
+      }
+    )
+
     assert_redirected_to order_url(@order)
   end
 
@@ -37,7 +48,7 @@ class OrdersControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to orders_url
   end
-    
+
   test "" do
     sign_in Student.first
 
@@ -45,13 +56,10 @@ class OrdersControllerTest < ActionDispatch::IntegrationTest
     num_shares = 5
 
     assert_difference("Order.count") do
-      post orders_url, params: { order: { shares: num_shares, stock_id: stock_id } }
+      post orders_url, params: {order: {shares: num_shares, stock_id:}}
     end
-
 
     assert_equal(num_shares, Order.last.shares)
     assert_redirected_to order_url(Order.last)
   end
-  
-end 
-
+end

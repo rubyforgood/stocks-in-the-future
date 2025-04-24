@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+# Turn off command printing to keep output clean
+set -Eeuo pipefail
+
+# Use GitHub formatter for CI
+FORMATTER="progress"
+if [[ "${CI:-}" == "true" ]]; then
+  FORMATTER="github"
+fi
+
+bundle exec standardrb --parallel -f "$FORMATTER"
+
+echo ""
+echo "🎉 All checks passed!"
+echo ""

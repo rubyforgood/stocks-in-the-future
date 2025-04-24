@@ -1,7 +1,7 @@
-require 'simplecov'
+require "simplecov"
 
-SimpleCov.start 'rails' do
-  add_filter '/test/' 
+SimpleCov.start "rails" do
+  add_filter "/test/"
 end
 
 ENV["RAILS_ENV"] ||= "test"

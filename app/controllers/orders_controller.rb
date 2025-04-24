@@ -1,5 +1,5 @@
 class OrdersController < ApplicationController
-  before_action :set_order, only: %i[ show edit update destroy ]
+  before_action :set_order, only: %i[show edit update destroy]
 
   # GET /orders or /orders.json
   def index
@@ -25,7 +25,6 @@ class OrdersController < ApplicationController
 
     @order.user = current_user
     @order.stock = Stock.find(order_params[:stock_id])
-
 
     respond_to do |format|
       if @order.save
@@ -62,13 +61,14 @@ class OrdersController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_order
-      @order = Order.find(params[:id])
-    end
 
-    # Only allow a list of trusted parameters through.
-    def order_params
-      params.require(:order).permit(:student_id, :stock_id, :shares, :status)
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_order
+    @order = Order.find(params[:id])
+  end
+
+  # Only allow a list of trusted parameters through.
+  def order_params
+    params.require(:order).permit(:student_id, :stock_id, :shares, :status)
+  end
 end
