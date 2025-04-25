@@ -8,25 +8,17 @@ class StockPricesUpdateJob < ApplicationJob
     stock_symbols.each do |symbol|
       data = api_request(symbol)
       price = data["Global Quote"]["05. price"]
-      stock_rec = Stock.find_by(ticker: symbol)
-      if stock_rec
-          stock_rec.price = price
-          stock_rec.save
-      else
-          stock_rec = Stock.new
-          stock_rec.ticker = symbol
-          stock_rec.price = price
-          stock_rec.save
-      end
-    end 
+      stock = Stock.find_or_initialize_by(ticker: symbol)
+      stock.price = price
+      stock.save
+    end
   end
 
-  private 
+  private
 
   def api_request(symbol)
     url = "https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=#{symbol}&apikey=#{API_KEY}"
     uri = URI.parse(url)
-    return JSON.parse Net::HTTP.get(uri)
-  end 
+    JSON.parse Net::HTTP.get(uri)
+  end
 end
-

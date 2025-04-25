@@ -29,7 +29,7 @@ class Portfolio < ApplicationRecord
   def sell_stock(ticker:, shares:)
     stock = Stock.find_by(ticker:)
     portfolio_stock = portfolio_stocks.find_by(stock_id: stock.id)
-    return unless portfolio_stock.present? # the stock we're trying to sell doesn't exist, return
+    return if portfolio_stock.blank?
 
     # update cash balance with portfolio_transactions
 

@@ -14,7 +14,7 @@ class TeacherDashboard < Administrate::BaseDashboard
     portfolio: Field::HasOne,
     username: Field::String,
     created_at: Field::DateTime,
-    updated_at: Field::DateTime,
+    updated_at: Field::DateTime
   }.freeze
 
   # COLLECTION_ATTRIBUTES

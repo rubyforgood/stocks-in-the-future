@@ -10,8 +10,8 @@
 
 @year = Year.create(year: 2024)
 
-@school = School.create(name: 'Test School', years: [@year])
+@school = School.create(name: "Test School", years: [@year])
 
-@classroom = Classroom.create(name: 'Test Class', year: @year, school: @school)
+@classroom = Classroom.create(name: "Test Class", year: @year, school: @school)
 
-@user = User.create(username: 'test', password: 'password', password_confirmation: 'password', classroom:@classroom)
+@user = User.create(username: "test", password: "password", password_confirmation: "password", classroom: @classroom)

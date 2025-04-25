@@ -15,7 +15,7 @@ class ClassroomDashboard < Administrate::BaseDashboard
     users: Field::HasMany,
     year: Field::BelongsTo,
     created_at: Field::DateTime,
-    updated_at: Field::DateTime,
+    updated_at: Field::DateTime
   }.freeze
 
   # COLLECTION_ATTRIBUTES

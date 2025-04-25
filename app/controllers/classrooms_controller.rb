@@ -1,5 +1,5 @@
 class ClassroomsController < ApplicationController
-  before_action :set_classroom, only: %i[ show edit update destroy ]
+  before_action :set_classroom, only: %i[show edit update destroy]
   before_action :authenticate_user!
 
   # GET /classrooms or /classrooms.json
@@ -59,13 +59,14 @@ class ClassroomsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_classroom
-      @classroom = Classroom.find(params[:id])
-    end
 
-    # Only allow a list of trusted parameters through.
-    def classroom_params
-      params.require(:classroom).permit(:name, :year_id, :school_id, :grade)
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_classroom
+    @classroom = Classroom.find(params[:id])
+  end
+
+  # Only allow a list of trusted parameters through.
+  def classroom_params
+    params.require(:classroom).permit(:name, :year_id, :school_id, :grade)
+  end
 end

@@ -47,17 +47,17 @@ module Admin
     private
 
     def create_portfolio_transaction!
-      return unless fund_amount.present?
+      return if fund_amount.blank?
 
       PortfolioTransaction.create!(
         portfolio: requested_resource.portfolio,
         amount: fund_amount,
-        transaction_type: 'deposit'
+        transaction_type: "deposit"
       )
     end
 
     def fund_amount
-      @fund_amount ||= params['student']['add_fund_amount']
+      @fund_amount ||= params["student"]["add_fund_amount"]
     end
   end
 end

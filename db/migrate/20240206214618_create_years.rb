@@ -5,7 +5,7 @@ class CreateYears < ActiveRecord::Migration[7.1]
 
       t.timestamps
     end
-    
+
     add_index :years, :year, unique: true
   end
 end
