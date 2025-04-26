@@ -1,13 +1,5 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
-
-one:
-  name: MyString
-  year: one
-  school: one
-  grade: MyString
-
-two:
-  name: MyString
-  year: two
-  school: two
-  grade: MyString
+hubbard_5th_grade:
+  name: Ms. Hubbard
+  year: current
+  school: armistead_elementary
+  grade: 5th

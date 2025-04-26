@@ -1,5 +1,6 @@
 class Classroom < ApplicationRecord
-  belongs_to :year
   belongs_to :school
-  has_many :users
+  belongs_to :year
+
+  has_many :users, dependent: :nullify
 end

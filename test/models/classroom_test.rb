@@ -1,7 +1,11 @@
 require "test_helper"
 
 class ClassroomTest < ActiveSupport::TestCase
-  # test "the truth" do
-  #   assert true
-  # end
+  test "factory" do
+    assert build(:classroom).validate!
+  end
+
+  test "destroy" do
+    assert classrooms(:hubbard_5th_grade).destroy!
+  end
 end

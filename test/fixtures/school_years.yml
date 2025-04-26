@@ -1,9 +1,3 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
-
-one:
-  school: one
-  year: one
-
-two:
-  school: two
-  year: two
+armistead_elementary_current:
+  school: armistead_elementary
+  year: current

@@ -1,13 +1,5 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
-
 one:
   portfolio: one
   stock: one
-  shares: 1.5
-  purchase_price: 1.5
-
-two:
-  portfolio: two
-  stock: two
   shares: 1.5
   purchase_price: 1.5

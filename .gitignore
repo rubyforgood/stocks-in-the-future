@@ -38,9 +38,6 @@
 # ignore local database.yml
 /config/database.yml
 
-# ignore simplecov
-/coverage
-
 /app/assets/builds/*
 !/app/assets/builds/.keep
 

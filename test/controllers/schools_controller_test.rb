@@ -1,44 +1,65 @@
 require "test_helper"
 
 class SchoolsControllerTest < ActionDispatch::IntegrationTest
-  setup do
-    @school = schools(:one)
-    @user = users(:one)
-    sign_in @user
-  end
+  test "index" do
+    sign_in users(:one)
 
-  test "should get index" do
-    get schools_url
+    get schools_path
+
     assert_response :success
   end
 
-  test "should get new" do
-    get new_school_url
+  test "new" do
+    sign_in users(:one)
+
+    get new_school_path
+
     assert_response :success
   end
 
-  test "should create school" do
-    assert_difference("School.count") do
-      post schools_url, params: {school: {name: @school.name}}
+  test "create" do
+    params = {school: {name: "New School"}}
+    sign_in users(:one)
+
+    assert_difference "School.count" do
+      post schools_path, params:
     end
 
     assert_redirected_to school_url(School.last)
   end
 
-  test "should show school" do
-    get school_url(@school)
+  # TODO: test a failed create
+
+  test "show" do
+    sign_in users(:one)
+
+    get school_path(schools(:armistead_elementary))
+
     assert_response :success
   end
 
-  test "should get edit" do
-    get edit_school_url(@school)
+  test "edit" do
+    sign_in users(:one)
+
+    get edit_school_path(schools(:armistead_elementary))
+
     assert_response :success
   end
 
-  test "should update school" do
-    patch school_url(@school), params: {school: {name: @school.name}}
-    assert_redirected_to school_url(@school)
+  test "update" do
+    school = schools(:armistead_elementary)
+    params = {school: {name: "Updated School"}}
+    sign_in users(:one)
+
+    assert_changes -> { school.updated_at } do
+      patch(school_path(school), params:)
+      school.reload
+    end
+
+    assert_redirected_to school_url(school)
   end
+
+  # TODO: test a failed update
 
   # TODO: need to figure out if we want a cascading dependent destroy on all referenced objects
   # school -> classroom -> user -> order

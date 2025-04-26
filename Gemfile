@@ -38,9 +38,10 @@ end
 
 group :test do
   gem "capybara"
+  gem "factory_bot_rails"
   gem "selenium-webdriver"
-  gem "webmock"
   gem "simplecov", require: false
+  gem "webmock"
 end
 
 gem "pundit", "~> 2.5"
