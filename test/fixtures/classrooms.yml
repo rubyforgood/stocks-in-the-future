@@ -2,12 +2,12 @@
 
 one:
   name: MyString
-  year: one
+  year: current
   school: one
   grade: MyString
 
 two:
   name: MyString
-  year: two
+  year: current
   school: two
   grade: MyString
