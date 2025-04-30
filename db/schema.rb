@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_04_18_002328) do
+ActiveRecord::Schema[7.1].define(version: 2025_04_27_103023) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -142,7 +142,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_04_18_002328) do
   end
 
   create_table "years", force: :cascade do |t|
-    t.integer "year"
+    t.integer "year", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["year"], name: "index_years_on_year", unique: true
