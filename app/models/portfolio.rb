@@ -1,7 +1,8 @@
 class Portfolio < ApplicationRecord
   belongs_to :user
-  has_many :portfolio_transactions
-  has_many :portfolio_stocks
+
+  has_many :portfolio_transactions, dependent: :destroy
+  has_many :portfolio_stocks, dependent: :destroy
 
   def cash_balance
     portfolio_transactions.sum(:amount)
