@@ -2,8 +2,8 @@
 
 one:
   school: one
-  year: one
+  year: current
 
 two:
   school: two
-  year: two
+  year: current
