@@ -1,65 +1,70 @@
 require "test_helper"
 
 class OrdersControllerTest < ActionDispatch::IntegrationTest
-  setup do
-    @order = orders(:one)
-  end
+  test "index" do
+    get orders_path
 
-  test "should get index" do
-    get orders_url
     assert_response :success
   end
 
-  test "should get new" do
-    get new_order_url
+  test "new" do
+    get new_order_path
+
     assert_response :success
   end
 
-  test "should show order" do
-    get order_url(@order)
-    assert_response :success
-  end
-
-  test "should get edit" do
-    get edit_order_url(@order)
-    assert_response :success
-  end
-
-  test "should update order" do
-    patch(
-      order_url(@order),
-      params: {
-        order: {
-          shares: @order.shares,
-          status: @order.status,
-          stock_id: @order.stock_id,
-          user_id: @order.user_id
-        }
-      }
-    )
-
-    assert_redirected_to order_url(@order)
-  end
-
-  test "should destroy order" do
-    assert_difference("Order.count", -1) do
-      delete order_url(@order)
-    end
-
-    assert_redirected_to orders_url
-  end
-
-  test "" do
-    sign_in Student.first
-
-    stock_id = Stock.first.id
-    num_shares = 5
+  test "create" do
+    user = create(:user)
+    stock = create(:stock)
+    params = {order: {user_id: user.id, stock_id: stock.id}}
+    sign_in(user)
 
     assert_difference("Order.count") do
-      post orders_url, params: {order: {shares: num_shares, stock_id:}}
+      post(orders_path, params:)
     end
 
-    assert_equal(num_shares, Order.last.shares)
-    assert_redirected_to order_url(Order.last)
+    assert_redirected_to order_path(Order.last)
+  end
+
+  # TODO: Add test for create with invalid params
+
+  test "show" do
+    order = create(:order)
+
+    get order_path(order)
+
+    assert_response :success
+  end
+
+  test "edit" do
+    order = create(:order)
+
+    get edit_order_path(order)
+
+    assert_response :success
+  end
+
+  test "update" do
+    params = {order: {status: "completed"}}
+    order = create(:order, :pending)
+
+    assert_changes "order.reload.updated_at" do
+      patch(order_path(order), params:)
+    end
+
+    assert_redirected_to order_path(order)
+    assert order.completed?
+  end
+
+  # TODO: Add test for update with invalid params
+
+  test "destroy" do
+    order = create(:order)
+
+    assert_difference("Order.count", -1) do
+      delete order_path(order)
+    end
+
+    assert_redirected_to orders_path
   end
 end

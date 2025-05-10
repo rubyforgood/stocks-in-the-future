@@ -25,23 +25,24 @@ group :development, :test do
   gem "debug", platforms: %i[mri windows]
 
   # a linting tool, to encourage/enforce a consistent code style
-  gem "standardrb"
   gem "standard-rails"
+  gem "standardrb"
 end
 
 group :development do
   gem "bundler-audit"
+  gem "i18n-tasks"
   gem "pry", "~> 0.15.2"
-  # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
 end
 
 group :test do
   gem "capybara"
   gem "factory_bot_rails"
+  gem "mocha"
   gem "selenium-webdriver"
-  gem "webmock"
   gem "simplecov", require: false
+  gem "webmock"
 end
 
 gem "pundit", "~> 2.5"

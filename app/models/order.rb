@@ -11,6 +11,6 @@ class Order < ApplicationRecord
   scope :pending, -> { where(status: :pending) }
 
   def purchase_cost
-    stock.price * shares
+    stock.price_cents * shares
   end
 end
