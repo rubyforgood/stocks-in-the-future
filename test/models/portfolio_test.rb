@@ -1,9 +1,17 @@
 require "test_helper"
 
 class PortfolioTest < ActiveSupport::TestCase
-  fixtures :portfolios
+  test "factory" do
+    assert build(:portfolio).validate!
+  end
+
   test "#cash_balance" do
-    portfolio = portfolios(:one)
-    assert_equal BigDecimal("25.50"), portfolio.cash_balance
+    portfolio = create(:portfolio)
+    create(:portfolio_transaction, :deposit, portfolio:, amount_cents: 1000)
+    create(:portfolio_transaction, :withdrawal, portfolio:, amount_cents: -500)
+
+    result = portfolio.cash_balance
+
+    assert_equal 500, result
   end
 end
