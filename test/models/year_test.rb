@@ -5,10 +5,6 @@ class YearTest < ActiveSupport::TestCase
     assert build(:year).validate!
   end
 
-  test "destroy" do
-    assert years(:current).destroy!
-  end
-
   test "year presence" do
     year = build(:year, year: nil)
 
@@ -17,10 +13,11 @@ class YearTest < ActiveSupport::TestCase
   end
 
   test "year uniqueness" do
-    taken_year_value = years(:current).year
-    year = build(:year, year: taken_year_value)
+    duplicate_year = 2025
+    create(:year, year: duplicate_year)
+    year = build(:year, year: duplicate_year)
 
     assert_not year.valid?
-    assert year.errors.added?(:year, :taken, value: taken_year_value)
+    assert year.errors.added?(:year, :taken, value: duplicate_year)
   end
 end

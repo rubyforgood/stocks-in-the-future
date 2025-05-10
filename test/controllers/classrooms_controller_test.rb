@@ -1,74 +1,83 @@
 require "test_helper"
 
 class ClassroomsControllerTest < ActionDispatch::IntegrationTest
-  setup do
-    @classroom = classrooms(:one)
-    @user = users(:one)
-    @school = schools(:one)
-    @year = years(:current)
-    sign_in @user
-  end
+  test "index" do
+    user = create(:user)
+    sign_in(user)
 
-  test "should get index" do
-    get classrooms_url
+    get classrooms_path
+
     assert_response :success
   end
 
-  test "should get new" do
-    get new_classroom_url
+  test "new" do
+    user = create(:user)
+    sign_in(user)
+
+    get new_classroom_path
+
     assert_response :success
   end
 
-  test "should create classroom" do
+  test "create" do
+    year = create(:year)
+    school = create(:school)
+    params = {classroom: {school_id: school.id, year_id: year.id}}
+    user = create(:user)
+    sign_in(user)
+
     assert_difference("Classroom.count") do
-      post(
-        classrooms_url,
-        params: {
-          classroom: {
-            grade: @classroom.grade,
-            name: @classroom.name,
-            school_name: @school.name,
-            year_value: @year.year
-          }
-        }
-      )
+      post(classrooms_path, params:)
     end
 
-    assert_redirected_to classroom_url(Classroom.last)
+    assert_redirected_to classroom_path(Classroom.last)
+    assert_equal t("classrooms.create.notice"), flash[:notice]
   end
 
-  test "should show classroom" do
-    get classroom_url(@classroom)
+  test "show" do
+    classroom = create(:classroom)
+    user = create(:user)
+    sign_in(user)
+
+    get classroom_path(classroom)
+
     assert_response :success
   end
 
-  test "should get edit" do
-    get edit_classroom_url(@classroom)
+  test "edit" do
+    classroom = create(:classroom)
+    user = create(:user)
+    sign_in(user)
+
+    get edit_classroom_path(classroom)
+
     assert_response :success
   end
 
-  test "should update classroom" do
-    patch(
-      classroom_url(@classroom),
-      params: {
-        classroom: {
-          grade: @classroom.grade,
-          name: @classroom.name,
-          school_name: @school.name,
-          year_value: @year.year
-        }
-      }
-    )
+  test "update" do
+    params = {classroom: {name: "Abc123"}}
+    classroom = create(:classroom)
+    user = create(:user)
+    sign_in(user)
 
-    assert_redirected_to classroom_url(@classroom)
+    assert_changes "classroom.reload.updated_at" do
+      patch(classroom_path(classroom), params:)
+    end
+
+    assert_redirected_to classroom_path(classroom)
+    assert_equal t("classrooms.update.notice"), flash[:notice]
   end
 
-  # TODO: would need dependent destroy on user
-  # test "should destroy classroom" do
-  #   assert_difference("Classroom.count", -1) do
-  #     delete classroom_url(@classroom)
-  #   end
+  test "destroy" do
+    classroom = create(:classroom)
+    user = create(:user)
+    sign_in(user)
 
-  #   assert_redirected_to classrooms_url
-  # end
+    assert_difference("Classroom.count", -1) do
+      delete classroom_path(classroom)
+    end
+
+    assert_redirected_to classrooms_path
+    assert_equal t("classrooms.destroy.notice"), flash[:notice]
+  end
 end

@@ -1,2 +1,0 @@
-current:
-  year: <%= Date.current.year %>

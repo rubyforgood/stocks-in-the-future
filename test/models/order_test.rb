@@ -1,33 +1,25 @@
 require "test_helper"
 
 class OrderTest < ActiveSupport::TestCase
-  setup do
-    @student = users(:one)
+  test "factory" do
+    assert build(:order).validate!
   end
 
-  test "can create order" do
-    order = Order.new
-    order.user = Student.first
-    order.stock = Stock.first
-    order.shares = 5
-    order.status = :pending
+  test ".pending" do
+    order1 = create(:order, :pending)
+    create(:order, :completed)
+    create(:order, :canceled)
+    order4 = create(:order, :pending)
 
-    assert order.save
+    assert_equal [order1, order4], Order.pending
   end
 
-  test "can filter orders by pending status" do
-    pending_orders = [Order.create(stock: Stock.first, shares: 5, status: :pending, user: @student)]
-    Order.create(stock: Stock.first, shares: 5, status: :completed, user: @student)
+  test "#purchase_cost" do
+    stock = create(:stock, price_cents: 1_000)
+    order = create(:order, stock:, shares: 5.1)
 
-    assert_equal pending_orders, Order.pending
-  end
+    result = order.purchase_cost
 
-  test "calculates purchase cost" do
-    stock = Stock.create(ticker: "EVG", price: 10.00)
-    order = Order.create(stock: stock, shares: 5, status: :completed, user: @student)
-    assert_equal 50, order.purchase_cost
-    stock = stocks(:one)
-    order = Order.create(stock:, shares: 5, status: :completed, user: @student)
-    assert_equal 1725, order.purchase_cost
+    assert_equal 5_100, result
   end
 end

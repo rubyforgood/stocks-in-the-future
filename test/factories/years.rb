@@ -1,5 +1,5 @@
 FactoryBot.define do
   factory :year do
-    year { 2000 }
+    sequence(:year) { |n| 2000 + n }
   end
 end

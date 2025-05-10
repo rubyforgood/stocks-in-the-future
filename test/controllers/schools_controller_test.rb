@@ -1,52 +1,78 @@
 require "test_helper"
 
 class SchoolsControllerTest < ActionDispatch::IntegrationTest
-  setup do
-    @school = schools(:one)
-    @user = users(:one)
-    sign_in @user
-  end
+  test "index" do
+    user = create(:user)
+    sign_in user
 
-  test "should get index" do
     get schools_url
+
     assert_response :success
   end
 
-  test "should get new" do
+  test "new" do
+    user = create(:user)
+    sign_in user
+
     get new_school_url
+
     assert_response :success
   end
 
-  test "should create school" do
+  test "create" do
+    params = {school: {name: ""}}
+    user = create(:user)
+    sign_in user
+
     assert_difference("School.count") do
-      post schools_url, params: {school: {name: @school.name}}
+      post(schools_url, params:)
     end
 
     assert_redirected_to school_url(School.last)
   end
 
-  test "should show school" do
-    get school_url(@school)
+  test "show" do
+    school = create(:school)
+    user = create(:user)
+    sign_in user
+
+    get school_url(school)
+
     assert_response :success
   end
 
-  test "should get edit" do
-    get edit_school_url(@school)
+  test "edit" do
+    school = create(:school)
+    user = create(:user)
+    sign_in user
+
+    get edit_school_url(school)
+
     assert_response :success
   end
 
-  test "should update school" do
-    patch school_url(@school), params: {school: {name: @school.name}}
-    assert_redirected_to school_url(@school)
+  test "update" do
+    params = {school: {name: "Abc123"}}
+    school = create(:school)
+    user = create(:user)
+    sign_in user
+
+    assert_changes "school.reload.updated_at" do
+      patch school_url(school), params:
+    end
+
+    assert_redirected_to school_url(school)
   end
 
-  # TODO: need to figure out if we want a cascading dependent destroy on all referenced objects
-  # school -> classroom -> user -> order
-  # test "should destroy school" do
-  #   assert_difference("School.count", -1) do
-  #     delete school_url(@school)
-  #   end
+  test "destroy" do
+    school = create(:school)
+    user = create(:user)
+    sign_in user
 
-  #   assert_redirected_to schools_url
-  # end
+    assert_difference("School.count", -1) do
+      delete school_url(school)
+    end
+
+    assert_redirected_to schools_url
+  end
 end
