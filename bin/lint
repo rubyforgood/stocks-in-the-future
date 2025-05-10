@@ -9,6 +9,7 @@ if [[ "${CI:-}" == "true" ]]; then
   FORMATTER="github"
 fi
 
+bundle exec i18n-tasks check-normalized
 bundle exec standardrb --parallel -f "$FORMATTER"
 
 echo ""

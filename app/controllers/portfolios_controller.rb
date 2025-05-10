@@ -1,6 +1,4 @@
 class PortfoliosController < ApplicationController
-  # before_action :authenticate_user!
-  before_action :set_user
   before_action :set_portfolio
 
   def show
@@ -9,11 +7,7 @@ class PortfoliosController < ApplicationController
 
   private
 
-  def set_user
-    @user = User.find(params[:user_id])
-  end
-
   def set_portfolio
-    @portfolio = @user.portfolio
+    @portfolio = Portfolio.find(params[:id])
   end
 end

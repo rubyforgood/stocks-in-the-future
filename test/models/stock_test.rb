@@ -1,7 +1,7 @@
 require "test_helper"
 
 class StockTest < ActiveSupport::TestCase
-  # test "the truth" do
-  #   assert true
-  # end
+  test "factory" do
+    assert build(:stock).validate!
+  end
 end
