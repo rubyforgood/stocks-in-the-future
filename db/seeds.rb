@@ -16,4 +16,10 @@ school_year_instance = SchoolYear.find_or_create_by!(school: school, year: year)
 
 classroom = Classroom.find_or_create_by(name: "Smith's Sixth Grade", school_year: school_year_instance)
 
-user = User.find_or_create_by(username: "test", password: "password", password_confirmation: "password", classroom: classroom)
+user = User.find_or_initialize_by(username: "test")
+if user.new_record?
+  user.password = "password"
+  user.password_confirmation = "password"
+  user.classroom = classroom
+  user.save!
+end

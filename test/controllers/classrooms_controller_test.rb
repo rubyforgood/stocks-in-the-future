@@ -4,6 +4,7 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
   setup do
     @classroom = classrooms(:one)
     @user = users(:one) # Assuming you have a user fixture named :one
+    @school_year = school_year(:one)
     sign_in @user # S
   end
 
@@ -25,8 +26,7 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
           classroom: {
             grade: @classroom.grade,
             name: @classroom.name,
-            school_id: @classroom.school_id,
-            year_id: @classroom.year_id
+            school_year: school_year,
           }
         }
       )
@@ -52,8 +52,7 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
         classroom: {
           grade: @classroom.grade,
           name: @classroom.name,
-          school_id: @classroom.school_id,
-          year_id: @classroom.year_id
+          school_year: @school_year
         }
       }
     )
