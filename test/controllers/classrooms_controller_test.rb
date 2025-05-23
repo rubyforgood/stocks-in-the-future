@@ -3,7 +3,7 @@ require "test_helper"
 class ClassroomsControllerTest < ActionDispatch::IntegrationTest
   setup do
     @classroom = classrooms(:one)
-    @user = users(:one) 
+    @user = users(:one)
     @school = schools(:one)
     @year = years(:current)
     sign_in @user
@@ -28,7 +28,7 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
             grade: @classroom.grade,
             name: @classroom.name,
             school_name: @school.name,
-            year_value: @year.year,
+            year_value: @year.year
           }
         }
       )
