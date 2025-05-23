@@ -1,3 +1,4 @@
+# standard:disable Rails/ReversibleMigrationMethodDefinition
 class CreateDelayedJobs < ActiveRecord::Migration[7.1]
   def self.up
     create_table :delayed_jobs do |table|
@@ -20,3 +21,4 @@ class CreateDelayedJobs < ActiveRecord::Migration[7.1]
     drop_table :delayed_jobs
   end
 end
+# rubocop:enable Rails/ReversibleMigrationMethodDefinition
