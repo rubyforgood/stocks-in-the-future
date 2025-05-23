@@ -38,6 +38,13 @@ It is **strongly** recommend to use Docker. See instructions above.
 
 Access the app via `localhost:5000`
 
+## Contributing
+
+- Add tests with your PR
+- Run `bundle exec rails test` and make sure all tests are passing
+- Run `bin/lint` and fix any errors 
+- Create a PR with context in the description and in the comment use the key word `Resolves` and the issue number to link the issue to the desciption (For example Resolves #32)
+
 # About Stocks in the Future
 
 ## Mission
