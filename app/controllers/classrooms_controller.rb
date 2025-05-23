@@ -22,7 +22,13 @@ class ClassroomsController < ApplicationController
 
   # POST /classrooms or /classrooms.json
   def create
-    @classroom = Classroom.new(classroom_params)
+    @classroom = Classroom.new(classroom_params.except(:school_name, :year_value))
+
+    school = School.find_or_create_by(name: classroom_params[:school_name])
+    year = Year.find_or_create_by(year: classroom_params[:year_value])
+    school_year = SchoolYear.find_or_create_by(school: school, year: year)
+
+    @classroom.school_year = school_year
 
     respond_to do |format|
       if @classroom.save
@@ -37,8 +43,14 @@ class ClassroomsController < ApplicationController
 
   # PATCH/PUT /classrooms/1 or /classrooms/1.json
   def update
+    school = School.find_or_create_by(name: classroom_params[:school_name])
+    year = Year.find_or_create_by(year: classroom_params[:year_value])
+    school_year = SchoolYear.find_or_create_by(school: school, year: year)
+
+    @classroom.school_year = school_year
+
     respond_to do |format|
-      if @classroom.update(classroom_params)
+      if @classroom.update(classroom_params.except(:school_name, :year_value))
         format.html { redirect_to classroom_url(@classroom), notice: "Classroom was successfully updated." }
         format.json { render :show, status: :ok, location: @classroom }
       else
@@ -67,6 +79,6 @@ class ClassroomsController < ApplicationController
 
   # Only allow a list of trusted parameters through.
   def classroom_params
-    params.require(:classroom).permit(:name, :school_year_id, :grade)
+    params.require(:classroom).permit(:name, :school_year_id, :grade, :school_name, :year_value)
   end
 end
