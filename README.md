@@ -1,7 +1,7 @@
 # Requirements
 
 - A ruby version manager such as [rvm](https://rvm.io/rvm/install), [rbenv](https://formulae.brew.sh/formula/rbenv) or [asdf](https://asdf-vm.com/guide/getting-started.html)
-- Ruby 3.2.3 (Installed via ruby manager ^)
+- Ruby 3.4.4 (Installed via ruby manager ^)
 - [PostgreSQL](https://www.postgresql.org/), if you're not using Docker.
 - [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) and yarn (`npm install -g yarn`)
 
@@ -42,7 +42,7 @@ Access the app via `localhost:5000`
 
 - Add tests with your PR
 - Run `bundle exec rails test` and make sure all tests are passing
-- Run `bin/lint` and fix any errors 
+- Run `bin/lint` and fix any errors
 - Create a PR with context in the description and in the comment use the key word `Resolves` and the issue number to link the issue to the desciption (For example Resolves #32)
 
 # About Stocks in the Future
