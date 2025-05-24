@@ -23,7 +23,7 @@ class StockDashboard < Administrate::BaseDashboard
     industry_avg_sales_growth: Field::String.with_options(searchable: false),
     management: Field::Text,
     portfolio_stocks: Field::HasMany,
-    price: Field::String.with_options(searchable: false),
+    price_cents: Field::String.with_options(searchable: false),
     profit_margin: Field::String.with_options(searchable: false),
     sales_growth: Field::String.with_options(searchable: false),
     stock_exchange: Field::String,
@@ -62,7 +62,7 @@ class StockDashboard < Administrate::BaseDashboard
     industry_avg_sales_growth
     management
     portfolio_stocks
-    price
+    price_cents
     profit_margin
     sales_growth
     stock_exchange
@@ -89,7 +89,7 @@ class StockDashboard < Administrate::BaseDashboard
     industry_avg_sales_growth
     management
     portfolio_stocks
-    price
+    price_cents
     profit_margin
     sales_growth
     stock_exchange

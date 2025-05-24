@@ -2,7 +2,6 @@ require "test_helper"
 
 class StockPricesUpdateJobTest < ActiveJob::TestCase
   STOCK_URL_MATCHER = %r{https://www\.alphavantage\.co/query\?apikey=[^&]+&function=GLOBAL_QUOTE&symbol=[A-Z]+}
-  STOCK_SYMBOLS = ["KO", "SNE", "TWX", "DIS", "SIRI", "F", "EA", "FB", "UA", "LUV", "GPS"]
 
   setup do
     stub_request(:get, STOCK_URL_MATCHER)
@@ -30,10 +29,10 @@ class StockPricesUpdateJobTest < ActiveJob::TestCase
 
   test "sets Stock ticker and price" do
     StockPricesUpdateJob.perform_now
-    STOCK_SYMBOLS.each do |ticker|
+    Stock::SYMBOLS.each do |ticker|
       stock = Stock.find_by(ticker: ticker)
       assert stock.present?
-      assert stock.price.present?
+      assert stock.price_cents.present?
     end
   end
 end

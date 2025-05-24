@@ -1,9 +1,11 @@
 require "test_helper"
 
 class PortfoliosControllerTest < ActionDispatch::IntegrationTest
-  test "should get show" do
-    portfolio = portfolios(:one)
-    get student_portfolio_url(portfolio.user.id)
+  test "show" do
+    portfolio = create(:portfolio)
+
+    get portfolio_path(portfolio)
+
     assert_response :success
   end
 end
