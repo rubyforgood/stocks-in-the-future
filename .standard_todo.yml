@@ -4,13 +4,3 @@
 ignore:
 - app/models/user.rb:
   - Rails/UniqueValidationWithoutIndex
-- db/migrate/20240424154028_remove_company_and_add_to_stock.rb:
-  - Rails/ReversibleMigration
-- db/migrate/20240531151002_remove_cash_balance_from_portfolios.rb:
-  - Rails/ReversibleMigration
-- db/migrate/20240601143331_create_delayed_jobs.rb:
-  - Rails/ReversibleMigrationMethodDefinition
-- db/migrate/20240601194906_change_float_to_big_decimal_portfolio_stocks.rb:
-  - Rails/ReversibleMigration
-- db/migrate/20240601215111_remove_portfolio_stocks_index.rb:
-  - Rails/ReversibleMigration

@@ -1,3 +1,4 @@
+# standard:disable Rails/ReversibleMigration
 class RemoveCompanyAndAddToStock < ActiveRecord::Migration[7.1]
   def change
     remove_reference :stocks, :company, foreign_key: true
@@ -24,3 +25,4 @@ class RemoveCompanyAndAddToStock < ActiveRecord::Migration[7.1]
     add_column :stocks, :debt, :decimal, precision: 15, scale: 2
   end
 end
+# rubocop:enable Rails/ReversibleMigration
