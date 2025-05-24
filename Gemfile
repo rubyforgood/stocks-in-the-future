@@ -4,7 +4,7 @@ ruby "3.2.3"
 
 gem "rails", "~> 7.2.2"
 
-gem "administrate", "~> 0.20.1"
+gem "administrate", "1.0.0.beta3"
 gem "bootsnap", require: false
 gem "cssbundling-rails"
 gem "daemons"
