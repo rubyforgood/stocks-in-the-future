@@ -14,9 +14,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Set up Ruby
-        uses: ruby/setup-ruby@v1.178.0
+        uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.2.3'
+          ruby-version: '3.4.4'
           bundler-cache: true
       - name: Lint
         run: bin/lint
@@ -48,9 +48,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Ruby
-        uses: ruby/setup-ruby@v1.178.0
+        uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.2.3'
+          ruby-version: '3.4.4'
           bundler-cache: true  # runs 'bundle install' and caches installed gems automatically
 
       - name: Set up database
