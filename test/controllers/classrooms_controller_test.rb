@@ -20,9 +20,7 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "create" do
-    year = create(:year)
-    school = create(:school)
-    params = {classroom: {school_id: school.id, year_id: year.id}}
+    params = {classroom: {school_name: "x", year_value: "1999"}}
     user = create(:user)
     sign_in(user)
 
@@ -55,7 +53,7 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "update" do
-    params = {classroom: {name: "Abc123"}}
+    params = {classroom: {name: "Abc123", year_value: "2000"}}
     classroom = create(:classroom)
     user = create(:user)
     sign_in(user)
