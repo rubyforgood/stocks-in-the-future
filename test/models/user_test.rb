@@ -4,7 +4,7 @@ class UserTest < ActiveSupport::TestCase
   test "factory" do
     assert build(:user).validate!
   end
-  
+
   test "should not allow duplicate email addresses" do
     create(:user, email: "test@example.com")
     new_user = build(:user, email: "test@example.com")
