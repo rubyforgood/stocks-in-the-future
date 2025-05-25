@@ -10,19 +10,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_04_27_103023) do
+ActiveRecord::Schema[7.2].define(version: 2025_05_22_020802) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "classrooms", force: :cascade do |t|
     t.string "name"
-    t.bigint "year_id", null: false
-    t.bigint "school_id", null: false
     t.string "grade"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["school_id"], name: "index_classrooms_on_school_id"
-    t.index ["year_id"], name: "index_classrooms_on_year_id"
+    t.bigint "school_year_id"
+    t.index ["school_year_id"], name: "index_classrooms_on_school_year_id"
   end
 
   create_table "delayed_jobs", force: :cascade do |t|
@@ -148,8 +146,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_04_27_103023) do
     t.index ["year"], name: "index_years_on_year", unique: true
   end
 
-  add_foreign_key "classrooms", "schools"
-  add_foreign_key "classrooms", "years"
+  add_foreign_key "classrooms", "school_years"
   add_foreign_key "orders", "portfolio_stocks"
   add_foreign_key "orders", "portfolio_transactions"
   add_foreign_key "orders", "stocks"

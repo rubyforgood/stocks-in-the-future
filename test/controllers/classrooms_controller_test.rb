@@ -3,8 +3,10 @@ require "test_helper"
 class ClassroomsControllerTest < ActionDispatch::IntegrationTest
   setup do
     @classroom = classrooms(:one)
-    @user = users(:one) # Assuming you have a user fixture named :one
-    sign_in @user # S
+    @user = users(:one)
+    @school = schools(:one)
+    @year = years(:current)
+    sign_in @user
   end
 
   test "should get index" do
@@ -25,8 +27,8 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
           classroom: {
             grade: @classroom.grade,
             name: @classroom.name,
-            school_id: @classroom.school_id,
-            year_id: @classroom.year_id
+            school_name: @school.name,
+            year_value: @year.year
           }
         }
       )
@@ -52,8 +54,8 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
         classroom: {
           grade: @classroom.grade,
           name: @classroom.name,
-          school_id: @classroom.school_id,
-          year_id: @classroom.year_id
+          school_name: @school.name,
+          year_value: @year.year
         }
       }
     )
