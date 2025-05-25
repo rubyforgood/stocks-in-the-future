@@ -5,9 +5,10 @@ class UserTest < ActiveSupport::TestCase
     assert build(:user).validate!
   end
 
-  test "should not allow duplicate email addresses" do
+  test "validate uniqueness of email" do
     create(:user, email: "test@example.com")
     new_user = build(:user, email: "test@example.com")
+
     assert_not new_user.valid?
     assert_includes new_user.errors[:email], "has already been taken"
   end
