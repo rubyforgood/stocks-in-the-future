@@ -2,5 +2,3 @@
 # Remove from this list as you refactor files.
 ---
 ignore:
-- app/models/user.rb:
-  - Rails/UniqueValidationWithoutIndex
