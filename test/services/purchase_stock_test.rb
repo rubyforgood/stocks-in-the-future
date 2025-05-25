@@ -1,47 +1,55 @@
 require "test_helper"
 
 class PurchaseStockTest < ActiveSupport::TestCase
-  setup do
-    @student = users(:one)
-  end
-
   test "it creates a withdrawl transaction in portfolio_transactions" do
-    order = Order.create(stock: Stock.first, shares: 5, status: :pending, user: @student)
+    user = create(:user)
+    create(:portfolio, user:)
+    stock = create(:stock, price_cents: 100)
+    order = create(:order, :pending, shares: 5, stock:, user:)
+
     assert_difference("PortfolioTransaction.count") do
       PurchaseStock.execute(order)
     end
 
     portfolio_transaction = PortfolioTransaction.last
-    assert_equal "withdrawal", portfolio_transaction.transaction_type
+    assert portfolio_transaction.withdrawal?
     assert_equal portfolio_transaction, order.portfolio_transaction
-    assert_operator portfolio_transaction.amount, :<, 0
+    assert_operator portfolio_transaction.amount_cents, :<, 0
   end
 
   test "it creates an linked entry in portfolio_stocks" do
-    order = Order.create(stock: Stock.first, shares: 5, status: :pending, user: @student)
+    user = create(:user)
+    create(:portfolio, user:)
+    stock = create(:stock, price_cents: 100)
+    order = create(:order, :pending, shares: 5, stock:, user:)
+
     assert_difference("PortfolioStock.count") do
       PurchaseStock.execute(order)
     end
+
     portfolio_stock = PortfolioStock.last
     assert_equal portfolio_stock, order.portfolio_stock
   end
 
   test "it updates the order status to completed" do
-    order = Order.create(stock: Stock.first, shares: 5, status: :pending, user: @student)
+    user = create(:user)
+    create(:portfolio, user:)
+    stock = create(:stock, price_cents: 100)
+    order = create(:order, :pending, shares: 5, stock:, user:)
+
     PurchaseStock.execute(order)
     order.reload
 
-    assert_equal "completed", order.status
+    assert order.completed?
   end
 
   test "it does not update order when status is not pending" do
-    order = Order.create(stock: Stock.first, shares: 5, status: :canceled, user: @student)
+    order = create(:order, :completed)
 
     PurchaseStock.execute(order)
-
     order.reload
 
-    assert_equal "canceled", order.status
+    assert order.completed?
   end
 
   # TODO: Fix this test

@@ -51,7 +51,7 @@ module Admin
 
       PortfolioTransaction.create!(
         portfolio: requested_resource.portfolio,
-        amount: fund_amount,
+        amount_cents: fund_amount,
         transaction_type: "deposit"
       )
     end

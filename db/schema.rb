@@ -67,10 +67,10 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_22_020802) do
 
   create_table "portfolio_transactions", force: :cascade do |t|
     t.bigint "portfolio_id", null: false
-    t.integer "transaction_type"
+    t.integer "transaction_type", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.decimal "amount", precision: 8, scale: 2, null: false
+    t.integer "amount_cents", null: false
     t.index ["portfolio_id"], name: "index_portfolio_transactions_on_portfolio_id"
   end
 
@@ -119,7 +119,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_22_020802) do
     t.decimal "industry_avg_profit_margin", precision: 15, scale: 2
     t.decimal "cash_flow", precision: 15, scale: 2
     t.decimal "debt", precision: 15, scale: 2
-    t.decimal "price"
+    t.integer "price_cents"
     t.index ["ticker"], name: "index_stocks_on_ticker", unique: true
   end
 
