@@ -13,6 +13,7 @@ gem "devise", "~> 4.9"
 gem "jbuilder"
 gem "jsbundling-rails"
 gem "pg", "~> 1.5"
+gem "pundit", "~> 2.5"
 gem "puma", ">= 5.0"
 gem "shadcn-ui", "~> 0.0.15"
 gem "sprockets-rails"
@@ -21,11 +22,8 @@ gem "turbo-rails"
 gem "tzinfo-data", platforms: %i[windows jruby]
 
 group :development, :test do
-  # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[mri windows]
-
   gem "pry", "~> 0.15.2"
-  # a linting tool, to encourage/enforce a consistent code style
   gem "standard-rails"
   gem "standardrb"
 end
@@ -33,7 +31,6 @@ end
 group :development do
   gem "bundler-audit"
   gem "i18n-tasks"
-  gem "pry", "~> 0.15.2"
   gem "web-console"
 end
 
@@ -45,5 +42,3 @@ group :test do
   gem "simplecov", require: false
   gem "webmock"
 end
-
-gem "pundit", "~> 2.5"
