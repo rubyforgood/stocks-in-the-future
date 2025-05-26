@@ -8,7 +8,7 @@
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
 
-year = Year.find_or_create_by(year: 2024)
+year = Year.find_or_create_by(name: "2024")
 
 school = School.find_or_create_by(name: "Test School")
 

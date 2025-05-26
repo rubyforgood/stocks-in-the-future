@@ -20,7 +20,7 @@ class ClassroomsController < ApplicationController
     @classroom = Classroom.new(classroom_params.except(:school_name, :year_value))
 
     school = School.find_or_create_by(name: classroom_params[:school_name])
-    year = Year.find_or_create_by(year: classroom_params[:year_value])
+    year = Year.find_or_create_by(name: classroom_params[:year_value])
     school_year = SchoolYear.find_or_create_by(school: school, year: year)
 
     @classroom.school_year = school_year
@@ -34,7 +34,7 @@ class ClassroomsController < ApplicationController
 
   def update
     school = School.find_or_create_by(name: classroom_params[:school_name])
-    year = Year.find_or_create_by(year: classroom_params[:year_value])
+    year = Year.find_or_create_by(name: classroom_params[:year_value])
     school_year = SchoolYear.find_or_create_by(school: school, year: year)
 
     @classroom.school_year = school_year
