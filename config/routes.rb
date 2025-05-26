@@ -12,7 +12,7 @@ Rails.application.routes.draw do
 
     resources :classrooms
     resources :portfolio_transactions, except: [:index]
-    resources :school_years
+    resources :school_years, except: [:new, :edit]
     resources :schools
     resources :stocks
     resources :students
