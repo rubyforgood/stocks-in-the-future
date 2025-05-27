@@ -8,7 +8,11 @@
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
 
-year = Year.find_or_create_by(year: 2024)
+year = Year.find_or_create_by(name: "2024")
+(2024...2036).each do |i|
+  year = Year.find_or_create_by(name: "#{i} - #{i + 1}")
+  year.save!
+end
 
 school = School.find_or_create_by(name: "Test School")
 
