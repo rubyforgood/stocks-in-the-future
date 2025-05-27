@@ -13,7 +13,7 @@ class YearTest < ActiveSupport::TestCase
   end
 
   test "year uniqueness" do
-    duplicate_year = "2025"
+    duplicate_year = "2025 - 2026"
     create(:year, name: duplicate_year)
     year = build(:year, name: duplicate_year)
 

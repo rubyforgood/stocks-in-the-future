@@ -9,6 +9,10 @@
 #   end
 
 year = Year.find_or_create_by(name: "2024")
+(2024...2036).each do |i|
+  year = Year.find_or_create_by(name: "#{i} - #{i + 1}")
+  year.save!
+end
 
 school = School.find_or_create_by(name: "Test School")
 
