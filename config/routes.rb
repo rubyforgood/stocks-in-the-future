@@ -25,5 +25,6 @@ Rails.application.routes.draw do
   resources :orders
   resources :portfolios, only: :show
   resources :schools
+  resources :stocks, only: [:index, :show]
   resources :students, only: :show
 end
