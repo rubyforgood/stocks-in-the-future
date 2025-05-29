@@ -36,19 +36,17 @@ It is **strongly** recommend to use Docker. See instructions above.
 
 ## Seed Data
 
-The application includes seed data to create default users for testing. After setting up the database, you can seed it with: `bin/rails db:seed`
+After running `bin/rails db:setup`, the database will automatically be seeded with three default users.
 
-This creates three users:
+| Role    | Username | Email                  | Password |
+|---------|----------|------------------------|----------|
+| Teacher | Teacher  | teacher@example.com    | password |
+| Student | Student  | student@example.com    | password |
+| Admin   | Admin    | admin@example.com      | password |
 
-Teacher: Username: Teacher, Password: password (Email: teacher@example.com)
+Use the **username** and **password** to log in and test the application locally.
 
-Student: Username: Student, Password: password (Email: student@example.com)
-
-Admin: Username: Admin, Password: password (Email: admin@example.com)
-
-Use the username and password to log in and test the application locally or on a deployed environment. 
-
-Note: Do not run db:seed in production unless explicitly required.
+> ⚠️ **Note:** Do not run `db:seed` in production unless explicitly required.
 
 ## URL
 

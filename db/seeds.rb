@@ -24,7 +24,7 @@ classroom = Classroom.find_or_create_by(name: "Smith's Sixth Grade", school_year
 User.destroy_all
 
 # Create users with usernames and admin flag
-User.create!(
+Teacher.create!(
   username: "Teacher",
   email: "teacher@example.com",
   password: "password",
@@ -33,7 +33,7 @@ User.create!(
   classroom: classroom
 )
 
-User.create!(
+Student.create!(
   username: "Student",
   email: "student@example.com",
   password: "password",
