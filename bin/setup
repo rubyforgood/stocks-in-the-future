@@ -15,8 +15,8 @@ FileUtils.chdir APP_ROOT do
   puts "== Installing dependencies =="
   system("bundle check") || system!("bundle install")
 
-  # Install JavaScript dependencies
-  puts "== Installing Javascript dependencies =="
+  # Install CSS build dependencies (Tailwind)
+  puts "== Installing CSS build dependencies =="
   system!("npm install --global yarn")
   system!("yarn install")
 
