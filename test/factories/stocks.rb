@@ -1,12 +1,12 @@
 FactoryBot.define do
   factory :stock do
     sequence(:ticker) { |n| "STOCK#{n}" }
-    stock_exchange { 'NYSE' }
+    stock_exchange { "NYSE" }
     company_name { |n| "Sample Company#{n} Inc." }
-    company_website { 'https://example.com' }
-    description { 'A sample stock for testing' }
-    industry { 'Technology' }
-    management { 'CEO: John Doe' }
+    company_website { "https://example.com" }
+    description { "A sample stock for testing" }
+    industry { "Technology" }
+    management { "CEO: John Doe" }
     employees { 1000 }
     competitor_names { |n| "Competitor #{n}, Competitor #{n + 1}" }
     sales_growth { 5.5 }

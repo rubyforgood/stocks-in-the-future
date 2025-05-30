@@ -1,3 +1,2 @@
-
 module StocksHelper
 end
