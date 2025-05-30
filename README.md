@@ -34,6 +34,20 @@ $ docker compose run stocks rails test
 
 It is **strongly** recommend to use Docker. See instructions above.
 
+## Seed Data
+
+After running `bin/rails db:setup`, the database will automatically be seeded with three default users.
+
+| Role    | Username | Email                  | Password |
+|---------|----------|------------------------|----------|
+| Teacher | Teacher  | teacher@example.com    | password |
+| Student | Student  | student@example.com    | password |
+| Admin   | Admin    | admin@example.com      | password |
+
+Use the **username** and **password** to log in and test the application locally.
+
+> ⚠️ **Note:** Do not run `db:seed` in production unless explicitly required.
+
 ## URL
 
 Access the app via `localhost:5000`

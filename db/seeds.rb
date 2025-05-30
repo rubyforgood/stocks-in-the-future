@@ -20,10 +20,35 @@ school_year_instance = SchoolYear.find_or_create_by!(school: school, year: year)
 
 classroom = Classroom.find_or_create_by(name: "Smith's Sixth Grade", school_year: school_year_instance)
 
-user = User.find_or_initialize_by(username: "test")
-if user.new_record?
-  user.password = "password"
-  user.password_confirmation = "password"
-  user.classroom = classroom
-  user.save!
-end
+# Clear existing users to ensure idempotency
+User.destroy_all
+
+# Create users with usernames and admin flag
+Teacher.create!(
+  username: "Teacher",
+  email: "teacher@example.com",
+  password: "password",
+  password_confirmation: "password",
+  admin: false,
+  classroom: classroom
+)
+
+Student.create!(
+  username: "Student",
+  email: "student@example.com",
+  password: "password",
+  password_confirmation: "password",
+  admin: false,
+  classroom: classroom
+)
+
+User.create!(
+  username: "Admin",
+  email: "admin@example.com",
+  password: "password",
+  password_confirmation: "password",
+  admin: true,
+  classroom: classroom
+)
+
+Rails.logger.info "Seeded 3 users: Teacher, Student, and Admin"
