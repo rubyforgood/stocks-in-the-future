@@ -10,6 +10,14 @@ require "rails/test_help"
 require "webmock/minitest"
 require "mocha/minitest"
 
+# TODO: Remove this workaround once Devise is updated to support Rails 8
+# Rails 8 introduced deferred route drawing which breaks Devise's sign_in helper
+# This forces routes to load before tests run, ensuring Devise mappings are available
+# See: https://github.com/heartcombo/devise/issues/5705
+if Rails.application.respond_to?(:routes_reloader)
+  Rails.application.routes_reloader.execute_unless_loaded
+end
+
 WebMock.disable_net_connect!(allow_localhost: true)
 
 module ActiveSupport
@@ -18,9 +26,6 @@ module ActiveSupport
 
     # Run tests in parallel with specified workers
     parallelize(workers: :number_of_processors)
-
-    # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
-    fixtures :all
 
     # Add more helper methods to be used by all tests here...
     def t(...)

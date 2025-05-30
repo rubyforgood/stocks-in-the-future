@@ -2,7 +2,7 @@ source "https://rubygems.org"
 
 ruby "3.4.4"
 
-gem "rails", "~> 7.2.2"
+gem "rails", "~> 8.0.2"
 
 gem "administrate", "1.0.0.beta3"
 gem "bootsnap", require: false
@@ -11,7 +11,7 @@ gem "daemons"
 gem "delayed_job_active_record"
 gem "devise", "~> 4.9"
 gem "jbuilder"
-gem "jsbundling-rails"
+gem "importmap-rails"
 gem "pg", "~> 1.5"
 gem "pundit", "~> 2.5"
 gem "puma", ">= 5.0"
