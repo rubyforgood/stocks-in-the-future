@@ -1,141 +1,102 @@
-<div id="<%= dom_id stock %>" class="bg-white border border-gray-200 rounded-lg p-6 mb-6">
+<div id="<%= dom_id stock %>">
+  <p class="my-5">
+    <strong class="block font-medium mb-1">Ticker:</strong>
+    <%= stock.ticker %>
+  </p>
   
-  <div class="mb-8">
-    <h3 class="text-xl font-bold text-gray-800 mb-4 pb-2 border-b border-gray-200">Company Overview</h3>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <strong class="block font-medium mb-1 text-gray-700">Ticker:</strong>
-        <p class="text-gray-900"><%= stock.ticker %></p>
-      </div>
-      
-      <div>
-        <strong class="block font-medium mb-1 text-gray-700">Stock Exchange:</strong>
-        <p class="text-gray-900"><%= stock.stock_exchange %></p>
-      </div>
-      
-      <div>
-        <strong class="block font-medium mb-1 text-gray-700">Company Name:</strong>
-        <p class="text-gray-900"><%= stock.company_name %></p>
-      </div>
+  <p class="my-5">
+    <strong class="block font-medium mb-1">Stock Exchange:</strong>
+    <%= stock.stock_exchange %>
+  </p>
+  
+  <p class="my-5">
+    <strong class="block font-medium mb-1">Company Name:</strong>
+    <%= stock.company_name %>
+  </p>
 
-      <div>
-        <strong class="block font-medium mb-1 text-gray-700">Industry:</strong>
-        <p class="text-gray-900"><%= stock.industry %></p>
-      </div>
-      
-      <div class="md:col-span-2">
-        <strong class="block font-medium mb-1 text-gray-700">Company Website:</strong>
-        <p class="text-gray-900"><%= stock.company_website %></p>
-      </div>
-    </div>
-    
-    <div class="mt-4">
-      <strong class="block font-medium mb-1 text-gray-700">Description:</strong>
-      <p class="text-gray-900 leading-relaxed"><%= stock.description %></p>
-    </div>
-  </div>
 
-  <!-- Management & Organization Section -->
-  <div class="mb-8">
-    <h3 class="text-xl font-bold text-gray-800 mb-4 pb-2 border-b border-gray-200">Management & Organization</h3>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <strong class="block font-medium mb-1 text-gray-700">Management:</strong>
-        <p class="text-gray-900"><%= stock.management %></p>
-      </div>
+  <p class="my-5">
+    <strong class="block font-medium mb-1">Company Website:</strong>
+    <%= stock.company_website %>
+  </p>
 
-      <div>
-        <strong class="block font-medium mb-1 text-gray-700">Employees:</strong>
-        <p class="text-gray-900"><%= number_with_delimiter(stock.employees) %></p>
-      </div>
-    </div>
-    
-    <div class="mt-4">
-      <strong class="block font-medium mb-1 text-gray-700">Competitor Names:</strong>
-      <p class="text-gray-900"><%= stock.competitor_names %></p>
-    </div>
-  </div>
+  <p class="my-5">
+    <strong class="block font-medium mb-1">Description:</strong>
+    <%= stock.description %>
+  </p>
 
-  <!-- Financial Performance Section -->
-  <div class="mb-8">
-    <h3 class="text-xl font-bold text-gray-800 mb-4 pb-2 border-b border-gray-200">Financial Performance</h3>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <!-- Sales Growth -->
-      <div class="bg-blue-50 p-4 rounded-lg">
-        <h4 class="font-semibold text-blue-800 mb-2">Sales Growth</h4>
-        <div class="space-y-2">
-          <div>
-            <strong class="block text-sm text-blue-700">Company:</strong>
-            <p class="text-lg font-medium text-blue-900"><%= stock.sales_growth %>%</p>
-          </div>
-          <div>
-            <strong class="block text-sm text-blue-700">Industry Average:</strong>
-            <p class="text-sm text-blue-800"><%= stock.industry_avg_sales_growth %>%</p>
-          </div>
-        </div>
-      </div>
+  <p class="my-5">
+    <strong class="block font-medium mb-1">Industry:</strong>
+    <%= stock.industry %>
+  </p>
 
-      <!-- Profit Margin -->
-      <div class="bg-green-50 p-4 rounded-lg">
-        <h4 class="font-semibold text-green-800 mb-2">Profit Margin</h4>
-        <div class="space-y-2">
-          <div>
-            <strong class="block text-sm text-green-700">Company:</strong>
-            <p class="text-lg font-medium text-green-900"><%= stock.profit_margin %>%</p>
-          </div>
-          <div>
-            <strong class="block text-sm text-green-700">Industry Average:</strong>
-            <p class="text-sm text-green-800"><%= stock.industry_avg_profit_margin %>%</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <p class="my-5">
+    <strong class="block font-medium mb-1">Management:</strong>
+    <%= stock.management %>
+  </p>
 
-  <!-- Financial Position Section -->
-  <div class="mb-8">
-    <h3 class="text-xl font-bold text-gray-800 mb-4 pb-2 border-b border-gray-200">Financial Position</h3>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      <!-- Debt to Equity -->
-      <div class="bg-yellow-50 p-4 rounded-lg">
-        <h4 class="font-semibold text-yellow-800 mb-2">Debt to Equity</h4>
-        <div class="space-y-2">
-          <div>
-            <strong class="block text-sm text-yellow-700">Company:</strong>
-            <p class="text-lg font-medium text-yellow-900"><%= stock.debt_to_equity %></p>
-          </div>
-          <div>
-            <strong class="block text-sm text-yellow-700">Industry Average:</strong>
-            <p class="text-sm text-yellow-800"><%= stock.industry_avg_debt_to_equity %></p>
-          </div>
-        </div>
-      </div>
 
-      <div>
-        <strong class="block font-medium mb-1 text-gray-700">Cash Flow:</strong>
-        <p class="text-gray-900"><%= number_with_delimiter(stock.cash_flow) %></p>
-      </div>
+  <p class="my-5">
+    <strong class="block font-medium mb-1">Employees:</strong>
+    <%= stock.employees %>
+  </p>
 
-      <div>
-        <strong class="block font-medium mb-1 text-gray-700">Total Debt:</strong>
-        <p class="text-gray-900"><%= number_with_delimiter(stock.debt) %></p>
-      </div>
-    </div>
-  </div>
 
-  <!-- Stock Price Section -->
-  <div class="mb-6">
-    <h3 class="text-xl font-bold text-gray-800 mb-4 pb-2 border-b border-gray-200">Current Pricing</h3>
-    <div class="bg-purple-50 p-4 rounded-lg inline-block">
-      <strong class="block font-medium mb-1 text-purple-700">Share Price:</strong>
-      <p class="text-2xl font-bold text-purple-900">$<%= sprintf("%.2f", stock.price_cents.to_f / 100) %></p>
-    </div>
-  </div>
 
-  <!-- Action Buttons -->
+  <p class="my-5">
+    <strong class="block font-medium mb-1">Competitor Names:</strong>
+    <%= stock.competitor_names %>
+  </p>
+
+
+  <p class="my-5">
+    <strong class="block font-medium mb-1">Sales Growth:</strong>
+    <%= stock.sales_growth %>
+  </p>
+
+
+  <p class="my-5">
+    <strong class="block font-medium mb-1">Industry Average Sales Growth:</strong>
+    <%= stock.industry_avg_sales_growth %>
+  </p>
+
+  <p class="my-5">
+    <strong class="block font-medium mb-1">Debt To Equity:</strong>
+    <%= stock.debt_to_equity %>
+  </p>
+
+  <p class="my-5">
+    <strong class="block font-medium mb-1">Industry Average Debt To Equity:</strong>
+    <%= stock.industry_avg_debt_to_equity %>
+  </p>
+
+  <p class="my-5">
+    <strong class="block font-medium mb-1">Profit Margin:</strong>
+    <%= stock.profit_margin %>
+  </p>
+
+  <p class="my-5">
+    <strong class="block font-medium mb-1">Industry Average Profit Margin:</strong>
+    <%= stock.industry_avg_profit_margin %>
+  </p>
+
+  <p class="my-5">
+    <strong class="block font-medium mb-1">Cash Flow:</strong>
+    <%= stock.cash_flow %>
+  </p>
+
+  <p class="my-5">
+    <strong class="block font-medium mb-1">Debt:</strong>
+    <%= stock.debt %>
+  </p>
+
+  <p class="my-5">
+    <strong class="block font-medium mb-1">Price Cents:</strong>
+    <%= stock.price_cents %>
+  </p>
+
   <% if action_name != "show" %>
-    <div class="pt-4 border-t border-gray-200">
-      <%= link_to "Show this stock", stock, class: "rounded-lg py-3 px-5 bg-blue-600 hover:bg-blue-700 text-white inline-block font-medium transition-colors" %>
-    </div>
+    <%= link_to "Show this stock", stock, class: "rounded-lg py-3 px-5 bg-gray-100 inline-block font-medium" %>
+    <hr class="mt-6">
   <% end %>
 </div>

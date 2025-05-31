@@ -20,9 +20,7 @@ Stock.find_or_create_by(ticker: "AAPL",
   stock_exchange: "NASDAQ",
   company_name: "Apple Inc.",
   company_website: "https://www.apple.com",
-  description: "Apple Inc. specializes in the conceptualization, production, and distribution of smartphones," \
-  " personal computers, tablets, wearable technology, accessories, and various associated services. " \
-  "The company operates through several regional segments including the Americas, Europe, Greater China, Japan, and the Rest of Asia Pacific.",
+  description: "Apple Inc. specializes in the conceptualization, production, and distribution of smartphones, personal computers, tablets, wearable technology. ",
   industry: "Computers/Consumer Electronics",
   management: "Tim Cook (CEO), Kevan Parekh (CFO)",
   employees: 164_000,
