@@ -16,6 +16,25 @@ end
 
 school = School.find_or_create_by(name: "Test School")
 
+Stock.find_or_create_by(ticker: "AAPL",
+  stock_exchange: "NASDAQ",
+  company_name: "Apple Inc.",
+  company_website: "https://www.apple.com",
+  description: "Apple Inc. specializes in the conceptualization, production, and distribution of smartphones, personal computers, tablets, wearable technology. ",
+  industry: "Computers/Consumer Electronics",
+  management: "Tim Cook (CEO), Kevan Parekh (CFO)",
+  employees: 164_000,
+  competitor_names: "Samsung, Google, Microsoft, Amazon, Meta",
+  sales_growth: 2.02,
+  industry_avg_sales_growth: 5.50,
+  debt_to_equity: 1.73,
+  industry_avg_debt_to_equity: 0.85,
+  profit_margin: 23.97,
+  industry_avg_profit_margin: 12.50,
+  cash_flow: 24_000_000_000.00,
+  debt: 95_000_000_000.00,
+  price_cents: 19_918)
+
 school_year_instance = SchoolYear.find_or_create_by!(school: school, year: year)
 
 classroom = Classroom.find_or_create_by(name: "Smith's Sixth Grade", school_year: school_year_instance)
