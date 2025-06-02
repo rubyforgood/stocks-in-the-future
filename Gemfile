@@ -16,7 +16,7 @@ gem "propshaft"
 gem "pundit", "~> 2.5"
 gem "puma", ">= 5.0"
 gem "shadcn-ui", "~> 0.0.15"
-gem "tailwindcss-rails", "~> 3.0"
+gem "tailwindcss-rails", "~> 4.2"
 gem "stimulus-rails"
 gem "turbo-rails"
 gem "tzinfo-data", platforms: %i[windows jruby]
