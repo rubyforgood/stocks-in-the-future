@@ -55,7 +55,7 @@ class ClassroomsController < ApplicationController
   private
 
   def set_classroom
-    @classroom = Classroom.find(params[:id])
+    @classroom = Classroom.includes(users: :portfolio).find(params[:id].to_i)
   end
 
   def classroom_params

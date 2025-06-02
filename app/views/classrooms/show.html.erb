@@ -5,6 +5,7 @@
     <% end %>
 
     <%= render @classroom %>
+    <%= render 'classroom_students_table', students: @classroom.users %>
 
     <%= link_to "Edit this classroom", edit_classroom_path(@classroom), class: "mt-2 rounded-lg py-3 px-5 bg-gray-100 inline-block font-medium" %>
     <div class="inline-block ml-2">
