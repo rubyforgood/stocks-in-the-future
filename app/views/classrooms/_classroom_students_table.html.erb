@@ -1,0 +1,15 @@
+
+<table>
+  <tr>
+    <th>Username</th>
+    <th>Portfolio</th>
+    <th>Attendance History</th>
+  </tr>
+  <% @classroom.users.each do |student| %>
+    <tr>
+      <td><%= link_to(student.username, student_path(student)) if student.username %></td>
+      <td><%= link_to("Portfolio", portfolio_path(student.portfolio)) if student.portfolio %></td>
+      <td></td>
+    </tr>
+  <% end %>
+</table>
