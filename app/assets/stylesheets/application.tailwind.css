@@ -24,6 +24,11 @@
     @apply flex shrink-0 items-center;
   }
 
+  .sr-only {
+    @apply sr-only;
+  }
+
+
   .nav-links-wrapper {
     @apply hidden sm:ml-6 sm:flex sm:space-x-8;
   }
@@ -54,5 +59,37 @@
 
   .nav-user-link {
     @apply block px-4 py-2 text-sm text-gray-700;
+  }
+  .navbar {
+    @apply bg-white shadow-sm;
+  }
+
+  .nav-mobile-menu-button-wrapper {
+    @apply absolute inset-y-0 left-0 flex items-center sm:hidden;
+  }
+
+  .nav-button-hit-area {
+    @apply absolute -inset-0.5;
+  }
+
+  .nav-icon {
+    @apply size-6;
+  }
+
+  .nav-icon.hidden {
+    @apply hidden;
+  }
+
+
+  .nav-logo {
+    @apply h-8 w-auto;
+  }
+
+  .notice {
+    @apply bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4;
+  }
+
+  .alert {
+    @apply bg-red-100 border-l-4 border-red-500 text-red-700 p-4;
   }
 }
