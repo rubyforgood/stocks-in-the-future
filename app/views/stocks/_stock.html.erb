@@ -1,0 +1,102 @@
+<div id="<%= dom_id stock %>">
+  <p class="my-5">
+    <strong class="block font-medium mb-1">Ticker:</strong>
+    <%= stock.ticker %>
+  </p>
+  
+  <p class="my-5">
+    <strong class="block font-medium mb-1">Stock Exchange:</strong>
+    <%= stock.stock_exchange %>
+  </p>
+  
+  <p class="my-5">
+    <strong class="block font-medium mb-1">Company Name:</strong>
+    <%= stock.company_name %>
+  </p>
+
+
+  <p class="my-5">
+    <strong class="block font-medium mb-1">Company Website:</strong>
+    <%= stock.company_website %>
+  </p>
+
+  <p class="my-5">
+    <strong class="block font-medium mb-1">Description:</strong>
+    <%= stock.description %>
+  </p>
+
+  <p class="my-5">
+    <strong class="block font-medium mb-1">Industry:</strong>
+    <%= stock.industry %>
+  </p>
+
+  <p class="my-5">
+    <strong class="block font-medium mb-1">Management:</strong>
+    <%= stock.management %>
+  </p>
+
+
+  <p class="my-5">
+    <strong class="block font-medium mb-1">Employees:</strong>
+    <%= stock.employees %>
+  </p>
+
+
+
+  <p class="my-5">
+    <strong class="block font-medium mb-1">Competitor Names:</strong>
+    <%= stock.competitor_names %>
+  </p>
+
+
+  <p class="my-5">
+    <strong class="block font-medium mb-1">Sales Growth:</strong>
+    <%= stock.sales_growth %>
+  </p>
+
+
+  <p class="my-5">
+    <strong class="block font-medium mb-1">Industry Average Sales Growth:</strong>
+    <%= stock.industry_avg_sales_growth %>
+  </p>
+
+  <p class="my-5">
+    <strong class="block font-medium mb-1">Debt To Equity:</strong>
+    <%= stock.debt_to_equity %>
+  </p>
+
+  <p class="my-5">
+    <strong class="block font-medium mb-1">Industry Average Debt To Equity:</strong>
+    <%= stock.industry_avg_debt_to_equity %>
+  </p>
+
+  <p class="my-5">
+    <strong class="block font-medium mb-1">Profit Margin:</strong>
+    <%= stock.profit_margin %>
+  </p>
+
+  <p class="my-5">
+    <strong class="block font-medium mb-1">Industry Average Profit Margin:</strong>
+    <%= stock.industry_avg_profit_margin %>
+  </p>
+
+  <p class="my-5">
+    <strong class="block font-medium mb-1">Cash Flow:</strong>
+    <%= stock.cash_flow %>
+  </p>
+
+  <p class="my-5">
+    <strong class="block font-medium mb-1">Debt:</strong>
+    <%= stock.debt %>
+  </p>
+
+  <p class="my-5">
+    <strong class="block font-medium mb-1">Price Cents:</strong>
+    <%= stock.price_cents %>
+  </p>
+
+  <% if action_name != "show" %>
+    <%= link_to "Show this stock", stock, class: "rounded-lg py-3 px-5 bg-gray-100 inline-block font-medium" %>
+    <hr class="mt-6">
+  <% end %>
+</div>
