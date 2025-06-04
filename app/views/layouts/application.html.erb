@@ -34,7 +34,9 @@
         <div class="navbar-main-links-container">
           <a href="<%= classrooms_path %>" class="navbar-main-link <%= current_page?(classrooms_path) ? 'navbar-main-link-active' : 'navbar-main-link-default' %>">Classrooms</a>
           <a href="<%= stocks_path %>" class="navbar-main-link <%= current_page?(stocks_path) ? 'navbar-main-link-active' : 'navbar-main-link-default' %>">Stocks</a>
-          <a href="<%= portfolio_path(current_user.portfolio) %>" class="navbar-main-link <%= current_page?(portfolio_path(current_user.portfolio)) ? 'navbar-main-link-active' : 'navbar-main-link-default' %>">My Portfolio</a>
+          <% if current_user&.portfolio %>
+            <a href="<%= portfolio_path(current_user.portfolio) %>" class="navbar-main-link <%= current_page?(portfolio_path(current_user.portfolio)) ? 'navbar-main-link-active' : 'navbar-main-link-default' %>">My Portfolio</a>
+          <% end %>
         </div>
       </div>
       <div class="navbar-right-section">
@@ -50,6 +52,7 @@
   </div>
   </div>
 </nav>
+
     <%= yield %>
   </body>
 </html>
