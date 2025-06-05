@@ -1,13 +1,10 @@
-<div class="flex items-center justify-center min-h-screen">
-  <div class="max-w-sm mx-auto space-y-2">
-
-    <div class="flex w-full justify-center">
+<div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
+  <div class="sm:mx-auto sm:w-full sm:max-w-sm">
+      <div class="flex w-full justify-center">
       <%= image_tag "SITF-caponly-Logo.svg", class: "navbar-logo", alt: "Stocks in The Future" %>
-    </div>
+      </div>
 
-    <div class="text-center">
       <h2 class="text-center text-2xl/9 font-bold tracking-tight text-gray-900">Sign in to your account</h2>
-    </div>
 
     <%= render_form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
       <div class="space-y-4">
