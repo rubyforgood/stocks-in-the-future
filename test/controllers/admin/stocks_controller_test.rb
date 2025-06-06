@@ -3,7 +3,7 @@ require "test_helper"
 module Admin
   class StocksControllerTest < ActionDispatch::IntegrationTest
     test "new" do
-      admin = create(:user, admin: true)
+      admin = create(:admin)
       sign_in(admin)
 
       get new_admin_stock_path
@@ -13,7 +13,7 @@ module Admin
 
     test "create" do
       params = {stock: {company_name: "Apple Inc."}}
-      admin = create(:user, admin: true)
+      admin = create(:admin)
       sign_in(admin)
 
       assert_difference "Stock.count", 1 do

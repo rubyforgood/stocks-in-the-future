@@ -2,8 +2,8 @@ require "test_helper"
 
 class ClassroomsControllerTest < ActionDispatch::IntegrationTest
   test "index" do
-    user = create(:user)
-    sign_in(user)
+    teacher = create(:teacher)
+    sign_in(teacher)
 
     get classrooms_path
 
@@ -11,8 +11,8 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "new" do
-    user = create(:user)
-    sign_in(user)
+    teacher = create(:teacher)
+    sign_in(teacher)
 
     get new_classroom_path
 
@@ -21,8 +21,8 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
 
   test "create" do
     params = {classroom: {school_name: "x", year_value: "1999"}}
-    user = create(:user)
-    sign_in(user)
+    teacher = create(:teacher)
+    sign_in(teacher)
 
     assert_difference("Classroom.count") do
       post(classrooms_path, params:)
@@ -34,8 +34,8 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
 
   test "show" do
     classroom = create(:classroom)
-    user = create(:user)
-    sign_in(user)
+    teacher = create(:teacher)
+    sign_in(teacher)
 
     get classroom_path(classroom)
 
@@ -44,8 +44,8 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
 
   test "edit" do
     classroom = create(:classroom)
-    user = create(:user)
-    sign_in(user)
+    teacher = create(:teacher)
+    sign_in(teacher)
 
     get edit_classroom_path(classroom)
 
@@ -55,8 +55,8 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
   test "update" do
     params = {classroom: {name: "Abc123", year_value: "2000"}}
     classroom = create(:classroom)
-    user = create(:user)
-    sign_in(user)
+    teacher = create(:teacher)
+    sign_in(teacher)
 
     assert_changes "classroom.reload.updated_at" do
       patch(classroom_path(classroom), params:)
@@ -68,8 +68,8 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
 
   test "destroy" do
     classroom = create(:classroom)
-    user = create(:user)
-    sign_in(user)
+    teacher = create(:teacher)
+    sign_in(teacher)
 
     assert_difference("Classroom.count", -1) do
       delete classroom_path(classroom)

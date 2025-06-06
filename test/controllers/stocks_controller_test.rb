@@ -2,8 +2,8 @@ require "test_helper"
 
 class StocksControllerTest < ActionDispatch::IntegrationTest
   test "should get index" do
-    user = create(:user)
-    sign_in user
+    admin = create(:admin)
+    sign_in admin
 
     get stocks_url
 
@@ -12,8 +12,8 @@ class StocksControllerTest < ActionDispatch::IntegrationTest
 
   test "should get show" do
     stock = create(:stock)
-    user = create(:user)
-    sign_in user
+    admin = create(:admin)
+    sign_in admin
 
     get stock_url(stock)
 

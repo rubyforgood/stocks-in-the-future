@@ -2,10 +2,10 @@ require "test_helper"
 
 class PurchaseStockTest < ActiveSupport::TestCase
   test "it creates a withdrawl transaction in portfolio_transactions" do
-    user = create(:user)
-    create(:portfolio, user:)
+    student = create(:student)
+    create(:portfolio, user: student)
     stock = create(:stock, price_cents: 100)
-    order = create(:order, :pending, shares: 5, stock:, user:)
+    order = create(:order, :pending, shares: 5, stock:, user: student)
 
     assert_difference("PortfolioTransaction.count") do
       PurchaseStock.execute(order)
@@ -18,10 +18,10 @@ class PurchaseStockTest < ActiveSupport::TestCase
   end
 
   test "it creates an linked entry in portfolio_stocks" do
-    user = create(:user)
-    create(:portfolio, user:)
+    student = create(:student)
+    create(:portfolio, user: student)
     stock = create(:stock, price_cents: 100)
-    order = create(:order, :pending, shares: 5, stock:, user:)
+    order = create(:order, :pending, shares: 5, stock:, user: student)
 
     assert_difference("PortfolioStock.count") do
       PurchaseStock.execute(order)
@@ -32,10 +32,10 @@ class PurchaseStockTest < ActiveSupport::TestCase
   end
 
   test "it updates the order status to completed" do
-    user = create(:user)
-    create(:portfolio, user:)
+    student = create(:student)
+    create(:portfolio, user: student)
     stock = create(:stock, price_cents: 100)
-    order = create(:order, :pending, shares: 5, stock:, user:)
+    order = create(:order, :pending, shares: 5, stock:, user: student)
 
     PurchaseStock.execute(order)
     order.reload

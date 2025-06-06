@@ -2,14 +2,14 @@ require "test_helper"
 
 class UserTest < ActiveSupport::TestCase
   test "factory" do
-    assert build(:user).validate!
+    assert build(:student).validate!
   end
 
   test "validate uniqueness of email" do
-    create(:user, email: "test@example.com")
-    new_user = build(:user, email: "test@example.com")
+    create(:student, email: "test@example.com")
+    new_student = build(:student, email: "test@example.com")
 
-    assert_not new_user.valid?
-    assert_includes new_user.errors[:email], "has already been taken"
+    assert_not new_student.valid?
+    assert_includes new_student.errors[:email], "has already been taken"
   end
 end
