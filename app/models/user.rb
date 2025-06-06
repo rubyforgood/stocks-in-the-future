@@ -11,6 +11,7 @@ class User < ApplicationRecord
 
   validates :email, uniqueness: true, presence: false, allow_blank: true
   validates :username, presence: true, uniqueness: true
+  validates :type, inclusion: { in: ['User', 'Student', 'Teacher'] }
 
   def email_required?
     false

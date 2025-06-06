@@ -2,8 +2,8 @@ require "application_system_test_case"
 
 class UserManagesSchoolsTest < ApplicationSystemTestCase
   test "creating a new school" do
-    user = create(:user)
-    sign_in(user)
+    admin = create(:admin)
+    sign_in(admin)
     visit schools_url
 
     click_on "New school"
@@ -15,8 +15,8 @@ class UserManagesSchoolsTest < ApplicationSystemTestCase
   end
 
   test "updating a school" do
-    user = create(:user)
-    sign_in(user)
+    admin = create(:admin)
+    sign_in(admin)
     school = create(:school)
     visit school_url(school)
 
@@ -28,8 +28,8 @@ class UserManagesSchoolsTest < ApplicationSystemTestCase
   end
 
   test "deleting a school" do
-    user = create(:user)
-    sign_in(user)
+    admin = create(:admin)
+    sign_in(admin)
     school = create(:school)
     visit school_url(school)
 

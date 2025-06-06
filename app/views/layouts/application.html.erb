@@ -9,8 +9,7 @@
     <%= javascript_importmap_tags %>
   </head>
   <body>
-    <p class="notice"><%= notice %></p>
-    <p class="alert"><%= alert %></p>
+    
 
     <nav class="navbar">
   <div class="navbar-container">
@@ -41,8 +40,8 @@
       </div>
       <div class="navbar-right-section">
         <div class="navbar-user-links-container">
-          <a href="#" class="nav-user-link" role="menuitem" tabindex="-1" id="user-menu-item-0">Your Profile</a>
-          <%= link_to "Sign out", destroy_user_session_path, class: "nav-user-link", role: "menuitem", tabindex: "-1", id: "user-menu-item-2" %>
+          <a href="#" class="nav-user-link" role="menuitem" tabindex="-1" id="user-menu-item-0">My Profile</a>
+          <%= link_to "Sign out", destroy_user_session_path, class: "nav-user-link", role: "menuitem", tabindex: "-1", id: "user-menu-item-2", data: { turbo_method: :delete } %>
           <% if current_user&.admin? %>
             <a href="<%= admin_root_path%>" class="nav-user-link" role="menuitem" tabindex="-1" id="user-menu-item-1">Admins</a>
           <% end %>
@@ -52,7 +51,6 @@
   </div>
   </div>
 </nav>
-
     <%= yield %>
   </body>
 </html>

@@ -2,8 +2,8 @@ require "test_helper"
 
 class SchoolsControllerTest < ActionDispatch::IntegrationTest
   test "index" do
-    user = create(:user)
-    sign_in user
+    admin = create(:admin)
+    sign_in admin
 
     get schools_url
 
@@ -11,8 +11,8 @@ class SchoolsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "new" do
-    user = create(:user)
-    sign_in user
+    admin = create(:admin)
+    sign_in admin
 
     get new_school_url
 
@@ -21,8 +21,8 @@ class SchoolsControllerTest < ActionDispatch::IntegrationTest
 
   test "create" do
     params = {school: {name: ""}}
-    user = create(:user)
-    sign_in user
+    admin = create(:admin)
+    sign_in admin
 
     assert_difference("School.count") do
       post(schools_url, params:)
@@ -33,8 +33,8 @@ class SchoolsControllerTest < ActionDispatch::IntegrationTest
 
   test "show" do
     school = create(:school)
-    user = create(:user)
-    sign_in user
+    admin = create(:admin)
+    sign_in admin
 
     get school_url(school)
 
@@ -43,8 +43,8 @@ class SchoolsControllerTest < ActionDispatch::IntegrationTest
 
   test "edit" do
     school = create(:school)
-    user = create(:user)
-    sign_in user
+    admin = create(:admin)
+    sign_in admin
 
     get edit_school_url(school)
 
@@ -54,8 +54,8 @@ class SchoolsControllerTest < ActionDispatch::IntegrationTest
   test "update" do
     params = {school: {name: "Abc123"}}
     school = create(:school)
-    user = create(:user)
-    sign_in user
+    admin = create(:admin)
+    sign_in admin
 
     assert_changes "school.reload.updated_at" do
       patch school_url(school), params:
@@ -66,8 +66,8 @@ class SchoolsControllerTest < ActionDispatch::IntegrationTest
 
   test "destroy" do
     school = create(:school)
-    user = create(:user)
-    sign_in user
+    admin = create(:admin)
+    sign_in admin
 
     assert_difference("School.count", -1) do
       delete school_url(school)

@@ -3,7 +3,7 @@ require "test_helper"
 module Admin
   class ApplicationControllerTest < ActionDispatch::IntegrationTest
     test "admin can access admin dashboard" do
-      admin = create(:user, admin: true)
+      admin = create(:admin, admin: true)
       sign_in(admin)
 
       get admin_root_path
@@ -12,8 +12,8 @@ module Admin
     end
 
     test "non-admin cannot access admin dashboard" do
-      user = create(:user)
-      sign_in(user)
+      teacher = create(:teacher)
+      sign_in(teacher)
 
       get admin_root_path
 

@@ -4,8 +4,8 @@ module Admin
   class StudentsControllerTest < ActionDispatch::IntegrationTest
     test "should update student email" do
       new_email = "abc123@example.com"
-      admin = create(:user, admin: true)
-      student = create(:user)
+      admin = create(:admin)
+      student = create(:student)
       sign_in(admin)
 
       assert_changes "student.reload.updated_at" do
@@ -18,8 +18,8 @@ module Admin
 
     test "should not update with an error" do
       username = "abc123"
-      admin = create(:user, admin: true)
-      student = create(:user, username:)
+      admin = create(:admin)
+      student = create(:student, username:)
       sign_in(admin)
 
       assert_no_changes "student.reload.updated_at" do
@@ -33,8 +33,8 @@ module Admin
 
     test "given a add_fund_amount, creates a transaction" do
       params = {student: {add_fund_amount: 1_050}}
-      admin = create(:user, admin: true)
-      student = create(:user)
+      admin = create(:admin)
+      student = create(:student)
       create(:portfolio, user: student)
       sign_in(admin)
 
@@ -54,8 +54,8 @@ module Admin
 
     test "given an empty add_fund_amount, does not create a transaction" do
       params = {student: {add_fund_amount: ""}}
-      admin = create(:user, admin: true)
-      student = create(:user)
+      admin = create(:admin)
+      student = create(:student)
       create(:portfolio, user: student)
       sign_in(admin)
 

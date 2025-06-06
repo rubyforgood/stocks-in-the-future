@@ -1,5 +1,5 @@
 FactoryBot.define do
   factory :portfolio do
-    user
+    user { create(:student) }
   end
 end

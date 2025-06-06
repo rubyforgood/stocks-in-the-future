@@ -5,8 +5,8 @@ class UserManagesOrdersTest < ApplicationSystemTestCase
   # TODO: Add test for updating an order
 
   test "deleting an order" do
-    user = create(:user)
-    sign_in(user)
+    teacher = create(:teacher)
+    sign_in(teacher)
     order = create(:order)
     visit order_url(order)
 

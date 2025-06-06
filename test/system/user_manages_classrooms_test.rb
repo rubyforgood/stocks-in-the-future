@@ -6,8 +6,8 @@ class UserManagesClassroomsTest < ApplicationSystemTestCase
 
   test "should destroy Classroom" do
     classroom = create(:classroom)
-    user = create(:user)
-    sign_in(user)
+    admin = create(:admin)
+    sign_in(admin)
     visit classroom_path(classroom)
 
     click_on "Destroy this classroom"

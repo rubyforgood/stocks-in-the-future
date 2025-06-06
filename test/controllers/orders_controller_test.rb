@@ -14,10 +14,10 @@ class OrdersControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "create" do
-    user = create(:user)
+    teacher = create(:teacher)
     stock = create(:stock)
-    params = {order: {user_id: user.id, stock_id: stock.id}}
-    sign_in(user)
+    params = {order: {user_id: teacher.id, stock_id: stock.id}}
+    sign_in(teacher)
 
     assert_difference("Order.count") do
       post(orders_path, params:)

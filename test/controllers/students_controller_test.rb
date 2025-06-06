@@ -2,7 +2,7 @@ require "test_helper"
 
 class StudentsControllerTest < ActionDispatch::IntegrationTest
   test "should show student" do
-    student = create(:user)
+    student = create(:student)
 
     get student_path(student)
 
