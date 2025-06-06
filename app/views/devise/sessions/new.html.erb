@@ -16,12 +16,12 @@
           <%= render_checkbox name: "user[remember_me]", label: "Remember Me" %>
         <% end %>
 
-        <%= render_button "Forgot your password?", href: new_password_path(resource_name), variant: :ghost, class: "text-sm font-semibold text-indigo-600 hover:text-indigo-500", as: :link %>
+        <%= render_button "Forgot your password?", href: new_password_path(resource_name), variant: :ghost, class: "text-sm font-semibold text-[#00698C] hover:text-blue-500", as: :link %>
       </div>
 
-        <%= render_button "Login", class: "w-full", type: "submit" %>
+        <%= render_button "Sign in", class: "flex w-full justify-center rounded-md bg-[#00698C] px-3 py-1.5 text-sm/6  text-white shadow-xs hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600", type: "submit" %>
 
-        <%= render_button "Sign Up", href: new_registration_path(resource_name), variant: :ghost, class: "inline-block w-full text-sm text-center underline", as: :link %>
+        <%= render_button "Sign up", href: new_registration_path(resource_name), variant: :ghost, class: "inline-block w-full text-sm text-center underline", as: :link %>
       </div>
     <% end %>
   </div>
