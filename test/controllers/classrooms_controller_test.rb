@@ -21,7 +21,7 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
 
   test "create" do
     params = {classroom: {school_name: "x", year_value: "1999"}}
-    user = create(:teacher)
+    teacher = create(:teacher)
     sign_in(teacher)
 
     assert_difference("Classroom.count") do
