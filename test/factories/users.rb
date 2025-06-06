@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :admin, class: 'User' do
     classroom { create(:classroom) }
-    password { "Passw0rd" }
+    password { 'Passw0rd' }
     sequence(:username) { |n| "admin_#{n}" }
     sequence(:email) { |n| "admin_#{n}@example.com" }
     admin { true }
@@ -9,7 +11,7 @@ FactoryBot.define do
 
   factory :student, class: 'Student' do
     type { 'Student' }
-    password { "Passw0rd" }
+    password { 'Passw0rd' }
     classroom { create(:classroom) }
     sequence(:username) { |n| "student_#{n}" }
     sequence(:email) { |n| "student_#{n}@example.com" }
@@ -17,7 +19,7 @@ FactoryBot.define do
 
   factory :teacher, class: 'Teacher' do
     type { 'Teacher' }
-    password { "Passw0rd" }
+    password { 'Passw0rd' }
     classroom { create(:classroom) }
     sequence(:username) { |n| "teacher_#{n}" }
     sequence(:email) { |n| "teacher_#{n}@example.com" }
