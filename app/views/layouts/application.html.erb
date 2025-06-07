@@ -11,6 +11,7 @@
   <body>
     
 
+    <% if user_signed_in? %>
     <nav class="navbar">
   <div class="navbar-container">
     <div class="navbar-layout">
@@ -51,6 +52,7 @@
   </div>
   </div>
 </nav>
+    <% end %>
     <%= yield %>
   </body>
 </html>
