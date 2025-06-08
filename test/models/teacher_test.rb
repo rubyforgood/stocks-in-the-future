@@ -17,7 +17,7 @@ class TeacherTest < ActiveSupport::TestCase
     classroom = create(:classroom)
     teacher = create(:teacher, classroom: classroom)
     student = create(:student, classroom: classroom)
-    
+
     assert_equal classroom, teacher.classroom
     assert_equal classroom, student.classroom
   end

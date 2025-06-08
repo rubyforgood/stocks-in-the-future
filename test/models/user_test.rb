@@ -73,11 +73,11 @@ class UserTest < ActiveSupport::TestCase
   test "students and teacher scopes returns only correct type users" do
     student = create(:student)
     teacher = create(:teacher)
-    
+
     students = User.students
     assert_includes students, student
     refute_includes students, teacher
-    
+
     teachers = User.teachers
     assert_includes teachers, teacher
     refute_includes teachers, student

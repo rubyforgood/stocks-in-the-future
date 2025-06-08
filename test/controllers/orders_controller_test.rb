@@ -4,7 +4,7 @@ class OrdersControllerTest < ActionDispatch::IntegrationTest
   test "index" do
     user = create(:teacher)
     sign_in(user)
-    
+
     get orders_path
 
     assert_response :success
@@ -13,7 +13,7 @@ class OrdersControllerTest < ActionDispatch::IntegrationTest
   test "new" do
     user = create(:teacher)
     sign_in(user)
-    
+
     get new_order_path
 
     assert_response :success
