@@ -15,8 +15,28 @@ class User < ApplicationRecord
   validates :username, presence: true, uniqueness: true
   validates :type, inclusion: {in: %w[User Student Teacher]}
 
+  scope :students, -> { where(type: 'Student') }
+  scope :teachers, -> { where(type: 'Teacher') }
+  scope :admins, -> { where(admin: true) }
+
+  def student?
+    type == 'Student'
+  end
+
+  def teacher?
+    type == 'Teacher'
+  end
+
+  def teacher_or_admin?
+    teacher? || admin?
+  end
+
+  def display_name
+    username.presence || email&.split('@')&.first || 'User'
+  end
+
   def email_required?
-    false
+    teacher? || admin?
   end
 
   def email_changed?
