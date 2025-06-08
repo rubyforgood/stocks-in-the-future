@@ -7,7 +7,6 @@ Rails.application.routes.draw do
 
   devise_for :users
 
-  # Student management routes (nested under classrooms)
   resources :classrooms do
     resources :students, except: [:index] do
       member do

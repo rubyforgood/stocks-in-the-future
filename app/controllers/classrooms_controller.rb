@@ -8,7 +8,6 @@ class ClassroomsController < ApplicationController
   end
 
   def show
-    # Enhanced to include student management capabilities for teachers
     @students = @classroom.users.students.includes(:portfolio, :orders)
     @can_manage_students = current_user.teacher_or_admin?
     @classroom_stats = calculate_classroom_stats if @can_manage_students

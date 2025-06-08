@@ -78,7 +78,7 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to classrooms_path
     assert_equal t("classrooms.destroy.notice"), flash[:notice]
   end
-  # Student Management Tests
+
   test "show includes student management for teachers" do
     classroom = create(:classroom)
     teacher = create(:teacher, classroom: classroom)
