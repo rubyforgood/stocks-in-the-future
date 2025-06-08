@@ -7,16 +7,6 @@ Rails.application.routes.draw do
 
   devise_for :users
 
-  # Student management routes (nested under classrooms)
-  resources :classrooms do
-    resources :students, except: [:index] do
-      member do
-        patch :reset_password
-        patch :generate_password
-      end
-    end
-  end
-
   namespace :admin do
     root to: "classrooms#index"
 
@@ -31,6 +21,7 @@ Rails.application.routes.draw do
     resources :years
   end
 
+  resources :classrooms
   resources :orders
   resources :portfolios, only: :show
   resources :stocks, only: %i[show index]
