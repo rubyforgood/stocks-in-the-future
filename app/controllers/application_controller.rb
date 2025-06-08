@@ -5,13 +5,10 @@ class ApplicationController < ActionController::Base
   protected
 
   def after_sign_in_path_for(resource)
-    case resource.type
-    when 'Student'
+    if resource.student?
       portfolio_path(resource.portfolio)
-    when 'Teacher', 'Admin'
-      classrooms_path
     else
-      root_path
+      classrooms_path
     end
   end
 

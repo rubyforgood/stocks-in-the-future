@@ -4,7 +4,7 @@ class ClassroomsController < ApplicationController
   before_action :ensure_teacher_or_admin, except: [:index, :show]
 
   def index
-    @classrooms = current_user.teacher_or_admin? ? Classroom.all : [current_user.classroom].compact
+    @classrooms = current_user.admin? ? Classroom.all : [current_user.classroom].compact
   end
 
   def show

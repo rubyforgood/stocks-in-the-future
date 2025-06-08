@@ -6,6 +6,6 @@ class Portfolio < ApplicationRecord
   has_many :stocks, through: :portfolio_stocks
 
   def cash_balance
-    portfolio_transactions.sum(:amount_cents)
+    portfolio_transactions.sum(:amount_cents) / 100.0
   end
 end
