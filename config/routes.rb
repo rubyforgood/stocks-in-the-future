@@ -7,6 +7,15 @@ Rails.application.routes.draw do
 
   devise_for :users
 
+  resources :classrooms do
+    resources :students, except: [:index] do
+      member do
+        patch :reset_password
+        patch :generate_password
+      end
+    end
+  end
+
   namespace :admin do
     root "classrooms#index"
     resources :classrooms
@@ -20,7 +29,6 @@ Rails.application.routes.draw do
     resources :years
   end
 
-  resources :classrooms
   resources :orders
   resources :portfolios, only: :show
   resources :stocks, only: %i[show index]

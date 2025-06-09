@@ -1,12 +1,16 @@
 class ClassroomsController < ApplicationController
   before_action :set_classroom, only: %i[show edit update destroy]
   before_action :authenticate_user!
+  before_action :ensure_teacher_or_admin, except: [:index, :show]
 
   def index
-    @classrooms = Classroom.all
+    @classrooms = current_user.admin? ? Classroom.all : [current_user.classroom].compact
   end
 
   def show
+    @students = @classroom.users.students.includes(:portfolio, :orders)
+    @can_manage_students = current_user.teacher_or_admin?
+    @classroom_stats = calculate_classroom_stats if @can_manage_students
   end
 
   def new
@@ -60,5 +64,21 @@ class ClassroomsController < ApplicationController
 
   def classroom_params
     params.require(:classroom).permit(:name, :grade, :school_name, :year_value)
+  end
+
+  def ensure_teacher_or_admin
+    redirect_to root_path unless current_user&.teacher_or_admin?
+  end
+
+  def calculate_classroom_stats
+    return {} unless @classroom
+
+    students = @classroom.users.students
+    {
+      total_students: students.count,
+      active_students: students.joins(:orders).distinct.count,
+      total_portfolio_value: students.joins(:portfolio).sum("portfolios.current_position"),
+      recent_orders_count: Order.joins(:user).where(users: {classroom: @classroom}).where("orders.created_at > ?", 1.week.ago).count
+    }
   end
 end
