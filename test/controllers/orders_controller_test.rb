@@ -2,12 +2,18 @@ require "test_helper"
 
 class OrdersControllerTest < ActionDispatch::IntegrationTest
   test "index" do
+    user = create(:teacher)
+    sign_in(user)
+
     get orders_path
 
     assert_response :success
   end
 
   test "new" do
+    user = create(:teacher)
+    sign_in(user)
+
     get new_order_path
 
     assert_response :success
@@ -30,6 +36,7 @@ class OrdersControllerTest < ActionDispatch::IntegrationTest
 
   test "show" do
     order = create(:order)
+    sign_in(order.user)
 
     get order_path(order)
 
@@ -38,6 +45,7 @@ class OrdersControllerTest < ActionDispatch::IntegrationTest
 
   test "edit" do
     order = create(:order)
+    sign_in(order.user)
 
     get edit_order_path(order)
 
@@ -47,6 +55,7 @@ class OrdersControllerTest < ActionDispatch::IntegrationTest
   test "update" do
     params = {order: {status: "completed"}}
     order = create(:order, :pending)
+    sign_in(order.user)
 
     assert_changes "order.reload.updated_at" do
       patch(order_path(order), params:)
@@ -60,6 +69,7 @@ class OrdersControllerTest < ActionDispatch::IntegrationTest
 
   test "destroy" do
     order = create(:order)
+    sign_in(order.user)
 
     assert_difference("Order.count", -1) do
       delete order_path(order)

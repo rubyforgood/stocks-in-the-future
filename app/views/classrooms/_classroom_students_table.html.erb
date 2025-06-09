@@ -1,15 +1,85 @@
+<div class="mt-8">
+  <div class="flex justify-between items-center mb-4">
+    <h3 class="text-lg font-medium text-gray-900">Students</h3>
+    <% if @can_manage_students %>
+      <div class="flex gap-2">
+        <%= link_to "Add Student", new_classroom_student_path(@classroom),
+            class: "inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700" %>
+        <!-- TODO: Add bulk functionality in future PR -->
+      </div>
+    <% end %>
+  </div>
 
-<table>
-  <tr>
-    <th>Username</th>
-    <th>Portfolio</th>
-    <th>Attendance History</th>
-  </tr>
-  <% @classroom.users.each do |student| %>
-    <tr>
-      <td><%= link_to(student.username, student_path(student)) if student.username %></td>
-      <td><%= link_to("Portfolio", portfolio_path(student.portfolio)) if student.portfolio %></td>
-      <td></td>
-    </tr>
+
+  <div class="overflow-x-auto">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Username</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Portfolio</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Portfolio Value</th>
+          <% if @can_manage_students %>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+          <% end %>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200">
+        <% @students.each do |student| %>
+          <tr>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <% if student.username.present? %>
+                <%= link_to student.username, classroom_student_path(@classroom, student), class: "text-blue-600 hover:text-blue-900" %>
+              <% else %>
+                <span class="text-gray-400 italic">No username set</span>
+              <% end %>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <% if student.portfolio %>
+                <%= link_to "View Portfolio", portfolio_path(student.portfolio), class: "text-blue-600 hover:text-blue-900" %>
+              <% else %>
+                <span class="text-gray-400">No portfolio</span>
+              <% end %>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+              <% if student.portfolio %>
+                $<%= number_with_precision(student.portfolio.current_position, precision: 2) %>
+              <% else %>
+                $0.00
+              <% end %>
+            </td>
+            <% if @can_manage_students %>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <div class="flex space-x-2">
+                  <%= link_to "Edit", edit_classroom_student_path(@classroom, student),
+                      class: "text-indigo-600 hover:text-indigo-900" %>
+                  <%= link_to "Reset Password", reset_password_classroom_student_path(@classroom, student),
+                      data: {
+                        turbo_method: :patch,
+                        turbo_confirm: "Are you sure you want to reset #{student.username}'s password?"
+                      },
+                      class: "text-yellow-600 hover:text-yellow-900" %>
+                  <%= link_to "Delete", classroom_student_path(@classroom, student),
+                      data: {
+                        turbo_method: :delete,
+                        turbo_confirm: "Are you sure you want to delete #{student.username}?"
+                      },
+                      class: "text-red-600 hover:text-red-900" %>
+                </div>
+              </td>
+            <% end %>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <% if @students.empty? %>
+    <div class="text-center py-8">
+      <p class="text-gray-500">No students in this classroom yet.</p>
+      <% if @can_manage_students %>
+        <%= link_to "Add the first student", new_classroom_student_path(@classroom),
+            class: "mt-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700" %>
+      <% end %>
+    </div>
   <% end %>
-</table>
+</div>

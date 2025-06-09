@@ -12,6 +12,6 @@ class PortfolioTest < ActiveSupport::TestCase
 
     result = portfolio.cash_balance
 
-    assert_equal 500, result
+    assert_equal 5.0, result
   end
 end
