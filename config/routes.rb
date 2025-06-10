@@ -3,7 +3,7 @@ Rails.application.routes.draw do
   # Can be used by load balancers and uptime monitors to verify that the app is live.
   get "up" => "rails/health#show", :as => :rails_health_check
 
-  root "schools#index"
+  root "classrooms#index"
 
   devise_for :users
 
@@ -17,8 +17,7 @@ Rails.application.routes.draw do
   end
 
   namespace :admin do
-    root to: "classrooms#index"
-
+    root "classrooms#index"
     resources :classrooms
     resources :portfolio_transactions, except: [:index]
     resources :school_years, except: %i[new edit]
@@ -33,6 +32,5 @@ Rails.application.routes.draw do
   resources :orders
   resources :portfolios, only: :show
   resources :stocks, only: %i[show index]
-  resources :schools
   resources :students, only: :show
 end
