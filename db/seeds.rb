@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # This file should ensure the existence of records required to run the application in every environment (production,
 # development, test). The code here should be idempotent so that it can be executed at any point in every environment.
 # The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
@@ -8,32 +10,32 @@
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
 
-year = Year.find_or_create_by(name: "2024")
+year = Year.find_or_create_by(name: '2024')
 (2024...2036).each do |i|
   year = Year.find_or_create_by(name: "#{i} - #{i + 1}")
   year.save!
 end
 
-school = School.find_or_create_by(name: "Test School")
+school = School.find_or_create_by(name: 'Test School')
 
-Stock.find_or_create_by(ticker: "AAPL",
-  stock_exchange: "NASDAQ",
-  company_name: "Apple Inc.",
-  company_website: "https://www.apple.com",
-  description: "Apple Inc. specializes in the conceptualization, production, and distribution of smartphones, personal computers, tablets, wearable technology. ",
-  industry: "Computers/Consumer Electronics",
-  management: "Tim Cook (CEO), Kevan Parekh (CFO)",
-  employees: 164_000,
-  competitor_names: "Samsung, Google, Microsoft, Amazon, Meta",
-  sales_growth: 2.02,
-  industry_avg_sales_growth: 5.50,
-  debt_to_equity: 1.73,
-  industry_avg_debt_to_equity: 0.85,
-  profit_margin: 23.97,
-  industry_avg_profit_margin: 12.50,
-  cash_flow: 24_000_000_000.00,
-  debt: 95_000_000_000.00,
-  price_cents: 19_918)
+Stock.find_or_create_by(ticker: 'AAPL',
+                        stock_exchange: 'NASDAQ',
+                        company_name: 'Apple Inc.',
+                        company_website: 'https://www.apple.com',
+                        description: 'Apple Inc. specializes in the conceptualization, production, and distribution of smartphones, personal computers, tablets, wearable technology. ',
+                        industry: 'Computers/Consumer Electronics',
+                        management: 'Tim Cook (CEO), Kevan Parekh (CFO)',
+                        employees: 164_000,
+                        competitor_names: 'Samsung, Google, Microsoft, Amazon, Meta',
+                        sales_growth: 2.02,
+                        industry_avg_sales_growth: 5.50,
+                        debt_to_equity: 1.73,
+                        industry_avg_debt_to_equity: 0.85,
+                        profit_margin: 23.97,
+                        industry_avg_profit_margin: 12.50,
+                        cash_flow: 24_000_000_000.00,
+                        debt: 95_000_000_000.00,
+                        price_cents: 19_918)
 
 school_year_instance = SchoolYear.find_or_create_by!(school: school, year: year)
 
@@ -44,30 +46,30 @@ User.destroy_all
 
 # Create users with usernames and admin flag
 Teacher.create!(
-  username: "Teacher",
-  email: "teacher@example.com",
-  password: "password",
-  password_confirmation: "password",
+  username: 'Teacher',
+  email: 'teacher@example.com',
+  password: 'password',
+  password_confirmation: 'password',
   admin: false,
   classroom: classroom
 )
 
 Student.create!(
-  username: "Student",
-  email: "student@example.com",
-  password: "password",
-  password_confirmation: "password",
+  username: 'Student',
+  email: 'student@example.com',
+  password: 'password',
+  password_confirmation: 'password',
   admin: false,
   classroom: classroom
 )
 
 User.create!(
-  username: "Admin",
-  email: "admin@example.com",
-  password: "password",
-  password_confirmation: "password",
+  username: 'Admin',
+  email: 'admin@example.com',
+  password: 'password',
+  password_confirmation: 'password',
   admin: true,
   classroom: classroom
 )
 
-Rails.logger.info "Seeded 3 users: Teacher, Student, and Admin"
+Rails.logger.info 'Seeded 3 users: Teacher, Student, and Admin'

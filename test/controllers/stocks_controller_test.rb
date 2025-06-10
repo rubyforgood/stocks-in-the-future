@@ -1,7 +1,9 @@
-require "test_helper"
+# frozen_string_literal: true
+
+require 'test_helper'
 
 class StocksControllerTest < ActionDispatch::IntegrationTest
-  test "should get index" do
+  test 'should get index' do
     admin = create(:admin)
     sign_in admin
 
@@ -10,7 +12,7 @@ class StocksControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "should get show" do
+  test 'should get show' do
     stock = create(:stock)
     admin = create(:admin)
     sign_in admin

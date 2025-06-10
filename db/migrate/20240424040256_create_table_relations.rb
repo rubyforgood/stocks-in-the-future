@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CreateTableRelations < ActiveRecord::Migration[7.1]
   def change
     add_reference :users, :classroom, foreign_key: true
@@ -46,6 +48,7 @@ class CreateTableRelations < ActiveRecord::Migration[7.1]
       t.timestamps
     end
 
-    add_index :portfolio_stocks, [:portfolio_id, :stock_id], unique: true, name: "index_portfolio_stocks_on_portfolio_and_stock"
+    add_index :portfolio_stocks, %i[portfolio_id stock_id], unique: true,
+                                                            name: 'index_portfolio_stocks_on_portfolio_and_stock'
   end
 end

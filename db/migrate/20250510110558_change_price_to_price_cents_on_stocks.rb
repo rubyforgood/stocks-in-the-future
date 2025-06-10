@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ChangePriceToPriceCentsOnStocks < ActiveRecord::Migration[7.2]
   def change
     reversible do |dir|

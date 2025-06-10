@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class PortfolioStock < ApplicationRecord
   belongs_to :portfolio
   belongs_to :stock

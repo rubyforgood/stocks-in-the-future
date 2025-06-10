@@ -1,13 +1,15 @@
-require "test_helper"
+# frozen_string_literal: true
+
+require 'test_helper'
 
 class PurchaseStockTest < ActiveSupport::TestCase
-  test "it creates a withdrawl transaction in portfolio_transactions" do
+  test 'it creates a withdrawl transaction in portfolio_transactions' do
     student = create(:student)
     create(:portfolio, user: student)
     stock = create(:stock, price_cents: 100)
     order = create(:order, :pending, shares: 5, stock:, user: student)
 
-    assert_difference("PortfolioTransaction.count") do
+    assert_difference('PortfolioTransaction.count') do
       PurchaseStock.execute(order)
     end
 
@@ -17,13 +19,13 @@ class PurchaseStockTest < ActiveSupport::TestCase
     assert_operator portfolio_transaction.amount_cents, :<, 0
   end
 
-  test "it creates an linked entry in portfolio_stocks" do
+  test 'it creates an linked entry in portfolio_stocks' do
     student = create(:student)
     create(:portfolio, user: student)
     stock = create(:stock, price_cents: 100)
     order = create(:order, :pending, shares: 5, stock:, user: student)
 
-    assert_difference("PortfolioStock.count") do
+    assert_difference('PortfolioStock.count') do
       PurchaseStock.execute(order)
     end
 
@@ -31,7 +33,7 @@ class PurchaseStockTest < ActiveSupport::TestCase
     assert_equal portfolio_stock, order.portfolio_stock
   end
 
-  test "it updates the order status to completed" do
+  test 'it updates the order status to completed' do
     student = create(:student)
     create(:portfolio, user: student)
     stock = create(:stock, price_cents: 100)
@@ -43,7 +45,7 @@ class PurchaseStockTest < ActiveSupport::TestCase
     assert order.completed?
   end
 
-  test "it does not update order when status is not pending" do
+  test 'it does not update order when status is not pending' do
     order = create(:order, :completed)
 
     PurchaseStock.execute(order)
@@ -53,8 +55,8 @@ class PurchaseStockTest < ActiveSupport::TestCase
   end
 
   # TODO: Fix this test
-  test "it does not update order if portfolio transaction fails to save" do
-    skip "Can we update this test to not use a mock?"
+  test 'it does not update order if portfolio transaction fails to save' do
+    skip 'Can we update this test to not use a mock?'
     order = Order.create(stock: Stock.first, shares: 5, status: :pending, user: @student)
 
     # Simulate failure to create portfolio_transaction by stubbing the create method to return false
@@ -66,7 +68,7 @@ class PurchaseStockTest < ActiveSupport::TestCase
 
     order.reload
 
-    assert_equal "pending", order.status
+    assert_equal 'pending', order.status
     assert_nil order.portfolio_transaction
     assert_nil order.portfolio_stock
   end

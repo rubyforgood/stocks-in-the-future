@@ -8,8 +8,7 @@ class StocksController < ApplicationController
     @stocks = Stock.all
   end
 
-  def show
-  end
+  def show; end
 
   private
 

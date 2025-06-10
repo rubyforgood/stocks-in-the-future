@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ChangeYearColumnToNameAndUpdateType < ActiveRecord::Migration[7.2]
   def up
     rename_column :years, :year, :name

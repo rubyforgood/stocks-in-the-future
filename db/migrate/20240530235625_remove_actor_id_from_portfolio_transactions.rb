@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class RemoveActorIdFromPortfolioTransactions < ActiveRecord::Migration[7.1]
   def change
     remove_reference :portfolio_transactions, :actor

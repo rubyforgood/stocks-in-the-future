@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class PortfoliosController < ApplicationController
   before_action :set_portfolio
 

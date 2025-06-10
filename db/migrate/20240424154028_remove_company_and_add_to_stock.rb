@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # standard:disable Rails/ReversibleMigration
 class RemoveCompanyAndAddToStock < ActiveRecord::Migration[7.1]
   def change
@@ -25,4 +27,3 @@ class RemoveCompanyAndAddToStock < ActiveRecord::Migration[7.1]
     add_column :stocks, :debt, :decimal, precision: 15, scale: 2
   end
 end
-# rubocop:enable Rails/ReversibleMigration

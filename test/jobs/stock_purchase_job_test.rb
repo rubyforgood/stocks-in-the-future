@@ -1,7 +1,9 @@
-require "test_helper"
+# frozen_string_literal: true
+
+require 'test_helper'
 
 class StockPurchaseJobTest < ActiveJob::TestCase
-  test "it calls the related service" do
+  test 'it calls the related service' do
     order1 = create(:order, :pending)
     order2 = create(:order, :pending)
     order3 = create(:order, :completed)

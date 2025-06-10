@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Admin
   class StudentsController < Admin::ApplicationController
     # Overwrite any of the RESTful controller actions to implement custom behavior
@@ -52,12 +54,12 @@ module Admin
       PortfolioTransaction.create!(
         portfolio: requested_resource.portfolio,
         amount_cents: fund_amount,
-        transaction_type: "deposit"
+        transaction_type: 'deposit'
       )
     end
 
     def fund_amount
-      @fund_amount ||= params["student"]["add_fund_amount"]
+      @fund_amount ||= params['student']['add_fund_amount']
     end
   end
 end

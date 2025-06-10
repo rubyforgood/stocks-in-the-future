@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CreateSchoolYears < ActiveRecord::Migration[7.1]
   def change
     create_table :school_years do |t|
@@ -7,6 +9,6 @@ class CreateSchoolYears < ActiveRecord::Migration[7.1]
       t.timestamps
     end
 
-    add_index :school_years, [:school_id, :year_id], unique: true
+    add_index :school_years, %i[school_id year_id], unique: true
   end
 end

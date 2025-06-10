@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class AddPortfolioStockAndTransactionToOrder < ActiveRecord::Migration[7.1]
   def change
     add_reference :orders, :portfolio_stock, null: true, foreign_key: true

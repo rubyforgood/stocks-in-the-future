@@ -1,11 +1,13 @@
-require "test_helper"
+# frozen_string_literal: true
+
+require 'test_helper'
 
 class OrderTest < ActiveSupport::TestCase
-  test "factory" do
+  test 'factory' do
     assert build(:order).validate!
   end
 
-  test ".pending" do
+  test '.pending' do
     order1 = create(:order, :pending)
     create(:order, :completed)
     create(:order, :canceled)
@@ -14,7 +16,7 @@ class OrderTest < ActiveSupport::TestCase
     assert_equal [order1, order4], Order.pending
   end
 
-  test "#purchase_cost" do
+  test '#purchase_cost' do
     stock = create(:stock, price_cents: 1_000)
     order = create(:order, stock:, shares: 5.1)
 

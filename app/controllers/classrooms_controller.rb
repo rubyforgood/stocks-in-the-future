@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 class ClassroomsController < ApplicationController
   before_action :set_classroom, only: %i[show edit update destroy]
   before_action :authenticate_user!
-  before_action :ensure_teacher_or_admin, except: [:index, :show]
+  before_action :ensure_teacher_or_admin, except: %i[index show]
 
   def index
     @classrooms = current_user.admin? ? Classroom.all : [current_user.classroom].compact
@@ -17,8 +19,7 @@ class ClassroomsController < ApplicationController
     @classroom = Classroom.new
   end
 
-  def edit
-  end
+  def edit; end
 
   def create
     @classroom = Classroom.new(classroom_params.except(:school_name, :year_value))
@@ -30,7 +31,7 @@ class ClassroomsController < ApplicationController
     @classroom.school_year = school_year
 
     if @classroom.save
-      redirect_to classroom_url(@classroom), notice: t(".notice")
+      redirect_to classroom_url(@classroom), notice: t('.notice')
     else
       render :new, status: :unprocessable_entity
     end
@@ -44,7 +45,7 @@ class ClassroomsController < ApplicationController
     @classroom.school_year = school_year
 
     if @classroom.update(classroom_params.except(:school_name, :year_value))
-      redirect_to classroom_url(@classroom), notice: t(".notice")
+      redirect_to classroom_url(@classroom), notice: t('.notice')
     else
       render :edit, status: :unprocessable_entity
     end
@@ -53,7 +54,7 @@ class ClassroomsController < ApplicationController
   def destroy
     @classroom.destroy!
 
-    redirect_to classrooms_url, notice: t(".notice")
+    redirect_to classrooms_url, notice: t('.notice')
   end
 
   private
@@ -77,8 +78,9 @@ class ClassroomsController < ApplicationController
     {
       total_students: students.count,
       active_students: students.joins(:orders).distinct.count,
-      total_portfolio_value: students.joins(:portfolio).sum("portfolios.current_position"),
-      recent_orders_count: Order.joins(:user).where(users: {classroom: @classroom}).where("orders.created_at > ?", 1.week.ago).count
+      total_portfolio_value: students.joins(:portfolio).sum('portfolios.current_position'),
+      recent_orders_count: Order.joins(:user).where(users: { classroom: @classroom }).where('orders.created_at > ?',
+                                                                                            1.week.ago).count
     }
   end
 end

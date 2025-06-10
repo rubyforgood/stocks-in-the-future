@@ -1,7 +1,9 @@
-require "test_helper"
+# frozen_string_literal: true
+
+require 'test_helper'
 
 class PortfolioTransactionTest < ActiveSupport::TestCase
-  test "factory" do
+  test 'factory' do
     assert build(:portfolio_transaction).validate!
   end
 end

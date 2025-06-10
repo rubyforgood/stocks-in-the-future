@@ -1,7 +1,9 @@
-require "test_helper"
+# frozen_string_literal: true
+
+require 'test_helper'
 
 class PortfoliosControllerTest < ActionDispatch::IntegrationTest
-  test "show" do
+  test 'show' do
     portfolio = create(:portfolio)
     sign_in(portfolio.user)
 

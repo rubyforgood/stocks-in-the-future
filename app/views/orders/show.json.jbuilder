@@ -1,1 +1,3 @@
-json.partial! "orders/order", order: @order
+# frozen_string_literal: true
+
+json.partial! 'orders/order', order: @order

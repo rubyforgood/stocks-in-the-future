@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class RemoveYearAndSchoolFromClassrooms < ActiveRecord::Migration[7.2]
   def change
     remove_reference :classrooms, :year, foreign_key: true
