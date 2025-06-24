@@ -50,7 +50,7 @@ Use the **username** and **password** to log in and test the application locally
 
 ## URL
 
-Access the app via `localhost:5000`
+Access the app via `localhost:3000`
 
 ## Contributing
 
