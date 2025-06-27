@@ -1,0 +1,47 @@
+# .rubocop.yml
+plugins:
+  - rubocop-rails
+
+inherit_from:
+  - .rubocop_todo.yml
+  - .rubocop_rails_default.yml
+
+AllCops:
+  NewCops: enable
+  Exclude:
+    - 'db/**/*'
+    - 'bin/**/*'
+    - 'node_modules/**/*'
+    - 'vendor/**/*'
+    - 'config/initializers/devise.rb'
+    - 'config/initializers/permissions_policy.rb'
+    - 'config/initializers/filter_parameter_logging.rb'
+    - 'config/initializers/inflections.rb'
+    - 'config/initializers/assets.rb'
+    - 'config/initializers/content_security_policy.rb'
+    - 'config/initializers/api_keys.rb'
+  SuggestExtensions: false
+
+Style/Documentation:
+  Enabled: false
+
+Style/StringLiterals:
+  EnforcedStyle: double_quotes
+
+Layout/LineLength:
+  Max: 120
+
+Metrics/BlockLength:
+  Exclude:
+    - 'config/routes.rb'
+    - 'spec/**/*'
+    - 'test/**/*'
+
+Metrics/MethodLength:
+  Max: 20
+
+Metrics/AbcSize:
+  Max: 25
+
+Naming/MethodParameterName:
+  MinNameLength: 2

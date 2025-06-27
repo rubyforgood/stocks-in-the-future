@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "test_helper"
 
 class SchoolsControllerTest < ActionDispatch::IntegrationTest
@@ -20,7 +22,7 @@ class SchoolsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "create" do
-    params = {school: {name: ""}}
+    params = { school: { name: "" } }
     admin = create(:admin)
     sign_in admin
 
@@ -52,7 +54,7 @@ class SchoolsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "update" do
-    params = {school: {name: "Abc123"}}
+    params = { school: { name: "Abc123" } }
     school = create(:school)
     admin = create(:admin)
     sign_in admin

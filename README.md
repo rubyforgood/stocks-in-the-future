@@ -56,7 +56,7 @@ Access the app via `localhost:3000`
 
 - Add tests with your PR
 - Run `bundle exec rails test` and make sure all tests are passing
-- Run `bin/lint` and fix any errors
+- Run `bundle exec rubocop` and fix any errors
 - Create a PR with context in the description and in the comment use the key word `Resolves` and the issue number to link the issue to the desciption (For example Resolves #32)
 
 # About Stocks in the Future
@@ -99,7 +99,7 @@ If you have any questions about an issue, comment on the issue, open a new issue
    If issues are found, fix them or use auto-fix when appropriate:
 
    ```console
-   $ bundle exec standardrb --fix
+   $ bundle exec rubocop -A
    ```
 
 5. **Run tests** to verify your changes don't break existing functionality

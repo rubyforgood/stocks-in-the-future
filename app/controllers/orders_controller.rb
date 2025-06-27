@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class OrdersController < ApplicationController
   before_action :set_order, only: %i[show edit update destroy]
 
@@ -7,8 +9,7 @@ class OrdersController < ApplicationController
   end
 
   # GET /orders/1 or /orders/1.json
-  def show
-  end
+  def show; end
 
   # GET /orders/new
   def new
@@ -16,8 +17,7 @@ class OrdersController < ApplicationController
   end
 
   # GET /orders/1/edit
-  def edit
-  end
+  def edit; end
 
   # POST /orders or /orders.json
   def create
