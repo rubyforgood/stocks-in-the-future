@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "test_helper"
 
 class ApplicationControllerTest < ActionDispatch::IntegrationTest
@@ -6,7 +8,7 @@ class ApplicationControllerTest < ActionDispatch::IntegrationTest
     portfolio = create(:portfolio, user: student)
 
     post user_session_path, params: {
-      user: {username: "teststudent", password: "password123"}
+      user: { username: "teststudent", password: "password123" }
     }
 
     assert_redirected_to portfolio_path(portfolio)
@@ -16,7 +18,7 @@ class ApplicationControllerTest < ActionDispatch::IntegrationTest
     create(:teacher, username: "testteacher", password: "password123")
 
     post user_session_path, params: {
-      user: {username: "testteacher", password: "password123"}
+      user: { username: "testteacher", password: "password123" }
     }
 
     assert_redirected_to classrooms_path
@@ -26,7 +28,7 @@ class ApplicationControllerTest < ActionDispatch::IntegrationTest
     create(:admin, username: "testadmin", password: "password123")
 
     post user_session_path, params: {
-      user: {username: "testadmin", password: "password123"}
+      user: { username: "testadmin", password: "password123" }
     }
 
     assert_redirected_to classrooms_path

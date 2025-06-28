@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 source "https://rubygems.org"
 
 ruby "3.4.4"
@@ -9,23 +11,23 @@ gem "bootsnap", require: false
 gem "daemons"
 gem "delayed_job_active_record"
 gem "devise", "~> 4.9"
-gem "jbuilder"
 gem "importmap-rails"
+gem "jbuilder"
 gem "pg", "~> 1.5"
 gem "propshaft"
-gem "pundit", "~> 2.5"
 gem "puma", ">= 5.0"
+gem "pundit", "~> 2.5"
 gem "shadcn-ui", "~> 0.0.15"
-gem "tailwindcss-rails", "~> 3.0"
 gem "stimulus-rails"
+gem "tailwindcss-rails", "~> 3.0"
 gem "turbo-rails"
 gem "tzinfo-data", platforms: %i[windows jruby]
 
 group :development, :test do
   gem "debug", platforms: %i[mri windows]
   gem "pry", "~> 0.15.2"
-  gem "standard-rails"
-  gem "standardrb"
+  gem "rubocop"
+  gem "rubocop-rails"
 end
 
 group :development do

@@ -311,10 +311,6 @@ GEM
     rubocop-ast (1.44.1)
       parser (>= 3.3.7.2)
       prism (~> 1.4)
-    rubocop-performance (1.25.0)
-      lint_roller (~> 1.1)
-      rubocop (>= 1.75.0, < 2.0)
-      rubocop-ast (>= 1.38.0, < 2.0)
     rubocop-rails (2.31.0)
       activesupport (>= 4.2.0)
       lint_roller (~> 1.1)
@@ -340,23 +336,6 @@ GEM
     simplecov-html (0.13.1)
     simplecov_json_formatter (0.1.4)
     sin_lru_redux (2.5.2)
-    standard (1.49.0)
-      language_server-protocol (~> 3.17.0.2)
-      lint_roller (~> 1.0)
-      rubocop (~> 1.75.2)
-      standard-custom (~> 1.0.0)
-      standard-performance (~> 1.8)
-    standard-custom (1.0.2)
-      lint_roller (~> 1.0)
-      rubocop (~> 1.50)
-    standard-performance (1.8.0)
-      lint_roller (~> 1.1)
-      rubocop-performance (~> 1.25.0)
-    standard-rails (1.4.0)
-      lint_roller (~> 1.0)
-      rubocop-rails (~> 2.31.0)
-    standardrb (1.0.1)
-      standard
     stimulus-rails (1.3.4)
       railties (>= 6.0.0)
     stringio (3.1.7)
@@ -433,11 +412,11 @@ DEPENDENCIES
   puma (>= 5.0)
   pundit (~> 2.5)
   rails (~> 8.0.2)
+  rubocop
+  rubocop-rails
   selenium-webdriver
   shadcn-ui (~> 0.0.15)
   simplecov
-  standard-rails
-  standardrb
   stimulus-rails
   tailwindcss-rails (~> 3.0)
   turbo-rails

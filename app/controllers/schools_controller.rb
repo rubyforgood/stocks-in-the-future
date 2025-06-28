@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class SchoolsController < ApplicationController
   before_action :set_school, only: %i[show edit update destroy]
   before_action :authenticate_user!
@@ -8,8 +10,7 @@ class SchoolsController < ApplicationController
   end
 
   # GET /schools/1 or /schools/1.json
-  def show
-  end
+  def show; end
 
   # GET /schools/new
   def new
@@ -17,8 +18,7 @@ class SchoolsController < ApplicationController
   end
 
   # GET /schools/1/edit
-  def edit
-  end
+  def edit; end
 
   # POST /schools or /schools.json
   def create

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Stock < ApplicationRecord
   SYMBOLS = %w[KO SNE TWX DIS SIRI F EA FB UA LUV GPS].freeze
 

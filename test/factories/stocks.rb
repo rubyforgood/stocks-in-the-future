@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :stock do
     sequence(:ticker) { |n| "STOCK#{n}" }

@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 class ClassroomsController < ApplicationController
   before_action :set_classroom, only: %i[show edit update destroy]
   before_action :authenticate_user!
-  before_action :ensure_teacher_or_admin, except: [:index, :show]
+  before_action :ensure_teacher_or_admin, except: %i[index show]
 
   def index
     @classrooms = current_user.admin? ? Classroom.all : [current_user.classroom].compact
@@ -17,8 +19,7 @@ class ClassroomsController < ApplicationController
     @classroom = Classroom.new
   end
 
-  def edit
-  end
+  def edit; end
 
   def create
     @classroom = Classroom.new(classroom_params.except(:school_name, :year_value))
@@ -78,7 +79,8 @@ class ClassroomsController < ApplicationController
       total_students: students.count,
       active_students: students.joins(:orders).distinct.count,
       total_portfolio_value: students.joins(:portfolio).sum("portfolios.current_position"),
-      recent_orders_count: Order.joins(:user).where(users: {classroom: @classroom}).where("orders.created_at > ?", 1.week.ago).count
+      recent_orders_count: Order.joins(:user).where(users: { classroom: @classroom }).where("orders.created_at > ?",
+                                                                                            1.week.ago).count
     }
   end
 end

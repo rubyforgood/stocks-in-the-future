@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Year < ApplicationRecord
   has_many :school_years, dependent: :destroy
   has_many :schools, through: :school_years

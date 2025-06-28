@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "test_helper"
 
 class StudentsControllerTest < ActionDispatch::IntegrationTest
@@ -63,7 +65,7 @@ class StudentsControllerTest < ActionDispatch::IntegrationTest
 
     student = Student.last
     assert_not_nil student.portfolio
-    assert_equal 10000.0, student.portfolio.current_position
+    assert_equal 10_000.0, student.portfolio.current_position
   end
 
   test "student creation generates memorable password" do
@@ -140,7 +142,7 @@ class StudentsControllerTest < ActionDispatch::IntegrationTest
 
   test "student show displays portfolio information" do
     portfolio = create(:portfolio, user: @student, current_position: 7500.0)
-    create(:portfolio_transaction, portfolio: portfolio, amount_cents: 100000, transaction_type: "deposit")
+    create(:portfolio_transaction, portfolio: portfolio, amount_cents: 100_000, transaction_type: "deposit")
 
     sign_in @teacher
     get classroom_student_path(@classroom, @student)

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ApplicationController < ActionController::Base
   before_action :authenticate_user!
   before_action :configure_permitted_parameters, if: :devise_controller?
@@ -23,7 +25,7 @@ class ApplicationController < ActionController::Base
   private
 
   def configure_permitted_parameters
-    devise_parameter_sanitizer.permit(:sign_up, keys: [:username, :type, :classroom_id])
-    devise_parameter_sanitizer.permit(:account_update, keys: [:username, :email])
+    devise_parameter_sanitizer.permit(:sign_up, keys: %i[username type classroom_id])
+    devise_parameter_sanitizer.permit(:account_update, keys: %i[username email])
   end
 end

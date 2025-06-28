@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class PurchaseStock
   delegate :portfolio, :shares, :stock, to: :order, private: true
   delegate :price_cents, to: :stock, prefix: true, private: true
@@ -26,15 +28,15 @@ class PurchaseStock
 
   def create_withdrawal_transaction
     @portfolio_transaction = portfolio
-      .portfolio_transactions
-      .withdrawal
-      .create!(amount_cents: purchase_cost)
+                             .portfolio_transactions
+                             .withdrawal
+                             .create!(amount_cents: purchase_cost)
   end
 
   def create_portfolio_stock
     @portfolio_stock = portfolio
-      .portfolio_stocks
-      .create!(stock:, shares:, purchase_price: stock_price_cents)
+                       .portfolio_stocks
+                       .create!(stock:, shares:, purchase_price: stock_price_cents)
   end
 
   def update_order_status

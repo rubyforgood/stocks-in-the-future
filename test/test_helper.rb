@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "simplecov"
 
 SimpleCov.start "rails" do
@@ -14,9 +16,7 @@ require "mocha/minitest"
 # Rails 8 introduced deferred route drawing which breaks Devise's sign_in helper
 # This forces routes to load before tests run, ensuring Devise mappings are available
 # See: https://github.com/heartcombo/devise/issues/5705
-if Rails.application.respond_to?(:routes_reloader)
-  Rails.application.routes_reloader.execute_unless_loaded
-end
+Rails.application.routes_reloader.execute_unless_loaded if Rails.application.respond_to?(:routes_reloader)
 
 WebMock.disable_net_connect!(allow_localhost: true)
 
@@ -34,6 +34,8 @@ module ActiveSupport
   end
 end
 
-class ActionDispatch::IntegrationTest
-  include Devise::Test::IntegrationHelpers
+module ActionDispatch
+  class IntegrationTest
+    include Devise::Test::IntegrationHelpers
+  end
 end

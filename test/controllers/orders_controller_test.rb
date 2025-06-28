@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "test_helper"
 
 class OrdersControllerTest < ActionDispatch::IntegrationTest
@@ -22,7 +24,7 @@ class OrdersControllerTest < ActionDispatch::IntegrationTest
   test "create" do
     teacher = create(:teacher)
     stock = create(:stock)
-    params = {order: {user_id: teacher.id, stock_id: stock.id}}
+    params = { order: { user_id: teacher.id, stock_id: stock.id } }
     sign_in(teacher)
 
     assert_difference("Order.count") do
@@ -53,7 +55,7 @@ class OrdersControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "update" do
-    params = {order: {status: "completed"}}
+    params = { order: { status: "completed" } }
     order = create(:order, :pending)
     sign_in(order.user)
 

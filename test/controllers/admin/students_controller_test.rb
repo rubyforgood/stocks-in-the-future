@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "test_helper"
 
 module Admin
@@ -9,7 +11,7 @@ module Admin
       sign_in(admin)
 
       assert_changes "student.reload.updated_at" do
-        patch admin_student_path(student), params: {student: {email: new_email}}
+        patch admin_student_path(student), params: { student: { email: new_email } }
       end
 
       assert_equal new_email, student.email
@@ -23,7 +25,7 @@ module Admin
       sign_in(admin)
 
       assert_no_changes "student.reload.updated_at" do
-        patch admin_student_path(student), params: {student: {username: ""}}
+        patch admin_student_path(student), params: { student: { username: "" } }
       end
 
       assert_equal username, student.username
@@ -32,7 +34,7 @@ module Admin
     end
 
     test "given a add_fund_amount, creates a transaction" do
-      params = {student: {add_fund_amount: 1_050}}
+      params = { student: { add_fund_amount: 1_050 } }
       admin = create(:admin)
       student = create(:student)
       create(:portfolio, user: student)
@@ -53,7 +55,7 @@ module Admin
     end
 
     test "given an empty add_fund_amount, does not create a transaction" do
-      params = {student: {add_fund_amount: ""}}
+      params = { student: { add_fund_amount: "" } }
       admin = create(:admin)
       student = create(:student)
       create(:portfolio, user: student)

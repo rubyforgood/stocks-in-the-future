@@ -18,8 +18,8 @@ jobs:
         with:
           ruby-version: '3.4.4'
           bundler-cache: true
-      - name: Lint
-        run: bin/lint
+      - name: Run RuboCop
+        run: bundle exec rubocop
 
   rails-test:
     name: Rails Test

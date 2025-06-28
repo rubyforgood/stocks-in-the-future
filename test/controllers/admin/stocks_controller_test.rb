@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "test_helper"
 
 module Admin
@@ -12,7 +14,7 @@ module Admin
     end
 
     test "create" do
-      params = {stock: {company_name: "Apple Inc."}}
+      params = { stock: { company_name: "Apple Inc." } }
       admin = create(:admin)
       sign_in(admin)
 
