@@ -51,26 +51,6 @@ services:
       DATABASE_URL: postgresql://sif:password@db/
       BROWSERSLIST_IGNORE_OLD_DATA: true
 
-  stocks-js:
-    image: node:lts-alpine
-    working_dir: /rails
-    tty: true
-    command: sh -c "yarn install && yarn build --watch"
-    volumes:
-      - .:/rails
-      - node_modules:/rails/node_modules
-
-  stocks-css:
-    image: node:lts-alpine
-    environment:
-      BROWSERSLIST_IGNORE_OLD_DATA: true
-    working_dir: /rails
-    tty: true
-    command: sh -c "yarn install && yarn build:css --watch=forever"
-    volumes:
-      - .:/rails
-      - node_modules:/rails/node_modules
-
 volumes:
   redis:
   postgres:

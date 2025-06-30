@@ -1,0 +1,11 @@
+{
+  "name": "stocks-in-the-future",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/rubyforgood/stocks-in-the-future.git",
+  "license": "MIT",
+  "scripts": {
+    "build": "echo 'JavaScript build complete'",
+    "build:css": "echo 'CSS build complete'"
+  }
+}
