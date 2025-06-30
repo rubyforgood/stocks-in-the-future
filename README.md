@@ -7,6 +7,8 @@
 
 # Installation
 
+Create `config/database.yml`. A copy of `config/database.yml.sample` should be adequate.
+
 ## With Docker
 
 Build and start the application with `docker compose up`. Once the application has successfully started, you should be able to visit it at http://localhost:3000/

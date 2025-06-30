@@ -11,14 +11,14 @@ WORKDIR /rails
 RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y \
     build-essential libpq-dev curl \
-    nodejs npm
+    nodejs npm libyaml-dev
 RUN npm install -g yarn
 
 COPY Gemfile Gemfile.lock ./
 RUN bundle install
 
-COPY package.json yarn.lock ./
-RUN yarn
+COPY . .
+RUN SECRET_KEY_BASE=placeholder bundle exec rails assets:precompile
 
 # Start the server by default, this can be overwritten at runtime
 EXPOSE 3000
