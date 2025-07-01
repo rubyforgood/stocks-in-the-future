@@ -16,6 +16,24 @@ end
 
 school = School.find_or_create_by(name: "Test School")
 
+
+stocks = [
+  "Coca Cola",
+  "Disney",
+  "Verizon",
+  "Southwest",
+  "Under Armour",
+  "Gap",
+  "Ford",
+  "Sony",
+  "Sirius XM"
+]
+
+stocks.each do |stock_name|
+  Stock.create(name: stock_name)
+end
+
+
 Stock.find_or_create_by(ticker: "AAPL",
   stock_exchange: "NASDAQ",
   company_name: "Apple Inc.",
