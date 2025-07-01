@@ -14,7 +14,7 @@ class StudentDashboard < Administrate::BaseDashboard
     classroom: Field::BelongsTo,
     email: Field::String,
     portfolio: Field::HasOne,
-    portfolio_path: Field::Url,
+    portfolio_path: PortfolioLink,
     username: Field::String,
     created_at: Field::DateTime,
     updated_at: Field::DateTime
@@ -27,8 +27,8 @@ class StudentDashboard < Administrate::BaseDashboard
   # Feel free to add, remove, or rearrange items.
   COLLECTION_ATTRIBUTES = %i[
     username
-    portfolio_path
     classroom
+    portfolio_path
   ].freeze
 
   # SHOW_PAGE_ATTRIBUTES
