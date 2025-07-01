@@ -58,7 +58,6 @@ Metrics/PerceivedComplexity:
 # Include: app/controllers/**/*.rb
 Rails/ActionOrder:
   Exclude:
-    - 'app/controllers/students_controller.rb'
 
 # Offense count: 3
 # Configuration parameters: Include.
@@ -83,8 +82,6 @@ Rails/I18nLocaleTexts:
 # Include: **/test/**/*
 Rails/RefuteMethods:
   Exclude:
-    - 'test/models/teacher_test.rb'
-    - 'test/models/user_test.rb'
 
 # Offense count: 4
 # This cop supports unsafe autocorrection (--autocorrect-all).
@@ -92,10 +89,6 @@ Rails/RefuteMethods:
 # Include: app/controllers/**/*.rb
 Rails/StrongParametersExpect:
   Exclude:
-    - 'app/controllers/classrooms_controller.rb'
-    - 'app/controllers/orders_controller.rb'
-    - 'app/controllers/schools_controller.rb'
-    - 'app/controllers/students_controller.rb'
 
 # Offense count: 8
 # This cop supports safe autocorrection (--autocorrect).
@@ -103,8 +96,3 @@ Rails/StrongParametersExpect:
 # URISchemes: http, https
 Layout/LineLength:
   Exclude:
-    - 'app/dashboards/portfolio_transaction_dashboard.rb'
-    - 'app/helpers/components/button_helper.rb'
-    - 'app/helpers/components/input_helper.rb'
-    - 'test/models/sti_test.rb'
-    - 'test/services/purchase_stock_test.rb'

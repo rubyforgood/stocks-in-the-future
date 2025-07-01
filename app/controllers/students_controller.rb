@@ -6,11 +6,13 @@ class StudentsController < ApplicationController
   before_action :set_classroom
   before_action :set_student, except: %i[new create]
 
+  def show; end
+
   def new
     @student = Student.new(classroom: @classroom)
   end
 
-  def show; end
+  def edit; end
 
   def create
     @student = Student.new(student_params)
@@ -25,8 +27,6 @@ class StudentsController < ApplicationController
       render :new, status: :unprocessable_entity
     end
   end
-
-  def edit; end
 
   def update
     if @student.update(student_params)
@@ -71,7 +71,7 @@ class StudentsController < ApplicationController
   end
 
   def student_params
-    params.require(:student).permit(:username, :email)
+    params.expect(student: %i[username email])
   end
 
   def generate_memorable_password

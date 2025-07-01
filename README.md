@@ -129,3 +129,26 @@ If you have any questions about an issue, comment on the issue, open a new issue
 ## Getting Help
 
 If you need help at any point, comment on the issue you're working on or ask in the #stocks-in-the-future channel on the Ruby for Good Slack.
+
+## Troubleshooting
+
+### ASDF 
+
+If you find yourself in a cycle of encountering errors such as:
+
+```
+in stocks-in-the-future/ on main
+› asdf install ruby 3.4.4
+
+in stocks-in-the-future/ on main
+› asdf set local ruby 3.4.4
+
+in stocks-in-the-future/ on main
+› ruby --version
+No version is set for command ruby
+Consider adding one of the following versions in your config file at /Users/america/dev/stocks-in-the-future/.tool-versions
+ruby 3.3.6
+ruby 3.1.6
+```
+
+Try upgrading asdf and trying again.

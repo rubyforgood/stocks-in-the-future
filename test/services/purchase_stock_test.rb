@@ -60,7 +60,9 @@ class PurchaseStockTest < ActiveSupport::TestCase
     order = Order.create(stock: Stock.first, shares: 5, status: :pending, user: @student)
 
     # Simulate failure to create portfolio_transaction by stubbing the create method to return false
-    order.portfolio.portfolio_transactions.stubs(:create!).raises(ActiveRecord::RecordInvalid.new(PortfolioTransaction.new))
+    order.portfolio.portfolio_transactions.stubs(:create!).raises(
+      ActiveRecord::RecordInvalid.new(PortfolioTransaction.new)
+    )
 
     assert_raises(ActiveRecord::RecordInvalid) do
       PurchaseStock.execute(order)
