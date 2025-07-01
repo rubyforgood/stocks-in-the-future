@@ -1,5 +1,9 @@
 ---
 en:
+  activerecord:
+    attributes:
+      user:
+        type: Role
   classrooms:
     create:
       notice: Classroom was successfully created.
