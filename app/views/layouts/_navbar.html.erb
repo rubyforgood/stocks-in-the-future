@@ -1,0 +1,54 @@
+<div class="flex w-1/5" data-controller="navbar">
+  <div class="flex grow flex-col gap-y-5 overflow-y-auto  border-r border-gray-200 bg-white px-6">
+    <div class="flex h-16 shrink-0 items-center">
+      <%= image_tag "SITF-caponly-Logo.svg", class: "navbar-logo", alt: "Stocks in The Future" %>
+    </div>
+    <nav class="flex flex-1 flex-col">
+      <ul role="list" class="flex flex-1 flex-col gap-y-7">
+        <li>
+          <ul role="list" class="-mx-2 space-y-1">
+            <% if current_user&.teacher? %>
+              <li>
+                <div>
+                  <button type="button" class="flex w-full items-center gap-x-3 rounded-md p-2 text-left text-sm/6 font-semibold text-gray-700 hover:bg-gray-50" aria-controls="classes-sub-menu">
+                    <%= link_to "Classes", classrooms_path %>
+                  </button>
+                </div>
+              </li>
+            <% end %>
+            <li>
+              <div>
+                <button type="button" class="flex w-full items-center gap-x-3 rounded-md p-2 text-left text-sm/6 font-semibold text-gray-700 hover:bg-gray-50" aria-controls="stocks-sub-menu">
+                  <%= link_to "Trading Floor", stocks_path %>
+                </button>
+                <ul class="mt-1 px-2" id="stocks-sub-menu">
+                  <% navbar_stocks.each do |stock| %>
+                    <li class="block rounded-md py-2 pr-2 pl-9 text-sm/6 text-gray-700 hover:bg-gray-50">
+                      <%= link_to stock.ticker, stock_path(stock) %>
+                    </li>
+                  <% end %>
+                </ul>
+              </div>
+            </li>
+
+          </ul>
+        </li>
+        <li class="mt-auto mb-8">
+          <div class="flex flex-col items-center gap-4">
+            <button type="button" class="rounded-md bg-white px-10 py-2 text-sm font-semibold text-gray-900 shadow-xs ring-1 ring-gray-300 ring-inset hover:bg-gray-50">
+              <%= link_to "Profile", stocks_path %>
+            </button>
+            <% if current_user.admin? %>
+              <button type="button" class="rounded-md bg-white px-10 py-2 text-sm font-semibold text-gray-900 shadow-xs ring-1 ring-gray-300 ring-inset hover:bg-gray-50">
+                <%= link_to "Admin", admin_classrooms_path %>
+              </button>
+            <% end %>
+            <button type="button" class="rounded-md bg-white px-10 py-2 text-sm font-semibold text-gray-900 shadow-xs ring-1 ring-gray-300 ring-inset hover:bg-gray-50">
+              <%= link_to "Logout", destroy_user_session_path, data: { turbo_method: :delete } %>
+            </button>
+          </div>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</div>

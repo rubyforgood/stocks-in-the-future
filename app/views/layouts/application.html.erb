@@ -8,50 +8,9 @@
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
-  <body>
-    
-
+  <body class="h-screen inline-flex">
     <% if user_signed_in? %>
-    <nav class="navbar">
-  <div class="navbar-container">
-    <div class="navbar-layout">
-      <div class="navbar-mobile-button-container">
-        <button type="button" class="navbar-mobile-button" aria-controls="mobile-menu" aria-expanded="false">
-          <span class="absolute -inset-0.5"></span>
-          <span class="sr-only">Open main menu</span>
-          <svg class="block navbar-svg-icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-          </svg>
-          <svg class="hidden navbar-svg-icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-          </svg>
-        </button>
-      </div>
-      <div class="navbar-left-section">
-        <div class="navbar-logo-container">
-          <%= image_tag "SITF-caponly-Logo.svg", class: "navbar-logo", alt: "Stocks in The Future" %>
-        </div>
-        <div class="navbar-main-links-container">
-          <a href="<%= classrooms_path %>" class="navbar-main-link <%= current_page?(classrooms_path) ? 'navbar-main-link-active' : 'navbar-main-link-default' %>">Classrooms</a>
-          <a href="<%= stocks_path %>" class="navbar-main-link <%= current_page?(stocks_path) ? 'navbar-main-link-active' : 'navbar-main-link-default' %>">Stocks</a>
-          <% if current_user&.portfolio %>
-            <a href="<%= portfolio_path(current_user.portfolio) %>" class="navbar-main-link <%= current_page?(portfolio_path(current_user.portfolio)) ? 'navbar-main-link-active' : 'navbar-main-link-default' %>">My Portfolio</a>
-          <% end %>
-        </div>
-      </div>
-      <div class="navbar-right-section">
-        <div class="navbar-user-links-container">
-          <a href="#" class="nav-user-link" role="menuitem" tabindex="-1" id="user-menu-item-0">My Profile</a>
-          <%= link_to "Sign out", destroy_user_session_path, class: "nav-user-link", role: "menuitem", tabindex: "-1", id: "user-menu-item-2", data: { turbo_method: :delete } %>
-          <% if current_user&.admin? %>
-            <a href="<%= admin_root_path%>" class="nav-user-link" role="menuitem" tabindex="-1" id="user-menu-item-1">Admins</a>
-          <% end %>
-        </div>
-      </div>
-    </div>
-  </div>
-  </div>
-</nav>
+      <%= render 'layouts/navbar'%>
     <% end %>
     <%= yield %>
   </body>
