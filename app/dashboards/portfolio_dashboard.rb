@@ -15,7 +15,6 @@ class PortfolioDashboard < Administrate::BaseDashboard
     current_position: Field::Number.with_options(decimals: 2),
     portfolio_stocks: Field::HasMany,
     portfolio_transactions: Field::HasMany,
-    transactions: Field::String.with_options(searchable: false),
     user: Field::BelongsTo,
     created_at: Field::DateTime,
     updated_at: Field::DateTime
@@ -41,7 +40,6 @@ class PortfolioDashboard < Administrate::BaseDashboard
     current_position
     portfolio_stocks
     portfolio_transactions
-    transactions
     user
     created_at
     updated_at
@@ -55,7 +53,6 @@ class PortfolioDashboard < Administrate::BaseDashboard
     current_position
     portfolio_stocks
     portfolio_transactions
-    transactions
     user
   ].freeze
 
