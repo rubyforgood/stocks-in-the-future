@@ -58,7 +58,6 @@ Metrics/PerceivedComplexity:
 # Include: app/controllers/**/*.rb
 Rails/ActionOrder:
   Exclude:
-    - 'app/controllers/students_controller.rb'
 
 # Offense count: 3
 # Configuration parameters: Include.
@@ -83,8 +82,6 @@ Rails/I18nLocaleTexts:
 # Include: **/test/**/*
 Rails/RefuteMethods:
   Exclude:
-    - 'test/models/teacher_test.rb'
-    - 'test/models/user_test.rb'
 
 # Offense count: 4
 # This cop supports unsafe autocorrection (--autocorrect-all).

@@ -11,7 +11,7 @@ class TeacherTest < ActiveSupport::TestCase
 
   test "email is required" do
     teacher = build(:teacher, email: nil)
-    refute teacher.valid?
+    assert_not teacher.valid?
     assert_includes teacher.errors[:email], "can't be blank"
   end
 
