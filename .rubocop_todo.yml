@@ -89,10 +89,6 @@ Rails/RefuteMethods:
 # Include: app/controllers/**/*.rb
 Rails/StrongParametersExpect:
   Exclude:
-    - 'app/controllers/classrooms_controller.rb'
-    - 'app/controllers/orders_controller.rb'
-    - 'app/controllers/schools_controller.rb'
-    - 'app/controllers/students_controller.rb'
 
 # Offense count: 8
 # This cop supports safe autocorrection (--autocorrect).

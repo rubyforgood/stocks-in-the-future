@@ -64,7 +64,7 @@ class ClassroomsController < ApplicationController
   end
 
   def classroom_params
-    params.require(:classroom).permit(:name, :grade, :school_name, :year_value)
+    params.expect(classroom: %i[name grade school_name year_value])
   end
 
   def ensure_teacher_or_admin
