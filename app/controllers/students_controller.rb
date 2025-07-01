@@ -71,7 +71,7 @@ class StudentsController < ApplicationController
   end
 
   def student_params
-    params.require(:student).permit(:username, :email)
+    params.expect(student: %i[username email])
   end
 
   def generate_memorable_password
