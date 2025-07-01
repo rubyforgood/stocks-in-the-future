@@ -3,13 +3,13 @@
 module Components
   module InputHelper
     def render_input(name:, label: false, id: nil, type: :text, value: nil, **options)
-      options[:class] =
-        "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm transition-colors ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 #{options[:class]} "
+      options[:class] = border_styling(options[:class])
+
       options[:class] << case options[:variant]
                          when :borderless
-                           " border-0 focus-visible:outline-none focus-visible:shadow-none focus-visible:ring-transparent"
+                           borderless_variant_styling
                          else
-                           "shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:border-muted"
+                           border_variant_default_styling
                          end
       options[:class] = tw(options[:class])
 
@@ -31,6 +31,25 @@ module Components
         id:,
         options: options
       }
+    end
+
+    private
+
+    def border_styling(options_class)
+      "flex h-10 w-full rounded-md border border-input bg-background px-3 " \
+        "py-2 text-sm transition-colors ring-offset-background file:border-0 " \
+        "file:bg-transparent file:text-sm file:font-medium " \
+        "placeholder:text-muted-foreground disabled:cursor-not-allowed " \
+        "disabled:opacity-50 #{options_class} "
+    end
+
+    def borderless_variant_styling
+      " border-0 focus-visible:outline-none focus-visible:shadow-none focus-visible:ring-transparent"
+    end
+
+    def border_variant_default_styling
+      "shadow-sm focus-visible:outline-none focus-visible:ring-2a " \
+        "focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:border-muted"
     end
   end
 end
