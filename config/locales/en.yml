@@ -1,5 +1,9 @@
 ---
 en:
+  activerecord:
+    attributes:
+      user:
+        type: Role
   classrooms:
     create:
       notice: Classroom was successfully created.
@@ -7,7 +11,3 @@ en:
       notice: Classroom was successfully destroyed.
     update:
       notice: Classroom was successfully updated.
-  activerecord:
-    attributes:
-      user:
-        type: "Role"
