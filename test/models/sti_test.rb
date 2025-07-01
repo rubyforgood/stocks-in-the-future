@@ -14,12 +14,16 @@ class StiTest < ActiveSupport::TestCase
 
     # Test creating a Student
     student = create(:student, classroom: classroom)
-    puts "Student created with type: #{student.type}, valid?: #{student.valid?}, errors: #{student.errors.full_messages}"
+    puts "Student created with type: #{student.type}, " \
+         "valid?: #{student.valid?}, " \
+         "errors: #{student.errors.full_messages}"
     assert_equal "Student", student.type
 
     # Test creating a Teacher
     teacher = create(:teacher, classroom: classroom)
-    puts "Teacher created with type: #{teacher.type}, valid?: #{teacher.valid?}, errors: #{teacher.errors.full_messages}"
+    puts "Teacher created with type: #{teacher.type}, " \
+         "valid?: #{teacher.valid?}, " \
+         "errors: #{teacher.errors.full_messages}"
     assert_equal "Teacher", teacher.type
 
     # Test updating an Admin to be a Student

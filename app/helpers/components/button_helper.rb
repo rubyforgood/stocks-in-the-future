@@ -3,7 +3,7 @@
 module Components
   module ButtonHelper
     def render_button(label = "", text: nil, variant: :default, as: :button, href: nil, data: {}, **options, &block)
-      base_classes = " inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-10 px-4 py-2 "
+      base_classes = base_class_styling
       variant_classes = case variant.to_sym
                         when :default
                           " bg-primary text-primary-foreground hover:bg-primary/90 "
@@ -21,6 +21,15 @@ module Components
       text = label if label.present?
       text = capture(&block) if block
       render "components/ui/button", text:, button_classes:, as:, href:, data:, **options
+    end
+
+    private
+
+    def base_class_styling
+      " inline-flex items-center justify-center rounded-md text-sm font-medium " \
+        "ring-offset-background transition-colors focus-visible:outline-none " \
+        "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 " \
+        "disabled:pointer-events-none disabled:opacity-50 h-10 px-4 py-2 "
     end
   end
 end

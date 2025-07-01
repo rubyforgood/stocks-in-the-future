@@ -12,9 +12,10 @@ class PortfolioTransactionDashboard < Administrate::BaseDashboard
   ATTRIBUTE_TYPES = {
     id: Field::Number,
     portfolio: Field::BelongsTo,
-    transaction_type: Field::Select.with_options(searchable: false, collection: lambda { |field|
-                                                                                  field.resource.class.send(field.attribute.to_s.pluralize).keys
-                                                                                }),
+    transaction_type: Field::Select.with_options(
+      searchable: false,
+      collection: ->(field) { field.resource.class.send(field.attribute.to_s.pluralize).keys }
+    ),
     amount: Field::Number.with_options(decimals: 2),
     created_at: Field::DateTime,
     updated_at: Field::DateTime
