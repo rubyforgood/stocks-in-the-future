@@ -11,7 +11,8 @@ class UserDashboard < Administrate::BaseDashboard
   # on pages throughout the dashboard.
   ATTRIBUTE_TYPES = {
     id: Field::Number,
-    classroom_id: Field::Number,
+    classroom: Field::BelongsTo,
+    type: Field::String,
     email: Field::String,
     portfolio: Field::HasOne,
     username: Field::String,
@@ -26,7 +27,8 @@ class UserDashboard < Administrate::BaseDashboard
   # Feel free to add, remove, or rearrange items.
   COLLECTION_ATTRIBUTES = %i[
     id
-    classroom_id
+    classroom
+    type
     email
   ].freeze
 
@@ -34,7 +36,8 @@ class UserDashboard < Administrate::BaseDashboard
   # an array of attributes that will be displayed on the model's show page.
   SHOW_PAGE_ATTRIBUTES = %i[
     id
-    classroom_id
+    classroom
+    type
     email
     portfolio
     username
@@ -46,7 +49,8 @@ class UserDashboard < Administrate::BaseDashboard
   # an array of attributes that will be displayed
   # on the model's form (`new` and `edit`) pages.
   FORM_ATTRIBUTES = %i[
-    classroom_id
+    classroom
+    type
     email
     portfolio
     username
