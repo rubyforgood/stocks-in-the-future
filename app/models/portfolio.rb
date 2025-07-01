@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class Portfolio < ApplicationRecord
+  include ::UrlHelpers
+
   belongs_to :user
 
   has_many :portfolio_transactions, dependent: :destroy
@@ -9,5 +11,9 @@ class Portfolio < ApplicationRecord
 
   def cash_balance
     portfolio_transactions.sum(:amount_cents) / 100.0
+  end
+
+  def path
+    portfolio_path(self)
   end
 end
