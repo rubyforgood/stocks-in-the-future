@@ -20,7 +20,6 @@ class StudentsController < ApplicationController
     @student.password = generate_memorable_password
 
     if @student.save
-      create_student_portfolio
       redirect_to classroom_path(@classroom),
                   notice: "Student #{@student.username} created successfully. Initial password: #{@student.password}"
     else
@@ -78,9 +77,5 @@ class StudentsController < ApplicationController
     words = %w[Sunset Moonlight Spring Autumn River Glade Mountain Valley]
     numbers = (1..99).to_a
     "#{words.sample}#{numbers.sample}"
-  end
-
-  def create_student_portfolio
-    Portfolio.create!(user: @student, current_position: 10_000.0)
   end
 end

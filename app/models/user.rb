@@ -4,6 +4,7 @@ class User < ApplicationRecord
   belongs_to :classroom
 
   has_one :portfolio, dependent: :destroy
+  accepts_nested_attributes_for :portfolio
   has_many :orders, dependent: :destroy
 
   # Include default devise modules. Others available are:

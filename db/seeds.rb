@@ -58,7 +58,8 @@ Student.create!(
   password: "password",
   password_confirmation: "password",
   admin: false,
-  classroom: classroom
+  classroom: classroom,
+  portfolio_attributes: { current_position: 10_000.0 }
 )
 
 User.create!(

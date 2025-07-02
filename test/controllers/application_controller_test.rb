@@ -5,7 +5,7 @@ require "test_helper"
 class ApplicationControllerTest < ActionDispatch::IntegrationTest
   test "after_sign_in_path_for redirects students to portfolio" do
     student = create(:student, username: "teststudent", password: "password123")
-    portfolio = create(:portfolio, user: student)
+    portfolio = student.portfolio
 
     post user_session_path, params: {
       user: { username: "teststudent", password: "password123" }
