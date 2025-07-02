@@ -78,5 +78,4 @@ class StudentsController < ApplicationController
     numbers = (1..99).to_a
     "#{words.sample}#{numbers.sample}"
   end
-
 end

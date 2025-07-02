@@ -141,8 +141,7 @@ class StudentsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "student show displays portfolio information" do
-    portfolio = create(:portfolio, user: @student, current_position: 7500.0)
-    create(:portfolio_transaction, portfolio: portfolio, amount_cents: 100_000, transaction_type: "deposit")
+    create(:portfolio_transaction, portfolio: @student.portfolio, amount_cents: 100_000, transaction_type: "deposit")
 
     sign_in @teacher
     get classroom_student_path(@classroom, @student)

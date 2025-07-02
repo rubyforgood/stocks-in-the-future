@@ -14,6 +14,6 @@ class Student < User
   end
 
   def ensure_portfolio
-    create_portfolio!(cash_balance_cents: 0) unless portfolio.present?
+    create_portfolio!(current_position: 10_000.0) if portfolio.blank?
   end
 end

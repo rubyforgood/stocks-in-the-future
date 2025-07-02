@@ -59,7 +59,7 @@ Student.create!(
   password_confirmation: "password",
   admin: false,
   classroom: classroom,
-  portfolio_attributes: { cash_balance_cents: 0 }
+  portfolio_attributes: { current_position: 10_000.0 }
 )
 
 User.create!(
