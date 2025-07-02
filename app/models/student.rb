@@ -3,6 +3,7 @@
 class Student < User
   # Ensure students have nil email by default (not empty string)
   after_initialize :set_default_email, if: :new_record?
+  after_create :ensure_portfolio
 
   delegate :path, to: :portfolio, prefix: true, allow_nil: true
 
@@ -10,5 +11,9 @@ class Student < User
 
   def set_default_email
     self.email = nil if email.blank?
+  end
+
+  def ensure_portfolio
+    create_portfolio!(cash_balance_cents: 0) unless portfolio.present?
   end
 end

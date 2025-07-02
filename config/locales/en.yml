@@ -11,11 +11,11 @@ en:
       notice: Classroom was successfully destroyed.
     update:
       notice: Classroom was successfully updated.
-  helpers:
-    label:
-      student:
-        portfolio_path: Portfolio Link
   fields:
     portfolio_path:
       index:
         portfolio: Portfolio
+  helpers:
+    label:
+      student:
+        portfolio_path: Portfolio Link

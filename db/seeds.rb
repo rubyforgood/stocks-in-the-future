@@ -58,7 +58,8 @@ Student.create!(
   password: "password",
   password_confirmation: "password",
   admin: false,
-  classroom: classroom
+  classroom: classroom,
+  portfolio_attributes: { cash_balance_cents: 0 }
 )
 
 User.create!(
