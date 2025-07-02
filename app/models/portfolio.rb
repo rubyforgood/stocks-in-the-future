@@ -4,6 +4,7 @@ class Portfolio < ApplicationRecord
   include ::UrlHelpers
 
   belongs_to :user
+  validate :user_must_be_student
 
   has_many :portfolio_transactions, dependent: :destroy
   has_many :portfolio_stocks, dependent: :destroy
@@ -53,5 +54,9 @@ class Portfolio < ApplicationRecord
 
   def acceptable_debits
     portfolio_transactions.debits.reject { |transaction| transaction.order.canceled? }
+  end
+
+  def user_must_be_student
+    errors.add(:user, "must be a student") unless user&.student?
   end
 end

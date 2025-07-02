@@ -7,6 +7,8 @@ class User < ApplicationRecord
   accepts_nested_attributes_for :portfolio
   has_many :orders, dependent: :destroy
 
+  after_create :create_portfolio_for_student
+
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
   devise :database_authenticatable, :registerable,
@@ -42,5 +44,11 @@ class User < ApplicationRecord
 
   def email_changed?
     false
+  end
+
+  private
+
+  def create_portfolio_for_student
+    create_portfolio if student? && portfolio.nil?
   end
 end
