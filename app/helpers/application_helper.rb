@@ -3,7 +3,9 @@
 module ApplicationHelper
   def navbar_stocks
     Stock.all
-  rescue
-    []
+  end
+
+  def current_portfolio
+    current_user&.portfolio&.id
   end
 end
