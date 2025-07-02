@@ -1,0 +1,32 @@
+<table class="table-auto">
+  <thead>
+    <tr>
+      <th>Company (Exchange)</th>
+      <th>Last Price</th>
+      <th>Your Holdings</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% stocks.each do |stock| %>
+      <tr>
+        <td>
+          <%= link_to stock.ticker, stock_path(stock) %><br>
+          <span class="text-gray-500">(<%= stock.company_name %>)</span>
+        </td>
+        <td>
+          $<%= stock.current_price %>
+        </td>
+        <td>
+          some number
+        </td>
+        <td>
+          |Buy Button Placeholder|
+        </td>
+        <td>
+          |Sell Button Placeholder|
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

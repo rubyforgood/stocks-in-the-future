@@ -7,7 +7,7 @@
     <h1 class="font-bold text-4xl">Stocks</h1>
   </div>
 
-  <div id="stocks" class="min-w-full">
-    <%= render @stocks %>
+  <div id="stocks" class="min-w-full ps-2">
+    <%= render "stocks_table", stocks: @stocks %>
   </div>
 </div>
