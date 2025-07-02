@@ -32,7 +32,10 @@ Rails.application.routes.draw do
   end
 
   resources :orders
-  resources :portfolios, only: :show
   resources :stocks, only: %i[show index]
   resources :students, only: :show
+
+  resources :users, only: [] do
+    resource :portfolio, only: :show
+  end
 end
