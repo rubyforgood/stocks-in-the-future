@@ -11,7 +11,7 @@ module Admin
     before_action :authenticate_admin
 
     def authenticate_admin
-      redirect_to root_path, alert: "You are not authorized to access this page." unless current_user&.admin?
+      redirect_to root_path, alert: t("application.access_denied.admin_required") unless current_user&.admin?
     end
 
     # Override this value to specify the number of elements to display at a time
