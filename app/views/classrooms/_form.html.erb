@@ -12,23 +12,31 @@
   <% end %>
 
   <div class="my-5">
-    <%= form.label :name %>
-    <%= form.text_field :name, class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" %>
+    <%= form.label :name, class: 'tw-label-primary' %>
+    <div class="mt-2">
+      <%= form.text_field :name, class: "tw-input-primary" %>
+    </div>
   </div>
 
   <div class="my-5">
-    <%= form.label :school_name, "School Name" %>
-    <%= form.text_field :school_name, class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" %>
+    <%= form.label :school_name, "School Name", class: 'tw-label-primary' %>
+    <div class="mt-2">
+      <%= form.text_field :school_name, class: "tw-input-primary" %>
+    </div>
   </div>
 
   <div class="my-5">
-    <%= form.label :year_value, "Year" %>
-    <%= form.text_field :year_value, class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" %>
+    <%= form.label :year_value, "Year", class: 'tw-label-primary' %>
+    <div class="mt-2">
+      <%= form.text_field :year_value, class: "tw-input-primary" %>
+    </div>
   </div>
 
   <div class="my-5">
-    <%= form.label :grade %>
-    <%= form.text_field :grade, class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" %>
+    <%= form.label :grade, class: 'tw-label-primary' %>
+    <div class="mt-2">
+      <%= form.text_field :grade, class: "tw-input-primary" %>
+    </div>
   </div>
 
   <div class="inline">
