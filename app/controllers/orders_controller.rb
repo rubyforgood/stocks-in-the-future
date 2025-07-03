@@ -62,13 +62,15 @@ class OrdersController < ApplicationController
 
   private
 
-  # Use callbacks to share common setup or constraints between actions.
+  def portfolio
+    @portfolio ||= current_user.portfolio
+  end
+
   def set_order
     @order = Order.find(params[:id])
   end
 
-  # Only allow a list of trusted parameters through.
   def order_params
-    params.expect(order: %i[student_id stock_id shares status])
+    params.expect(order: %i[stock_id shares])
   end
 end

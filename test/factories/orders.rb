@@ -3,7 +3,8 @@
 FactoryBot.define do
   factory :order do
     stock
-    user { create(:admin) }
+    shares { 1 }
+    user { create(:student) }
   end
 
   trait :pending do
