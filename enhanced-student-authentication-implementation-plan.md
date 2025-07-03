@@ -64,7 +64,7 @@ class ApplicationController < ActionController::Base
   def after_sign_in_path_for(resource)
     case resource.type
     when 'Student'
-      portfolio_path(resource)
+      user_portfolio_path(resource, resource.portfolio)
     when 'Teacher', 'Admin'
       classrooms_path
     else
@@ -1000,7 +1000,7 @@ class ApplicationControllerTest < ActionDispatch::IntegrationTest
     sign_in student
     get root_path
     
-    assert_redirected_to portfolio_path(portfolio)
+    assert_redirected_to user_portfolio_path(portfolio.user, portfolio)
   end
 
   test "after_sign_in_path_for redirects teachers to classrooms" do
@@ -1246,7 +1246,7 @@ class AuthenticationFlowsTest < ActionDispatch::IntegrationTest
       }
     }
     
-    assert_redirected_to portfolio_path(portfolio)
+    assert_redirected_to user_portfolio_path(portfolio.user, portfolio)
     follow_redirect!
     assert_response :success
   end
@@ -1374,7 +1374,7 @@ class AuthenticationSystemTest < ApplicationSystemTestCase
     click_button "Sign in"
     
     # Should redirect to portfolio
-    assert_current_path portfolio_path(portfolio)
+    assert_current_path user_portfolio_path(portfolio.user, portfolio)
     assert_text "Portfolio"
   end
 
