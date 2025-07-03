@@ -1,32 +1,36 @@
 <table class="table-auto">
   <thead>
     <tr>
-      <th>Company (Exchange)</th>
-      <th>Last Price</th>
-      <th>Your Holdings</th>
-      <th></th>
+      <th class="px-4 py-2">Company (Exchange)</th>
+      <th class="px-4 py-2">Last Price</th>
+      <th class="px-4 py-2">Your Holdings</th>
+      <th class="px-4 py-2"></th>
     </tr>
   </thead>
   <tbody>
-    <% stocks.each do |stock| %>
-      <tr>
-        <td>
-          <%= link_to stock.ticker, stock_path(stock) %><br>
-          <span class="text-gray-500">(<%= stock.company_name %>)</span>
-        </td>
-        <td>
-          $<%= stock.current_price %>
-        </td>
-        <td>
-          some number
-        </td>
-        <td>
-          |Buy Button Placeholder|
-        </td>
-        <td>
-          |Sell Button Placeholder|
-        </td>
-      </tr>
-    <% end %>
+  <% stocks.each do |stock| %>
+    <tr>
+      <td class="px-4 py-2">
+        <%= link_to stock.ticker, stock_path(stock) %><br>
+        <span class="text-gray-500">(<%= stock.company_name %>)</span>
+      </td>
+      <td class="px-4 py-2">
+        $<%= stock.current_price %>
+      </td>
+      <td class="px-4 py-2">
+        some number
+      </td>
+      <td class="px-4 py-2">
+        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+          Buy Placeholder
+        </button>
+      </td>
+      <td class="px-4 py-2">
+        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+          Sell Placeholder
+        </button>
+      </td>
+    </tr>
+  <% end %>
   </tbody>
 </table>

@@ -1,13 +1,14 @@
-<div class="w-full">
+<div class="w-full ps-4">
   <% if notice.present? %>
     <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-lg inline-block" id="notice"><%= notice %></p>
   <% end %>
 
-  <div class="flex justify-between items-center">
-    <h1 class="font-bold text-4xl">Stocks</h1>
+  <div class="flex justify-between items-center pb-2 pt-4">
+    <h1 class="font-bold text-4xl">Trading Floor</h1>
   </div>
 
-  <div id="stocks" class="min-w-full ps-2">
+  <div id="stocks" class="min-w-full">
+    <hr class="pb-2">
     <%= render "stocks_table", stocks: @stocks %>
   </div>
 </div>
