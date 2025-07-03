@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class User < ApplicationRecord
-  belongs_to :classroom
+  belongs_to :classroom, optional: true
 
   has_one :portfolio, dependent: :destroy
   accepts_nested_attributes_for :portfolio
