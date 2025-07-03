@@ -16,7 +16,6 @@ end
 
 school = School.find_or_create_by(name: "Test School")
 
-
 stocks = [
   { ticker: "AAPL",
     stock_exchange: "NASDAQ",
@@ -37,7 +36,7 @@ stocks = [
     debt: 95_000_000_000.00,
     price_cents: 19_918
   },
-  { ticker: " ",
+  { ticker: "KO",
     stock_exchange: " ",
     company_name: "Coca Cola",
     company_website: " ",
@@ -45,38 +44,38 @@ stocks = [
     industry: " ",
     management: " ",
     employees: 164_000,
-  competitor_names: " ",
-  sales_growth: 2.02,
-  industry_avg_sales_growth: 5.50,
-  debt_to_equity: 1.73,
-  industry_avg_debt_to_equity: 0.85,
-  profit_margin: 23.97,
-  industry_avg_profit_margin: 12.50,
-  cash_flow: 24_000_000_000.00,
-  debt: 95_000_000_000.00,
-  price_cents: 19_918
+    competitor_names: " ",
+    sales_growth: 2.02,
+    industry_avg_sales_growth: 5.50,
+    debt_to_equity: 1.73,
+    industry_avg_debt_to_equity: 0.85,
+    profit_margin: 23.97,
+    industry_avg_profit_margin: 12.50,
+    cash_flow: 24_000_000_000.00,
+    debt: 95_000_000_000.00,
+    price_cents: 32_234
   },
   {
-  ticker: " ",
-  stock_exchange: " ",
-  company_name: "Disney",
-  company_website: " ",
-  description: " ",
-  industry: " ",
-  management: " ",
-  employees: 164_000,
-  competitor_names: " ",
-  sales_growth: 2.02,
-  industry_avg_sales_growth: 5.50,
-  debt_to_equity: 1.73,
-  industry_avg_debt_to_equity: 0.85,
-  profit_margin: 23.97,
-  industry_avg_profit_margin: 12.50,
-  cash_flow: 24_000_000_000.00,
-  debt: 95_000_000_000.00,
-  price_cents: 19_918
+    ticker: "DIS",
+    stock_exchange: " ",
+    company_name: "Disney",
+    company_website: " ",
+    description: " ",
+    industry: " ",
+    management: " ",
+    employees: 164_000,
+    competitor_names: " ",
+    sales_growth: 2.02,
+    industry_avg_sales_growth: 5.50,
+    debt_to_equity: 1.73,
+    industry_avg_debt_to_equity: 0.85,
+    profit_margin: 23.97,
+    industry_avg_profit_margin: 12.50,
+    cash_flow: 24_000_000_000.00,
+    debt: 95_000_000_000.00,
+    price_cents: 319_910
   },
-  { ticker: " ",
+  { ticker: "VZ",
     stock_exchange: " ",
     company_name: "Verizon",
     company_website: " ",
@@ -93,7 +92,7 @@ stocks = [
     industry_avg_profit_margin: 12.50,
     cash_flow: 24_000_000_000.00,
     debt: 95_000_000_000.00,
-    price_cents: 19_918
+    price_cents: 20_500
   },
   { ticker: " ",
     stock_exchange: " ",
@@ -112,9 +111,9 @@ stocks = [
     industry_avg_profit_margin: 12.50,
     cash_flow: 24_000_000_000.00,
     debt: 95_000_000_000.00,
-    price_cents: 19_918
+    price_cents: 9_325
   },
-  { ticker: " ",
+  { ticker: "UAA",
     stock_exchange: " ",
     company_name: "Under Armour",
     company_website: " ",
@@ -131,9 +130,9 @@ stocks = [
     industry_avg_profit_margin: 12.50,
     cash_flow: 24_000_000_000.00,
     debt: 95_000_000_000.00,
-    price_cents: 19_918
+    price_cents: 11_223
   },
-  { ticker: " ",
+  { ticker: "GAP",
     stock_exchange: " ",
     company_name: "Gap",
     company_website: " ",
@@ -150,77 +149,74 @@ stocks = [
     industry_avg_profit_margin: 12.50,
     cash_flow: 24_000_000_000.00,
     debt: 95_000_000_000.00,
-    price_cents: 19_918
+    price_cents: 10_945 },
+  {
+    ticker: "F",
+    stock_exchange: " ",
+    company_name: "Ford",
+    company_website: " ",
+    description: " ",
+    industry: " ",
+    management: " ",
+    employees: 164_000,
+    competitor_names: " ",
+    sales_growth: 2.02,
+    industry_avg_sales_growth: 5.50,
+    debt_to_equity: 1.73,
+    industry_avg_debt_to_equity: 0.85,
+    profit_margin: 23.97,
+    industry_avg_profit_margin: 12.50,
+    cash_flow: 24_000_000_000.00,
+    debt: 95_000_000_000.00,
+    price_cents: 319_000
   },
   {
-      ticker: " ",
-      stock_exchange: " ",
-      company_name: "Ford",
-      company_website: " ",
-      description: " ",
-      industry: " ",
-      management: " ",
-      employees: 164_000,
-      competitor_names: " ",
-      sales_growth: 2.02,
-      industry_avg_sales_growth: 5.50,
-      debt_to_equity: 1.73,
-      industry_avg_debt_to_equity: 0.85,
-      profit_margin: 23.97,
-      industry_avg_profit_margin: 12.50,
-      cash_flow: 24_000_000_000.00,
-      debt: 95_000_000_000.00,
-      price_cents: 19_918
+    ticker: "SONY",
+    stock_exchange: " ",
+    company_name: "Sony",
+    company_website: " ",
+    description: " ",
+    industry: " ",
+    management: " ",
+    employees: 164_000,
+    competitor_names: " ",
+    sales_growth: 2.02,
+    industry_avg_sales_growth: 5.50,
+    debt_to_equity: 1.73,
+    industry_avg_debt_to_equity: 0.85,
+    profit_margin: 23.97,
+    industry_avg_profit_margin: 12.50,
+    cash_flow: 24_000_000_000.00,
+    debt: 95_000_000_000.00,
+    price_cents: 99_231
   },
   {
-      ticker: " ",
-      stock_exchange: " ",
-      company_name: "Sony",
-      company_website: " ",
-      description: " ",
-      industry: " ",
-      management: " ",
-      employees: 164_000,
-      competitor_names: " ",
-      sales_growth: 2.02,
-      industry_avg_sales_growth: 5.50,
-      debt_to_equity: 1.73,
-      industry_avg_debt_to_equity: 0.85,
-      profit_margin: 23.97,
-      industry_avg_profit_margin: 12.50,
-      cash_flow: 24_000_000_000.00,
-      debt: 95_000_000_000.00,
-      price_cents: 19_918
-  },
-  {
-      ticker: " ",
-      stock_exchange: " ",
-      company_name: "Sirius XM",
-      company_website: " ",
-      description: " ",
-      industry: " ",
-      management: " ",
-      employees: 164_000,
-      competitor_names: " ",
-      sales_growth: 2.02,
-      industry_avg_sales_growth: 5.50,
-      debt_to_equity: 1.73,
-      industry_avg_debt_to_equity: 0.85,
-      profit_margin: 23.97,
-      industry_avg_profit_margin: 12.50,
-      cash_flow: 24_000_000_000.00,
-      debt: 95_000_000_000.00,
-      price_cents: 19_918
-}
+    ticker: "SIRI",
+    stock_exchange: " ",
+    company_name: "Sirius XM",
+    company_website: " ",
+    description: " ",
+    industry: " ",
+    management: " ",
+    employees: 164_000,
+    competitor_names: " ",
+    sales_growth: 2.02,
+    industry_avg_sales_growth: 5.50,
+    debt_to_equity: 1.73,
+    industry_avg_debt_to_equity: 0.85,
+    profit_margin: 23.97,
+    industry_avg_profit_margin: 12.50,
+    cash_flow: 24_000_000_000.00,
+    debt: 95_000_000_000.00,
+    price_cents: 32_213
+  }
 ]
 
-#finding an existing stock or create using only company_name for now
+# finding an existing stock or create using only company_name for now
 stocks.each do |stock_data|
-  Stock.find_or_create_by(company_name: stock_data[:company_name])
+  stock = Stock.find_or_create_by(company_name: stock_data[:company_name])
+  stock.update!(stock_data)
 end
-
-
-
 
 school_year_instance = SchoolYear.find_or_create_by!(school: school, year: year)
 
