@@ -11,6 +11,8 @@ class Order < ApplicationRecord
   delegate :portfolio, to: :user
 
   scope :pending, -> { where(status: :pending) }
+  scope :completed, -> { where(status: :completed) }
+  scope :canceled, -> { where(status: :canceled) }
 
   def purchase_cost
     stock.price_cents * shares

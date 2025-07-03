@@ -10,10 +10,48 @@ class Portfolio < ApplicationRecord
   has_many :stocks, through: :portfolio_stocks
 
   def cash_balance
-    portfolio_transactions.sum(:amount_cents) / 100.0
+    cash_on_hand
   end
 
   def path
     portfolio_path(self)
+  end
+
+  private
+
+  def cash_on_hand
+    cash_on_hand_in_cents / 100.0
+  end
+
+  def cash_balance_in_cents
+    portfolio_transactions.sum(:amount_cents)
+  end
+
+  def cash_on_hand_in_cents
+    deposits - acceptable_debits_sum_in_cents + acceptable_credits_sum_in_cents - withdrawals
+  end
+
+  def withdrawals
+    portfolio_transactions.withdrawals.sum(:amount_cents)
+  end
+
+  def deposits
+    portfolio_transactions.deposits.sum(:amount_cents)
+  end
+
+  def acceptable_credits_sum_in_cents
+    acceptable_credits.sum(&:amount_cents)
+  end
+
+  def acceptable_credits
+    portfolio_transactions.credits.select { |transaction| transaction.order.completed? }
+  end
+
+  def acceptable_debits_sum_in_cents
+    acceptable_debits.sum(&:amount_cents)
+  end
+
+  def acceptable_debits
+    portfolio_transactions.debits.reject { |transaction| transaction.order.canceled? }
   end
 end
