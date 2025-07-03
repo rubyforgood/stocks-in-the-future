@@ -46,7 +46,7 @@ class OrderTest < ActiveSupport::TestCase
   test "creates a debit portfolio transaction on buy" do
     user = create(:student)
     stock = create(:stock, price_cents: 1_000)
-    order = build(:order, user:, stock:, shares: 2.5, transaction_type: :buy)
+    order = build(:order, user:, stock:, shares: 2.5, transaction_type: "buy")
 
     assert_difference "PortfolioTransaction.count", 1 do
       order.save!
@@ -62,7 +62,7 @@ class OrderTest < ActiveSupport::TestCase
   test "creates a credit portfolio transaction on sell" do
     user = create(:student)
     stock = create(:stock, price_cents: 1_000)
-    order = build(:order, user:, stock:, shares: 2.5, transaction_type: :sell)
+    order = build(:order, user:, stock:, shares: 2.5, transaction_type: "sell")
 
     assert_difference "PortfolioTransaction.count", 1 do
       order.save!
