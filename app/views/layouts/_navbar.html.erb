@@ -1,0 +1,61 @@
+<div class="flex w-64">
+  <div class="flex grow flex-col gap-y-5 overflow-auto  border-r border-gray-200 bg-white px-6">
+    <div class="flex h-16 shrink-0 items-center">
+      <%= image_tag "SITF-caponly-Logo.svg", class: "navbar-logo", alt: "Stocks in The Future" %>
+    </div>
+    <nav class="flex flex-1 flex-col">
+      <ul role="list" class="flex flex-1 flex-col gap-y-7">
+        <li>
+          <ul role="list" class="-mx-2 space-y-1">
+            <% if current_user&.teacher? %>
+              <li>
+                <%= link_to classrooms_path, class: "inline-flex justify-between rounded-md bg-white w-full py-2 text-sm font-semibold text-gray-900 shadow-xs ring-2 ring-gray-300 ring-inset hover:bg-gray-50" do %>
+                    <div class="pl-2">Classes</div>
+                    <svg class="ml-auto size-5 shrink-0 text-gray-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+                      <path fill-rule="evenodd" d="M8.22 5.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L11.94 10 8.22 6.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+                    </svg>
+                <% end %>
+              </li>
+            <% end %>
+            <% if current_user.student? && current_user.portfolio %>
+              <li>
+                <%= link_to portfolio_path(current_user.portfolio), class: "inline-flex justify-between rounded-md bg-white w-full py-2 text-sm font-semibold text-gray-900 shadow-xs ring-2 ring-gray-300 ring-inset hover:bg-gray-50" do %>
+                  <div class="pl-2">My Portfolio</div>
+                  <svg class="ml-auto size-5 shrink-0 text-gray-400" transform="rotate(90 0 0)" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+                    <path fill-rule="evenodd" d="M8.22 5.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L11.94 10 8.22 6.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+                  </svg>
+                <% end %>
+              </li>
+            <% end %>
+            </li>
+            <li>
+              <%= link_to stocks_path, class: "inline-flex justify-between rounded-md bg-white w-full py-2 text-sm font-semibold text-gray-900 shadow-xs ring-2 ring-gray-300 ring-inset hover:bg-gray-50" do %>
+                <div class="pl-2">Trading Floor</div>
+                <svg class="ml-auto size-5 shrink-0 text-gray-400" transform="rotate(90 0 0)" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+                  <path fill-rule="evenodd" d="M8.22 5.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L11.94 10 8.22 6.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+                </svg>
+              <% end %>
+                <ul class="mt-1 px-2" id="stocks-sub-menu">
+                  <% navbar_stocks.each do |stock| %>
+                    <li>
+                      <%= link_to stock.ticker, stock_path(stock), class: "block rounded-md py-2 pr-2 pl-9 text-sm/6 text-gray-700 hover:bg-gray-50"%>
+                    </li>
+                  <% end %>
+                </ul>
+              </li>
+            </li>
+          </ul>
+        </li>
+        <li class="mt-auto mb-8">
+          <div class="flex flex-col items-center gap-4">
+            <%= link_to "Profile", stocks_path, class: "rounded-md bg-white w-5/6 py-2 text-sm font-semibold text-gray-900 shadow-xs ring-1 ring-gray-300 ring-inset hover:bg-gray-50 text-center" %>
+            <% if current_user.admin? %>
+              <%= link_to "Admin", admin_classrooms_path, class: "rounded-md bg-white w-5/6 py-2 text-sm font-semibold text-gray-900 shadow-xs ring-1 ring-gray-300 ring-inset hover:bg-gray-50 text-center" %>
+            <% end %>
+            <%= link_to "Logout", destroy_user_session_path, data: { turbo_method: :delete }, class: "rounded-md bg-white w-5/6 py-2 text-sm font-semibold text-gray-900 shadow-xs ring-1 ring-gray-300 ring-inset hover:bg-gray-50 text-center" %>
+          </div>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</div>
