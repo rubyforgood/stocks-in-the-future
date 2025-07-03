@@ -7,11 +7,11 @@
     <%= render @classroom %>
     <%= render 'classroom_students_table', students: @classroom.users %>
 
-    <% if policy(@classroom).edit? %>
+    <% if policy(Classroom).edit? %>
       <%= link_to "Edit this classroom", edit_classroom_path(@classroom),
         class: "mt-2 rounded-lg py-3 px-5 bg-gray-100 inline-block font-medium" %>
     <% end %>
-    <% if policy(@classroom).destroy? %>
+    <% if policy(Classroom).destroy? %>
       <div class="inline-block ml-2">
         <%= button_to "Destroy this classroom", classroom_path(@classroom), method: :delete,
           class: "mt-2 rounded-lg py-3 px-5 bg-gray-100 font-medium" %>

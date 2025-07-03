@@ -3,8 +3,10 @@
     <h3 class="text-lg font-medium text-gray-900">Students</h3>
     <% if @can_manage_students %>
       <div class="flex gap-2">
+      <% if policy(Classroom).new? %>
         <%= link_to "Add Student", new_classroom_student_path(@classroom),
-            class: "inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700" %>
+          class: "inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700" %>
+      <% end %>
         <!-- TODO: Add bulk functionality in future PR -->
       </div>
     <% end %>

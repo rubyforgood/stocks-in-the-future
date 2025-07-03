@@ -2,6 +2,7 @@
 
 class ClassroomsController < ApplicationController
   before_action :set_classroom, only: %i[show edit update destroy]
+  before_action :authorize_classroom
   before_action :authenticate_user!
   before_action :ensure_teacher_or_admin, except: %i[index show]
 
@@ -61,6 +62,10 @@ class ClassroomsController < ApplicationController
 
   def set_classroom
     @classroom = Classroom.includes(users: :portfolio).find(params[:id].to_i)
+  end
+
+  def authorize_classroom
+    authorize Classroom
   end
 
   def classroom_params
