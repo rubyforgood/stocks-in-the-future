@@ -94,8 +94,8 @@ stocks = [
     debt: 95_000_000_000.00,
     price_cents: 20_500
   },
-  { ticker: " ",
-    stock_exchange: " ",
+  { ticker: "LUV",
+    stock_exchange: "NYSE",
     company_name: "Southwest",
     company_website: " ",
     description: " ",

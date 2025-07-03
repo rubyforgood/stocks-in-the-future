@@ -6,6 +6,8 @@ class Stock < ApplicationRecord
   has_many :portfolio_stocks
   has_many :orders
 
+  validates :ticker, presence: true
+
   def current_price
     price_cents / 100.0
   end
