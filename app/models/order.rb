@@ -34,6 +34,6 @@ class Order < ApplicationRecord
   end
 
   def translated_transaction_type
-    transaction_type == :buy ? :debit : :credit
+    transaction_type == "buy" ? :debit : :credit
   end
 end

@@ -2,29 +2,23 @@
 
 class OrdersController < ApplicationController
   before_action :set_order, only: %i[show edit update destroy]
+  before_action :set_stock, only: %i[new]
+  before_action :authenticate_user!
 
-  # GET /orders or /orders.json
   def index
     @orders = Order.all
   end
 
-  # GET /orders/1 or /orders/1.json
   def show; end
 
-  # GET /orders/new
   def new
-    @order = Order.new
+    @order = Order.new(transaction_type: params[:transaction_type], stock: @stock)
   end
 
-  # GET /orders/1/edit
   def edit; end
 
-  # POST /orders or /orders.json
   def create
-    @order = Order.new(order_params)
-
-    @order.user = current_user
-    @order.stock = Stock.find(order_params[:stock_id])
+    @order = Order.new(order_params.merge(user: current_user))
 
     respond_to do |format|
       if @order.save
@@ -37,7 +31,6 @@ class OrdersController < ApplicationController
     end
   end
 
-  # PATCH/PUT /orders/1 or /orders/1.json
   def update
     respond_to do |format|
       if @order.update(order_params)
@@ -50,7 +43,6 @@ class OrdersController < ApplicationController
     end
   end
 
-  # DELETE /orders/1 or /orders/1.json
   def destroy
     @order.destroy!
 
@@ -62,15 +54,15 @@ class OrdersController < ApplicationController
 
   private
 
-  def portfolio
-    @portfolio ||= current_user.portfolio
-  end
-
   def set_order
     @order = Order.find(params[:id])
   end
 
+  def set_stock
+    @stock = Stock.find(params[:stock_id])
+  end
+
   def order_params
-    params.expect(order: %i[stock_id shares])
+    params.expect(order: %i[stock_id shares transaction_type])
   end
 end

@@ -2,6 +2,7 @@
 
 class PortfoliosController < ApplicationController
   before_action :set_portfolio
+  before_action :authenticate_user!
 
   def show
     @stocks = @portfolio.stocks
