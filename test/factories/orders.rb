@@ -3,7 +3,9 @@
 FactoryBot.define do
   factory :order do
     stock
-    user { create(:admin) }
+    shares { 1 }
+    transaction_type { ['buy', 'sell'].sample }
+    user { create(:student) }
   end
 
   trait :pending do
