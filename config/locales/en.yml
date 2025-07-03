@@ -4,6 +4,10 @@ en:
     attributes:
       user:
         type: Role
+  application:
+    access_denied:
+      admin_required: Access denied. Admin privileges required.
+      teacher_or_admin_required: Access denied. Teacher or admin privileges required.
   classrooms:
     create:
       notice: Classroom was successfully created.
@@ -11,31 +15,6 @@ en:
       notice: Classroom was successfully destroyed.
     update:
       notice: Classroom was successfully updated.
-  orders:
-    create:
-      notice: Order was successfully created.
-    update:
-      notice: Order was successfully updated.
-    destroy:
-      notice: Order was successfully destroyed.
-  schools:
-    create:
-      notice: School was successfully created.
-    update:
-      notice: School was successfully updated.
-    destroy:
-      notice: School was successfully destroyed.
-  students:
-    create:
-      notice: "Student %{username} created successfully. Initial password: %{password}"
-    update:
-      notice: Student updated successfully.
-    destroy:
-      notice: "Student %{username} deleted successfully."
-    reset_password:
-      notice: "Password reset for %{username}. New password: %{password}"
-    generate_password:
-      notice: "New password generated for %{username}: %{password}"
   fields:
     portfolio_path:
       index:
@@ -44,7 +23,28 @@ en:
     label:
       student:
         portfolio_path: Portfolio Link
-  application:
-    access_denied:
-      teacher_or_admin_required: "Access denied. Teacher or admin privileges required."
-      admin_required: "Access denied. Admin privileges required."
+  orders:
+    create:
+      notice: Order was successfully created.
+    destroy:
+      notice: Order was successfully destroyed.
+    update:
+      notice: Order was successfully updated.
+  schools:
+    create:
+      notice: School was successfully created.
+    destroy:
+      notice: School was successfully destroyed.
+    update:
+      notice: School was successfully updated.
+  students:
+    create:
+      notice: 'Student %{username} created successfully. Initial password: %{password}'
+    destroy:
+      notice: Student %{username} deleted successfully.
+    generate_password:
+      notice: 'New password generated for %{username}: %{password}'
+    reset_password:
+      notice: 'Password reset for %{username}. New password: %{password}'
+    update:
+      notice: Student updated successfully.
