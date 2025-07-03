@@ -10,7 +10,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
+<<<<<<< HEAD
+ActiveRecord::Schema[8.0].define(version: 2025_07_03_151816) do
+=======
 ActiveRecord::Schema[8.0].define(version: 2025_07_03_151425) do
+>>>>>>> main
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -156,6 +160,16 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_03_151425) do
     t.index ["ticker"], name: "index_stocks_on_ticker", unique: true
   end
 
+  create_table "teacher_classrooms", force: :cascade do |t|
+    t.bigint "teacher_id", null: false
+    t.bigint "classroom_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["classroom_id"], name: "index_teacher_classrooms_on_classroom_id"
+    t.index ["teacher_id", "classroom_id"], name: "index_teacher_classrooms_on_teacher_id_and_classroom_id", unique: true
+    t.index ["teacher_id"], name: "index_teacher_classrooms_on_teacher_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email"
     t.string "username", default: "", null: false
@@ -197,5 +211,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_03_151425) do
   add_foreign_key "quarters", "school_years"
   add_foreign_key "school_years", "schools"
   add_foreign_key "school_years", "years"
+  add_foreign_key "teacher_classrooms", "classrooms"
+  add_foreign_key "teacher_classrooms", "users", column: "teacher_id"
   add_foreign_key "users", "classrooms"
 end
