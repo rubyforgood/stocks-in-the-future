@@ -11,6 +11,7 @@ class PortfolioTransaction < ApplicationRecord
   scope :deposits, -> { where(transaction_type: :deposit) }
   scope :debits, -> { where(transaction_type: :debit) }
   scope :credits, -> { where(transaction_type: :credit) }
+  scope :withdrawals, -> { where(transaction_type: :withdrawal) }
 
   def completed?
     order.present? ? order&.completed? : true

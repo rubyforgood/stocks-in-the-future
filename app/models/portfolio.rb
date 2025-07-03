@@ -28,10 +28,11 @@ class Portfolio < ApplicationRecord
   end
 
   def cash_on_hand_in_cents
-  #  withdrawals = portfolio_transactions.withdrawals.sum(:amount_cents)
-  #  completed_debits = portfolio_transactions.debits.completed.sum(:amount_cents)
+    deposits - acceptable_debits_sum_in_cents + acceptable_credits_sum_in_cents - withdrawals
+  end
 
-    deposits - acceptable_debits_sum_in_cents + acceptable_credits_sum_in_cents# - withdrawals
+  def withdrawals
+    portfolio_transactions.withdrawals.sum(:amount_cents)
   end
 
   def deposits
@@ -43,7 +44,7 @@ class Portfolio < ApplicationRecord
   end
 
   def acceptable_credits
-    portfolio_transactions.credits.select{ |transaction| transaction.order.completed? }
+    portfolio_transactions.credits.select { |transaction| transaction.order.completed? }
   end
 
   def acceptable_debits_sum_in_cents
@@ -51,6 +52,6 @@ class Portfolio < ApplicationRecord
   end
 
   def acceptable_debits
-    portfolio_transactions.debits.reject{ |transaction| transaction.order.canceled? }
+    portfolio_transactions.debits.reject { |transaction| transaction.order.canceled? }
   end
 end

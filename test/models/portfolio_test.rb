@@ -39,6 +39,6 @@ class PortfolioTest < ActiveSupport::TestCase
     create(:portfolio_transaction, :withdrawal, portfolio:, amount_cents: 200)
 
     result = portfolio.cash_balance
-    assert_equal 9.0, result
+    assert_equal 7.0, result
   end
 end
