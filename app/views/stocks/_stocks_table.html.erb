@@ -15,21 +15,23 @@
         <span class="text-gray-500">(<%= stock.company_name %>)</span>
       </td>
       <td class="px-4 py-2">
-        $<%= stock.current_price %>
+        <%= number_to_currency(stock.current_price) %>
       </td>
       <td class="px-4 py-2">
         some number
       </td>
-      <td class="px-4 py-2">
-        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-          Buy Placeholder
-        </button>
-      </td>
-      <td class="px-4 py-2">
-        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-          Sell Placeholder
-        </button>
-      </td>
+      <% if current_user.student? %>
+        <td class="px-4 py-2">
+          <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            Buy Placeholder
+          </button>
+        </td>
+        <td class="px-4 py-2">
+          <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            Sell Placeholder
+          </button>
+        </td>
+      <% end %>
     </tr>
   <% end %>
   </tbody>

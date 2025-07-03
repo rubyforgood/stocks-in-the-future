@@ -5,6 +5,12 @@
 
   <div class="flex justify-between items-center pb-2 pt-4">
     <h1 class="font-bold text-4xl">Trading Floor</h1>
+    <% if current_user.student? %>
+      <h3 class="bg-green-500 bg-opacity-25 p-3 border-green-800">
+        Earnings to Invest: <%= number_to_currency(@portfolio.cash_balance) %>
+      </h3>
+    <% end %>
+
   </div>
 
   <div id="stocks" class="min-w-full">
