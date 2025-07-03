@@ -6,5 +6,6 @@ class Classroom < ApplicationRecord
   has_one :year, through: :school_year
 
   has_many :users, dependent: :nullify
+  has_many :teacher_classrooms, dependent: :destroy
   has_many :grade_books, dependent: :nullify
 end
