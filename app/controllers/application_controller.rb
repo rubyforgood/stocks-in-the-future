@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class ApplicationController < ActionController::Base
+  include Pundit::Authorization
+
   before_action :authenticate_user!
   before_action :configure_permitted_parameters, if: :devise_controller?
 
@@ -33,5 +35,9 @@ class ApplicationController < ActionController::Base
   def configure_permitted_parameters
     devise_parameter_sanitizer.permit(:sign_up, keys: %i[username type classroom_id])
     devise_parameter_sanitizer.permit(:account_update, keys: %i[username email])
+  end
+
+  rescue_from Pundit::NotAuthorizedError do
+    redirect_to root_url, alert: t("application.access_denied.no_access")
   end
 end
