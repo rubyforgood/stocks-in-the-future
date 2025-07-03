@@ -1,14 +1,23 @@
 .tw-btn-sell {
   @apply rounded-md bg-[#00698c] px-4 py-2 text-sm font-semibold text-white hover:bg-[#004f6b] focus-visible:outline-2 focus-visible:outline-offset-2;
 }
+
 .tw-btn-buy {
   @apply rounded-md bg-white px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-gray-300 ring-inset hover:bg-gray-50
 }
 
 .tw-btn-primary {
-  @apply rounded-md bg-[#00698c] px-4 py-2 text-sm font-semibold text-white hover:bg-[#004f6b] focus-visible:outline-2 focus-visible:outline-offset-2;
+  @apply rounded-lg py-3 px-5 bg-indigo-600 text-white block font-medium
 }
 
 .tw-btn-secondary {
   @apply rounded-md bg-white px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-gray-300 ring-inset hover:bg-gray-50
+}
+
+.tw-btn-tertiary {
+  @apply ml-2 rounded-lg py-3 px-5 bg-gray-100 inline-block font-medium
+}
+
+.tw-btn-danger {
+  @apply rounded-lg py-3 ml-2 px-5 bg-red-100 text-red-500 inline-block font-medium hover:text-red-900
 }
