@@ -9,6 +9,10 @@ Rails.application.routes.draw do
 
   devise_for :users
 
+  resources :users do
+    resources :portfolios, only: :show
+  end
+
   resources :classrooms do
     resources :students, except: [:index] do
       member do

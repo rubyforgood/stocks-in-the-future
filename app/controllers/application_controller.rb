@@ -8,7 +8,7 @@ class ApplicationController < ActionController::Base
 
   def after_sign_in_path_for(resource)
     if resource.student?
-      portfolio_path(resource.portfolio)
+      user_portfolio_path(resource, resource.portfolio)
     else
       classrooms_path
     end

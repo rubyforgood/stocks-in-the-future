@@ -35,7 +35,7 @@
             </td>
             <td class="px-6 py-4 whitespace-nowrap">
               <% if student.portfolio %>
-                <%= link_to "View Portfolio", portfolio_path(student.portfolio), class: "text-blue-600 hover:text-blue-900" %>
+                <%= link_to "View Portfolio", user_portfolio_path(student, student.portfolio), class: "text-blue-600 hover:text-blue-900" %>
               <% else %>
                 <span class="text-gray-400">No portfolio</span>
               <% end %>
