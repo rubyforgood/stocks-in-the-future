@@ -51,7 +51,25 @@ services:
       RAILS_ENV: development
       DATABASE_URL: postgresql://sif:password@db/
       BROWSERSLIST_IGNORE_OLD_DATA: true
-
+  test:
+    build:
+      dockerfile: Dockerfile.dev
+      context: .
+    image: stocks:dev
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    command: "bin/docker-entrypoint bash -c 'bundle exec rails db:create db:migrate RAILS_ENV=test && bundle exec rails test'"
+    volumes:
+      - .:/rails
+      - gem_cache:/usr/local/bundle
+      - bundler:/usr/local/bundle
+      - node_modules:/rails/node_modules
+    environment:
+      RAILS_ENV: test
+      DATABASE_URL: postgresql://sif:password@db/stocks_in_the_future_test
 volumes:
   redis:
   postgres:

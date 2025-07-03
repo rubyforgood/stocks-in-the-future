@@ -7,4 +7,5 @@ class Classroom < ApplicationRecord
 
   has_many :users, dependent: :nullify
   has_many :teacher_classrooms, dependent: :destroy
+  has_many :grade_books, dependent: :destroy
 end

@@ -1,0 +1,38 @@
+<table class="table-auto">
+  <thead>
+    <tr>
+      <th class="px-4 py-2">Company (Exchange)</th>
+      <th class="px-4 py-2">Last Price</th>
+      <th class="px-4 py-2">Your Holdings</th>
+      <th class="px-4 py-2"></th>
+    </tr>
+  </thead>
+  <tbody>
+  <% stocks.each do |stock| %>
+    <tr>
+      <td class="px-4 py-2">
+        <%= link_to stock.ticker, stock_path(stock) %><br>
+        <span class="text-gray-500">(<%= stock.company_name %>)</span>
+      </td>
+      <td class="px-4 py-2">
+        <%= number_to_currency(stock.current_price) %>
+      </td>
+      <td class="px-4 py-2">
+        some number
+      </td>
+      <% if current_user.student? %>
+        <td class="px-4 py-2">
+          <button type="button" class="tw-btn-secondary">
+            Buy
+          </button>
+        </td>
+        <td class="py-2">
+          <button type="button" class="tw-btn-primary">
+            Sell
+          </button>
+        </td>
+      <% end %>
+    </tr>
+  <% end %>
+  </tbody>
+</table>

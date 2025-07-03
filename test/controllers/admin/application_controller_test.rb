@@ -20,7 +20,7 @@ module Admin
       get admin_root_path
 
       assert_redirected_to root_path
-      assert_equal "You are not authorized to access this page.", flash[:alert]
+      assert_equal "Access denied. Admin privileges required.", flash[:alert]
     end
   end
 end

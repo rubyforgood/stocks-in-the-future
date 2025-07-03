@@ -10,7 +10,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
+<<<<<<< HEAD
 ActiveRecord::Schema[8.0].define(version: 2025_07_03_151816) do
+=======
+ActiveRecord::Schema[8.0].define(version: 2025_07_03_151425) do
+>>>>>>> main
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -36,6 +40,30 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_03_151816) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.index ["priority", "run_at"], name: "delayed_jobs_priority"
+  end
+
+  create_table "grade_books", force: :cascade do |t|
+    t.bigint "quarter_id", null: false
+    t.bigint "classroom_id", null: false
+    t.string "status", default: "draft", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["classroom_id"], name: "index_grade_books_on_classroom_id"
+    t.index ["quarter_id", "classroom_id"], name: "index_grade_books_on_quarter_id_and_classroom_id", unique: true
+    t.index ["quarter_id"], name: "index_grade_books_on_quarter_id"
+  end
+
+  create_table "grade_entries", force: :cascade do |t|
+    t.bigint "grade_book_id", null: false
+    t.bigint "user_id", null: false
+    t.string "math_grade"
+    t.string "reading_grade"
+    t.bigint "days_missed", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["grade_book_id", "user_id"], name: "index_grade_entries_on_grade_book_id_and_user_id", unique: true
+    t.index ["grade_book_id"], name: "index_grade_entries_on_grade_book_id"
+    t.index ["user_id"], name: "index_grade_entries_on_user_id"
   end
 
   create_table "orders", force: :cascade do |t|
@@ -80,6 +108,16 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_03_151816) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_id"], name: "index_portfolios_on_user_id"
+  end
+
+  create_table "quarters", force: :cascade do |t|
+    t.string "name"
+    t.bigint "school_year_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "number", null: false
+    t.index ["school_year_id", "number"], name: "index_quarters_on_school_year_id_and_number", unique: true
+    t.index ["school_year_id"], name: "index_quarters_on_school_year_id"
   end
 
   create_table "school_years", force: :cascade do |t|
@@ -158,6 +196,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_03_151816) do
   end
 
   add_foreign_key "classrooms", "school_years"
+  add_foreign_key "grade_books", "classrooms"
+  add_foreign_key "grade_books", "quarters"
+  add_foreign_key "grade_entries", "grade_books"
+  add_foreign_key "grade_entries", "users"
   add_foreign_key "orders", "portfolio_stocks"
   add_foreign_key "orders", "portfolio_transactions"
   add_foreign_key "orders", "stocks"
@@ -166,6 +208,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_03_151816) do
   add_foreign_key "portfolio_stocks", "stocks"
   add_foreign_key "portfolio_transactions", "portfolios"
   add_foreign_key "portfolios", "users"
+  add_foreign_key "quarters", "school_years"
   add_foreign_key "school_years", "schools"
   add_foreign_key "school_years", "years"
   add_foreign_key "teacher_classrooms", "classrooms"

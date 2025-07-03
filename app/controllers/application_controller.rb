@@ -8,18 +8,24 @@ class ApplicationController < ActionController::Base
 
   def after_sign_in_path_for(resource)
     if resource.student?
-      portfolio_path(resource.portfolio)
+      user_portfolio_path(resource, resource.portfolio)
     else
       classrooms_path
     end
   end
 
   def ensure_teacher_or_admin
-    redirect_to root_path unless current_user&.teacher_or_admin?
+    return if current_user&.teacher_or_admin?
+
+    flash[:alert] = t("application.access_denied.teacher_or_admin_required")
+    redirect_to root_path
   end
 
   def ensure_admin
-    redirect_to root_path unless current_user&.admin?
+    return if current_user&.admin?
+
+    flash[:alert] = t("application.access_denied.admin_required")
+    redirect_to root_path
   end
 
   private

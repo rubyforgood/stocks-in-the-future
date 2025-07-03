@@ -21,7 +21,7 @@ class StudentsController < ApplicationController
 
     if @student.save
       redirect_to classroom_path(@classroom),
-                  notice: "Student #{@student.username} created successfully. Initial password: #{@student.password}"
+                  notice: t(".notice", username: @student.username, password: @student.password)
     else
       render :new, status: :unprocessable_entity
     end
@@ -29,7 +29,7 @@ class StudentsController < ApplicationController
 
   def update
     if @student.update(student_params)
-      redirect_to classroom_path(@classroom), notice: "Student updated successfully."
+      redirect_to classroom_path(@classroom), notice: t(".notice")
     else
       render :edit, status: :unprocessable_entity
     end
@@ -38,21 +38,21 @@ class StudentsController < ApplicationController
   def destroy
     username = @student.username
     @student.destroy
-    redirect_to classroom_path(@classroom), notice: "Student #{username} deleted successfully."
+    redirect_to classroom_path(@classroom), notice: t(".notice", username: username)
   end
 
   def reset_password
     new_password = generate_memorable_password
     @student.update!(password: new_password)
     redirect_to classroom_path(@classroom),
-                notice: "Password reset for #{@student.username}. New password: #{new_password}"
+                notice: t(".notice", username: @student.username, password: new_password)
   end
 
   def generate_password
     new_password = generate_memorable_password
     @student.update!(password: new_password)
     redirect_to classroom_path(@classroom),
-                notice: "New password generated for #{@student.username}: #{new_password}"
+                notice: t(".notice", username: @student.username, password: new_password)
   end
 
   private

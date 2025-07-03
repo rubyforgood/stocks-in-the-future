@@ -11,6 +11,9 @@ WORKDIR /rails
 RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y \
     build-essential libpq-dev curl \
+    nodejs npm libyaml-dev git \
+    chromium chromium-driver # Add these packages \
+    build-essential libpq-dev curl \
     nodejs npm libyaml-dev git && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*

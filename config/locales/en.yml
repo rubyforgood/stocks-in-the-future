@@ -4,6 +4,10 @@ en:
     attributes:
       user:
         type: Role
+  application:
+    access_denied:
+      admin_required: Access denied. Admin privileges required.
+      teacher_or_admin_required: Access denied. Teacher or admin privileges required.
   classrooms:
     create:
       notice: Classroom was successfully created.
@@ -19,3 +23,28 @@ en:
     label:
       student:
         portfolio_path: Portfolio Link
+  orders:
+    create:
+      notice: Order was successfully created.
+    destroy:
+      notice: Order was successfully destroyed.
+    update:
+      notice: Order was successfully updated.
+  schools:
+    create:
+      notice: School was successfully created.
+    destroy:
+      notice: School was successfully destroyed.
+    update:
+      notice: School was successfully updated.
+  students:
+    create:
+      notice: 'Student %{username} created successfully. Initial password: %{password}'
+    destroy:
+      notice: Student %{username} deleted successfully.
+    generate_password:
+      notice: 'New password generated for %{username}: %{password}'
+    reset_password:
+      notice: 'Password reset for %{username}. New password: %{password}'
+    update:
+      notice: Student updated successfully.

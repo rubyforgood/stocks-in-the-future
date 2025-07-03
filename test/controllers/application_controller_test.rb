@@ -11,7 +11,7 @@ class ApplicationControllerTest < ActionDispatch::IntegrationTest
       user: { username: "teststudent", password: "password123" }
     }
 
-    assert_redirected_to portfolio_path(portfolio)
+    assert_redirected_to user_portfolio_path(student, portfolio)
   end
 
   test "after_sign_in_path_for redirects teachers to classrooms" do
