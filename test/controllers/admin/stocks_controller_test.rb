@@ -14,7 +14,7 @@ module Admin
     end
 
     test "create" do
-      params = { stock: { company_name: "Apple Inc." } }
+      params = { stock: { ticker: "APPL", company_name: "Apple Inc." } }
       admin = create(:admin)
       sign_in(admin)
 
