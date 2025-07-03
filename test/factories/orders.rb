@@ -4,6 +4,7 @@ FactoryBot.define do
   factory :order do
     stock
     shares { 1 }
+    transaction_type { ['buy', 'sell'].sample }
     user { create(:student) }
   end
 

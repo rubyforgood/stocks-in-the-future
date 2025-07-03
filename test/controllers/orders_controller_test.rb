@@ -13,19 +13,20 @@ class OrdersControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "new" do
-    user = create(:teacher)
+    user = create(:student)
+    stock = create(:stock)
     sign_in(user)
 
-    get new_order_path
+    get new_order_path(stock_id: stock.id, transaction_type: "buy")
 
     assert_response :success
   end
 
   test "create" do
-    teacher = create(:teacher)
+    student = create(:student)
     stock = create(:stock)
-    params = { order: { user_id: teacher.id, stock_id: stock.id } }
-    sign_in(teacher)
+    params = { order: { user_id: student.id, stock_id: stock.id, shares: 1 } }
+    sign_in(student)
 
     assert_difference("Order.count") do
       post(orders_path, params:)
@@ -55,16 +56,17 @@ class OrdersControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "update" do
-    params = { order: { status: "completed" } }
-    order = create(:order, :pending)
-    sign_in(order.user)
+    user = create(:student)
+    params = { order: { shares: 3 } }
+    order = create(:order, :pending, user:)
+    sign_in(user)
 
     assert_changes "order.reload.updated_at" do
       patch(order_path(order), params:)
     end
 
     assert_redirected_to order_path(order)
-    assert order.completed?
+    assert order.shares, 3
   end
 
   # TODO: Add test for update with invalid params
