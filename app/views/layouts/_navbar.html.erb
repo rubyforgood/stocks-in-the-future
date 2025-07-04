@@ -1,13 +1,13 @@
 <div class="fixed inset-y-0 z-50 flex w-72">
-  <div class="flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 bg-white px-6">
+  <div class="flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 bg-white px-6 pt-4">
     <div class="flex h-16 shrink-0 items-center">
-      <%= image_tag "SITF-caponly-Logo.svg", class: "h-8 w-auto", alt: "Stocks in The Future" %>
+      <%= image_tag "SITF-caponly-Logo.svg", class: "h-6 w-auto", alt: "Stocks in The Future" %>
     </div>
     <nav class="flex flex-1 flex-col">
       <ul role="list" class="flex flex-1 flex-col gap-y-7">
         <li>
           <ul role="list" class="-mx-2 space-y-1">
-            <% if current_user&.teacher? %>
+            <% if current_user&.teacher_or_admin? %>
               <li>
                 <%= link_to classrooms_path, class: "group flex gap-x-5 rounded-md p-2 text-sm/6 font-semibold text-gray-700 hover:bg-gray-50 hover:text-indigo-600" do %>
                   <svg class="size-5 shrink-0 text-gray-400 group-hover:text-indigo-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
