@@ -2,6 +2,7 @@
 
 /* SIF custom CSS */
 @import 'custom/buttons.css';
+@import 'custom/forms.css';
 
 @tailwind base;
 @tailwind components;

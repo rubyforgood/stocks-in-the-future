@@ -20,10 +20,10 @@
   </p>
 
   <% if action_name != "show" %>
-    <%= link_to "Show this classroom", classroom, class: "rounded-lg py-3 px-5 bg-gray-100 inline-block font-medium" %>
-    <%= link_to "Edit this classroom", edit_classroom_path(classroom), class: "rounded-lg py-3 ml-2 px-5 bg-gray-100 inline-block font-medium" %>
+    <%= link_to "Show this classroom", classroom, class: "tw-btn-tertiary" %>
+    <%= link_to "Edit this classroom", edit_classroom_path(classroom), class: "tw-btn-tertiary" %>
     <%= link_to "Delete this classroom", classroom_path(classroom),
-                class: "rounded-lg py-3 ml-2 px-5 bg-gray-100 inline-block font-medium",
+                class: "tw-btn-danger",
                 data: {
                   turbo_method: :delete,
                 } %>

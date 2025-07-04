@@ -7,10 +7,10 @@
     <%= render @classroom %>
     <%= render 'classroom_students_table', students: @classroom.users %>
 
-    <%= link_to "Edit this classroom", edit_classroom_path(@classroom), class: "mt-2 rounded-lg py-3 px-5 bg-gray-100 inline-block font-medium" %>
+    <%= link_to "Edit this classroom", edit_classroom_path(@classroom), class: "tw-btn-tertiary" %>
     <div class="inline-block ml-2">
-      <%= button_to "Destroy this classroom", classroom_path(@classroom), method: :delete, class: "mt-2 rounded-lg py-3 px-5 bg-gray-100 font-medium" %>
+      <%= button_to "Destroy this classroom", classroom_path(@classroom), method: :delete, class: "tw-btn-danger" %>
     </div>
-    <%= link_to "Back to classrooms", classrooms_path, class: "ml-2 rounded-lg py-3 px-5 bg-gray-100 inline-block font-medium" %>
+    <%= link_to "Back to classrooms", classrooms_path, class: "tw-btn-tertiary" %>
   </div>
 </div>
