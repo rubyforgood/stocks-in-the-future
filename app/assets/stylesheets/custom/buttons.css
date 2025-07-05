@@ -7,11 +7,11 @@
 }
 
 .tw-btn-primary {
-  @apply rounded-lg py-3 px-5 bg-indigo-600 text-white block font-medium
+  @apply rounded-lg py-3 px-5 bg-[#00698c] text-white block font-medium
 }
 
 .tw-btn-secondary {
-  @apply rounded-md bg-white px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-gray-300 ring-inset hover:bg-gray-50
+  @apply rounded-md bg-[#BOEAE5] px-4 py-2 text-sm font-semibold text-white ring-1 ring-gray-300 ring-inset hover:bg-gray-50
 }
 
 .tw-btn-tertiary {
