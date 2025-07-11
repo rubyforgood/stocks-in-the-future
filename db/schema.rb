@@ -66,7 +66,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_03_185546) do
     t.bigint "user_id", null: false
     t.bigint "stock_id", null: false
     t.decimal "shares"
-    t.integer "status"
+    t.integer "status", default: 0
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "portfolio_stock_id"
