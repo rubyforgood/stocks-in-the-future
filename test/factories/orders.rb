@@ -18,4 +18,12 @@ FactoryBot.define do
   trait :canceled do
     status { :canceled }
   end
+
+  trait :buy do
+    transaction_type { "buy" }
+  end
+
+  trait :sell do
+    transaction_type { "sell" }
+  end
 end

@@ -10,6 +10,8 @@ class Order < ApplicationRecord
 
   enum :status, { pending: 0, completed: 1, canceled: 2 }
 
+  validates :shares, presence: true, numericality: { greater_than: 0 }
+
   after_create :create_portfolio_transaction
 
   delegate :portfolio, to: :user

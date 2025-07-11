@@ -25,6 +25,7 @@ pt = PortfolioTransaction.create(
 Order.create!(
   user: mike,
   stock: stock,
+  shares: 2,
   status: :completed,
   portfolio_transaction: pt
 )
@@ -38,6 +39,7 @@ pt = PortfolioTransaction.create(
 Order.create!(
   user: mike,
   stock: stock,
+  shares: 3,
   status: :completed,
   portfolio_transaction: pt
 )
@@ -51,6 +53,7 @@ pt = PortfolioTransaction.create(
 Order.create!(
   user: mike,
   stock: stock,
+  shares: 4,
   status: :completed,
   portfolio_transaction: pt
 )
@@ -64,6 +67,7 @@ pt = PortfolioTransaction.create(
 Order.create!(
   user: mike,
   stock: stock,
+  shares: 1,
   status: :completed,
   portfolio_transaction: pt
 )
