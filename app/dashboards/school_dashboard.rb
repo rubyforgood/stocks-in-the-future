@@ -46,7 +46,6 @@ class SchoolDashboard < Administrate::BaseDashboard
   # on the model's form (`new` and `edit`) pages.
   FORM_ATTRIBUTES = %i[
     name
-    school_years
     years
   ].freeze
 
