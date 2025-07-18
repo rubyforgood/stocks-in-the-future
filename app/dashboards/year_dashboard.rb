@@ -64,8 +64,7 @@ class YearDashboard < Administrate::BaseDashboard
 
   # Overwrite this method to customize how years are displayed
   # across all pages of the admin dashboard.
-  #
-  # def display_resource(year)
-  #   "Year ##{year.id}"
-  # end
+  def display_resource(year)
+    year.name
+  end
 end
