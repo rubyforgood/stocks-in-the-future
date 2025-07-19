@@ -24,10 +24,6 @@ class Portfolio < ApplicationRecord
     cash_on_hand_in_cents / 100.0
   end
 
-  def cash_balance_in_cents
-    portfolio_transactions.sum(:amount_cents)
-  end
-
   def cash_on_hand_in_cents
     deposits - acceptable_debits_sum_in_cents + acceptable_credits_sum_in_cents - withdrawals
   end
