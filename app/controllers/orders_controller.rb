@@ -13,6 +13,7 @@ class OrdersController < ApplicationController
 
   def new
     @order = Order.new(transaction_type: params[:transaction_type], stock: @stock)
+    @shares_owned = current_user.portfolio.shares_owned(@stock.id)
   end
 
   def edit; end

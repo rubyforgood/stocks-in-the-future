@@ -18,6 +18,10 @@ class Portfolio < ApplicationRecord
     portfolio_path(self)
   end
 
+  def shares_owned(stock_id)
+    (shares_bought(stock_id) - shares_sold(stock_id)).round
+  end
+
   private
 
   def cash_on_hand
@@ -54,5 +58,13 @@ class Portfolio < ApplicationRecord
 
   def user_must_be_student
     errors.add(:user, "must be a student") unless user&.student?
+  end
+
+  def shares_bought(stock_id)
+    user.orders.joins(:portfolio_transaction).where(stock_id:, portfolio_transaction: { transaction_type: 'debit' }).sum(:shares) 
+  end
+
+  def shares_sold(stock_id)
+    user.orders.joins(:portfolio_transaction).where(stock_id:, portfolio_transaction: { transaction_type: 'credit' }).sum(:shares) 
   end
 end
