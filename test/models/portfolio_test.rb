@@ -41,21 +41,12 @@ class PortfolioTest < ActiveSupport::TestCase
     assert_equal 7.0, result
   end
 
-  test "#shares_owned calculates correctly" do
+  test "#shares_owned" do
     portfolio = create(:portfolio)
-    student = portfolio.user
     stock = create(:stock)
-    # Simulate 3 buy orders (debit) and 2 sell orders (credit)
-    3.times do |i|
-      order = create(:order, user: student, stock: stock, shares: 2 + i)
-      PortfolioTransaction.create!(portfolio: portfolio, transaction_type: :debit, order: order, amount_cents: 1000)
-    end
-    2.times do |i|
-      order = create(:order, user: student, stock: stock, shares: 1 + i)
-      PortfolioTransaction.create!(portfolio: portfolio, transaction_type: :credit, order: order, amount_cents: 1000)
-    end
+    create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 15, purchase_price: 200.0)
 
-    expected_owned = [2, 3, 4].sum - [1, 2].sum # 6
-    assert_equal expected_owned, portfolio.shares_owned(stock.id)
+    result = portfolio.shares_owned(stock.id)
+    assert_equal 15, result
   end
 end

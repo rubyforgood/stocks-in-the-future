@@ -19,9 +19,7 @@ class Portfolio < ApplicationRecord
   end
 
   def shares_owned(stock_id)
-    return 0 if stock_id.nil?
-
-    (shares_bought(stock_id) - shares_sold(stock_id)).round
+    portfolio_stocks.find_by(stock_id:)&.shares || 0
   end
 
   private
@@ -60,15 +58,5 @@ class Portfolio < ApplicationRecord
 
   def user_must_be_student
     errors.add(:user, "must be a student") unless user&.student?
-  end
-
-  def shares_bought(stock_id)
-    user.orders.joins(:portfolio_transaction).where(stock_id:,
-                                                    portfolio_transaction: { transaction_type: "debit" }).sum(:shares)
-  end
-
-  def shares_sold(stock_id)
-    user.orders.joins(:portfolio_transaction).where(stock_id:,
-                                                    portfolio_transaction: { transaction_type: "credit" }).sum(:shares)
   end
 end
