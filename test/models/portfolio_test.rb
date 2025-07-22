@@ -40,4 +40,13 @@ class PortfolioTest < ActiveSupport::TestCase
     result = portfolio.cash_balance
     assert_equal 7.0, result
   end
+
+  test "#shares_owned" do
+    portfolio = create(:portfolio)
+    stock = create(:stock)
+    create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 15, purchase_price: 200.0)
+
+    result = portfolio.shares_owned(stock.id)
+    assert_equal 15, result
+  end
 end

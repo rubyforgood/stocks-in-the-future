@@ -3,6 +3,7 @@
 class OrdersController < ApplicationController
   before_action :set_order, only: %i[show edit update destroy]
   before_action :set_stock, only: %i[new]
+  before_action :set_shared_owned, only: %i[new edit]
   before_action :authenticate_user!
 
   def index
@@ -60,6 +61,10 @@ class OrdersController < ApplicationController
 
   def set_stock
     @stock = Stock.find(params[:stock_id])
+  end
+
+  def set_shared_owned
+    @shares_owned = current_user.portfolio.shares_owned(@stock&.id)
   end
 
   def order_params
