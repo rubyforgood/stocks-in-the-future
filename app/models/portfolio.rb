@@ -18,6 +18,10 @@ class Portfolio < ApplicationRecord
     portfolio_path(self)
   end
 
+  def shares_owned(stock_id)
+    portfolio_stocks.find_by(stock_id:)&.shares || 0
+  end
+
   private
 
   def cash_on_hand
