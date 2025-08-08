@@ -1,4 +1,4 @@
-<%= form_with(model: order, class: "w-full max-w-lg") do |form| %>
+<%= form_with(model: order, class: "w-full max-w-lg", data: { controller: "order-form", order_form_current_price_value: order.stock.current_price }) do |form| %>
   <% if order.errors.any? %>
     <div style="color: red">
       <h2><%= pluralize(order.errors.count, "error") %> prohibited this order from being saved:</h2>
@@ -15,7 +15,7 @@
     <p class="text-3xl text-center pb-3"><%= order.transaction_type == "buy" ? "Buy" : "Sell" %> Shares</p>
     <hr class="py-3"></hr>
     <p class="text-center"><%= order.stock.ticker %></p>
-    <p class="text-center text-sm">Current Price <%= number_to_currency(order.stock.price_cents) %></p>
+    <p class="text-center text-sm">Current Price <%= number_to_currency(order.stock.current_price) %></p>
 
     <div class="py-3">
       <p class="bg-green-500 bg-opacity-25 p-2 border-green-800 text-md font-bold">
@@ -32,7 +32,15 @@
 
     <div class="pb-3">
       <%= form.label "# of shares #{order.transaction_type == 'buy' ? 'buying' : 'selling'}" %>
-      <%= form.number_field :shares, min:1 , class: "shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"%>
+      <%= form.number_field :shares, min:1, class: "shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline", data: { order_form_target: "shares", action: "input->order-form#calculateTotal" } %>
+    </div>
+    <hr class="py-3"></hr>
+
+
+    <div class="pb-3">
+      <p class="text-sm font-semibold text-gray-700">
+        Total Cost: <span data-order-form-target="totalCost">$0.00</span>
+      </p>
     </div>
 
     <%= form.hidden_field :transaction_type, value: order.transaction_type %>
