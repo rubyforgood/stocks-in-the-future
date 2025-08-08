@@ -21,14 +21,14 @@
   <div class="my-5">
     <%= form.label :school_name, "School Name", class: 'tw-label-primary' %>
     <div class="mt-2">
-      <%= form.text_field :school_name, class: "tw-input-primary" %>
+      <%= form.text_field :school_name, value: classroom.school&.name, class: "tw-input-primary" %>
     </div>
   </div>
 
   <div class="my-5">
     <%= form.label :year_value, "Year", class: 'tw-label-primary' %>
     <div class="mt-2">
-      <%= form.text_field :year_value, class: "tw-input-primary" %>
+      <%= form.text_field :year_value, value: classroom.year&.name, class: "tw-input-primary" %>
     </div>
   </div>
 
