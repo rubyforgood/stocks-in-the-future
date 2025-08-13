@@ -19,7 +19,7 @@ gem "puma", ">= 5.0"
 gem "pundit", "~> 2.5"
 gem "shadcn-ui", "~> 0.0.15"
 gem "stimulus-rails"
-gem "strong_migrations", "~> 2.4"
+gem "strong_migrations", "~> 2.5"
 gem "tailwindcss-rails", "~> 3.0"
 gem "turbo-rails"
 gem "tzinfo-data", platforms: %i[windows jruby]
