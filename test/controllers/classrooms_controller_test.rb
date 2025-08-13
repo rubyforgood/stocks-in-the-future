@@ -24,7 +24,9 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
 
   test "create" do
     sign_in(@admin)
-    params = { classroom: { school_name: "x", year_value: "1999" } }
+    school = create(:school)
+    year = create(:year)
+    params = { classroom: { name: "Test Class", grade: "5th", school_id: school.id, year_id: year.id } }
     assert_difference("Classroom.count") do
       post(classrooms_path, params:)
     end
@@ -45,7 +47,9 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "update" do
-    params = { classroom: { name: "Abc123", year_value: "2000" } }
+    school = create(:school)
+    year = create(:year)
+    params = { classroom: { name: "Abc123", grade: "6th", school_id: school.id, year_id: year.id } }
     sign_in(@admin)
     assert_changes "@classroom.reload.updated_at" do
       patch(classroom_path(@classroom), params:)
@@ -130,5 +134,94 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
       delete classroom_path(@classroom)
     end
     assert_redirected_to root_path
+  end
+
+  # Tests for dropdown functionality
+  test "new action renders form with school and year dropdowns" do
+    school1 = create(:school, name: "Elementary School")
+    school2 = create(:school, name: "High School")
+    year1 = create(:year, name: "2023-2024")
+    year2 = create(:year, name: "2024-2025")
+
+    sign_in(@admin)
+    get new_classroom_path
+
+    assert_response :success
+    assert_select "select[name='classroom[school_id]']" do
+      assert_select "option[value='#{school1.id}']", text: school1.name
+      assert_select "option[value='#{school2.id}']", text: school2.name
+    end
+    assert_select "select[name='classroom[year_id]']" do
+      assert_select "option[value='#{year1.id}']", text: year1.name
+      assert_select "option[value='#{year2.id}']", text: year2.name
+    end
+  end
+
+  test "edit action renders form with school and year dropdowns" do
+    school1 = create(:school, name: "Elementary School")
+    school2 = create(:school, name: "High School")
+    year1 = create(:year, name: "2023-2024")
+    year2 = create(:year, name: "2024-2025")
+
+    sign_in(@admin)
+    get edit_classroom_path(@classroom)
+
+    assert_response :success
+    assert_select "select[name='classroom[school_id]']" do
+      assert_select "option[value='#{school1.id}']", text: school1.name
+      assert_select "option[value='#{school2.id}']", text: school2.name
+    end
+    assert_select "select[name='classroom[year_id]']" do
+      assert_select "option[value='#{year1.id}']", text: year1.name
+      assert_select "option[value='#{year2.id}']", text: year2.name
+    end
+  end
+
+  test "create with valid school_id and year_id creates classroom with correct school_year" do
+    school = create(:school, name: "Test School")
+    year = create(:year, name: "2024-2025")
+
+    sign_in(@admin)
+    params = { classroom: { name: "Test Class", grade: "5th", school_id: school.id, year_id: year.id } }
+
+    assert_difference("Classroom.count") do
+      post(classrooms_path, params:)
+    end
+
+    classroom = Classroom.last
+    assert_equal school, classroom.school
+    assert_equal year, classroom.year
+  end
+
+  test "update with valid school_id and year_id updates classroom school_year" do
+    new_school = create(:school, name: "New School")
+    new_year = create(:year, name: "2025-2026")
+
+    sign_in(@admin)
+    params = { classroom: { name: "Updated Class", school_id: new_school.id, year_id: new_year.id } }
+
+    patch(classroom_path(@classroom), params:)
+
+    @classroom.reload
+    assert_equal new_school, @classroom.school
+    assert_equal new_year, @classroom.year
+  end
+
+  test "edit form shows current school and year selected" do
+    school = create(:school, name: "Current School")
+    year = create(:year, name: "Current Year")
+    school_year = create(:school_year, school: school, year: year)
+    classroom = create(:classroom, school_year: school_year)
+
+    sign_in(@admin)
+    get edit_classroom_path(classroom)
+
+    assert_response :success
+    assert_select "select[name='classroom[school_id]']" do
+      assert_select "option[value='#{school.id}'][selected='selected']", text: school.name
+    end
+    assert_select "select[name='classroom[year_id]']" do
+      assert_select "option[value='#{year.id}'][selected='selected']", text: year.name
+    end
   end
 end

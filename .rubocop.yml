@@ -37,6 +37,11 @@ Metrics/BlockLength:
     - 'spec/**/*'
     - 'test/**/*'
 
+Metrics/ClassLength:
+  Exclude:
+    - 'spec/**/*'
+    - 'test/**/*'
+
 Metrics/MethodLength:
   Max: 20
 

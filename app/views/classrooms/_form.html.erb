@@ -19,16 +19,22 @@
   </div>
 
   <div class="my-5">
-    <%= form.label :school_name, "School Name", class: 'tw-label-primary' %>
+    <%= form.label :school_id, "School Name", class: 'tw-label-primary' %>
     <div class="mt-2">
-      <%= form.text_field :school_name, value: classroom.school&.name, class: "tw-input-primary" %>
+      <%= form.select :school_id,
+          options_from_collection_for_select(@schools, :id, :name, classroom&.school&.id),
+          { prompt: "Select a school" },
+          { class: "tw-input-primary" } %>
     </div>
   </div>
 
   <div class="my-5">
-    <%= form.label :year_value, "Year", class: 'tw-label-primary' %>
+    <%= form.label :year_id, "Year", class: 'tw-label-primary' %>
     <div class="mt-2">
-      <%= form.text_field :year_value, value: classroom.year&.name, class: "tw-input-primary" %>
+      <%= form.select :year_id,
+          options_from_collection_for_select(@years, :id, :name, classroom&.year&.id),
+          { prompt: "Select a year" },
+          { class: "tw-input-primary" } %>
     </div>
   </div>
 
