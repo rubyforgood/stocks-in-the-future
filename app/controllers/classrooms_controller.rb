@@ -18,36 +18,47 @@ class ClassroomsController < ApplicationController
 
   def new
     @classroom = Classroom.new
+    @schools = School.all.order(:name)
+    @years = Year.all.order(:name)
   end
 
-  def edit; end
+  def edit
+    @schools = School.all.order(:name)
+    @years = Year.all.order(:name)
+  end
 
   def create
-    @classroom = Classroom.new(classroom_params.except(:school_name, :year_value))
+    @classroom = Classroom.new(classroom_params.except(:school_id, :year_id))
 
-    school = School.find_or_create_by(name: classroom_params[:school_name])
-    year = Year.find_or_create_by(name: classroom_params[:year_value])
-    school_year = SchoolYear.find_or_create_by(school: school, year: year)
-
-    @classroom.school_year = school_year
+    if classroom_params[:school_id].present? && classroom_params[:year_id].present?
+      school = School.find(classroom_params[:school_id])
+      year = Year.find(classroom_params[:year_id])
+      school_year = SchoolYear.find_or_create_by(school: school, year: year)
+      @classroom.school_year = school_year
+    end
 
     if @classroom.save
       redirect_to classroom_url(@classroom), notice: t(".notice")
     else
+      @schools = School.all.order(:name)
+      @years = Year.all.order(:name)
       render :new, status: :unprocessable_entity
     end
   end
 
   def update
-    school = School.find_or_create_by(name: classroom_params[:school_name])
-    year = Year.find_or_create_by(name: classroom_params[:year_value])
-    school_year = SchoolYear.find_or_create_by(school: school, year: year)
+    if classroom_params[:school_id].present? && classroom_params[:year_id].present?
+      school = School.find(classroom_params[:school_id])
+      year = Year.find(classroom_params[:year_id])
+      school_year = SchoolYear.find_or_create_by(school: school, year: year)
+      @classroom.school_year = school_year
+    end
 
-    @classroom.school_year = school_year
-
-    if @classroom.update(classroom_params.except(:school_name, :year_value))
+    if @classroom.update(classroom_params.except(:school_id, :year_id))
       redirect_to classroom_url(@classroom), notice: t(".notice")
     else
+      @schools = School.all.order(:name)
+      @years = Year.all.order(:name)
       render :edit, status: :unprocessable_entity
     end
   end
@@ -69,7 +80,7 @@ class ClassroomsController < ApplicationController
   end
 
   def classroom_params
-    params.expect(classroom: %i[name grade school_name year_value])
+    params.expect(classroom: %i[name grade school_id year_id])
   end
 
   def ensure_teacher_or_admin
