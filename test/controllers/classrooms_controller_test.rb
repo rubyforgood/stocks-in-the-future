@@ -142,10 +142,10 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
     school2 = create(:school, name: "High School")
     year1 = create(:year, name: "2023-2024")
     year2 = create(:year, name: "2024-2025")
-    
+
     sign_in(@admin)
     get new_classroom_path
-    
+
     assert_response :success
     assert_select "select[name='classroom[school_id]']" do
       assert_select "option[value='#{school1.id}']", text: school1.name
@@ -162,10 +162,10 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
     school2 = create(:school, name: "High School")
     year1 = create(:year, name: "2023-2024")
     year2 = create(:year, name: "2024-2025")
-    
+
     sign_in(@admin)
     get edit_classroom_path(@classroom)
-    
+
     assert_response :success
     assert_select "select[name='classroom[school_id]']" do
       assert_select "option[value='#{school1.id}']", text: school1.name
@@ -180,14 +180,14 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
   test "create with valid school_id and year_id creates classroom with correct school_year" do
     school = create(:school, name: "Test School")
     year = create(:year, name: "2024-2025")
-    
+
     sign_in(@admin)
     params = { classroom: { name: "Test Class", grade: "5th", school_id: school.id, year_id: year.id } }
-    
+
     assert_difference("Classroom.count") do
       post(classrooms_path, params:)
     end
-    
+
     classroom = Classroom.last
     assert_equal school, classroom.school
     assert_equal year, classroom.year
@@ -196,12 +196,12 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
   test "update with valid school_id and year_id updates classroom school_year" do
     new_school = create(:school, name: "New School")
     new_year = create(:year, name: "2025-2026")
-    
+
     sign_in(@admin)
     params = { classroom: { name: "Updated Class", school_id: new_school.id, year_id: new_year.id } }
-    
+
     patch(classroom_path(@classroom), params:)
-    
+
     @classroom.reload
     assert_equal new_school, @classroom.school
     assert_equal new_year, @classroom.year
@@ -212,10 +212,10 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
     year = create(:year, name: "Current Year")
     school_year = create(:school_year, school: school, year: year)
     classroom = create(:classroom, school_year: school_year)
-    
+
     sign_in(@admin)
     get edit_classroom_path(classroom)
-    
+
     assert_response :success
     assert_select "select[name='classroom[school_id]']" do
       assert_select "option[value='#{school.id}'][selected='selected']", text: school.name

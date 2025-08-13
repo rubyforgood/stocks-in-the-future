@@ -18,47 +18,32 @@ class ClassroomsController < ApplicationController
 
   def new
     @classroom = Classroom.new
-    @schools = School.all.order(:name)
-    @years = Year.all.order(:name)
+    dropdown_data
   end
 
   def edit
-    @schools = School.all.order(:name)
-    @years = Year.all.order(:name)
+    dropdown_data
   end
 
   def create
     @classroom = Classroom.new(classroom_params.except(:school_id, :year_id))
-
-    if classroom_params[:school_id].present? && classroom_params[:year_id].present?
-      school = School.find(classroom_params[:school_id])
-      year = Year.find(classroom_params[:year_id])
-      school_year = SchoolYear.find_or_create_by(school: school, year: year)
-      @classroom.school_year = school_year
-    end
+    assign_school_year_to_classroom
 
     if @classroom.save
       redirect_to classroom_url(@classroom), notice: t(".notice")
     else
-      @schools = School.all.order(:name)
-      @years = Year.all.order(:name)
+      dropdown_data
       render :new, status: :unprocessable_entity
     end
   end
 
   def update
-    if classroom_params[:school_id].present? && classroom_params[:year_id].present?
-      school = School.find(classroom_params[:school_id])
-      year = Year.find(classroom_params[:year_id])
-      school_year = SchoolYear.find_or_create_by(school: school, year: year)
-      @classroom.school_year = school_year
-    end
+    assign_school_year_to_classroom
 
     if @classroom.update(classroom_params.except(:school_id, :year_id))
       redirect_to classroom_url(@classroom), notice: t(".notice")
     else
-      @schools = School.all.order(:name)
-      @years = Year.all.order(:name)
+      dropdown_data
       render :edit, status: :unprocessable_entity
     end
   end
@@ -85,6 +70,20 @@ class ClassroomsController < ApplicationController
 
   def ensure_teacher_or_admin
     redirect_to root_path unless current_user&.teacher_or_admin?
+  end
+
+  def dropdown_data
+    @schools = School.order(:name)
+    @years = Year.order(:name)
+  end
+
+  def assign_school_year_to_classroom
+    return unless classroom_params[:school_id].present? && classroom_params[:year_id].present?
+
+    school = School.find(classroom_params[:school_id])
+    year = Year.find(classroom_params[:year_id])
+    school_year = SchoolYear.find_or_create_by(school: school, year: year)
+    @classroom.school_year = school_year
   end
 
   def calculate_classroom_stats
