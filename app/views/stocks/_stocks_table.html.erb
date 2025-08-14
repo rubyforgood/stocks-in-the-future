@@ -3,7 +3,9 @@
     <tr>
       <th class="px-4 py-2">Company (Exchange)</th>
       <th class="px-4 py-2">Last Price</th>
-      <th class="px-4 py-2">Your Holdings</th>
+      <% if current_user.student? %>
+        <th class="px-4 py-2">Your Holdings</th>
+      <% end %>
       <th class="px-4 py-2"></th>
     </tr>
   </thead>
@@ -17,10 +19,10 @@
       <td class="px-4 py-2">
         <%= number_to_currency(stock.current_price) %>
       </td>
+      <% if current_user.student? %>
       <td class="px-4 py-2">
         some number
       </td>
-      <% if current_user.student? %>
         <td class="px-4 py-2">
             <%= link_to "Buy", new_order_path(stock_id: stock.id, transaction_type: :buy), class: "rounded-md bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-xs ring-1 ring-gray-300 ring-inset hover:bg-gray-50" %>
         </td>

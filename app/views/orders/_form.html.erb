@@ -19,7 +19,7 @@
 
     <div class="py-3">
       <p class="bg-green-500 bg-opacity-25 p-2 border-green-800 text-md font-bold">
-        Current earnings to Invest: <%= number_to_currency(current_user.portfolio.cash_balance) %>
+        Current earnings to Invest: <%= number_to_currency(current_user&.portfolio&.cash_balance) %>
       </p>
     </div>
 

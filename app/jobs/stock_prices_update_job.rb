@@ -11,7 +11,7 @@ class StockPricesUpdateJob < ApplicationJob
       price = data["Global Quote"]["05. price"]
       stock = Stock.find_or_initialize_by(ticker: symbol)
       # TODO: What's returned from the API? We likely need to normalize this.
-      stock.price_cents = price
+      stock.price_cents = (price.to_f * 100).to_i
       stock.save
     end
   end
