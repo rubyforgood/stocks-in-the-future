@@ -64,7 +64,7 @@ class OrdersController < ApplicationController
   end
 
   def set_shared_owned
-    @shares_owned = current_user.portfolio.shares_owned(@stock&.id)
+    @shares_owned = current_user.portfolio&.shares_owned(@stock&.id)
   end
 
   def order_params
