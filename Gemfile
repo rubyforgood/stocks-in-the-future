@@ -23,6 +23,7 @@ gem "strong_migrations", "~> 2.5"
 gem "tailwindcss-rails", "~> 3.0"
 gem "turbo-rails"
 gem "tzinfo-data", platforms: %i[windows jruby]
+gem "whenever", require: false
 
 group :development, :test do
   gem "debug", platforms: %i[mri windows]
