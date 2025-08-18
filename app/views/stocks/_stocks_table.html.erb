@@ -21,7 +21,7 @@
       </td>
       <% if current_user.student? %>
       <td class="px-4 py-2">
-        some number
+        <%= current_user.portfolio.shares_owned(stock.id) %>
       </td>
         <td class="px-4 py-2">
             <%= link_to "Buy", new_order_path(stock_id: stock.id, transaction_type: :buy), class: "rounded-md bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-xs ring-1 ring-gray-300 ring-inset hover:bg-gray-50" %>
