@@ -59,6 +59,69 @@ class OrderTest < ActiveSupport::TestCase
     assert_equal order, transaction.order
   end
 
+  test "sell order validation allows selling when sufficient shares owned" do
+    user = create(:student)
+    portfolio = create(:portfolio, user: user)
+    stock = create(:stock, price_cents: 1_000)
+
+    create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 10, purchase_price: 200.0)
+
+    order = build(:order, user: user, stock: stock, shares: 5, transaction_type: "sell")
+
+    assert order.valid?
+  end
+
+  test "sell order validation prevents selling more shares than owned" do
+    user = create(:student)
+    portfolio = create(:portfolio, user: user)
+    stock = create(:stock, price_cents: 1_000)
+
+    create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 5, purchase_price: 200.0)
+
+    order = build(:order, user: user, stock: stock, shares: 10, transaction_type: "sell")
+
+    assert_not order.valid?
+    assert_includes order.errors[:shares], "Cannot sell more shares than you own (5 available)"
+  end
+
+  test "sell order validation prevents selling when no shares owned" do
+    user = create(:student)
+    create(:portfolio, user: user)
+    stock = create(:stock, price_cents: 1_000)
+
+    # User owns 0 shares
+    order = build(:order, user: user, stock: stock, shares: 1, transaction_type: "sell")
+
+    assert_not order.valid?
+    assert_includes order.errors[:shares], "Cannot sell more shares than you own (0 available)"
+  end
+
+  test "sell order validation with multiple portfolio_stock records" do
+    user = create(:student)
+    portfolio = create(:portfolio, user: user)
+    stock = create(:stock, price_cents: 1_000)
+
+    create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 10, purchase_price: 200.0)
+    create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 5, purchase_price: 250.0)
+
+    order = build(:order, user: user, stock: stock, shares: 12, transaction_type: "sell")
+    assert order.valid?
+
+    order = build(:order, user: user, stock: stock, shares: 20, transaction_type: "sell")
+    assert_not order.valid?
+    assert_includes order.errors[:shares], "Cannot sell more shares than you own (15 available)"
+  end
+
+  test "buy order validation is not affected by sell validation" do
+    user = create(:student)
+    create(:portfolio, user: user)
+    stock = create(:stock, price_cents: 1_000)
+
+    order = build(:order, user: user, stock: stock, shares: 10, transaction_type: "buy")
+
+    assert order.valid?
+  end
+
   test "creates a credit portfolio transaction on sell" do
     user = create(:student)
     stock = create(:stock, price_cents: 1_000)

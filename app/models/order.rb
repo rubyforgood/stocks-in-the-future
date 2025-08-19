@@ -11,6 +11,7 @@ class Order < ApplicationRecord
   enum :status, { pending: 0, completed: 1, canceled: 2 }
 
   validates :shares, presence: true, numericality: { greater_than: 0 }
+  validate :sufficient_shares_for_sell, if: -> { transaction_type == "sell" }
 
   after_create :create_portfolio_transaction
 
@@ -25,6 +26,15 @@ class Order < ApplicationRecord
   end
 
   private
+
+  def sufficient_shares_for_sell
+    current_shares = user.portfolio&.shares_owned(stock_id) || 0
+    return unless shares > current_shares
+
+    # Format the number to remove unnecessary decimals
+    formatted_shares = (current_shares % 1).zero? ? current_shares.to_i : current_shares
+    errors.add(:shares, "Cannot sell more shares than you own (#{formatted_shares} available)")
+  end
 
   def create_portfolio_transaction
     PortfolioTransaction.create!(
