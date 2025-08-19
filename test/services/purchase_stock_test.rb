@@ -54,15 +54,15 @@ class PurchaseStockTest < ActiveSupport::TestCase
     assert order.completed?
   end
 
-  # TODO: Fix this test
-  test "it does not update order if portfolio transaction fails to save" do
-    skip "Can we update this test to not use a mock?"
-    order = Order.create(stock: Stock.first, shares: 5, status: :pending, user: @student)
+  test "it handles transaction rollback when portfolio stock creation fails" do
+    portfolio = create(:portfolio)
+    portfolio.portfolio_transactions.create!(amount_cents: 1000, transaction_type: :deposit) # $10.00
 
-    # Simulate failure to create portfolio_transaction by stubbing the create method to return false
-    order.portfolio.portfolio_transactions.stubs(:create!).raises(
-      ActiveRecord::RecordInvalid.new(PortfolioTransaction.new)
-    )
+    stock = create(:stock, price_cents: 100) # $1.00 per share
+    order = create(:order, :pending, :buy, shares: 5, stock: stock, user: portfolio.user) # Needs $5.00
+
+    # Mock PortfolioStock creation to fail
+    PortfolioStock.any_instance.stubs(:save!).raises(ActiveRecord::RecordInvalid.new(PortfolioStock.new))
 
     assert_raises(ActiveRecord::RecordInvalid) do
       PurchaseStock.execute(order)
@@ -71,12 +71,14 @@ class PurchaseStockTest < ActiveSupport::TestCase
     order.reload
 
     assert_equal "pending", order.status
-    assert_nil order.portfolio_transaction
+    # The portfolio transaction should still exist from order creation
+    assert_not_nil order.portfolio_transaction
     assert_nil order.portfolio_stock
   end
 
   test "buy order creates positive shares in portfolio_stock" do
     portfolio = create(:portfolio)
+    portfolio.portfolio_transactions.create!(amount_cents: 1000, transaction_type: :deposit) # $10.00
     stock = create(:stock, price_cents: 100)
     order = create(:order, :pending, :buy, shares: 5, stock: stock, user: portfolio.user)
 
@@ -90,7 +92,7 @@ class PurchaseStockTest < ActiveSupport::TestCase
   test "sell order creates negative shares in portfolio_stock" do
     portfolio = create(:portfolio)
     stock = create(:stock, price_cents: 100)
-    create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 5, purchase_price: 100)
+    create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 10, purchase_price: 100)
 
     order = create(:order, :pending, :sell, shares: 3, stock: stock, user: portfolio.user)
 
@@ -100,7 +102,6 @@ class PurchaseStockTest < ActiveSupport::TestCase
     portfolio_stocks = PortfolioStock.where(portfolio: portfolio, stock: stock)
     assert_equal 2, portfolio_stocks.count
 
-    # The new sell record should have negative shares
     sell_record = portfolio_stocks.order(:created_at).last
     assert_equal(-3, sell_record.shares)
     assert_equal stock, sell_record.stock
@@ -108,6 +109,7 @@ class PurchaseStockTest < ActiveSupport::TestCase
 
   test "multiple buy orders create separate portfolio_stock records" do
     portfolio = create(:portfolio)
+    portfolio.portfolio_transactions.create!(amount_cents: 1000, transaction_type: :deposit) # $10.00
     stock = create(:stock, price_cents: 100)
 
     order1 = create(:order, :pending, :buy, shares: 5, stock: stock, user: portfolio.user)
@@ -123,6 +125,7 @@ class PurchaseStockTest < ActiveSupport::TestCase
 
   test "buy then sell orders work together correctly" do
     portfolio = create(:portfolio)
+    portfolio.portfolio_transactions.create!(amount_cents: 2000, transaction_type: :deposit) # $20.00
     stock = create(:stock, price_cents: 100)
 
     buy_order = create(:order, :pending, :buy, shares: 10, stock: stock, user: portfolio.user)
@@ -137,7 +140,6 @@ class PurchaseStockTest < ActiveSupport::TestCase
     shares_values = portfolio_stocks.pluck(:shares).sort
     assert_equal [-4, 10], shares_values
 
-    # Test that portfolio.shares_owned works correctly with our fix
     total_shares = portfolio.shares_owned(stock.id)
     assert_equal 6, total_shares
   end
