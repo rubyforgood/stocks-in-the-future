@@ -90,7 +90,6 @@ class OrderTest < ActiveSupport::TestCase
     create(:portfolio, user: user)
     stock = create(:stock, price_cents: 1_000)
 
-    # User owns 0 shares
     order = build(:order, user: user, stock: stock, shares: 1, transaction_type: "sell")
 
     assert_not order.valid?
@@ -145,10 +144,10 @@ class OrderTest < ActiveSupport::TestCase
   test "buy order validation prevents buying when insufficient funds" do
     user = create(:student)
     portfolio = create(:portfolio, user: user)
-    portfolio.portfolio_transactions.create!(amount_cents: 100, transaction_type: :deposit) # Only $1.00
+    portfolio.portfolio_transactions.create!(amount_cents: 100, transaction_type: :deposit)
 
-    stock = create(:stock, price_cents: 1000) # $10.00 per share
-    order = build(:order, user: user, stock: stock, shares: 5, transaction_type: "buy") # Needs $50.00
+    stock = create(:stock, price_cents: 1000)
+    order = build(:order, user: user, stock: stock, shares: 5, transaction_type: "buy")
 
     assert_not order.valid?
     assert_includes order.errors[:shares], "Insufficient funds. You have $1.00 but need $50.00"
@@ -157,10 +156,10 @@ class OrderTest < ActiveSupport::TestCase
   test "buy order validation allows buying when sufficient funds" do
     user = create(:student)
     portfolio = create(:portfolio, user: user)
-    portfolio.portfolio_transactions.create!(amount_cents: 10_000, transaction_type: :deposit) # $100.00
+    portfolio.portfolio_transactions.create!(amount_cents: 10_000, transaction_type: :deposit)
 
-    stock = create(:stock, price_cents: 1000) # $10.00 per share
-    order = build(:order, user: user, stock: stock, shares: 5, transaction_type: "buy") # Needs $50.00
+    stock = create(:stock, price_cents: 1000)
+    order = build(:order, user: user, stock: stock, shares: 5, transaction_type: "buy")
 
     assert order.valid?
   end

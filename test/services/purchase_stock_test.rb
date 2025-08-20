@@ -56,10 +56,10 @@ class PurchaseStockTest < ActiveSupport::TestCase
 
   test "it handles transaction rollback when portfolio stock creation fails" do
     portfolio = create(:portfolio)
-    portfolio.portfolio_transactions.create!(amount_cents: 1000, transaction_type: :deposit) # $10.00
+    portfolio.portfolio_transactions.create!(amount_cents: 1000, transaction_type: :deposit)
 
-    stock = create(:stock, price_cents: 100) # $1.00 per share
-    order = create(:order, :pending, :buy, shares: 5, stock: stock, user: portfolio.user) # Needs $5.00
+    stock = create(:stock, price_cents: 100)
+    order = create(:order, :pending, :buy, shares: 5, stock: stock, user: portfolio.user)
 
     # Mock PortfolioStock creation to fail
     PortfolioStock.any_instance.stubs(:save!).raises(ActiveRecord::RecordInvalid.new(PortfolioStock.new))
@@ -78,7 +78,7 @@ class PurchaseStockTest < ActiveSupport::TestCase
 
   test "buy order creates positive shares in portfolio_stock" do
     portfolio = create(:portfolio)
-    portfolio.portfolio_transactions.create!(amount_cents: 1000, transaction_type: :deposit) # $10.00
+    portfolio.portfolio_transactions.create!(amount_cents: 1000, transaction_type: :deposit)
     stock = create(:stock, price_cents: 100)
     order = create(:order, :pending, :buy, shares: 5, stock: stock, user: portfolio.user)
 
@@ -109,7 +109,7 @@ class PurchaseStockTest < ActiveSupport::TestCase
 
   test "multiple buy orders create separate portfolio_stock records" do
     portfolio = create(:portfolio)
-    portfolio.portfolio_transactions.create!(amount_cents: 1000, transaction_type: :deposit) # $10.00
+    portfolio.portfolio_transactions.create!(amount_cents: 1000, transaction_type: :deposit)
     stock = create(:stock, price_cents: 100)
 
     order1 = create(:order, :pending, :buy, shares: 5, stock: stock, user: portfolio.user)
@@ -125,7 +125,7 @@ class PurchaseStockTest < ActiveSupport::TestCase
 
   test "buy then sell orders work together correctly" do
     portfolio = create(:portfolio)
-    portfolio.portfolio_transactions.create!(amount_cents: 2000, transaction_type: :deposit) # $20.00
+    portfolio.portfolio_transactions.create!(amount_cents: 2000, transaction_type: :deposit)
     stock = create(:stock, price_cents: 100)
 
     buy_order = create(:order, :pending, :buy, shares: 10, stock: stock, user: portfolio.user)

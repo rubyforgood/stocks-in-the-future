@@ -16,7 +16,6 @@ class PortfolioTest < ActiveSupport::TestCase
 
     stock = create(:stock, price_cents: 100)
 
-    # Give user some shares to sell by creating portfolio_stock records
     # This simulates previous completed purchases
     create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 20, purchase_price: 100)
 
@@ -58,13 +57,8 @@ class PortfolioTest < ActiveSupport::TestCase
     portfolio = create(:portfolio)
     stock = create(:stock)
 
-    # First purchase: 10 shares
     create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 10, purchase_price: 200.0)
-
-    # Second purchase: 5 shares
     create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 5, purchase_price: 250.0)
-
-    # Third purchase: 3 shares
     create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 3, purchase_price: 300.0)
 
     result = portfolio.shares_owned(stock.id)
@@ -75,13 +69,8 @@ class PortfolioTest < ActiveSupport::TestCase
     portfolio = create(:portfolio)
     stock = create(:stock)
 
-    # Buy 20 shares
     create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 20, purchase_price: 200.0)
-
-    # Sell 7 shares
     create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: -7, purchase_price: 250.0)
-
-    # Buy 3 more shares
     create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 3, purchase_price: 300.0)
 
     result = portfolio.shares_owned(stock.id)
@@ -101,10 +90,7 @@ class PortfolioTest < ActiveSupport::TestCase
     stock1 = create(:stock)
     stock2 = create(:stock)
 
-    # Stock 1: 10 shares
     create(:portfolio_stock, portfolio: portfolio, stock: stock1, shares: 10, purchase_price: 200.0)
-
-    # Stock 2: 5 shares
     create(:portfolio_stock, portfolio: portfolio, stock: stock2, shares: 5, purchase_price: 300.0)
 
     assert_equal 10, portfolio.shares_owned(stock1.id)

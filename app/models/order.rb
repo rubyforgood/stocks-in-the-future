@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class Order < ApplicationRecord
+  include ApplicationHelper
   attr_accessor :transaction_type
 
   belongs_to :user
@@ -32,7 +33,6 @@ class Order < ApplicationRecord
     current_shares = user.portfolio&.shares_owned(stock_id) || 0
     return unless shares > current_shares
 
-    # Format the number to remove unnecessary decimals
     formatted_shares = (current_shares % 1).zero? ? current_shares.to_i : current_shares
     errors.add(:shares, "Cannot sell more shares than you own (#{formatted_shares} available)")
   end
@@ -41,9 +41,8 @@ class Order < ApplicationRecord
     current_balance_cents = (user.portfolio&.cash_balance || 0) * 100
     return unless purchase_cost > current_balance_cents
 
-    # Format the balance to display as currency
-    formatted_balance = format("$%.2f", current_balance_cents / 100.0)
-    formatted_cost = format("$%.2f", purchase_cost / 100.0)
+    formatted_balance = format_money(current_balance_cents)
+    formatted_cost = format_money(purchase_cost)
     errors.add(:shares, "Insufficient funds. You have #{formatted_balance} but need #{formatted_cost}")
   end
 
