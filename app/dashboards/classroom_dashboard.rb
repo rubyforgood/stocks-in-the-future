@@ -13,9 +13,10 @@ class ClassroomDashboard < Administrate::BaseDashboard
     id: Field::Number,
     grade: Field::String,
     name: Field::String,
-    school: Field::BelongsTo,
+    school_year: Field::BelongsTo,
+    school: Field::HasOne,
     users: Field::HasMany,
-    year: Field::BelongsTo,
+    year: Field::HasOne,
     created_at: Field::DateTime,
     updated_at: Field::DateTime
   }.freeze
@@ -29,7 +30,7 @@ class ClassroomDashboard < Administrate::BaseDashboard
     id
     grade
     name
-    school
+    school_year
   ].freeze
 
   # SHOW_PAGE_ATTRIBUTES
@@ -51,9 +52,8 @@ class ClassroomDashboard < Administrate::BaseDashboard
   FORM_ATTRIBUTES = %i[
     grade
     name
-    school
+    school_year
     users
-    year
   ].freeze
 
   # COLLECTION_FILTERS
