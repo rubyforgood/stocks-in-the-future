@@ -16,6 +16,9 @@ class PortfolioTest < ActiveSupport::TestCase
 
     stock = create(:stock, price_cents: 100)
 
+    # This simulates previous completed purchases
+    create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 20, purchase_price: 100)
+
     # pending debit for stock purchase, should decrease cash_balance
     create(:order, :pending, :buy, stock:, shares: 2, user:)
 
@@ -41,12 +44,56 @@ class PortfolioTest < ActiveSupport::TestCase
     assert_equal 7.0, result
   end
 
-  test "#shares_owned" do
+  test "#shares_owned with single purchase" do
     portfolio = create(:portfolio)
     stock = create(:stock)
     create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 15, purchase_price: 200.0)
 
     result = portfolio.shares_owned(stock.id)
     assert_equal 15, result
+  end
+
+  test "#shares_owned with multiple purchases aggregates correctly" do
+    portfolio = create(:portfolio)
+    stock = create(:stock)
+
+    create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 10, purchase_price: 200.0)
+    create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 5, purchase_price: 250.0)
+    create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 3, purchase_price: 300.0)
+
+    result = portfolio.shares_owned(stock.id)
+    assert_equal 18, result # 10 + 5 + 3
+  end
+
+  test "#shares_owned with buy and sell orders" do
+    portfolio = create(:portfolio)
+    stock = create(:stock)
+
+    create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 20, purchase_price: 200.0)
+    create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: -7, purchase_price: 250.0)
+    create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 3, purchase_price: 300.0)
+
+    result = portfolio.shares_owned(stock.id)
+    assert_equal 16, result # 20 - 7 + 3
+  end
+
+  test "#shares_owned returns 0 when no shares owned" do
+    portfolio = create(:portfolio)
+    stock = create(:stock)
+
+    result = portfolio.shares_owned(stock.id)
+    assert_equal 0, result
+  end
+
+  test "#shares_owned with different stocks" do
+    portfolio = create(:portfolio)
+    stock1 = create(:stock)
+    stock2 = create(:stock)
+
+    create(:portfolio_stock, portfolio: portfolio, stock: stock1, shares: 10, purchase_price: 200.0)
+    create(:portfolio_stock, portfolio: portfolio, stock: stock2, shares: 5, purchase_price: 300.0)
+
+    assert_equal 10, portfolio.shares_owned(stock1.id)
+    assert_equal 5, portfolio.shares_owned(stock2.id)
   end
 end
