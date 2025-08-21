@@ -18,5 +18,9 @@
       </div>
     <% end %>
     <%= link_to "Back to classrooms", classrooms_path, class: "tw-btn-tertiary" %>
+
+    <!-- Temporary UI, remove when tabbed table is wired up: -->
+    <%= render "grade_books_list", grade_books: @classroom.grade_books %>
+
   </div>
 </div>
