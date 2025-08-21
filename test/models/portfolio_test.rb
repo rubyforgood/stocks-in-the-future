@@ -65,6 +65,20 @@ class PortfolioTest < ActiveSupport::TestCase
     assert_equal 18, result # 10 + 5 + 3
   end
 
+  test "#cash_balance with transactions without orders" do
+    portfolio = create(:portfolio)
+    credit_transaction = create(:portfolio_transaction, :credit, portfolio: portfolio, amount_cents: 1000)
+    debit_transaction = create(:portfolio_transaction, :debit, portfolio: portfolio, amount_cents: 500)
+
+    create(:portfolio_transaction, :deposit, portfolio: portfolio, amount_cents: 2000)
+    # expected balance = (2000 + 1000 - 500) / 100.0 = 25.0
+    result = portfolio.cash_balance
+    assert_equal 25.0, result
+
+    assert credit_transaction.completed?
+    assert debit_transaction.completed?
+  end
+
   test "#shares_owned with buy and sell orders" do
     portfolio = create(:portfolio)
     stock = create(:stock)
