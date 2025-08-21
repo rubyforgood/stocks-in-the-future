@@ -45,7 +45,7 @@ class Portfolio < ApplicationRecord
   end
 
   def acceptable_credits
-    portfolio_transactions.credits.select { |transaction| transaction.order.completed? }
+    portfolio_transactions.credits.select(&:completed?)
   end
 
   def acceptable_debits_sum_in_cents
