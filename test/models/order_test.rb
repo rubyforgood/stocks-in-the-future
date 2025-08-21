@@ -7,6 +7,12 @@ class OrderTest < ActiveSupport::TestCase
     assert build(:order).validate!
   end
 
+  test "defaults to pending status when created" do
+    order = create(:order)
+
+    assert_equal "pending", order.status
+  end
+
   test ".pending" do
     order1 = create(:order, :pending)
     create(:order, :completed)
