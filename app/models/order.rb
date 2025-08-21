@@ -9,7 +9,7 @@ class Order < ApplicationRecord
   belongs_to :portfolio_stock, optional: true
   belongs_to :portfolio_transaction, optional: true
 
-  enum :status, { pending: 0, completed: 1, canceled: 2 }
+  enum :status, { pending: 0, completed: 1, canceled: 2 }, default: :pending
 
   validates :shares, presence: true, numericality: { greater_than: 0 }
   validate :sufficient_shares_for_sell, if: -> { transaction_type == "sell" }
