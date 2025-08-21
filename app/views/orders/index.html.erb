@@ -1,14 +1,32 @@
-<p style="color: green"><%= notice %></p>
-
-<h1>Orders</h1>
-
-<div id="orders">
-  <% @orders.each do |order| %>
-    <%= render order %>
-    <p>
-      <%= link_to "Show this order", order %>
-    </p>
+<div class="flex flex-col h-full w-full">
+  <% if notice.present? %>
+    <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-lg inline-block" id="notice"><%= notice %></p>
   <% end %>
-</div>
 
-<%= link_to "New order", new_order_path %>
+  <header class="flex items-center justify-between px-6 py-4 border-b">
+    <h1 class="text-2xl font-bold">Orders</h1>
+    <%= link_to "New Order", new_order_path, class: "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" %>
+  </header>
+
+  <main class="flex-1 p-6">
+    <div class="bg-white dark:bg-gray-950 rounded-lg shadow h-full">
+      <div id="orders" class="divide-y divide-gray-200 h-full">
+        <% if @orders.any? %>
+          <% @orders.each do |order| %>
+            <div class="p-6">
+              <%= render order %>
+              <div class="mt-4">
+                <%= link_to "Show Details", order, class: "text-blue-600 hover:text-blue-800 font-medium" %>
+              </div>
+            </div>
+          <% end %>
+        <% else %>
+          <div class="p-6 text-center text-gray-500 h-full flex flex-col justify-center">
+            <p class="text-lg">No orders found</p>
+            <p class="mt-2">Create your first order to get started!</p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </main>
+</div>
