@@ -48,14 +48,13 @@ After running `bin/rails db:setup`, the database will automatically be seeded wi
 
 Use the **username** and **password** to log in and test the application locally.
 
-> ⚠️ **Note:** Do not run `db:seed` in production unless explicitly required.
-
 ## URL
 
 Access the app via `localhost:3000`
 
 ## Contributing
 
+- Read the [project documentation](docs/README.md) to understand how we work on this app
 - Add tests with your PR
 - Run `bundle exec rails test` and make sure all tests are passing
 - Run `bundle exec rubocop` and fix any errors
@@ -132,7 +131,7 @@ If you need help at any point, comment on the issue you're working on or ask in 
 
 ## Troubleshooting
 
-### ASDF 
+### ASDF
 
 If you find yourself in a cycle of encountering errors such as:
 
