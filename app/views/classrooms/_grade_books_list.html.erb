@@ -1,0 +1,19 @@
+<div class="mt-8">
+  <h3 class="text-lg font-medium text-gray-900 mb-4">Grade Books</h3>
+
+  <% if grade_books.any? %>
+    <ul class="divide-y divide-gray-200 bg-white rounded-md shadow">
+      <% grade_books.each do |book| %>
+        <li class="px-6 py-4 hover:bg-gray-50">
+          <%= link_to book.quarter.name,
+                      classroom_grade_book_path(@classroom, book),
+                      class: "text-indigo-600 hover:text-indigo-900 font-medium" %>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <div class="text-center py-8 text-gray-500">
+      No grade books created for this classroom yet.
+    </div>
+  <% end %>
+</div>

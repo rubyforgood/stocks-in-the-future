@@ -8,18 +8,18 @@ class GradeEntryTest < ActiveSupport::TestCase
     assert build(:grade_entry).validate!
   end
 
-  test "math_grade, reading_grade, and perfect_weeks accept any string or nil" do
+  test "math_grade, reading_grade, and attendance_days accept any string or nil" do
     entry = build(
       :grade_entry,
       math_grade: "A+",
       reading_grade: "B-",
-      perfect_weeks: 12
+      attendance_days: 45
     )
     assert entry.valid?
 
     entry.math_grade = nil
     entry.reading_grade = nil
-    entry.perfect_weeks = nil
+    entry.attendance_days = nil
     assert entry.valid?
   end
 end

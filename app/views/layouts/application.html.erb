@@ -8,12 +8,13 @@
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
-  <body class="h-screen w-screen inline-flex overflow-auto">
+  <body class="h-screen w-screen overflow-hidden">
     <% if user_signed_in? %>
-      <%= render 'layouts/navbar'%>
+      <%= render 'layouts/navbar' %>
     <% end %>
-    <div class="ml-72 overflow-auto p-6">
+
+    <main class="ml-72 h-full overflow-auto p-6">
       <%= yield %>
-    </div>
+    </main>
   </body>
 </html>
