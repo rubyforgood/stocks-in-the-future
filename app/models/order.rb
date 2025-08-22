@@ -2,6 +2,7 @@
 
 class Order < ApplicationRecord
   include ApplicationHelper
+
   attr_accessor :transaction_type
 
   belongs_to :user
