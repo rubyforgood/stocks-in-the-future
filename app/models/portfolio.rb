@@ -19,7 +19,7 @@ class Portfolio < ApplicationRecord
   end
 
   def shares_owned(stock_id)
-    portfolio_stocks.find_by(stock_id:)&.shares || 0
+    portfolio_stocks.where(stock_id: stock_id).sum(:shares)
   end
 
   private
@@ -45,7 +45,7 @@ class Portfolio < ApplicationRecord
   end
 
   def acceptable_credits
-    portfolio_transactions.credits.select { |transaction| transaction.order.completed? }
+    portfolio_transactions.credits.select(&:completed?)
   end
 
   def acceptable_debits_sum_in_cents
@@ -53,7 +53,7 @@ class Portfolio < ApplicationRecord
   end
 
   def acceptable_debits
-    portfolio_transactions.debits.reject { |transaction| transaction.order.canceled? }
+    portfolio_transactions.debits.reject { |transaction| transaction.order&.canceled? }
   end
 
   def user_must_be_student

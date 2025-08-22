@@ -62,7 +62,7 @@ class SchoolYearDashboard < Administrate::BaseDashboard
   # Overwrite this method to customize how school years are displayed
   # across all pages of the admin dashboard.
   #
-  # def display_resource(school_year)
-  #   "SchoolYear ##{school_year.id}"
-  # end
+  def display_resource(school_year)
+    "#{school_year.school.name} (#{school_year.year.name})"
+  end
 end

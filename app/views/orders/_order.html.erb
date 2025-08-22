@@ -1,19 +1,40 @@
-<div id="<%= dom_id order %>">
-  <p>
-    <strong>Stock:</strong>
-    
-    
-    <%= order.stock.company_name %>
-  </p>
+<div id="<%= dom_id order %>" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+  <div>
+    <p class="text-sm text-gray-500 font-medium">Stock</p>
+    <p class="text-lg font-semibold"><%= order.stock.company_name %></p>
+    <p class="text-sm text-gray-400"><%= order.stock.ticker %></p>
+  </div>
 
-  <p>
-    <strong>Shares:</strong>
-    <%= order.shares %>
-  </p>
+  <div>
+    <p class="text-sm text-gray-500 font-medium">Shares</p>
+    <p class="text-lg font-semibold"><%= order.shares %></p>
+  </div>
 
-  <p>
-    <strong>Status:</strong>
-    <%= order.status %>
-  </p>
+  <div>
+    <p class="text-sm text-gray-500 font-medium">Status</p>
+    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+      <%= case order.status
+          when 'pending'
+            'bg-yellow-100 text-yellow-800'
+          when 'completed'
+            'bg-green-100 text-green-800'
+          when 'canceled'
+            'bg-red-100 text-red-800'
+          else
+            'bg-gray-100 text-gray-800'
+          end %>">
+      <%= order.status.capitalize %>
+    </span>
+  </div>
 
+  <div>
+    <p class="text-sm text-gray-500 font-medium">Total Cost</p>
+    <p class="text-lg font-semibold">
+      <% if order.stock.price_cents && order.shares %>
+        $<%= sprintf("%.2f", order.purchase_cost / 100.0) %>
+      <% else %>
+        <span class="text-gray-400">Price unavailable</span>
+      <% end %>
+    </p>
+  </div>
 </div>

@@ -11,11 +11,15 @@ class ClassroomDashboard < Administrate::BaseDashboard
   # on pages throughout the dashboard.
   ATTRIBUTE_TYPES = {
     id: Field::Number,
-    grade: Field::String,
+    grade: Field::Select.with_options(
+      searchable: false,
+      collection: %w[5th 6th 7th 8th 9th 10th 11th 12th]
+    ),
     name: Field::String,
-    school: Field::BelongsTo,
-    users: Field::HasMany,
-    year: Field::BelongsTo,
+    school_year: Field::BelongsTo,
+    school: Field::HasOne,
+    users: Field::HasMany.with_options(label: "Teacher"),
+    year: Field::HasOne,
     created_at: Field::DateTime,
     updated_at: Field::DateTime
   }.freeze
@@ -29,7 +33,7 @@ class ClassroomDashboard < Administrate::BaseDashboard
     id
     grade
     name
-    school
+    school_year
   ].freeze
 
   # SHOW_PAGE_ATTRIBUTES
@@ -38,9 +42,8 @@ class ClassroomDashboard < Administrate::BaseDashboard
     id
     grade
     name
-    school
+    school_year
     users
-    year
     created_at
     updated_at
   ].freeze
@@ -51,9 +54,8 @@ class ClassroomDashboard < Administrate::BaseDashboard
   FORM_ATTRIBUTES = %i[
     grade
     name
-    school
+    school_year
     users
-    year
   ].freeze
 
   # COLLECTION_FILTERS

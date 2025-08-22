@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class Order < ApplicationRecord
+  include ApplicationHelper
   attr_accessor :transaction_type
 
   belongs_to :user
@@ -8,9 +9,11 @@ class Order < ApplicationRecord
   belongs_to :portfolio_stock, optional: true
   belongs_to :portfolio_transaction, optional: true
 
-  enum :status, { pending: 0, completed: 1, canceled: 2 }
+  enum :status, { pending: 0, completed: 1, canceled: 2 }, default: :pending
 
   validates :shares, presence: true, numericality: { greater_than: 0 }
+  validate :sufficient_shares_for_sell, if: -> { transaction_type == "sell" }
+  validate :sufficient_funds_for_buy, if: -> { transaction_type == "buy" }
 
   after_create :create_portfolio_transaction
 
@@ -25,6 +28,23 @@ class Order < ApplicationRecord
   end
 
   private
+
+  def sufficient_shares_for_sell
+    current_shares = user.portfolio&.shares_owned(stock_id) || 0
+    return unless shares > current_shares
+
+    formatted_shares = (current_shares % 1).zero? ? current_shares.to_i : current_shares
+    errors.add(:shares, "Cannot sell more shares than you own (#{formatted_shares} available)")
+  end
+
+  def sufficient_funds_for_buy
+    current_balance_cents = (user.portfolio&.cash_balance || 0) * 100
+    return unless purchase_cost > current_balance_cents
+
+    formatted_balance = format_money(current_balance_cents)
+    formatted_cost = format_money(purchase_cost)
+    errors.add(:shares, "Insufficient funds. You have #{formatted_balance} but need #{formatted_cost}")
+  end
 
   def create_portfolio_transaction
     PortfolioTransaction.create!(

@@ -69,7 +69,7 @@ Access the app via `localhost:3000`
 
 ## Ruby for Good
 
-If you have any questions about an issue, comment on the issue, open a new issue, or ask in [the RubyForGood slack] (https://join.slack.com/t/rubyforgood/shared_invite/zt-2k5ezv241-Ia2Iac3amxDS8CuhOr69ZA). Stocks-in-the-future has a #stocks-in-the-future channel in the Slack. Feel free to join the community!
+If you have any questions about an issue, comment on the issue, open a new issue, or ask in [the RubyForGood slack](https://join.slack.com/t/rubyforgood/shared_invite/zt-2k5ezv241-Ia2Iac3amxDS8CuhOr69ZA). Stocks-in-the-future has a #stocks-in-the-future channel in the Slack. Feel free to join the community!
 
 # Contributing
 

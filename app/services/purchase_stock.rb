@@ -34,9 +34,10 @@ class PurchaseStock
   end
 
   def create_portfolio_stock
+    share_amount = order.transaction_type == "sell" ? -shares : shares
     @portfolio_stock = portfolio
                        .portfolio_stocks
-                       .create!(stock:, shares:, purchase_price: stock_price_cents)
+                       .create!(stock:, shares: share_amount, purchase_price: stock_price_cents)
   end
 
   def update_order_status

@@ -38,8 +38,7 @@
 
 
     <div class="pb-3">
-      <p class="text-sm font-semibold text-gray-700">
-        Total Cost: <span data-order-form-target="totalCost">$0.00</span>
+      <p class="text-sm font-semibold text-gray-700">Total <%= order.transaction_type == 'buy' ? 'Cost' : 'Earnings' %> : <span data-order-form-target="totalCost">$0.00</span>
       </p>
     </div>
 
