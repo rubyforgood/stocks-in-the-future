@@ -16,7 +16,11 @@ class PortfolioTransactionDashboard < Administrate::BaseDashboard
       searchable: false,
       collection: ->(field) { field.resource.class.send(field.attribute.to_s.pluralize).keys }
     ),
-    amount: Field::Number.with_options(decimals: 2),
+    amount_cents: Field::Number.with_options(
+      prefix: "$",
+      decimals: 2,
+      multiplier: 0.01
+    ),
     created_at: Field::DateTime,
     updated_at: Field::DateTime
   }.freeze
@@ -38,6 +42,7 @@ class PortfolioTransactionDashboard < Administrate::BaseDashboard
     id
     portfolio
     transaction_type
+    amount_cents
     created_at
     updated_at
   ].freeze
@@ -48,7 +53,7 @@ class PortfolioTransactionDashboard < Administrate::BaseDashboard
   FORM_ATTRIBUTES = %i[
     portfolio
     transaction_type
-    amount
+    amount_cents
   ].freeze
 
   # COLLECTION_FILTERS
