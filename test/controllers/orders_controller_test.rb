@@ -32,19 +32,10 @@ class OrdersControllerTest < ActionDispatch::IntegrationTest
       post(orders_path, params:)
     end
 
-    assert_redirected_to order_path(Order.last)
+    assert_redirected_to orders_path
   end
 
   # TODO: Add test for create with invalid params
-
-  test "show" do
-    order = create(:order)
-    sign_in(order.user)
-
-    get order_path(order)
-
-    assert_response :success
-  end
 
   test "edit" do
     order = create(:order)
@@ -65,20 +56,54 @@ class OrdersControllerTest < ActionDispatch::IntegrationTest
       patch(order_path(order), params:)
     end
 
-    assert_redirected_to order_path(order)
+    assert_redirected_to orders_path
     assert order.shares, 3
   end
 
   # TODO: Add test for update with invalid params
 
-  test "destroy" do
-    order = create(:order)
+  test "cancel" do
+    order = create(:order, :pending)
     sign_in(order.user)
 
-    assert_difference("Order.count", -1) do
-      delete order_path(order)
+    assert_difference("Order.pending.count", -1) do
+      assert_difference("Order.canceled.count", 1) do
+        patch(cancel_order_path(order))
+      end
     end
 
     assert_redirected_to orders_path
+    assert_equal "Order was successfully canceled", flash[:notice]
+  end
+
+  test "cancel route exists" do
+    assert_routing({ path: "orders/1/cancel", method: "patch" },
+                   { controller: "orders", action: "cancel", id: "1" })
+  end
+
+  test "cancel with unauthorized user" do
+    order = create(:order, :pending)
+    unauthorized_user = create(:student)
+
+    sign_in(unauthorized_user)
+
+    assert_no_difference("Order.count") do
+      patch(cancel_order_path(order))
+    end
+
+    assert_response :redirect
+    assert_equal "You do not have access to this page.", flash[:alert]
+  end
+
+  test "cancel with non-pending order" do
+    order = create(:order, :completed)
+    sign_in(order.user)
+
+    assert_no_difference("Order.count") do
+      patch(cancel_order_path(order))
+    end
+
+    assert_response :redirect
+    assert_equal "Only pending orders can be canceled", flash[:alert]
   end
 end

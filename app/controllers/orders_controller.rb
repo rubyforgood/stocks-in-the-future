@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class OrdersController < ApplicationController
-  before_action :set_order, only: %i[edit update destroy cancel]
+  before_action :set_order, only: %i[edit update cancel]
   before_action :set_stock, only: %i[new]
   before_action :set_shared_owned, only: %i[new edit]
   before_action :authenticate_user!
@@ -43,54 +43,65 @@ class OrdersController < ApplicationController
   end
 
   def cancel
+    authorize @order
+
     # Authorization: ensure user can only cancel their own orders
-    if @order.user != current_user
-      respond_to do |format|
-        format.html { redirect_to orders_url, alert: "You can only cancel your own orders" }
-        format.json { render json: { error: "You can only cancel your own orders" }, status: :forbidden }
-      end
-      return
-    end
+    # Authorization is handled by Pundit's authorize @order
 
     # Validation: only pending orders can be canceled
     if @order.pending?
-      @order.update(status: :canceled)
-      respond_to do |format|
-        format.html { redirect_to orders_url, notice: "Order was successfully canceled" }
-        format.json { head :no_content }
-      end
+      cancel_order
     else
-      respond_to do |format|
-        format.html { redirect_to orders_url, alert: "Only pending orders can be canceled" }
-        format.json { render json: { error: "Only pending orders can be canceled" }, status: :unprocessable_entity }
-      end
-    end
-  end
-
-  def destroy
-    @order.destroy!
-
-    respond_to do |format|
-      format.html { redirect_to orders_url, notice: t(".notice") }
-      format.json { head :no_content }
+      invalid_order_response
     end
   end
 
   private
 
-  def set_order
-    @order = Order.find(params[:id])
+  def unauthorized_response
+    respond_to do |format|
+      format.html { redirect_to orders_url, alert: t(".unauthorized") }
+      format.json { render json: { error: t(".unauthorized") }, status: :forbidden }
+    end
   end
 
-  def set_stock
-    @stock = Stock.find(params[:stock_id])
+  def cancel_order
+    @order.cancel!
+    respond_to do |format|
+      format.html { redirect_to orders_url, notice: t(".success") }
+      format.json { head :no_content }
+    end
   end
 
-  def set_shared_owned
-    @shares_owned = current_user.portfolio&.shares_owned(@stock&.id)
+  def invalid_order_response
+    respond_to do |format|
+      format.html { redirect_to orders_url, alert: t(".pending_only") }
+      format.json { render json: { error: t(".pending_only") }, status: :unprocessable_entity }
+    end
   end
+end
 
-  def order_params
-    params.expect(order: %i[stock_id shares transaction_type])
+def destroy
+  @order.destroy!
+
+  respond_to do |format|
+    format.html { redirect_to orders_url, notice: t(".notice") }
+    format.json { head :no_content }
   end
+end
+
+def set_order
+  @order = Order.find(params[:id])
+end
+
+def set_stock
+  @stock = Stock.find(params[:stock_id])
+end
+
+def set_shared_owned
+  @shares_owned = current_user.portfolio&.shares_owned(@stock&.id)
+end
+
+def order_params
+  params.expect(order: %i[stock_id shares transaction_type])
 end

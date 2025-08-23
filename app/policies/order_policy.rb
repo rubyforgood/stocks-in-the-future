@@ -2,6 +2,14 @@
 
 class OrderPolicy < ApplicationPolicy
   def create?
-    user.portfolio == resource.portfolio
+    user.portfolio == record.portfolio
+  end
+
+  def update?
+    user.portfolio == record.portfolio
+  end
+
+  def cancel?
+    user.portfolio == record.portfolio
   end
 end
