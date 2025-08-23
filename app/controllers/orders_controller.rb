@@ -45,10 +45,6 @@ class OrdersController < ApplicationController
   def cancel
     authorize @order
 
-    # Authorization: ensure user can only cancel their own orders
-    # Authorization is handled by Pundit's authorize @order
-
-    # Validation: only pending orders can be canceled
     if @order.pending?
       cancel_order
     else
