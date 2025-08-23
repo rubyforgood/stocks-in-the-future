@@ -36,7 +36,11 @@ Rails.application.routes.draw do
     resources :years
   end
 
-  resources :orders
+  resources :orders do
+    member do
+      patch :cancel
+    end
+  end
   resources :portfolios, only: :show
   resources :stocks, only: %i[show index]
   resources :students, only: :show
