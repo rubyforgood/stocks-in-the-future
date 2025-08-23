@@ -21,3 +21,17 @@
 .tw-btn-danger {
   @apply rounded-lg py-3 ml-2 px-5 bg-red-100 text-red-500 inline-block font-medium hover:text-red-900
 }
+
+/* Font Awesome icon styles */
+.fa-pencil, .fa-ban {
+  font-size: 1.5rem; /* Make icons larger */
+  vertical-align: middle;
+}
+
+.fa-pencil {
+  color: #3b82f6; /* Blue color for edit */
+}
+
+.fa-ban {
+  color: #ef4444; /* Red color for cancel */
+}
