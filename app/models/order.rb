@@ -79,7 +79,6 @@ class Order < ApplicationRecord
   end
 
   def sufficient_funds_for_buy_when_update
-
     current_balance_cents = (user.portfolio&.cash_balance || 0) * 100
     balance_before_transaction = current_balance_cents + portfolio_transaction.amount_cents
 
@@ -88,7 +87,6 @@ class Order < ApplicationRecord
     formatted_balance = format_money(balance_before_transaction)
     formatted_cost = format_money(purchase_cost)
     errors.add(:shares, "Insufficient funds. You have #{formatted_balance} but need #{formatted_cost}")
-
   end
 
   def create_portfolio_transaction
@@ -101,7 +99,6 @@ class Order < ApplicationRecord
   end
 
   def update_portfolio_transaction_for_pending_order
-
     return unless pending?
 
     # here updating the portfolio transaction once the order gets updated
@@ -113,5 +110,4 @@ class Order < ApplicationRecord
   def translated_transaction_type
     transaction_type == "buy" ? :debit : :credit
   end
-
 end

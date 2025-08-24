@@ -197,7 +197,6 @@ class OrderTest < ActiveSupport::TestCase
     assert_equal user.portfolio, transaction.portfolio
     assert_equal 6_000, transaction.amount_cents
     assert_equal "debit", transaction.transaction_type
-
   end
 
   test "update order does not allow user to update pending buy order when transaction amount exceeds portfolio value" do
@@ -221,7 +220,6 @@ class OrderTest < ActiveSupport::TestCase
 
     assert_not order.valid?
     assert_includes order.errors[:shares], "Insufficient funds. You have $100.00 but need $120.00"
-
   end
 
   test "update order allows user to update pending sell order when shares less than portfolio value" do
@@ -249,7 +247,5 @@ class OrderTest < ActiveSupport::TestCase
     assert_equal user.portfolio, transaction.portfolio
     assert_equal 3_000, transaction.amount_cents
     assert_equal "credit", transaction.transaction_type
-
   end
-
 end
