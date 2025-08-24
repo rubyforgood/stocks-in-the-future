@@ -50,3 +50,5 @@
 
 # ignore vscode workspace settings
 *.code-workspace
+
+.idea
