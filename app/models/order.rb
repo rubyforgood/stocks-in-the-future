@@ -16,14 +16,14 @@ class Order < ApplicationRecord
 
   # only those orders that are pending can be updated
   # validate :sufficient_funds_for_buy_when_update, on: :update, if: -> { transaction_type == "buy" }
-  validate :sufficient_funds_for_sell_when_update, on: :update, if: -> { transaction_type == "sell" }
+  # validate :sufficient_funds_for_sell_when_update, on: :update, if: -> { transaction_type == "sell" }
 
   validate :sufficient_shares_for_sell, if: -> { transaction_type == "sell" }, on: :create
   validate :sufficient_funds_for_buy, if: -> { transaction_type == "buy" }, on: :create
 
   after_create :create_portfolio_transaction
 
-  after_update :update_portfolio_transaction
+  after_update :update_portfolio_transaction_for_pending_order
 
   delegate :portfolio, to: :user
 
@@ -67,8 +67,6 @@ class Order < ApplicationRecord
     # we would want to execute this method only when we are just updating the shares
     # we are not marking the order as completed
 
-    return unless pending?
-
     current_shares = (user.portfolio&.shares_owned(stock_id) || 0) + (shares_before_last_save || 0)
     return unless shares > current_shares
 
@@ -77,8 +75,6 @@ class Order < ApplicationRecord
   end
 
   def sufficient_funds_for_buy_when_update
-
-    return unless pending?
 
     current_balance_cents = (user.portfolio&.cash_balance || 0) * 100
     balance_before_transaction = current_balance_cents + portfolio_transaction.amount_cents
@@ -100,7 +96,10 @@ class Order < ApplicationRecord
     )
   end
 
-  def update_portfolio_transaction
+  def update_portfolio_transaction_for_pending_order
+
+    return unless pending?
+
     # here updating the portfolio transaction once the order gets updated
     portfolio_transaction.amount_cents = purchase_cost
     portfolio_transaction.transaction_type = translated_transaction_type
