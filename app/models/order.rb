@@ -31,6 +31,10 @@ class Order < ApplicationRecord
   scope :completed, -> { where(status: :completed) }
   scope :canceled, -> { where(status: :canceled) }
 
+  def cancel!
+    update(status: :canceled)
+  end
+
   def purchase_cost
     stock.price_cents * shares
   end

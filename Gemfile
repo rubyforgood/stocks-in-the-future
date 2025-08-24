@@ -11,6 +11,7 @@ gem "bootsnap", require: false
 gem "daemons"
 gem "delayed_job_active_record"
 gem "devise", "~> 4.9"
+gem "font-awesome-rails"
 gem "importmap-rails"
 gem "jbuilder"
 gem "pg", "~> 1.6"
