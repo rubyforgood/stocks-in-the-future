@@ -56,11 +56,15 @@
               <span aria-hidden="true">Admin</span>
             <% end %>
           <% end %>
+          <%= link_to orders_path, class: "flex items-center gap-x-4 px-6 py-3 text-sm/6 font-semibold text-gray-900 hover:bg-gray-50" do %>
+            <i class="fa-solid fa-dollar-sign size-5 shrink-0 text-gray-400"></i>
+            <span aria-hidden="true">Transactions</span>
+          <% end %>
           <%= link_to destroy_user_session_path, data: { turbo_method: :delete }, class: "flex items-center gap-x-4 px-6 py-3 text-sm/6 font-semibold text-gray-900 hover:bg-gray-50" do %>
             <svg class="size-5 shrink-0 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
               <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" />
             </svg>
-            <span aria-hidden="true">Logout</span>
+            <span aria-hidden="true" style="margin-left: 4px;">Logout</span>
           <% end %>
         </li>
       </ul>
