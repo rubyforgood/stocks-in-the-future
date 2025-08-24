@@ -8,6 +8,6 @@ FactoryBot.define do
 
     math_grade    { nil }
     reading_grade { nil }
-    perfect_weeks   { 0 }
+    attendance_days { 45 }
   end
 end

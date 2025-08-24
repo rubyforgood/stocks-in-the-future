@@ -25,6 +25,11 @@ en:
       student:
         portfolio_path: Portfolio Link
   orders:
+    cancel:
+      unauthorized: You can only cancel your own orders
+      success: Order was successfully canceled
+      pending_only: Only pending orders can be canceled
+      confirm: Are you sure you want to cancel this order? This action cannot be undone.
     create:
       notice: Order was successfully created.
     destroy:

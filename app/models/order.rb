@@ -2,6 +2,7 @@
 
 class Order < ApplicationRecord
   include ApplicationHelper
+
   attr_accessor :transaction_type
 
   belongs_to :user
@@ -22,6 +23,10 @@ class Order < ApplicationRecord
   scope :pending, -> { where(status: :pending) }
   scope :completed, -> { where(status: :completed) }
   scope :canceled, -> { where(status: :canceled) }
+
+  def cancel!
+    update(status: :canceled)
+  end
 
   def purchase_cost
     stock.price_cents * shares
