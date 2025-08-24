@@ -170,8 +170,6 @@ class OrderTest < ActiveSupport::TestCase
     assert order.valid?
   end
 
-
-
   test "update order allows user to update pending buy order when transaction amount less than portfolio value" do
     user = create(:student)
     portfolio = create(:portfolio, user: user)

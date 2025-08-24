@@ -15,8 +15,8 @@ class Order < ApplicationRecord
   validates :shares, presence: true, numericality: { greater_than: 0 }
 
   # only those orders that are pending can be updated
-  # validate :sufficient_funds_for_buy_when_update, on: :update, if: -> { transaction_type == "buy" }
-  # validate :sufficient_funds_for_sell_when_update, on: :update, if: -> { transaction_type == "sell" }
+  validate :sufficient_funds_for_buy_when_update, on: :update, if: -> { transaction_type == "buy" }
+  validate :sufficient_funds_for_sell_when_update, on: :update, if: -> { transaction_type == "sell" }
 
   validate :sufficient_shares_for_sell, if: -> { transaction_type == "sell" }, on: :create
   validate :sufficient_funds_for_buy, if: -> { transaction_type == "buy" }, on: :create
