@@ -169,4 +169,89 @@ class OrderTest < ActiveSupport::TestCase
 
     assert order.valid?
   end
+
+
+
+  test "update order allows user to update pending buy order when transaction amount less than portfolio value" do
+    user = create(:student)
+    portfolio = create(:portfolio, user: user)
+    portfolio.portfolio_transactions.create!(amount_cents: 10_000, transaction_type: :deposit)
+
+    stock = create(:stock, price_cents: 1000)
+    order = build(:order, user: user, stock: stock, shares: 5, transaction_type: "buy")
+
+    assert_difference "PortfolioTransaction.count", 1 do
+      order.save!
+    end
+
+    transaction = PortfolioTransaction.last
+    assert_equal user.portfolio, transaction.portfolio
+    assert_equal 5_000, transaction.amount_cents
+    assert_equal "debit", transaction.transaction_type
+
+    assert order.valid?
+
+    assert_difference "PortfolioTransaction.count", 0 do
+      order.update!(shares: 6)
+    end
+
+    transaction = PortfolioTransaction.last
+    assert_equal user.portfolio, transaction.portfolio
+    assert_equal 6_000, transaction.amount_cents
+    assert_equal "debit", transaction.transaction_type
+
+  end
+
+  test "update order does not allow user to update pending buy order when transaction amount exceeds portfolio value" do
+    user = create(:student)
+    portfolio = create(:portfolio, user: user)
+    portfolio.portfolio_transactions.create!(amount_cents: 10_000, transaction_type: :deposit)
+
+    stock = create(:stock, price_cents: 1000)
+    order = build(:order, user: user, stock: stock, shares: 5, transaction_type: "buy")
+
+    assert_difference "PortfolioTransaction.count", 1 do
+      order.save!
+    end
+
+    transaction = PortfolioTransaction.last
+    assert_equal user.portfolio, transaction.portfolio
+    assert_equal 5_000, transaction.amount_cents
+    assert_equal "debit", transaction.transaction_type
+
+    order.shares = 12
+
+    assert_not order.valid?
+    assert_includes order.errors[:shares], "Insufficient funds. You have $100.00 but need $120.00"
+
+  end
+
+  test "update order allows user to update pending sell order when shares less than portfolio value" do
+    user = create(:student)
+    stock = create(:stock, price_cents: 1_000)
+    create(:portfolio_stock, portfolio: user.portfolio, stock: stock, shares: 5, purchase_price: 800)
+
+    order = build(:order, user:, stock:, shares: 2.5, transaction_type: "sell")
+
+    assert_difference "PortfolioTransaction.count", 1 do
+      order.save!
+    end
+
+    transaction = PortfolioTransaction.last
+    assert_equal user.portfolio, transaction.portfolio
+    assert_equal 2_500, transaction.amount_cents
+    assert_equal "credit", transaction.transaction_type
+    assert_equal order, transaction.order
+
+    assert_difference "PortfolioTransaction.count", 0 do
+      order.update!(shares: 3)
+    end
+
+    transaction = PortfolioTransaction.last
+    assert_equal user.portfolio, transaction.portfolio
+    assert_equal 3_000, transaction.amount_cents
+    assert_equal "credit", transaction.transaction_type
+
+  end
+
 end

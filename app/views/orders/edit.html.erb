@@ -1,6 +1,6 @@
 <h1>Editing order</h1>
 
-<%= render "form", order: @order, shares_owned: @shares_owned%>
+<%= render "form", order: @order, transaction_type: @order.existing_transaction_type, shares_owned: @shares_owned%>
 
 <br>
 

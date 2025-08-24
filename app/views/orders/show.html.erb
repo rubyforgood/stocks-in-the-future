@@ -3,7 +3,10 @@
 <%= render @order %>
 
 <div>
-  <%= link_to "Edit this order", edit_order_path(@order) %> |
+  <% if @order.pending? %>
+    <%= link_to "Edit this order", edit_order_path(@order) %> |
+  <% end %>
+
   <%= link_to "Back to orders", orders_path %>
 
   <%= button_to "Destroy this order", @order, method: :delete %>
