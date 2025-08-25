@@ -12,7 +12,7 @@
   <% end %>
 
   <div>
-    <p class="text-3xl text-center pb-3"><%= order.transaction_type == "buy" ? "Buy" : "Sell" %> Shares</p>
+    <p class="text-3xl text-center pb-3"><%= transaction_type == "buy" ? "Buy" : "Sell" %> Shares</p>
     <hr class="py-3"></hr>
     <p class="text-center"><%= order.stock.ticker %></p>
     <p class="text-center text-sm">Current Price <%= number_to_currency(order.stock.current_price) %></p>
@@ -31,21 +31,22 @@
     <hr class="py-3"></hr>
 
     <div class="pb-3">
-      <%= form.label "# of shares #{order.transaction_type == 'buy' ? 'buying' : 'selling'}" %>
-      <%= form.number_field :shares, min:1, class: "shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline", data: { order_form_target: "shares", action: "input->order-form#calculateTotal" } %>
+      <%= form.label "# of shares #{transaction_type == 'buy' ? 'buying' : 'selling'}" %>
+      <%= form.number_field :shares, min: 1, class: "shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline", data: { order_form_target: "shares", action: "input->order-form#calculateTotal" } %>
     </div>
     <hr class="py-3"></hr>
 
 
     <div class="pb-3">
-      <p class="text-sm font-semibold text-gray-700">Total <%= order.transaction_type == 'buy' ? 'Cost' : 'Earnings' %> : <span data-order-form-target="totalCost">$0.00</span>
+      <p class="text-sm font-semibold text-gray-700">Total <%= transaction_type == 'buy' ? 'Cost' : 'Earnings' %>
+        : <span data-order-form-target="totalCost">$0.00</span>
       </p>
     </div>
 
-    <%= form.hidden_field :transaction_type, value: order.transaction_type %>
+    <%= form.hidden_field :transaction_type, value: transaction_type %>
     <%= form.hidden_field :stock_id, value: order.stock.id %>
     <div>
-      <%= form.submit "Confirm #{order.transaction_type&.titlecase}", class: "rounded-lg bg-[#00698c] px-4 py-2 text-sm font-semibold text-white shadow-xs hover:bg-[#004f6b] focus-visible:outline-2 focus-visible:outline-offset-2" %>
+      <%= form.submit "Confirm #{transaction_type&.titlecase}", class: "rounded-lg bg-[#00698c] px-4 py-2 text-sm font-semibold text-white shadow-xs hover:bg-[#004f6b] focus-visible:outline-2 focus-visible:outline-offset-2" %>
     </div>
   </div>
 <% end %>
