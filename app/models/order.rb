@@ -84,13 +84,11 @@ class Order < ApplicationRecord
   end
 
   def order_is_pending
-
     prev_status, = status_change_to_be_saved
 
     return if pending? || prev_status.nil? || prev_status == "pending"
 
     errors.add(:base, "Cannot update non-pending orders")
-
   end
 
   def update_portfolio_transaction_for_pending_order
