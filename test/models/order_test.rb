@@ -248,4 +248,25 @@ class OrderTest < ActiveSupport::TestCase
     assert_equal 3_000, transaction.amount_cents
     assert_equal "credit", transaction.transaction_type
   end
+
+  test "update order prevents overselling shares when updating sell order" do
+    user = create(:student)
+    stock = create(:stock, price_cents: 1_000)
+    create(:portfolio_stock, portfolio: user.portfolio, stock: stock, shares: 5, purchase_price: 1_000)
+
+    order = build(:order, user:, stock:, shares: 2, transaction_type: "sell")
+    order.save!
+
+    transaction = PortfolioTransaction.last
+    assert_equal user.portfolio, transaction.portfolio
+    assert_equal 2_000, transaction.amount_cents
+    assert_equal "credit", transaction.transaction_type
+    assert_equal order, transaction.order
+
+    # trying to sell more shares than owned.
+    order.shares = 6
+
+    assert_not order.valid?
+    assert_includes order.errors[:shares], "Cannot sell more shares than you own (5 available)"
+  end
 end

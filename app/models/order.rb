@@ -16,9 +16,9 @@ class Order < ApplicationRecord
 
   # only those orders that are pending can be updated
   validate :sufficient_funds_for_buy_when_update, on: :update, if: -> { transaction_type == "buy" }
-  validate :sufficient_funds_for_sell_when_update, on: :update, if: -> { transaction_type == "sell" }
+  validate :order_is_pending, on: :update
 
-  validate :sufficient_shares_for_sell, if: -> { transaction_type == "sell" }, on: :create
+  validate :sufficient_shares_for_sell, if: -> { transaction_type == "sell" }, on: %i[create update]
   validate :sufficient_funds_for_buy, if: -> { transaction_type == "buy" }, on: :create
 
   after_create :create_portfolio_transaction
@@ -44,10 +44,6 @@ class Order < ApplicationRecord
     order_transaction_type == :debit ? "buy" : "sell"
   end
 
-  # def pending?
-  #   status == "pending"
-  # end
-
   private
 
   def sufficient_shares_for_sell
@@ -65,17 +61,6 @@ class Order < ApplicationRecord
     formatted_balance = format_money(current_balance_cents)
     formatted_cost = format_money(purchase_cost)
     errors.add(:shares, "Insufficient funds. You have #{formatted_balance} but need #{formatted_cost}")
-  end
-
-  def sufficient_funds_for_sell_when_update
-    # we would want to execute this method only when we are just updating the shares
-    # we are not marking the order as completed
-
-    current_shares = (user.portfolio&.shares_owned(stock_id) || 0) + (shares_before_last_save || 0)
-    return unless shares > current_shares
-
-    formatted_shares = (current_shares % 1).zero? ? current_shares.to_i : current_shares
-    errors.add(:shares, "Cannot sell more shares than you own (#{formatted_shares} available)")
   end
 
   def sufficient_funds_for_buy_when_update
@@ -96,6 +81,16 @@ class Order < ApplicationRecord
       transaction_type: translated_transaction_type,
       order: self
     )
+  end
+
+  def order_is_pending
+
+    prev_status, = status_change_to_be_saved
+
+    return if pending? || prev_status.nil? || prev_status == "pending"
+
+    errors.add(:base, "Cannot update non-pending orders")
+
   end
 
   def update_portfolio_transaction_for_pending_order
