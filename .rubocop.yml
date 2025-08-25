@@ -3,7 +3,6 @@ plugins:
   - rubocop-rails
 
 inherit_from:
-  - .rubocop_todo.yml
   - .rubocop_rails_default.yml
 
 AllCops:
@@ -44,9 +43,32 @@ Metrics/ClassLength:
 
 Metrics/MethodLength:
   Max: 20
+  Exclude:
+    - 'app/helpers/components/**/*'
+    - 'spec/**/*'
+    - 'test/**/*'
 
 Metrics/AbcSize:
   Max: 25
+  Exclude:
+    - 'spec/**/*'
+    - 'test/**/*'
+
+Metrics/CyclomaticComplexity:
+  Exclude:
+    - 'app/helpers/components/**/*'
+    - 'spec/**/*'
+    - 'test/**/*'
+
+Metrics/PerceivedComplexity:
+  Exclude:
+    - 'app/helpers/components/**/*'
+    - 'spec/**/*'
+    - 'test/**/*'
+
+Metrics/ParameterLists:
+  Exclude:
+    - 'app/helpers/components/**/*'
 
 Naming/MethodParameterName:
   MinNameLength: 2
