@@ -51,4 +51,7 @@
 # ignore vscode workspace settings
 *.code-workspace
 
+#ignore kilocodemodes config files
+.kilocodemodes
+
 .idea
