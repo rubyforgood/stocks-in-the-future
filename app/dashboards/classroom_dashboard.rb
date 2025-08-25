@@ -18,7 +18,8 @@ class ClassroomDashboard < Administrate::BaseDashboard
     name: Field::String,
     school_year: Field::BelongsTo,
     school: Field::HasOne,
-    users: Field::HasMany.with_options(label: "Teacher"),
+    students: Field::HasMany,
+    teachers: Field::HasMany,
     year: Field::HasOne,
     created_at: Field::DateTime,
     updated_at: Field::DateTime
@@ -43,7 +44,8 @@ class ClassroomDashboard < Administrate::BaseDashboard
     grade
     name
     school_year
-    users
+    students
+    teachers
     created_at
     updated_at
   ].freeze
@@ -55,7 +57,8 @@ class ClassroomDashboard < Administrate::BaseDashboard
     grade
     name
     school_year
-    users
+    students
+    teachers
   ].freeze
 
   # COLLECTION_FILTERS
