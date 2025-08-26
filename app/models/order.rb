@@ -14,7 +14,6 @@ class Order < ApplicationRecord
 
   validates :shares, presence: true, numericality: { greater_than: 0 }
 
-  # only those orders that are pending can be updated
   validate :sufficient_funds_for_buy_when_update, on: :update, if: -> { transaction_type == "buy" }
   validate :order_is_pending, on: :update
 
@@ -94,7 +93,6 @@ class Order < ApplicationRecord
   def update_portfolio_transaction_for_pending_order
     return unless pending?
 
-    # here updating the portfolio transaction once the order gets updated
     portfolio_transaction.amount_cents = purchase_cost
     portfolio_transaction.transaction_type = translated_transaction_type
     portfolio_transaction.save

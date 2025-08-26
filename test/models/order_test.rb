@@ -263,7 +263,6 @@ class OrderTest < ActiveSupport::TestCase
     assert_equal "credit", transaction.transaction_type
     assert_equal order, transaction.order
 
-    # trying to sell more shares than owned.
     order.shares = 6
 
     assert_not order.valid?
