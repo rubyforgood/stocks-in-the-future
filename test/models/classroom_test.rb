@@ -50,25 +50,22 @@ class ClassroomTest < ActiveSupport::TestCase
     classroom = create(:classroom)
     student1 = create(:student, classroom: classroom)
     student2 = create(:student, classroom: classroom)
-    
+
     assert_includes classroom.students, student1
     assert_includes classroom.students, student2
     assert_equal 2, classroom.students.count
   end
-  
+
   test "has many teachers through teacher_classrooms association" do
     classroom = create(:classroom)
-    teacher1 = create(:teacher)
-    teacher2 = create(:teacher)
-
-    classroom.teachers << teacher1
-    classroom.teachers << teacher2
+    teacher1 = create(:teacher, classrooms: [classroom])
+    teacher2 = create(:teacher, classrooms: [classroom])
 
     assert_includes classroom.teachers, teacher1
     assert_includes classroom.teachers, teacher2
     assert_equal 2, classroom.teachers.count
   end
-  
+
   test "students association only includes Student type users" do
     classroom = create(:classroom)
     student = create(:student, classroom: classroom)
