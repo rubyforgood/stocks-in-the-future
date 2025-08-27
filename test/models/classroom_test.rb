@@ -45,4 +45,44 @@ class ClassroomTest < ActiveSupport::TestCase
     assert_includes teacher.classrooms, classroom1
     assert_includes teacher.classrooms, classroom2
   end
+
+  test "has many students through classrooms association" do
+    classroom = create(:classroom)
+    student1 = create(:student, classroom: classroom)
+    student2 = create(:student, classroom: classroom)
+
+    assert_includes classroom.students, student1
+    assert_includes classroom.students, student2
+    assert_equal 2, classroom.students.count
+  end
+
+  test "has many teachers through teacher_classrooms association" do
+    classroom = create(:classroom)
+    teacher1 = create(:teacher, classrooms: [classroom])
+    teacher2 = create(:teacher, classrooms: [classroom])
+
+    assert_includes classroom.teachers, teacher1
+    assert_includes classroom.teachers, teacher2
+    assert_equal 2, classroom.teachers.count
+  end
+
+  test "students association only includes Student type users" do
+    classroom = create(:classroom)
+    student = create(:student, classroom: classroom)
+    teacher = create(:teacher, classroom: classroom)
+    admin = create(:admin, classroom: classroom)
+
+    assert_includes classroom.students, student
+    assert_not_includes classroom.students, teacher
+    assert_not_includes classroom.students, admin
+  end
+
+  test "teachers association only includes Teacher type users" do
+    classroom = create(:classroom)
+    student   = create(:student)
+    admin     = create(:admin)
+
+    assert_raises(ActiveRecord::AssociationTypeMismatch) { classroom.teachers << student }
+    assert_raises(ActiveRecord::AssociationTypeMismatch) { classroom.teachers << admin }
+  end
 end
