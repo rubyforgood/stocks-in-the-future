@@ -53,3 +53,5 @@
 
 #ignore kilocodemodes config files
 .kilocodemodes
+
+.idea
