@@ -6,8 +6,9 @@ class PurchaseStockTest < ActiveSupport::TestCase
   test "it creates a withdrawl transaction in portfolio_transactions" do
     student = create(:student)
     create(:portfolio, user: student)
+    student.portfolio.portfolio_transactions.create!(amount_cents: 1000, transaction_type: :deposit)
     stock = create(:stock, price_cents: 100)
-    order = create(:order, :pending, shares: 5, stock:, user: student)
+    order = create(:order, :pending, action: :buy, shares: 5, stock: stock, user: student)
 
     assert_difference("PortfolioTransaction.count") do
       PurchaseStock.execute(order)
@@ -22,8 +23,9 @@ class PurchaseStockTest < ActiveSupport::TestCase
   test "it creates an linked entry in portfolio_stocks" do
     student = create(:student)
     create(:portfolio, user: student)
+    student.portfolio.portfolio_transactions.create!(amount_cents: 1000, transaction_type: :deposit)
     stock = create(:stock, price_cents: 100)
-    order = create(:order, :pending, shares: 5, stock:, user: student)
+    order = create(:order, :pending, action: :buy, shares: 5, stock: stock, user: student)
 
     assert_difference("PortfolioStock.count") do
       PurchaseStock.execute(order)
@@ -36,8 +38,9 @@ class PurchaseStockTest < ActiveSupport::TestCase
   test "it updates the order status to completed" do
     student = create(:student)
     create(:portfolio, user: student)
+    student.portfolio.portfolio_transactions.create!(amount_cents: 1000, transaction_type: :deposit)
     stock = create(:stock, price_cents: 100)
-    order = create(:order, :pending, shares: 5, stock:, user: student)
+    order = create(:order, :pending, action: :buy, shares: 5, stock: stock, user: student)
 
     PurchaseStock.execute(order)
     order.reload
@@ -46,7 +49,10 @@ class PurchaseStockTest < ActiveSupport::TestCase
   end
 
   test "it does not update order when status is not pending" do
-    order = create(:order, :completed)
+    student = create(:student)
+    student.portfolio.portfolio_transactions.create!(amount_cents: 1000, transaction_type: :deposit)
+    stock = create(:stock, price_cents: 100)
+    order = create(:order, :completed, action: :buy, shares: 5, stock: stock, user: student)
 
     PurchaseStock.execute(order)
     order.reload
@@ -71,8 +77,9 @@ class PurchaseStockTest < ActiveSupport::TestCase
     order.reload
 
     assert_equal "pending", order.status
-    # The portfolio transaction should still exist from order creation
-    assert_not_nil order.portfolio_transaction
+    # Since we removed the after_create callback, portfolio_transaction is only created by the service
+    # When the service fails, no portfolio_transaction should be created
+    assert_nil order.portfolio_transaction
     assert_nil order.portfolio_stock
   end
 

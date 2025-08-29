@@ -11,7 +11,7 @@ class OrdersController < ApplicationController
   end
 
   def new
-    @order = Order.new(transaction_type: params[:transaction_type], stock: @stock)
+    @order = Order.new(action: params[:transaction_type], stock: @stock)
   end
 
   def edit; end
@@ -99,5 +99,5 @@ def set_shared_owned
 end
 
 def order_params
-  params.expect(order: %i[stock_id shares transaction_type])
+  params.expect(order: %i[stock_id shares action])
 end

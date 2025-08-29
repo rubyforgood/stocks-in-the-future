@@ -20,7 +20,8 @@ class PortfolioTest < ActiveSupport::TestCase
     create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 20, purchase_price: 100)
 
     # pending debit for stock purchase, should decrease cash_balance
-    create(:order, :pending, :buy, stock:, shares: 2, user:)
+    pending_buy_order = create(:order, :pending, :buy, stock: stock, shares: 2, user: user)
+    create(:portfolio_transaction, :debit, portfolio: portfolio, amount_cents: 200, order: pending_buy_order) # -$2.00
 
     # pending credit for stock sale, should NOT affect cash_balance
     create(:order, :pending, :sell, stock:, shares: 3, user:)
@@ -32,10 +33,14 @@ class PortfolioTest < ActiveSupport::TestCase
     create(:order, :canceled, :sell, stock:, shares: 4, user:)
 
     # successful completed stock purchase, should decrease cash_balance
-    create(:order, :completed, :buy, stock:, shares: 5, user:)
+    buy_order = create(:order, :completed, :buy, stock: stock, shares: 5, user: user)
+    create(:portfolio_transaction, :debit, portfolio: portfolio, amount_cents: 500, order: buy_order) # -$5.00
+    create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 5, purchase_price: 100)
 
     # successful completed stock sale, should increase cash_balance
-    create(:order, :completed, :sell, stock:, shares: 6, user:)
+    sell_order = create(:order, :completed, :sell, stock: stock, shares: 6, user: user)
+    create(:portfolio_transaction, :credit, portfolio: portfolio, amount_cents: 600, order: sell_order) # +$6.00
+    create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: -6, purchase_price: 100)
 
     # withdrawal from the account, should decrease cash_balance
     create(:portfolio_transaction, :withdrawal, portfolio:, amount_cents: 200)

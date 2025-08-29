@@ -3,24 +3,21 @@
 class Order < ApplicationRecord
   include ApplicationHelper
 
-  attr_accessor :transaction_type
-
   belongs_to :user
   belongs_to :stock
   belongs_to :portfolio_stock, optional: true
   belongs_to :portfolio_transaction, optional: true
 
   enum :status, { pending: 0, completed: 1, canceled: 2 }, default: :pending
+  enum :action, { buy: "buy", sell: "sell" }
 
   validates :shares, presence: true, numericality: { greater_than: 0 }
 
-  validate :sufficient_funds_for_buy_when_update, on: :update, if: -> { transaction_type == "buy" }
+  validate :sufficient_funds_for_buy_when_update, on: :update, if: -> { buy? }
   validate :order_is_pending, on: :update
 
-  validate :sufficient_shares_for_sell, if: -> { transaction_type == "sell" }, on: %i[create update]
-  validate :sufficient_funds_for_buy, if: -> { transaction_type == "buy" }, on: :create
-
-  after_create :create_portfolio_transaction
+  validate :sufficient_shares_for_sell, if: -> { sell? }, on: %i[create update]
+  validate :sufficient_funds_for_buy, if: -> { buy? }, on: :create
 
   after_update :update_portfolio_transaction_for_pending_order
 
@@ -43,6 +40,7 @@ class Order < ApplicationRecord
     order_transaction_type == :debit ? "buy" : "sell"
   end
 
+
   private
 
   def sufficient_shares_for_sell
@@ -64,7 +62,12 @@ class Order < ApplicationRecord
 
   def sufficient_funds_for_buy_when_update
     current_balance_cents = (user.portfolio&.cash_balance || 0) * 100
-    balance_before_transaction = current_balance_cents + portfolio_transaction.amount_cents
+
+    balance_before_transaction = if portfolio_transaction.present?
+                                   current_balance_cents + portfolio_transaction.amount_cents
+                                 else
+                                   current_balance_cents
+                                 end
 
     return unless purchase_cost > balance_before_transaction
 
@@ -73,14 +76,6 @@ class Order < ApplicationRecord
     errors.add(:shares, "Insufficient funds. You have #{formatted_balance} but need #{formatted_cost}")
   end
 
-  def create_portfolio_transaction
-    PortfolioTransaction.create!(
-      portfolio: portfolio,
-      amount_cents: purchase_cost,
-      transaction_type: translated_transaction_type,
-      order: self
-    )
-  end
 
   def order_is_pending
     prev_status, = status_change_to_be_saved
@@ -91,7 +86,7 @@ class Order < ApplicationRecord
   end
 
   def update_portfolio_transaction_for_pending_order
-    return unless pending?
+    return unless pending? && portfolio_transaction.present?
 
     portfolio_transaction.amount_cents = purchase_cost
     portfolio_transaction.transaction_type = translated_transaction_type
@@ -99,6 +94,6 @@ class Order < ApplicationRecord
   end
 
   def translated_transaction_type
-    transaction_type == "buy" ? :debit : :credit
+    buy? ? :debit : :credit
   end
 end
