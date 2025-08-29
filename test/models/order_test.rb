@@ -66,7 +66,7 @@ class OrderTest < ActiveSupport::TestCase
     stock = create(:stock, price_cents: 1_000)
     # Add funds for buy order
     user.portfolio.portfolio_transactions.create!(amount_cents: 10_000, transaction_type: :deposit)
-    
+
     order = create(:order, action: :buy, user: user, stock: stock, shares: 5.1)
 
     result = order.purchase_cost
@@ -203,7 +203,7 @@ class OrderTest < ActiveSupport::TestCase
 
     assert order.valid?
 
-    # Note: PortfolioTransaction updates are handled by PurchaseStock service
+    # NOTE: PortfolioTransaction updates are handled by PurchaseStock service
     order.update!(shares: 6)
     assert_equal 6, order.shares
   end
@@ -237,7 +237,7 @@ class OrderTest < ActiveSupport::TestCase
       order.save!
     end
 
-    # Note: PortfolioTransaction updates are handled by PurchaseStock service
+    # NOTE: PortfolioTransaction updates are handled by PurchaseStock service
     order.update!(shares: 3)
     assert_equal 3, order.shares
   end
@@ -250,7 +250,7 @@ class OrderTest < ActiveSupport::TestCase
     order = build(:order, action: :sell, user: user, stock: stock, shares: 2)
     order.save!
 
-    # Note: PortfolioTransaction is created by PurchaseStock service, not Order
+    # NOTE: PortfolioTransaction is created by PurchaseStock service, not Order
 
     order.shares = 6
 

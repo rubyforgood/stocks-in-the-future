@@ -40,11 +40,10 @@ FactoryBot.define do
   trait :with_sufficient_shares do
     after(:create) do |order|
       create(:portfolio_stock,
-        portfolio: order.user.portfolio,
-        stock: order.stock,
-        shares: 100, # Plenty of shares for testing
-        purchase_price: order.stock.price_cents
-      )
+             portfolio: order.user.portfolio,
+             stock: order.stock,
+             shares: 100, # Plenty of shares for testing
+             purchase_price: order.stock.price_cents)
     end
   end
 end

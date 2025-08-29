@@ -40,7 +40,6 @@ class Order < ApplicationRecord
     order_transaction_type == :debit ? "buy" : "sell"
   end
 
-
   private
 
   def sufficient_shares_for_sell
@@ -75,7 +74,6 @@ class Order < ApplicationRecord
     formatted_cost = format_money(purchase_cost)
     errors.add(:shares, "Insufficient funds. You have #{formatted_balance} but need #{formatted_cost}")
   end
-
 
   def order_is_pending
     prev_status, = status_change_to_be_saved
