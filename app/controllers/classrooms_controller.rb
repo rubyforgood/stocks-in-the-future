@@ -7,7 +7,7 @@ class ClassroomsController < ApplicationController
   before_action :ensure_teacher_or_admin, except: %i[index show]
 
   def index
-    @classrooms = current_user.admin? ? Classroom.all : [current_user.classroom].compact
+    @classrooms = policy_scope(Classroom)
   end
 
   def show

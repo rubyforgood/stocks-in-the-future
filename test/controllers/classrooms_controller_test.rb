@@ -89,6 +89,7 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
     classroom1 = create(:classroom, name: "Teacher 1 Class")
     classroom2 = create(:classroom, name: "Teacher 2 Class")
     teacher = create(:teacher, classroom: classroom1)
+    teacher.classrooms << classroom1
     sign_in teacher
     get classrooms_path
     assert_response :success
@@ -96,16 +97,29 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
     assert_not_includes response.body, classroom2.name
   end
 
+  test "students cannot see classrooms" do
+    sign_in @student
+    get classrooms_path
+    assert_redirected_to @student.portfolio_path
+  end
+
+  test "students cannot see details of a classroom" do
+    sign_in @student
+    classroom1 = create(:classroom, name: "Teacher 1 Class")
+    get classroom_path(id: classroom1.id)
+    assert_redirected_to @student.portfolio_path
+  end
+
   test "students cannot create classrooms" do
     sign_in @student
     get new_classroom_path
-    assert_redirected_to root_path
+    assert_redirected_to @student.portfolio_path
   end
 
   test "students cannot edit classrooms" do
     sign_in @student
     get edit_classroom_path(@classroom)
-    assert_redirected_to root_path
+    assert_redirected_to @student.portfolio_path
   end
 
   test "students cannot delete classrooms" do
@@ -113,7 +127,7 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
     assert_no_difference("Classroom.count") do
       delete classroom_path(@classroom)
     end
-    assert_redirected_to root_path
+    assert_redirected_to @student.portfolio_path
   end
 
   test "teachers cannot create classrooms" do

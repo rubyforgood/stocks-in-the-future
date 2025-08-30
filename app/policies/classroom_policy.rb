@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
 class ClassroomPolicy < ApplicationPolicy
+
   def index?
-    true
+    user&.teacher_or_admin?
   end
 
   def show?
-    true
+    user&.teacher_or_admin?
   end
 
   def new?
@@ -28,4 +29,26 @@ class ClassroomPolicy < ApplicationPolicy
   def destroy?
     user.admin?
   end
+
+  # there has to be a scope class associated here
+  class Scope
+
+    attr_reader :user, :scope
+
+    def initialize(user, scope)
+      @user = user
+      @scope = scope
+    end
+
+    def resolve
+      if user.admin?
+        scope.all
+      elsif user.teacher?
+        scope.joins(:teacher_classrooms).where(teacher_classrooms: { teacher_id: user.id })
+      else
+        []
+      end
+    end
+  end
+
 end

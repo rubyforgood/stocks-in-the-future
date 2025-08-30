@@ -8,6 +8,7 @@ end
 
 ENV["RAILS_ENV"] ||= "test"
 require_relative "../config/environment"
+require_relative "helpers/policy_test_helper"
 require "rails/test_help"
 require "webmock/minitest"
 require "mocha/minitest"
