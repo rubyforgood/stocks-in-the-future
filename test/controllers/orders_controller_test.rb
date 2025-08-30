@@ -24,8 +24,9 @@ class OrdersControllerTest < ActionDispatch::IntegrationTest
 
   test "create" do
     student = create(:student)
-    stock = create(:stock)
-    params = { order: { user_id: student.id, stock_id: stock.id, shares: 1 } }
+    student.portfolio.portfolio_transactions.create!(amount_cents: 10_000, transaction_type: :deposit) # $100
+    stock = create(:stock, price_cents: 1_000) # $10 per share
+    params = { order: { user_id: student.id, stock_id: stock.id, shares: 1, action: "buy" } }
     sign_in(student)
 
     assert_difference("Order.count") do
@@ -38,7 +39,10 @@ class OrdersControllerTest < ActionDispatch::IntegrationTest
   # TODO: Add test for create with invalid params
 
   test "edit" do
-    order = create(:order)
+    user = create(:student)
+    stock = create(:stock)
+    create(:portfolio_stock, portfolio: user.portfolio, stock: stock, shares: 10)
+    order = create(:order, action: :sell, user: user, stock: stock, shares: 1)
     sign_in(order.user)
 
     get edit_order_path(order)
@@ -48,8 +52,10 @@ class OrdersControllerTest < ActionDispatch::IntegrationTest
 
   test "update" do
     user = create(:student)
+    stock = create(:stock)
+    create(:portfolio_stock, portfolio: user.portfolio, stock: stock, shares: 10)
     params = { order: { shares: 3 } }
-    order = create(:order, :pending, user:)
+    order = create(:order, :pending, action: :sell, user: user, stock: stock, shares: 1)
     sign_in(user)
 
     assert_changes "order.reload.updated_at" do
@@ -63,7 +69,10 @@ class OrdersControllerTest < ActionDispatch::IntegrationTest
   # TODO: Add test for update with invalid params
 
   test "cancel" do
-    order = create(:order, :pending)
+    user = create(:student)
+    stock = create(:stock)
+    create(:portfolio_stock, portfolio: user.portfolio, stock: stock, shares: 10)
+    order = create(:order, :pending, action: :sell, user: user, stock: stock, shares: 1)
     sign_in(order.user)
 
     assert_difference("Order.pending.count", -1) do
@@ -82,7 +91,10 @@ class OrdersControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "cancel with unauthorized user" do
-    order = create(:order, :pending)
+    user = create(:student)
+    stock = create(:stock)
+    create(:portfolio_stock, portfolio: user.portfolio, stock: stock, shares: 10)
+    order = create(:order, :pending, action: :sell, user: user, stock: stock, shares: 1)
     unauthorized_user = create(:student)
 
     sign_in(unauthorized_user)
@@ -96,7 +108,10 @@ class OrdersControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "cancel with non-pending order" do
-    order = create(:order, :completed)
+    user = create(:student)
+    stock = create(:stock)
+    create(:portfolio_stock, portfolio: user.portfolio, stock: stock, shares: 10)
+    order = create(:order, :completed, action: :sell, user: user, stock: stock, shares: 1)
     sign_in(order.user)
 
     assert_no_difference("Order.count") do

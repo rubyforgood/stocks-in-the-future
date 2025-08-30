@@ -8,7 +8,7 @@ class StockPurchaseJobTest < ActiveJob::TestCase
     user.portfolio.portfolio_transactions.create!(amount_cents: 10_000, transaction_type: :deposit) # $100.00
 
     stock = create(:stock, price_cents: 1_000)
-    order = create(:order, user: user, stock: stock, shares: 2, transaction_type: "buy")
+    order = create(:order, user: user, stock: stock, shares: 2, action: :buy)
     assert_equal "pending", order.status
 
     StockPurchaseJob.perform_now
@@ -30,8 +30,8 @@ class StockPurchaseJobTest < ActiveJob::TestCase
     user2.portfolio.portfolio_transactions.create!(amount_cents: 10_000, transaction_type: :deposit)
 
     stock = create(:stock, price_cents: 1_000)
-    pending_order = create(:order, user: user1, stock: stock, shares: 1, transaction_type: "buy")
-    completed_order = create(:order, :completed, user: user2, stock: stock, shares: 1, transaction_type: "buy")
+    pending_order = create(:order, user: user1, stock: stock, shares: 1, action: :buy)
+    completed_order = create(:order, :completed, user: user2, stock: stock, shares: 1, action: :buy)
 
     assert_equal "pending", pending_order.status
     assert_equal "completed", completed_order.status
@@ -57,8 +57,8 @@ class StockPurchaseJobTest < ActiveJob::TestCase
     stock1 = create(:stock, price_cents: 1_000)
     stock2 = create(:stock, price_cents: 2_000)
 
-    order1 = create(:order, user: user1, stock: stock1, shares: 1, transaction_type: "buy")
-    order2 = create(:order, user: user2, stock: stock2, shares: 2, transaction_type: "buy")
+    order1 = create(:order, user: user1, stock: stock1, shares: 1, action: :buy)
+    order2 = create(:order, user: user2, stock: stock2, shares: 2, action: :buy)
 
     assert_equal "pending", order1.status
     assert_equal "pending", order2.status

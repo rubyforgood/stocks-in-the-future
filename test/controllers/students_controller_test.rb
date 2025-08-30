@@ -131,7 +131,9 @@ class StudentsControllerTest < ActionDispatch::IntegrationTest
 
   test "teacher can view student details" do
     create(:portfolio, user: @student, current_position: 8500.0)
-    create(:order, user: @student)
+    stock = create(:stock)
+    create(:portfolio_stock, portfolio: @student.portfolio, stock: stock, shares: 10)
+    create(:order, action: :sell, user: @student, stock: stock, shares: 1)
 
     sign_in @teacher
     get classroom_student_path(@classroom, @student)
