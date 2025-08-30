@@ -20,7 +20,8 @@ if mike
     stock: stock,
     shares: 2,
     status: :completed,
-    portfolio_transaction: pt
+    portfolio_transaction: pt,
+    action: :buy
   )
 
   pt = PortfolioTransaction.create(
@@ -34,7 +35,8 @@ if mike
     stock: stock,
     shares: 3,
     status: :completed,
-    portfolio_transaction: pt
+    portfolio_transaction: pt,
+    action: :buy
   )
 
   pt = PortfolioTransaction.create(
@@ -48,7 +50,8 @@ if mike
     stock: stock,
     shares: 4,
     status: :completed,
-    portfolio_transaction: pt
+    portfolio_transaction: pt,
+    action: :buy
   )
 
   pt = PortfolioTransaction.create(
@@ -62,7 +65,8 @@ if mike
     stock: stock,
     shares: 1,
     status: :completed,
-    portfolio_transaction: pt
+    portfolio_transaction: pt,
+    action: :buy
   )
 
   puts "Seeded 4 completed orders and transactions for the Student user 'Mike'"
