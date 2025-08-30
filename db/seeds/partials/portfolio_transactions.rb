@@ -5,6 +5,7 @@ mike = User.find_by(email: "mike@example.com")
 if mike
   portfolio = Portfolio.find_or_create_by(user: mike)
   stock = Stock.first
+  enough_money_for_buy = (stock.price_cents * 10)
 
   ######################################################################
   # Create 4 completed orders and transactions for the Student user
@@ -12,7 +13,7 @@ if mike
   pt = PortfolioTransaction.create(
     portfolio: portfolio,
     transaction_type: :deposit,
-    amount_cents: 400
+    amount_cents: enough_money_for_buy
   )
 
   Order.create!(

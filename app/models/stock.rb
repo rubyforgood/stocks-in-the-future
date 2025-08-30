@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Stock < ApplicationRecord
-  SYMBOLS = %w[KO SNE TWX DIS SIRI F EA FB UA LUV GPS].freeze
+  SYMBOLS = %w[DIS EA F FB GPS KO LUV SIRI SNE TWX UA].freeze
 
   has_many :portfolio_stocks, dependent: :restrict_with_error
   has_many :orders, dependent: :restrict_with_error
