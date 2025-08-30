@@ -12,7 +12,7 @@ if mike
   pt = PortfolioTransaction.create(
     portfolio: portfolio,
     transaction_type: :deposit,
-    amount_cents: 400
+    amount_cents: 400_000
   )
 
   Order.create!(
