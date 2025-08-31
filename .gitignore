@@ -54,4 +54,10 @@
 #ignore kilocodemodes config files
 .kilocodemodes
 
+# Ignore AI assistant configuration files
+.claude/
+
+# Ignore VSCode global storage (contains extension settings)
+Library/
+
 .idea
