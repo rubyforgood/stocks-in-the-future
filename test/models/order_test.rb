@@ -4,66 +4,88 @@ require "test_helper"
 
 class OrderTest < ActiveSupport::TestCase
   test "factory" do
-    assert build(:order).validate!
+    user = create(:student)
+    stock = create(:stock)
+    create(:portfolio_stock, portfolio: user.portfolio, stock: stock, shares: 10)
+
+    order = create(:order, user: user, stock: stock, shares: 1, action: :sell)
+    assert order.valid?
   end
 
   test "defaults to pending status when created" do
-    order = create(:order)
+    user = create(:student)
+    stock = create(:stock)
+    create(:portfolio_stock, portfolio: user.portfolio, stock: stock, shares: 10)
+
+    order = create(:order, user: user, stock: stock, shares: 1, action: :sell)
 
     assert_equal "pending", order.status
   end
 
   test ".pending" do
-    order1 = create(:order, :pending)
-    create(:order, :completed)
-    create(:order, :canceled)
-    order4 = create(:order, :pending)
+    user = create(:student)
+    stock = create(:stock)
+    create(:portfolio_stock, portfolio: user.portfolio, stock: stock, shares: 10)
+
+    order1 = create(:order, status: :pending, action: :sell, user: user, stock: stock, shares: 1)
+    create(:order, status: :completed, action: :sell, user: user, stock: stock, shares: 1)
+    create(:order, status: :canceled, action: :sell, user: user, stock: stock, shares: 1)
+    order4 = create(:order, status: :pending, action: :sell, user: user, stock: stock, shares: 1)
 
     assert_equal [order1, order4], Order.pending
   end
 
   test ".completed" do
-    order1 = create(:order, :completed)
-    create(:order, :pending)
-    create(:order, :canceled)
-    order4 = create(:order, :completed)
+    user = create(:student)
+    stock = create(:stock)
+    create(:portfolio_stock, portfolio: user.portfolio, stock: stock, shares: 10)
+
+    order1 = create(:order, status: :completed, action: :sell, user: user, stock: stock, shares: 1)
+    create(:order, status: :pending, action: :sell, user: user, stock: stock, shares: 1)
+    create(:order, status: :canceled, action: :sell, user: user, stock: stock, shares: 1)
+    order4 = create(:order, status: :completed, action: :sell, user: user, stock: stock, shares: 1)
 
     assert_equal [order1, order4], Order.completed
   end
 
   test ".canceled" do
-    order1 = create(:order, :canceled)
-    create(:order, :pending)
-    create(:order, :completed)
-    order4 = create(:order, :canceled)
+    user = create(:student)
+    stock = create(:stock)
+    create(:portfolio_stock, portfolio: user.portfolio, stock: stock, shares: 10)
+
+    order1 = create(:order, status: :canceled, action: :sell, user: user, stock: stock, shares: 1)
+    create(:order, status: :pending, action: :sell, user: user, stock: stock, shares: 1)
+    create(:order, status: :completed, action: :sell, user: user, stock: stock, shares: 1)
+    order4 = create(:order, status: :canceled, action: :sell, user: user, stock: stock, shares: 1)
 
     assert_equal [order1, order4], Order.canceled
   end
 
   test "#purchase_cost" do
+    user = create(:student)
     stock = create(:stock, price_cents: 1_000)
-    order = create(:order, stock:, shares: 5.1)
+    # Add funds for buy order
+    user.portfolio.portfolio_transactions.create!(amount_cents: 10_000, transaction_type: :deposit)
+
+    order = create(:order, action: :buy, user: user, stock: stock, shares: 5.1)
 
     result = order.purchase_cost
 
     assert_equal 5_100, result
   end
 
-  test "creates a debit portfolio transaction on buy" do
+  test "creates a buy order without portfolio transaction" do
     user = create(:student)
     user.portfolio.portfolio_transactions.create!(amount_cents: 5000, transaction_type: :deposit) # $50.00
     stock = create(:stock, price_cents: 1_000)
-    order = build(:order, user:, stock:, shares: 2.5, transaction_type: "buy")
+    order = build(:order, action: :buy, user: user, stock: stock, shares: 2.5)
 
-    assert_difference "PortfolioTransaction.count", 1 do
+    assert_difference "PortfolioTransaction.count", 0 do
       order.save!
     end
 
-    transaction = PortfolioTransaction.last
-    assert_equal user.portfolio, transaction.portfolio
-    assert_equal 2_500, transaction.amount_cents
-    assert_equal "debit", transaction.transaction_type
-    assert_equal order, transaction.order
+    assert_equal "buy", order.action
+    assert order.buy?
   end
 
   test "sell order validation allows selling when sufficient shares owned" do
@@ -73,7 +95,7 @@ class OrderTest < ActiveSupport::TestCase
 
     create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 10, purchase_price: 200.0)
 
-    order = build(:order, user: user, stock: stock, shares: 5, transaction_type: "sell")
+    order = build(:order, action: :sell, user: user, stock: stock, shares: 5)
 
     assert order.valid?
   end
@@ -85,7 +107,7 @@ class OrderTest < ActiveSupport::TestCase
 
     create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 5, purchase_price: 200.0)
 
-    order = build(:order, user: user, stock: stock, shares: 10, transaction_type: "sell")
+    order = build(:order, action: :sell, user: user, stock: stock, shares: 10)
 
     assert_not order.valid?
     assert_includes order.errors[:shares], "Cannot sell more shares than you own (5 available)"
@@ -96,7 +118,7 @@ class OrderTest < ActiveSupport::TestCase
     create(:portfolio, user: user)
     stock = create(:stock, price_cents: 1_000)
 
-    order = build(:order, user: user, stock: stock, shares: 1, transaction_type: "sell")
+    order = build(:order, action: :sell, user: user, stock: stock, shares: 1)
 
     assert_not order.valid?
     assert_includes order.errors[:shares], "Cannot sell more shares than you own (0 available)"
@@ -110,10 +132,10 @@ class OrderTest < ActiveSupport::TestCase
     create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 10, purchase_price: 200.0)
     create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 5, purchase_price: 250.0)
 
-    order = build(:order, user: user, stock: stock, shares: 12, transaction_type: "sell")
+    order = build(:order, action: :sell, user: user, stock: stock, shares: 12)
     assert order.valid?
 
-    order = build(:order, user: user, stock: stock, shares: 20, transaction_type: "sell")
+    order = build(:order, action: :sell, user: user, stock: stock, shares: 20)
     assert_not order.valid?
     assert_includes order.errors[:shares], "Cannot sell more shares than you own (15 available)"
   end
@@ -124,27 +146,24 @@ class OrderTest < ActiveSupport::TestCase
     portfolio.portfolio_transactions.create!(amount_cents: 15_000, transaction_type: :deposit) # $150.00
     stock = create(:stock, price_cents: 1_000)
 
-    order = build(:order, user: user, stock: stock, shares: 10, transaction_type: "buy")
+    order = build(:order, :buy, user: user, stock: stock, shares: 10)
 
     assert order.valid?
   end
 
-  test "creates a credit portfolio transaction on sell" do
+  test "creates a sell order without portfolio transaction" do
     user = create(:student)
     stock = create(:stock, price_cents: 1_000)
     create(:portfolio_stock, portfolio: user.portfolio, stock: stock, shares: 5, purchase_price: 800)
 
-    order = build(:order, user:, stock:, shares: 2.5, transaction_type: "sell")
+    order = build(:order, action: :sell, user: user, stock: stock, shares: 2.5)
 
-    assert_difference "PortfolioTransaction.count", 1 do
+    assert_difference "PortfolioTransaction.count", 0 do
       order.save!
     end
 
-    transaction = PortfolioTransaction.last
-    assert_equal user.portfolio, transaction.portfolio
-    assert_equal 2_500, transaction.amount_cents
-    assert_equal "credit", transaction.transaction_type
-    assert_equal order, transaction.order
+    assert_equal "sell", order.action
+    assert order.sell?
   end
 
   test "buy order validation prevents buying when insufficient funds" do
@@ -153,7 +172,7 @@ class OrderTest < ActiveSupport::TestCase
     portfolio.portfolio_transactions.create!(amount_cents: 100, transaction_type: :deposit)
 
     stock = create(:stock, price_cents: 1000)
-    order = build(:order, user: user, stock: stock, shares: 5, transaction_type: "buy")
+    order = build(:order, action: :buy, user: user, stock: stock, shares: 5)
 
     assert_not order.valid?
     assert_includes order.errors[:shares], "Insufficient funds. You have $1.00 but need $50.00"
@@ -165,7 +184,7 @@ class OrderTest < ActiveSupport::TestCase
     portfolio.portfolio_transactions.create!(amount_cents: 10_000, transaction_type: :deposit)
 
     stock = create(:stock, price_cents: 1000)
-    order = build(:order, user: user, stock: stock, shares: 5, transaction_type: "buy")
+    order = build(:order, action: :buy, user: user, stock: stock, shares: 5)
 
     assert order.valid?
   end
@@ -176,27 +195,17 @@ class OrderTest < ActiveSupport::TestCase
     portfolio.portfolio_transactions.create!(amount_cents: 10_000, transaction_type: :deposit)
 
     stock = create(:stock, price_cents: 1000)
-    order = build(:order, user: user, stock: stock, shares: 5, transaction_type: "buy")
+    order = build(:order, action: :buy, user: user, stock: stock, shares: 5)
 
-    assert_difference "PortfolioTransaction.count", 1 do
+    assert_difference "PortfolioTransaction.count", 0 do
       order.save!
     end
 
-    transaction = PortfolioTransaction.last
-    assert_equal user.portfolio, transaction.portfolio
-    assert_equal 5_000, transaction.amount_cents
-    assert_equal "debit", transaction.transaction_type
-
     assert order.valid?
 
-    assert_difference "PortfolioTransaction.count", 0 do
-      order.update!(shares: 6)
-    end
-
-    transaction = PortfolioTransaction.last
-    assert_equal user.portfolio, transaction.portfolio
-    assert_equal 6_000, transaction.amount_cents
-    assert_equal "debit", transaction.transaction_type
+    # NOTE: PortfolioTransaction updates are handled by PurchaseStock service
+    order.update!(shares: 6)
+    assert_equal 6, order.shares
   end
 
   test "update order does not allow user to update pending buy order when transaction amount exceeds portfolio value" do
@@ -205,16 +214,11 @@ class OrderTest < ActiveSupport::TestCase
     portfolio.portfolio_transactions.create!(amount_cents: 10_000, transaction_type: :deposit)
 
     stock = create(:stock, price_cents: 1000)
-    order = build(:order, user: user, stock: stock, shares: 5, transaction_type: "buy")
+    order = build(:order, action: :buy, user: user, stock: stock, shares: 5)
 
-    assert_difference "PortfolioTransaction.count", 1 do
+    assert_difference "PortfolioTransaction.count", 0 do
       order.save!
     end
-
-    transaction = PortfolioTransaction.last
-    assert_equal user.portfolio, transaction.portfolio
-    assert_equal 5_000, transaction.amount_cents
-    assert_equal "debit", transaction.transaction_type
 
     order.shares = 12
 
@@ -227,26 +231,15 @@ class OrderTest < ActiveSupport::TestCase
     stock = create(:stock, price_cents: 1_000)
     create(:portfolio_stock, portfolio: user.portfolio, stock: stock, shares: 5, purchase_price: 800)
 
-    order = build(:order, user:, stock:, shares: 2.5, transaction_type: "sell")
+    order = build(:order, action: :sell, user: user, stock: stock, shares: 2.5)
 
-    assert_difference "PortfolioTransaction.count", 1 do
+    assert_difference "PortfolioTransaction.count", 0 do
       order.save!
     end
 
-    transaction = PortfolioTransaction.last
-    assert_equal user.portfolio, transaction.portfolio
-    assert_equal 2_500, transaction.amount_cents
-    assert_equal "credit", transaction.transaction_type
-    assert_equal order, transaction.order
-
-    assert_difference "PortfolioTransaction.count", 0 do
-      order.update!(shares: 3)
-    end
-
-    transaction = PortfolioTransaction.last
-    assert_equal user.portfolio, transaction.portfolio
-    assert_equal 3_000, transaction.amount_cents
-    assert_equal "credit", transaction.transaction_type
+    # NOTE: PortfolioTransaction updates are handled by PurchaseStock service
+    order.update!(shares: 3)
+    assert_equal 3, order.shares
   end
 
   test "update order prevents overselling shares when updating sell order" do
@@ -254,14 +247,10 @@ class OrderTest < ActiveSupport::TestCase
     stock = create(:stock, price_cents: 1_000)
     create(:portfolio_stock, portfolio: user.portfolio, stock: stock, shares: 5, purchase_price: 1_000)
 
-    order = build(:order, user:, stock:, shares: 2, transaction_type: "sell")
+    order = build(:order, action: :sell, user: user, stock: stock, shares: 2)
     order.save!
 
-    transaction = PortfolioTransaction.last
-    assert_equal user.portfolio, transaction.portfolio
-    assert_equal 2_000, transaction.amount_cents
-    assert_equal "credit", transaction.transaction_type
-    assert_equal order, transaction.order
+    # NOTE: PortfolioTransaction is created by PurchaseStock service, not Order
 
     order.shares = 6
 

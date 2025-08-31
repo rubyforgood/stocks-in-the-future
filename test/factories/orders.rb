@@ -5,6 +5,7 @@ FactoryBot.define do
     stock
     shares { 1 }
     user { create(:student) }
+    action { :sell } # Default to sell to avoid validation issues
   end
 
   trait :pending do
@@ -20,10 +21,29 @@ FactoryBot.define do
   end
 
   trait :buy do
-    transaction_type { "buy" }
+    action { :buy }
   end
 
   trait :sell do
-    transaction_type { "sell" }
+    action { :sell }
+  end
+
+  trait :with_sufficient_funds do
+    after(:create) do |order|
+      order.user.portfolio.portfolio_transactions.create!(
+        amount_cents: 100_000, # $1000 - plenty for testing
+        transaction_type: :deposit
+      )
+    end
+  end
+
+  trait :with_sufficient_shares do
+    after(:create) do |order|
+      create(:portfolio_stock,
+             portfolio: order.user.portfolio,
+             stock: order.stock,
+             shares: 100, # Plenty of shares for testing
+             purchase_price: order.stock.price_cents)
+    end
   end
 end
