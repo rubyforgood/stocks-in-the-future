@@ -48,7 +48,6 @@ class TeacherDashboard < Administrate::BaseDashboard
   FORM_ATTRIBUTES = %i[
     classroom_id
     email
-    portfolio
     username
   ].freeze
 
