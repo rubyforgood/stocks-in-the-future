@@ -20,14 +20,14 @@ class ApplicationController < ActionController::Base
     return if current_user&.teacher_or_admin?
 
     flash[:alert] = t("application.access_denied.teacher_or_admin_required")
-    redirect_to root_url
+    redirect_to root_path
   end
 
   def ensure_admin
     return if current_user&.admin?
 
     flash[:alert] = t("application.access_denied.admin_required")
-    redirect_to root_url
+    redirect_to root_path
   end
 
   private
