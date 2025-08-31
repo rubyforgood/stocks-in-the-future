@@ -5,6 +5,7 @@ class ClassroomsController < ApplicationController
   before_action :authorize_classroom
   before_action :authenticate_user!
   before_action :ensure_teacher_or_admin, except: %i[index show]
+  before_action :check_classroom_eligibility, only: :show
 
   def index
     @classrooms = policy_scope(Classroom)
@@ -97,5 +98,13 @@ class ClassroomsController < ApplicationController
       recent_orders_count: Order.joins(:user).where(users: { classroom: @classroom }).where("orders.created_at > ?",
                                                                                             1.week.ago).count
     }
+  end
+
+  def check_classroom_eligibility
+    return if current_user.admin? ||
+              (current_user.teacher? &&
+                @classroom.teacher_ids.include?(current_user.id))
+
+    redirect_to root_path, alert: t("application.access_denied.no_access")
   end
 end

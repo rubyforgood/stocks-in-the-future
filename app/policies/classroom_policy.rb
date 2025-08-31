@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 class ClassroomPolicy < ApplicationPolicy
-
   def index?
     user&.teacher_or_admin?
   end
@@ -32,7 +31,6 @@ class ClassroomPolicy < ApplicationPolicy
 
   # there has to be a scope class associated here
   class Scope
-
     attr_reader :user, :scope
 
     def initialize(user, scope)
@@ -50,5 +48,4 @@ class ClassroomPolicy < ApplicationPolicy
       end
     end
   end
-
 end

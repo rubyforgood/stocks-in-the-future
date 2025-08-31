@@ -38,7 +38,6 @@ class ApplicationController < ActionController::Base
   end
 
   rescue_from Pundit::NotAuthorizedError do
-
     if current_user.nil?
       # go to the login page
       redirect_to new_user_session_path, alert: t("devise.failure.unauthenticated")
