@@ -36,8 +36,8 @@ class StockPricesUpdateJobTest < ActiveJob::TestCase
 
     stock1.reload
     stock2.reload
-    assert stock1.price_cents > 0
-    assert stock2.price_cents > 0
+    assert stock1.price_cents.positive?
+    assert stock2.price_cents.positive?
   end
 
   test "sets Stock ticker and price" do
