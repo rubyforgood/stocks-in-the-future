@@ -26,6 +26,7 @@ class StockDashboard < Administrate::BaseDashboard
     management: Field::Text,
     portfolio_stocks: Field::HasMany,
     price_cents: Field::String.with_options(searchable: false),
+    current_price: Field::Number.with_options(searchable: false, format: { formatter: :number_to_currency }),
     profit_margin: Field::String.with_options(searchable: false),
     sales_growth: Field::String.with_options(searchable: false),
     stock_exchange: Field::String,
@@ -41,9 +42,11 @@ class StockDashboard < Administrate::BaseDashboard
   # Feel free to add, remove, or rearrange items.
   COLLECTION_ATTRIBUTES = %i[
     id
-    cash_flow
+    ticker
     company_name
     company_website
+    cash_flow
+    current_price
   ].freeze
 
   # SHOW_PAGE_ATTRIBUTES
@@ -64,7 +67,7 @@ class StockDashboard < Administrate::BaseDashboard
     industry_avg_sales_growth
     management
     portfolio_stocks
-    price_cents
+    current_price
     profit_margin
     sales_growth
     stock_exchange
@@ -116,4 +119,8 @@ class StockDashboard < Administrate::BaseDashboard
   # def display_resource(stock)
   #   "Stock ##{stock.id}"
   # end
+
+  def display_resource(stock)
+    "#{stock.ticker} - #{stock.company_name}"
+  end
 end
