@@ -103,7 +103,7 @@ class ClassroomsController < ApplicationController
   def check_classroom_eligibility
     return if current_user.admin? ||
               (current_user.teacher? &&
-                @classroom.teacher_ids.include?(current_user.id))
+                @classroom.teachers.include?(current_user))
 
     redirect_to root_path, alert: t("application.access_denied.no_access")
   end

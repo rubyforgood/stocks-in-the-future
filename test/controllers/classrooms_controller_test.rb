@@ -6,7 +6,7 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
   def setup
     @admin = create(:admin)
     @classroom = create(:classroom)
-    @teacher = create(:teacher, classroom: @classroom)
+    @teacher = create(:teacher)
     @teacher.classrooms << @classroom
     @student = create(:student, classroom: @classroom)
   end
@@ -102,7 +102,7 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
   test "teachers can only access details of their own classroom" do
     classroom1 = create(:classroom, name: "Teacher 1 Class")
     classroom2 = create(:classroom, name: "Teacher 2 Class")
-    teacher = create(:teacher, classroom: classroom1)
+    teacher = create(:teacher)
     teacher.classrooms << classroom1
     sign_in teacher
 
