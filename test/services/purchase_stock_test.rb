@@ -3,7 +3,7 @@
 require "test_helper"
 
 class PurchaseStockTest < ActiveSupport::TestCase
-  test "it creates a withdrawl transaction in portfolio_transactions" do
+  test "it creates a withdrawal transaction in portfolio_transactions" do
     student = create(:student)
     create(:portfolio, user: student)
     student.portfolio.portfolio_transactions.create!(amount_cents: 1000, transaction_type: :deposit)
@@ -17,7 +17,7 @@ class PurchaseStockTest < ActiveSupport::TestCase
     portfolio_transaction = PortfolioTransaction.last
     assert portfolio_transaction.withdrawal?
     assert_equal portfolio_transaction, order.portfolio_transaction
-    assert_operator portfolio_transaction.amount_cents, :<, 0
+    assert_operator portfolio_transaction.amount_cents, :>, 0
   end
 
   test "it creates an linked entry in portfolio_stocks" do
