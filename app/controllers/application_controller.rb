@@ -38,6 +38,13 @@ class ApplicationController < ActionController::Base
   end
 
   rescue_from Pundit::NotAuthorizedError do
-    redirect_to root_url, alert: t("application.access_denied.no_access")
+    if current_user.nil?
+      # go to the login page
+      redirect_to new_user_session_path, alert: t("devise.failure.unauthenticated")
+    elsif current_user.student?
+      redirect_to current_user&.portfolio_path, alert: t("application.access_denied.no_access")
+    else
+      redirect_to root_url, alert: t("application.access_denied.no_access")
+    end
   end
 end

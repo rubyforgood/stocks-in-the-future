@@ -25,5 +25,14 @@ module Admin
       assert_redirected_to admin_stock_path(Stock.last)
       assert_equal "Stock was successfully created.", flash[:notice]
     end
+
+    test "index" do
+      admin = create(:admin)
+      sign_in(admin)
+
+      get admin_stocks_path
+
+      assert_response :success
+    end
   end
 end
