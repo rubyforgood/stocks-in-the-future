@@ -55,6 +55,6 @@ class ApplicationControllerTest < ActionDispatch::IntegrationTest
     sign_in student
 
     get new_classroom_path
-    assert_redirected_to root_path
+    assert_redirected_to student.portfolio_path
   end
 end
