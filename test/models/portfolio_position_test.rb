@@ -98,7 +98,6 @@ class PortfolioPositionTest < ActiveSupport::TestCase
     assert_equal 250.0, position.avg_purchase_price.to_f
   end
 
-
   test "to_s string representation" do
     portfolio = create(:portfolio)
     stock = create(:stock, ticker: "AAPL", company_name: "Apple Inc.")

@@ -30,7 +30,6 @@ class PortfolioPosition
     avg_purchase_price / 100.0
   end
 
-
   def to_s
     "#{stock_company_name} (#{stock_ticker}): #{total_shares} shares"
   end
