@@ -60,8 +60,13 @@ class Order < ApplicationRecord
   end
 
   def sufficient_funds_for_buy_when_update
-    portfolio_transactions = user.portfolio.portfolio_transactions.where.not(id: portfolio_transaction&.id)
-    balance_before_transaction = portfolio_transactions.sum(:amount_cents)
+    current_balance_cents = (user.portfolio&.cash_balance || 0) * 100
+
+    balance_before_transaction = if portfolio_transaction.present?
+                                   current_balance_cents + portfolio_transaction.amount_cents
+                                 else
+                                   current_balance_cents
+                                 end
 
     return unless purchase_cost > balance_before_transaction
 
