@@ -5,18 +5,12 @@ mike = User.find_by(email: "mike@example.com")
 if mike
   portfolio = Portfolio.find_or_create_by(user: mike)
 
-  ######################################################################################
-  # Seed Mike's portfolio with initial deposit, purchases, sells, and cash transactions
-  ######################################################################################
-
-  # Deposit $15,000.00 into the portfolio as initial cash
   pt = PortfolioTransaction.create(
     portfolio: portfolio,
     transaction_type: :deposit,
-    amount_cents: 15_000_00 # $15,000.00
+    amount_cents: 15_000_00
   )
 
-  # Purchase 2 shares each of the first 3 stocks
   stocks = Stock.limit(3)
   shares = 2
 
@@ -34,7 +28,6 @@ if mike
     PurchaseStock.execute(order)
   end
 
-  # Sell 1 share each of those 3 stocks
   shares = 1
 
   stocks.each do |stock|
@@ -51,21 +44,18 @@ if mike
     PurchaseStock.execute(order)
   end
 
-  # Withdraw $100.00 from the portfolio
   pt = PortfolioTransaction.create(
     portfolio: portfolio,
     transaction_type: :withdrawal,
     amount_cents: 100_00
   )
 
-  # Deposit $10000.00 into the portfolio
   pt = PortfolioTransaction.create(
     portfolio: portfolio,
     transaction_type: :deposit,
     amount_cents: 10_000_00
   )
 
-  # Buy 1 share of a new stock not already owned by Mike
   existing_stock_ids = Order.where(user: mike, action: :buy).pluck(:stock_id).uniq
   stocks = Stock.where.not(id: existing_stock_ids).limit(1)
 
