@@ -4,14 +4,13 @@ require "net/http"
 require "json"
 
 class StockPricesUpdateJob < ApplicationJob
-  BATCH_SIZE = 20
   queue_as :default
 
   # rubocop:disable Metrics/AbcSize
   def perform(...)
     # For each stock symbol, request the latest closing cost
     # update the stocks table with each new closing cost
-    Stock.find_each(batch_size: BATCH_SIZE) do |stock|
+    Stock.find_each do |stock|
       symbol = stock.ticker
       next if symbol.blank?
 
