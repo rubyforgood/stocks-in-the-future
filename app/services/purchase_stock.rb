@@ -16,7 +16,7 @@ class PurchaseStock
     return unless order.pending?
 
     ActiveRecord::Base.transaction do
-      create_withdrawal_transaction
+      create_portfolio_transaction
       create_portfolio_stock
       update_order_status
     end
@@ -26,11 +26,18 @@ class PurchaseStock
 
   attr_accessor :order, :portfolio_stock, :portfolio_transaction
 
-  def create_withdrawal_transaction
-    @portfolio_transaction = portfolio
-                             .portfolio_transactions
-                             .withdrawal
-                             .create!(amount_cents: purchase_cost)
+  def create_portfolio_transaction
+    @portfolio_transaction = if order.buy?
+                               portfolio
+                                 .portfolio_transactions
+                                 .withdrawal
+                                 .create!(amount_cents: purchase_cost)
+                             else
+                               portfolio
+                                 .portfolio_transactions
+                                 .credit
+                                 .create!(amount_cents: purchase_cost)
+                             end
   end
 
   def create_portfolio_stock
@@ -46,6 +53,6 @@ class PurchaseStock
   end
 
   def purchase_cost
-    -order.purchase_cost
+    order.purchase_cost
   end
 end
