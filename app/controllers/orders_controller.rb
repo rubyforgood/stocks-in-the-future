@@ -95,7 +95,8 @@ def set_stock
 end
 
 def set_shared_owned
-  @shares_owned = current_user.portfolio&.shares_owned(@stock&.id)
+  portfolio = current_user.portfolio
+  @shares_owned = portfolio.position_for(@stock&.id)&.total_shares
 end
 
 def order_params

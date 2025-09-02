@@ -10,10 +10,10 @@
       <div class="bg-white dark:bg-gray-950 rounded-lg shadow p-6">
         <h2 class="text-lg font-semibold mb-4">Stocks</h2>
         <div class="space-y-4">
-          <% @portfolio.portfolio_stocks.each do |stock| %>
-            <!-- stock cards in list with dividers -->
-            <div class="grid grid-cols-[1fr_auto_auto] items-center gap-4<% unless stock == @portfolio.portfolio_stocks.last %> pb-4 border-b border-gray-200<% end %>">
-              <%= render partial: 'stock_card', locals: { portfolio_stock: stock } %>
+          <% @positions.each_with_index do |position, index| %>
+            <!-- position cards in list with dividers -->
+            <div class="grid grid-cols-[1fr_auto_auto] items-center gap-4<% unless index == @positions.size - 1 %> pb-4 border-b border-gray-200<% end %>">
+              <%= render partial: 'position_card', locals: { position: position } %>
             </div>
           <% end %>
         </div>

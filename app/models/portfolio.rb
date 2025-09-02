@@ -18,8 +18,19 @@ class Portfolio < ApplicationRecord
     portfolio_path(self)
   end
 
-  def shares_owned(stock_id)
-    portfolio_stocks.where(stock_id: stock_id).sum(:shares)
+  def positions
+    portfolio_stocks.aggregated_positions.map do |data|
+      PortfolioPosition.new(
+        portfolio: self,
+        stock: data.stock_id,
+        total_shares: data.total_shares,
+        avg_purchase_price: data.avg_price
+      )
+    end
+  end
+
+  def position_for(stock)
+    PortfolioPosition.new(portfolio: self, stock: stock)
   end
 
   private

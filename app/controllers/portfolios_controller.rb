@@ -5,7 +5,7 @@ class PortfoliosController < ApplicationController
   before_action :authenticate_user!
 
   def show
-    @stocks = @portfolio.stocks
+    @positions = @portfolio.positions
   end
 
   private

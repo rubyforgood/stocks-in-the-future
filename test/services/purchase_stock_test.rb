@@ -147,7 +147,7 @@ class PurchaseStockTest < ActiveSupport::TestCase
     shares_values = portfolio_stocks.pluck(:shares).sort
     assert_equal [-4, 10], shares_values
 
-    total_shares = portfolio.shares_owned(stock.id)
+    total_shares = portfolio.position_for(stock).total_shares
     assert_equal 6, total_shares
   end
 end

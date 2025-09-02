@@ -43,7 +43,7 @@ class Order < ApplicationRecord
   private
 
   def sufficient_shares_for_sell
-    current_shares = user.portfolio&.shares_owned(stock_id) || 0
+    current_shares = user.portfolio&.position_for(stock_id)&.total_shares || 0
     return unless shares > current_shares
 
     formatted_shares = (current_shares % 1).zero? ? current_shares.to_i : current_shares
