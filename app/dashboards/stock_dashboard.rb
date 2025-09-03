@@ -11,6 +11,7 @@ class StockDashboard < Administrate::BaseDashboard
   # on pages throughout the dashboard.
   ATTRIBUTE_TYPES = {
     id: Field::Number,
+    archived: Field::Boolean,
     cash_flow: Field::String.with_options(searchable: false),
     company_name: Field::String,
     company_website: Field::String,
@@ -45,14 +46,15 @@ class StockDashboard < Administrate::BaseDashboard
     ticker
     company_name
     company_website
-    cash_flow
     current_price
+    archived
   ].freeze
 
   # SHOW_PAGE_ATTRIBUTES
   # an array of attributes that will be displayed on the model's show page.
   SHOW_PAGE_ATTRIBUTES = %i[
     id
+    archived
     cash_flow
     company_name
     company_website
@@ -80,6 +82,7 @@ class StockDashboard < Administrate::BaseDashboard
   # an array of attributes that will be displayed
   # on the model's form (`new` and `edit`) pages.
   FORM_ATTRIBUTES = %i[
+    archived
     cash_flow
     company_name
     company_website
