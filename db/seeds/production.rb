@@ -6,10 +6,10 @@ puts ""
 
 # ---------------------- Add your seed code in this block ----------------------
 
-# EXAMPLE: Create a default admin user
-# puts "Creating default admin user..."
-# load(Rails.root.join("db", "seeds", "partials", "prod_admin_user.rb"))
-# puts ""
+# Create stocks
+puts "Creating stocks..."
+load(Rails.root.join("db", "seeds", "partials", "stocks.rb"))
+puts "...done."
 
 # ------------------------------------------------------------------------------
 
