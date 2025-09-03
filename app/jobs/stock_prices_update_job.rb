@@ -10,7 +10,10 @@ class StockPricesUpdateJob < ApplicationJob
   def perform(...)
     # For each stock symbol, request the latest closing cost
     # update the stocks table with each new closing cost
-    Stock::SYMBOLS.each do |symbol|
+    Stock.find_each do |stock|
+      symbol = stock.ticker
+      next if symbol.blank?
+
       Rails.logger.info "Updating stock price for #{symbol}"
 
       data = api_request(symbol)
@@ -23,7 +26,6 @@ class StockPricesUpdateJob < ApplicationJob
       end
       Rails.logger.info "API returned price #{price} for #{symbol}"
 
-      stock = Stock.find_or_initialize_by(ticker: symbol)
       old_price = stock.price_cents
 
       # Convert price to cents
