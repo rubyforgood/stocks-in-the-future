@@ -237,7 +237,6 @@ class OrderTest < ActiveSupport::TestCase
       order.save!
     end
 
-    # NOTE: PortfolioTransaction updates are handled by PurchaseStock service
     order.update!(shares: 3)
     assert_equal 3, order.shares
   end
@@ -249,8 +248,6 @@ class OrderTest < ActiveSupport::TestCase
 
     order = build(:order, action: :sell, user: user, stock: stock, shares: 2)
     order.save!
-
-    # NOTE: PortfolioTransaction is created by PurchaseStock service, not Order
 
     order.shares = 6
 

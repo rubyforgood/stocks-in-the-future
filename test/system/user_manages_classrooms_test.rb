@@ -13,11 +13,9 @@ class UserManagesClassroomsTest < ApplicationSystemTestCase
     sign_in(admin)
     visit new_classroom_path
 
-    # Verify dropdowns are present
     assert_selector "select[name='classroom[school_id]']"
     assert_selector "select[name='classroom[year_id]']"
 
-    # Fill out the form
     fill_in "Name", with: "Test Classroom"
     fill_in "Grade", with: "5th"
     select school1.name, from: "classroom_school_id"
@@ -44,11 +42,9 @@ class UserManagesClassroomsTest < ApplicationSystemTestCase
     sign_in(admin)
     visit edit_classroom_path(classroom)
 
-    # Verify current values are selected
     assert_selector "select[name='classroom[school_id]'] option[selected]", text: school1.name
     assert_selector "select[name='classroom[year_id]'] option[selected]", text: year1.name
 
-    # Update the form
     fill_in "Name", with: "Updated Classroom"
     select school2.name, from: "classroom_school_id"
     select year2.name, from: "classroom_year_id"
