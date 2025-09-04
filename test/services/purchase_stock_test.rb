@@ -112,7 +112,7 @@ class PurchaseStockTest < ActiveSupport::TestCase
   end
 
   test "multiple buy orders create separate portfolio_stock records" do
-    skip ("test is failing and needs fixing")
+    skip("test is failing and needs fixing")
     portfolio = create(:portfolio)
     portfolio.portfolio_transactions.create!(amount_cents: 1000, transaction_type: :deposit)
     stock = create(:stock, price_cents: 100)
