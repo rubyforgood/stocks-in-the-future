@@ -1,3 +1,7 @@
+[![Continuous Integration](https://github.com/rubyforgood/stocks-in-the-future/actions/workflows/ci.yml/badge.svg)](https://github.com/rubyforgood/stocks-in-the-future/actions/workflows/ci.yml)
+[![RuboCop](https://github.com/rubyforgood/stocks-in-the-future/actions/workflows/rubocop.yml/badge.svg)](https://github.com/rubyforgood/stocks-in-the-future/actions/workflows/rubocop.yml)
+[![Dependabot Updates](https://github.com/rubyforgood/stocks-in-the-future/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/rubyforgood/stocks-in-the-future/actions/workflows/dependabot/dependabot-updates)
+
 # Requirements
 
 - A ruby version manager such as [rvm](https://rvm.io/rvm/install), [rbenv](https://formulae.brew.sh/formula/rbenv) or [asdf](https://asdf-vm.com/guide/getting-started.html)
