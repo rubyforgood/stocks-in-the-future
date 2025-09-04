@@ -14,4 +14,23 @@ class StockTest < ActiveSupport::TestCase
 
     assert_equal 10.0, result
   end
+
+  test "archived defaults to false" do
+    stock = create(:stock)
+
+    assert_equal false, stock.archived
+  end
+
+  test "active and archived scopes filter correctly" do
+    active_stock = create(:stock, archived: false)
+    archived_stock = create(:stock, archived: true)
+
+    active_stocks = Stock.active
+    archived_stocks = Stock.archived
+
+    assert_includes active_stocks, active_stock
+    assert_not_includes active_stocks, archived_stock
+    assert_includes archived_stocks, archived_stock
+    assert_not_includes archived_stocks, active_stock
+  end
 end

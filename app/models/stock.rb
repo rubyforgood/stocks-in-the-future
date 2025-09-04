@@ -6,6 +6,9 @@ class Stock < ApplicationRecord
 
   validates :ticker, presence: true
 
+  scope :active, -> { where(archived: false) }
+  scope :archived, -> { where(archived: true) }
+
   def current_price
     price_cents / 100.0
   end
