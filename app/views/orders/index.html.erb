@@ -21,6 +21,9 @@
                 <th class="h-10 px-2 py-3 text-left font-medium text-base text-black border-b border-black">
                   Username
                 </th>
+                <th class="h-10 px-2 py-3 text-left font-medium text-base text-black border-b border-black">
+                  Class
+                </th>
               <% end %>
               <th class="h-10 px-2 py-3 text-left font-medium text-base text-black border-b border-black">
                 Stock
@@ -55,6 +58,11 @@
                     <td class="px-2 py-2 border-b border-black">
                       <span class="text-base text-black">
                         <%= order.user.username %>
+                      </span>
+                    </td>
+                    <td class="px-2 py-2 border-b border-black">
+                      <span class="text-base text-black">
+                        <%= order.user.classroom&.name || "-" %>
                       </span>
                     </td>
                   <% end %>
