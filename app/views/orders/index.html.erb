@@ -15,6 +15,9 @@
           <thead>
             <tr class="border-b border-black">
               <th class="h-10 px-2 py-3 text-left font-medium text-base text-black border-b border-black">
+                Date
+              </th>
+              <th class="h-10 px-2 py-3 text-left font-medium text-base text-black border-b border-black">
                 Stock
               </th>
               <th class="h-10 px-2 py-3 text-left font-medium text-base text-black border-b border-black">
@@ -35,6 +38,11 @@
             <% if @orders.any? %>
               <% @orders.each do |order| %>
                 <tr class="h-14 border-b border-black">
+                  <td class="px-2 py-2 border-b border-black">
+                    <span class="text-base text-black">
+                      <%= order.created_at.to_date %>
+                    </span>
+                  </td>
                   <td class="px-2 py-2 border-b border-black">
                     <div class="flex flex-col gap-1">
                       <span class="font-medium text-base text-black leading-tight">
