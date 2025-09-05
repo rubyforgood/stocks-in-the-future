@@ -2,7 +2,7 @@
 
 FactoryBot.define do
   factory :classroom do
-    school
-    year
+    sequence(:name) { |n| "Classroom #{n}" }
+    association :school_year
   end
 end

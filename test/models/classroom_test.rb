@@ -7,6 +7,12 @@ class ClassroomTest < ActiveSupport::TestCase
     assert build(:classroom).validate!
   end
 
+  test "name is required" do
+    classroom = build(:classroom, name: "")
+    assert_not classroom.valid?
+    assert_includes classroom.errors[:name], "can't be blank"
+  end
+
   test "destroying classroom nullifies user classroom_id instead of destroying users" do
     classroom = create(:classroom)
     student = create(:student, classroom: classroom)
