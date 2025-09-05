@@ -9,37 +9,49 @@
   </header>
 
   <main class="flex-1 p-6">
-    <div class="bg-white dark:bg-gray-950 rounded-lg shadow h-full">
+    <div class="bg-white rounded-[20px] overflow-hidden shadow-sm border border-gray-100 h-full">
       <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50 dark:bg-gray-800">
-          <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Shares</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Cost</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-          </tr>
+        <table class="w-full min-w-[700px] border-collapse font-sans">
+          <thead>
+            <tr class="border-b border-black">
+              <th class="h-10 px-2 py-3 text-left font-medium text-base text-black border-b border-black">
+                Stock
+              </th>
+              <th class="h-10 px-2 py-3 text-left font-medium text-base text-black border-b border-black">
+                Shares
+              </th>
+              <th class="h-10 px-2 py-3 text-left font-medium text-base text-black border-b border-black">
+                Status
+              </th>
+              <th class="h-10 px-2 py-3 text-right font-medium text-base text-black border-b border-black">
+                Total Cost
+              </th>
+              <th class="h-10 px-2 py-3 text-center font-medium text-base text-black border-b border-black">
+                Actions
+              </th>
+            </tr>
           </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
-          <% if @orders.any? %>
-            <% @orders.each do |order| %>
-              <tr>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="text-sm text-gray-900">
-                    <%= order.stock.company_name %>
-                  </div>
-                  <div class="text-sm text-gray-500">
-                    <%= order.stock.ticker %>
-                  </div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="text-sm text-gray-900">
-                    <%= order.shares %>
-                  </div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+          <tbody>
+            <% if @orders.any? %>
+              <% @orders.each do |order| %>
+                <tr class="h-14 border-b border-black">
+                  <td class="px-2 py-2 border-b border-black">
+                    <div class="flex flex-col gap-1">
+                      <span class="font-medium text-base text-black leading-tight">
+                        <%= order.stock.company_name %>
+                      </span>
+                      <span class="text-sm text-gray-600 leading-tight">
+                        <%= order.stock.ticker %>
+                      </span>
+                    </div>
+                  </td>
+                  <td class="px-2 py-2 border-b border-black">
+                    <span class="text-base text-black">
+                      <%= order.shares %>
+                    </span>
+                  </td>
+                  <td class="px-2 py-2 border-b border-black">
+                    <div class="box-border content-stretch flex gap-2 h-9 items-center justify-center px-4 py-2 relative rounded-[16px] shrink-0 inline-flex
                       <%= case order.status
                           when 'pending'
                             'bg-yellow-100 text-yellow-800'
@@ -50,44 +62,44 @@
                           else
                             'bg-gray-100 text-gray-800'
                           end %>">
-                      <%= order.status.capitalize %>
+                      <div class="font-medium leading-[0] relative shrink-0 text-[14px] text-nowrap">
+                        <p class="leading-[20px] whitespace-pre"><%= order.status.capitalize %></p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-2 py-2 border-b border-black text-right">
+                    <span class="text-base text-black">
+                      <% if order.stock.price_cents && order.shares %>
+                        $<%= sprintf("%.2f", order.purchase_cost / 100.0) %>
+                      <% else %>
+                        <span class="text-gray-600">Price unavailable</span>
+                      <% end %>
                     </span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="text-sm text-gray-900">
-                    <% if order.stock.price_cents && order.shares %>
-                      $<%= sprintf("%.2f", order.purchase_cost / 100.0) %>
-                    <% else %>
-                      <span class="text-gray-400">Price unavailable</span>
-                    <% end %>
-                  </div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <div class="flex space-x-2">
-
-                    <% if order.pending? %>
-                      <%= link_to edit_order_path(order), class: "text-blue-600 hover:text-blue-800" do %>
-                        <i class="fa fa-pencil fa-lg"></i>
+                  </td>
+                  <td class="px-2 py-2 border-b border-black text-center">
+                    <div class="flex justify-center space-x-2">
+                      <% if order.pending? %>
+                        <%= link_to edit_order_path(order), class: "text-blue-600 hover:text-blue-800" do %>
+                          <i class="fa fa-pencil fa-lg"></i>
+                        <% end %>
+                        <%= form_with url: cancel_order_path(order), method: :patch, data: { confirm: t("orders.cancel.confirm"), turbo_confirm: t("orders.cancel.confirm") } do %>
+                          <button type="submit" class="text-red-600 hover:text-red-800">
+                            <i class="fa fa-ban fa-lg"></i>
+                          </button>
+                        <% end %>
                       <% end %>
-
-                      <%= form_with url: cancel_order_path(order), method: :patch, data: { confirm: t("orders.cancel.confirm"), turbo_confirm: t("orders.cancel.confirm") } do %>
-                        <button type="submit" class="text-red-600 hover:text-red-800">
-                          <i class="fa fa-ban fa-lg"></i>
-                        </button>
-                      <% end %>
-                    <% end %>
-                  </div>
+                    </div>
+                  </td>
+                </tr>
+              <% end %>
+            <% else %>
+              <tr class="h-14 border-b border-black">
+                <td colspan="5" class="px-2 py-4 text-center text-gray-500 border-b border-black">
+                  <p class="text-lg">No orders found</p>
+                  <p class="mt-2">Create your first order to get started!</p>
                 </td>
               </tr>
             <% end %>
-          <% else %>
-            <tr>
-              <td colspan="5" class="px-6 py-4 text-center text-gray-500">
-                <p class="text-lg">No orders found</p>
-                <p class="mt-2">Create your first order to get started!</p>
-              </td>
-            </tr>
-          <% end %>
           </tbody>
         </table>
       </div>
