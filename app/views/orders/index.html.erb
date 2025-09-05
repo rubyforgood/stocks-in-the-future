@@ -21,6 +21,9 @@
                 Stock
               </th>
               <th class="h-10 px-2 py-3 text-left font-medium text-base text-black border-b border-black">
+                Price per share
+              </th>
+              <th class="h-10 px-2 py-3 text-left font-medium text-base text-black border-b border-black">
                 Shares
               </th>
               <th class="h-10 px-2 py-3 text-left font-medium text-base text-black border-b border-black">
@@ -52,6 +55,11 @@
                         <%= order.stock.ticker %>
                       </span>
                     </div>
+                  </td>
+                  <td class="px-2 py-2 border-b border-black">
+                    <span class="text-base text-black">
+                      $<%= order.stock.current_price %>
+                    </span>
                   </td>
                   <td class="px-2 py-2 border-b border-black">
                     <span class="text-base text-black">
