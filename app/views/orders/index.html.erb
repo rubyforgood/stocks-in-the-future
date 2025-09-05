@@ -17,6 +17,11 @@
               <th class="h-10 px-2 py-3 text-left font-medium text-base text-black border-b border-black">
                 Date
               </th>
+              <% if current_user&.teacher_or_admin? %>
+                <th class="h-10 px-2 py-3 text-left font-medium text-base text-black border-b border-black">
+                  Username
+                </th>
+              <% end %>
               <th class="h-10 px-2 py-3 text-left font-medium text-base text-black border-b border-black">
                 Stock
               </th>
@@ -46,6 +51,13 @@
                       <%= order.created_at.to_date %>
                     </span>
                   </td>
+                  <% if current_user&.teacher_or_admin? %>
+                    <td class="px-2 py-2 border-b border-black">
+                      <span class="text-base text-black">
+                        <%= order.user.username %>
+                      </span>
+                    </td>
+                  <% end %>
                   <td class="px-2 py-2 border-b border-black">
                     <div class="flex flex-col gap-1">
                       <span class="font-medium text-base text-black leading-tight">
