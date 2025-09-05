@@ -102,7 +102,6 @@ class PurchaseStockTest < ActiveSupport::TestCase
 
     PurchaseStock.execute(order)
 
-    # Should have 2 portfolio_stock records now (original + new sell record)
     portfolio_stocks = PortfolioStock.where(portfolio: portfolio, stock: stock)
     assert_equal 2, portfolio_stocks.count
 
@@ -112,7 +111,6 @@ class PurchaseStockTest < ActiveSupport::TestCase
   end
 
   test "multiple buy orders create separate portfolio_stock records" do
-    skip("test is failing and needs fixing")
     portfolio = create(:portfolio)
     portfolio.portfolio_transactions.create!(amount_cents: 1000, transaction_type: :deposit)
     stock = create(:stock, price_cents: 100)

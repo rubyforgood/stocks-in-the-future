@@ -48,8 +48,7 @@ class PurchaseStock
   end
 
   def update_order_status
-    order.completed!
-    order.update!(portfolio_stock:, portfolio_transaction:)
+    order.update!(status: :completed, portfolio_stock:, portfolio_transaction:)
   end
 
   def purchase_cost
