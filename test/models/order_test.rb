@@ -263,7 +263,7 @@ class OrderTest < ActiveSupport::TestCase
     [nil, "", "not_a_number"].each do |invalid_shares|
       buy_order = build(:order, action: :buy, user: user, stock: stock, shares: invalid_shares)
       sell_order = build(:order, action: :sell, user: user, stock: stock, shares: invalid_shares)
-      
+
       assert_nothing_raised do
         assert_equal false, buy_order.valid?
         assert_equal false, sell_order.valid?

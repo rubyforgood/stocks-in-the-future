@@ -45,12 +45,12 @@ class OrdersControllerTest < ActionDispatch::IntegrationTest
     [nil, "", "not_a_number"].each do |invalid_shares|
       buy_params = { order: { stock_id: stock.id, shares: invalid_shares, action: :buy } }
       sell_params = { order: { stock_id: stock.id, shares: invalid_shares, action: :sell } }
-      
+
       assert_no_difference("Order.count") do
         assert_nothing_raised do
           post(orders_path, params: buy_params)
           assert_response :unprocessable_entity
-          
+
           post(orders_path, params: sell_params)
           assert_response :unprocessable_entity
         end

@@ -43,12 +43,12 @@ class Order < ApplicationRecord
   private
 
   def number_of_shares_valid_for_calculations?
-    shares.is_a?(Numeric) && shares > 0
+    shares.is_a?(Numeric) && shares.positive?
   end
 
   def sufficient_shares_for_sell
     return unless number_of_shares_valid_for_calculations?
-    
+
     current_shares = user.portfolio&.shares_owned(stock_id) || 0
     return unless shares > current_shares
 
@@ -58,7 +58,7 @@ class Order < ApplicationRecord
 
   def sufficient_funds_for_buy
     return unless number_of_shares_valid_for_calculations?
-    
+
     current_balance_cents = (user.portfolio&.cash_balance || 0) * 100
     return unless purchase_cost > current_balance_cents
 
@@ -69,7 +69,7 @@ class Order < ApplicationRecord
 
   def sufficient_funds_for_buy_when_update
     return unless number_of_shares_valid_for_calculations?
-    
+
     current_balance_cents = (user.portfolio&.cash_balance || 0) * 100
 
     balance_before_transaction = if portfolio_transaction.present?
