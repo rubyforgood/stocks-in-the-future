@@ -36,7 +36,27 @@ class OrdersControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to orders_path
   end
 
-  # TODO: Add test for create with invalid params
+  test "create with invalid shares handles validation errors" do
+    student = create(:student)
+    student.portfolio.portfolio_transactions.create!(amount_cents: 10_000, transaction_type: :deposit)
+    stock = create(:stock, price_cents: 1_000)
+    sign_in(student)
+
+    [nil, "", "not_a_number"].each do |invalid_shares|
+      buy_params = { order: { stock_id: stock.id, shares: invalid_shares, action: :buy } }
+      sell_params = { order: { stock_id: stock.id, shares: invalid_shares, action: :sell } }
+      
+      assert_no_difference("Order.count") do
+        assert_nothing_raised do
+          post(orders_path, params: buy_params)
+          assert_response :unprocessable_entity
+          
+          post(orders_path, params: sell_params)
+          assert_response :unprocessable_entity
+        end
+      end
+    end
+  end
 
   test "edit" do
     user = create(:student)

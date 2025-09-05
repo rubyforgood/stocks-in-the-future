@@ -254,4 +254,22 @@ class OrderTest < ActiveSupport::TestCase
     assert_not order.valid?
     assert_includes order.errors[:shares], "Cannot sell more shares than you own (5 available)"
   end
+
+  test "validations handle invalid shares safely without exceptions" do
+    user = create(:student)
+    stock = create(:stock)
+    user.portfolio.portfolio_transactions.create!(amount_cents: 10_000, transaction_type: :deposit)
+
+    [nil, "", "not_a_number"].each do |invalid_shares|
+      buy_order = build(:order, action: :buy, user: user, stock: stock, shares: invalid_shares)
+      sell_order = build(:order, action: :sell, user: user, stock: stock, shares: invalid_shares)
+      
+      assert_nothing_raised do
+        assert_equal false, buy_order.valid?
+        assert_equal false, sell_order.valid?
+      end
+      assert buy_order.errors[:shares].any?
+      assert sell_order.errors[:shares].any?
+    end
+  end
 end
