@@ -1,73 +1,111 @@
-<div class="fixed inset-y-0 z-50 flex w-72">
-  <div class="flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 bg-white px-6 pt-4">
-    <div class="flex h-16 shrink-0 items-center">
-      <%= image_tag "SITF-Horz-no-tag-logo.svg", class: "h-8 w-auto", alt: "Stocks in The Future" %>
-    </div>
+<div class="fixed z-50 flex" style="width: 186px; top: 65px; bottom: 0;">
+  <div class="flex grow flex-col gap-y-5 overflow-y-auto px-0 pt-4 pb-4" style="background-color: #00698c;">
+    
     <nav class="flex flex-1 flex-col">
-      <ul role="list" class="flex flex-1 flex-col gap-y-7">
+      <ul role="list" class="flex flex-1 flex-col gap-y-1 px-2">
         <li>
-          <ul role="list" class="-mx-2 space-y-1">
-            <% if current_user&.teacher_or_admin? %>
-              <li>
-                <%= link_to classrooms_path, class: "group flex gap-x-5 rounded-md p-2 text-sm/6 font-semibold text-gray-700 hover:bg-gray-50 hover:text-indigo-600" do %>
-                  <svg class="size-5 shrink-0 text-gray-400 group-hover:text-indigo-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
-                  </svg>
-                  Classes
-                <% end %>
-              </li>
-            <% end %>
+          <ul role="list" class="space-y-1">
             <% if current_user.student? && current_user.portfolio %>
               <li>
-                <%= link_to user_portfolio_path(current_user, current_user.portfolio), class: "group flex gap-x-5 rounded-md p-2 text-sm/6 font-semibold text-gray-700 hover:bg-gray-50 hover:text-indigo-600" do %>
-                  <svg class="size-5 shrink-0 text-gray-400 group-hover:text-indigo-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 0 1 4.5 9.75h15A2.25 2.25 0 0 1 21.75 12v.75m-8.69-6.44-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z" />
-                  </svg>
-                  My Portfolio
+                <% is_active = request.path.include?('portfolios') %>
+                <%= link_to user_portfolio_path(current_user, current_user.portfolio), class: "flex items-center justify-start pl-2 pr-3 py-2 rounded-lg w-full group #{'bg-[#d3df44]' if is_active}", style: is_active ? "background-color: #d3df44;" : "" do %>
+                  <div class="flex gap-3 items-center">
+                    <div class="w-6 h-6">
+                      <svg class="w-6 h-6" style="color: <%= is_active ? '#323232' : '#eeefbe' %>;" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 0 1 4.5 9.75h15A2.25 2.25 0 0 1 21.75 12v.75m-8.69-6.44-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z" />
+                      </svg>
+                    </div>
+                    <span class="font-medium text-sm" style="color: <%= is_active ? '#323232' : 'white' %>; font-family: Inter, sans-serif;">My Portfolio</span>
+                  </div>
                 <% end %>
               </li>
             <% end %>
-            </li>
-            <li>
-              <%= link_to stocks_path, class: "group flex gap-x-5 rounded-md p-2 text-sm/6 font-semibold text-gray-700 hover:bg-gray-50 hover:text-indigo-600" do %>
-                <svg class="size-5 shrink-0 text-gray-400 group-hover:text-indigo-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />
-                </svg>
-                Trading Floor
-              <% end %>
-                <ul class="mt-1 px-2" id="stocks-sub-menu">
-                  <% navbar_stocks.each do |stock| %>
-                    <li>
-                      <%= link_to stock.ticker, stock_path(stock), class: "block rounded-md py-2 pr-2 pl-9 text-sm/6 text-gray-700 hover:bg-gray-50"%>
-                    </li>
-                  <% end %>
-                </ul>
+            
+            <% if current_user&.teacher_or_admin? %>
+              <li>
+                <% is_active = (request.path.include?('classrooms') && !request.path.include?('admin')) || request.path == '/' %>
+                <%= link_to classrooms_path, class: "flex items-center justify-start pl-2 pr-3 py-2 rounded w-full group hover:bg-opacity-20 hover:bg-black", style: is_active ? "background-color: #d3df44;" : "" do %>
+                  <div class="flex gap-3 items-center">
+                    <div class="w-6 h-6">
+                      <svg class="w-6 h-6" style="color: <%= is_active ? '#323232' : 'white' %>;" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+                      </svg>
+                    </div>
+                    <span class="font-medium text-sm" style="color: <%= is_active ? '#323232' : 'white' %>; font-family: Inter, sans-serif;">Classes</span>
+                  </div>
+                <% end %>
               </li>
-            </li>
-          </ul>
-        </li>
-        <li class="-mx-6 mt-auto">
-          <% if current_user.admin? %>
-            <%= link_to admin_classrooms_path, class: "flex items-center gap-x-4 px-6 py-3 text-sm/6 font-semibold text-gray-900 hover:bg-gray-50" do %>
-              <svg class="size-5 shrink-0 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a6.759 6.759 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-              </svg>
-              <span aria-hidden="true">Admin</span>
             <% end %>
-          <% end %>
-          <%= link_to orders_path, class: "flex items-center gap-x-4 px-6 py-3 text-sm/6 font-semibold text-gray-900 hover:bg-gray-50" do %>
-            <i class="fa-solid fa-dollar-sign size-5 shrink-0 text-gray-400"></i>
-            <span aria-hidden="true">Transactions</span>
-          <% end %>
-          <%= link_to destroy_user_session_path, data: { turbo_method: :delete }, class: "flex items-center gap-x-4 px-6 py-3 text-sm/6 font-semibold text-gray-900 hover:bg-gray-50" do %>
-            <svg class="size-5 shrink-0 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" />
-            </svg>
-            <span aria-hidden="true" style="margin-left: 4px;">Logout</span>
-          <% end %>
+            
+            <li>
+              <% is_active = request.path.include?('stocks') %>
+              <%= link_to stocks_path, class: "flex items-center justify-between pl-2 pr-3 py-2 rounded w-full group hover:bg-opacity-20 hover:bg-black", style: is_active ? "background-color: #d3df44;" : "" do %>
+                <div class="flex gap-3 items-center">
+                  <div class="w-6 h-6">
+                    <svg class="w-6 h-6" style="color: <%= is_active ? '#323232' : 'white' %>;" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />
+                    </svg>
+                  </div>
+                  <span class="font-medium text-sm" style="color: <%= is_active ? '#323232' : 'white' %>; font-family: Inter, sans-serif;">Trading Floor</span>
+                </div>
+                <!-- Arrow indicator -->
+                <div class="w-4 h-4 flex items-center justify-center">
+                  <svg class="w-3 h-3" style="color: <%= is_active ? '#323232' : 'white' %>;" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                  </svg>
+                </div>
+              <% end %>
+              
+              <!-- Individual stock links - subnav styling -->
+              <div class="box-border content-stretch flex flex-col items-start justify-start p-[8px] relative w-full ml-6">
+                <% navbar_stocks.each do |stock| %>
+                  <div class="content-stretch flex items-center justify-start relative rounded-[16px] shrink-0 w-full">
+                    <% stock_active = request.path == stock_path(stock) %>
+                    <%= link_to stock_path(stock), class: "basis-0 box-border content-stretch flex gap-2 grow h-8 items-center justify-start min-h-px min-w-px p-[8px] relative rounded-[16px] shrink-0 hover:bg-opacity-20 hover:bg-black" do %>
+                      <div class="basis-0 font-['Geist',sans-serif] font-normal grow leading-[0] min-h-px min-w-px overflow-ellipsis overflow-hidden relative shrink-0 text-[14px] text-nowrap text-white <%= 'underline decoration-2 underline-offset-2' if stock_active %>">
+                        <p class="leading-none overflow-inherit"><%= stock.ticker %></p>
+                      </div>
+                    <% end %>
+                  </div>
+                <% end %>
+              </div>
+            </li>
+            
+          </ul>
         </li>
       </ul>
     </nav>
+    
+    <!-- Footer section -->
+    <div class="flex flex-col items-center justify-start w-full mt-auto">
+      <div class="h-px w-full" style="background-color: #004f6b;"></div>
+      <div class="flex flex-col items-start justify-start w-full py-2">
+        <% if current_user.admin? %>
+          <% is_active = request.path.include?('admin') %>
+          <%= link_to admin_classrooms_path, class: "flex items-center gap-x-4 px-6 py-3 text-sm font-semibold hover:bg-opacity-20 hover:bg-black w-full", style: is_active ? "background-color: #d3df44;" : "" do %>
+            <svg class="w-5 h-5" style="color: <%= is_active ? '#323232' : 'white' %>;" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a6.759 6.759 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+            </svg>
+            <span style="color: <%= is_active ? '#323232' : 'white' %>; font-family: Inter, sans-serif;">Admin</span>
+          <% end %>
+        <% end %>
+        
+        <% is_active = request.path.include?('orders') %>
+        <%= link_to orders_path, class: "flex items-center gap-x-4 px-6 py-3 text-sm font-semibold hover:bg-opacity-20 hover:bg-black w-full", style: is_active ? "background-color: #d3df44;" : "" do %>
+          <svg class="w-5 h-5" style="color: <%= is_active ? '#323232' : 'white' %>;" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5a2.25 2.25 0 0 0 2.25-2.25m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5a2.25 2.25 0 0 1 2.25 2.25v7.5M6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Zm3-6h.008v.008H9.75V12Zm0 3h.008v.008H9.75V15Zm0 3h.008v.008H9.75V18Zm3-6h.008v.008H12.75V12Zm0 3h.008v.008H12.75V15Zm0 3h.008v.008H12.75V18Zm3-6h.008v.008H15.75V12Zm0 3h.008v.008H15.75V15Zm0 3h.008v.008H15.75V18Z" />
+          </svg>
+          <span style="color: <%= is_active ? '#323232' : 'white' %>; font-family: Inter, sans-serif;">Transactions</span>
+        <% end %>
+        
+        <%= link_to destroy_user_session_path, data: { turbo_method: :delete }, class: "flex items-center gap-x-4 px-6 py-3 text-sm font-semibold hover:bg-opacity-20 hover:bg-black w-full" do %>
+          <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" />
+          </svg>
+          <span class="text-white" style="font-family: Inter, sans-serif;">Logout</span>
+        <% end %>
+      </div>
+    </div>
   </div>
 </div>
