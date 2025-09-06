@@ -1,17 +1,86 @@
-<div class="w-full">
+<div class="flex flex-col h-full w-full">
   <% if notice.present? %>
     <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-lg inline-block" id="notice"><%= notice %></p>
   <% end %>
 
-  <div class="flex justify-between items-center">
-    <h1 class="font-bold text-4xl">Classrooms</h1>
+  <header class="flex items-center justify-between px-6 py-4 border-b">
+    <h1 class="text-2xl font-bold">Classrooms</h1>
     <% if policy(Classroom).new? %>
-      <%= link_to "New classroom", new_classroom_path, 
-        class: "tw-btn-primary"  %>
+      <%= link_to "New classroom", new_classroom_path, class: "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" %>
     <% end %>
-  </div>
+  </header>
 
-  <div id="classrooms" class="min-w-full">
-    <%= render @classrooms %>
-  </div>
+  <main class="flex-1 p-6">
+    <%= render "shared/table_container" do %>
+      <thead>
+        <tr class="table-header-row">
+          <th class="table-header-cell table-header-cell-left">
+            Name
+          </th>
+          <th class="table-header-cell table-header-cell-left">
+            Student Count
+          </th>
+          <th class="table-header-cell table-header-cell-right">
+            Total Earnings
+          </th>
+          <th class="table-header-cell table-header-cell-center">
+            Edit
+          </th>
+          <th class="table-header-cell table-header-cell-center">
+            Delete
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if @classrooms.any? %>
+          <% @classrooms.each do |classroom| %>
+            <tr class="table-body-row">
+              <td class="table-body-cell">
+                <span class="table-cell-content">
+                  <%= classroom.name %>
+                </span>
+              </td>
+              <td class="table-body-cell">
+                <span class="table-cell-content">
+                  <%= classroom.students.count %>
+                </span>
+              </td>
+              <td class="table-body-cell table-body-cell-right">
+                <span class="table-cell-content">
+                  $<%= number_with_precision(classroom.students.sum { |s| s.portfolio&.current_position || 0 }, precision: 2) %>
+                </span>
+              </td>
+              <td class="table-body-cell table-body-cell-center">
+                <% if policy(classroom).edit? %>
+                  <%= link_to edit_classroom_path(classroom), class: "table-action-link" do %>
+                    <i class="fa fa-pencil fa-lg"></i>
+                  <% end %>
+                <% else %>
+                  <span class="table-no-permission">-</span>
+                <% end %>
+              </td>
+              <td class="table-body-cell table-body-cell-center">
+                <% if policy(classroom).destroy? %>
+                  <%= button_to classroom_path(classroom), method: :delete,
+                    data: { confirm: "Are you sure you want to delete this classroom?" },
+                    class: "table-action-button" do %>
+                    <i class="fa fa-trash fa-lg"></i>
+                  <% end %>
+                <% else %>
+                  <span class="table-no-permission">-</span>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        <% else %>
+          <tr class="table-body-row">
+            <td class="table-empty-cell" colspan="5">
+              <p class="text-lg">No classrooms found</p>
+              <p class="mt-2">Create your first classroom to get started!</p>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    <% end %>
+  </main>
 </div>
