@@ -4,7 +4,7 @@
   <% end %>
 
   <header class="flex items-center justify-between px-6 py-4 border-b">
-    <h1 class="text-2xl font-bold">Orders</h1>
+    <h1 class="text-2xl font-bold">Transactions</h1>
     <%= link_to "New Order", new_order_path, class: "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" %>
   </header>
 
@@ -15,7 +15,21 @@
           <thead>
             <tr class="border-b border-black">
               <th class="h-10 px-2 py-3 text-left font-medium text-base text-black border-b border-black">
+                Date
+              </th>
+              <% if current_user&.teacher_or_admin? %>
+                <th class="h-10 px-2 py-3 text-left font-medium text-base text-black border-b border-black">
+                  Username
+                </th>
+                <th class="h-10 px-2 py-3 text-left font-medium text-base text-black border-b border-black">
+                  Class
+                </th>
+              <% end %>
+              <th class="h-10 px-2 py-3 text-left font-medium text-base text-black border-b border-black">
                 Stock
+              </th>
+              <th class="h-10 px-2 py-3 text-left font-medium text-base text-black border-b border-black">
+                Price per share
               </th>
               <th class="h-10 px-2 py-3 text-left font-medium text-base text-black border-b border-black">
                 Shares
@@ -36,6 +50,23 @@
               <% @orders.each do |order| %>
                 <tr class="h-14 border-b border-black">
                   <td class="px-2 py-2 border-b border-black">
+                    <span class="text-base text-black">
+                      <%= order.created_at.to_date %>
+                    </span>
+                  </td>
+                  <% if current_user&.teacher_or_admin? %>
+                    <td class="px-2 py-2 border-b border-black">
+                      <span class="text-base text-black">
+                        <%= order.user.username %>
+                      </span>
+                    </td>
+                    <td class="px-2 py-2 border-b border-black">
+                      <span class="text-base text-black">
+                        <%= order.user.classroom&.name || "-" %>
+                      </span>
+                    </td>
+                  <% end %>
+                  <td class="px-2 py-2 border-b border-black">
                     <div class="flex flex-col gap-1">
                       <span class="font-medium text-base text-black leading-tight">
                         <%= order.stock.company_name %>
@@ -44,6 +75,11 @@
                         <%= order.stock.ticker %>
                       </span>
                     </div>
+                  </td>
+                  <td class="px-2 py-2 border-b border-black">
+                    <span class="text-base text-black">
+                      $<%= order.stock.current_price %>
+                    </span>
                   </td>
                   <td class="px-2 py-2 border-b border-black">
                     <span class="text-base text-black">
