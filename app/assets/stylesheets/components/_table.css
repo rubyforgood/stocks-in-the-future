@@ -1,0 +1,83 @@
+/* Table Container */
+.table-container {
+  @apply bg-white rounded-[20px] overflow-hidden shadow-sm border border-gray-100 mb-4;
+}
+
+/* Table Wrapper */
+.table-wrapper {
+  @apply overflow-x-auto;
+}
+
+/* Table Base */
+.table-base {
+  @apply w-full min-w-[700px] border-collapse font-sans;
+}
+
+/* Header Row */
+.table-header-row {
+  @apply border-b border-black;
+}
+
+/* Header Cell Base */
+.table-header-cell {
+  @apply h-10 px-2 py-3 font-medium text-base text-black border-b border-black;
+}
+
+/* Header Cell - Left Aligned */
+.table-header-cell-left {
+  @apply text-left;
+}
+
+/* Header Cell - Right Aligned */
+.table-header-cell-right {
+  @apply text-right;
+}
+
+/* Header Cell - Center Aligned */
+.table-header-cell-center {
+  @apply text-center;
+}
+
+/* Body Row */
+.table-body-row {
+  @apply h-14 border-b border-black;
+}
+
+/* Body Cell Base */
+.table-body-cell {
+  @apply px-2 py-2 border-b border-black;
+}
+
+/* Body Cell - Right Aligned */
+.table-body-cell-right {
+  @apply text-right;
+}
+
+/* Body Cell - Center Aligned */
+.table-body-cell-center {
+  @apply text-center;
+}
+
+/* Cell Content */
+.table-cell-content {
+  @apply text-base text-black;
+}
+
+/* Empty State Cell */
+.table-empty-cell {
+  @apply px-2 py-4 text-center text-gray-500 border-b border-black;
+}
+
+/* No Permission Placeholder */
+.table-no-permission {
+  @apply text-gray-400;
+}
+
+/* Action Links and Buttons */
+.table-action-link {
+  @apply text-blue-600 hover:text-blue-800;
+}
+
+.table-action-button {
+  @apply text-red-600 hover:text-red-800;
+}

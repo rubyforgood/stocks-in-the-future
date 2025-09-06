@@ -8,7 +8,7 @@ class ClassroomsController < ApplicationController
   before_action :check_classroom_eligibility, only: :show
 
   def index
-    @classrooms = policy_scope(Classroom)
+    @classrooms = policy_scope(Classroom).includes(students: :portfolio)
   end
 
   def show

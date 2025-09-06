@@ -9,136 +9,132 @@
   </header>
 
   <main class="flex-1 p-6">
-    <div class="bg-white rounded-[20px] overflow-hidden shadow-sm border border-gray-100 h-full">
-      <div class="overflow-x-auto">
-        <table class="w-full min-w-[700px] border-collapse font-sans">
-          <thead>
-            <tr class="border-b border-black">
-              <th class="h-10 px-2 py-3 text-left font-medium text-base text-black border-b border-black">
-                Date
-              </th>
+    <%= render "shared/table_container" do %>
+      <thead>
+        <tr class="table-header-row">
+          <th class="table-header-cell table-header-cell-left">
+            Date
+          </th>
+          <% if current_user&.teacher_or_admin? %>
+            <th class="table-header-cell table-header-cell-left">
+              Username
+            </th>
+            <th class="table-header-cell table-header-cell-left">
+              Class
+            </th>
+          <% end %>
+          <th class="table-header-cell table-header-cell-left">
+            Stock
+          </th>
+          <th class="table-header-cell table-header-cell-left">
+            Price per share
+          </th>
+          <th class="table-header-cell table-header-cell-left">
+            Shares
+          </th>
+          <th class="table-header-cell table-header-cell-left">
+            Status
+          </th>
+          <th class="table-header-cell table-header-cell-right">
+            Total Cost
+          </th>
+          <th class="table-header-cell table-header-cell-center">
+            Actions
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if @orders.any? %>
+          <% @orders.each do |order| %>
+            <tr class="table-body-row">
+              <td class="table-body-cell">
+                <span class="table-cell-content">
+                  <%= order.created_at.to_date %>
+                </span>
+              </td>
               <% if current_user&.teacher_or_admin? %>
-                <th class="h-10 px-2 py-3 text-left font-medium text-base text-black border-b border-black">
-                  Username
-                </th>
-                <th class="h-10 px-2 py-3 text-left font-medium text-base text-black border-b border-black">
-                  Class
-                </th>
-              <% end %>
-              <th class="h-10 px-2 py-3 text-left font-medium text-base text-black border-b border-black">
-                Stock
-              </th>
-              <th class="h-10 px-2 py-3 text-left font-medium text-base text-black border-b border-black">
-                Price per share
-              </th>
-              <th class="h-10 px-2 py-3 text-left font-medium text-base text-black border-b border-black">
-                Shares
-              </th>
-              <th class="h-10 px-2 py-3 text-left font-medium text-base text-black border-b border-black">
-                Status
-              </th>
-              <th class="h-10 px-2 py-3 text-right font-medium text-base text-black border-b border-black">
-                Total Cost
-              </th>
-              <th class="h-10 px-2 py-3 text-center font-medium text-base text-black border-b border-black">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <% if @orders.any? %>
-              <% @orders.each do |order| %>
-                <tr class="h-14 border-b border-black">
-                  <td class="px-2 py-2 border-b border-black">
-                    <span class="text-base text-black">
-                      <%= order.created_at.to_date %>
-                    </span>
-                  </td>
-                  <% if current_user&.teacher_or_admin? %>
-                    <td class="px-2 py-2 border-b border-black">
-                      <span class="text-base text-black">
-                        <%= order.user.username %>
-                      </span>
-                    </td>
-                    <td class="px-2 py-2 border-b border-black">
-                      <span class="text-base text-black">
-                        <%= order.user.classroom&.name || "-" %>
-                      </span>
-                    </td>
-                  <% end %>
-                  <td class="px-2 py-2 border-b border-black">
-                    <div class="flex flex-col gap-1">
-                      <span class="font-medium text-base text-black leading-tight">
-                        <%= order.stock.company_name %>
-                      </span>
-                      <span class="text-sm text-gray-600 leading-tight">
-                        <%= order.stock.ticker %>
-                      </span>
-                    </div>
-                  </td>
-                  <td class="px-2 py-2 border-b border-black">
-                    <span class="text-base text-black">
-                      $<%= order.stock.current_price %>
-                    </span>
-                  </td>
-                  <td class="px-2 py-2 border-b border-black">
-                    <span class="text-base text-black">
-                      <%= order.shares %>
-                    </span>
-                  </td>
-                  <td class="px-2 py-2 border-b border-black">
-                    <div class="box-border content-stretch flex gap-2 h-9 items-center justify-center px-4 py-2 relative rounded-[16px] shrink-0 inline-flex
-                      <%= case order.status
-                          when 'pending'
-                            'bg-yellow-100 text-yellow-800'
-                          when 'completed'
-                            'bg-green-100 text-green-800'
-                          when 'canceled'
-                            'bg-red-100 text-red-800'
-                          else
-                            'bg-gray-100 text-gray-800'
-                          end %>">
-                      <div class="font-medium leading-[0] relative shrink-0 text-[14px] text-nowrap">
-                        <p class="leading-[20px] whitespace-pre"><%= order.status.capitalize %></p>
-                      </div>
-                    </div>
-                  </td>
-                  <td class="px-2 py-2 border-b border-black text-right">
-                    <span class="text-base text-black">
-                      <% if order.stock.price_cents && order.shares %>
-                        $<%= sprintf("%.2f", order.purchase_cost / 100.0) %>
-                      <% else %>
-                        <span class="text-gray-600">Price unavailable</span>
-                      <% end %>
-                    </span>
-                  </td>
-                  <td class="px-2 py-2 border-b border-black text-center">
-                    <div class="flex justify-center space-x-2">
-                      <% if order.pending? %>
-                        <%= link_to edit_order_path(order), class: "text-blue-600 hover:text-blue-800" do %>
-                          <i class="fa fa-pencil fa-lg"></i>
-                        <% end %>
-                        <%= form_with url: cancel_order_path(order), method: :patch, data: { confirm: t("orders.cancel.confirm"), turbo_confirm: t("orders.cancel.confirm") } do %>
-                          <button type="submit" class="text-red-600 hover:text-red-800">
-                            <i class="fa fa-ban fa-lg"></i>
-                          </button>
-                        <% end %>
-                      <% end %>
-                    </div>
-                  </td>
-                </tr>
-              <% end %>
-            <% else %>
-              <tr class="h-14 border-b border-black">
-                <td colspan="5" class="px-2 py-4 text-center text-gray-500 border-b border-black">
-                  <p class="text-lg">No orders found</p>
-                  <p class="mt-2">Create your first order to get started!</p>
+                <td class="table-body-cell">
+                  <span class="table-cell-content">
+                    <%= order.user.username %>
+                  </span>
                 </td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
-      </div>
-    </div>
+                <td class="table-body-cell">
+                  <span class="table-cell-content">
+                    <%= order.user.classroom&.name || "-" %>
+                  </span>
+                </td>
+              <% end %>
+              <td class="table-body-cell">
+                <div class="flex flex-col gap-1">
+                  <span class="font-medium text-base text-black leading-tight">
+                    <%= order.stock.company_name %>
+                  </span>
+                  <span class="text-sm text-gray-600 leading-tight">
+                    <%= order.stock.ticker %>
+                  </span>
+                </div>
+              </td>
+              <td class="table-body-cell">
+                <span class="table-cell-content">
+                  $<%= order.stock.current_price %>
+                </span>
+              </td>
+              <td class="table-body-cell">
+                <span class="table-cell-content">
+                  <%= order.shares %>
+                </span>
+              </td>
+              <td class="table-body-cell">
+                <div class="box-border content-stretch flex gap-2 h-9 items-center justify-center px-4 py-2 relative rounded-[16px] shrink-0 inline-flex
+                  <%= case order.status
+                      when 'pending'
+                        'bg-yellow-100 text-yellow-800'
+                      when 'completed'
+                        'bg-green-100 text-green-800'
+                      when 'canceled'
+                        'bg-red-100 text-red-800'
+                      else
+                        'bg-gray-100 text-gray-800'
+                      end %>">
+                  <div class="font-medium leading-[0] relative shrink-0 text-[14px] text-nowrap">
+                    <p class="leading-[20px] whitespace-pre"><%= order.status.capitalize %></p>
+                  </div>
+                </div>
+              </td>
+              <td class="table-body-cell table-body-cell-right">
+                <span class="table-cell-content">
+                  <% if order.stock.price_cents && order.shares %>
+                    $<%= sprintf("%.2f", order.purchase_cost / 100.0) %>
+                  <% else %>
+                    <span class="text-gray-600">Price unavailable</span>
+                  <% end %>
+                </span>
+              </td>
+              <td class="table-body-cell table-body-cell-center">
+                <div class="flex justify-center space-x-2">
+                  <% if order.pending? %>
+                    <%= link_to edit_order_path(order), class: "table-action-link" do %>
+                      <i class="fa fa-pencil fa-lg"></i>
+                    <% end %>
+                    <%= form_with url: cancel_order_path(order), method: :patch, data: { confirm: t("orders.cancel.confirm"), turbo_confirm: t("orders.cancel.confirm") } do %>
+                      <button type="submit" class="table-action-button">
+                        <i class="fa fa-ban fa-lg"></i>
+                      </button>
+                    <% end %>
+                  <% end %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        <% else %>
+          <tr class="table-body-row">
+            <td class="table-empty-cell" colspan="9">
+              <p class="text-lg">No orders found</p>
+              <p class="mt-2">Create your first order to get started!</p>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    <% end %>
   </main>
 </div>
