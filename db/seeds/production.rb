@@ -6,6 +6,11 @@ puts ""
 
 # ---------------------- Add your seed code in this block ----------------------
 
+# Create years
+puts "Creating years..."
+load(Rails.root.join("db", "seeds", "partials", "years.rb"))
+puts "...done."
+
 # Create stocks
 puts "Creating stocks..."
 load(Rails.root.join("db", "seeds", "partials", "stocks.rb"))
