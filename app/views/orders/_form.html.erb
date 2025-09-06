@@ -32,7 +32,7 @@
 
     <div class="pb-3">
       <%= form.label "# of shares #{order.action == 'buy' ? 'buying' : 'selling'}" %>
-      <%= form.number_field :shares, min: 1, class: "shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline", data: { order_form_target: "shares", action: "input->order-form#calculateTotal" } %>
+      <%= form.number_field :shares, min: 1, required: true, class: "shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline", data: { order_form_target: "shares", action: "input->order-form#calculateTotal" } %>
     </div>
     <hr class="py-3"></hr>
 
