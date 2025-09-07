@@ -1,9 +1,9 @@
 .tw-btn-sell {
-  @apply rounded-md bg-[#00698c] px-4 py-2 text-sm font-semibold text-white hover:bg-[#004f6b] focus-visible:outline-2 focus-visible:outline-offset-2;
+  @apply box-border content-stretch flex gap-2 h-9 items-center justify-center px-4 py-2 relative rounded-[16px] shrink-0 inline-flex bg-sitf-primary-blue text-white hover:bg-sitf-dark-blue;
 }
 
 .tw-btn-buy {
-  @apply rounded-md bg-white px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-gray-300 ring-inset hover:bg-gray-50
+  @apply box-border content-stretch flex gap-2 h-9 items-center justify-center px-4 py-2 relative rounded-[16px] shrink-0 inline-flex bg-sitf-secondary-teal text-white hover:bg-sitf-dark-blue;
 }
 
 .tw-btn-primary {
