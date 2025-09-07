@@ -6,9 +6,18 @@
   <div class="flex justify-between items-center pb-2 pt-4">
     <h1 class="font-bold text-4xl">Trading Floor</h1>
     <% if current_user.student? %>
-      <h3 class="bg-green-500 bg-opacity-25 p-3 border-green-800">
-        Earnings to Invest: <%= number_to_currency(@portfolio.cash_balance) %>
-      </h3>
+      <div class="bg-white box-border flex items-center justify-between py-6 pl-6 pr-24 relative rounded-[24px] shadow-sm">
+        <div class="absolute border border-black inset-0 pointer-events-none rounded-[24px]"></div>
+        <div class="flex flex-col gap-1 items-start justify-start">
+          <div class="flex h-6 items-center justify-start relative">
+            <p class="font-normal text-[#333333] text-base leading-6">Earnings to Invest</p>
+          </div>
+          <div class="font-semibold text-black text-3xl leading-9 tracking-[-0.75px]">
+            <p class="whitespace-pre"><%= number_to_currency(@portfolio.cash_balance) %></p>
+          </div>
+        </div>
+        <%= image_tag "investment-funds.png", class: "w-32 h-32 flex-shrink-0 absolute bottom-0 right-6 transform translate-y-[-5%]", alt: "Investment Funds" %>
+      </div>
     <% end %>
 
   </div>
@@ -30,7 +39,7 @@
               Your Holdings
             </th>
             <th class="table-header-cell table-header-cell-center" colspan="2">
-              Actions
+
             </th>
           <% end %>
         </tr>
@@ -56,7 +65,7 @@
                   </span>
                 </td>
                 <td class="table-body-cell table-body-cell-center" colspan="2">
-                  <%= link_to '<i class="fa-solid fa-angle-up"></i> Buy'.html_safe, new_order_path(stock_id: stock.id, transaction_type: :buy), class: "tw-btn-buy -ml-1" %>
+                  <%= link_to '<i class="fa-solid fa-angle-up"></i> Buy'.html_safe, new_order_path(stock_id: stock.id, transaction_type: :buy), class: "tw-btn-buy -ml-1", style: "margin-right: 100px;" %>
                   <%= link_to '<i class="fa-solid fa-angle-down"></i> Sell'.html_safe, new_order_path(stock_id: stock.id, transaction_type: :sell), class: "tw-btn-sell -mr-1" %>
                 </td>
               <% end %>
