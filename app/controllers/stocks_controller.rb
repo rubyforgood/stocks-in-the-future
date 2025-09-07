@@ -2,11 +2,12 @@
 
 class StocksController < ApplicationController
   before_action :set_stock, only: %i[show]
-  before_action :set_portfolio
   before_action :authenticate_user!
+  before_action :set_portfolio
 
   def index
-    @stocks = Stock.all
+    @stocks = Stock.active.includes(portfolio_stocks: :portfolio)
+    @portfolio = current_user.portfolio if current_user.student?
   end
 
   def show; end
