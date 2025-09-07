@@ -21,6 +21,22 @@
               </li>
             <% end %>
             
+            <% if current_user.student? %>
+              <li>
+                <% is_active = request.path.include?('orders') %>
+                <%= link_to orders_path, class: "flex items-center pl-2 pr-3 py-2 rounded w-full group hover:bg-opacity-20 hover:bg-black", style: is_active ? "background-color: #d3df44;" : "" do %>
+                  <div class="flex gap-3 items-center">
+                    <div class="w-6 h-6">
+                      <svg class="w-6 h-6" style="color: <%= is_active ? '#323232' : 'white' %>;" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5a2.25 2.25 0 0 0 2.25-2.25m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5a2.25 2.25 0 0 1 2.25 2.25v7.5M6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Zm3-6h.008v.008H9.75V12Zm0 3h.008v.008H9.75V15Zm0 3h.008v.008H9.75V18Zm3-6h.008v.008H12.75V12Zm0 3h.008v.008H12.75V15Zm0 3h.008v.008H12.75V18Zm3-6h.008v.008H15.75V12Zm0 3h.008v.008H15.75V15Zm0 3h.008v.008H15.75V18Z" />
+                      </svg>
+                    </div>
+                    <span class="font-medium text-sm" style="color: <%= is_active ? '#323232' : 'white' %>; font-family: Inter, sans-serif;">Transactions</span>
+                  </div>
+                <% end %>
+              </li>
+            <% end %>
+            
             <% if current_user&.teacher_or_admin? %>
               <li>
                 <% is_active = (request.path.include?('classrooms') && !request.path.include?('admin')) || request.path == '/' %>
@@ -89,14 +105,6 @@
             </svg>
             <span style="color: <%= is_active ? '#323232' : 'white' %>; font-family: Inter, sans-serif;">Admin</span>
           <% end %>
-        <% end %>
-        
-        <% is_active = request.path.include?('orders') %>
-        <%= link_to orders_path, class: "flex items-center gap-x-4 px-6 py-3 text-sm font-semibold hover:bg-opacity-20 hover:bg-black w-full", style: is_active ? "background-color: #d3df44;" : "" do %>
-          <svg class="w-5 h-5" style="color: <%= is_active ? '#323232' : 'white' %>;" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5a2.25 2.25 0 0 0 2.25-2.25m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5a2.25 2.25 0 0 1 2.25 2.25v7.5M6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Zm3-6h.008v.008H9.75V12Zm0 3h.008v.008H9.75V15Zm0 3h.008v.008H9.75V18Zm3-6h.008v.008H12.75V12Zm0 3h.008v.008H12.75V15Zm0 3h.008v.008H12.75V18Zm3-6h.008v.008H15.75V12Zm0 3h.008v.008H15.75V15Zm0 3h.008v.008H15.75V18Z" />
-          </svg>
-          <span style="color: <%= is_active ? '#323232' : 'white' %>; font-family: Inter, sans-serif;">Transactions</span>
         <% end %>
         
         <%= link_to destroy_user_session_path, data: { turbo_method: :delete }, class: "flex items-center gap-x-4 px-6 py-3 text-sm font-semibold hover:bg-opacity-20 hover:bg-black w-full" do %>
