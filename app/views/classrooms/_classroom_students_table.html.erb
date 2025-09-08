@@ -12,7 +12,6 @@
     <% end %>
   </div>
 
-
   <div class="overflow-x-auto">
     <table class="min-w-full divide-y divide-gray-200">
       <thead class="bg-gray-50">
@@ -27,10 +26,10 @@
       </thead>
       <tbody class="bg-white divide-y divide-gray-200">
         <% @students.each do |student| %>
-          <tr>
+          <tr class="hover:bg-gray-50 transition-colors duration-150">
             <td class="px-6 py-4 whitespace-nowrap">
               <% if student.username.present? %>
-                <%= link_to student.username, classroom_student_path(@classroom, student), class: "text-blue-600 hover:text-blue-900" %>
+                <%= link_to student.username, classroom_student_path(@classroom, student), class: "text-blue-600 hover:text-blue-900 font-medium" %>
               <% else %>
                 <span class="text-gray-400 italic">No username set</span>
               <% end %>
@@ -42,7 +41,7 @@
                 <span class="text-gray-400">No portfolio</span>
               <% end %>
             </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
               <% if student.portfolio %>
                 $<%= number_with_precision(student.portfolio.current_position, precision: 2) %>
               <% else %>
@@ -51,21 +50,35 @@
             </td>
             <% if @can_manage_students %>
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                <div class="flex space-x-2">
-                  <%= link_to "Edit", edit_classroom_student_path(@classroom, student),
-                      class: "text-indigo-600 hover:text-indigo-900" %>
-                  <%= link_to "Reset Password", reset_password_classroom_student_path(@classroom, student),
+                <div class="flex items-center gap-2">
+                  <!-- Edit Button -->
+                  <%= link_to edit_classroom_student_path(@classroom, student),
+                      class: "inline-flex items-center justify-center w-8 h-8 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-all duration-150 group",
+                      title: "Edit student" do %>
+                    <i class="fa fa-pencil fa-lg group-hover:scale-110 transition-transform duration-150"></i>
+                  <% end %>
+
+                  <!-- Reset Password Button -->
+                  <%= link_to reset_password_classroom_student_path(@classroom, student),
                       data: {
                         turbo_method: :patch,
                         turbo_confirm: "Are you sure you want to reset #{student.username}'s password?"
                       },
-                      class: "text-yellow-600 hover:text-yellow-900" %>
-                  <%= link_to "Delete", classroom_student_path(@classroom, student),
+                      class: "inline-flex items-center justify-center w-8 h-8 text-amber-600 hover:text-amber-800 hover:bg-amber-50 rounded-lg transition-all duration-150 group",
+                      title: "Reset password" do %>
+                    <i class="fa fa-key fa-lg group-hover:scale-110 transition-transform duration-150"></i>
+                  <% end %>
+
+                  <!-- Delete Button -->
+                  <%= link_to classroom_student_path(@classroom, student),
                       data: {
                         turbo_method: :delete,
                         turbo_confirm: "Are you sure you want to delete #{student.username}?"
                       },
-                      class: "tw-btn-danger" %>
+                      class: "inline-flex items-center justify-center w-8 h-8 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-all duration-150 group",
+                      title: "Delete student" do %>
+                    <i class="fa fa-trash fa-lg group-hover:scale-110 transition-transform duration-150"></i>
+                  <% end %>
                 </div>
               </td>
             <% end %>
