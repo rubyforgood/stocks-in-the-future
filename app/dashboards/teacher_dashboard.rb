@@ -13,7 +13,6 @@ class TeacherDashboard < Administrate::BaseDashboard
     id: Field::Number,
     classroom_id: Field::Number,
     email: Field::String,
-    portfolio: Field::HasOne,
     username: Field::String,
     created_at: Field::DateTime,
     updated_at: Field::DateTime
@@ -36,7 +35,6 @@ class TeacherDashboard < Administrate::BaseDashboard
     id
     classroom_id
     email
-    portfolio
     username
     created_at
     updated_at
