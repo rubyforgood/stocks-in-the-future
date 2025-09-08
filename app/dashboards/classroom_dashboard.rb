@@ -15,6 +15,10 @@ class ClassroomDashboard < Administrate::BaseDashboard
       searchable: false,
       collection: %w[5th 6th 7th 8th 9th 10th 11th 12th]
     ),
+    grade_numeric: Field::Select.with_options(
+      searchable: false,
+      collection: [5, 6, 7, 8, 9, 10, 11, 12]
+    ),
     name: Field::String,
     school_year: Field::BelongsTo,
     school: Field::HasOne,
@@ -55,6 +59,7 @@ class ClassroomDashboard < Administrate::BaseDashboard
   # on the model's form (`new` and `edit`) pages.
   FORM_ATTRIBUTES = %i[
     grade
+    grade_numeric
     name
     school_year
     students
