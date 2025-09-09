@@ -26,7 +26,7 @@
       </thead>
       <tbody class="bg-white divide-y divide-gray-200">
         <% @students.each do |student| %>
-          <tr class="hover:bg-gray-50 transition-colors duration-150">
+          <tr class="group hover:bg-gray-50 transition-colors duration-150">
             <td class="px-6 py-4 whitespace-nowrap">
               <% if student.username.present? %>
                 <%= link_to student.username, classroom_student_path(@classroom, student), class: "text-blue-600 hover:text-blue-900 font-medium" %>
@@ -51,14 +51,12 @@
             <% if @can_manage_students %>
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                 <div class="flex items-center gap-2">
-                  <!-- Edit Button -->
                   <%= link_to edit_classroom_student_path(@classroom, student),
                       class: "inline-flex items-center justify-center w-8 h-8 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-all duration-150 group",
                       title: "Edit student" do %>
                     <i class="fa fa-pencil fa-lg group-hover:scale-110 transition-transform duration-150"></i>
                   <% end %>
 
-                  <!-- Reset Password Button -->
                   <%= link_to reset_password_classroom_student_path(@classroom, student),
                       data: {
                         turbo_method: :patch,
@@ -69,7 +67,6 @@
                     <i class="fa fa-key fa-lg group-hover:scale-110 transition-transform duration-150"></i>
                   <% end %>
 
-                  <!-- Delete Button -->
                   <%= link_to classroom_student_path(@classroom, student),
                       data: {
                         turbo_method: :delete,
