@@ -1,0 +1,9 @@
+<% if options[:method] %>
+  <%= button_to options[:path], method: options[:method], data: options[:data] || {}, class: "inline-flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 #{options[:text_class] || 'text-blue-600'} hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-all duration-150 group", title: options[:title], aria: { label: options[:aria_label] } do %>
+    <i class="fa <%= options[:icon] %> fa-sm sm:fa-lg group-hover:scale-110 transition-transform duration-150"></i>
+  <% end %>
+<% else %>
+  <%= link_to options[:path], class: "inline-flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 #{options[:text_class] || 'text-blue-600'} hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-all duration-150 group", title: options[:title], aria: { label: options[:aria_label] }, data: options[:data] || {} do %>
+    <i class="fa <%= options[:icon] %> fa-sm sm:fa-lg group-hover:scale-110 transition-transform duration-150"></i>
+  <% end %>
+<% end %>

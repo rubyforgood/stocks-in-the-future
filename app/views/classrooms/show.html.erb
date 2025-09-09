@@ -7,16 +7,22 @@
     <%= render @classroom %>
     <%= render 'classroom_students_table', students: @classroom.users %>
 
-    <% if policy(Classroom).edit? %>
-      <%= link_to "Edit this classroom", edit_classroom_path(@classroom),
-        class: "tw-btn-tertiary" %>
-    <% end %>
-    <% if policy(Classroom).destroy? %>
-      <div class="inline-block ml-2">
-        <%= button_to "Destroy this classroom", classroom_path(@classroom), method: :delete,
-          class: "tw-btn-danger" %>
+    <% if policy(Classroom).edit? || policy(Classroom).destroy? %>
+      <div class="mt-8 pt-6 border-t border-gray-200">
+        <div class="flex items-center justify-between">
+          <h3 class="text-lg font-medium text-gray-900">Classroom Actions</h3>
+          <div class="flex items-center gap-3">
+            <% if policy(Classroom).edit? %>
+              <%= render partial: "components/action_icon_button", locals: { options: { path: edit_classroom_path(@classroom), icon: "fa-pencil", title: "Edit classroom", aria_label: "Edit classroom", text_class: "text-blue-600" } } %>
+            <% end %>
+            <% if policy(Classroom).destroy? %>
+              <%= render partial: "components/action_icon_button", locals: { options: { path: classroom_path(@classroom), icon: "fa-trash", title: "Delete classroom", aria_label: "Delete classroom", text_class: "text-red-600", method: :delete, data: { turbo_confirm: "Are you sure you want to delete this classroom? This action cannot be undone." } } } %>
+            <% end %>
+          </div>
+        </div>
       </div>
     <% end %>
+
     <!-- Temporary UI, remove when tabbed table is wired up: -->
     <%= render "grade_books_list", grade_books: @classroom.grade_books %>
   </div>
