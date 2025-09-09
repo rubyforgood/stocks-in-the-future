@@ -52,20 +52,15 @@
               </td>
               <td class="table-body-cell table-body-cell-center">
                 <% if policy(classroom).edit? %>
-                  <%= link_to edit_classroom_path(classroom), class: "table-action-link" do %>
-                    <i class="fa fa-pencil fa-lg"></i>
-                  <% end %>
+                  <%= render partial: "components/action_icon_button", locals: { options: { path: edit_classroom_path(classroom), icon: "fa-pencil", title: "Edit classroom", aria_label: "Edit classroom", text_class: "text-blue-600" } } %>
+
                 <% else %>
                   <span class="table-no-permission">-</span>
                 <% end %>
               </td>
               <td class="table-body-cell table-body-cell-center">
                 <% if policy(classroom).destroy? %>
-                  <%= button_to classroom_path(classroom), method: :delete,
-                    data: { confirm: "Are you sure you want to delete this classroom?" },
-                    class: "table-action-button" do %>
-                    <i class="fa fa-trash fa-lg"></i>
-                  <% end %>
+                  <%= render partial: "components/action_icon_button", locals: { options: { path: classroom_path(classroom), icon: "fa-trash", title: "Delete classroom", aria_label: "Delete classroom", text_class: "text-red-600", method: :delete, data: { turbo_confirm: "Are you sure you want to delete this classroom?" } } } %>
                 <% else %>
                   <span class="table-no-permission">-</span>
                 <% end %>

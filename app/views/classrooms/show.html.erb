@@ -7,21 +7,16 @@
     <%= render @classroom %>
     <%= render 'classroom_students_table', students: @classroom.users %>
 
-    <!-- Classroom Actions Section -->
     <% if policy(Classroom).edit? || policy(Classroom).destroy? %>
       <div class="mt-8 pt-6 border-t border-gray-200">
         <div class="flex items-center justify-between">
           <h3 class="text-lg font-medium text-gray-900">Classroom Actions</h3>
           <div class="flex items-center gap-3">
             <% if policy(Classroom).edit? %>
-              <%= link_to "Edit Classroom", edit_classroom_path(@classroom),
-                class: "tw-btn-tertiary" %>
+              <%= render partial: "components/action_icon_button", locals: { options: { path: edit_classroom_path(@classroom), icon: "fa-pencil", title: "Edit classroom", aria_label: "Edit classroom", text_class: "text-blue-600" } } %>
             <% end %>
             <% if policy(Classroom).destroy? %>
-              <%= button_to "Delete Classroom", classroom_path(@classroom),
-                method: :delete,
-                data: { confirm: "Are you sure you want to delete this classroom? This action cannot be undone." },
-                class: "tw-btn-danger" %>
+              <%= render partial: "components/action_icon_button", locals: { options: { path: classroom_path(@classroom), icon: "fa-trash", title: "Delete classroom", aria_label: "Delete classroom", text_class: "text-red-600", method: :delete, data: { turbo_confirm: "Are you sure you want to delete this classroom? This action cannot be undone." } } } %>
             <% end %>
           </div>
         </div>
