@@ -86,9 +86,11 @@
       </ul>
     </nav>
     
-    <div class="absolute bottom-24 z-50" style="right: -250px;">
-      <div class="w-96 h-96 bg-center bg-contain bg-no-repeat" style="background-image: url('http://localhost:3845/assets/e7a64660ad5abe60ad5e75e16aa76420d99eb591.png');"></div>
-    </div>
+    <% if request.path.include?('portfolios') %>
+      <div class="absolute bottom-24 z-50" style="right: -350px;">
+        <%= image_tag "confident_man_riding_rocket.png", class: "object-contain", style: "width: 500px; height: 500px;", alt: "Confident Man Riding Rocket" %>
+      </div>
+    <% end %>
     
     <div class="flex flex-col items-center justify-start w-full mt-auto">
       <div class="h-px w-full" style="background-color: #004f6b;"></div>
@@ -114,3 +116,4 @@
     </div>
   </div>
 </div>
+
