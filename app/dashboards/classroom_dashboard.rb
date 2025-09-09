@@ -80,6 +80,6 @@ class ClassroomDashboard < Administrate::BaseDashboard
   # across all pages of the admin dashboard.
   #
   def display_resource(classroom)
-    "#{classroom.name} (#{classroom.grade&.ordinalize})"
+    "#{classroom.name} (#{classroom.grade_display})"
   end
 end
