@@ -18,6 +18,7 @@ class Order < ApplicationRecord
 
   validate :sufficient_shares_for_sell, if: -> { sell? }, on: %i[create update]
   validate :sufficient_funds_for_buy, if: -> { buy? }, on: :create
+  validate :prevent_archived_stock_purchase, if: -> { buy? }, on: %i[create update]
 
   after_update :update_portfolio_transaction_for_pending_order
 
@@ -103,5 +104,11 @@ class Order < ApplicationRecord
 
   def translated_transaction_type
     buy? ? :debit : :credit
+  end
+
+  def prevent_archived_stock_purchase
+    return unless stock&.archived?
+
+    errors.add(:stock, "Cannot purchase shares of archived stocks")
   end
 end

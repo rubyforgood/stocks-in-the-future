@@ -61,6 +61,26 @@ class OrderTest < ActiveSupport::TestCase
     assert_equal [order1, order4], Order.canceled
   end
 
+  test "cannot buy archived stocks" do
+    user = create(:student)
+    stock = create(:stock, archived: true)
+
+    order = build(:order, action: :buy, user: user, stock: stock, shares: 1)
+
+    assert_not order.valid?
+    assert_includes order.errors[:stock], "Cannot purchase shares of archived stocks"
+  end
+
+  test "can sell archived stocks" do
+    user = create(:student)
+    stock = create(:stock, archived: true)
+    create(:portfolio_stock, portfolio: user.portfolio, stock: stock, shares: 10)
+
+    order = build(:order, action: :sell, user: user, stock: stock, shares: 1)
+
+    assert order.valid?
+  end
+
   test "#purchase_cost" do
     user = create(:student)
     stock = create(:stock, price_cents: 1_000)
