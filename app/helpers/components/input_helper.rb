@@ -44,12 +44,12 @@ module Components
     end
 
     def borderless_variant_styling
-      " border-0 focus-visible:outline-none focus-visible:shadow-none focus-visible:ring-transparent"
+      " border-0 focus-visible:outline-hidden focus-visible:shadow-none focus-visible:ring-transparent"
     end
 
     def border_variant_default_styling
-      "shadow-sm focus-visible:outline-none focus-visible:ring-2a " \
-        "focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:border-muted"
+      "shadow-xs focus-visible:outline-hidden focus-visible:ring-2a " \
+        "focus-visible:ring-3 focus-visible:ring-offset-2 focus-visible:border-muted"
     end
   end
 end
