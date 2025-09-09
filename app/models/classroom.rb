@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
 class Classroom < ApplicationRecord
+  MIN_GRADE = 5
+  MAX_GRADE = 12
+  GRADE_RANGE = (MIN_GRADE..MAX_GRADE).to_a.freeze
+
   belongs_to :school_year
   has_one :school, through: :school_year
   has_one :year, through: :school_year
@@ -12,4 +16,8 @@ class Classroom < ApplicationRecord
   has_many :grade_books, dependent: :nullify
 
   validates :name, presence: true
+
+  def grade_display
+    grade&.ordinalize
+  end
 end

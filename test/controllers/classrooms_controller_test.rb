@@ -27,7 +27,7 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
     sign_in(@admin)
     school = create(:school)
     year = create(:year)
-    params = { classroom: { name: "Test Class", grade: "5th", school_id: school.id, year_id: year.id } }
+    params = { classroom: { name: "Test Class", grade: 5, school_id: school.id, year_id: year.id } }
     assert_difference("Classroom.count") do
       post(classrooms_path, params:)
     end
@@ -50,7 +50,7 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
   test "update" do
     school = create(:school)
     year = create(:year)
-    params = { classroom: { name: "Abc123", grade: "6th", school_id: school.id, year_id: year.id } }
+    params = { classroom: { name: "Abc123", grade: 6, school_id: school.id, year_id: year.id } }
     sign_in(@admin)
     assert_changes "@classroom.reload.updated_at" do
       patch(classroom_path(@classroom), params:)
@@ -213,7 +213,7 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
     year = create(:year, name: "2024-2025")
 
     sign_in(@admin)
-    params = { classroom: { name: "Test Class", grade: "5th", school_id: school.id, year_id: year.id } }
+    params = { classroom: { name: "Test Class", grade: 5, school_id: school.id, year_id: year.id } }
 
     assert_difference("Classroom.count") do
       post(classrooms_path, params:)

@@ -13,11 +13,10 @@ class ClassroomDashboard < Administrate::BaseDashboard
     id: Field::Number,
     grade: Field::Select.with_options(
       searchable: false,
-      collection: %w[5th 6th 7th 8th 9th 10th 11th 12th]
+      collection: Classroom::GRADE_RANGE.map { |grade| [grade.ordinalize, grade] }
     ),
-    grade_numeric: Field::Select.with_options(
-      searchable: false,
-      collection: [5, 6, 7, 8, 9, 10, 11, 12]
+    grade_display: Field::String.with_options(
+      searchable: false
     ),
     name: Field::String,
     school_year: Field::BelongsTo,
@@ -36,7 +35,7 @@ class ClassroomDashboard < Administrate::BaseDashboard
   # Feel free to add, remove, or rearrange items.
   COLLECTION_ATTRIBUTES = %i[
     id
-    grade
+    grade_display
     name
     school_year
   ].freeze
@@ -45,7 +44,7 @@ class ClassroomDashboard < Administrate::BaseDashboard
   # an array of attributes that will be displayed on the model's show page.
   SHOW_PAGE_ATTRIBUTES = %i[
     id
-    grade
+    grade_display
     name
     school_year
     students
@@ -59,7 +58,6 @@ class ClassroomDashboard < Administrate::BaseDashboard
   # on the model's form (`new` and `edit`) pages.
   FORM_ATTRIBUTES = %i[
     grade
-    grade_numeric
     name
     school_year
     students
@@ -81,7 +79,7 @@ class ClassroomDashboard < Administrate::BaseDashboard
   # Overwrite this method to customize how classrooms are displayed
   # across all pages of the admin dashboard.
   #
-  # def display_resource(classroom)
-  #   "Classroom ##{classroom.id}"
-  # end
+  def display_resource(classroom)
+    "#{classroom.name} (#{classroom.grade&.ordinalize})"
+  end
 end

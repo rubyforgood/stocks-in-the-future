@@ -17,7 +17,7 @@ class UserManagesClassroomsTest < ApplicationSystemTestCase
     assert_selector "select[name='classroom[year_id]']"
 
     fill_in "Name", with: "Test Classroom"
-    fill_in "Grade", with: "5th"
+    fill_in "Grade", with: "5"
     select school1.name, from: "classroom_school_id"
     select year1.name, from: "classroom_year_id"
 
