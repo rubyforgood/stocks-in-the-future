@@ -32,11 +32,11 @@
                 <i class="fa-solid fa-angle-up"></i> Buy
               </span>
             <% else %>
-              <%= link_to '<i class="fa-solid fa-angle-up"></i> Buy'.html_safe, new_order_path(stock_id: stock.id, transaction_type: :buy), class: "tw-btn-buy" %>
+              <%= link_to '<i class="fa-solid fa-angle-up"></i> Buy'.html_safe, new_order_path(stock_id: stock.id, transaction_type: :buy), class: "tw-btn-buy", data: { turbo_frame: "modal_frame" } %>
             <% end %>
         </td>
         <td class="px-4 py-2">
-            <%= link_to '<i class="fa-solid fa-angle-down"></i> Sell'.html_safe, new_order_path(stock_id: stock.id, transaction_type: :sell), class: "tw-btn-sell" %>
+          <%= link_to '<i class="fa-solid fa-angle-down"></i> Sell'.html_safe, new_order_path(stock_id: stock.id, transaction_type: :sell), class: "tw-btn-sell", data: { turbo_frame: "modal_frame" } %>
         </td>
       <% end %>
     </tr>

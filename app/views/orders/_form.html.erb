@@ -1,4 +1,10 @@
-<%= form_with(model: order, class: "w-full max-w-lg", data: { controller: "order-form", order_form_current_price_value: order.stock.current_price }) do |form| %>
+<%= form_with(model: order,
+              class: "w-full max-w-lg",
+              data: {
+                controller: "order-form",
+                order_form_current_price_value: order.stock.current_price,
+                turbo_frame: "_top"
+              }) do |form| %>
   <% if order.errors.any? %>
     <div style="color: red">
       <h2><%= pluralize(order.errors.count, "error") %> prohibited this order from being saved:</h2>
@@ -46,7 +52,7 @@
     <%= form.hidden_field :action, value: order.action %>
     <%= form.hidden_field :stock_id, value: order.stock.id %>
     <div>
-      <%= form.submit "Confirm #{order.action&.titlecase}", class: "rounded-lg bg-[#00698c] px-4 py-2 text-sm font-semibold text-white shadow-xs hover:bg-[#004f6b] focus-visible:outline-2 focus-visible:outline-offset-2" %>
+      <%= form.submit "Confirm #{order.action&.titlecase}", class: "cursor-pointer rounded-lg bg-[#00698c] px-4 py-2 text-sm font-semibold text-white shadow-xs hover:bg-[#004f6b] focus-visible:outline-2 focus-visible:outline-offset-2" %>
     </div>
   </div>
 <% end %>

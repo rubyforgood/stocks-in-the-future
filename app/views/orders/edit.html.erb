@@ -1,7 +1,9 @@
-<h1>Editing order</h1>
-
-<%= render "form", order: @order, transaction_type: @order.existing_transaction_type, shares_owned: @shares_owned%>
-
-<div>
-  <%= link_to "Back to orders", orders_path %>
-</div>
+<turbo-frame id="modal_frame">
+  <div class="ps-4">
+    <h1>Editing order</h1>
+    <%= render "form", order: @order, transaction_type: @order.existing_transaction_type, shares_owned: @shares_owned%>
+    <div>
+      <%= link_to "Back to orders", orders_path %>
+    </div>
+  </div>
+</turbo-frame>

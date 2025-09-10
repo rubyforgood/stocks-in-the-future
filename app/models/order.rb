@@ -16,7 +16,11 @@ class Order < ApplicationRecord
   validate :sufficient_funds_for_buy_when_update, on: :update, if: -> { buy? }
   validate :order_is_pending, on: :update
 
-  validate :sufficient_shares_for_sell, if: -> { sell? }, on: %i[create update]
+  # Now runs when creating orders or when user changes the share amount.
+  # Skips during status changes (pending→completed) to avoid false errors.
+  validate :sufficient_shares_for_sell,
+           if: -> { sell? && validate_share_availability? },
+           on: %i[create update]
   validate :sufficient_funds_for_buy, if: -> { buy? }, on: :create
   validate :prevent_archived_stock_purchase, if: -> { buy? }, on: %i[create update]
 
@@ -110,5 +114,13 @@ class Order < ApplicationRecord
     return unless stock&.archived?
 
     errors.add(:stock, "Cannot purchase shares of archived stocks")
+  end
+
+  # Only validate share availability when shares quantity changes,
+  # not during status-only updates (pending → completed)
+  def validate_share_availability?
+    return true if new_record?
+
+    shares_changed?
   end
 end
