@@ -108,16 +108,7 @@ module Admin
     end
 
     def build_skipped_message(skipped)
-      usernames = extract_skipped_usernames(skipped)
-      "Skipped #{skipped.count} existing usernames: #{usernames.join(', ')}"
-    end
-
-    def extract_skipped_usernames(skipped)
-      skipped.map do |item|
-        item.error_message.match(/'([^']+)'/)[1]
-      rescue StandardError
-        "unknown"
-      end
+      "Skipped #{skipped.count} existing usernames"
     end
 
     def redirect_with_mixed_results(success_messages, failed)
