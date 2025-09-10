@@ -14,12 +14,18 @@ module Admin
     def import
       return redirect_with_missing_file_error if params[:csv_file].blank?
 
-      service = StudentImportService.new.import_from_csv(params[:csv_file].path)
-      redirect_with_service_result(service)
+      begin
+        results = BulkStudentImportService.import_from_csv(params[:csv_file].path)
+        redirect_with_import_results(results)
+      rescue CSV::MalformedCSVError => e
+        redirect_to admin_students_path, alert: "Invalid CSV format: #{e.message}"
+      rescue StandardError => e
+        redirect_to admin_students_path, alert: "An error occurred: #{e.message}"
+      end
     end
 
     def template
-      send_data StudentImportService.generate_csv_template,
+      send_data BulkStudentImportService.generate_csv_template,
                 filename: "student_import_template.csv",
                 type: "text/csv",
                 disposition: "attachment"
@@ -63,16 +69,67 @@ module Admin
     private
 
     def redirect_with_missing_file_error
-      redirect_to admin_students_path, alert: "Please select a CSV file"
+      redirect_to admin_students_path, alert: "Please select a CSV file" # rubocop:disable Rails/I18nLocaleTexts
     end
 
-    def redirect_with_service_result(service)
-      if service.success? && service.results?
-        redirect_to admin_students_path, notice: service.flash_notice, alert: service.flash_alert
-      elsif service.success?
-        redirect_to admin_students_path, alert: service.flash_notice
+    def redirect_with_import_results(results)
+      return redirect_with_no_results_error if results.empty?
+
+      created, skipped, failed = partition_results(results)
+      success_messages = build_success_messages(created, skipped)
+
+      if failed.any?
+        redirect_with_mixed_results(success_messages, failed)
       else
-        redirect_to admin_students_path, alert: service.errors.full_messages.join(", ")
+        redirect_to admin_students_path, notice: success_messages.join(". ")
+      end
+    end
+
+    def redirect_with_no_results_error
+      redirect_to admin_students_path, alert: "No students found in CSV file" # rubocop:disable Rails/I18nLocaleTexts
+    end
+
+    def partition_results(results)
+      [
+        results.select(&:created?),
+        results.select(&:skipped?),
+        results.select(&:failed?)
+      ]
+    end
+
+    def build_success_messages(created, skipped)
+      messages = []
+      messages << build_created_message(created) if created.any?
+      messages << build_skipped_message(skipped) if skipped.any?
+      messages
+    end
+
+    def build_created_message(created)
+      usernames = created.map { |item| item.student.username }
+      "Successfully created #{created.count} students: #{usernames.join(', ')}"
+    end
+
+    def build_skipped_message(skipped)
+      usernames = extract_skipped_usernames(skipped)
+      "Skipped #{skipped.count} existing usernames: #{usernames.join(', ')}"
+    end
+
+    def extract_skipped_usernames(skipped)
+      skipped.map do |item|
+        item.error_message.match(/'([^']+)'/)[1]
+      rescue StandardError
+        "unknown"
+      end
+    end
+
+    def redirect_with_mixed_results(success_messages, failed)
+      error_messages = failed.map { |item| "Row #{item.line_number}: #{item.error_message}" }
+      alert_message = "#{failed.count} errors occurred: #{error_messages.join(', ')}"
+
+      if success_messages.any?
+        redirect_to admin_students_path, notice: success_messages.join(". "), alert: alert_message
+      else
+        redirect_to admin_students_path, alert: alert_message
       end
     end
 
