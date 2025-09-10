@@ -37,6 +37,7 @@ class ClassroomDashboard < Administrate::BaseDashboard
     id
     grade_display
     name
+    teachers
     school_year
   ].freeze
 

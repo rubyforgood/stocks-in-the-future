@@ -1,7 +1,9 @@
 <%= form_with(model: classroom, class: "contents") do |form| %>
   <% if classroom.errors.any? %>
     <div id="error_explanation" class="bg-red-50 text-red-500 px-3 py-2 font-medium rounded-lg mt-3">
-      <h2><%= pluralize(classroom.errors.count, "error") %> prohibited this classroom from being saved:</h2>
+      <h2>
+        <%= pluralize(classroom.errors.count, "error") %> prohibited this classroom from being saved:
+      </h2>
 
       <ul>
         <% classroom.errors.each do |error| %>
@@ -22,7 +24,7 @@
     <%= form.label :school_id, "School Name", class: 'tw-label-primary' %>
     <div class="mt-2">
       <%= form.select :school_id,
-          options_from_collection_for_select(@schools, :id, :name, classroom&.school&.id),
+          options_from_collection_for_select(@schools, :id, :name, classroom&.school_year&.school&.id),
           { prompt: "Select a school" },
           { class: "tw-input-primary" } %>
     </div>
@@ -32,7 +34,7 @@
     <%= form.label :year_id, "Year", class: 'tw-label-primary' %>
     <div class="mt-2">
       <%= form.select :year_id,
-          options_from_collection_for_select(@years, :id, :name, classroom&.year&.id),
+          options_from_collection_for_select(@years, :id, :name, classroom&.school_year&.year&.id),
           { prompt: "Select a year" },
           { class: "tw-input-primary" } %>
     </div>
@@ -42,6 +44,46 @@
     <%= form.label :grade, class: 'tw-label-primary' %>
     <div class="mt-2">
       <%= form.number_field :grade, class: "tw-input-primary", min: Classroom::MIN_GRADE, max: Classroom::MAX_GRADE %>
+    </div>
+  </div>
+
+  <div class="my-5">
+    <%= label_tag :teacher_ids, "Teachers", class: 'tw-label-primary flex items-center gap-2' %>
+
+    <!-- Single hidden field to handle empty selections -->
+    <%= hidden_field_tag "classroom[teacher_ids][]", "" %>
+
+    <div class="mt-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 max-h-60 overflow-y-auto p-2 border border-gray-200 rounded-lg bg-gray-50">
+      <% @teachers.each do |teacher| %>
+        <%
+          # Check if teacher is assigned to this classroom
+          is_checked = classroom.persisted? ? classroom.teachers.include?(teacher) : false
+        %>
+
+        <label class="flex items-start gap-2 p-3 hover:bg-white rounded-lg cursor-pointer transition-colors">
+          <%= check_box_tag "classroom[teacher_ids][]",
+              teacher.id,
+              is_checked,
+              {
+                class: "rounded border-gray-300 text-blue-600 focus:ring-blue-500 mt-0.5",
+                id: "classroom_teacher_ids_#{teacher.id}"
+              } %>
+
+          <div class="flex items-start gap-2 min-w-0 flex-1">
+            <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-medium flex-shrink-0 mt-1">
+              <%= teacher.display_name.first.upcase %>
+            </div>
+            <div class="min-w-0 flex-1">
+              <div class="text-gray-900 font-medium truncate">
+                <%= teacher.display_name %>
+              </div>
+              <div class="text-xs text-gray-500 truncate">
+                @<%= teacher.email %>
+              </div>
+            </div>
+          </div>
+        </label>
+      <% end %>
     </div>
   </div>
 
