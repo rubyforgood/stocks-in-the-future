@@ -29,8 +29,8 @@ class SchoolsController < ApplicationController
         format.html { redirect_to school_url(@school), notice: t(".notice") }
         format.json { render :show, status: :created, location: @school }
       else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @school.errors, status: :unprocessable_entity }
+        format.html { render :new, status: :unprocessable_content }
+        format.json { render json: @school.errors, status: :unprocessable_content }
       end
     end
   end
@@ -42,8 +42,8 @@ class SchoolsController < ApplicationController
         format.html { redirect_to school_url(@school), notice: t(".notice") }
         format.json { render :show, status: :ok, location: @school }
       else
-        format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @school.errors, status: :unprocessable_entity }
+        format.html { render :edit, status: :unprocessable_content }
+        format.json { render json: @school.errors, status: :unprocessable_content }
       end
     end
   end

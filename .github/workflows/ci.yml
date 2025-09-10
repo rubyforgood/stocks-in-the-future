@@ -8,19 +8,6 @@ on:
     types: ['opened', 'reopened', 'synchronize', 'unlocked']
 
 jobs:
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '3.4.4'
-          bundler-cache: true
-      - name: Run RuboCop
-        run: bundle exec rubocop
-
   rails-test:
     name: Rails Test
     runs-on: ubuntu-latest

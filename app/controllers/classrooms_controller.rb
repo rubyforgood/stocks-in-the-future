@@ -34,7 +34,7 @@ class ClassroomsController < ApplicationController
       redirect_to classroom_url(@classroom), notice: t(".notice")
     else
       dropdown_data
-      render :new, status: :unprocessable_entity
+      render :new, status: :unprocessable_content
     end
   end
 
@@ -45,7 +45,7 @@ class ClassroomsController < ApplicationController
       redirect_to classroom_url(@classroom), notice: t(".notice")
     else
       dropdown_data
-      render :edit, status: :unprocessable_entity
+      render :edit, status: :unprocessable_content
     end
   end
 
