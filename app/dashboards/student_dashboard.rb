@@ -67,8 +67,7 @@ class StudentDashboard < Administrate::BaseDashboard
 
   # Overwrite this method to customize how students are displayed
   # across all pages of the admin dashboard.
-  #
-  # def display_resource(student)
-  #   "Student ##{student.id}"
-  # end
+  def display_resource(student)
+    student.username
+  end
 end
