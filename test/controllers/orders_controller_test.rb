@@ -49,10 +49,10 @@ class OrdersControllerTest < ActionDispatch::IntegrationTest
       assert_no_difference("Order.count") do
         assert_nothing_raised do
           post(orders_path, params: buy_params)
-          assert_response :unprocessable_entity
+          assert_response :unprocessable_content
 
           post(orders_path, params: sell_params)
-          assert_response :unprocessable_entity
+          assert_response :unprocessable_content
         end
       end
     end

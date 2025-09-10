@@ -29,7 +29,7 @@ module Admin
       end
 
       assert_equal username, student.username
-      assert_response :unprocessable_entity
+      assert_response :unprocessable_content
       assert_select "div#error_explanation"
     end
 
