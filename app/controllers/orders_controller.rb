@@ -24,8 +24,8 @@ class OrdersController < ApplicationController
         format.html { redirect_to orders_url, notice: t(".notice") }
         format.json { render :show, status: :created, location: @order }
       else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @order.errors, status: :unprocessable_entity }
+        format.html { render :new, status: :unprocessable_content }
+        format.json { render json: @order.errors, status: :unprocessable_content }
       end
     end
   end
@@ -36,8 +36,8 @@ class OrdersController < ApplicationController
         format.html { redirect_to orders_url, notice: t(".notice") }
         format.json { render :show, status: :ok, location: @order }
       else
-        format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @order.errors, status: :unprocessable_entity }
+        format.html { render :edit, status: :unprocessable_content }
+        format.json { render json: @order.errors, status: :unprocessable_content }
       end
     end
   end
@@ -72,7 +72,7 @@ class OrdersController < ApplicationController
   def invalid_order_response
     respond_to do |format|
       format.html { redirect_to orders_url, alert: t(".pending_only") }
-      format.json { render json: { error: t(".pending_only") }, status: :unprocessable_entity }
+      format.json { render json: { error: t(".pending_only") }, status: :unprocessable_content }
     end
   end
 end

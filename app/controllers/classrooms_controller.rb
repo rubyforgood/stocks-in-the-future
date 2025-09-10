@@ -8,7 +8,7 @@ class ClassroomsController < ApplicationController
   before_action :check_classroom_eligibility, only: :show
 
   def index
-    @classrooms = policy_scope(Classroom).includes(students: :portfolio)
+    @classrooms = policy_scope(Classroom).includes(:teachers, students: :portfolio)
   end
 
   def show
@@ -34,7 +34,7 @@ class ClassroomsController < ApplicationController
       redirect_to classroom_url(@classroom), notice: t(".notice")
     else
       dropdown_data
-      render :new, status: :unprocessable_entity
+      render :new, status: :unprocessable_content
     end
   end
 
@@ -45,7 +45,7 @@ class ClassroomsController < ApplicationController
       redirect_to classroom_url(@classroom), notice: t(".notice")
     else
       dropdown_data
-      render :edit, status: :unprocessable_entity
+      render :edit, status: :unprocessable_content
     end
   end
 
@@ -66,7 +66,7 @@ class ClassroomsController < ApplicationController
   end
 
   def classroom_params
-    params.expect(classroom: %i[name grade school_id year_id])
+    params.expect(classroom: [:name, :grade, :school_id, :year_id, { teacher_ids: [] }])
   end
 
   def ensure_teacher_or_admin
@@ -76,6 +76,7 @@ class ClassroomsController < ApplicationController
   def dropdown_data
     @schools = School.order(:name)
     @years = Year.order(:name)
+    @teachers = Teacher.all.sort_by(&:display_name)
   end
 
   def assign_school_year_to_classroom

@@ -7,7 +7,7 @@
 }
 
 .tw-btn-primary {
-  @apply rounded-lg py-3 px-5 bg-[var(--sitf-primary-blue)] text-white block font-medium
+  @apply rounded-lg py-3 px-5 bg-[var(--sitf-primary-blue)] text-white block font-medium cursor-pointer hover:bg-blue-600 transition-colors
 }
 
 .tw-btn-secondary {
