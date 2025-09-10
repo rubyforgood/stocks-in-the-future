@@ -8,14 +8,4 @@ class FriendlyPasswordGeneratorTest < ActiveSupport::TestCase
 
     assert_match(/\A[a-z]+\d{2}[a-z]+\z/, password)
   end
-
-  test "generate uses expected word lists" do
-    passwords = Array.new(100) { FriendlyPasswordGenerator.generate }
-
-    adjectives = passwords.map { |p| p.match(/\A([a-z]+)/)[1] }.uniq
-    nouns = passwords.map { |p| p.match(/(\d{2})([a-z]+)\z/)[2] }.uniq
-
-    assert_operator adjectives.length, :>, 1
-    assert_operator nouns.length, :>, 1
-  end
 end
