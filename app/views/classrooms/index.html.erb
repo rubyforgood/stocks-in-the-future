@@ -1,12 +1,15 @@
 <div class="flex flex-col h-full w-full">
   <% if notice.present? %>
-    <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-lg inline-block" id="notice"><%= notice %></p>
+    <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-lg inline-block" id="notice">
+      <%= notice %>
+    </p>
   <% end %>
 
   <header class="flex items-center justify-between px-6 py-4 border-b">
     <h1 class="text-2xl font-bold">Classrooms</h1>
     <% if policy(Classroom).new? %>
-      <%= link_to "New classroom", new_classroom_path, class: "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" %>
+      <%= link_to "New classroom", new_classroom_path,
+          class: "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" %>
     <% end %>
   </header>
 
@@ -16,6 +19,9 @@
         <tr class="table-header-row">
           <th class="table-header-cell table-header-cell-left">
             Name
+          </th>
+          <th class="table-header-cell table-header-cell-left">
+            Teacher(s)
           </th>
           <th class="table-header-cell table-header-cell-left">
             Student Count
@@ -40,6 +46,23 @@
                   <%= classroom.name %>
                 </span>
               </td>
+              <td class="table-body-cell py-4">
+                <div class="flex gap-1 overflow-x-auto py-1" style="max-width: 510px; min-height: 36px;">
+                  <% if classroom.teachers.any? %>
+                    <% classroom.teachers.each do |teacher| %>
+                      <span class="inline-flex items-center px-2.5 py-1.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200 whitespace-nowrap flex-shrink-0">
+                        <i class="fas fa-user-tie mr-1 text-blue-600"></i>
+                        <%= teacher.display_name %>
+                      </span>
+                    <% end %>
+                  <% else %>
+                    <span class="inline-flex items-center px-2.5 py-1.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500 border border-gray-200 whitespace-nowrap">
+                      <i class="fas fa-user-slash mr-1 text-gray-400"></i>
+                      No teacher assigned
+                    </span>
+                  <% end %>
+                </div>
+              </td>
               <td class="table-body-cell">
                 <span class="table-cell-content">
                   <%= classroom.students.count %>
@@ -52,15 +75,34 @@
               </td>
               <td class="table-body-cell table-body-cell-center">
                 <% if policy(classroom).edit? %>
-                  <%= render partial: "components/action_icon_button", locals: { options: { path: edit_classroom_path(classroom), icon: "fa-pencil", title: "Edit classroom", aria_label: "Edit classroom", text_class: "text-blue-600" } } %>
-
+                  <%= render partial: "components/action_icon_button",
+                      locals: {
+                        options: {
+                          path: edit_classroom_path(classroom),
+                          icon: "fa-pencil",
+                          title: "Edit classroom",
+                          aria_label: "Edit classroom",
+                          text_class: "text-blue-600"
+                        }
+                      } %>
                 <% else %>
                   <span class="table-no-permission">-</span>
                 <% end %>
               </td>
               <td class="table-body-cell table-body-cell-center">
                 <% if policy(classroom).destroy? %>
-                  <%= render partial: "components/action_icon_button", locals: { options: { path: classroom_path(classroom), icon: "fa-trash", title: "Delete classroom", aria_label: "Delete classroom", text_class: "text-red-600", method: :delete, data: { turbo_confirm: "Are you sure you want to delete this classroom?" } } } %>
+                  <%= render partial: "components/action_icon_button",
+                      locals: {
+                        options: {
+                          path: classroom_path(classroom),
+                          icon: "fa-trash",
+                          title: "Delete classroom",
+                          aria_label: "Delete classroom",
+                          text_class: "text-red-600",
+                          method: :delete,
+                          data: { turbo_confirm: "Are you sure you want to delete this classroom?" }
+                        }
+                      } %>
                 <% else %>
                   <span class="table-no-permission">-</span>
                 <% end %>
@@ -69,7 +111,7 @@
           <% end %>
         <% else %>
           <tr class="table-body-row">
-            <td class="table-empty-cell" colspan="5">
+            <td class="table-empty-cell" colspan="6">
               <p class="text-lg">No classrooms found</p>
               <p class="mt-2">Create your first classroom to get started!</p>
             </td>
