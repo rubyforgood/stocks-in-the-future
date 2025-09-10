@@ -2,6 +2,9 @@
   <p class="my-5">
     <strong class="block font-medium mb-1">Ticker:</strong>
     <%= stock.ticker %>
+    <% if stock.archived? %>
+      <span class="ml-2 text-gray-400 font-medium">ARCHIVED</span>
+    <% end %>
   </p>
   
   <p class="my-5">
