@@ -9,7 +9,6 @@ class FriendlyPasswordGeneratorTest < ActiveSupport::TestCase
     assert_match(/\A[a-z]+\d{2}[a-z]+\z/, password)
   end
 
-
   test "generate uses expected word lists" do
     passwords = Array.new(100) { FriendlyPasswordGenerator.generate }
 
