@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class Student < User
+  validates :classroom, presence: true
+
   # Ensure students have nil email by default (not empty string)
   after_initialize :set_default_email, if: :new_record?
   after_create :ensure_portfolio

@@ -1,0 +1,34 @@
+<% content_for(:title) do %>
+  <%= display_resource_name(page.resource_name) %>
+<% end %>
+
+<header class="main-content__header">
+  <h1 class="main-content__page-title" id="page-title">
+    <%= content_for(:title) %>
+  </h1>
+
+  <%= content_for(:header_middle) %>
+
+  <% if show_search_bar %>
+    <%= render(
+      "search",
+      search_term: search_term,
+      resource_name: display_resource_name(page.resource_name)
+    ) %>
+  <% end %>
+
+  <div class="flex gap-2">
+    <%= link_to "Template", template_admin_students_path, class: "button", style: "background: #f3f4f6; color: #6b7280; border: 1px solid #d1d5db;" %>
+    <%= link_to "Import Students", "#", onclick: "document.getElementById('import-modal').style.display='block'", class: "button", style: "background: #f3f4f6; color: #6b7280; border: 1px solid #d1d5db;" %>
+    <%= link_to(
+      t(
+        "administrate.actions.new_resource",
+        name: display_resource_name(page.resource_name, singular: true).downcase
+      ),
+      [:new, namespace, page.resource_path.to_sym],
+      class: "button",
+    ) if accessible_action?(new_resource, :new) %>
+  </div>
+
+  <%= content_for(:header_last) %>
+</header>

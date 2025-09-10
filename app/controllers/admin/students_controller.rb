@@ -11,6 +11,20 @@ module Admin
       create_portfolio_transaction!
     end
 
+    def import
+      return redirect_with_missing_file_error if params[:csv_file].blank?
+
+      service = StudentImportService.new.import_from_csv(params[:csv_file].path)
+      redirect_with_service_result(service)
+    end
+
+    def template
+      send_data StudentImportService.generate_csv_template,
+                filename: "student_import_template.csv",
+                type: "text/csv",
+                disposition: "attachment"
+    end
+
     # Override this method to specify custom lookup behavior.
     # This will be used to set the resource for the `show`, `edit`, and `update`
     # actions.
@@ -47,6 +61,20 @@ module Admin
     # for more information
     #
     private
+
+    def redirect_with_missing_file_error
+      redirect_to admin_students_path, alert: "Please select a CSV file"
+    end
+
+    def redirect_with_service_result(service)
+      if service.success? && service.results?
+        redirect_to admin_students_path, notice: service.flash_notice, alert: service.flash_alert
+      elsif service.success?
+        redirect_to admin_students_path, alert: service.flash_notice
+      else
+        redirect_to admin_students_path, alert: service.errors.full_messages.join(", ")
+      end
+    end
 
     def create_portfolio_transaction!
       return if fund_amount.blank?

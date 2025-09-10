@@ -30,7 +30,12 @@ Rails.application.routes.draw do
     resources :school_years, except: %i[new edit]
     resources :schools
     resources :stocks
-    resources :students
+    resources :students do
+      collection do
+        post :import
+        get :template
+      end
+    end
     resources :teachers
     resources :users
     resources :years
