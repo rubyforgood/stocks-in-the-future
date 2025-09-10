@@ -10,16 +10,16 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_03_103019) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_08_131121) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
   create_table "classrooms", force: :cascade do |t|
     t.string "name"
-    t.string "grade"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "school_year_id"
+    t.integer "grade"
     t.index ["school_year_id"], name: "index_classrooms_on_school_year_id"
   end
 

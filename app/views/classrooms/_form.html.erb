@@ -43,7 +43,7 @@
   <div class="my-5">
     <%= form.label :grade, class: 'tw-label-primary' %>
     <div class="mt-2">
-      <%= form.text_field :grade, class: "tw-input-primary" %>
+      <%= form.number_field :grade, class: "tw-input-primary", min: Classroom::MIN_GRADE, max: Classroom::MAX_GRADE %>
     </div>
   </div>
 
