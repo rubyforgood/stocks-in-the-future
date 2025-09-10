@@ -19,8 +19,6 @@ module Admin
         redirect_with_import_results(results)
       rescue CSV::MalformedCSVError => e
         redirect_to admin_students_path, alert: "Invalid CSV format: #{e.message}"
-      rescue StandardError => e
-        redirect_to admin_students_path, alert: "An error occurred: #{e.message}"
       end
     end
 
