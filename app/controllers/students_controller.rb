@@ -23,7 +23,7 @@ class StudentsController < ApplicationController
       redirect_to classroom_path(@classroom),
                   notice: t(".notice", username: @student.username, password: @student.password)
     else
-      render :new, status: :unprocessable_entity
+      render :new, status: :unprocessable_content
     end
   end
 
@@ -31,7 +31,7 @@ class StudentsController < ApplicationController
     if @student.update(student_params)
       redirect_to classroom_path(@classroom), notice: t(".notice")
     else
-      render :edit, status: :unprocessable_entity
+      render :edit, status: :unprocessable_content
     end
   end
 
