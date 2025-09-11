@@ -108,6 +108,7 @@ GEM
       bigdecimal
       rexml
     crass (1.0.6)
+    csv (3.3.5)
     daemons (1.4.1)
     date (3.4.1)
     debug (1.11.0)
@@ -406,6 +407,7 @@ DEPENDENCIES
   bootsnap
   bundler-audit
   capybara
+  csv
   daemons
   debug
   delayed_job_active_record

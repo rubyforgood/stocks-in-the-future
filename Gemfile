@@ -8,6 +8,7 @@ gem "rails", "~> 8.0.2"
 
 gem "administrate", "1.0.0.beta3"
 gem "bootsnap", require: false
+gem "csv"
 gem "daemons"
 gem "delayed_job_active_record"
 gem "devise", "~> 4.9"

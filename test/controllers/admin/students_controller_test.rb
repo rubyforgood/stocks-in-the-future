@@ -67,5 +67,45 @@ module Admin
 
       assert_redirected_to admin_student_path(student)
     end
+
+    test "import should redirect with success message for valid CSV" do
+      admin = create(:admin)
+      classroom = create(:classroom)
+      sign_in(admin)
+
+      csv_content = [
+        "classroom_id,username",
+        "#{classroom.id},test_student"
+      ].join("\n")
+
+      with_temp_csv_file(csv_content) do |csv_file|
+        post import_admin_students_path, params: { csv_file: fixture_file_upload(csv_file.path, "text/csv") }
+
+        assert_redirected_to admin_students_path
+        assert_not_nil flash[:notice]
+      end
+    end
+
+    test "import should redirect with alert when no file provided" do
+      admin = create(:admin)
+      sign_in(admin)
+
+      post import_admin_students_path, params: {}
+
+      assert_redirected_to admin_students_path
+      assert_equal "Please select a CSV file", flash[:alert]
+    end
+
+    test "template should download CSV template file" do
+      admin = create(:admin)
+      sign_in(admin)
+
+      get template_admin_students_path
+
+      assert_response :success
+      assert_equal "text/csv", response.content_type
+      assert_match "attachment", response.headers["Content-Disposition"]
+      assert_match "student_import_template.csv", response.headers["Content-Disposition"]
+    end
   end
 end

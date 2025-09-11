@@ -9,6 +9,7 @@ end
 ENV["RAILS_ENV"] ||= "test"
 require_relative "../config/environment"
 require_relative "helpers/policy_test_helper"
+require_relative "support/csv_test_helper"
 require "rails/test_help"
 require "webmock/minitest"
 require "mocha/minitest"
@@ -24,6 +25,7 @@ WebMock.disable_net_connect!(allow_localhost: true)
 module ActiveSupport
   class TestCase
     include FactoryBot::Syntax::Methods
+    include CsvTestHelper
 
     # Run tests in parallel with specified workers
     parallelize(workers: :number_of_processors)
