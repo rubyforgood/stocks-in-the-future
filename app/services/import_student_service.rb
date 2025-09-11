@@ -55,7 +55,7 @@ class ImportStudentService
     Student.create(
       username: username,
       classroom_id: classroom_id,
-      password: FriendlyPasswordGenerator.generate
+      password: MemorablePasswordGenerator.generate
     )
   end
 

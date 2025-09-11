@@ -74,8 +74,6 @@ class StudentsController < ApplicationController
   end
 
   def generate_memorable_password
-    words = %w[Sunset Moonlight Spring Autumn River Glade Mountain Valley]
-    numbers = (1..99).to_a
-    "#{words.sample}#{numbers.sample}"
+    MemorablePasswordGenerator.generate
   end
 end
