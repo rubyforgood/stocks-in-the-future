@@ -1,0 +1,7 @@
+@import "tailwindcss";
+@import "./shadcn.css";
+@import "./tailwind.config.css";
+@import "./navbar.css";
+@import "./tables.css";
+@import "./buttons.css";
+@import "./forms.css";
