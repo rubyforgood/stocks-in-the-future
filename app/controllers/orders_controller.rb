@@ -22,9 +22,12 @@ class OrdersController < ApplicationController
     respond_to do |format|
       if @order.save
         format.html { redirect_to orders_url, notice: t(".notice") }
+        format.turbo_stream { redirect_to orders_url, notice: t(".notice") }
         format.json { render :show, status: :created, location: @order }
       else
+        setup_error_data
         format.html { render :new, status: :unprocessable_content }
+        format.turbo_stream { render :new, status: :unprocessable_content }
         format.json { render json: @order.errors, status: :unprocessable_content }
       end
     end
@@ -54,6 +57,28 @@ class OrdersController < ApplicationController
 
   private
 
+  # Strong parameters
+  def order_params
+    params.expect(order: %i[stock_id shares action])
+  end
+
+  def set_order
+    @order = Order.find(params[:id])
+  end
+
+  def set_stock
+    @stock = Stock.find(params[:stock_id])
+  end
+
+  def set_shared_owned
+    @shares_owned = current_user.portfolio&.shares_owned(@stock&.id)
+  end
+
+  def setup_error_data
+    @stock = @order.stock
+    @shares_owned = current_user.portfolio&.shares_owned(@stock&.id)
+  end
+
   def unauthorized_response
     respond_to do |format|
       format.html { redirect_to orders_url, alert: t(".unauthorized") }
@@ -75,29 +100,13 @@ class OrdersController < ApplicationController
       format.json { render json: { error: t(".pending_only") }, status: :unprocessable_content }
     end
   end
-end
 
-def destroy
-  @order.destroy!
+  def destroy
+    @order.destroy!
 
-  respond_to do |format|
-    format.html { redirect_to orders_url, notice: t(".notice") }
-    format.json { head :no_content }
+    respond_to do |format|
+      format.html { redirect_to orders_url, notice: t(".notice") }
+      format.json { head :no_content }
+    end
   end
-end
-
-def set_order
-  @order = Order.find(params[:id])
-end
-
-def set_stock
-  @stock = Stock.find(params[:stock_id])
-end
-
-def set_shared_owned
-  @shares_owned = current_user.portfolio&.shares_owned(@stock&.id)
-end
-
-def order_params
-  params.expect(order: %i[stock_id shares action])
 end

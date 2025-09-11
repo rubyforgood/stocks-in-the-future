@@ -1,3 +1,5 @@
-<div class="ps-4">
-  <%= render "form", order: @order, transaction_type: @order.action, shares_owned: @shares_owned %>
-</div>
+<turbo-frame id="modal_frame">
+  <div class="ps-4">
+    <%= render "form", order: @order, transaction_type: @order.action, shares_owned: @shares_owned %>
+  </div>
+</turbo-frame>

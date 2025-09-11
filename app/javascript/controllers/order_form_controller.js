@@ -6,11 +6,15 @@ export default class extends Controller {
     currentPrice: Number 
   }
 
+  connect() {
+    this.calculateTotal()
+  }
+
   calculateTotal() {
     const shares = parseInt(this.sharesTarget.value) || 0
     const price = this.currentPriceValue
     const total = shares * price
-    
-    this.totalCostTarget.textContent = `$${total}`
+
+    this.totalCostTarget.textContent = `$${total.toFixed(2)}`
   }
 }
