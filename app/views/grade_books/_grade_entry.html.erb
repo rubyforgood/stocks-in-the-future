@@ -3,7 +3,6 @@
     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
       <%= entry.user.username.presence || content_tag(:span, "No username set", class: "text-gray-400 italic") %>
     </td>
-
     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
       <%= f.select :math_grade,
         options_for_select(GradeEntry::GRADE_OPTIONS, entry.math_grade),
@@ -17,7 +16,6 @@
         { include_blank: true },
         class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" %>
     </td>
-
     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
       <%= f.number_field :attendance_days,
         class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm",

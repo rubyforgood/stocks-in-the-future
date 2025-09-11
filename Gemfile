@@ -21,7 +21,7 @@ gem "pundit", "~> 2.5"
 gem "shadcn-ui", "~> 0.0.15"
 gem "stimulus-rails"
 gem "strong_migrations", "~> 2.5"
-gem "tailwindcss-rails", "~> 3.0"
+gem "tailwindcss-rails"
 gem "turbo-rails"
 gem "tzinfo-data", platforms: %i[windows jruby]
 gem "whenever", require: false
