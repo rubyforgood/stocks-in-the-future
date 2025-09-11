@@ -350,15 +350,14 @@ GEM
       activerecord (>= 7.1)
     tailwind_merge (0.16.0)
       sin_lru_redux (~> 2.5)
-    tailwindcss-rails (3.3.2)
+    tailwindcss-rails (4.3.0)
       railties (>= 7.0.0)
-      tailwindcss-ruby (~> 3.0)
-    tailwindcss-ruby (3.4.17)
-    tailwindcss-ruby (3.4.17-aarch64-linux)
-    tailwindcss-ruby (3.4.17-arm-linux)
-    tailwindcss-ruby (3.4.17-arm64-darwin)
-    tailwindcss-ruby (3.4.17-x86_64-darwin)
-    tailwindcss-ruby (3.4.17-x86_64-linux)
+      tailwindcss-ruby (~> 4.0)
+    tailwindcss-ruby (4.1.12)
+    tailwindcss-ruby (4.1.12-aarch64-linux-gnu)
+    tailwindcss-ruby (4.1.12-arm64-darwin)
+    tailwindcss-ruby (4.1.12-x86_64-darwin)
+    tailwindcss-ruby (4.1.12-x86_64-linux-gnu)
     terminal-table (4.0.0)
       unicode-display_width (>= 1.1.1, < 4)
     thor (1.4.0)
@@ -432,7 +431,7 @@ DEPENDENCIES
   simplecov
   stimulus-rails
   strong_migrations (~> 2.5)
-  tailwindcss-rails (~> 3.0)
+  tailwindcss-rails
   turbo-rails
   tzinfo-data
   web-console

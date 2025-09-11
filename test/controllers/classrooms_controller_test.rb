@@ -255,4 +255,13 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
       assert_select "option[value='#{year.id}'][selected='selected']", text: year.name
     end
   end
+
+  test "index page includes link to classroom show page" do
+    sign_in(@admin)
+    classroom = create(:classroom, name: "Linked Class")
+
+    get classrooms_path
+    assert_response :success
+    assert_select "a[href='#{classroom_path(classroom)}']", text: "Linked Class"
+  end
 end
