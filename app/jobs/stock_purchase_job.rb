@@ -7,7 +7,7 @@ class StockPurchaseJob < ApplicationJob
     pending_orders = Order.pending
 
     pending_orders.each do |pending_order|
-      PurchaseStock.execute(pending_order)
+      ExecuteOrder.execute(pending_order)
     end
   end
 end

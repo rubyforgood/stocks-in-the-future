@@ -25,7 +25,7 @@ if mike
       portfolio_transaction: pt,
       action: :buy
     )
-    PurchaseStock.execute(order)
+    ExecuteOrder.execute(order)
   end
 
   shares = 1
@@ -41,7 +41,7 @@ if mike
       portfolio_transaction: pt,
       action: :sell
     )
-    PurchaseStock.execute(order)
+    ExecuteOrder.execute(order)
   end
 
   pt = PortfolioTransaction.create(
@@ -71,7 +71,7 @@ if mike
       portfolio_transaction: pt,
       action: :buy
     )
-    PurchaseStock.execute(order)
+    ExecuteOrder.execute(order)
   end
 
   puts "Seeded three completed orders and transactions for the Student user 'Mike'"
