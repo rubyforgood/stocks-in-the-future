@@ -7,5 +7,6 @@ class MemorablePasswordGeneratorTest < ActiveSupport::TestCase
     password = MemorablePasswordGenerator.generate
 
     assert password.length.positive?
+    assert password.match(/^\w+[0-9]+\w+$/)
   end
 end
