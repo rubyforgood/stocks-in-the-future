@@ -42,7 +42,38 @@ module Admin
     #     transform_values { |value| value == "" ? nil : value }
     # end
 
+    # need to create the new teacher by the admin
+    def create
+      password = Devise.friendly_token.first(12)
+      current_params = teacher_params
+      @teacher = Teacher.new(current_params.merge(password: password))
+      if @teacher.save
+        # checking if any classroom_id is provided or not
+        classroom_id = params[:teacher][:classroom_id]
+        if params[:teacher][:classroom_id].present?
+          classroom = Classroom.find_by(id: params[:teacher][:classroom_id])
+          if classroom
+            @teacher.classrooms << classroom
+          else
+            flash[:alert] = "Teacher created, but classroom not found for the provided classroom_id."
+          end
+        end
+
+        @teacher.send_reset_password_instructions_with_options(opts: { account_setup: true })
+        redirect_to admin_teachers_path, notice: "Teacher created successfully. An account setup email has been sent."
+      else
+        render :new, status: :unprocessable_entity
+      end
+    end
+
+    private
+
+    def teacher_params
+      params.expect(teacher: %i[email username])
+    end
+
     # See https://administrate-demo.herokuapp.com/customizing_controller_actions
     # for more information
   end
+
 end

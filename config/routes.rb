@@ -8,6 +8,7 @@ Rails.application.routes.draw do
   root "classrooms#index"
 
   devise_for :users
+  devise_for :teachers, skip: [:registrations]
 
   resources :users do
     resources :portfolios, only: :show
