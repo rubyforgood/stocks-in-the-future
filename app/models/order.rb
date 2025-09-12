@@ -37,6 +37,14 @@ class Order < ApplicationRecord
     update(status: :canceled)
   end
 
+  def transaction_fee_dollars
+    if buy?
+      transaction_fee_cents / 100.0
+    else
+      -transaction_fee_cents / 100.0
+    end
+  end
+
   def purchase_cost
     adjustment = if buy?
                    transaction_fee_cents
