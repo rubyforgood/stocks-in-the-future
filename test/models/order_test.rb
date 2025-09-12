@@ -243,7 +243,7 @@ class OrderTest < ActiveSupport::TestCase
 
     assert order.valid?
 
-    # NOTE: PortfolioTransaction updates are handled by PurchaseStock service
+    # NOTE: PortfolioTransaction updates are handled by ExecuteOrder service
     order.update!(shares: 6)
     assert_equal 6, order.shares
   end

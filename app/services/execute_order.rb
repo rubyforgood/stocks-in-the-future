@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class PurchaseStock
+class ExecuteOrder
   delegate :portfolio, :shares, :stock, to: :order, private: true
   delegate :price_cents, to: :stock, prefix: true, private: true
 

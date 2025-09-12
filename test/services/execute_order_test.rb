@@ -2,7 +2,7 @@
 
 require "test_helper"
 
-class PurchaseStockTest < ActiveSupport::TestCase
+class ExecuteOrderTest < ActiveSupport::TestCase
   test "it creates a withdrawal transaction in portfolio_transactions" do
     student = create(:student)
     create(:portfolio, user: student)
@@ -11,7 +11,7 @@ class PurchaseStockTest < ActiveSupport::TestCase
     order = create(:order, :pending, action: :buy, shares: 5, stock: stock, user: student)
 
     assert_difference("PortfolioTransaction.count") do
-      PurchaseStock.execute(order)
+      ExecuteOrder.execute(order)
     end
 
     portfolio_transaction = PortfolioTransaction.last
@@ -28,7 +28,7 @@ class PurchaseStockTest < ActiveSupport::TestCase
     order = create(:order, :pending, action: :buy, shares: 5, stock: stock, user: student)
 
     assert_difference("PortfolioStock.count") do
-      PurchaseStock.execute(order)
+      ExecuteOrder.execute(order)
     end
 
     portfolio_stock = PortfolioStock.last
@@ -42,7 +42,7 @@ class PurchaseStockTest < ActiveSupport::TestCase
     stock = create(:stock, price_cents: 100)
     order = create(:order, :pending, action: :buy, shares: 5, stock: stock, user: student)
 
-    PurchaseStock.execute(order)
+    ExecuteOrder.execute(order)
     order.reload
 
     assert order.completed?
@@ -54,7 +54,7 @@ class PurchaseStockTest < ActiveSupport::TestCase
     stock = create(:stock, price_cents: 100)
     order = create(:order, :completed, action: :buy, shares: 5, stock: stock, user: student)
 
-    PurchaseStock.execute(order)
+    ExecuteOrder.execute(order)
     order.reload
 
     assert order.completed?
@@ -70,7 +70,7 @@ class PurchaseStockTest < ActiveSupport::TestCase
     PortfolioStock.any_instance.stubs(:save!).raises(ActiveRecord::RecordInvalid.new(PortfolioStock.new))
 
     assert_raises(ActiveRecord::RecordInvalid) do
-      PurchaseStock.execute(order)
+      ExecuteOrder.execute(order)
     end
 
     order.reload
@@ -86,7 +86,7 @@ class PurchaseStockTest < ActiveSupport::TestCase
     stock = create(:stock, price_cents: 100)
     order = create(:order, :pending, :buy, shares: 5, stock: stock, user: portfolio.user)
 
-    PurchaseStock.execute(order)
+    ExecuteOrder.execute(order)
 
     portfolio_stock = PortfolioStock.last
     assert_equal 5, portfolio_stock.shares
@@ -100,7 +100,7 @@ class PurchaseStockTest < ActiveSupport::TestCase
 
     order = create(:order, :pending, :sell, shares: 3, stock: stock, user: portfolio.user)
 
-    PurchaseStock.execute(order)
+    ExecuteOrder.execute(order)
 
     portfolio_stocks = PortfolioStock.where(portfolio: portfolio, stock: stock)
     assert_equal 2, portfolio_stocks.count
@@ -116,10 +116,10 @@ class PurchaseStockTest < ActiveSupport::TestCase
     stock = create(:stock, price_cents: 100)
 
     order1 = create(:order, :pending, :buy, shares: 5, stock: stock, user: portfolio.user)
-    PurchaseStock.execute(order1)
+    ExecuteOrder.execute(order1)
 
     order2 = create(:order, :pending, :buy, shares: 3, stock: stock, user: portfolio.user)
-    PurchaseStock.execute(order2)
+    ExecuteOrder.execute(order2)
 
     portfolio_stocks = PortfolioStock.where(stock: stock, portfolio: portfolio)
     assert_equal 2, portfolio_stocks.count
@@ -132,10 +132,10 @@ class PurchaseStockTest < ActiveSupport::TestCase
     stock = create(:stock, price_cents: 100)
 
     buy_order = create(:order, :pending, :buy, shares: 10, stock: stock, user: portfolio.user)
-    PurchaseStock.execute(buy_order)
+    ExecuteOrder.execute(buy_order)
 
     sell_order = create(:order, :pending, :sell, shares: 4, stock: stock, user: portfolio.user)
-    PurchaseStock.execute(sell_order)
+    ExecuteOrder.execute(sell_order)
 
     portfolio_stocks = PortfolioStock.where(stock: stock, portfolio: portfolio)
     assert_equal 2, portfolio_stocks.count

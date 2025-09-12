@@ -20,6 +20,6 @@ class ScheduleTest < ActiveSupport::TestCase
 
     # Just verify the job names are mentioned in the file
     assert_match(/StockPricesUpdateJob/, content)
-    assert_match(/StockPurchaseJob/, content)
+    assert_match(/OrderExecutionJob/, content)
   end
 end
