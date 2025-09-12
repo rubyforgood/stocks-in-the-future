@@ -10,6 +10,6 @@ class Stock < ApplicationRecord
   scope :archived, -> { where(archived: true) }
 
   def current_price
-    price_cents / 100.0
+    price_cents.to_f / 100
   end
 end
