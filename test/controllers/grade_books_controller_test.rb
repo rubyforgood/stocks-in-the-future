@@ -38,4 +38,10 @@ class GradeBooksControllerTest < ActionDispatch::IntegrationTest
     assert_equal "B", entry.reading_grade
     assert_equal 30, entry.attendance_days
   end
+
+  test "students cannot access grade book" do
+    sign_in(@student)
+    get classroom_grade_book_path(@classroom, @grade_book)
+    assert_redirected_to root_path
+  end
 end

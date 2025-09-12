@@ -2,6 +2,7 @@
 
 # app/controllers/grade_books_controller.rb
 class GradeBooksController < ApplicationController
+  before_action :ensure_teacher_or_admin
   def show
     @classroom = Classroom.find(params[:classroom_id])
     @grade_book = @classroom.grade_books.includes(:grade_entries).find(params[:id])
