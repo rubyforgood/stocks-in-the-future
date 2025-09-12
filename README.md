@@ -44,11 +44,11 @@ It is **strongly** recommend to use Docker. See instructions above.
 
 After running `bin/rails db:setup`, the database will automatically be seeded with three default users.
 
-| Role    | Username | Email                  | Password |
-|---------|----------|------------------------|----------|
-| Teacher | Teacher  | teacher@example.com    | password |
-| Student | Student  | student@example.com    | password |
-| Admin   | Admin    | admin@example.com      | password |
+| Role    | Username | Password |
+|---------|----------|----------|
+| Teacher | Teacher  | password |
+| Student | Student  | password |
+| Admin   | Admin    | password |
 
 Use the **username** and **password** to log in and test the application locally.
 
