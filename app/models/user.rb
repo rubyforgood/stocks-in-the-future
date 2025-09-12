@@ -3,6 +3,10 @@
 class User < ApplicationRecord
   belongs_to :classroom, optional: true
 
+  # Allow calling `user.school` (used in portfolio view) via the classroom's associated school.
+  # This prevents undefined method errors for Student records without directly adding a belongs_to.
+  delegate :school, to: :classroom, allow_nil: true
+
   has_one :portfolio, dependent: :destroy
   accepts_nested_attributes_for :portfolio
   has_many :orders, dependent: :destroy

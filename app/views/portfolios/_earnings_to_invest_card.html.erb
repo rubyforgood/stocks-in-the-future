@@ -1,0 +1,10 @@
+<div class="bg-white rounded-[22px] border border-black/30 h-[120px] px-5 overflow-hidden">
+  <div class="h-full flex items-center justify-between gap-4">
+    <div class="flex flex-col justify-center">
+      <p class="text-sm text-gray-600">My Earnings to Invest</p>
+      <p class="text-2xl font-semibold leading-tight tracking-tight mt-1"><%= number_to_currency(@portfolio.cash_balance) %></p>
+      <button class="mt-2 bg-teal-600 hover:bg-teal-500 text-white text-sm font-medium px-4 py-1.5 rounded-md shadow w-fit">Invest Now</button>
+    </div>
+    <%= image_tag 'investment-funds.png', class: 'w-16 h-16 object-contain select-none pointer-events-none', alt: 'Investment Funds' %>
+  </div>
+</div>
