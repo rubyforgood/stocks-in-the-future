@@ -54,3 +54,10 @@ en:
       notice: 'Password reset for %{username}. New password: %{password}'
     update:
       notice: Student updated successfully.
+  teachers:
+    validate:
+      email: must be a valid email
+    create:
+      notice: Teacher created successfully. An account setup email has been sent.
+      alert:
+        no_classroom: "Teacher created, but classroom not found with id: %{id}."

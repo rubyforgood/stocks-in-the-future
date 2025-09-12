@@ -5,5 +5,5 @@ class Teacher < User
   has_many :classrooms, through: :teacher_classrooms
 
   validates :email, presence: true, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP,
-                                                                message: "must be a valid email" }
+                                                                message: I18n.t("teachers.validate.email") }
 end
