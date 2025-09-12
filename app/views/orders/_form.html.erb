@@ -42,7 +42,7 @@
       <%= form.number_field :shares, min: 1, required: true, class: "shadow-sm appearance-none border rounded-smw-full py-2 px-3 text-gray-700 leading-tight focus:outline-hidden focus:shadow-outline", data: { order_form_target: "shares", action: "input->order-form#calculateTotal" } %>
       <p class="text-sm">
         Transaction Fee:
-        <span class="text-red"><%= number_to_currency order.transaction_fee_cents / 100.0 %></span>
+        <span class="text-red-500"><%= number_to_currency order.transaction_fee_cents / 100.0 %></span>
       </p>
     </div>
     <hr class="py-3"></hr>
