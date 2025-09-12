@@ -2,7 +2,7 @@
 
 require "test_helper"
 
-class StockPurchaseJobTest < ActiveJob::TestCase
+class OrderExecutionJobTest < ActiveJob::TestCase
   test "processes pending orders and changes status to completed" do
     user = create(:student)
     user.portfolio.portfolio_transactions.create!(amount_cents: 10_000, transaction_type: :deposit) # $100.00
@@ -11,7 +11,7 @@ class StockPurchaseJobTest < ActiveJob::TestCase
     order = create(:order, user: user, stock: stock, shares: 2, action: :buy)
     assert_equal "pending", order.status
 
-    StockPurchaseJob.perform_now
+    OrderExecutionJob.perform_now
     order.reload
     assert_equal "completed", order.status
 
@@ -36,7 +36,7 @@ class StockPurchaseJobTest < ActiveJob::TestCase
     assert_equal "pending", pending_order.status
     assert_equal "completed", completed_order.status
 
-    StockPurchaseJob.perform_now
+    OrderExecutionJob.perform_now
 
     pending_order.reload
     completed_order.reload
@@ -63,7 +63,7 @@ class StockPurchaseJobTest < ActiveJob::TestCase
     assert_equal "pending", order1.status
     assert_equal "pending", order2.status
 
-    StockPurchaseJob.perform_now
+    OrderExecutionJob.perform_now
 
     order1.reload
     order2.reload

@@ -15,6 +15,6 @@ every 1.day, at: "6:00 am" do
   # Update stock prices first (external API call)
   runner "StockPricesUpdateJob.perform_later"
 
-  # Then process pending stock purchases (internal processing)
-  runner "StockPurchaseJob.perform_later"
+  # Then execute pending stock orders (internal processing)
+  runner "OrderExecutionJob.perform_later"
 end
