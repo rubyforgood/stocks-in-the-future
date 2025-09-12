@@ -54,7 +54,8 @@
             <% @portfolio.portfolio_stocks.each do |ps| %>
               <% price = ps.stock.current_price %>
               <% shares = ps.shares %>
-              <% change_amount = 0 # placeholder; replace with real change calc %>
+              <% previous_close = ps.stock.previous_close %>
+              <% change_amount = previous_close ? (price - previous_close) : 0 %>
               <% total_return_amount = shares * price %>
               <tr class="border-t first:border-t-0 border-black/40">
                 <td class="py-4 pl-6 pr-4 align-middle">
