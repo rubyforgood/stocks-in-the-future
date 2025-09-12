@@ -87,11 +87,9 @@ class OrderTest < ActiveSupport::TestCase
     # Add funds for buy order
     user.portfolio.portfolio_transactions.create!(amount_cents: 10_000, transaction_type: :deposit)
 
-    order = create(:order, action: :buy, user: user, stock: stock, shares: 5.1)
+    order = create(:order, action: :buy, user: user, stock: stock, shares: 5.1, transaction_fee_cents: 100)
 
-    result = order.purchase_cost
-
-    assert_equal 5_100, result
+    assert_equal 5_200, order.purchase_cost
   end
 
   test "creates a buy order without portfolio transaction" do

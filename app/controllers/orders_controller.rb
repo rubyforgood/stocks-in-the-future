@@ -11,13 +11,13 @@ class OrdersController < ApplicationController
   end
 
   def new
-    @order = Order.new(action: params[:transaction_type], stock: @stock)
+    @order = Order.new(action: params[:transaction_type], stock: @stock, **transaction_fee_params)
   end
 
   def edit; end
 
   def create
-    @order = Order.new(order_params.merge(user: current_user))
+    @order = Order.new(order_params.merge(user: current_user, **transaction_fee_params))
 
     respond_to do |format|
       if @order.save
@@ -60,6 +60,12 @@ class OrdersController < ApplicationController
   # Strong parameters
   def order_params
     params.expect(order: %i[stock_id shares action])
+  end
+
+  def transaction_fee_params
+    {
+      transaction_fee_cents: Order::TRANSACTION_FEE_CENTS
+    }
   end
 
   def set_order

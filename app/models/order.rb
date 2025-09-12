@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class Order < ApplicationRecord
+  TRANSACTION_FEE_CENTS = 1_00
   include ApplicationHelper
 
   belongs_to :user
@@ -35,10 +36,10 @@ class Order < ApplicationRecord
   def cancel!
     update(status: :canceled)
   end
-
   def purchase_cost
-    stock.price_cents * shares
+    stock.price_cents * shares + transaction_fee_cents
   end
+
 
   def existing_transaction_type
     order_transaction_type = portfolio_transaction&.transaction_type&.to_sym
