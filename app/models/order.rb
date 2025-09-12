@@ -36,15 +36,15 @@ class Order < ApplicationRecord
   def cancel!
     update(status: :canceled)
   end
+
   def purchase_cost
     adjustment = if buy?
                    transaction_fee_cents
                  else
-                    -transaction_fee_cents
+                   -transaction_fee_cents
                  end
-    stock.price_cents * shares + adjustment
+    (stock.price_cents * shares) + adjustment
   end
-
 
   def existing_transaction_type
     order_transaction_type = portfolio_transaction&.transaction_type&.to_sym

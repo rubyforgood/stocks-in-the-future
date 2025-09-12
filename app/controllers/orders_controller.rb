@@ -16,6 +16,7 @@ class OrdersController < ApplicationController
 
   def edit; end
 
+  # rubocop:disable Metrics/AbcSize
   def create
     @order = Order.new(order_params.merge(user: current_user, **transaction_fee_params))
 
@@ -32,6 +33,7 @@ class OrdersController < ApplicationController
       end
     end
   end
+  # rubocop:enable Metrics/AbcSize
 
   def update
     respond_to do |format|

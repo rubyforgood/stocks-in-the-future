@@ -266,7 +266,7 @@ class OrderTest < ActiveSupport::TestCase
     assert_includes order.errors[:shares], "Insufficient funds. You have $100.00 but need $121.00"
   end
 
-  test "update order does not allow user to update pending buy oder when transaction amount with fee exceeds portfolio value" do
+  test "order is invalid when transaction fee causes total cost to exceed portfolio value" do
     user = create(:student)
     portfolio = create(:portfolio, user: user)
     portfolio.portfolio_transactions.create!(amount_cents: 2_00, transaction_type: :deposit)
