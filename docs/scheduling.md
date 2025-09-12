@@ -7,7 +7,7 @@ This document explains how the stock-related jobs are scheduled to run automatic
 The application uses the `whenever` gem to schedule two jobs that run daily at 1:00 AM Eastern Time:
 
 1. **StockPricesUpdateJob** - Updates stock prices from Alpha Vantage API
-2. **StockPurchaseJob** - Processes pending stock purchase orders
+2. **OrderExecutionJob** - Executes pending stock orders (both buy and sell)
 
 ## Configuration
 
@@ -16,7 +16,7 @@ The scheduling configuration is defined in [`config/schedule.rb`](../config/sche
 ```ruby
 every 1.day, at: '1:00 am' do
   runner "StockPricesUpdateJob.perform_later"
-  runner "StockPurchaseJob.perform_later"
+  runner "OrderExecutionJob.perform_later"
 end
 ```
 
@@ -103,7 +103,7 @@ require 'whenever/capistrano'
 
 The jobs are scheduled to run at the same time (1:00 AM), but they will be queued in order:
 1. StockPricesUpdateJob runs first (updates current stock prices)
-2. StockPurchaseJob runs second (processes orders with updated prices)
+2. OrderExecutionJob runs second (processes orders with updated prices)
 
 ## Monitoring
 
@@ -122,11 +122,11 @@ For testing or emergency runs:
 # Run jobs manually in Rails console
 rails console
 StockPricesUpdateJob.perform_now
-StockPurchaseJob.perform_now
+OrderExecutionJob.perform_now
 
 # Or queue them
 StockPricesUpdateJob.perform_later
-StockPurchaseJob.perform_later
+OrderExecutionJob.perform_later
 ```
 
 ## Troubleshooting
