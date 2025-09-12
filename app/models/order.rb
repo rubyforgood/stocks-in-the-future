@@ -37,7 +37,12 @@ class Order < ApplicationRecord
     update(status: :canceled)
   end
   def purchase_cost
-    stock.price_cents * shares + transaction_fee_cents
+    adjustment = if buy?
+                   transaction_fee_cents
+                 else
+                    -transaction_fee_cents
+                 end
+    stock.price_cents * shares + adjustment
   end
 
 

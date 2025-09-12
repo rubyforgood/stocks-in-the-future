@@ -81,7 +81,7 @@ class OrderTest < ActiveSupport::TestCase
     assert order.valid?
   end
 
-  test "#purchase_cost" do
+  test "#purchase_cost for buy order includes additive transaction fee" do
     user = create(:student)
     stock = create(:stock, price_cents: 1_000)
     # Add funds for buy order
@@ -90,6 +90,16 @@ class OrderTest < ActiveSupport::TestCase
     order = create(:order, action: :buy, user: user, stock: stock, shares: 5.1, transaction_fee_cents: 100)
 
     assert_equal 5_200, order.purchase_cost
+  end
+
+  test "#purchase_cost for sell order includes negative transaction fee" do
+    user = create(:student)
+    stock = create(:stock, price_cents: 1_000)
+    create(:portfolio_stock, portfolio: user.portfolio, stock: stock, shares: 10)
+
+    order = create(:order, action: :sell, user: user, stock: stock, shares: 5, transaction_fee_cents: 100)
+
+    assert_equal 4_900, order.purchase_cost
   end
 
   test "creates a buy order without portfolio transaction" do
