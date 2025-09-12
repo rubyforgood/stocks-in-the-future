@@ -16,16 +16,7 @@ class GradeBooksController < ApplicationController
       entry.update(attrs)
     end
 
-    respond_to do |format|
-      format.turbo_stream do
-        render turbo_stream: turbo_stream.replace(
-          "grade_book_entries",
-          partial: "grade_books/table",
-          locals: { grade_book: @grade_book }
-        )
-      end
-      format.html { redirect_to classroom_grade_book_path(@classroom, @grade_book) }
-    end
+    redirect_to classroom_grade_book_path(@classroom, @grade_book)
   end
 
   private

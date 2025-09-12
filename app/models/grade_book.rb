@@ -12,7 +12,10 @@ class GradeBook < ApplicationRecord
   }
 
   def finalizable?
-    puts grade_entries.inspect
     grade_entries.all?(&:finalizable?)
+  end
+
+  def incomplete?
+    !finalizable?
   end
 end
