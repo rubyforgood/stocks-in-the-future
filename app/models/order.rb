@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class Order < ApplicationRecord
+  TRANSACTION_FEE_CENTS = 1_00
   include ApplicationHelper
 
   belongs_to :user
@@ -36,8 +37,21 @@ class Order < ApplicationRecord
     update(status: :canceled)
   end
 
+  def transaction_fee_dollars
+    if buy?
+      transaction_fee_cents / 100.0
+    else
+      -transaction_fee_cents / 100.0
+    end
+  end
+
   def purchase_cost
-    stock.price_cents * shares
+    adjustment = if buy?
+                   transaction_fee_cents
+                 else
+                   -transaction_fee_cents
+                 end
+    (stock.price_cents * shares) + adjustment
   end
 
   def existing_transaction_type

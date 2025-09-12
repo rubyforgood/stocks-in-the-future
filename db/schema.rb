@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_08_131121) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_12_134415) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -72,6 +72,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_08_131121) do
     t.bigint "portfolio_stock_id"
     t.bigint "portfolio_transaction_id"
     t.string "action", null: false
+    t.integer "transaction_fee_cents", default: 0, null: false
     t.index ["portfolio_stock_id"], name: "index_orders_on_portfolio_stock_id"
     t.index ["portfolio_transaction_id"], name: "index_orders_on_portfolio_transaction_id"
     t.index ["stock_id"], name: "index_orders_on_stock_id"

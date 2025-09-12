@@ -6,6 +6,7 @@ FactoryBot.define do
     shares { 1 }
     user { create(:student) }
     action { :sell } # Default to sell to avoid validation issues
+    transaction_fee_cents { 1_00 }
   end
 
   trait :pending do
