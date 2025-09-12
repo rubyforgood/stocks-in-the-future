@@ -1,68 +1,86 @@
-<!-- TODO: make price display with two decimal places -->
-<div class="flex flex-col h-full w-full">
-  <header class="flex items-center justify-between px-6 py-4 border-b">
-    <h1 class="text-2xl font-bold">
-      <%= @portfolio.user.username %>'s Portfolio
-    </h1>
-  </header>
+<%# Redesigned Portfolio Page %>
+<div class="max-w-[1180px] mx-auto space-y-6" style="font-family: Inter, system-ui, sans-serif;">
+  <!-- Header with badge icons and title -->
+  <div class="flex items-center gap-3">
+    <div class="flex items-center gap-1 text-2xl"><span>📙💰</span></div>
+    <h1 class="text-lg md:text-xl font-medium tracking-wide"><%= @portfolio.user.username.upcase %>, PORTFOLIO <span class="font-normal text-gray-500">| <%= @portfolio.user.school&.name %></span></h1>
+  </div>
 
-  <main class="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-6 p-6">
-    <div class="flex flex-col gap-6">
-      <!-- Current Holdings Section -->
-      <div class="bg-white rounded-lg shadow-sm p-6">
-        <h2 class="text-lg font-semibold mb-4">Current Holdings</h2>
-        <div class="overflow-x-auto">
-          <table class="w-full">
-            <thead>
-              <tr class="border-b border-gray-200">
-                <th class="text-left py-3 px-4 font-semibold">Stock</th>
-                <th class="text-left py-3 px-4 font-semibold">Qty.</th>
-                <th class="text-left py-3 px-4 font-semibold">Last Price</th>
-                <th class="text-left py-3 px-4 font-semibold">Total Return</th>
-                <th class="text-left py-3 px-4 font-semibold"></th>
-              </tr>
-            </thead>
-            <tbody>
-              <% @portfolio.portfolio_stocks.each do |stock| %>
-                <tr class="border-b border-gray-200">
-                  <td class="py-3 px-4"><%= stock.stock.ticker %></td>
-                  <td class="py-3 px-4"><%= stock.shares %></td>
-                  <td class="py-3 px-4">$<%= sprintf('%.2f', stock.stock.current_price) %></td>
-                  <td class="py-3 px-4">$<%= sprintf('%.2f', stock.shares * stock.stock.current_price) %></td>
-                  <td class="py-3 px-4">
-                    <button class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded cursor-pointer">Trade</button>
-                  </td>
-                </tr>
-              <% end %>
-            </tbody>
-          </table>
+  <div class="flex flex-col lg:flex-row gap-8">
+    <!-- Left column: metrics + holdings table -->
+    <div class="flex-1 flex flex-col gap-6">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <%# Total Earnings Card %>
+        <div class="bg-white rounded-[22px] border border-black/30 py-4 px-5 flex flex-col justify-between min-h-[120px]">
+          <div class="text-sm text-gray-600">Total Earnings</div>
+          <div class="text-2xl font-semibold">$21.05</div>
+          <div class="text-xs text-gray-500 flex items-center gap-1">Trending up this month <span class="text-black">↗</span></div>
+        </div>
+        <%# Total Cash Value %>
+        <div class="bg-white rounded-[22px] border border-black/30 py-4 px-5 flex flex-col justify-between min-h-[120px]">
+          <div class="text-sm text-gray-600">Total Cash Value</div>
+          <div class="text-2xl font-semibold">$<%= sprintf('%.2f', @portfolio.cash_balance) %></div>
+          <div class="text-xs text-gray-500 flex items-center gap-1">Trending up this month <span class="text-black">↗</span></div>
+        </div>
+        <%# Total Stock Buys %>
+        <div class="bg-white rounded-[22px] border border-black/30 py-4 px-5 flex flex-col justify-between min-h-[120px]">
+          <div class="text-sm text-gray-600">Total Stock Buys</div>
+          <div class="text-2xl font-semibold"><%= @portfolio.portfolio_transactions.where(transaction_type: 'buy').count %></div>
+          <div class="text-xs text-gray-500 flex items-center gap-1">Trending down this month <span class="text-black">↘</span></div>
         </div>
       </div>
-
-      <!-- Cash Balance Section -->
-      <div class="bg-white rounded-lg shadow-sm p-6">
-        <h2 class="text-lg font-semibold mb-4">Cash Balance</h2>
-        <div class="text-4xl font-bold">$<%= @portfolio.cash_balance %></div>
-      </div>
-
-      <!-- Current Position Section -->
-      <div class="bg-white rounded-lg shadow-sm p-6">
-        <h2 class="text-lg font-semibold mb-4">Current Position</h2>
-        <div class="text-4xl font-bold">$<%= @portfolio.current_position %></div>
-        <p class="text-sm text-gray-500 dark:text-gray-400">
-          <!-- TODO: calculate this, will probably need to add a log of cash_balances (this will also help with the graph) -->
-          +20.1% from last month
-        </p>
+      <!-- Holdings Table -->
+      <div class="rounded-xl border border-black/60 bg-white overflow-hidden">
+        <table class="w-full border-collapse">
+          <colgroup>
+            <col class="w-[34%]">
+            <col class="w-[8%]">
+            <col class="w-[18%]">
+            <col class="w-[18%]">
+            <col class="w-[18%]">
+            <col class="w-[14%]">
+          </colgroup>
+          <thead>
+            <tr class="bg-amber-300/95 text-[13px]">
+              <th scope="col" class="text-left py-3 pl-6 pr-4 font-medium">Current Holdings</th>
+              <th scope="col" class="text-left py-3 px-4 font-medium">Qty.</th>
+              <th scope="col" class="text-left py-3 px-4 font-medium">Last Price</th>
+              <th scope="col" class="text-left py-3 px-4 font-medium">Change</th>
+              <th scope="col" class="text-left py-3 px-4 font-medium">Total Return</th>
+              <th class="py-3 pr-6"></th>
+            </tr>
+          </thead>
+          <tbody class="text-[14px]">
+            <% @portfolio.portfolio_stocks.each do |ps| %>
+              <% price = ps.stock.current_price %>
+              <% shares = ps.shares %>
+              <% change_amount = 0 # placeholder; replace with real change calc %>
+              <% total_return_amount = shares * price %>
+              <tr class="border-t first:border-t-0 border-black/40">
+                <td class="py-4 pl-6 pr-4 align-middle">
+                  <div class="flex items-center gap-3">
+                    <span aria-hidden="true" class="text-gray-500 text-sm cursor-grab select-none leading-none">⋮⋮</span>
+                    <span class="font-medium"><%= ps.stock.ticker %></span>
+                  </div>
+                </td>
+                <td class="py-4 px-4 align-middle"><%= shares %></td>
+                <td class="py-4 px-4 align-middle tabular-nums"><%= number_to_currency(price) %></td>
+                <td class="py-4 px-4 align-middle tabular-nums text-green-600">+ <%= number_to_currency(change_amount) %></td>
+                <td class="py-4 px-4 align-middle tabular-nums text-green-600">+ <%= number_to_currency(total_return_amount) %></td>
+                <td class="py-3 pr-6 align-middle">
+                  <button class="inline-flex items-center justify-center rounded-full bg-sky-800 text-white px-6 py-2 text-sm font-medium shadow hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-1 transition-colors">Trade</button>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
       </div>
     </div>
 
-    <!-- Portfolio Trends Section -->
-    <div class="bg-white rounded-lg shadow-sm p-6">
-      <h2 class="text-lg font-semibold mb-4">Portfolio Trends</h2>
-      <div class="aspect-[9/4]">
-        <div style="width:100%;height:100%"></div>
-        <!-- this is where we put the graph partial -->
-      </div>
+    <!-- Sidebar: My Earnings to Invest + Summary -->
+    <div class="w-full lg:w-72 flex flex-col gap-6 flex-shrink-0">
+      <%= render 'portfolios/earnings_to_invest_card' %>
+      <%= render 'portfolios/earnings_summary_card' %>
     </div>
-  </main>
+  </div>
 </div>
