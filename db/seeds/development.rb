@@ -53,6 +53,11 @@ puts "Creating grade books and entries..."
 load(Rails.root.join("db", "seeds", "partials", "grade_books_entries.rb"))
 puts "...done."
 
+# Create orders
+puts "Creating orders..."
+load(Rails.root.join("db", "seeds", "partials", "orders.rb"))
+puts "...done."
+
 # ------------------------------------------------------------------------------
 
 end_time = Time.now

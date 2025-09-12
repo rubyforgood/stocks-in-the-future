@@ -1,0 +1,19 @@
+name: Issue Template
+description: Report an issue or request a feature
+title: ""
+labels: ["needs-triage"]
+
+body:
+  - type: textarea
+    attributes:
+      label: What's the issue?
+      placeholder: Describe the problem or feature you'd like
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Additional details
+      placeholder: Steps to reproduce (for bugs) or more context (for features)
+    validations:
+      required: true
