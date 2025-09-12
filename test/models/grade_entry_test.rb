@@ -90,4 +90,37 @@ class GradeEntryTest < ActiveSupport::TestCase
     entry = build(:grade_entry, math_grade: "A", reading_grade: "B", attendance_days: 9)
     assert_equal 3_00 + 2_00 + (9 * 20), entry.total_award
   end
+
+  test "#improvement_award is 0 if no improvement from the previous entry" do
+    previous_entry = build(:grade_entry, math_grade: "C", reading_grade: "C")
+    entry = build(:grade_entry, math_grade: "C", reading_grade: "D")
+
+    assert_equal 0, entry.improvement_award(previous_entry)
+  end
+
+  test "#improvement_award is $2 if math grade has improved" do
+    previous_entry = build(:grade_entry, math_grade: "C", reading_grade: "C")
+    improved_grades = %w[B B+ A- A A+]
+    improved_grades.each do |grade|
+      entry = build(:grade_entry, math_grade: grade, reading_grade: "C")
+      assert_equal 2_00, entry.improvement_award(previous_entry), "Grade #{grade} should yield improvement award"
+    end
+  end
+
+  test "#improvement_award is $2 if reading grade has improved" do
+    previous_entry = build(:grade_entry, math_grade: "C", reading_grade: "C")
+    improved_grades = %w[B B+ A- A A+]
+    improved_grades.each do |grade|
+      entry = build(:grade_entry, math_grade: "C", reading_grade: grade)
+      assert_equal 2_00, entry.improvement_award(previous_entry), "Grade #{grade} should yield improvement award"
+    end
+  end
+
+  test "#improvement_award is $4 if both grades have improved" do
+    previous_entry = build(:grade_entry, math_grade: "C", reading_grade: "C")
+
+    entry = build(:grade_entry, math_grade: "B", reading_grade: "A")
+
+    assert_equal 4_00, entry.improvement_award(previous_entry)
+  end
 end
