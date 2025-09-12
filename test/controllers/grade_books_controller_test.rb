@@ -38,6 +38,4 @@ class GradeBooksControllerTest < ActionDispatch::IntegrationTest
     assert_equal "B", entry.reading_grade
     assert_equal 30, entry.attendance_days
   end
-
-
 end
