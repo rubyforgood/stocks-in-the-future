@@ -44,4 +44,33 @@ class GradeBooksControllerTest < ActionDispatch::IntegrationTest
     get classroom_grade_book_path(@classroom, @grade_book)
     assert_redirected_to root_path
   end
+
+  test "finalize runs the DistributeFunds service" do
+    DistributeFunds.expects(:execute).with(@grade_book).once
+
+    sign_in(@teacher)
+    # Fill out all entries to make the grade book finalizable
+    @grade_book.grade_entries.each do |entry|
+      entry.update!(math_grade: "A", reading_grade: "B", attendance_days: 30)
+    end
+
+    patch finalize_classroom_grade_book_path(@classroom, @grade_book)
+
+    assert_redirected_to classroom_grade_book_path(@classroom, @grade_book)
+    @grade_book.reload
+    assert @grade_book.verified?
+  end
+
+  test "finalize does not finalize if entries are incomplete" do
+    sign_in(@teacher)
+    # Ensure at least one entry is incomplete
+    entry = @grade_book.grade_entries.first
+    entry.update!(math_grade: nil, reading_grade: "B", attendance_days: 30)
+
+    patch finalize_classroom_grade_book_path(@classroom, @grade_book)
+
+    assert_redirected_to classroom_grade_book_path(@classroom, @grade_book)
+    @grade_book.reload
+    assert_not @grade_book.verified?
+  end
 end

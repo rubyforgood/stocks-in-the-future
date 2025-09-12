@@ -14,7 +14,11 @@ Rails.application.routes.draw do
   end
 
   resources :classrooms do
-    resources :grade_books, only: %i[show update]
+    resources :grade_books, only: %i[show update] do
+      member do
+        patch :finalize
+      end
+    end
     resources :students, except: [:index] do
       member do
         patch :reset_password
