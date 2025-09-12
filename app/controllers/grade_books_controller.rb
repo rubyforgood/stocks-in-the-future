@@ -4,7 +4,7 @@
 class GradeBooksController < ApplicationController
   def show
     @classroom = Classroom.find(params[:classroom_id])
-    @grade_book = @classroom.grade_books.find(params[:id])
+    @grade_book = @classroom.grade_books.includes(:grade_entries).find(params[:id])
   end
 
   def update
