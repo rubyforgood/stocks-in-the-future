@@ -40,25 +40,25 @@ class PortfolioStockTest < ActiveSupport::TestCase
     assert_equal expected_total_return, portfolio_stock.total_return_amount
   end
 
-  test "#change_amount handles fractional shares" do
-    stock = create(:stock, price_cents: 10050)
+  test "#change_amount handles zero current price" do
+    stock = create(:stock, price_cents: 0)
     portfolio_stock = create(:portfolio_stock,
                             stock: stock,
-                            shares: 2.5,
-                            purchase_price: 100.0)
+                            shares: 10,
+                            purchase_price: 50.0)
 
-    expected_change = 1.25
+    expected_change = -500.0
     assert_equal expected_change, portfolio_stock.change_amount
   end
 
-  test "#total_return_amount handles fractional shares" do
-    stock = create(:stock, price_cents: 10050)
+  test "#total_return_amount handles zero current price" do
+    stock = create(:stock, price_cents: 0)
     portfolio_stock = create(:portfolio_stock,
                             stock: stock,
-                            shares: 2.5,
-                            purchase_price: 80.0)
+                            shares: 10,
+                            purchase_price: 50.0)
 
-    expected_total_return = 251.25
+    expected_total_return = 0.0
     assert_equal expected_total_return, portfolio_stock.total_return_amount
   end
 end
