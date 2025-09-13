@@ -16,14 +16,14 @@ class GradeBooksController < ApplicationController
   end
 
   def finalize
-    if @grade_book.incomplete?
-      redirect_to classroom_grade_book_path(@classroom, @grade_book),
-                  alert: t(".incomplete")
-    else
+    if @grade_book.finalizable?
       @grade_book.verified!
       DistributeEarnings.execute(@grade_book)
       redirect_to classroom_grade_book_path(@classroom, @grade_book),
                   notice: t(".notice")
+    else
+      redirect_to classroom_grade_book_path(@classroom, @grade_book),
+                  alert: t(".incomplete")
     end
   end
 
@@ -36,7 +36,7 @@ class GradeBooksController < ApplicationController
 
   def grade_entry_params
     params.require(:grade_entries).transform_values do |entry|
-      entry.permit(:math_grade, :reading_grade, :attendance_days)
+      entry.permit(:math_grade, :reading_grade, :attendance_days, :is_perfect_attendance)
     end
   end
 end

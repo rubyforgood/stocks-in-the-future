@@ -54,7 +54,7 @@ class GradeBooksControllerTest < ActionDispatch::IntegrationTest
       entry.update!(math_grade: "A", reading_grade: "B", attendance_days: 30)
     end
 
-    patch finalize_classroom_grade_book_path(@classroom, @grade_book)
+    post finalize_classroom_grade_book_path(@classroom, @grade_book)
 
     assert_redirected_to classroom_grade_book_path(@classroom, @grade_book)
     @grade_book.reload
@@ -67,7 +67,7 @@ class GradeBooksControllerTest < ActionDispatch::IntegrationTest
     entry = @grade_book.grade_entries.first
     entry.update!(math_grade: nil, reading_grade: "B", attendance_days: 30)
 
-    patch finalize_classroom_grade_book_path(@classroom, @grade_book)
+    post finalize_classroom_grade_book_path(@classroom, @grade_book)
 
     assert_redirected_to classroom_grade_book_path(@classroom, @grade_book)
     @grade_book.reload
