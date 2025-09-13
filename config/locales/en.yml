@@ -54,3 +54,5 @@ en:
       notice: 'Password reset for %{username}. New password: %{password}'
     update:
       notice: Student updated successfully.
+    add_transaction:
+      success: "Transaction added to student successfully."

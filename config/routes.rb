@@ -35,6 +35,7 @@ Rails.application.routes.draw do
         post :import
         get :template
       end
+      post "add_transaction"
     end
     resources :teachers
     resources :users
