@@ -48,6 +48,14 @@ class GradeEntryTest < ActiveSupport::TestCase
     assert_equal 240, entry.award_for_attendance
   end
 
+  test "#award_for_attendance includes $1 bonus if perfect attendance" do
+    entry = build(:grade_entry, attendance_days: 5, is_perfect_attendance: true)
+    assert_equal 2_00, entry.award_for_attendance
+
+    entry.is_perfect_attendance = false
+    assert_equal 1_00, entry.award_for_attendance
+  end
+
   test "#award_for_reading grade is $2 for B, $3 for an A" do
     entry = build(:grade_entry, reading_grade: nil)
 

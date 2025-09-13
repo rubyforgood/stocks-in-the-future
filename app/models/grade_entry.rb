@@ -8,12 +8,19 @@ class GradeEntry < ApplicationRecord
   AWARD_FOR_A_GRADE = 3_00
   AWARD_FOR_B_GRADE = 2_00
   AWARD_FOR_IMPROVED_GRADE = 2_00
+  AWARD_FOR_PERFECT_ATTENDANCE = 1_00
 
   GRADE_OPTIONS = ["A+", "A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D", "F"].freeze
 
   def finalizable? = math_grade.present? && reading_grade.present? && attendance_days.present?
 
-  def award_for_attendance = (attendance_days || 0) * PER_DAY_ATTENDANCE_AWARD
+  def award_for_attendance
+    return 0 unless attendance_days.present? && attendance_days.nonzero?
+
+    value = (attendance_days || 0) * PER_DAY_ATTENDANCE_AWARD
+    value += AWARD_FOR_PERFECT_ATTENDANCE if is_perfect_attendance
+    value
+  end
 
   def award_for_reading = grade_based_award(reading_grade)
 
