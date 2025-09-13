@@ -15,6 +15,9 @@ and renders all form fields for a resource's editable attributes.
 %>
 
 <%= form_for([namespace, page.resource], html: { class: "form" }) do |f| %>
+  <% if @errors.present? %>
+    <div><%= errors.join(", ") %></div>
+  <% end %>
   <% if page.resource.errors.any? %>
     <div id="error_explanation">
       <h2>
@@ -52,23 +55,44 @@ and renders all form fields for a resource's editable attributes.
         </div>
       <% end %>
     </fieldset>
-    <% if action_name == 'edit' || action_name == 'update' %>
+  <% end -%>
+
+  <div class="form-actions">
+    <%= f.submit %>
+  </div>
+<% end %>
+<hr />
+<%= form_with url: admin_student_add_transaction_path(page.resource), method: :post do |form| %>
+      <% if action_name == 'edit' || action_name == 'update' %>
       <div class="field-unit">
         <div class="field-unit__label"><label>Cash balance</label></div>
         <div class="field-unit__field">
           <%= number_to_currency(page.resource&.portfolio&.cash_balance || 0)%>
         </div>
       </div>
+    <% end %>
       <div class="field-unit">
-        <div class="field-unit__label"><label>Add funds</label></div>
+        <div class="field-unit__label"><label>Transaction Type</label></div>
+        <div class="field-unit__field">
+          <select name="student[transaction_type]" id="student_transaction_type">
+            <% ["", "deposit", "debit"].each do |option| %>
+              <option><%= option %></option>
+            <% end %>
+          </select>
+        </div>
+      </div>
+      <div class="field-unit">
+        <div class="field-unit__label"><label>Amount</label></div>
         <div class="field-unit__field">
           <input step="any" type="number" name="student[add_fund_amount]" id="student_add_fund_amount">
         </div>
       </div>
-    <% end %>
-  <% end -%>
+      <div class="field-unit">
+        <div class="field-unit__label"><label>Notes</label></div>
+        <div class="field-unit__field">
+          <textarea required name="student[transaction_reason]" id="student_transaction_reason"></textarea>
+        </div>
+      </div>
 
-  <div class="form-actions">
-    <%= f.submit %>
-  </div>
+  <%= form.submit "Add transaction", class: "button" %>
 <% end %>

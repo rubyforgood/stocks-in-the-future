@@ -31,6 +31,7 @@ gem "whenever", require: false
 group :development, :test do
   gem "debug", platforms: %i[mri windows]
   gem "pry", "~> 0.15.2"
+  gem "pry-byebug"
   gem "rubocop"
   gem "rubocop-rails"
 end

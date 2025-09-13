@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_12_134415) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_12_181426) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -97,6 +97,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_12_134415) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "amount_cents", null: false
+    t.string "reason"
     t.index ["portfolio_id"], name: "index_portfolio_transactions_on_portfolio_id"
   end
 

@@ -7,8 +7,6 @@ module Admin
 
     def update
       super
-
-      create_portfolio_transaction!
     end
 
     def import
@@ -20,6 +18,24 @@ module Admin
       rescue CSV::MalformedCSVError => e
         redirect_to admin_students_path, alert: "Invalid CSV format: #{e.message}"
       end
+    end
+
+    def add_transaction
+      errors = validate_transaction_params
+      student = Student.find(params["student_id"])
+
+      if errors.present?
+        student.errors.add(:base, errors.join(", "))
+        redirect_to edit_admin_student_path(student), alert: errors.join(", ")
+      end
+
+      PortfolioTransaction.create!(
+        portfolio: student.portfolio,
+        amount_cents: fund_amount,
+        transaction_type: transaction_type,
+        reason: transaction_reason
+      )
+      redirect_to admin_student_path(student), notice: t("students.add_transaction.success")
     end
 
     def template
@@ -122,18 +138,24 @@ module Admin
       end
     end
 
-    def create_portfolio_transaction!
-      return if fund_amount.blank?
-
-      PortfolioTransaction.create!(
-        portfolio: requested_resource.portfolio,
-        amount_cents: fund_amount,
-        transaction_type: "deposit"
-      )
-    end
-
     def fund_amount
       @fund_amount ||= params["student"]["add_fund_amount"]
+    end
+
+    def transaction_type
+      @transaction_type ||= params["student"]["transaction_type"]
+    end
+
+    def transaction_reason
+      @transaction_reason ||= params["student"]["transaction_reason"]
+    end
+
+    def validate_transaction_params
+      errors = []
+      errors << "Transaction Type must be present" if transaction_type.blank?
+      errors << "Amount must be present" if fund_amount.blank?
+      errors << "Reason must be present" if transaction_reason.blank?
+      errors
     end
   end
 end
