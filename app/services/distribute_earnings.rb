@@ -50,7 +50,8 @@ class DistributeEarnings
   def create_earnings_transaction(user, amount_cents)
     user.portfolio.portfolio_transactions.create!(
       amount_cents: amount_cents,
-      transaction_type: :deposit
+      transaction_type: :deposit,
+      reason: "Earnings from grades"
     )
   end
 end
