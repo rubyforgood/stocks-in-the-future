@@ -9,6 +9,19 @@ module Admin
       super
     end
 
+    def destroy
+      username = requested_resource.username
+      requested_resource.discard
+      redirect_to admin_students_path, notice: "Discarded #{username}"
+    end
+
+    def restore
+      student = resource_class.with_discarded.find(params[:id])
+      username = student.username
+      student.undiscard
+      redirect_to admin_students_path(discarded: 1), notice: "Restored #{username}"
+    end
+
     def import
       return redirect_with_missing_file_error if params[:csv_file].blank?
 
@@ -58,6 +71,17 @@ module Admin
     # Override this if you have certain roles that require a subset
     # this will be used to set the records shown on the `index` action.
     #
+    def scoped_resource
+      scope = resource_class
+      if params[:discarded] == "1"
+        scope.discarded
+      elsif params[:all] == "1"
+        scope.with_discarded
+      else
+        scope.kept
+      end
+    end
+
     # def scoped_resource
     #   if current_user.super_admin?
     #     resource_class

@@ -37,7 +37,7 @@ class StudentsController < ApplicationController
 
   def destroy
     username = @student.username
-    @student.destroy
+    @student.discard
     redirect_to classroom_path(@classroom), notice: t(".notice", username: username)
   end
 

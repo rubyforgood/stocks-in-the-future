@@ -36,6 +36,9 @@ Rails.application.routes.draw do
         get :template
       end
       post "add_transaction"
+      member do
+        patch :restore
+      end
     end
     resources :teachers
     resources :users
