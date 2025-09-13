@@ -49,10 +49,8 @@ class GradeBooksControllerTest < ActionDispatch::IntegrationTest
     DistributeEarnings.expects(:execute).never
     sign_in(@teacher)
 
-    referer = classroom_grade_book_path(@classroom, @grade_book)
-
-    post finalize_classroom_grade_book_path(@classroom, @grade_book), headers: { "HTTP_REFERER" => referer }
-    assert_redirected_to referer
+    post finalize_classroom_grade_book_path(@classroom, @grade_book)
+    assert_redirected_to root_path
     @grade_book.reload
     assert_not @grade_book.verified?
   end
