@@ -21,7 +21,7 @@ class GradeBooksController < ApplicationController
                   alert: t(".incomplete")
     else
       @grade_book.verified!
-      DistributeFunds.execute(@grade_book)
+      DistributeEarnings.execute(@grade_book)
       redirect_to classroom_grade_book_path(@classroom, @grade_book),
                   notice: t(".notice")
     end

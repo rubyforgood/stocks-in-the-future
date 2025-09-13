@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class DistributeFunds
+class DistributeEarnings
   def initialize(grade_book)
     @grade_book = grade_book
     @previous_entries = find_previous_entries

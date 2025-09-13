@@ -46,7 +46,7 @@ class GradeBooksControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "finalize runs the DistributeFunds service" do
-    DistributeFunds.expects(:execute).with(@grade_book).once
+    DistributeEarnings.expects(:execute).with(@grade_book).once
 
     sign_in(@teacher)
     # Fill out all entries to make the grade book finalizable

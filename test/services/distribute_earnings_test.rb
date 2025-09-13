@@ -2,11 +2,11 @@
 
 require "test_helper"
 
-class DistributeFundsTest < ActiveSupport::TestCase
+class DistributeEarningsTest < ActiveSupport::TestCase
   test "it does nothing if grade book is in draft" do
     grade_book = create(:grade_book, status: :draft)
 
-    DistributeFunds.execute(grade_book)
+    DistributeEarnings.execute(grade_book)
     grade_book.reload
     assert grade_book.draft?
   end
@@ -14,7 +14,7 @@ class DistributeFundsTest < ActiveSupport::TestCase
   test "it does nothing if grade book is completed" do
     assert_no_changes -> { PortfolioTransaction.count } do
       grade_book = create(:grade_book, status: :completed)
-      DistributeFunds.execute(grade_book)
+      DistributeEarnings.execute(grade_book)
       grade_book.reload
       assert grade_book.completed?
     end
@@ -38,7 +38,7 @@ class DistributeFundsTest < ActiveSupport::TestCase
     grade_book.verified!
 
     assert_difference -> { student.portfolio.portfolio_transactions.count }, 1 do
-      DistributeFunds.execute(grade_book)
+      DistributeEarnings.execute(grade_book)
     end
 
     grade_book.reload
