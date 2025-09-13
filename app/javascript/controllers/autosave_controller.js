@@ -42,7 +42,6 @@ export default class extends Controller {
         hour12: true
       })
       this.statusTarget.textContent = `Last saved at ${formatted}`
-      this.buttonTarget.textContent = "Save Grades"
     })
   }
 }

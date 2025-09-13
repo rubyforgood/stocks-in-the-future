@@ -7,12 +7,19 @@ class GradeBooksController < ApplicationController
   def show; end
 
   def update
-    grade_entry_params.each do |id, attrs|
-      entry = @grade_book.grade_entries.find(id)
-      entry.update(attrs)
+    GradeEntry.transaction do
+      grade_entry_params.each do |id, attrs|
+        entry = @grade_book.grade_entries.find(id)
+        entry.update!(attrs)
+      end
     end
 
-    redirect_to classroom_grade_book_path(@classroom, @grade_book)
+    @grade_book.grade_entries.reload
+
+    respond_to do |format|
+      format.html { redirect_to classroom_grade_book_path(@classroom, @grade_book), notice: t(".notice") }
+      format.turbo_stream
+    end
   end
 
   def finalize
