@@ -3,7 +3,7 @@
 # app/controllers/grade_books_controller.rb
 class GradeBooksController < ApplicationController
   before_action :ensure_teacher_or_admin
-  before_action :set_classroom_and_gradebook
+  before_action :set_classroom_and_grade_book
   def show; end
 
   def update
@@ -29,9 +29,9 @@ class GradeBooksController < ApplicationController
 
   private
 
-  def set_classroom_and_gradebook
+  def set_classroom_and_grade_book
     @classroom = Classroom.find(params[:classroom_id])
-    @grade_book = @classroom.grade_books.find(params[:id])
+    @grade_book = @classroom.grade_books.includes(grade_entries: :user).find(params[:id])
   end
 
   def grade_entry_params
