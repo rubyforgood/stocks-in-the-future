@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_12_181426) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_13_114000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -182,7 +182,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_12_181426) do
     t.bigint "classroom_id"
     t.boolean "admin", default: false
     t.string "type", default: "User", null: false
+    t.datetime "discarded_at"
     t.index ["classroom_id"], name: "index_users_on_classroom_id"
+    t.index ["discarded_at"], name: "index_users_on_discarded_at"
     t.index ["email"], name: "index_users_on_email", unique: true, where: "((email IS NOT NULL) AND ((email)::text <> ''::text))"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["username"], name: "index_users_on_username", unique: true
