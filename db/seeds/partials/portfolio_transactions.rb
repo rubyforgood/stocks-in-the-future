@@ -11,7 +11,7 @@ if mike
     amount_cents: 15_000_00
   )
 
-  stocks = Stock.limit(3)
+  stocks = Stock.where.not(price_cents: nil).limit(3)
   shares = 2
 
   stocks.each do |stock|
@@ -57,7 +57,7 @@ if mike
   )
 
   existing_stock_ids = Order.where(user: mike, action: :buy).pluck(:stock_id).uniq
-  stocks = Stock.where.not(id: existing_stock_ids).limit(1)
+  stocks = Stock.where.not(id: existing_stock_ids).where.not(price_cents: nil).limit(1)
 
   stocks.each do |stock|
     shares = 1
