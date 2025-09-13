@@ -11,7 +11,7 @@
   <main class="flex-1 p-6">
     <%= render "shared/table_container" do %>
       <thead>
-        <tr class="table-header-row">
+        <tr class="table-header-row min-w-full">
           <th class="table-header-cell table-header-cell-left">
             Date
           </th>
@@ -35,12 +35,13 @@
           <th class="table-header-cell table-header-cell-left">
             Status
           </th>
+          <th class="table-header-cell table-header-cell-left">
+            Type
+          </th>
           <th class="table-header-cell table-header-cell-right">
             Total Cost
           </th>
-          <th class="table-header-cell table-header-cell-center">
-            Actions
-          </th>
+          <th class="table-header-cell table-header-cell-right" />
         </tr>
       </thead>
       <tbody>
@@ -100,6 +101,9 @@
                     <p class="leading-[20px] whitespace-pre"><%= order.status.capitalize %></p>
                   </div>
                 </div>
+              </td>
+              <td class="table-body-cell">
+                <%= order.action.capitalize %>
               </td>
               <td class="table-body-cell table-body-cell-right">
                 <span class="table-cell-content">

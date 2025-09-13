@@ -14,9 +14,19 @@
 
     <br />
 
-    <%= f.submit "Save Grades",
-      class: "tw-btn-primary",
-      data: { autosave_target: "button" }
-    %>
+    <div class="flex flex-col items-center gap-4">
+        <%= f.submit "Save Grades",
+                     class: "tw-btn-primary",
+                     data: { autosave_target: "button" }
+        %>
+
+      <%= button_tag "Finalize Grades",
+                     type: "button",
+                     disabled: @grade_book.incomplete?,
+                     class: @grade_book.incomplete? ? "tw-btn-primary-disabled" : "tw-btn-primary" %>
+
+    </div>
+
+
   <% end %>
 </div>

@@ -2,9 +2,10 @@
 
 # app/controllers/grade_books_controller.rb
 class GradeBooksController < ApplicationController
+  before_action :ensure_teacher_or_admin
   def show
     @classroom = Classroom.find(params[:classroom_id])
-    @grade_book = @classroom.grade_books.find(params[:id])
+    @grade_book = @classroom.grade_books.includes(:grade_entries).find(params[:id])
   end
 
   def update
@@ -16,16 +17,7 @@ class GradeBooksController < ApplicationController
       entry.update(attrs)
     end
 
-    respond_to do |format|
-      format.turbo_stream do
-        render turbo_stream: turbo_stream.replace(
-          "grade_book_entries",
-          partial: "grade_books/table",
-          locals: { grade_book: @grade_book }
-        )
-      end
-      format.html { redirect_to classroom_grade_book_path(@classroom, @grade_book) }
-    end
+    redirect_to classroom_grade_book_path(@classroom, @grade_book)
   end
 
   private

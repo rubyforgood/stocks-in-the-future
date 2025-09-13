@@ -1,10 +1,10 @@
 /* Table Styles */
 .table-container {
-  @apply bg-white shadow-xs mb-4;
+  @apply mb-4;
 }
 
 .table-wrapper {
-  @apply overflow-x-auto border-2 border-black rounded-[20px];
+  @apply bg-white overflow-x-auto border-2 border-black rounded-[20px];
 }
 
 .table-base {
