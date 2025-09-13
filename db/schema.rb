@@ -98,6 +98,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_13_131345) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "amount_cents", null: false
+    t.string "reason"
     t.index ["portfolio_id"], name: "index_portfolio_transactions_on_portfolio_id"
   end
 
