@@ -65,7 +65,7 @@
                 <td class="py-4 px-4 align-middle"><%= shares %></td>
                 <td class="py-4 px-4 align-middle tabular-nums"><%= number_to_currency(price) %></td>
                 <td class="py-4 px-4 align-middle tabular-nums <%= change_amount >= 0 ? 'text-green-600' : 'text-red-600' %>">
-                  <%= change_amount >= 0 ? '+' : '' %> <%= number_to_currency(change_amount) %>
+                  <% if change_amount >= 0 %>+<% end %> <%= number_to_currency(change_amount) %>
                 </td>
                 <td class="py-4 px-4 align-middle tabular-nums"><%= number_to_currency(total_return_amount) %></td>
                 <td class="py-3 pr-6 align-middle">
