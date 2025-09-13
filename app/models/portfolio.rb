@@ -53,7 +53,7 @@ class Portfolio < ApplicationRecord
   end
 
   def acceptable_debits
-    portfolio_transactions.debits.reject { |transaction| transaction.order&.canceled? }
+    portfolio_transactions.debits.reject(&:canceled?)
   end
 
   def user_must_be_student
