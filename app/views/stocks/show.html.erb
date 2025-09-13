@@ -1,11 +1,37 @@
-<div class="mx-auto w-full flex">
-  <div class="mx-auto">
+<div class="min-h-full">
+  <div class="max-w-[1180px] mx-auto px-4 py-6 space-y-6" style="font-family: Inter, system-ui, sans-serif;">
     <% if notice.present? %>
-      <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-lg inline-block" id="notice"><%= notice %></p>
+      <div class="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg mb-6">
+        <p class="font-medium"><%= notice %></p>
+      </div>
     <% end %>
+
+    <!-- Header with stock symbol and company name -->
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      <div class="flex items-center gap-3 min-w-0 flex-1">
+        <div class="flex items-center gap-1 text-2xl flex-shrink-0"><span>📈📊</span></div>
+        <div class="min-w-0 flex-1">
+          <h1 class="text-xl lg:text-2xl font-bold tracking-wide truncate">
+            <%= @stock.ticker %>
+            <span class="font-normal text-gray-600 text-base lg:text-lg">| <%= @stock.company_name %></span>
+          </h1>
+          <% if @stock.archived? %>
+            <span class="bg-red-100 text-red-800 text-sm font-medium px-3 py-1 rounded-full mt-2 inline-block">ARCHIVED</span>
+          <% end %>
+        </div>
+      </div>
+      <div class="flex gap-3 flex-shrink-0">
+        <%= link_to "Back to stocks", stocks_path, class: "tw-btn-tertiary" %>
+        <% if current_user.student? && @portfolio %>
+          <%= link_to "Trade Stock", new_order_path(stock_id: @stock.id), class: "inline-flex items-center justify-center rounded-full bg-sky-800 text-white px-6 py-2 text-sm font-medium shadow hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-1 transition-colors" %>
+        <% end %>
+      </div>
+    </div>
 
     <%= render @stock %>
 
-    <%= link_to "Back to stocks", stocks_path, class: "tw-btn-tertiary" %>
+    <!-- Bottom spacing to ensure content doesn't get cut off -->
+    <div class="h-8"></div>
   </div>
+</div>
 </div>
