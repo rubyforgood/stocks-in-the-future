@@ -2,8 +2,8 @@
 
 # app/controllers/grade_books_controller.rb
 class GradeBooksController < ApplicationController
-  before_action :ensure_teacher_or_admin
   before_action :set_classroom_and_grade_book
+  before_action :authorize_grade_book
   def show; end
 
   def update
@@ -28,6 +28,10 @@ class GradeBooksController < ApplicationController
   end
 
   private
+
+  def authorize_grade_book
+    authorize @grade_book
+  end
 
   def set_classroom_and_grade_book
     @classroom = Classroom.find(params[:classroom_id])

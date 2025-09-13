@@ -42,13 +42,25 @@ class GradeBooksControllerTest < ActionDispatch::IntegrationTest
   test "students cannot access grade book" do
     sign_in(@student)
     get classroom_grade_book_path(@classroom, @grade_book)
-    assert_redirected_to root_path
+    assert_redirected_to @student.portfolio_path
+  end
+
+  test "teachers cannot finalize a grade book" do
+    DistributeEarnings.expects(:execute).never
+    sign_in(@teacher)
+
+    referer = classroom_grade_book_path(@classroom, @grade_book)
+
+    post finalize_classroom_grade_book_path(@classroom, @grade_book), headers: { "HTTP_REFERER" => referer }
+    assert_redirected_to referer
+    @grade_book.reload
+    assert_not @grade_book.verified?
   end
 
   test "finalize runs the DistributeFunds service" do
     DistributeEarnings.expects(:execute).with(@grade_book).once
 
-    sign_in(@teacher)
+    sign_in(create(:admin))
     # Fill out all entries to make the grade book finalizable
     @grade_book.grade_entries.each do |entry|
       entry.update!(math_grade: "A", reading_grade: "B", attendance_days: 30)
@@ -62,7 +74,7 @@ class GradeBooksControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "finalize does not finalize if entries are incomplete" do
-    sign_in(@teacher)
+    sign_in(create(:admin))
     # Ensure at least one entry is incomplete
     entry = @grade_book.grade_entries.first
     entry.update!(math_grade: nil, reading_grade: "B", attendance_days: 30)

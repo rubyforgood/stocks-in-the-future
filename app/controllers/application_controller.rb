@@ -43,6 +43,8 @@ class ApplicationController < ActionController::Base
       redirect_to new_user_session_path, alert: t("devise.failure.unauthenticated")
     elsif current_user.student?
       redirect_to current_user&.portfolio_path, alert: t("application.access_denied.no_access")
+    elsif current_user.teacher?
+      redirect_back fallback_location: classrooms_path, alert: t("application.access_denied.no_access")
     else
       redirect_to root_url, alert: t("application.access_denied.no_access")
     end
