@@ -111,5 +111,29 @@ module Admin
       assert_match "attachment", response.headers["Content-Disposition"]
       assert_match "student_import_template.csv", response.headers["Content-Disposition"]
     end
+
+    test "admin discards a student" do
+    admin   = create(:admin)
+    student = create(:student)
+    sign_in admin
+
+    assert_changes -> { student.reload.discarded? }, from: false, to: true do
+      delete admin_student_path(student)
+    end
+    assert_redirected_to admin_students_path
+  end
+
+  test "admin restores a student" do
+    admin   = create(:admin)
+    student = create(:student)
+    student.discard
+    sign_in admin
+
+    patch restore_admin_student_path(student)
+
+    assert_redirected_to admin_students_path(discarded: 1)
+    refute_predicate student.reload, :discarded?
+  end
+
   end
 end
