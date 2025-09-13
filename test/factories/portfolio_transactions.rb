@@ -13,4 +13,9 @@ FactoryBot.define do
   trait :credit do
     transaction_type { :credit }
   end
+
+  trait :fee do
+    transaction_type { :fee }
+    amount_cents { PortfolioTransaction::TRANSACTION_FEE_CENTS }
+  end
 end

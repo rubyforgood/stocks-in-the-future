@@ -22,14 +22,14 @@ class Portfolio < ApplicationRecord
     portfolio_stocks.where(stock_id: stock_id).sum(:shares)
   end
 
-  private
+  # private
 
   def cash_on_hand
     cash_on_hand_in_cents / 100.0
   end
 
   def cash_on_hand_in_cents
-    deposits - acceptable_debits_sum_in_cents + acceptable_credits_sum_in_cents - withdrawals
+    deposits - acceptable_debits_sum_in_cents + acceptable_credits_sum_in_cents - withdrawals - fees - pending_transaction_fee
   end
 
   def withdrawals
@@ -38,6 +38,14 @@ class Portfolio < ApplicationRecord
 
   def deposits
     portfolio_transactions.deposits.sum(:amount_cents)
+  end
+
+  def fees
+    portfolio_transactions.fees.sum(:amount_cents)
+  end
+
+  def pending_transaction_fee
+    user.orders.pending.exists? ? PortfolioTransaction::TRANSACTION_FEE_CENTS : 0
   end
 
   def acceptable_credits_sum_in_cents

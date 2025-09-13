@@ -12,7 +12,7 @@ class PortfolioTest < ActiveSupport::TestCase
     user = portfolio.user
 
     # should increase cash_balance
-    create(:portfolio_transaction, :deposit, portfolio: portfolio, amount_cents: 1000)
+    create(:portfolio_transaction, :deposit, portfolio: portfolio, amount_cents: 10_00)
 
     stock = create(:stock, price_cents: 100)
 
@@ -20,9 +20,9 @@ class PortfolioTest < ActiveSupport::TestCase
     create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 20, purchase_price: 100)
 
     # pending debit for stock purchase, should decrease cash_balance
-    # -$3.00
-    pending_buy_order = create(:order, :pending, :buy, stock: stock, shares: 2, user: user, transaction_fee_cents: 100)
-    create(:portfolio_transaction, :debit, portfolio: portfolio, amount_cents: pending_buy_order.purchase_cost,
+    # -$2.00 - $1.00 fee = -$3.00
+    pending_buy_order = create(:order, :pending, :buy, stock: stock, shares: 2, user: user)
+    create(:portfolio_transaction, :debit, portfolio: portfolio, amount_cents: 2_00,
                                            order: pending_buy_order)
 
     # pending credit for stock sale, should NOT affect cash_balance
@@ -35,25 +35,29 @@ class PortfolioTest < ActiveSupport::TestCase
     create(:order, :canceled, :sell, stock:, shares: 4, user:)
 
     # successful completed stock purchase, should decrease cash_balance
-    # -$6.00
-    buy_order = create(:order, :completed, :buy, stock: stock, shares: 5, user: user, transaction_fee_cents: 100)
-    create(:portfolio_transaction, :debit, portfolio: portfolio, amount_cents: buy_order.purchase_cost,
+    # -$5.00
+    buy_order = create(:order, :completed, :buy, stock: stock, shares: 5, user: user)
+    create(:portfolio_transaction, :debit, portfolio: portfolio, amount_cents: 5_00,
                                            order: buy_order)
     create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 5, purchase_price: 100)
 
     # successful completed stock sale, should increase cash_balance
-    #  # +$5.00
-    sell_order = create(:order, :completed, :sell, stock: stock, shares: 6, user: user, transaction_fee_cents: 100)
-    create(:portfolio_transaction, :credit, portfolio: portfolio, amount_cents: sell_order.purchase_cost,
+    #  # +$6.00
+    sell_order = create(:order, :completed, :sell, stock: stock, shares: 6, user: user)
+    create(:portfolio_transaction, :credit, portfolio: portfolio, amount_cents: 6_00,
                                             order: sell_order)
     create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: -6, purchase_price: 100)
 
     # withdrawal from the account, should decrease cash_balance
-    create(:portfolio_transaction, :withdrawal, portfolio:, amount_cents: 200) # -$2.00
+    create(:portfolio_transaction, :withdrawal, portfolio:, amount_cents: 2_00) # -$2.00
 
-    # expected balance = (10.00 - 3.00 - 6.00 + 5.00 - 2.00)
+    # fee, should decrease cash_balance
+    # -$1.00
+    create(:portfolio_transaction, :fee, portfolio:, amount_cents: 100)
+
+    # expected balance = (10.00 - 3.00 - 5.00 + 6.00 - 2.00 - 1.00) = 5.00
     result = portfolio.cash_balance
-    assert_equal 4.0, result
+    assert_equal 5.0, result
   end
 
   test "#shares_owned with single purchase" do
