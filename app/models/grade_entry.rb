@@ -4,45 +4,45 @@ class GradeEntry < ApplicationRecord
   belongs_to :grade_book
   belongs_to :user
 
-  PER_DAY_ATTENDANCE_AWARD = 20
-  AWARD_FOR_A_GRADE = 3_00
-  AWARD_FOR_B_GRADE = 2_00
-  AWARD_FOR_IMPROVED_GRADE = 2_00
-  AWARD_FOR_PERFECT_ATTENDANCE = 1_00
+  EARNINGS_PER_DAY_ATTENDANCE = 20
+  EARNINGS_FOR_A_GRADE = 3_00
+  EARNINGS_FOR_B_GRADE = 2_00
+  EARNINGS_FOR_IMPROVED_GRADE = 2_00
+  EARNINGS_FOR_PERFECT_ATTENDANCE = 1_00
 
   GRADE_OPTIONS = ["A+", "A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D", "F"].freeze
 
   def finalizable? = math_grade.present? && reading_grade.present? && attendance_days.present?
 
-  def award_for_attendance
+  def earnings_for_attendance
     return 0 unless attendance_days.present? && attendance_days.nonzero?
 
-    value = (attendance_days || 0) * PER_DAY_ATTENDANCE_AWARD
-    value += AWARD_FOR_PERFECT_ATTENDANCE if is_perfect_attendance
+    value = (attendance_days || 0) * EARNINGS_PER_DAY_ATTENDANCE
+    value += EARNINGS_FOR_PERFECT_ATTENDANCE if is_perfect_attendance
     value
   end
 
-  def award_for_reading = grade_based_award(reading_grade)
+  def earnings_for_reading = grade_based_earnings(reading_grade)
 
-  def award_for_math = grade_based_award(math_grade)
+  def earnings_for_math = grade_based_earnings(math_grade)
 
-  def total_award = award_for_attendance + award_for_reading + award_for_math
+  def total_earnings = earnings_for_attendance + earnings_for_reading + earnings_for_math
 
-  def improvement_award(previous_entry)
-    award = 0
-    award += AWARD_FOR_IMPROVED_GRADE if improved_grade?(math_grade, previous_entry.math_grade)
-    award += AWARD_FOR_IMPROVED_GRADE if improved_grade?(reading_grade, previous_entry.reading_grade)
-    award
+  def improvement_earnings(previous_entry)
+    earnings = 0
+    earnings += EARNINGS_FOR_IMPROVED_GRADE if improved_grade?(math_grade, previous_entry.math_grade)
+    earnings += EARNINGS_FOR_IMPROVED_GRADE if improved_grade?(reading_grade, previous_entry.reading_grade)
+    earnings
   end
 
   private
 
-  def grade_based_award(grade)
+  def grade_based_earnings(grade)
     case grade
     when "A+", "A", "A-"
-      AWARD_FOR_A_GRADE
+      EARNINGS_FOR_A_GRADE
     when "B+", "B", "B-"
-      AWARD_FOR_B_GRADE
+      EARNINGS_FOR_B_GRADE
     else
       0
     end

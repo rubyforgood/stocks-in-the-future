@@ -23,10 +23,10 @@ class DistributeFunds
 
   def distribute_funds_to_students
     @grade_book.grade_entries.each do |entry|
-      award = entry.total_award + calculate_improvement_bonus(entry)
-      next if award.zero?
+      earnings = entry.total_earnings + calculate_improvement_bonus(entry)
+      next if earnings.zero?
 
-      create_award_transaction(entry.user, award)
+      create_earnings_transaction(entry.user, earnings)
     end
   end
 
@@ -44,10 +44,10 @@ class DistributeFunds
     previous_entry = @previous_entries[current_entry.user_id]&.first
     return 0 unless previous_entry
 
-    current_entry.improvement_award(previous_entry)
+    current_entry.improvement_earnings(previous_entry)
   end
 
-  def create_award_transaction(user, amount_cents)
+  def create_earnings_transaction(user, amount_cents)
     user.portfolio.portfolio_transactions.create!(
       amount_cents: amount_cents,
       transaction_type: :deposit

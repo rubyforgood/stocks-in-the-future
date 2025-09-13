@@ -12,7 +12,12 @@ class DistributeFundsTest < ActiveSupport::TestCase
   end
 
   test "it does nothing if grade book is completed" do
-    skip "Implement this once we figure out what the indirect changes are"
+    assert_no_changes -> { PortfolioTransaction.count } do
+      grade_book = create(:grade_book, status: :completed)
+      DistributeFunds.execute(grade_book)
+      grade_book.reload
+      assert grade_book.completed?
+    end
   end
 
   test "it creates a deposit for students who based on their grades and attendance" do
@@ -40,11 +45,11 @@ class DistributeFundsTest < ActiveSupport::TestCase
     assert grade_book.completed?
 
     transaction = student.portfolio.portfolio_transactions.last
-    attendance_award = 12 * GradeEntry::PER_DAY_ATTENDANCE_AWARD
-    reading_award = GradeEntry::AWARD_FOR_A_GRADE
-    math_award = GradeEntry::AWARD_FOR_B_GRADE
-    improvement_award = 2 * GradeEntry::AWARD_FOR_IMPROVED_GRADE
-    expected_total = attendance_award + reading_award + math_award + improvement_award
+    attendance_earnings = 12 * GradeEntry::EARNINGS_PER_DAY_ATTENDANCE
+    reading_earnings = GradeEntry::EARNINGS_FOR_A_GRADE
+    math_earnings = GradeEntry::EARNINGS_FOR_B_GRADE
+    improvement_earnings = 2 * GradeEntry::EARNINGS_FOR_IMPROVED_GRADE
+    expected_total = attendance_earnings + reading_earnings + math_earnings + improvement_earnings
 
     assert_equal expected_total, transaction.amount_cents
     assert transaction.deposit?
