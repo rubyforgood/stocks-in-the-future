@@ -5,12 +5,12 @@ require "test_helper"
 class TransactionFeeProcessorTest < ActiveSupport::TestCase
   test "it applies 1 fee per student for multiple orders" do
     user_with_multiple_orders = create(:student)
-    user_with_multiple_orders.portfolio.portfolio_transactions.create!(amount_cents: 10_000, transaction_type: :deposit) # $100.00
+    user_with_multiple_orders.portfolio.portfolio_transactions.create!(amount_cents: 100_00, transaction_type: :deposit)
     user_with_one_order = create(:student)
-    user_with_one_order.portfolio.portfolio_transactions.create!(amount_cents: 10_000, transaction_type: :deposit) # $100.00
+    user_with_one_order.portfolio.portfolio_transactions.create!(amount_cents: 100_00, transaction_type: :deposit)
 
-    stock1 = create(:stock, price_cents: 1_000) # $10.00
-    stock2 = create(:stock, price_cents: 2_000) # $20.00
+    stock1 = create(:stock, price_cents: 10_00) # $10.00
+    stock2 = create(:stock, price_cents: 20_00) # $20.00
 
     order1 = create(:order, :pending, user: user_with_multiple_orders, stock: stock1, shares: 1, action: :buy)
     order2 = create(:order, :pending, user: user_with_multiple_orders, stock: stock2, shares: 1, action: :buy)

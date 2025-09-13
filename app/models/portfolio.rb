@@ -29,7 +29,9 @@ class Portfolio < ApplicationRecord
   end
 
   def cash_on_hand_in_cents
-    deposits - acceptable_debits_sum_in_cents + acceptable_credits_sum_in_cents - withdrawals - fees - pending_transaction_fee
+    credits = acceptable_credits_sum_in_cents + deposits
+    debits = acceptable_debits_sum_in_cents + withdrawals + fees + pending_transaction_fee
+    credits - debits
   end
 
   def withdrawals

@@ -82,9 +82,9 @@ class OrderExecutionJobTestlist < ActiveJob::TestCase
     portfolio = user.portfolio
     portfolio.portfolio_transactions.create!(amount_cents: 10_000, transaction_type: :deposit) # $100.00
 
-    stock_1, stock_2 = create_list(:stock, 2, price_cents: 1_000)
-    create(:order, :pending, user: user, stock: stock_1, shares: 2, action: :buy)
-    create(:order, :pending, user: user, stock: stock_2, shares: 1, action: :buy)
+    stock1, stock2 = create_list(:stock, 2, price_cents: 1_000)
+    create(:order, :pending, user: user, stock: stock1, shares: 2, action: :buy)
+    create(:order, :pending, user: user, stock: stock2, shares: 1, action: :buy)
 
     assert_changes -> { portfolio.portfolio_transactions.fees.count }, from: 0, to: 1 do
       OrderExecutionJob.perform_now
