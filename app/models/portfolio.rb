@@ -29,28 +29,28 @@ class Portfolio < ApplicationRecord
   end
 
   def cash_on_hand_in_cents
-    credits = credits_sum_in_cents + deposits
-    debits = debits_sum_in_cents + withdrawals + fees + pending_transaction_fee
+    credits = total_credits + total_deposits
+    debits = total_debits + total_withdrawals + total_fees + pending_transaction_fee
     credits - debits
   end
 
-  def withdrawals
+  def total_withdrawals
     portfolio_transactions.withdrawals.sum(:amount_cents)
   end
 
-  def deposits
+  def total_deposits
     portfolio_transactions.deposits.sum(:amount_cents)
   end
 
-  def fees
+  def total_fees
     portfolio_transactions.fees.sum(:amount_cents)
   end
 
-  def credits_sum_in_cents
+  def total_credits
     portfolio_transactions.credits.sum(:amount_cents)
   end
 
-  def debits_sum_in_cents
+  def total_debits
     pending_orders_amount = user.orders.pending.buy.sum(&:purchase_cost) || 0
     portfolio_transactions.debits.sum(:amount_cents) + pending_orders_amount
   end
