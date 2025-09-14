@@ -16,6 +16,7 @@ class PortfolioTransactionDashboard < Administrate::BaseDashboard
       searchable: false,
       collection: ->(field) { field.resource.class.send(field.attribute.to_s.pluralize).keys }
     ),
+    reason: Field::String,
     amount_cents: Field::Number.with_options(
       prefix: "$",
       decimals: 2,
@@ -34,6 +35,7 @@ class PortfolioTransactionDashboard < Administrate::BaseDashboard
     id
     portfolio
     transaction_type
+    reason
   ].freeze
 
   # SHOW_PAGE_ATTRIBUTES
@@ -42,6 +44,7 @@ class PortfolioTransactionDashboard < Administrate::BaseDashboard
     id
     portfolio
     transaction_type
+    reason
     amount_cents
     created_at
     updated_at
@@ -53,6 +56,7 @@ class PortfolioTransactionDashboard < Administrate::BaseDashboard
   FORM_ATTRIBUTES = %i[
     portfolio
     transaction_type
+    reason
     amount_cents
   ].freeze
 
