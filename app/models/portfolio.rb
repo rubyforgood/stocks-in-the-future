@@ -46,20 +46,21 @@ class Portfolio < ApplicationRecord
     portfolio_transactions.fees.sum(:amount_cents)
   end
 
-  def pending_transaction_fee
-    user.orders.pending.exists? ? PortfolioTransaction::TRANSACTION_FEE_CENTS : 0
-  end
-
   def acceptable_credits_sum_in_cents
     acceptable_credits.sum(&:amount_cents)
   end
 
   def acceptable_credits
-    portfolio_transactions.credits.select(&:completed?)
+    portfolio_transactions.credits
   end
 
   def acceptable_debits_sum_in_cents
-    acceptable_debits.sum(&:amount_cents)
+    pending_order_amount = user.orders.pending.buy.sum(&:purchase_cost) || 0
+    acceptable_debits.sum(&:amount_cents) + pending_order_amount
+  end
+
+  def pending_transaction_fee
+    user.orders.pending.exists? ? PortfolioTransaction::TRANSACTION_FEE_CENTS : 0
   end
 
   def acceptable_debits

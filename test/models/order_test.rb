@@ -193,18 +193,46 @@ class OrderTest < ActiveSupport::TestCase
     order = build(:order, action: :buy, user: user, stock: stock, shares: 5)
 
     assert_not order.valid?
-    assert_includes order.errors[:shares], "Insufficient funds. You have $1.00 but need $50.00"
+    assert_includes order.errors[:shares], "Insufficient funds. You have $1.00 but need $51.00"
+  end
+
+  test "buy order validation prevents buying if not enough funds to cover stocks and transaction fee" do
+    user = create(:student)
+    portfolio = create(:portfolio, user: user)
+    portfolio.portfolio_transactions.create!(amount_cents: 10_00, transaction_type: :deposit)
+
+    stock = create(:stock, price_cents: 10_00)
+    order = build(:order, action: :buy, user: user, stock: stock, shares: 1)
+
+    assert_not order.valid?(:create)
+    assert_includes order.errors[:shares], "Insufficient funds. You have $10.00 but need $11.00"
+  end
+
+  test "buy order validation allows buying if enough funds when multiple orders share transaction fees" do
+    user = create(:student)
+    portfolio = create(:portfolio, user: user)
+    portfolio.portfolio_transactions.create!(amount_cents: 21_00, transaction_type: :deposit)
+
+    stock = create(:stock, price_cents: 10_00)
+    pending_order = build(:order, :pending, action: :buy, user: user, stock: stock, shares: 1)
+    assert_nothing_raised do
+      pending_order.save!
+    end
+
+    order = build(:order, action: :buy, user: user, stock: stock, shares: 1)
+
+    assert order.valid?(:create)
   end
 
   test "buy order validation allows buying when sufficient funds" do
     user = create(:student)
     portfolio = create(:portfolio, user: user)
-    portfolio.portfolio_transactions.create!(amount_cents: 10_000, transaction_type: :deposit)
+    portfolio.portfolio_transactions.create!(amount_cents: 100_00, transaction_type: :deposit)
 
-    stock = create(:stock, price_cents: 1000)
+    stock = create(:stock, price_cents: 10_00)
     order = build(:order, action: :buy, user: user, stock: stock, shares: 5)
 
-    assert order.valid?
+    assert order.valid?(:create)
   end
 
   test "update order allows user to update pending buy order when transaction amount less than portfolio value" do
@@ -229,19 +257,19 @@ class OrderTest < ActiveSupport::TestCase
   test "update order does not allow user to update pending buy order when transaction amount exceeds portfolio value" do
     user = create(:student)
     portfolio = create(:portfolio, user: user)
-    portfolio.portfolio_transactions.create!(amount_cents: 10_000, transaction_type: :deposit)
+    portfolio.portfolio_transactions.create!(amount_cents: 10_00, transaction_type: :deposit)
 
-    stock = create(:stock, price_cents: 10_00)
-    order = build(:order, action: :buy, user: user, stock: stock, shares: 5)
+    stock = create(:stock, price_cents: 1_00)
+    order = build(:order, :pending, action: :buy, user: user, stock: stock, shares: 5)
 
-    assert_difference "PortfolioTransaction.count", 0 do
+    assert_no_changes "PortfolioTransaction.count" do
       order.save!
     end
 
     order.shares = 10
 
-    assert_not order.valid?
-    assert_includes order.errors[:shares], "Insufficient funds. You have $99.00 but need $100.00"
+    assert_not order.valid?(:update)
+    assert_includes order.errors[:shares], "Insufficient funds. You have $10.00 but need $11.00"
   end
 
   test "update order allows user to update pending sell order when shares less than portfolio value" do

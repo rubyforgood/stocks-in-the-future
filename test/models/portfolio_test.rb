@@ -21,9 +21,7 @@ class PortfolioTest < ActiveSupport::TestCase
 
     # pending debit for stock purchase, should decrease cash_balance
     # -$2.00 - $1.00 fee = -$3.00
-    pending_buy_order = create(:order, :pending, :buy, stock: stock, shares: 2, user: user)
-    create(:portfolio_transaction, :debit, portfolio: portfolio, amount_cents: 2_00,
-                                           order: pending_buy_order)
+    create(:order, :pending, :buy, stock: stock, shares: 2, user: user)
 
     # pending credit for stock sale, should NOT affect cash_balance
     create(:order, :pending, :sell, stock:, shares: 3, user:)
@@ -53,7 +51,7 @@ class PortfolioTest < ActiveSupport::TestCase
 
     # fee, should decrease cash_balance
     # -$1.00
-    create(:portfolio_transaction, :fee, portfolio:, amount_cents: 100)
+    create(:portfolio_transaction, :fee, portfolio:, amount_cents: 1_00)
 
     # expected balance = (10.00 - 3.00 - 5.00 + 6.00 - 2.00 - 1.00) = 5.00
     result = portfolio.cash_balance
