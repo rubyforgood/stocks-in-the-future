@@ -2,7 +2,7 @@
 
 require "test_helper"
 
-class OrderExecutionJobTestlist < ActiveJob::TestCase
+class OrderExecutionJobTest < ActiveJob::TestCase
   test "processes pending orders and changes status to completed" do
     user = create(:student)
     user.portfolio.portfolio_transactions.create!(amount_cents: 10_000, transaction_type: :deposit) # $100.00
