@@ -50,6 +50,13 @@
 
             <tr class="table-body-row">
               <td class="table-body-cell">
+                <% logo_path = "stock_logos/#{stock.ticker}-logo.svg" %>
+                <% if File.exist?("app/assets/images/#{logo_path}") %>
+                  <%= image_tag asset_path(logo_path),
+                                class: "w-10 h-10 rounded-full inline-block mr-2 align-middle",
+                                alt: "#{stock.ticker} logo",
+                                loading: "lazy" %>
+                <% end %>
                 <%= link_to stock.ticker, stock_path(stock) %><br>
                 <span class="text-gray-500">(<%= stock.company_name %>)</span>
               </td>

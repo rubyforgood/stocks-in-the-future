@@ -10,4 +10,8 @@ class GradeBook < ApplicationRecord
     verified: "verified",
     completed: "completed"
   }
+
+  def finalizable?
+    grade_entries.all?(&:finalizable?) && !completed?
+  end
 end

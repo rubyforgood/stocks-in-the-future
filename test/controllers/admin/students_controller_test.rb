@@ -34,14 +34,18 @@ module Admin
     end
 
     test "given a add_fund_amount, creates a transaction" do
-      params = { student: { add_fund_amount: 1_050 } }
+      params = { student: {
+        transaction_type: "deposit",
+        add_fund_amount: 1_050,
+        transaction_reason: "award"
+      } }
       admin = create(:admin)
       student = create(:student)
       create(:portfolio, user: student)
       sign_in(admin)
 
       assert_difference("PortfolioTransaction.count", 1) do
-        patch(admin_student_path(student), params:)
+        post(admin_student_add_transaction_path(student), params:)
       end
 
       transaction = PortfolioTransaction.last

@@ -19,7 +19,11 @@ Rails.application.routes.draw do
   end
 
   resources :classrooms do
-    resources :grade_books, only: %i[show update]
+    resources :grade_books, only: %i[show update] do
+      member do
+        post :finalize
+      end
+    end
     resources :students, except: [:index] do
       member do
         patch :reset_password
@@ -40,6 +44,7 @@ Rails.application.routes.draw do
         post :import
         get :template
       end
+      post "add_transaction"
     end
     resources :teachers
     resources :users

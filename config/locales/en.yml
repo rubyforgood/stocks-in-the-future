@@ -54,6 +54,12 @@ en:
       notice: 'Password reset for %{username}. New password: %{password}'
     update:
       notice: Student updated successfully.
+    add_transaction:
+      success: "Transaction added to student successfully."
+  grade_books:
+    finalize:
+      incomplete: 'Cannot finalize: Some entries are incomplete.'
+      notice: 'Grade book finalized. Funds have been distributed.'
   teachers:
     validate:
       email: must be a valid email

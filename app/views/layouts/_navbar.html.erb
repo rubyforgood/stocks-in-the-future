@@ -1,14 +1,14 @@
-<div class="fixed z-50 flex" style="width: 186px; top: 65px; bottom: 0;">
+<div class="fixed z-50 flex" style="width: 200px; top: 65px; bottom: 0;">
   <div class="flex grow flex-col gap-y-5 overflow-y-auto px-0 pt-4 pb-4" style="background-color: #00698c;">
 
     <nav class="flex flex-1 flex-col">
-      <ul role="list" class="flex flex-1 flex-col gap-y-1 px-2">
+      <ul role="list" class="flex flex-1 flex-col gap-y-1 px-3">
         <li>
           <ul role="list" class="space-y-1">
             <% if current_user.student? && current_user.portfolio %>
               <li>
                 <% is_active = request.path.include?('portfolios') %>
-                <%= link_to user_portfolio_path(current_user, current_user.portfolio), class: "flex items-center justify-start pl-2 pr-3 py-2 rounded-lg w-full group #{'bg-[#d3df44]' if is_active}", style: is_active ? "background-color: #d3df44;" : "" do %>
+                <%= link_to user_portfolio_path(current_user, current_user.portfolio), class: "flex items-center justify-start px-3 py-2 rounded-lg w-full group hover:bg-black/20 #{'bg-[#d3df44]' if is_active}", style: is_active ? "background-color: #d3df44;" : "" do %>
                   <div class="flex gap-3 items-center">
                     <div class="w-6 h-6">
                       <%= image_tag "id-card.svg", class: "w-6 h-6", style: "filter: brightness(0) saturate(100%) #{is_active ? 'invert(20%) sepia(8%) saturate(348%) hue-rotate(114deg) brightness(98%) contrast(85%)' : 'invert(93%) sepia(13%) saturate(343%) hue-rotate(31deg) brightness(115%) contrast(90%)'};" %>
@@ -22,7 +22,7 @@
             <% if current_user.student? %>
               <li>
                 <% is_active = request.path.include?('orders') %>
-                <%= link_to orders_path, class: "flex items-center pl-2 pr-3 py-2 rounded-smw-full group hover:bg-black/20 hover:bg-black", style: is_active ? "background-color: #d3df44;" : "" do %>
+                <%= link_to orders_path, class: "flex items-center justify-start px-3 py-2 rounded-lg w-full group hover:bg-black/20", style: is_active ? "background-color: #d3df44;" : "" do %>
                   <div class="flex gap-3 items-center">
                     <div class="w-6 h-6">
                       <%= image_tag "receipt.svg", class: "w-6 h-6", style: "filter: brightness(0) saturate(100%) #{is_active ? 'invert(20%) sepia(8%) saturate(348%) hue-rotate(114deg) brightness(98%) contrast(85%)' : 'invert(100%)'}" %>
@@ -36,7 +36,7 @@
             <% if current_user&.teacher_or_admin? %>
               <li>
                 <% is_active = (request.path.include?('classrooms') && !request.path.include?('admin')) || request.path == '/' %>
-                <%= link_to classrooms_path, class: "flex items-center justify-start pl-2 pr-3 py-2 rounded-smw-full group hover:bg-black/20 hover:bg-black", style: is_active ? "background-color: #d3df44;" : "" do %>
+                <%= link_to classrooms_path, class: "flex items-center justify-start px-3 pr-3 py-2 rounded-lg w-full group hover:bg-black/20", style: is_active ? "background-color: #d3df44;" : "" do %>
                   <div class="flex gap-3 items-center">
                     <div class="w-6 h-6">
                       <svg class="w-6 h-6" style="color: <%= is_active ? '#323232' : 'white' %>;" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -51,7 +51,7 @@
 
             <li>
               <% is_active = request.path.include?('stocks') %>
-              <%= link_to stocks_path, class: "flex items-center justify-between pl-2 pr-3 py-2 rounded-smw-full group hover:bg-black/20 hover:bg-black", style: is_active ? "background-color: #d3df44;" : "" do %>
+              <%= link_to stocks_path, class: "flex items-center justify-between px-3 py-2 rounded-lg w-full group hover:bg-black/20", style: is_active ? "background-color: #d3df44;" : "" do %>
                 <div class="flex gap-3 items-center">
                   <div class="w-6 h-6">
                     <%= image_tag "chart-no-axes-combined.svg", class: "w-6 h-6", style: "filter: brightness(0) saturate(100%) #{is_active ? 'invert(20%) sepia(8%) saturate(348%) hue-rotate(114deg) brightness(98%) contrast(85%)' : 'invert(100%)'}" %>

@@ -10,6 +10,10 @@
   @apply rounded-lg py-3 px-5 bg-[var(--sitf-primary-blue)] text-white block font-medium cursor-pointer hover:bg-blue-600 transition-colors
 }
 
+.tw-btn-primary-disabled {
+    @apply rounded-lg py-3 px-5 bg-gray-300 text-white block font-medium cursor-not-allowed
+}
+
 .tw-btn-secondary {
   @apply rounded-md bg-[#BOEAE5] px-4 py-2 text-sm font-semibold text-white ring-1 ring-gray-300 ring-inset hover:bg-gray-50
 }
