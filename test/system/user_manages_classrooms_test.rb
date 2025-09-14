@@ -64,7 +64,9 @@ class UserManagesClassroomsTest < ApplicationSystemTestCase
     sign_in(admin)
     visit classroom_path(classroom)
 
-    click_on "Destroy this classroom"
+    accept_confirm do
+      click_on "Delete classroom"
+    end
 
     assert_text "Classroom was successfully destroyed"
   end

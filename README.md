@@ -60,8 +60,8 @@ Access the app via `localhost:3000`
 
 - Read the [project documentation](docs/README.md) to understand how we work on this app
 - Add tests with your PR
-- Run `bundle exec rails test` and make sure all tests are passing
-- Run `bundle exec rubocop` and fix any errors
+- Run `bin/dev rails test:all` and make sure all tests are passing
+- Run `bin/dev rubocop` and fix any errors
 - Create a PR with context in the description and in the comment use the key word `Resolves` and the issue number to link the issue to the desciption (For example Resolves #32)
 
 # About Stocks in the Future
