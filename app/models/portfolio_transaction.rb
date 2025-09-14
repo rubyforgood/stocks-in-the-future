@@ -14,12 +14,4 @@ class PortfolioTransaction < ApplicationRecord
   scope :credits, -> { where(transaction_type: :credit) }
   scope :withdrawals, -> { where(transaction_type: :withdrawal) }
   scope :fees, -> { where(transaction_type: :fee) }
-
-  def completed?
-    order.present? ? order.completed? : true
-  end
-
-  def canceled?
-    order.present? ? order.canceled? : false
-  end
 end

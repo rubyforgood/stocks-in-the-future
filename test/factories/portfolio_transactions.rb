@@ -14,6 +14,14 @@ FactoryBot.define do
     transaction_type { :credit }
   end
 
+  trait :deposit do
+    transaction_type { :deposit }
+  end
+
+  trait :withdrawal do
+    transaction_type { :withdrawal }
+  end
+
   trait :fee do
     transaction_type { :fee }
     amount_cents { PortfolioTransaction::TRANSACTION_FEE_CENTS }

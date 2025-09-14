@@ -22,15 +22,15 @@ class Portfolio < ApplicationRecord
     portfolio_stocks.where(stock_id: stock_id).sum(:shares)
   end
 
-  # private
+  private
 
   def cash_on_hand
     cash_on_hand_in_cents / 100.0
   end
 
   def cash_on_hand_in_cents
-    credits = acceptable_credits_sum_in_cents + deposits
-    debits = acceptable_debits_sum_in_cents + withdrawals + fees + pending_transaction_fee
+    credits = credits_sum_in_cents + deposits
+    debits = debits_sum_in_cents + withdrawals + fees + pending_transaction_fee
     credits - debits
   end
 
@@ -46,25 +46,17 @@ class Portfolio < ApplicationRecord
     portfolio_transactions.fees.sum(:amount_cents)
   end
 
-  def acceptable_credits_sum_in_cents
-    acceptable_credits.sum(&:amount_cents)
+  def credits_sum_in_cents
+    portfolio_transactions.credits.sum(:amount_cents)
   end
 
-  def acceptable_credits
-    portfolio_transactions.credits
-  end
-
-  def acceptable_debits_sum_in_cents
-    pending_order_amount = user.orders.pending.buy.sum(&:purchase_cost) || 0
-    acceptable_debits.sum(&:amount_cents) + pending_order_amount
+  def debits_sum_in_cents
+    pending_orders_amount = user.orders.pending.buy.sum(&:purchase_cost) || 0
+    portfolio_transactions.debits.sum(:amount_cents) + pending_orders_amount
   end
 
   def pending_transaction_fee
     user.orders.pending.exists? ? PortfolioTransaction::TRANSACTION_FEE_CENTS : 0
-  end
-
-  def acceptable_debits
-    portfolio_transactions.debits.reject(&:canceled?)
   end
 
   def user_must_be_student
