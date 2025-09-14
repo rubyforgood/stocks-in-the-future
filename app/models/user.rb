@@ -14,7 +14,7 @@ class User < ApplicationRecord
   end
 
   def really_destroy!
-    super
+    ActiveRecord::Base.instance_method(:destroy).bind(self).call
   end
 
   belongs_to :classroom, optional: true

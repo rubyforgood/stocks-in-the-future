@@ -35,6 +35,6 @@ class StudentTest < ActiveSupport::TestCase
     student = create(:student)
     assert_raises(RuntimeError) { student.destroy }
     assert student.reload.persisted?
-    refute student.discarded?
+    assert_not student.discarded?
   end
 end

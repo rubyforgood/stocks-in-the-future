@@ -113,27 +113,26 @@ module Admin
     end
 
     test "admin discards a student" do
-    admin   = create(:admin)
-    student = create(:student)
-    sign_in admin
+      admin   = create(:admin)
+      student = create(:student)
+      sign_in admin
 
-    assert_changes -> { student.reload.discarded? }, from: false, to: true do
-      delete admin_student_path(student)
+      assert_changes -> { student.reload.discarded? }, from: false, to: true do
+        delete admin_student_path(student)
+      end
+      assert_redirected_to admin_students_path
     end
-    assert_redirected_to admin_students_path
-  end
 
-  test "admin restores a student" do
-    admin   = create(:admin)
-    student = create(:student)
-    student.discard
-    sign_in admin
+    test "admin restores a student" do
+      admin   = create(:admin)
+      student = create(:student)
+      student.discard
+      sign_in admin
 
-    patch restore_admin_student_path(student)
+      patch restore_admin_student_path(student)
 
-    assert_redirected_to admin_students_path(discarded: 1)
-    refute_predicate student.reload, :discarded?
-  end
-
+      assert_redirected_to admin_students_path(discarded: 1)
+      assert_not_predicate student.reload, :discarded?
+    end
   end
 end

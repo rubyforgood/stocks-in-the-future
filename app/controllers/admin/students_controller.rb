@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module Admin
+  # rubocop:disable Metrics/ClassLength
   class StudentsController < Admin::ApplicationController
     # Overwrite any of the RESTful controller actions to implement custom behavior
     # For example, you may want to send an email after a foo is updated.
@@ -182,4 +183,5 @@ module Admin
       errors
     end
   end
+  # rubocop:enable Metrics/ClassLength
 end
