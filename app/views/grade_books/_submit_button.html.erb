@@ -1,0 +1,9 @@
+<div id="submit-button">
+    <%= button_tag "Save Grades",
+                   type: "submit",
+      disabled: @grade_book.completed?,
+      class: @grade_book.completed? ? "tw-btn-primary-disabled" : "tw-btn-primary",
+      data: { autosave_target: "button" }
+    %>
+</div>
+
