@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 class Order < ApplicationRecord
-  TRANSACTION_FEE_CENTS = 1_00
   include ApplicationHelper
 
   belongs_to :user
@@ -37,21 +36,8 @@ class Order < ApplicationRecord
     update(status: :canceled)
   end
 
-  def transaction_fee_dollars
-    if buy?
-      transaction_fee_cents / 100.0
-    else
-      -transaction_fee_cents / 100.0
-    end
-  end
-
   def purchase_cost
-    adjustment = if buy?
-                   transaction_fee_cents
-                 else
-                   -transaction_fee_cents
-                 end
-    (stock.price_cents * shares) + adjustment
+    stock.price_cents * shares
   end
 
   def existing_transaction_type
@@ -79,29 +65,33 @@ class Order < ApplicationRecord
     return unless number_of_shares_valid_for_calculations?
 
     current_balance_cents = (user.portfolio&.cash_balance || 0) * 100
-    return unless purchase_cost > current_balance_cents
+    total_cost = purchase_cost + transaction_fee
+    return if (current_balance_cents - total_cost) >= 0
 
     formatted_balance = format_money(current_balance_cents)
-    formatted_cost = format_money(purchase_cost)
+    formatted_cost = format_money(total_cost)
     errors.add(:shares, "Insufficient funds. You have #{formatted_balance} but need #{formatted_cost}")
+  end
+
+  def transaction_fee
+    user.orders.pending.where.not(id:).exists? ? 0 : PortfolioTransaction::TRANSACTION_FEE_CENTS
   end
 
   def sufficient_funds_for_buy_when_update
     return unless number_of_shares_valid_for_calculations?
+    return unless shares_changed?
 
-    current_balance_cents = (user.portfolio&.cash_balance || 0) * 100
+    previous_shares = shares_was
+    refund = (stock.price_cents * previous_shares) + PortfolioTransaction::TRANSACTION_FEE_CENTS
 
-    balance_before_transaction = if portfolio_transaction.present?
-                                   current_balance_cents + portfolio_transaction.amount_cents
-                                 else
-                                   current_balance_cents
-                                 end
+    current_balance_cents = ((user.portfolio&.cash_balance || 0) * 100) + refund
+    total_cost = purchase_cost + transaction_fee
+    return if (current_balance_cents - total_cost) >= 0
 
-    return unless purchase_cost > balance_before_transaction
-
-    formatted_balance = format_money(balance_before_transaction)
-    formatted_cost = format_money(purchase_cost)
-    errors.add(:shares, "Insufficient funds. You have #{formatted_balance} but need #{formatted_cost}")
+    formatted_balance = format_money(current_balance_cents)
+    formatted_cost = format_money(total_cost)
+    errors.add(:shares,
+               "Insufficient funds. You have #{formatted_balance} but need #{formatted_cost}")
   end
 
   def order_is_pending

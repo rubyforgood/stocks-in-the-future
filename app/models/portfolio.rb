@@ -29,31 +29,34 @@ class Portfolio < ApplicationRecord
   end
 
   def cash_on_hand_in_cents
-    deposits - acceptable_debits_sum_in_cents + acceptable_credits_sum_in_cents - withdrawals
+    credits = total_credits + total_deposits
+    debits = total_debits + total_withdrawals + total_fees + pending_transaction_fee
+    credits - debits
   end
 
-  def withdrawals
+  def total_withdrawals
     portfolio_transactions.withdrawals.sum(:amount_cents)
   end
 
-  def deposits
+  def total_deposits
     portfolio_transactions.deposits.sum(:amount_cents)
   end
 
-  def acceptable_credits_sum_in_cents
-    acceptable_credits.sum(&:amount_cents)
+  def total_fees
+    portfolio_transactions.fees.sum(:amount_cents)
   end
 
-  def acceptable_credits
-    portfolio_transactions.credits.select(&:completed?)
+  def total_credits
+    portfolio_transactions.credits.sum(:amount_cents)
   end
 
-  def acceptable_debits_sum_in_cents
-    acceptable_debits.sum(&:amount_cents)
+  def total_debits
+    pending_orders_amount = user.orders.pending.buy.sum(&:purchase_cost) || 0
+    portfolio_transactions.debits.sum(:amount_cents) + pending_orders_amount
   end
 
-  def acceptable_debits
-    portfolio_transactions.debits.reject { |transaction| transaction.order&.canceled? }
+  def pending_transaction_fee
+    user.orders.pending.exists? ? PortfolioTransaction::TRANSACTION_FEE_CENTS : 0
   end
 
   def user_must_be_student
