@@ -17,6 +17,7 @@ if students.any?
         2.times do |i|
           stock = stocks[i]
           if stock
+            next unless stock.price_cents
             shares = 1
             cost = stock.price_cents / 100.0
 
