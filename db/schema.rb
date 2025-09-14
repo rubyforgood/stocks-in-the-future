@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_12_181426) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_13_131345) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -57,6 +57,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_12_181426) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "attendance_days"
+    t.boolean "is_perfect_attendance", default: false, null: false
     t.index ["grade_book_id", "user_id"], name: "index_grade_entries_on_grade_book_id_and_user_id", unique: true
     t.index ["grade_book_id"], name: "index_grade_entries_on_grade_book_id"
     t.index ["user_id"], name: "index_grade_entries_on_user_id"

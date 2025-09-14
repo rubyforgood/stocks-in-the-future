@@ -9,5 +9,6 @@ FactoryBot.define do
     math_grade    { nil }
     reading_grade { nil }
     attendance_days { 45 }
+    is_perfect_attendance { false }
   end
 end
