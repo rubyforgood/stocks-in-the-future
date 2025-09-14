@@ -94,7 +94,7 @@ class GradeEntryTest < ActiveSupport::TestCase
     end
   end
 
-  test "#total_earnings sums attendance, reading, and math earningss" do
+  test "#total_earnings sums attendance, reading, and math earnings" do
     entry = build(:grade_entry, math_grade: "A", reading_grade: "B", attendance_days: 9)
     assert_equal 3_00 + 2_00 + (9 * 20), entry.total_earnings
   end
