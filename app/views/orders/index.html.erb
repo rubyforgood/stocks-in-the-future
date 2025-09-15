@@ -121,7 +121,7 @@
                       <i class="fa fa-pencil fa-lg"></i>
                     <% end %>
                     <%= form_with url: cancel_order_path(order), method: :patch, data: { confirm: t("orders.cancel.confirm"), turbo_confirm: t("orders.cancel.confirm") } do %>
-                      <button type="submit" class="table-action-button">
+                      <button type="submit" class="table-action-button" title="Cancel">
                         <i class="fa fa-ban fa-lg"></i>
                       </button>
                     <% end %>
