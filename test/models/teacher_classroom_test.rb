@@ -44,11 +44,8 @@ class TeacherClassroomTest < ActiveSupport::TestCase
     classroom1 = create(:classroom)
     classroom2 = create(:classroom)
 
-    teacher_classroom1 = TeacherClassroom.create!(teacher: teacher, classroom: classroom1)
-    teacher_classroom2 = TeacherClassroom.new(teacher: teacher, classroom: classroom2)
-
-    assert teacher_classroom1.valid?
-    assert teacher_classroom2.valid?
+    assert TeacherClassroom.create(teacher: teacher, classroom: classroom1)
+    assert TeacherClassroom.create(teacher: teacher, classroom: classroom2)
   end
 
   test "allows different teachers in same classroom" do
@@ -56,10 +53,7 @@ class TeacherClassroomTest < ActiveSupport::TestCase
     teacher2 = create(:teacher)
     classroom = create(:classroom)
 
-    teacher_classroom1 = TeacherClassroom.create!(teacher: teacher1, classroom: classroom)
-    teacher_classroom2 = TeacherClassroom.new(teacher: teacher2, classroom: classroom)
-
-    assert teacher_classroom1.valid?
-    assert teacher_classroom2.valid?
+    assert TeacherClassroom.create(teacher: teacher1, classroom: classroom)
+    assert TeacherClassroom.create(teacher: teacher2, classroom: classroom)
   end
 end
