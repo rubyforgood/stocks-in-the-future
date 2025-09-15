@@ -31,7 +31,8 @@ class StockPricesUpdateJob < ApplicationJob
       stock.price_cents = (price.to_f * 100).to_i
 
       stock.save!
-      Rails.logger.info "Successfully updated #{symbol} price from #{stock.yesterday_price_cents} to #{stock.price_cents} ($#{stock.current_price})"
+      Rails.logger.info "Updated #{symbol}: #{stock.yesterday_price_cents} -> " \
+                        "#{stock.price_cents} ($#{stock.current_price})"
     end
   rescue ActiveRecord::RecordInvalid => e
     Rails.logger.error "Failed to save #{symbol}: #{e.message}"
