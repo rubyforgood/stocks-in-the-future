@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_13_190649) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_15_162805) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -157,6 +157,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_13_190649) do
     t.decimal "debt", precision: 15, scale: 2
     t.integer "price_cents"
     t.boolean "archived", default: false, null: false
+    t.integer "yesterday_price_cents"
     t.index ["ticker"], name: "index_stocks_on_ticker", unique: true
   end
 

@@ -64,4 +64,28 @@ class StockPricesUpdateJobTest < ActiveJob::TestCase
 
     assert_not_requested :get, STOCK_URL_MATCHER
   end
+
+  test "stores current price as yesterday price before updating" do
+    initial_price = 12_345
+    stock = create(:stock, ticker: "AAPL", price_cents: initial_price, yesterday_price_cents: nil)
+
+    StockPricesUpdateJob.perform_now
+
+    stock.reload
+    assert_equal initial_price, stock.yesterday_price_cents
+    assert_not_equal initial_price, stock.price_cents
+  end
+
+  test "preserves yesterday price when API call fails" do
+    initial_price = 12_345
+    stock = create(:stock, ticker: "AAPL", price_cents: initial_price, yesterday_price_cents: nil)
+
+    stub_request(:get, STOCK_URL_MATCHER).to_return(status: 200, body: "{}")
+
+    StockPricesUpdateJob.perform_now
+
+    stock.reload
+    assert_equal initial_price, stock.yesterday_price_cents
+    assert_equal initial_price, stock.price_cents
+  end
 end
