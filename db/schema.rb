@@ -157,6 +157,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_15_224900) do
     t.decimal "debt", precision: 15, scale: 2
     t.integer "price_cents"
     t.boolean "archived", default: false, null: false
+    t.integer "yesterday_price_cents"
     t.index ["ticker"], name: "index_stocks_on_ticker", unique: true
   end
 
