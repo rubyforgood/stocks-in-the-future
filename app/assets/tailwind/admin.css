@@ -1,0 +1,19 @@
+@layer components {
+  .filter-tabs        { @apply flex border-b border-gray-200 mr-8; }
+
+  .filter-tab,
+  .filter-tab:link,
+  .filter-tab:visited {
+    @apply px-4 py-2 text-sm font-medium no-underline border-b-2 border-transparent transition;
+    color: #4b5563 !important;
+  }
+
+  .filter-tab:hover   { background-color: #f9fafb !important; color: #374151 !important; }
+
+  .filter-tab:focus   { outline: none !important; background-color: #f3f4f6 !important; color: #4b5563 !important; }
+
+  .filter-tab.active  { border-bottom-color: #2563eb !important; color: #2563eb !important; }
+
+  .header-controls    { @apply flex items-center justify-between mb-4; }
+  .action-buttons     { @apply flex gap-2; }
+}

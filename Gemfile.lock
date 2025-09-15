@@ -126,6 +126,8 @@ GEM
       railties (>= 4.1.0)
       responders
       warden (~> 1.2.3)
+    discard (1.4.0)
+      activerecord (>= 4.2, < 9.0)
     docile (1.4.1)
     drb (2.2.3)
     erb (5.0.2)
@@ -253,7 +255,7 @@ GEM
       date
       stringio
     public_suffix (6.0.1)
-    puma (7.0.1)
+    puma (7.0.3)
       nio4r (~> 2.0)
     pundit (2.5.1)
       activesupport (>= 3.0.0)
@@ -418,6 +420,7 @@ DEPENDENCIES
   debug
   delayed_job_active_record
   devise (~> 4.9)
+  discard (~> 1.4)
   factory_bot_rails
   faker (~> 3.5.2)
   font-awesome-rails

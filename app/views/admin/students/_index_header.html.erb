@@ -9,25 +9,39 @@
 
   <%= content_for(:header_middle) %>
 
-  <% if show_search_bar %>
-    <%= render(
-      "search",
-      search_term: search_term,
-      resource_name: display_resource_name(page.resource_name)
-    ) %>
-  <% end %>
+  
 
-  <div class="flex gap-2">
-    <%= link_to "Template", template_admin_students_path, class: "button", style: "background: #f3f4f6; color: #6b7280; border: 1px solid #d1d5db;" %>
-    <%= link_to "Import Students", "#", onclick: "document.getElementById('import-modal').style.display='block'", class: "button", style: "background: #f3f4f6; color: #6b7280; border: 1px solid #d1d5db;" %>
-    <%= link_to(
-      t(
-        "administrate.actions.new_resource",
-        name: display_resource_name(page.resource_name, singular: true).downcase
-      ),
-      [:new, namespace, page.resource_path.to_sym],
-      class: "button",
-    ) if accessible_action?(new_resource, :new) %>
+  <div class="header-controls">
+    <div class="filter-tabs">
+      <% current_filter = if params[:discarded] == "1"; :discarded elsif params[:all] == "1"; :all else :active end %>
+      <%= link_to "Active", admin_students_path, 
+          class: "filter-tab#{' active' if current_filter == :active}" %>
+      <%= link_to "Discarded", admin_students_path(discarded: 1), 
+          class: "filter-tab#{' active' if current_filter == :discarded}" %>
+      <%= link_to "All", admin_students_path(all: 1), 
+          class: "filter-tab#{' active' if current_filter == :all}" %>
+    </div>
+
+    <% if show_search_bar %>
+      <%= render(
+        "search",
+        search_term: search_term,
+        resource_name: display_resource_name(page.resource_name)
+      ) %>
+    <% end %>
+
+    <div class="action-buttons">
+      <%= link_to "Template", template_admin_students_path, class: "button", style: "background: #f3f4f6; color: #6b7280; border: 1px solid #d1d5db;" %>
+      <%= link_to "Import Students", "#", onclick: "document.getElementById('import-modal').style.display='block'", class: "button", style: "background: #f3f4f6; color: #6b7280; border: 1px solid #d1d5db;" %>
+      <%= link_to(
+        t(
+          "administrate.actions.new_resource",
+          name: display_resource_name(page.resource_name, singular: true).downcase
+        ),
+        [:new, namespace, page.resource_path.to_sym],
+        class: "button",
+      ) if accessible_action?(new_resource, :new) %>
+    </div>
   </div>
 
   <%= content_for(:header_last) %>

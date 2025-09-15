@@ -25,6 +25,8 @@ gem "stimulus-rails"
 gem "strong_migrations", "~> 2.5"
 gem "tailwindcss-rails"
 gem "turbo-rails"
+
+gem "discard", "~> 1.4"
 gem "tzinfo-data", platforms: %i[windows jruby]
 gem "whenever", require: false
 
