@@ -7,7 +7,7 @@ mike = User.find_by(email: "mike@example.com")
 students = [student, mike].compact
 
 if students.any?
-  stocks = Stock.where.not(price_cents: nil).limit(5)
+  stocks = Stock.limit(5)
 
   students.each do |student_user|
     if student_user&.portfolio
@@ -17,6 +17,7 @@ if students.any?
         2.times do |i|
           stock = stocks[i]
           if stock
+            next unless stock.price_cents
             shares = 1
             cost = stock.price_cents / 100.0
 
@@ -88,7 +89,7 @@ end
 
 # Canceled orders
 if students.any?
-  stocks = Stock.where.not(price_cents: nil).limit(5)
+  stocks = Stock.limit(5)
   
   students.each do |student_user|
     if student_user&.portfolio

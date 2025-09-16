@@ -11,10 +11,11 @@ if mike
     amount_cents: 15_000_00
   )
 
-  stocks = Stock.where.not(price_cents: nil).limit(3)
+  stocks = Stock.limit(3)
   shares = 2
 
   stocks.each do |stock|
+    next unless stock.price_cents
     total_price_cents = (stock.price_cents * shares)
 
     order = Order.create!(
@@ -31,6 +32,7 @@ if mike
   shares = 1
 
   stocks.each do |stock|
+    next unless stock.price_cents
     total_price_cents = (stock.price_cents * shares)
 
     order = Order.create!(
@@ -57,9 +59,10 @@ if mike
   )
 
   existing_stock_ids = Order.where(user: mike, action: :buy).pluck(:stock_id).uniq
-  stocks = Stock.where.not(id: existing_stock_ids).where.not(price_cents: nil).limit(1)
+  stocks = Stock.where.not(id: existing_stock_ids).limit(1)
 
   stocks.each do |stock|
+    next unless stock.price_cents
     shares = 1
     total_price_cents = (stock.price_cents * shares)
 
