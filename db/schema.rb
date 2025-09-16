@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_15_162805) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_15_224900) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -184,6 +184,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_15_162805) do
     t.boolean "admin", default: false
     t.string "type", default: "User", null: false
     t.datetime "discarded_at"
+    t.string "name"
     t.index ["classroom_id"], name: "index_users_on_classroom_id"
     t.index ["discarded_at"], name: "index_users_on_discarded_at"
     t.index ["email"], name: "index_users_on_email", unique: true, where: "((email IS NOT NULL) AND ((email)::text <> ''::text))"
