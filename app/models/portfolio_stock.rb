@@ -7,7 +7,9 @@ class PortfolioStock < ApplicationRecord
   # Calculate the total profit/loss from purchase price
   def change_amount
     current_price = stock.current_price
-    (current_price - purchase_price) * shares
+    # Handle purchase_price stored as cents vs dollars
+    normalized_purchase_price = purchase_price > 1000 ? purchase_price / 100.0 : purchase_price
+    (current_price - normalized_purchase_price) * shares
   end
 
   # Calculate current market value (what it's worth right now)
