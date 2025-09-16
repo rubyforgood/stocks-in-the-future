@@ -4,15 +4,12 @@ class PortfolioStock < ApplicationRecord
   belongs_to :portfolio
   belongs_to :stock
 
-  # Calculate the total profit/loss from purchase price
   def change_amount
     current_price = stock.current_price
-    # Handle purchase_price stored as cents vs dollars
     normalized_purchase_price = purchase_price > 1000 ? purchase_price / 100.0 : purchase_price
     (current_price - normalized_purchase_price) * shares
   end
 
-  # Calculate current market value (what it's worth right now)
   def total_return_amount
     stock.current_price * shares
   end
