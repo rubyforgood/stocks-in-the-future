@@ -12,7 +12,7 @@ class ClassroomsController < ApplicationController
   end
 
   def show
-    @students = @classroom.users.students.includes(:portfolio, :orders)
+    @students = @classroom.users.students.kept.includes(:portfolio, :orders)
     @can_manage_students = current_user.teacher_or_admin?
     @classroom_stats = calculate_classroom_stats if @can_manage_students
   end
@@ -91,7 +91,7 @@ class ClassroomsController < ApplicationController
   def calculate_classroom_stats
     return {} unless @classroom
 
-    students = @classroom.users.students
+    students = @classroom.users.students.kept
     {
       total_students: students.count,
       active_students: students.joins(:orders).distinct.count,
