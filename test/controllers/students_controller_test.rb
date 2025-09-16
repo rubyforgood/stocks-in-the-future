@@ -161,4 +161,14 @@ class StudentsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
   end
+
+  test "teacher is redirected when accessing discarded student" do
+    sign_in @teacher
+    @student.discard
+
+    get classroom_student_path(@classroom, @student)
+
+    assert_redirected_to classroom_path(@classroom)
+    assert_match(/not found/i, flash[:alert])
+  end
 end
