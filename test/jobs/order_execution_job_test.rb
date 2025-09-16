@@ -76,4 +76,18 @@ class OrderExecutionJobTest < ActiveJob::TestCase
     assert_not_nil order2.portfolio_stock
     assert_not_nil order2.portfolio_transaction
   end
+
+  test "it adds 1 transaction fee per portfolio if there are pending orders" do
+    user = create(:student)
+    portfolio = user.portfolio
+    portfolio.portfolio_transactions.create!(amount_cents: 10_000, transaction_type: :deposit) # $100.00
+
+    stock1, stock2 = create_list(:stock, 2, price_cents: 1_000)
+    create(:order, :pending, user: user, stock: stock1, shares: 2, action: :buy)
+    create(:order, :pending, user: user, stock: stock2, shares: 1, action: :buy)
+
+    assert_changes -> { portfolio.portfolio_transactions.fees.count }, from: 0, to: 1 do
+      OrderExecutionJob.perform_now
+    end
+  end
 end

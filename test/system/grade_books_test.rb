@@ -10,11 +10,12 @@ class GradeBooksTest < ApplicationSystemTestCase
 
     @student1 = create(:student, classroom: @classroom)
     @student2 = create(:student, classroom: @classroom)
+    @teacher = create(:teacher, classroom: @classroom)
+    TeacherClassroom.create(teacher: @teacher, classroom: @classroom)
 
     create(:grade_entry, grade_book: @grade_book, user: @student1)
     create(:grade_entry, grade_book: @grade_book, user: @student2)
 
-    @teacher = create(:teacher, classroom: @classroom)
     sign_in(@teacher)
   end
 

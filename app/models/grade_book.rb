@@ -12,10 +12,6 @@ class GradeBook < ApplicationRecord
   }
 
   def finalizable?
-    grade_entries.all?(&:finalizable?)
-  end
-
-  def incomplete?
-    !finalizable?
+    grade_entries.all?(&:finalizable?) && !completed?
   end
 end

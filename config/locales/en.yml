@@ -56,3 +56,7 @@ en:
       notice: Student updated successfully.
     add_transaction:
       success: "Transaction added to student successfully."
+  grade_books:
+    finalize:
+      incomplete: 'Cannot finalize: Some entries are incomplete.'
+      notice: 'Grade book finalized. Funds have been distributed.'

@@ -9,5 +9,6 @@ class OrderExecutionJob < ApplicationJob
     pending_orders.each do |pending_order|
       ExecuteOrder.execute(pending_order)
     end
+    TransactionFeeProcessor.execute(pending_orders)
   end
 end

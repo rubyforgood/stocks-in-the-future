@@ -100,12 +100,13 @@ class StudentsControllerTest < ActionDispatch::IntegrationTest
   test "teacher can delete student from their classroom" do
     sign_in @teacher
 
-    assert_difference("User.count", -1) do
+    assert_difference("User.kept.count", -1) do
       delete classroom_student_path(@classroom, @student)
     end
 
     assert_redirected_to classroom_path(@classroom)
     assert_match(/deleted successfully/, flash[:notice])
+    assert @student.reload.discarded?
   end
 
   test "teacher can reset student password" do

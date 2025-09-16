@@ -1,12 +1,26 @@
 # frozen_string_literal: true
 
 module Admin
+  # rubocop:disable Metrics/ClassLength
   class StudentsController < Admin::ApplicationController
     # Overwrite any of the RESTful controller actions to implement custom behavior
     # For example, you may want to send an email after a foo is updated.
 
     def update
       super
+    end
+
+    def destroy
+      username = requested_resource.username
+      requested_resource.discard
+      redirect_to admin_students_path, notice: "Discarded #{username}"
+    end
+
+    def restore
+      student = resource_class.with_discarded.find(params[:id])
+      username = student.username
+      student.undiscard
+      redirect_to admin_students_path(discarded: 1), notice: "Restored #{username}"
     end
 
     def import
@@ -58,6 +72,17 @@ module Admin
     # Override this if you have certain roles that require a subset
     # this will be used to set the records shown on the `index` action.
     #
+    def scoped_resource
+      scope = resource_class
+      if params[:discarded] == "1"
+        scope.discarded
+      elsif params[:all] == "1"
+        scope.with_discarded
+      else
+        scope.kept
+      end
+    end
+
     # def scoped_resource
     #   if current_user.super_admin?
     #     resource_class
@@ -158,4 +183,5 @@ module Admin
       errors
     end
   end
+  # rubocop:enable Metrics/ClassLength
 end

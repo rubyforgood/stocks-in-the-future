@@ -45,3 +45,6 @@ jobs:
 
       - name: Run tests
         run: bin/rails test
+
+      - name: Run systems tests
+        run: bin/rails test:system

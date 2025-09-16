@@ -27,11 +27,13 @@ export default class extends Controller {
 
   save() {
     if (!this.hasButtonTarget) return
-    this.statusTarget.textContent = "Saving..."
     this.buttonTarget.click()
   }
 
   bindTurboEvents() {
+      this.formTarget.addEventListener("turbo:submit-start", () => {
+          this.buttonTarget.textContent = "Saving..."
+      })
     this.formTarget.addEventListener("turbo:submit-end", () => {
       const now = new Date()
       const formatted = now.toLocaleTimeString([], {

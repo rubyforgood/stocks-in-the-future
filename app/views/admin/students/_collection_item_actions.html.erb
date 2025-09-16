@@ -1,0 +1,29 @@
+<% if existing_action?(collection_presenter.resource_name, :edit) %>
+  <td><%= link_to(
+    t("administrate.actions.edit"),
+    [:edit, namespace, resource],
+    class: "action-edit",
+  ) if accessible_action?(resource, :edit) %></td>
+<% end %>
+
+<% if existing_action?(collection_presenter.resource_name, :destroy) %>
+  <td>
+    <% if resource.discarded? %>
+      <%= button_to(
+        t("actions.restore", default: "Restore"),
+        [:restore, namespace, resource],
+        class: "link link--success",
+        method: :patch,
+        data: { turbo_confirm: "Are you sure you want to restore this student?" }
+      ) if accessible_action?(resource, :restore) %>
+    <% else %>
+      <%= button_to(
+        t("actions.discard", default: t("administrate.actions.destroy")),
+        [namespace, resource],
+        class: "link link--danger",
+        method: :delete,
+        data: { turbo_confirm: t("administrate.actions.confirm") }
+      ) if accessible_action?(resource, :destroy) %>
+    <% end %>
+  </td>
+<% end %>
