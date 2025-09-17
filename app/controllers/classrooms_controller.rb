@@ -12,7 +12,7 @@ class ClassroomsController < ApplicationController
   end
 
   def show
-    @students = @classroom.users.students.includes(
+    @students = @classroom.users.students.kept.includes(
       :portfolio,
       :orders,
       portfolio: :portfolio_transactions
@@ -95,7 +95,7 @@ class ClassroomsController < ApplicationController
   def calculate_classroom_stats
     return {} unless @classroom
 
-    students = @classroom.users.students
+    students = @classroom.users.students.kept
     {
       total_students: students.count,
       active_students: students.joins(:orders).distinct.count,
