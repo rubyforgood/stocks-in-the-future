@@ -54,9 +54,9 @@
             <% if @can_manage_students %>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
                 <% if student.portfolio %>
-                  $<%= number_with_precision(student.portfolio.cash_balance, precision: 2) %>
+                  <%= number_to_currency(student.portfolio.cash_balance) %>
                 <% else %>
-                  $0.00
+                  <%= number_to_currency(0) %>
                 <% end %>
               </td>
             <% end %>
