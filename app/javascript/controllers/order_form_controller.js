@@ -11,7 +11,12 @@ export default class extends Controller {
   }
 
   calculateTotal() {
-    const shares = parseInt(this.sharesTarget.value) || 0
+    const rawValue = this.sharesTarget.value || ""
+    const sanitized = rawValue.replace(/\D+/g, "")
+    if (sanitized !== rawValue) {
+      this.sharesTarget.value = sanitized
+    }
+    const shares = parseInt(sanitized || "0", 10)
 
     const price = this.currentPriceValue
     const total = shares * price
