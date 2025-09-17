@@ -9,6 +9,9 @@
 - [PostgreSQL](https://www.postgresql.org/), if you're not using Docker.
 - [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) and yarn (`npm install -g yarn`)
 
+# Easy Docker Scripts
+Go to the [Easy Docker Scripts](docker/README.md) page for an easy way to set up this app, test this app, seed data, run RuboCop, and execute other routine tasks.
+
 # Installation
 
 Create `config/database.yml`. A copy of `config/database.yml.sample` should be adequate.
