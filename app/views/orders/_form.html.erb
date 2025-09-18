@@ -1,58 +1,108 @@
 <%= form_with(model: order,
-              class: "w-full max-w-lg",
+              class: "w-full max-w-md mx-auto",
               data: {
                 controller: "order-form",
                 order_form_current_price_value: order.stock.current_price,
                 turbo_frame: "_top"
               }) do |form| %>
-  <% if order.errors.any? %>
-    <div style="color: red">
-      <h2><%= pluralize(order.errors.count, "error") %> prohibited this order from being saved:</h2>
 
-      <ul>
+  <!-- Error Messages -->
+  <% if order.errors.any? %>
+    <div class="mb-6 p-4 bg-[var(--sitf-status-destructive)]/10 border border-[var(--sitf-status-destructive)]/20 rounded-lg">
+      <h4 class="text-[var(--sitf-status-destructive)] font-medium mb-2">
+        Please fix the following errors:
+      </h4>
+      <ul class="text-[var(--sitf-status-destructive)] text-sm space-y-1">
         <% order.errors.each do |error| %>
-          <li><%= error.full_message %></li>
+          <li>• <%= error.full_message %></li>
         <% end %>
       </ul>
     </div>
   <% end %>
 
-  <div>
-    <p class="text-3xl text-center pb-3"><%= order.action&.titlecase %> Shares</p>
-    <hr class="py-3"></hr>
-    <p class="text-center"><%= order.stock.ticker %></p>
-    <p class="text-center text-sm">Current Price <%= number_to_currency(order.stock.current_price) %></p>
+  <!-- Header -->
+  <div class="text-center mb-6">
+    <h2 class="text-2xl font-bold text-gray-900 mb-1">
+      <%= order.action&.titlecase %> <%= order.stock.ticker %>
+    </h2>
+    <p class="text-gray-600">
+      <%= number_to_currency(order.stock.current_price) %> per share
+    </p>
+  </div>
 
-    <div class="py-3">
-      <p class="bg-green-500 bg-opacity-25 p-2 border-green-800 text-md font-bold">
-        Current earnings to Invest: <%= number_to_currency(current_user&.portfolio&.cash_balance) %>
+  <!-- Account Info -->
+  <div class="grid grid-cols-2 gap-4 mb-6">
+    <div class="bg-[var(--sitf-secondary-chart2)]/10 border border-[var(--sitf-secondary-chart2)]/20 p-4 rounded-lg text-center">
+      <p class="text-sm text-[var(--sitf-secondary-chart2)] font-medium mb-1">
+        Available Cash
+      </p>
+      <p class="font-semibold text-[var(--sitf-foreground)]">
+        <%= number_to_currency(current_user&.portfolio&.cash_balance) %>
       </p>
     </div>
-
-    <div class="py-3">
-      <p class="text-sm">
-        Shares Owned: <%= shares_owned %>
+    <div class="bg-[var(--sitf-ring)]/10 border border-[var(--sitf-ring)]/20 p-4 rounded-lg text-center">
+      <p class="text-sm text-[#8b5cf6] font-medium mb-1">
+        Shares Owned
       </p>
-    </div>
-    <hr class="py-3"></hr>
-
-    <div class="pb-3">
-      <%= form.label "# of shares #{order.action == 'buy' ? 'buying' : 'selling'}" %>
-      <%= form.number_field :shares, min: 1, required: true, class: "shadow-sm appearance-none border rounded-smw-full py-2 px-3 text-gray-700 leading-tight focus:outline-hidden focus:shadow-outline", data: { order_form_target: "shares", action: "input->order-form#calculateTotal" } %>
-    </div>
-    <hr class="py-3"></hr>
-
-
-    <div class="pb-3">
-      <p class="text-sm font-semibold text-gray-700">Total <%= order.action == 'buy' ? 'Cost' : 'Earnings' %>
-        : <span data-order-form-target="totalCost">$0.00</span>
+      <p class="font-semibold text-[var(--sitf-foreground)]">
+        <%= shares_owned %>
       </p>
-    </div>
-
-    <%= form.hidden_field :action, value: order.action %>
-    <%= form.hidden_field :stock_id, value: order.stock.id %>
-    <div>
-      <%= form.submit "Confirm #{order.action&.titlecase}", class: "cursor-pointer rounded-lg bg-[#00698c] px-4 py-2 text-sm font-semibold text-white shadow-xs hover:bg-[#004f6b] focus-visible:outline-2 focus-visible:outline-offset-2" %>
     </div>
   </div>
+
+  <!-- Shares Input -->
+  <div class="mb-6">
+    <%= form.label :shares, 
+        "Number of shares", 
+        class: "block text-sm font-medium text-[var(--sitf-foreground)] mb-2" %>
+    <%= form.number_field :shares, 
+        min: 1, 
+        step: 1,
+        required: true, 
+        placeholder: "Enter quantity",
+        class: "w-full px-4 py-3 text-lg border-2 border-[var(--sitf-muted)] rounded-lg focus:ring-2 focus:ring-[var(--sitf-ring)] focus:border-[var(--sitf-ring)] outline-none", 
+        data: { 
+          order_form_target: "shares", 
+          action: "input->order-form#calculateTotal" 
+        } %>
+  </div>
+
+  <!-- Order Total -->
+  <div class="mb-6 p-4 bg-[var(--sitf-ring)]/10 border border-[var(--sitf-ring)]/20 rounded-lg">
+    <div class="flex justify-between items-center mb-3">
+      <span class="text-[var(--sitf-foreground)] font-medium">
+        Total <%= order.action == 'buy' ? 'Cost' : 'Proceeds' %>:
+      </span>
+      <span class="text-xl font-bold text-[var(--sitf-foreground)]" 
+            data-order-form-target="totalCost">
+        $0.00
+      </span>
+    </div>
+    
+    <!-- Daily Transaction Fee Notice -->
+    <div class="pt-2 border-t border-[var(--sitf-muted)]/20">
+      <p class="text-xs text-[var(--sitf-muted-foreground)] flex items-center">
+        <svg class="w-4 h-4 mr-2 text-[var(--sitf-secondary-chart2)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        Trading fee: $1 per day
+      </p>
+    </div>
+  </div>
+
+  <!-- Hidden Fields -->
+  <%= form.hidden_field :action, value: order.action %>
+  <%= form.hidden_field :stock_id, value: order.stock.id %>
+
+  <!-- Submit Button -->
+  <div class="flex gap-3">
+    <button type="button" 
+            class="flex-1 px-4 py-3 border border-[var(--sitf-8)]/50 text-[var(--sitf-input)] font-medium rounded-lg hover:bg-[var(--sitf-8)]/10 transition-colors cursor-pointer"
+            data-action="click->modal#close">
+      Cancel
+    </button>
+    <%= form.submit "#{order.action == 'buy' ? 'Buy' : 'Sell'} Shares", 
+        class: "flex-1 px-4 py-3 #{order.action == 'buy' ? 'bg-[var(--sitf-secondary-chart2)] hover:bg-[var(--sitf-secondary-chart2)]/90' : 'bg-[var(--sitf-accent2-chart5)] hover:bg-[var(--sitf-accent2-chart5)]/90'} text-[var(--sitf-primary-secondary-foreground-card)] font-medium rounded-lg transition-colors shadow-sm cursor-pointer" %>
+  </div>
+
 <% end %>

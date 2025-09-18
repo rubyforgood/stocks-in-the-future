@@ -40,6 +40,20 @@
   --radius: 0.5rem;
 
   /* SITF Color Palette */
+  --sitf-background: #f7f9f3;
+  --sitf-foreground: #000000;
+  --sitf-primary-chart1: #00698c;
+  --sitf-primary-secondary-foreground-card: #ffffff;
+  --sitf-secondary-chart2: #1db8a6;
+  --sitf-accent1-chart3: #D3DF44;
+  --sitf-accent2-chart5: #F59E0B;
+  --sitf-chart4: #EB4A97;
+  --sitf-muted: #f0f0f0;
+  --sitf-status-destructive: #ef4444;
+  --sitf-input: #737373;
+  --sitf-ring: #a5b4fc;
+
+  /* TODO: Legacy variables for backward compatibility - update to use standardized naming above */
   --sitf-primary-blue: #00698c;
   --sitf-secondary-teal: #00b8b0;
   --sitf-6: #161616;
