@@ -16,7 +16,12 @@ export default class extends Controller {
     if (sanitized !== rawValue) {
       this.sharesTarget.value = sanitized
     }
-    const shares = parseInt(sanitized || "0", 10)
+    let shares = parseInt(sanitized || "0", 10)
+    
+    if (shares > 999_999_999_999) {
+      shares = 999_999_999_999
+      this.sharesTarget.value = shares.toString()
+    }
 
     const price = this.currentPriceValue
     const total = shares * price
