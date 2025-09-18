@@ -42,6 +42,35 @@ module Admin
     #     transform_values { |value| value == "" ? nil : value }
     # end
 
+    # need to create the new teacher by the admin
+    def create
+      temp_password = Devise.friendly_token.first(20)
+      classroom_id = teacher_params[:classroom_id]
+      classroom = Classroom.find_by(id: classroom_id)
+
+      @teacher = Teacher.new(teacher_params.merge(password: temp_password))
+
+      if @teacher.save
+        # checking if any classroom_id is provided or not
+        if classroom
+          @teacher.classrooms << classroom
+        else
+          flash[:alert] = t("teachers.create.alert.no_classroom", id: classroom_id)
+        end
+
+        @teacher.send_reset_password_instructions
+        redirect_to admin_teachers_path, notice: t("teachers.create.notice")
+      else
+        render :new, status: :unprocessable_entity
+      end
+    end
+
+    private
+
+    def teacher_params
+      params.expect(teacher: %i[email username classroom_id])
+    end
+
     # See https://administrate-demo.herokuapp.com/customizing_controller_actions
     # for more information
   end
