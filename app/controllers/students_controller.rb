@@ -67,10 +67,6 @@ class StudentsController < ApplicationController
     redirect_to classroom_path(@classroom), alert: t("students.not_found")
   end
 
-  def ensure_teacher_or_admin
-    redirect_to root_path unless current_user&.teacher_or_admin?
-  end
-
   def student_params
     params.expect(student: %i[username email])
   end
