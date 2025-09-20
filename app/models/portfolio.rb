@@ -9,6 +9,7 @@ class Portfolio < ApplicationRecord
   has_many :portfolio_transactions, dependent: :destroy
   has_many :portfolio_stocks, dependent: :destroy
   has_many :stocks, through: :portfolio_stocks
+  has_many :portfolio_snapshots, dependent: :destroy
 
   def cash_balance
     cash_on_hand
