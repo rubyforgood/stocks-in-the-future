@@ -30,7 +30,7 @@ class ExecuteOrder
     @portfolio_transaction = if order.buy?
                                portfolio
                                  .portfolio_transactions
-                                 .withdrawal
+                                 .debit
                                  .create!(amount_cents: purchase_cost)
                              else
                                portfolio

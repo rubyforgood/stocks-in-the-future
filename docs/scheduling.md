@@ -6,8 +6,8 @@ This document explains how the stock-related jobs are scheduled to run automatic
 
 The application uses the `whenever` gem to schedule two jobs that run daily at 1:00 AM Eastern Time:
 
-1. **StockPricesUpdateJob** - Updates stock prices from Alpha Vantage API
-2. **OrderExecutionJob** - Executes pending stock orders (both buy and sell)
+1. **OrderExecutionJob** - Executes pending stock orders (both buy and sell)
+2. **StockPricesUpdateJob** - Updates stock prices from Alpha Vantage API
 
 ## Configuration
 
@@ -15,8 +15,8 @@ The scheduling configuration is defined in [`config/schedule.rb`](../config/sche
 
 ```ruby
 every 1.day, at: '1:00 am' do
-  runner "StockPricesUpdateJob.perform_later"
   runner "OrderExecutionJob.perform_later"
+  runner "StockPricesUpdateJob.perform_later"
 end
 ```
 
@@ -71,21 +71,6 @@ bundle exec whenever --clear-crontab
 # Or remove specific identifier
 bundle exec whenever --clear-crontab stocks-app
 ```
-
-### Capistrano Integration
-
-If using Capistrano for deployment, add the `whenever` gem integration:
-
-```ruby
-# Add to Gemfile
-gem 'whenever', require: false
-
-# Add to config/deploy.rb
-require 'whenever/capistrano'
-
-# The gem will automatically update crontab during deployment
-```
-
 ## Job Dependencies
 
 ### Prerequisites
@@ -121,12 +106,12 @@ For testing or emergency runs:
 ```bash
 # Run jobs manually in Rails console
 rails console
-StockPricesUpdateJob.perform_now
 OrderExecutionJob.perform_now
+StockPricesUpdateJob.perform_now
 
 # Or queue them
-StockPricesUpdateJob.perform_later
 OrderExecutionJob.perform_later
+StockPricesUpdateJob.perform_later
 ```
 
 ## Troubleshooting

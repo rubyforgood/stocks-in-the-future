@@ -3,7 +3,7 @@
 require "test_helper"
 
 class ExecuteOrderTest < ActiveSupport::TestCase
-  test "it creates a withdrawal transaction in portfolio_transactions" do
+  test "it creates a debit transaction in portfolio_transactions" do
     student = create(:student)
     create(:portfolio, user: student)
     student.portfolio.portfolio_transactions.create!(amount_cents: 1000, transaction_type: :deposit)
@@ -15,7 +15,7 @@ class ExecuteOrderTest < ActiveSupport::TestCase
     end
 
     portfolio_transaction = PortfolioTransaction.last
-    assert portfolio_transaction.withdrawal?
+    assert portfolio_transaction.debit?
     assert_equal portfolio_transaction, order.portfolio_transaction
     assert_operator portfolio_transaction.amount_cents, :>, 0
   end
