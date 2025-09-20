@@ -31,7 +31,7 @@ Note that due to the fundamental way in which this system works, these concepts 
 - Transactions are records of cash movements in a student's portfolio.
 - Transactions can be of the following types:
   - **Deposit** - represents cash added to the portfolio through earnings from gradebook or manual deposits by teachers/admins
-  - **Withdrawal** - represents cash removed from the portfolio by teachers/admins
+  - **Withdrawal** - represents cash removed from the portfolio by admins
   - **Credit** - represents cash received from selling stocks
   - **Debit** - represents cash spent on buying stocks
   - **Fee** - represents the $1 transaction fee charged for executing orders
