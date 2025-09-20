@@ -5,7 +5,7 @@ Note that due to the fundamental way in which this system works, these concepts 
 
 ## [Orders](../app/models/order.rb)
 - Students can place buy or sell orders for stocks. These orders are not executed immediately but are pending until they are processed by the [OrderExecutionJob](../app/jobs/order_execution_job.rb) at the end of each day.
-  - Currently, this job runs a midnight Eastern Time.
+  - Currently, this job runs at midnight Eastern Time.
 - Students can cancel or update their pending orders at any time before they have been executed.
 - At this time, orders can only be placed for whole shares of stock (no fractional shares).
 - When placing an order, the price of the stock is a known value. This is because we only update the stock prices once per day, and we execute all pending orders before updating the prices for the next day.
