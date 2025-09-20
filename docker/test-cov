@@ -1,0 +1,18 @@
+#!/bin/bash
+set -eo pipefail
+
+# SimpleCov does not work well with parallel workers
+# and shows an inaccurate test coverage figure.
+# This script disables the parallel workers feature in order to
+# provide an accurate test coverage figure.
+
+docker/bundle-install
+docker/db-migrate
+
+echo '-----------------------'
+echo 'BEGIN: testing coverage'
+echo '-----------------------'
+docker compose run -e PARALLEL_WORKERS=1 --rm --no-deps stocks rails test
+echo '--------------------------'
+echo 'FINISHED: testing coverage'
+echo '--------------------------'

@@ -1,0 +1,47 @@
+#!/bin/bash
+set -eo pipefail
+
+echo ''
+echo 'INSTRUCTIONS: Please read before continuing!'
+echo ''
+echo 'This script executes the "docker compose up" command.'
+echo 'This builds and starts up the application in Docker.'
+echo ''
+echo 'When the application has been successfully started,'
+echo 'you will be able to view it in your web browser at'
+echo 'http://localhost:3000/'
+echo ''
+echo 'To execute additional tasks in the application'
+echo 'you must start a new shell tab/window in the root directory'
+echo 'of this repository to enter more commands.'
+echo ''
+echo 'Scripts are provided in the "docker" directory.'
+echo 'Execute them from the root directory of this repository.'
+echo ''
+echo 'For example, you can run the test suite by entering'
+echo '"docker/test".'
+echo ''
+echo 'Press Enter to continue.'
+read
+
+echo ''
+echo '-------------------------'
+echo 'rm -f tmp/pids/server.pid'
+echo '-------------------------'
+# You CANNOT start the Rails server if the
+# tmp/pids/server.pid file already exists
+rm -f tmp/pids/server.pid
+
+echo '-------------------------------------------------'
+echo 'cp config/database.yml.sample config/database.yml'
+echo '-------------------------------------------------'
+cp config/database.yml.sample config/database.yml
+
+wait
+echo '########################'
+echo 'BEGIN: docker compose up'
+echo '########################'
+docker compose up
+echo '###########################'
+echo 'FINISHED: docker compose up'
+echo '###########################'

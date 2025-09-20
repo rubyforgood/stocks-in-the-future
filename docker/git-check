@@ -1,0 +1,17 @@
+#!/bin/bash
+set -eo pipefail
+
+# Run this script before entering "git add" and "git commit".
+
+echo '----------'
+echo 'git status'
+echo '----------'
+git status
+
+docker/test
+docker/cop
+
+echo '----------'
+echo 'git status'
+echo '----------'
+git status

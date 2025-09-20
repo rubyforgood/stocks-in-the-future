@@ -1,0 +1,8 @@
+#!/bin/bash
+set -eo pipefail
+
+# Use this script to execute commaands in the Docker container.
+# Example: To run the "ls -l" command in the Docker container, enter the command "docker/run ls -l".
+wait
+bin/dc $@
+wait

@@ -1,0 +1,12 @@
+#!/bin/bash
+set -eo pipefail
+
+docker/bundle-install
+
+echo '-------------------------------------'
+echo 'BEGIN: docker/run bundle exec rubocop'
+echo '-------------------------------------'
+docker/run bundle exec rubocop
+echo '----------------------------------------'
+echo 'FINISHED: docker/run bundle exec rubocop'
+echo '----------------------------------------'

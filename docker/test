@@ -1,0 +1,13 @@
+#!/bin/bash
+set -eo pipefail
+
+docker/bundle-install
+docker/db-migrate
+
+echo '----------------------------'
+echo 'BEGIN: docker/run rails test'
+echo '----------------------------'
+docker/run rails test
+echo '-------------------------------'
+echo 'FINISHED: docker/run rails test'
+echo '-------------------------------'

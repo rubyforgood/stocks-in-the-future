@@ -1,0 +1,16 @@
+#!/bin/bash
+set -eo pipefail
+
+DATE=`date +%Y%m%d-%H%M%S`
+LOG_DIRNAME="log/$DATE"
+LOG_FILENAME="$LOG_DIRNAME/build.log"
+mkdir "$LOG_DIRNAME"
+echo ''
+echo 'Welcome to the Stocks in the Future Docker build script!'
+echo 'The screen output will be logged at'
+echo "$LOG_FILENAME"
+echo ''
+echo 'Press Enter to continue.'
+read
+echo ''
+docker/build-log 2>&1 | tee "$LOG_FILENAME"
