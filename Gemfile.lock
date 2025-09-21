@@ -427,7 +427,6 @@ DEPENDENCIES
   i18n-tasks
   importmap-rails
   jbuilder
-  kaminari (~> 1.2, >= 1.2.2)
   mocha
   pg (~> 1.6)
   propshaft
