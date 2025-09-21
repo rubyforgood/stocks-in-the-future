@@ -63,7 +63,9 @@ module Admin
       else
         # otherwise it was throwing the template error since the page was not being passed here
         @page = params[:page]
-        render :new, status: :unprocessable_entity
+        render :new, status: :unprocessable_entity, locals: {
+          page: Administrate::Page::Form.new(dashboard, @teacher),
+        }
       end
     end
 
