@@ -63,7 +63,10 @@ class StudentDashboard < Administrate::BaseDashboard
   #   COLLECTION_FILTERS = {
   #     open: ->(resources) { resources.where(open: true) }
   #   }.freeze
-  COLLECTION_FILTERS = {}.freeze
+  COLLECTION_FILTERS = {
+    discarded: ->(resources) { resources.discarded },
+    all: ->(resources) { resources.with_discarded }
+  }.freeze
 
   # Overwrite this method to customize how students are displayed
   # across all pages of the admin dashboard.

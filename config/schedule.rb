@@ -12,9 +12,9 @@ env :PATH, ENV.fetch("PATH", nil)
 
 # Run stock-related jobs at 1:00 AM Eastern Time every day
 every 1.day, at: "6:00 am" do
-  # Update stock prices first (external API call)
-  runner "StockPricesUpdateJob.perform_later"
-
-  # Then execute pending stock orders (internal processing)
+  # Execute pending stock orders at yesterdays price (internal processing)
   runner "OrderExecutionJob.perform_later"
+
+  # Then update stock prices (external API call)
+  runner "StockPricesUpdateJob.perform_later"
 end

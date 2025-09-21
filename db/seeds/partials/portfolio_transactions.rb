@@ -15,6 +15,7 @@ if mike
   shares = 2
 
   stocks.each do |stock|
+    next unless stock.price_cents
     total_price_cents = (stock.price_cents * shares)
 
     order = Order.create!(
@@ -31,6 +32,7 @@ if mike
   shares = 1
 
   stocks.each do |stock|
+    next unless stock.price_cents
     total_price_cents = (stock.price_cents * shares)
 
     order = Order.create!(
@@ -60,6 +62,7 @@ if mike
   stocks = Stock.where.not(id: existing_stock_ids).limit(1)
 
   stocks.each do |stock|
+    next unless stock.price_cents
     shares = 1
     total_price_cents = (stock.price_cents * shares)
 

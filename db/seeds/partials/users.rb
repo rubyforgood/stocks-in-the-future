@@ -3,6 +3,7 @@ teacher = User.find_or_initialize_by(email: "teacher@example.com")
 unless teacher.persisted?
   teacher.attributes = {
     username: "Teacher",
+    name: "Teacher Name",
     password: "password",
     password_confirmation: "password",
     admin: false,

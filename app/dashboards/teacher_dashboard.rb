@@ -14,6 +14,7 @@ class TeacherDashboard < Administrate::BaseDashboard
     classroom_id: Field::Number,
     email: Field::String,
     username: Field::String,
+    name: Field::String,
     created_at: Field::DateTime,
     updated_at: Field::DateTime
   }.freeze
@@ -26,6 +27,7 @@ class TeacherDashboard < Administrate::BaseDashboard
   COLLECTION_ATTRIBUTES = %i[
     id
     username
+    name
     classroom_id
     email
   ].freeze
@@ -37,6 +39,7 @@ class TeacherDashboard < Administrate::BaseDashboard
     classroom_id
     email
     username
+    name
     created_at
     updated_at
   ].freeze
@@ -48,6 +51,7 @@ class TeacherDashboard < Administrate::BaseDashboard
     classroom_id
     email
     username
+    name
   ].freeze
 
   # COLLECTION_FILTERS

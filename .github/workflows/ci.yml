@@ -32,7 +32,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
@@ -45,3 +45,6 @@ jobs:
 
       - name: Run tests
         run: bin/rails test
+
+      - name: Run systems tests
+        run: bin/rails test:system

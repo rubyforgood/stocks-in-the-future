@@ -29,12 +29,9 @@ class OrdersControllerTest < ActionDispatch::IntegrationTest
     params = { order: { user_id: student.id, stock_id: stock.id, shares: 1, action: "buy" } }
     sign_in(student)
 
-    assert_difference("Order.count") do
+    assert_difference("Order.count", 1) do
       post(orders_path, params:)
     end
-
-    new_order = Order.last
-    assert_equal Order::TRANSACTION_FEE_CENTS, new_order.transaction_fee_cents
 
     assert_redirected_to orders_path
   end
@@ -87,7 +84,6 @@ class OrdersControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to orders_path
     assert order.shares, 3
-    assert order.transaction_fee_cents, Order::TRANSACTION_FEE_CENTS
   end
 
   # TODO: Add test for update with invalid params

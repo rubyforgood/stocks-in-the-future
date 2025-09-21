@@ -7,39 +7,42 @@ class UserManagesOrdersTest < ApplicationSystemTestCase
   # TODO: Add test for updating an order
 
   test "canceling an order" do
-    teacher = create(:teacher)
-    sign_in(teacher)
-    order = create(:order, :pending)
+    student = create(:student)
+    sign_in(student)
+    portfolio = create(:portfolio, user: student)
+    create(:portfolio_transaction, :deposit, portfolio: portfolio, amount_cents: 500_00)
+    order = create(:order, :pending, action: :buy, user: student)
 
     visit orders_path
 
-    within "#order_#{order.id}" do
-      click_on "Cancel"
-    end
-
     accept_confirm do
-      click_on "Confirm Cancel"
+      within "tr", text: order.stock.company_name do
+        find("button i.fa-ban").click
+      end
     end
 
     assert_text "Order was successfully canceled"
-    assert_no_selector "#order_#{order.id}"
+    assert_text "Canceled"
   end
 
   test "canceling an order with modal" do
-    teacher = create(:teacher)
-    sign_in(teacher)
-    order = create(:order, :pending)
+    student = create(:student)
+    sign_in(student)
+    portfolio = create(:portfolio, user: student)
+    create(:portfolio_transaction, :deposit, portfolio: portfolio, amount_cents: 500_00)
+    order = create(:order, :pending, action: :buy, user: student)
 
     visit orders_path
 
-    within "#order_#{order.id}" do
-      click_on "Cancel"
+    accept_confirm do
+      within "tr", text: order.stock.company_name do
+        find("button i.fa-ban").click
+      end
     end
 
-    assert_text "Are you sure you want to cancel this order?"
-    click_on "Confirm Cancel"
-
     assert_text "Order was successfully canceled"
-    assert_no_selector "#order_#{order.id}"
+    within "tr", text: order.stock.company_name do
+      assert_text "Canceled"
+    end
   end
 end

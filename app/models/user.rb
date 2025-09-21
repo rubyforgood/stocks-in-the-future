@@ -1,6 +1,22 @@
 # frozen_string_literal: true
 
 class User < ApplicationRecord
+  include Discard::Model
+
+  def destroy(*)
+    soft_delete_guard
+    discard
+  end
+
+  def destroy!(*)
+    soft_delete_guard
+    discard
+  end
+
+  def really_destroy!
+    ActiveRecord::Base.instance_method(:destroy).bind(self).call
+  end
+
   belongs_to :classroom, optional: true
 
   # Allow calling `user.school` (used in portfolio view) via the classroom's associated school.
@@ -46,5 +62,16 @@ class User < ApplicationRecord
 
   def email_changed?
     false
+  end
+
+  private
+
+  def soft_delete_guard
+    return if Rails.env.production?
+
+    raise <<~MSG.squish
+      ❌  Hard delete attempted on #{self.class}. Use #discard instead,
+      or #really_destroy! if you are ABSOLUTELY sure you need a hard delete.
+    MSG
   end
 end

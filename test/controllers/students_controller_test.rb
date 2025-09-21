@@ -100,12 +100,13 @@ class StudentsControllerTest < ActionDispatch::IntegrationTest
   test "teacher can delete student from their classroom" do
     sign_in @teacher
 
-    assert_difference("User.count", -1) do
+    assert_difference("User.kept.count", -1) do
       delete classroom_student_path(@classroom, @student)
     end
 
     assert_redirected_to classroom_path(@classroom)
     assert_match(/deleted successfully/, flash[:notice])
+    assert @student.reload.discarded?
   end
 
   test "teacher can reset student password" do
@@ -159,5 +160,15 @@ class StudentsControllerTest < ActionDispatch::IntegrationTest
     get classroom_student_path(@classroom, student_no_portfolio)
 
     assert_response :success
+  end
+
+  test "teacher is redirected when accessing discarded student" do
+    sign_in @teacher
+    @student.discard
+
+    get classroom_student_path(@classroom, @student)
+
+    assert_redirected_to classroom_path(@classroom)
+    assert_match(/not found/i, flash[:alert])
   end
 end
