@@ -61,6 +61,8 @@ module Admin
         @teacher.send_reset_password_instructions
         redirect_to admin_teachers_path, notice: t("teachers.create.notice")
       else
+        # otherwise it was throwing the template error since the page was not being passed here
+        @page = params[:page]
         render :new, status: :unprocessable_entity
       end
     end
