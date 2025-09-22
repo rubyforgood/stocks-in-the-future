@@ -5,6 +5,10 @@ if ENV["COVERAGE"] == "true"
 
   SimpleCov.start "rails" do
     add_filter "/test/"
+
+    add_group "Dashboards", "app/dashboards"
+    add_group "Services", "app/services"
+    add_group "Policies", "app/policies"
   end
 end
 
