@@ -1,0 +1,23 @@
+#!/usr/bin/env sh
+
+if [ "$1" = "help" ] || [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+  echo "Usage: bin/coverage [test-options]"
+  echo "  Runs the test suite with SimpleCov coverage reporting"
+  echo ""
+  echo "Examples:"
+  echo "  bin/coverage                                 # run all tests with coverage"
+  echo "  bin/coverage test/models/                    # run model tests with coverage"
+  echo "  bin/coverage test/models/order_test.rb       # run specific test with coverage"
+  echo ""
+  echo "The coverage report will be generated in coverage/index.html"
+  exit 0
+fi
+
+echo "> Running tests with coverage..."
+COVERAGE=true PARALLEL_WORKERS=1 bundle exec rails test $@
+
+if [ -d "coverage" ] && [ -f "coverage/index.html" ]; then
+  echo "Coverage report generated: coverage/index.html"
+else
+  echo "Coverage report not found. Make sure SimpleCov is properly configured."
+fi
