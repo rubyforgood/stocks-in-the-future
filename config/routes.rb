@@ -8,7 +8,6 @@ Rails.application.routes.draw do
   root "home#index"
 
   devise_for :users
-  devise_for :teachers
 
   devise_scope :user do
     get "users/sign_up", to: redirect("/")
