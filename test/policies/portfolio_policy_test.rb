@@ -3,8 +3,9 @@ require "test_helper"
 
 class PortfolioPolicyTest < ActiveSupport::TestCase
   def setup
-    @student = User.create!(username: "student", type: "Student", password: "password")
-    @other_student = User.create!(username: "other_student", type: "Student", password: "password")
+    classroom = create(:classroom)
+    @student = User.create!(username: "student", type: "Student", password: "password", classroom:classroom)
+    @other_student = User.create!(username: "other_student", type: "Student", password: "password", classroom:classroom)
     @portfolio = Portfolio.create!(user: @student)
     @other_portfolio = Portfolio.create!(user: @other_student)
   end
