@@ -113,6 +113,14 @@ If you have any questions about an issue, comment on the issue, open a new issue
    $ bin/rails test
    ```
 
+   To check test coverage, run:
+
+   ```console
+   $ bin/coverage
+   ```
+
+   This generates an HTML coverage report at `coverage/index.html`
+
 6. **Push your branch** to GitHub
 
    ```console
