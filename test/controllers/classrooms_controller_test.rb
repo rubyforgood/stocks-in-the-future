@@ -127,20 +127,15 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to @student.portfolio_path
   end
 
-  test "students cannot create classrooms" do
+  test "students cannot create, edit, or delete classrooms" do
     sign_in @student
+
     get new_classroom_path
     assert_redirected_to @student.portfolio_path
-  end
 
-  test "students cannot edit classrooms" do
-    sign_in @student
     get edit_classroom_path(@classroom)
     assert_redirected_to @student.portfolio_path
-  end
 
-  test "students cannot delete classrooms" do
-    sign_in @student
     assert_no_difference("Classroom.count") do
       delete classroom_path(@classroom)
     end
