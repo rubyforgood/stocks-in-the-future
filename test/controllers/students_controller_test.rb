@@ -16,11 +16,25 @@ class StudentsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to new_user_session_path
   end
 
-  test "students cannot access student management" do
+  test "students cannot access student management actions" do
     sign_in @student
 
     get classroom_student_path(@classroom, @student)
-    assert_redirected_to root_path
+    assert_redirected_to @student.portfolio_path
+
+    get new_classroom_student_path(@classroom)
+    assert_redirected_to @student.portfolio_path
+
+    get edit_classroom_student_path(@classroom, @student)
+    assert_redirected_to @student.portfolio_path
+
+    patch classroom_student_path(@classroom, @student), params: { student: { username: "hacked" } }
+    assert_redirected_to @student.portfolio_path
+
+    assert_no_difference("User.kept.count") do
+      delete classroom_student_path(@classroom, @student)
+    end
+    assert_redirected_to @student.portfolio_path
   end
 
   test "teachers can access their classroom students" do

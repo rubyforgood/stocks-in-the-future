@@ -8,7 +8,6 @@ en:
     access_denied:
       admin_required: Access denied. Admin privileges required.
       no_access: You do not have access to this page.
-      teacher_or_admin_required: Access denied. Teacher or admin privileges required.
   classrooms:
     create:
       notice: Classroom was successfully created.

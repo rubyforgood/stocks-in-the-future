@@ -73,10 +73,6 @@ class ClassroomsController < ApplicationController
     params.expect(classroom: [:name, :grade, :school_id, :year_id, { teacher_ids: [] }])
   end
 
-  def ensure_teacher_or_admin
-    redirect_to root_path unless current_user&.teacher_or_admin?
-  end
-
   def dropdown_data
     @schools = School.order(:name)
     @years = Year.order(:name)
