@@ -84,7 +84,7 @@ class TeachersControllerTest < ActionDispatch::IntegrationTest
     assert teacher.encrypted_password.present?, "temp password should be set"
   end
 
-  test "create with non-existent classroom_id still creates teacher, sets alert, and does not associate classroom" do
+  test "create with no classroom id still creates teacher, and does not associate classroom" do
     admin = create(:admin)
     sign_in(admin)
     ActionMailer::Base.deliveries.clear
@@ -101,22 +101,19 @@ class TeachersControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_redirected_to admin_teachers_path
-    assert_not_nil flash[:alert], "should show alert about invalid classroom"
 
     teacher = Teacher.find_by!(email: "t2@example.com")
     assert_equal 0, teacher.classrooms.count, "no classroom should be associated"
   end
 
-  # ... existing code ...
   test "create with invalid params renders unprocessable_entity and does not create teacher" do
     admin = create(:admin)
     sign_in(admin)
 
     params = {
       teacher: {
-        email: "", # invalid
-        username: "" # invalid
-        # classroom_id omitted
+        email: "hello@test.com",
+        username: ""
       }
     }
 

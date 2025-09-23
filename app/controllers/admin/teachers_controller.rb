@@ -49,24 +49,15 @@ module Admin
       classroom = Classroom.find_by(id: classroom_id)
 
       @teacher = Teacher.new(teacher_params.merge(password: temp_password))
+      @teacher.classrooms << classroom if classroom
 
-      if @teacher.save
-        # checking if any classroom_id is provided or not
-        if classroom
-          @teacher.classrooms << classroom
-        else
-          flash[:alert] = t("teachers.create.alert.no_classroom", id: classroom_id)
-        end
-
-        @teacher.send_reset_password_instructions
-        redirect_to admin_teachers_path, notice: t("teachers.create.notice")
-      else
-        # otherwise it was throwing the template error since the page was not being passed here
-        @page = params[:page]
-        render :new, status: :unprocessable_entity, locals: {
-          page: Administrate::Page::Form.new(dashboard, @teacher)
-        }
+      unless @teacher.save
+        return render :new, status: :unprocessable_entity,
+                            locals: { page: Administrate::Page::Form.new(dashboard, @teacher) }
       end
+
+      @teacher.send_reset_password_instructions
+      redirect_to admin_teachers_path, notice: t("teachers.create.notice")
     end
 
     private
