@@ -16,7 +16,7 @@
                 </div>
               <% end %>
             </li>
-            <% if policy(:portfolio).show? && current_user.portfolio %>
+            <% if current_user.portfolio && policy(current_user.portfolio).show? %>
               <li>
                 <% is_active = request.path.include?('portfolios') %>
                 <%= link_to user_portfolio_path(current_user, current_user.portfolio), class: "flex items-center justify-start px-3 py-2 rounded-lg w-full group hover:bg-black/20 #{'bg-[#d3df44]' if is_active}", style: is_active ? "background-color: #d3df44;" : "" do %>
