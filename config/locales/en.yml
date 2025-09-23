@@ -60,3 +60,6 @@ en:
     finalize:
       incomplete: 'Cannot finalize: Some entries are incomplete.'
       notice: 'Grade book finalized. Funds have been distributed.'
+  teachers:
+    create:
+      notice: Teacher created successfully. An account setup email has been sent.
