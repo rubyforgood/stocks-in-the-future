@@ -17,7 +17,7 @@ class SchoolYearTest < ActiveSupport::TestCase
     create(:classroom, school_year: school_year)
 
     assert_not school_year.destroy
-    assert_includes school_year.errors[:base], "Cannot delete record because dependent classrooms exist"
+    assert school_year.errors.added?(:base, "Cannot delete record because dependent classrooms exist")
   end
 
   test "cannot be destroyed when quarters exist" do
@@ -25,6 +25,6 @@ class SchoolYearTest < ActiveSupport::TestCase
     create(:quarter, school_year: school_year)
 
     assert_not school_year.destroy
-    assert_includes school_year.errors[:base], "Cannot delete record because dependent quarters exist"
+    assert school_year.errors.added?(:base, "Cannot delete record because dependent quarters exist")
   end
 end
