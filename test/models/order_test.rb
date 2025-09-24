@@ -318,4 +318,88 @@ class OrderTest < ActiveSupport::TestCase
       assert sell_order.errors[:shares].any?
     end
   end
+
+  test ".for_student" do
+    stock = create(:stock, price_cents: 1_000)
+    classroom = create(:classroom)
+    student1 = create(:student, classroom: classroom)
+    portfolio1 = create(:portfolio, user: student1)
+    create(
+      :portfolio_transaction,
+      :deposit,
+      portfolio: portfolio1,
+      amount_cents: 10_000
+    )
+    order1 = create(:order, :buy, user: student1, stock:)
+    student2 = create(:student, classroom: classroom)
+    portfolio2 = create(:portfolio, user: student2)
+    create(
+      :portfolio_transaction,
+      :deposit,
+      portfolio: portfolio2,
+      amount_cents: 10_000
+    )
+    create(:order, :buy, user: student2, stock:)
+
+    result = Order.for_student(student1)
+
+    assert_equal [order1], result
+  end
+
+  test ".for_teacher" do
+    stock = create(:stock, price_cents: 1_000)
+    classroom1 = create(:classroom)
+    classroom3 = create(:classroom)
+    teacher = create(:teacher, classrooms: [classroom1, classroom3])
+    student1 = create(:student, classroom: classroom1)
+    portfolio1 = create(:portfolio, user: student1)
+    create(
+      :portfolio_transaction,
+      :deposit,
+      portfolio: portfolio1,
+      amount_cents: 10_000
+    )
+    order1 = create(:order, :buy, user: student1, stock:)
+    classroom2 = create(:classroom)
+    student2 = create(:student, classroom: classroom2)
+    portfolio2 = create(:portfolio, user: student2)
+    create(
+      :portfolio_transaction,
+      :deposit,
+      portfolio: portfolio2,
+      amount_cents: 10_000
+    )
+    create(:order, :buy, user: student2, stock:)
+    student3 = create(:student, classroom: classroom3)
+    portfolio3 = create(:portfolio, user: student3)
+    create(
+      :portfolio_transaction,
+      :deposit,
+      portfolio: portfolio3,
+      amount_cents: 10_000
+    )
+    order3 = create(:order, :buy, user: student3, stock:)
+
+    result = Order.for_teacher(teacher)
+
+    assert_equal [order1.id, order3.id], result.pluck(:id).sort
+  end
+
+  test ".for_teacher with no classrooms" do
+    teacher = create(:teacher)
+    stock = create(:stock, price_cents: 1_000)
+    student = create(:student)
+    portfolio = create(:portfolio, user: student)
+    create(
+      :portfolio_transaction,
+      :deposit,
+      portfolio: portfolio,
+      amount_cents: 10_000
+    )
+    create(:order, :buy, user: student, stock:)
+
+    result = Order.for_teacher(teacher)
+
+    assert_empty result
+  end
 end
