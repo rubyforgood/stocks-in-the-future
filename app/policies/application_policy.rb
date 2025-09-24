@@ -36,12 +36,20 @@ class ApplicationPolicy
     false
   end
 
-  def teacher_or_admin_required?
-    user&.teacher_or_admin?
-  end
-
   def admin_required?
     user&.admin?
+  end
+
+  def teacher_required?
+    user&.teacher?
+  end
+
+  def student_required?
+    user&.student?
+  end
+
+  def teacher_or_admin_required?
+    admin_required? || teacher_required?
   end
 
   class Scope
