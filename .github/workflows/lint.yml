@@ -1,4 +1,4 @@
-name: RuboCop
+name: Lint
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
       - main
 
 jobs:
-  rubocop:
+  lint:
     runs-on: ubuntu-latest
 
     steps:
@@ -25,5 +25,5 @@ jobs:
     - name: Install dependencies
       run: bundle install
 
-    - name: Run RuboCop
-      run: bundle exec rubocop
+    - name: Run Lint
+      run: bin/lint
