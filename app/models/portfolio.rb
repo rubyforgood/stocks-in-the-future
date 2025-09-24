@@ -23,6 +23,20 @@ class Portfolio < ApplicationRecord
     portfolio_stocks.where(stock_id: stock_id).sum(:shares)
   end
 
+  def calculate_total_value_cents
+    cash_on_hand_in_cents + holdings_value_cents
+  end
+
+  def calculate_total_value
+    calculate_total_value_cents / 100.0
+  end
+
+  def holdings_value_cents
+    portfolio_stocks.joins(:stock).sum(
+      "portfolio_stocks.shares * stocks.price_cents"
+    )
+  end
+
   private
 
   def cash_on_hand
