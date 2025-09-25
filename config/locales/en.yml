@@ -19,16 +19,20 @@ en:
     portfolio_path:
       index:
         portfolio: Portfolio
+  grade_books:
+    finalize:
+      incomplete: 'Cannot finalize: Some entries are incomplete.'
+      notice: Grade book finalized. Funds have been distributed.
   helpers:
     label:
       student:
         portfolio_path: Portfolio Link
   orders:
     cancel:
-      unauthorized: You can only cancel your own orders
-      success: Order was successfully canceled
-      pending_only: Only pending orders can be canceled
       confirm: Are you sure you want to cancel this order? This action cannot be undone.
+      pending_only: Only pending orders can be canceled
+      success: Order was successfully canceled
+      unauthorized: You can only cancel your own orders
     create:
       notice: Order was successfully created.
     destroy:
@@ -43,23 +47,19 @@ en:
     update:
       notice: School was successfully updated.
   students:
+    add_transaction:
+      success: Transaction added to student successfully.
     create:
       notice: 'Student %{username} created successfully. Initial password: %{password}'
     destroy:
       notice: Student %{username} deleted successfully.
     generate_password:
       notice: 'New password generated for %{username}: %{password}'
+    not_found: Student not found
     reset_password:
       notice: 'Password reset for %{username}. New password: %{password}'
     update:
       notice: Student updated successfully.
-    add_transaction:
-      success: "Transaction added to student successfully."
-    not_found: "Student not found"
-  grade_books:
-    finalize:
-      incomplete: 'Cannot finalize: Some entries are incomplete.'
-      notice: 'Grade book finalized. Funds have been distributed.'
   teachers:
     create:
       notice: Teacher created successfully. An account setup email has been sent.
