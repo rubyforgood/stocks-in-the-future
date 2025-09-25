@@ -1,5 +1,5 @@
 [![Continuous Integration](https://github.com/rubyforgood/stocks-in-the-future/actions/workflows/ci.yml/badge.svg)](https://github.com/rubyforgood/stocks-in-the-future/actions/workflows/ci.yml)
-[![RuboCop](https://github.com/rubyforgood/stocks-in-the-future/actions/workflows/rubocop.yml/badge.svg)](https://github.com/rubyforgood/stocks-in-the-future/actions/workflows/rubocop.yml)
+[![Lint](https://github.com/rubyforgood/stocks-in-the-future/actions/workflows/lint.yml/badge.svg)](https://github.com/rubyforgood/stocks-in-the-future/actions/workflows/lint.yml)
 [![Dependabot Updates](https://github.com/rubyforgood/stocks-in-the-future/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/rubyforgood/stocks-in-the-future/actions/workflows/dependabot/dependabot-updates)
 
 # Requirements
