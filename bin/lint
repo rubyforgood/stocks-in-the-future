@@ -10,7 +10,7 @@ if [[ "${CI:-}" == "true" ]]; then
 fi
 
 bundle exec i18n-tasks check-normalized
-bundle exec standardrb --parallel -f "$FORMATTER"
+bundle exec rubocop -f "$FORMATTER"
 
 echo ""
 echo "🎉 All checks passed!"

@@ -69,7 +69,7 @@
                 </td>
                 <td class="py-4 px-4 align-middle tabular-nums"><%= number_to_currency(total_return_amount) %></td>
                 <td class="py-3 pr-6 align-middle">
-                  <button class="inline-flex items-center justify-center rounded-full bg-sky-800 text-white px-6 py-2 text-sm font-medium shadow hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-1 transition-colors">Trade</button>
+                  <%= link_to "Trade", stocks_path, class: "inline-flex items-center justify-center rounded-full bg-sky-800 text-white px-6 py-2 text-sm font-medium shadow hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-1 transition-colors" %>
                 </td>
               </tr>
             <% end %>

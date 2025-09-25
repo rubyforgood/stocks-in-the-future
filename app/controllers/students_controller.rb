@@ -62,11 +62,9 @@ class StudentsController < ApplicationController
   end
 
   def set_student
-    @student = @classroom.users.students.find(params[:id])
-  end
-
-  def ensure_teacher_or_admin
-    redirect_to root_path unless current_user&.teacher_or_admin?
+    @student = @classroom.users.students.kept.find(params[:id])
+  rescue ActiveRecord::RecordNotFound
+    redirect_to classroom_path(@classroom), alert: t("students.not_found")
   end
 
   def student_params

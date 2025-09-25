@@ -1,4 +1,4 @@
-name: RuboCop
+name: Lint
 
 on:
   push:
@@ -9,12 +9,12 @@ on:
       - main
 
 jobs:
-  rubocop:
+  lint:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
@@ -25,5 +25,5 @@ jobs:
     - name: Install dependencies
       run: bundle install
 
-    - name: Run RuboCop
-      run: bundle exec rubocop
+    - name: Run Lint
+      run: bin/lint

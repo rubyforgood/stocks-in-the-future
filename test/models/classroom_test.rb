@@ -91,4 +91,15 @@ class ClassroomTest < ActiveSupport::TestCase
     assert_raises(ActiveRecord::AssociationTypeMismatch) { classroom.teachers << student }
     assert_raises(ActiveRecord::AssociationTypeMismatch) { classroom.teachers << admin }
   end
+
+  test "students association excludes discarded students" do
+    classroom = create(:classroom)
+    kept_student = create(:student, classroom: classroom)
+    discarded_student = create(:student, classroom: classroom)
+    discarded_student.discard
+
+    assert_includes classroom.students, kept_student
+    assert_not_includes classroom.students, discarded_student
+    assert_equal [kept_student.id], classroom.students.pluck(:id)
+  end
 end
