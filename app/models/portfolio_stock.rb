@@ -6,8 +6,7 @@ class PortfolioStock < ApplicationRecord
 
   def change_amount
     current_price = stock.current_price
-    normalized_purchase_price = purchase_price > 1000 ? purchase_price / 100.0 : purchase_price
-    (current_price - normalized_purchase_price) * shares
+    (current_price - purchase_price) * shares
   end
 
   def total_return_amount
