@@ -7,25 +7,25 @@ class PortfolioStockTest < ActiveSupport::TestCase
     assert build(:portfolio_stock).validate!
   end
 
-  test "#change_amount returns profit/loss from purchase price" do
-    stock = create(:stock, price_cents: 15_000)
+  test "#change_amount returns unrealized profit from purchase price" do
+    stock = create(:stock, price_cents: 15_000)  # $150 current price
     portfolio_stock = create(:portfolio_stock,
                              stock: stock,
                              shares: 10,
-                             purchase_price: 100.0)
+                             purchase_price: 100.0)  # Bought at $100
 
-    expected_change = 500.0
+    expected_change = 500.0  # ($150 - $100) * 10 shares = $500 profit
     assert_equal expected_change, portfolio_stock.change_amount
   end
 
-  test "#change_amount returns negative for losses" do
-    stock = create(:stock, price_cents: 8000)
+  test "#change_amount returns negative for unrealized losses" do
+    stock = create(:stock, price_cents: 8000)  # $80 current price
     portfolio_stock = create(:portfolio_stock,
                              stock: stock,
                              shares: 5,
-                             purchase_price: 120.0)
+                             purchase_price: 120.0)  # Bought at $120
 
-    expected_change = -200.0
+    expected_change = -200.0  # ($80 - $120) * 5 shares = -$200 loss
     assert_equal expected_change, portfolio_stock.change_amount
   end
 
@@ -41,13 +41,13 @@ class PortfolioStockTest < ActiveSupport::TestCase
   end
 
   test "#change_amount handles zero current price" do
-    stock = create(:stock, price_cents: 0)
+    stock = create(:stock, price_cents: 0)  # $0 current price
     portfolio_stock = create(:portfolio_stock,
                              stock: stock,
                              shares: 10,
-                             purchase_price: 50.0)
+                             purchase_price: 50.0)  # Bought at $50
 
-    expected_change = -500.0
+    expected_change = -500.0  # ($0 - $50) * 10 shares = -$500 loss
     assert_equal expected_change, portfolio_stock.change_amount
   end
 
