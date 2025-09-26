@@ -1,0 +1,20 @@
+#!/bin/bash
+set -eo pipefail
+
+docker/bundle-install
+
+echo '----------------------------------------'
+echo 'BEGIN: docker/run rails db:migrate:reset'
+echo '----------------------------------------'
+docker/run rails db:migrate:reset
+echo '-------------------------------------------'
+echo 'FINISHED: docker/run rails db:migrate:reset'
+echo '-------------------------------------------'
+echo ''
+echo '-------------------------------'
+echo 'BEGIN: docker/run rails db:seed'
+echo '-------------------------------'
+docker/run rails db:seed
+echo '----------------------------------'
+echo 'FINISHED: docker/run rails db:seed'
+echo '----------------------------------'

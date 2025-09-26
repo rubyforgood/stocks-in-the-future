@@ -1,5 +1,5 @@
 [![Continuous Integration](https://github.com/rubyforgood/stocks-in-the-future/actions/workflows/ci.yml/badge.svg)](https://github.com/rubyforgood/stocks-in-the-future/actions/workflows/ci.yml)
-[![RuboCop](https://github.com/rubyforgood/stocks-in-the-future/actions/workflows/rubocop.yml/badge.svg)](https://github.com/rubyforgood/stocks-in-the-future/actions/workflows/rubocop.yml)
+[![Lint](https://github.com/rubyforgood/stocks-in-the-future/actions/workflows/lint.yml/badge.svg)](https://github.com/rubyforgood/stocks-in-the-future/actions/workflows/lint.yml)
 [![Dependabot Updates](https://github.com/rubyforgood/stocks-in-the-future/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/rubyforgood/stocks-in-the-future/actions/workflows/dependabot/dependabot-updates)
 
 # Requirements
@@ -8,6 +8,9 @@
 - Ruby 3.4.4 (Installed via ruby manager ^)
 - [PostgreSQL](https://www.postgresql.org/), if you're not using Docker.
 - [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) and yarn (`npm install -g yarn`)
+
+# Easy Docker Scripts
+Go to the [Easy Docker Scripts](docker/README.md) page for an easy way to set up this app, test this app, seed data, run RuboCop, and execute other routine tasks.
 
 # Installation
 
