@@ -35,7 +35,7 @@ Rails.application.routes.draw do
     root "classrooms#index"
     resources :classrooms
     resources :portfolio_transactions, except: [:index]
-    resources :school_years, except: %i[new edit]
+    resources :school_years
     resources :schools
     resources :stocks
     resources :students do
