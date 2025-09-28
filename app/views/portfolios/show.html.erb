@@ -51,16 +51,16 @@
             </tr>
           </thead>
           <tbody class="text-[14px]">
-            <% @portfolio.portfolio_stocks.each do |ps| %>
-              <% price = ps.stock.current_price %>
-              <% shares = ps.shares %>
-              <% previous_close = ps.stock.current_price %>
+            <% @portfolio.positions.each do |position| %>
+              <% price = position.stock_current_price %>
+              <% shares = position.shares %>
+              <% previous_close = position.stock_previous_close %>
               <% change_amount = previous_close ? (price - previous_close) : 0 %>
-              <% total_return_amount = shares * price %>
+              <% total_return_amount = position.current_value %>
               <tr class="border-t first:border-t-0 border-black/40">
                 <td class="py-4 pl-6 pr-4 align-middle">
                   <div class="flex items-center gap-3">
-                    <span class="font-medium"><%= ps.stock.ticker %></span>
+                    <span class="font-medium"><%= position.stock_ticker %></span>
                   </div>
                 </td>
                 <td class="py-4 px-4 align-middle"><%= shares %></td>

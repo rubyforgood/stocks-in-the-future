@@ -12,4 +12,8 @@ class Stock < ApplicationRecord
   def current_price
     price_cents.to_f / 100
   end
+
+  def yesterday_price
+    yesterday_price_cents.to_f / 100 if yesterday_price_cents
+  end
 end
