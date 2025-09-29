@@ -33,6 +33,7 @@ Rails.application.routes.draw do
 
   namespace :admin do
     root "classrooms#index"
+    resources :announcements
     resources :classrooms
     resources :portfolio_transactions, except: [:index]
     resources :school_years
@@ -61,4 +62,5 @@ Rails.application.routes.draw do
   resources :portfolios, only: :show
   resources :stocks, only: %i[show index]
   resources :students, only: :show
+  resources :announcements, only: :show
 end

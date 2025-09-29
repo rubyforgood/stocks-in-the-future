@@ -4,6 +4,8 @@ en:
     attributes:
       user:
         type: Role
+  announcements:
+    not_found: Announcement not found.
   application:
     access_denied:
       admin_required: Access denied. Admin privileges required.
