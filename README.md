@@ -136,7 +136,8 @@ If you have any questions about an issue, comment on the issue, open a new issue
 
 7. **Open a Pull Request** against the `main` branch
    - Include a clear description of the changes
-   - Reference the issue number in the PR description (e.g., "Fixes #123")
+   - Linking the issue number in the PR's description (e.g., `Resolves #123`)
+     - [More about linking a pull request to an issue](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue) 
    - Wait for CI checks to pass
    - Request review from team members
 
