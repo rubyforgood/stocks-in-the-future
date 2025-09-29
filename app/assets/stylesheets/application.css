@@ -1,1 +1,10 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+/* Global color utilities */
+.text-green-up {
+  color: #1EB500;
+}
+
+.text-destructive {
+  color: #EE4447;
+}
