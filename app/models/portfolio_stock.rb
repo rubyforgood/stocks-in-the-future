@@ -1,24 +1,7 @@
 # frozen_string_literal: true
 
+# NOTE: for calculations, use `PortfolioPosition` as an aggregate.
 class PortfolioStock < ApplicationRecord
   belongs_to :portfolio
   belongs_to :stock
-
-  def change_amount
-    current_price = stock.current_price
-    # TODO: this is a smell....why do we need to check if we have cents or dollars
-    # we must fix this.
-    # Handle cents/dollars format mismatch in purchase_price
-    normalized_purchase_price = purchase_price > 1000 ? purchase_price / 100.0 : purchase_price
-    (current_price - normalized_purchase_price) * shares
-  end
-
-  def total_return_amount
-    stock.current_price * shares
-  end
-
-  # Calculate the earnings of a single share of the stock
-  def calculate_earnings
-    # based on purchase price
-  end
 end
