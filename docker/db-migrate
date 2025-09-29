@@ -1,0 +1,10 @@
+#!/bin/bash
+set -eo pipefail
+
+echo '----------------------------------'
+echo 'BEGIN: docker/run rails db:migrate'
+echo '----------------------------------'
+docker/run rails db:migrate
+echo '-------------------------------------'
+echo 'FINISHED: docker/run rails db:migrate'
+echo '-------------------------------------'
