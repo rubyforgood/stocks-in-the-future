@@ -6,6 +6,8 @@ class PortfolioStock < ApplicationRecord
 
   def change_amount
     current_price = stock.current_price
+    # TODO: this is a smell....why do we need to check if we have cents or dollars
+    # we must fix this.
     # Handle cents/dollars format mismatch in purchase_price
     normalized_purchase_price = purchase_price > 1000 ? purchase_price / 100.0 : purchase_price
     (current_price - normalized_purchase_price) * shares
