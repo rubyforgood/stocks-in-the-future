@@ -14,6 +14,8 @@ class Stock < ApplicationRecord
   end
 
   def yesterday_price
-    yesterday_price_cents.to_f / 100 if yesterday_price_cents
+    return current_price if yesterday_price_cents.nil?
+
+    yesterday_price_cents.to_f / 100
   end
 end
