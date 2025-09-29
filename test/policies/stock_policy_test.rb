@@ -24,23 +24,21 @@ class StockPolicyTest < ActiveSupport::TestCase
     admin = create(:admin)
     teacher = create(:teacher)
 
-    # Admin
     assert_permit admin, active_stock, :show
     assert_permit admin, archived_stock, :show
 
-    # Teacher
     assert_permit teacher, active_stock, :show
     assert_permit teacher, archived_stock, :show
   end
 
-  test "show? allows students to view only active stocks and denies guests" do
+  test "show? allows students to view all stocks and denies guests" do
     active_stock = create(:stock, archived: false)
     archived_stock = create(:stock, archived: true)
 
     student = create(:student)
 
     assert_permit student, active_stock, :show
-    refute_permit student, archived_stock, :show
+    assert_permit student, archived_stock, :show
 
     refute_permit nil, active_stock, :show
     refute_permit nil, archived_stock, :show
@@ -53,11 +51,9 @@ class StockPolicyTest < ActiveSupport::TestCase
     teacher = create(:teacher)
     student = create(:student)
 
-    # Admin allowed
     %i[new create edit update destroy].each do |action|
       assert_permit admin, stock, action
 
-      # Others denied
       refute_permit teacher, stock, action
       refute_permit student, stock, action
       refute_permit nil, stock, action
@@ -73,25 +69,21 @@ class StockPolicyTest < ActiveSupport::TestCase
     active2 = create(:stock, archived: false)
     archived = create(:stock, archived: true)
 
-    # Admin scope
     admin_scope = StockPolicy::Scope.new(admin, Stock.all).resolve
     assert_includes admin_scope, active1
     assert_includes admin_scope, active2
     assert_includes admin_scope, archived
 
-    # Teacher scope
     teacher_scope = StockPolicy::Scope.new(teacher, Stock.all).resolve
     assert_includes teacher_scope, active1
     assert_includes teacher_scope, active2
     assert_includes teacher_scope, archived
 
-    # Student scope
     student_scope = StockPolicy::Scope.new(student, Stock.all).resolve
     assert_includes student_scope, active1
     assert_includes student_scope, active2
     assert_not_includes student_scope, archived
 
-    # Guest scope
     guest_scope = StockPolicy::Scope.new(nil, Stock.all).resolve
     assert_includes guest_scope, active1
     assert_includes guest_scope, active2

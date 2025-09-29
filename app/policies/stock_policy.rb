@@ -6,7 +6,7 @@ class StockPolicy < ApplicationPolicy
   end
 
   def show?
-    teacher_or_admin_required? || (student_required? && !record.archived?)
+    user.present?
   end
 
   def new?
