@@ -1,3 +1,3 @@
 # frozen_string_literal: true
 
-ActionView::Base.include LucideRails::LucideHelper if defined?(LucideRails::LucideHelper)
+ActiveSupport.on_load(:action_view) { include LucideRails::LucideHelper } if defined?(LucideRails::LucideHelper)
