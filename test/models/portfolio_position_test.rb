@@ -14,16 +14,6 @@ class PortfolioPositionTest < ActiveSupport::TestCase
     assert_equal 96_000, position.current_value_cents
   end
 
-  test "stock_previous_close returns yesterday_price" do
-    portfolio = create(:portfolio)
-    stock = create(:stock, price_cents: 15_000, yesterday_price_cents: 14_500)
-    create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 5, purchase_price: 100.0)
-
-    position = PortfolioPosition.for_portfolio(portfolio).first
-
-    assert_equal 145.0, position.stock_previous_close
-  end
-
   test "for_portfolio aggregates buy/sell transactions correctly" do
     portfolio = create(:portfolio)
     stock = create(:stock, ticker: "AAPL")

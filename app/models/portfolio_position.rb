@@ -3,7 +3,7 @@
 class PortfolioPosition
   attr_reader :stock, :shares, :portfolio, :change_amount, :total_return_amount
 
-  delegate :current_price, :price_cents, :ticker, :yesterday_price, to: :stock, prefix: :stock
+  delegate :current_price, :price_cents, :ticker, to: :stock, prefix: :stock
 
   def initialize(stock:, shares:, portfolio: nil, financial_data: {})
     @stock = stock
@@ -21,14 +21,10 @@ class PortfolioPosition
     shares * stock_price_cents
   end
 
-  def stock_previous_close
-    stock_yesterday_price
-  end
-
   def self.for_portfolio(portfolio)
-    portfolio
-      .portfolio_stocks
-      .joins(:stock)
+    Stock
+      .joins(:portfolio_stocks)
+      .where(portfolio_stocks: { portfolio_id: portfolio.id })
       .group("stocks.id")
       .having("SUM(portfolio_stocks.shares) > 0")
       .select(
@@ -43,7 +39,7 @@ class PortfolioPosition
 
   def self.build_position(result, portfolio)
     new(
-      stock: Stock.find(result.id),
+      stock: result,
       shares: result.total_shares,
       portfolio: portfolio,
       financial_data: {
