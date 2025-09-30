@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-alphabetic_seed_stocks = [
+active_seed_stocks = [
   { ticker: "BAC",  stock_exchange: "NYSE",   company_name: "Bank of America Corporation",    company_website: "https://www.bankofamerica.com", description: "Bank of America Corporation operates as a bank holding company for Bank of America, N.A., which provides various banking and financial products and services.", industry: "Banks", management: "Brian Moynihan (CEO), Alastair Borthwick (CFO)", employees: 216_823, competitor_names: "JPMorgan Chase, Wells Fargo, Citigroup, Goldman Sachs", sales_growth: 2.5, industry_avg_sales_growth: 4.1, debt_to_equity: 1.15, industry_avg_debt_to_equity: 1.25, profit_margin: 32.1, industry_avg_profit_margin: 28.5, cash_flow: 31_200_000_000.00, debt: 294_000_000_000.00, price_cents: 4_512 },
   { ticker: "CCL",  stock_exchange: "NYSE",   company_name: "Carnival Corporation & plc",       company_website: "https://www.carnival.com",     description: "Carnival Corporation & plc operates as a leisure travel company providing cruise vacations and complementary vacation services.", industry: "Travel Services", management: "Josh Weinstein (CEO), David Bernstein (CFO)", employees: 120_000, competitor_names: "Royal Caribbean, Norwegian Cruise Line, MSC Cruises", sales_growth: 15.2, industry_avg_sales_growth: 8.7, debt_to_equity: 3.45, industry_avg_debt_to_equity: 1.85, profit_margin: -2.1, industry_avg_profit_margin: 5.8, cash_flow: 3_800_000_000.00, debt: 28_500_000_000.00, price_cents: 2_185 },
   { ticker: "F",     stock_exchange: "NYSE",   company_name: "Ford Motor Company",         company_website: "https://www.ford.com",         description: "Ford Motor Company designs, manufactures, markets, and services a full line of Ford trucks, utility vehicles, and cars worldwide.",         industry: "Automobiles",         management: "Jim Farley (CEO), John Lawler (CFO)",         employees: 190_000,         competitor_names: "General Motors, Tesla, Toyota, Stellantis",         sales_growth: 11.8,         industry_avg_sales_growth: 6.4,         debt_to_equity: 1.85,         industry_avg_debt_to_equity: 0.95,         profit_margin: 3.7,         industry_avg_profit_margin: 7.2,         cash_flow: 11_500_000_000.00,         debt: 96_000_000_000.00,         price_cents: 1_177 },
@@ -13,7 +13,23 @@ alphabetic_seed_stocks = [
   { ticker: "VZ",    stock_exchange: "NYSE",   company_name: "Verizon Communications Inc.", company_website: "https://www.verizon.com",  description: "Verizon Communications Inc., through its subsidiaries, offers communications, technology, information, and entertainment products and services to consumers, businesses, and governmental entities worldwide.", industry: "Telecommunications Services", management: "Hans Vestberg (CEO), Matt Ellis (CFO)", employees: 117_100, competitor_names: "AT&T, T-Mobile, Comcast, Charter Communications", sales_growth: 2.1, industry_avg_sales_growth: 3.8, debt_to_equity: 1.8, industry_avg_debt_to_equity: 1.5, profit_margin: 17.2, industry_avg_profit_margin: 12.4, cash_flow: 23_700_000_000.00, debt: 176_200_000_000.00, price_cents: 4_423 },
 ]
 
-alphabetic_seed_stocks.each do |stock_data|
+active_seed_stocks.each do |stock_data|
   stock = Stock.find_or_create_by(ticker: stock_data[:ticker])
   stock.update!(stock_data)
+end
+
+archived_seed_stocks = [
+  { ticker: "DIS", company_name: "Disney" },
+  { ticker: "EA", company_name: "Electronic Arts" },
+  { ticker: "GPS", company_name: "Gap" }
+  { ticker: "LUV", company_name: "Southwest Airlines" },
+  { ticker: "META", company_name: "Facebook" },
+  { ticker: "SIRI", company_name: "SiriusXM" },
+  { ticker: "TWX", company_name: "Time Warner" },
+  { ticker: "UA", company_name: "Under Armour" },
+]
+
+archived_seed_stocks.each do |stock_data|
+  stock = Stock.find_or_create_by(ticker: stock_data[:ticker])
+  stock.update!(stock_data.merge(archived: true))
 end
