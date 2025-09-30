@@ -28,7 +28,6 @@ class PortfolioPositionTest < ActiveSupport::TestCase
     portfolio = create(:portfolio)
     stock = create(:stock, ticker: "AAPL")
 
-    # Multiple buy/sell transactions: 10 + 5 - 3 = 12 shares
     create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 10)
     create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 5)
     create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: -3)
@@ -46,11 +45,9 @@ class PortfolioPositionTest < ActiveSupport::TestCase
     stock1 = create(:stock, ticker: "ZERO")
     stock2 = create(:stock, ticker: "POSITIVE")
 
-    # Stock with zero net holdings
     create(:portfolio_stock, portfolio: portfolio, stock: stock1, shares: 10)
     create(:portfolio_stock, portfolio: portfolio, stock: stock1, shares: -10)
 
-    # Stock with positive holdings
     create(:portfolio_stock, portfolio: portfolio, stock: stock2, shares: 5)
 
     positions = PortfolioPosition.for_portfolio(portfolio)
@@ -60,60 +57,34 @@ class PortfolioPositionTest < ActiveSupport::TestCase
     assert_equal 5, positions.first.shares
   end
 
-  test "for_portfolio returns empty array when no positive holdings" do
+  test "change_amount with multiple purchases and sells" do
     portfolio = create(:portfolio)
-    stock = create(:stock)
+    stock = create(:stock, price_cents: 15_000)
 
-    create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 10)
-    create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: -10)
-
-    positions = PortfolioPosition.for_portfolio(portfolio)
-
-    assert_empty positions
-  end
-
-  test "for_portfolio handles complex trading scenarios" do
-    portfolio = create(:portfolio)
-    stock = create(:stock, ticker: "TSLA")
-
-    # Buy 100, buy 50, sell 30, buy 25, sell 20 = 125 net
-    create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 100)
-    create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 50)
-    create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: -30)
-    create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 25)
-    create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: -20)
-
-    positions = PortfolioPosition.for_portfolio(portfolio)
-
-    assert_equal 1, positions.length
-    assert_equal 125, positions.first.shares
-  end
-
-  test "change_amount aggregates gain/loss from portfolio stocks" do
-    portfolio = create(:portfolio)
-    stock = create(:stock, price_cents: 15_000) # $150 current price
-
-    # Two transactions with different purchase prices
-    create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 10, purchase_price: 100.0)  # $100
-    create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 5, purchase_price: 120.0)   # $120
+    create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 10, purchase_price: 100.0)
+    create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 5, purchase_price: 120.0)
+    create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: -3, purchase_price: 130.0)
+    create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 8, purchase_price: 140.0)
 
     positions = PortfolioPosition.for_portfolio(portfolio)
     position = positions.first
 
-    expected_change = ((150.0 - 100.0) * 10) + ((150.0 - 120.0) * 5) # $500 + $150 = $650
+    expected_change = ((150.0 - 100.0) * 10) + ((150.0 - 120.0) * 5) + ((150.0 - 130.0) * -3) + ((150.0 - 140.0) * 8)
     assert_equal expected_change, position.change_amount
   end
 
-  test "total_return_amount calculates current position value" do
+  test "total_return_amount with multiple purchases and sells" do
     portfolio = create(:portfolio)
-    stock = create(:stock, price_cents: 15_000) # $150 current price
+    stock = create(:stock, price_cents: 15_000)
 
     create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 10, purchase_price: 100.0)
+    create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 5, purchase_price: 120.0)
+    create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: -3, purchase_price: 130.0)
 
     positions = PortfolioPosition.for_portfolio(portfolio)
     position = positions.first
 
-    expected_value = 150.0 * 10 # $1500
+    expected_value = 150.0 * 12
     assert_equal expected_value, position.total_return_amount
   end
 end
