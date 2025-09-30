@@ -1,0 +1,10 @@
+#!/bin/bash
+set -eo pipefail
+
+echo '--------------------------------'
+echo 'BEGIN: docker/run bundle install'
+echo '--------------------------------'
+docker/run bundle install
+echo '-----------------------------------'
+echo 'FINISHED: docker/run bundle install'
+echo '-----------------------------------'

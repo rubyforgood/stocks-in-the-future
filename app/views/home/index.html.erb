@@ -52,14 +52,14 @@
 		<div class="bg-[#d3df44] py-3 px-5 font-semibold text-base tracking-wide border-b-2 border-black">Getting Started</div>
 		<div class="px-8 pt-8 pb-10 grid grid-cols-1 md:grid-cols-4 gap-6 text-sm">
 			<% steps = [
-				{ num: '1', title: 'Earn Funds', body: 'Show Up, Stay Engaged, And Earn Investment Funds Based On Your Attendance, Participation, And Performance.' },
-				{ num: '2', title: 'Go To The Trading Floor', body: 'Once You Have Funds, Explore The Trading Floor And The Company’s To Buy Your First Stock.' },
-				{ num: '3', title: 'Buy & Sell', body: 'Choose Your Companies Wisely! You Can Buy And Sell As Your Portfolio Grows. Watch Your Earnings Change Based On The Market.' },
-				{ num: '4', title: 'Track Your Progress', body: 'Your Portfolio Shows How Your Investments Are Performing Over Time, Plus Summaries Of Your Grades And Attendance.' }
+				{ num: '1_Number', title: 'Earn Funds', body: 'Show Up, Stay Engaged, And Earn Investment Funds Based On Your Attendance, Participation, And Performance.' },
+				{ num: '2_Number', title: 'Go To The Trading Floor', body: 'Once You Have Funds, Explore The Trading Floor And The Company’s To Buy Your First Stock.' },
+				{ num: '3_Number', title: 'Buy & Sell', body: 'Choose Your Companies Wisely! You Can Buy And Sell As Your Portfolio Grows. Watch Your Earnings Change Based On The Market.' },
+				{ num: '4_Number', title: 'Track Your Progress', body: 'Your Portfolio Shows How Your Investments Are Performing Over Time, Plus Summaries Of Your Grades And Attendance.' }
 			] %>
 			<% steps.each do |s| %>
 				<div class="flex gap-3 md:gap-2 items-start">
-					<div class="text-4xl font-semibold leading-none bg-gradient-to-b from-[#53b3e0] to-[#1c8cb0] text-transparent bg-clip-text select-none pr-1"><%= s[:num] %></div>
+					<div class="pr-1"><%= image_tag "#{s[:num]}.png", alt: "Step #{s[:num]}", class: "w-40 h-40" %></div>
 					<div class="space-y-1">
 						<p class="font-semibold leading-snug"><%= s[:title] %></p>
 						<p class="text-[13px] text-gray-700 leading-snug"><%= s[:body] %></p>
