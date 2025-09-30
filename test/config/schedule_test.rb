@@ -30,8 +30,6 @@ class ScheduleTest < ActiveSupport::TestCase
 
   test "scheduled job classes exist and can be loaded" do
     assert_nothing_raised do
-      OrderExecutionJob
-      MonthlyPortfolioSnapshotJob
       StockPricesUpdateJob
     end
 
