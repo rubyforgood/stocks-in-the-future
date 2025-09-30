@@ -1,0 +1,22 @@
+development: &default
+  # Daily at 1 AM EST OrderExecution runs first, then triggers StockPrices via job chaining
+  # This ensures that StockPrices aren't updated before we have executed all orders
+  daily_order_execution:
+    class: OrderExecutionJob
+    queue: default
+    schedule: at 1am every day
+  
+  monthly_portfolio_snapshot:
+    class: MonthlyPortfolioSnapshotJob
+    queue: default
+    schedule: at 11pm on the last day of every month
+  
+  clear_solid_queue_finished_jobs:
+    command: "SolidQueue::Job.clear_finished_in_batches(sleep_between_batches: 0.3)"
+    schedule: every hour at minute 12
+
+test:
+  # No recurring jobs in test environment
+
+production:
+  <<: *default
