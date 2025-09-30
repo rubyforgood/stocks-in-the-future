@@ -1,0 +1,13 @@
+<div class="ticker-item">
+  <div class="text-lg font-bold <%= stock.percentage_change >= 0 ? 'text-green-up' : 'text-destructive' %>">
+    <%= stock.ticker.upcase %>
+  </div>
+  <div class="flex items-center justify-center gap-1 text-xs <%= stock.percentage_change >= 0 ? 'text-green-up' : 'text-destructive' %>">
+    <% if stock.percentage_change >= 0 %>
+      <%= lucide_icon("trending-up", class: "w-3 h-3") %>
+    <% else %>
+      <%= lucide_icon("trending-down", class: "w-3 h-3") %>
+    <% end %>
+    <%= stock.percentage_change_formatted %>
+  </div>
+</div>
