@@ -10,7 +10,6 @@ gem "administrate", "1.0.0.beta3"
 gem "bootsnap", require: false
 gem "csv"
 gem "daemons"
-gem "delayed_job_active_record"
 gem "devise", "~> 4.9"
 gem "faker", "~> 3.5.2"
 gem "font-awesome-rails"
@@ -21,6 +20,7 @@ gem "propshaft"
 gem "puma", ">= 5.0"
 gem "pundit", "~> 2.5"
 gem "shadcn-ui", "~> 0.0.15"
+gem "solid_queue", "~> 1.0"
 gem "stimulus-rails"
 gem "strong_migrations", "~> 2.5"
 gem "tailwindcss-rails"
@@ -28,7 +28,6 @@ gem "turbo-rails"
 
 gem "discard", "~> 1.4"
 gem "tzinfo-data", platforms: %i[windows jruby]
-gem "whenever", require: false
 
 group :development, :test do
   gem "debug", platforms: %i[mri windows]
