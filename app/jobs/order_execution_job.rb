@@ -9,26 +9,50 @@ class OrderExecutionJob < ApplicationJob
     Rails.logger.info "Starting order execution job at #{Time.current}"
 
     pending_orders = Order.pending
-    Rails.logger.info "Found #{pending_orders.count} pending orders to execute"
+    log_pending_orders_count(pending_orders)
 
-    if pending_orders.empty?
-      Rails.logger.info "No pending orders to execute"
-    else
-      pending_orders.each do |pending_order|
-        ExecuteOrder.execute(pending_order)
-      end
-      TransactionFeeProcessor.execute(pending_orders)
-      Rails.logger.info "Successfully executed #{pending_orders.count} orders"
-    end
-
-    # Chain to StockPricesUpdateJob after successful order execution to avoid conflicts
-    Rails.logger.info "Scheduling stock prices update job"
-    StockPricesUpdateJob.perform_later
+    process_pending_orders(pending_orders) unless pending_orders.empty?
+    schedule_stock_prices_update
 
     Rails.logger.info "Order execution job completed successfully"
   rescue StandardError => e
-    Rails.logger.error "Order execution job failed: #{e.message}"
-    Rails.logger.error e.backtrace.join("\n")
-    raise
+    log_execution_error(e)
+    raise # Re-raise to trigger retry mechanism
+  end
+
+  private
+
+  def log_pending_orders_count(pending_orders)
+    Rails.logger.info "Found #{pending_orders.count} pending orders to execute"
+  end
+
+  def process_pending_orders(pending_orders)
+    execute_orders(pending_orders)
+    process_transaction_fees(pending_orders)
+    log_successful_execution(pending_orders)
+  end
+
+  def execute_orders(pending_orders)
+    pending_orders.each do |pending_order|
+      ExecuteOrder.execute(pending_order)
+    end
+  end
+
+  def process_transaction_fees(pending_orders)
+    TransactionFeeProcessor.execute(pending_orders)
+  end
+
+  def log_successful_execution(pending_orders)
+    Rails.logger.info "Successfully executed #{pending_orders.count} orders"
+  end
+
+  def schedule_stock_prices_update
+    Rails.logger.info "Scheduling stock prices update job"
+    StockPricesUpdateJob.perform_later
+  end
+
+  def log_execution_error(error)
+    Rails.logger.error "Order execution job failed: #{error.message}"
+    Rails.logger.error error.backtrace.join("\n")
   end
 end
