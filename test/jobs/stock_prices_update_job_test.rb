@@ -6,6 +6,8 @@ class StockPricesUpdateJobTest < ActiveJob::TestCase
   STOCK_URL_MATCHER = %r{https://www\.alphavantage\.co/query\?apikey=[^&]+&function=GLOBAL_QUOTE&symbol=[A-Z]+}
 
   setup do
+    ENV["ALPHA_VANTAGE_API_KEY"] = "test_api_key"
+
     stub_request(:get, STOCK_URL_MATCHER)
       .with(
         headers: {
