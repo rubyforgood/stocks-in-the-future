@@ -18,13 +18,9 @@
 
       <div class="fixed w-full h-px z-40 top-16 bg-[#004f6b]"></div>
 
-      <div class="fixed z-40 flex w-40 bottom-0">
-        <div class="flex grow flex-col gap-y-5 overflow-y-auto px-0 pt-4 pb-4 bg-[#00698c]">
-          <%= render 'layouts/navbar' %>
-        </div>
-      </div>
+      <%= render 'layouts/navbar' %>
 
-      <main class="h-full overflow-auto p-6 ml-40 mt-[66px] bg-[#f7f9f3]">
+      <main class="h-full overflow-auto p-6 ml-50 mt-16 bg-[#f7f9f3]">
         <%= yield %>
       </main>
     <% else %>
