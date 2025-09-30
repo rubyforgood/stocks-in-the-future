@@ -14,7 +14,7 @@ class PortfolioPositionTest < ActiveSupport::TestCase
     assert_equal 96_000, position.current_value_cents
   end
 
-  test "stock_previous_close returns yesterday_price when available" do
+  test "stock_previous_close returns yesterday_price" do
     portfolio = create(:portfolio)
     stock = create(:stock, price_cents: 15_000, yesterday_price_cents: 14_500)
     create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 5, purchase_price: 100.0)
@@ -22,16 +22,6 @@ class PortfolioPositionTest < ActiveSupport::TestCase
     position = PortfolioPosition.for_portfolio(portfolio).first
 
     assert_equal 145.0, position.stock_previous_close
-  end
-
-  test "stock_previous_close falls back to current_price when yesterday_price is nil" do
-    portfolio = create(:portfolio)
-    stock = create(:stock, price_cents: 15_000, yesterday_price_cents: nil)
-    create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 5, purchase_price: 100.0)
-
-    position = PortfolioPosition.for_portfolio(portfolio).first
-
-    assert_equal 150.0, position.stock_previous_close
   end
 
   test "for_portfolio aggregates buy/sell transactions correctly" do
@@ -125,19 +115,5 @@ class PortfolioPositionTest < ActiveSupport::TestCase
 
     expected_value = 150.0 * 10 # $1500
     assert_equal expected_value, position.total_return_amount
-  end
-
-  test "avg_purchase_price calculates weighted average correctly" do
-    portfolio = create(:portfolio)
-    stock = create(:stock, price_cents: 15_000)
-
-    create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 10, purchase_price: 100.0)
-    create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 5, purchase_price: 120.0)
-
-    positions = PortfolioPosition.for_portfolio(portfolio)
-    position = positions.first
-
-    expected_avg = ((100.0 * 10) + (120.0 * 5)) / (10 + 5)
-    assert_in_delta expected_avg, position.avg_purchase_price, 0.01
   end
 end

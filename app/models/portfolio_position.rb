@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class PortfolioPosition
-  attr_reader :stock, :shares, :portfolio, :avg_purchase_price, :change_amount, :total_return_amount
+  attr_reader :stock, :shares, :portfolio, :change_amount, :total_return_amount
 
   delegate :current_price, :price_cents, :ticker, :yesterday_price, to: :stock, prefix: :stock
 
@@ -11,7 +11,6 @@ class PortfolioPosition
     @portfolio = portfolio
     @change_amount = financial_data[:change_amount]
     @total_return_amount = financial_data[:total_return_amount]
-    @avg_purchase_price = financial_data[:avg_purchase_price]
   end
 
   def current_value
@@ -37,9 +36,7 @@ class PortfolioPosition
          SUM(portfolio_stocks.shares) as total_shares,
          SUM((stocks.price_cents/100.0 - portfolio_stocks.purchase_price) * portfolio_stocks.shares)
            as aggregated_change_amount,
-         SUM((stocks.price_cents/100.0) * portfolio_stocks.shares) as aggregated_total_return,
-         SUM(portfolio_stocks.purchase_price * portfolio_stocks.shares) / SUM(portfolio_stocks.shares)
-           as avg_purchase_price"
+         SUM((stocks.price_cents/100.0) * portfolio_stocks.shares) as aggregated_total_return"
       )
       .map { |result| build_position(result, portfolio) }
   end
@@ -51,8 +48,7 @@ class PortfolioPosition
       portfolio: portfolio,
       financial_data: {
         change_amount: result.aggregated_change_amount,
-        total_return_amount: result.aggregated_total_return,
-        avg_purchase_price: result.avg_purchase_price
+        total_return_amount: result.aggregated_total_return
       }
     )
   end
