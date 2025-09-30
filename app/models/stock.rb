@@ -18,4 +18,17 @@ class Stock < ApplicationRecord
 
     yesterday_price_cents.to_f / 100
   end
+
+  def percentage_change
+    return 0.0 if yesterday_price_cents.nil? || yesterday_price_cents.zero?
+
+    ((current_price - yesterday_price) / yesterday_price) * 100
+  end
+
+  def percentage_change_formatted
+    return "0.00%" if percentage_change.zero?
+
+    formatted = format("%.2f%%", percentage_change.abs)
+    percentage_change.positive? ? "+#{formatted}" : "-#{formatted}"
+  end
 end

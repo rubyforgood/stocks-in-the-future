@@ -1,0 +1,12 @@
+<div class="flex-shrink-0 overflow-hidden" style="width: 400px;">
+  <div class="ticker-container">
+    <div class="ticker-content animate-scroll">
+      <%# Duplicate stocks for seamless infinite scroll: animation moves from 0% to -50%,
+          so when it reaches -50% (showing second copy), it loops back to 0% (first copy)
+          creating smooth continuous scrolling without gaps or visible restarts %>
+      <% (ticker_stocks.to_a * 2).each do |stock| %>
+        <%= render 'layouts/stock_item', stock: stock %>
+      <% end %>
+    </div>
+  </div>
+</div>
