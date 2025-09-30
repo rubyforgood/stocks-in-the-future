@@ -28,7 +28,7 @@ class SchoolYearsControllerTest < ActionDispatch::IntegrationTest
     admin = create(:admin)
     sign_in admin
 
-    assert_difference("SchoolYear.count") do
+    assert_difference(-> { SchoolYear.count } => 1, -> { Quarter.count } => 4) do
       post(admin_school_years_url, params:)
     end
 
