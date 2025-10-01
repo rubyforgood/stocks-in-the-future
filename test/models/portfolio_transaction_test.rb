@@ -48,7 +48,7 @@ class PortfolioTransactionTest < ActiveSupport::TestCase
     assert_equal "Earnings from Reading", PortfolioTransaction::REASONS[:reading_earnings]
     assert_equal "Earnings from Attendance", PortfolioTransaction::REASONS[:attendance_earnings]
     assert_equal "Earnings from Grades", PortfolioTransaction::REASONS[:grade_earnings]
-    assert_equal "Transaction Fee", PortfolioTransaction::REASONS[:transaction_fee]
+    assert_equal "Transaction Fees", PortfolioTransaction::REASONS[:transaction_fees]
     assert_equal "Award", PortfolioTransaction::REASONS[:awards]
   end
 end

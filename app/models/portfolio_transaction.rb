@@ -11,8 +11,9 @@ class PortfolioTransaction < ApplicationRecord
     reading_earnings: "Earnings from Reading",
     attendance_earnings: "Earnings from Attendance",
     grade_earnings: "Earnings from Grades", # TODO: Remove this
-    transaction_fee: "Transaction Fee",
-    awards: "Award"
+    transaction_fees: "Transaction Fees",
+    awards: "Award",
+    administrative_adjustments: "Administrative Adjustment"
   }.freeze
 
   belongs_to :portfolio
