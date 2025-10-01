@@ -10,7 +10,7 @@ class StockPolicyTest < ActiveSupport::TestCase
   test "student with portfolio can see holdings and trading links for active stocks" do
     student = create(:student)
     # ensure portfolio created for student factory
-    portfolio = create(:portfolio, user: student)
+    create(:portfolio, user: student)
     stock = create(:stock, archived: false)
 
     assert_permit student, stock, :show_trading_link
@@ -22,6 +22,7 @@ class StockPolicyTest < ActiveSupport::TestCase
     student = create(:student)
     # remove any auto-created portfolio if present
     student.portfolio&.destroy
+    student.association(:portfolio).reset
 
     stock = create(:stock, archived: false)
 

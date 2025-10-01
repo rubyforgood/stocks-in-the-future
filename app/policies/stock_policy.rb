@@ -21,10 +21,6 @@ class StockPolicy < ApplicationPolicy
 
   def portfolio_present?
     # Some views call policy with the class instead of an instance; guard for that.
-    if record.respond_to?(:id)
-      user&.portfolio.present?
-    else
-      user&.portfolio.present?
-    end
+    user.id.present?
   end
 end
