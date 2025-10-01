@@ -20,7 +20,7 @@ class StockPolicy < ApplicationPolicy
   private
 
   def portfolio_present?
-    # Some views call policy with the class instead of an instance; guard for that.
-    user.id.present?
+    # Student must actually have a persisted portfolio. Nil-safe, avoids relying on cached association state.
+    user&.portfolio&.persisted?
   end
 end
