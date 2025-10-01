@@ -9,6 +9,10 @@ Rails.application.routes.draw do
 
   devise_for :users
 
+  devise_scope :user do
+    get "users/sign_up", to: redirect("/")
+  end
+
   resources :users do
     resources :portfolios, only: :show
   end
@@ -31,7 +35,7 @@ Rails.application.routes.draw do
     root "classrooms#index"
     resources :classrooms
     resources :portfolio_transactions, except: [:index]
-    resources :school_years, except: %i[new edit]
+    resources :school_years
     resources :schools
     resources :stocks
     resources :students do

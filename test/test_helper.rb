@@ -1,9 +1,15 @@
 # frozen_string_literal: true
 
-require "simplecov"
+if ENV["COVERAGE"] == "true"
+  require "simplecov"
 
-SimpleCov.start "rails" do
-  add_filter "/test/"
+  SimpleCov.start "rails" do
+    add_filter "/test/"
+
+    add_group "Dashboards", "app/dashboards"
+    add_group "Services", "app/services"
+    add_group "Policies", "app/policies"
+  end
 end
 
 ENV["RAILS_ENV"] ||= "test"
@@ -27,8 +33,9 @@ module ActiveSupport
     include FactoryBot::Syntax::Methods
     include CsvTestHelper
 
-    # Run tests in parallel with specified workers
-    parallelize(workers: :number_of_processors)
+    # Use PARALLEL_WORKERS=1 if you want to change the number of workers
+    # For instance, PARALLEL_WORKERS=1 bin/dc rails test
+    parallelize(workers: ENV["PARALLEL_WORKERS"]&.to_i || :number_of_processors)
 
     # Add more helper methods to be used by all tests here...
     def t(...)

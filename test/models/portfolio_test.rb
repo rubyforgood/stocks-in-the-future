@@ -121,4 +121,34 @@ class PortfolioTest < ActiveSupport::TestCase
     assert_equal 10, portfolio.shares_owned(stock1.id)
     assert_equal 5, portfolio.shares_owned(stock2.id)
   end
+
+  test "#holdings_value_cents calculates stock holdings value" do
+    portfolio = create(:portfolio)
+    stock1 = create(:stock, price_cents: 10_000)
+    stock2 = create(:stock, price_cents: 20_000)
+
+    create(:portfolio_stock, portfolio: portfolio, stock: stock1, shares: 5)
+    create(:portfolio_stock, portfolio: portfolio, stock: stock2, shares: 3)
+
+    expected_value = (5 * 10_000) + (3 * 20_000)
+    assert_equal expected_value, portfolio.holdings_value_cents
+  end
+
+  test "#calculate_total_value_cents includes cash and stock holdings" do
+    portfolio = create(:portfolio)
+    create(:portfolio_transaction, :deposit, portfolio: portfolio, amount_cents: 50_000)
+
+    stock = create(:stock, price_cents: 10_000)
+    create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 10)
+
+    expected_value = 50_000 + (10 * 10_000)
+    assert_equal expected_value, portfolio.calculate_total_value_cents
+  end
+
+  test "#calculate_total_value converts cents to dollars" do
+    portfolio = create(:portfolio)
+    create(:portfolio_transaction, :deposit, portfolio: portfolio, amount_cents: 50_000)
+
+    assert_equal 500.0, portfolio.calculate_total_value
+  end
 end

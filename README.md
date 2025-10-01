@@ -1,5 +1,5 @@
 [![Continuous Integration](https://github.com/rubyforgood/stocks-in-the-future/actions/workflows/ci.yml/badge.svg)](https://github.com/rubyforgood/stocks-in-the-future/actions/workflows/ci.yml)
-[![RuboCop](https://github.com/rubyforgood/stocks-in-the-future/actions/workflows/rubocop.yml/badge.svg)](https://github.com/rubyforgood/stocks-in-the-future/actions/workflows/rubocop.yml)
+[![Lint](https://github.com/rubyforgood/stocks-in-the-future/actions/workflows/lint.yml/badge.svg)](https://github.com/rubyforgood/stocks-in-the-future/actions/workflows/lint.yml)
 [![Dependabot Updates](https://github.com/rubyforgood/stocks-in-the-future/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/rubyforgood/stocks-in-the-future/actions/workflows/dependabot/dependabot-updates)
 
 # Requirements
@@ -8,6 +8,9 @@
 - Ruby 3.4.4 (Installed via ruby manager ^)
 - [PostgreSQL](https://www.postgresql.org/), if you're not using Docker.
 - [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) and yarn (`npm install -g yarn`)
+
+# Easy Docker Scripts
+Go to the [Easy Docker Scripts](docker/README.md) page for an easy way to set up this app, test this app, seed data, run RuboCop, and execute other routine tasks.
 
 # Installation
 
@@ -113,6 +116,14 @@ If you have any questions about an issue, comment on the issue, open a new issue
    $ bin/rails test
    ```
 
+   To check test coverage, run:
+
+   ```console
+   $ bin/coverage
+   ```
+
+   This generates an HTML coverage report at `coverage/index.html`
+
 6. **Push your branch** to GitHub
 
    ```console
@@ -125,7 +136,8 @@ If you have any questions about an issue, comment on the issue, open a new issue
 
 7. **Open a Pull Request** against the `main` branch
    - Include a clear description of the changes
-   - Reference the issue number in the PR description (e.g., "Fixes #123")
+   - Linking the issue number in the PR's description (e.g., `Resolves #123`)
+     - [More about linking a pull request to an issue](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue) 
    - Wait for CI checks to pass
    - Request review from team members
 
