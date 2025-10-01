@@ -4,6 +4,8 @@ require "test_helper"
 
 class ApplicationControllerTest < ActionDispatch::IntegrationTest
   test "after_sign_in_path_for redirects students to root" do
+    create(:student, username: "teststudent", password: "password123")
+
     post user_session_path, params: {
       user: { username: "teststudent", password: "password123" }
     }
