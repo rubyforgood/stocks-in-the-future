@@ -37,7 +37,7 @@ module Admin
       params = { student: {
         transaction_type: "deposit",
         add_fund_amount: 1_050,
-        transaction_reason: "award"
+        transaction_reason: PortfolioTransaction::REASONS[:awards]
       } }
       admin = create(:admin)
       student = create(:student)
