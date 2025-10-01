@@ -22,7 +22,7 @@ class SchoolsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "create" do
-    params = { school: { name: "" } }
+    params = { school: { name: "New Test School" } }
     admin = create(:admin)
     sign_in admin
 
@@ -31,6 +31,18 @@ class SchoolsControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_redirected_to admin_school_url(School.last)
+  end
+
+  test "create fails with invalid data" do
+    params = { school: { name: "" } }
+    admin = create(:admin)
+    sign_in admin
+
+    assert_no_difference("School.count") do
+      post(admin_schools_url, params:)
+    end
+
+    assert_response :unprocessable_entity
   end
 
   test "show" do
