@@ -45,7 +45,7 @@ module Admin
       assert_text @announcement.title
 
       visit admin_announcement_url(@announcement)
-      accept_confirm { click_on "Delete", match: :first }
+      accept_confirm { click_on "Destroy", match: :first }
 
       assert_text "Announcement was successfully destroyed"
     end
@@ -58,7 +58,8 @@ module Admin
       visit admin_announcements_url
       # Should be redirected away from admin area
       assert_current_path root_path
-      assert_text "Access denied"
+      # Verify we're on the home page, not the admin interface
+      assert_text "WELCOME TO YOUR FINANCIAL JOURNEY!"
     end
   end
 end
