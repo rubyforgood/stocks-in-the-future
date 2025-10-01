@@ -42,4 +42,13 @@ class PortfolioTransactionTest < ActiveSupport::TestCase
 
     assert_equal [transaction1, transaction4], PortfolioTransaction.withdrawals
   end
+
+  test "reasons constant values" do
+    assert_equal "Earnings from Math", PortfolioTransaction::REASONS[:math_earnings]
+    assert_equal "Earnings from Reading", PortfolioTransaction::REASONS[:reading_earnings]
+    assert_equal "Earnings from Attendance", PortfolioTransaction::REASONS[:attendance_earnings]
+    assert_equal "Earnings from Grades", PortfolioTransaction::REASONS[:grade_earnings]
+    assert_equal "Transaction Fee", PortfolioTransaction::REASONS[:transaction_fee]
+    assert_equal "Award", PortfolioTransaction::REASONS[:awards]
+  end
 end

@@ -6,6 +6,15 @@ class PortfolioTransaction < ApplicationRecord
   # credit/debit is for stock transactions ie buy/sell stocks
   enum :transaction_type, { deposit: 0, withdrawal: 1, credit: 2, debit: 3, fee: 4 }
 
+  REASONS = {
+    math_earnings: "Earnings from Math",
+    reading_earnings: "Earnings from Reading",
+    attendance_earnings: "Earnings from Attendance",
+    grade_earnings: "Earnings from Grades", # TODO: Remove this
+    transaction_fee: "Transaction Fee",
+    awards: "Award"
+  }.freeze
+
   belongs_to :portfolio
   has_one :order, dependent: :destroy
 
