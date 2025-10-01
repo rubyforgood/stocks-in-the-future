@@ -21,7 +21,7 @@ end
 archived_seed_stocks = [
   { ticker: "DIS", company_name: "Disney" },
   { ticker: "EA", company_name: "Electronic Arts" },
-  { ticker: "GPS", company_name: "Gap" }
+  { ticker: "GPS", company_name: "Gap" },
   { ticker: "LUV", company_name: "Southwest Airlines" },
   { ticker: "META", company_name: "Facebook" },
   { ticker: "SIRI", company_name: "SiriusXM" },
