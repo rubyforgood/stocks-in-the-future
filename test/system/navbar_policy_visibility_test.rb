@@ -6,9 +6,10 @@ class NavbarPolicyVisibilityTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
 
   def setup
-    @student = User.create!(username: "student", type: "Student", password: "password")
-    @teacher = User.create!(username: "teacher", type: "Teacher", password: "password")
-    @admin = User.create!(username: "admin", type: "Teacher", admin: true, password: "password")
+    classroom = create(:classroom)
+    @student = User.create!(username: "student", type: "Student", password: "password", classroom: classroom)
+    @teacher = User.create!(username: "teacher", type: "Teacher", password: "password", email: "teacher@test.com")
+    @admin = User.create!(username: "admin", type: "Teacher", admin: true, password: "password", email: "admin@test.com")
     @portfolio = Portfolio.create!(user: @student)
   end
 
