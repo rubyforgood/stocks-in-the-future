@@ -88,9 +88,20 @@ and renders all form fields for a resource's editable attributes.
     </div>
   </div>
   <div class="field-unit">
-    <div class="field-unit__label"><label>Notes</label></div>
+    <div class="field-unit__label"><label>Reason</label></div>
     <div class="field-unit__field">
-      <textarea required name="student[transaction_reason]" id="student_transaction_reason"></textarea>
+      <select required name="student[transaction_reason]" id="student_transaction_reason">
+        <option value=""></option>
+        <% PortfolioTransaction::REASONS.each do |key, label| %>
+          <option value="<%= key %>"><%= label %></option>
+        <% end %>
+      </select>
+    </div>
+  </div>
+  <div class="field-unit">
+    <div class="field-unit__label"><label>Description</label></div>
+    <div class="field-unit__field">
+      <textarea name="student[transaction_description]" id="student_transaction_description"></textarea>
     </div>
   </div>
 

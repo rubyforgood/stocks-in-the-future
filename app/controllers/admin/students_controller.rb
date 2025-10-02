@@ -41,15 +41,16 @@ module Admin
       if errors.present?
         student.errors.add(:base, errors.join(", "))
         redirect_to edit_admin_student_path(student), alert: errors.join(", ")
+      else
+        PortfolioTransaction.create!(
+          portfolio: student.portfolio,
+          amount_cents: fund_amount,
+          transaction_type: transaction_type,
+          reason: transaction_reason,
+          description: transaction_description
+        )
+        redirect_to admin_student_path(student), notice: t("students.add_transaction.success")
       end
-
-      PortfolioTransaction.create!(
-        portfolio: student.portfolio,
-        amount_cents: fund_amount,
-        transaction_type: transaction_type,
-        reason: transaction_reason
-      )
-      redirect_to admin_student_path(student), notice: t("students.add_transaction.success")
     end
 
     def template
@@ -173,6 +174,10 @@ module Admin
 
     def transaction_reason
       @transaction_reason ||= params["student"]["transaction_reason"]
+    end
+
+    def transaction_description
+      @transaction_description ||= params["student"]["transaction_description"]
     end
 
     def validate_transaction_params
