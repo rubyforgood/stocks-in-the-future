@@ -80,7 +80,6 @@ class PortfolioPositionTest < ActiveSupport::TestCase
   end
 end
 
-
 class PortfolioPositionIssueExamplesTest < ActiveSupport::TestCase
   test "example 1: 4 shares bought at $5, current price $7 => change +$8" do
     portfolio = create(:portfolio)
