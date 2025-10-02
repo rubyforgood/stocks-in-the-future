@@ -39,7 +39,6 @@ module Admin
       student = Student.find(params["student_id"])
 
       if errors.present?
-        student.errors.add(:base, errors.join(", "))
         redirect_to edit_admin_student_path(student), alert: errors.join(", ")
       else
         PortfolioTransaction.create!(
@@ -164,27 +163,36 @@ module Admin
       end
     end
 
+    def transaction_params
+      params.expect(
+        student: %i[add_fund_amount
+                    transaction_type
+                    transaction_reason
+                    transaction_description]
+      )
+    end
+
     def fund_amount
-      @fund_amount ||= params["student"]["add_fund_amount"]
+      @fund_amount ||= transaction_params[:add_fund_amount]
     end
 
     def transaction_type
-      @transaction_type ||= params["student"]["transaction_type"]
+      @transaction_type ||= transaction_params[:transaction_type]
     end
 
     def transaction_reason
-      @transaction_reason ||= params["student"]["transaction_reason"]
+      @transaction_reason ||= transaction_params[:transaction_reason]
     end
 
     def transaction_description
-      @transaction_description ||= params["student"]["transaction_description"]
+      @transaction_description ||= transaction_params[:transaction_description]
     end
 
     def validate_transaction_params
       errors = []
-      errors << "Transaction Type must be present" if transaction_type.blank?
-      errors << "Amount must be present" if fund_amount.blank?
-      errors << "Reason must be present" if transaction_reason.blank?
+      errors << t("students.add_transaction.errors.transaction_type_blank") if transaction_type.blank?
+      errors << t("students.add_transaction.errors.amount_blank") if fund_amount.blank?
+      errors << t("students.add_transaction.errors.reason_blank") if transaction_reason.blank?
       errors
     end
   end

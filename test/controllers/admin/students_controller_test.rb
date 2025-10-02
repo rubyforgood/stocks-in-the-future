@@ -126,6 +126,25 @@ module Admin
       assert_equal "Reason must be present", flash[:alert]
     end
 
+    test "add_transaction fails when reason is missing even with description" do
+      params = { student: {
+        transaction_type: "deposit",
+        add_fund_amount: 1_050,
+        transaction_description: "Some notes about the transaction"
+      } }
+      admin = create(:admin)
+      student = create(:student)
+      create(:portfolio, user: student)
+      sign_in(admin)
+
+      assert_no_difference("PortfolioTransaction.count") do
+        post(admin_student_add_transaction_path(student), params:)
+      end
+
+      assert_redirected_to edit_admin_student_path(student)
+      assert_equal "Reason must be present", flash[:alert]
+    end
+
     test "add_transaction stores transaction_description" do
       params = { student: {
         transaction_type: "deposit",

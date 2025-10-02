@@ -51,6 +51,10 @@ en:
   students:
     add_transaction:
       success: Transaction added to student successfully.
+      errors:
+        transaction_type_blank: Transaction Type must be present
+        amount_blank: Amount must be present
+        reason_blank: Reason must be present
     create:
       notice: 'Student %{username} created successfully. Initial password: %{password}'
     destroy:
