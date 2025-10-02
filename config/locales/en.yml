@@ -50,11 +50,11 @@ en:
       notice: School was successfully updated.
   students:
     add_transaction:
-      success: Transaction added to student successfully.
       errors:
-        transaction_type_blank: Transaction Type must be present
         amount_blank: Amount must be present
         reason_blank: Reason must be present
+        transaction_type_blank: Transaction Type must be present
+      success: Transaction added to student successfully.
     create:
       notice: 'Student %{username} created successfully. Initial password: %{password}'
     destroy:

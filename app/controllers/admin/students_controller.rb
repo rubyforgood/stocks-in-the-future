@@ -41,14 +41,19 @@ module Admin
       if errors.present?
         redirect_to edit_admin_student_path(student), alert: errors.join(", ")
       else
-        PortfolioTransaction.create!(
+        transaction = PortfolioTransaction.new(
           portfolio: student.portfolio,
           amount_cents: fund_amount,
           transaction_type: transaction_type,
           reason: transaction_reason,
           description: transaction_description
         )
-        redirect_to admin_student_path(student), notice: t("students.add_transaction.success")
+
+        if transaction.save
+          redirect_to admin_student_path(student), notice: t("students.add_transaction.success")
+        else
+          redirect_to edit_admin_student_path(student), alert: transaction.errors.full_messages.join(", ")
+        end
       end
     end
 
@@ -165,10 +170,7 @@ module Admin
 
     def transaction_params
       params.expect(
-        student: %i[add_fund_amount
-                    transaction_type
-                    transaction_reason
-                    transaction_description]
+        student: %i[add_fund_amount transaction_type transaction_reason transaction_description]
       )
     end
 
