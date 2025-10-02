@@ -74,7 +74,7 @@ and renders all form fields for a resource's editable attributes.
   <div class="field-unit">
     <div class="field-unit__label"><label for="student_transaction_type">Transaction Type</label></div>
     <div class="field-unit__field">
-      <select name="student[transaction_type]" id="student_transaction_type" aria-required="false">
+      <select name="student[transaction_type]" id="student_transaction_type" aria-required="false" class="w-full rounded-md border border-input bg-transparent p-2 text-sm">
         <% ["", "deposit", "debit"].each do |option| %>
           <option><%= option %></option>
         <% end %>
