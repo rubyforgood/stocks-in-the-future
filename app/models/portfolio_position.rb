@@ -28,11 +28,13 @@ class PortfolioPosition
       .group("stocks.id")
       .having("SUM(portfolio_stocks.shares) > 0")
       .select(
-        "stocks.*,
-         SUM(portfolio_stocks.shares) as total_shares,
-         SUM((stocks.price_cents/100.0 - portfolio_stocks.purchase_price) * portfolio_stocks.shares)
-           as aggregated_change_amount,
-         SUM((stocks.price_cents/100.0) * portfolio_stocks.shares) as aggregated_total_return"
+        <<~SQL.squish
+          stocks.*,
+          SUM(portfolio_stocks.shares) AS total_shares,
+          (stocks.price_cents / 100.0) * SUM(portfolio_stocks.shares) -
+          SUM(portfolio_stocks.purchase_price * portfolio_stocks.shares) AS aggregated_change_amount,
+          (stocks.price_cents / 100.0) * SUM(portfolio_stocks.shares) AS aggregated_total_return
+        SQL
       )
       .map { |result| build_position(result, portfolio) }
   end

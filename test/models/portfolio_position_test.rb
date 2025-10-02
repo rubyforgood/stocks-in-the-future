@@ -59,8 +59,34 @@ class PortfolioPositionTest < ActiveSupport::TestCase
     positions = PortfolioPosition.for_portfolio(portfolio)
     position = positions.first
 
-    expected_change = ((150.0 - 100.0) * 10) + ((150.0 - 120.0) * 5) + ((150.0 - 130.0) * -3) + ((150.0 - 140.0) * 8)
+    cost_basis = (100.0 * 10) + (120.0 * 5) + (-3 * 130.0) + (140.0 * 8)
+    expected_change = (150.0 * 20) - cost_basis
     assert_equal expected_change, position.change_amount
+  end
+
+  test "change_amount calculates profit correctly" do
+    portfolio = create(:portfolio)
+    stock = create(:stock, price_cents: 700)
+
+    create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 4, purchase_price: 5.0)
+
+    position = PortfolioPosition.for_portfolio(portfolio).first
+
+    assert_equal 4, position.shares
+    assert_in_delta 8.0, position.change_amount, 0.001
+  end
+
+  test "change_amount calculates loss correctly" do
+    portfolio = create(:portfolio)
+    stock = create(:stock, price_cents: 100)
+
+    create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 2, purchase_price: 5.0)
+    create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 3, purchase_price: 7.0)
+
+    position = PortfolioPosition.for_portfolio(portfolio).first
+
+    assert_equal 5, position.shares
+    assert_in_delta(-26.0, position.change_amount, 0.001)
   end
 
   test "total_return_amount with multiple purchases and sells" do
