@@ -64,6 +64,31 @@ class PortfolioPositionTest < ActiveSupport::TestCase
     assert_equal expected_change, position.change_amount
   end
 
+  test "change_amount calculates profit correctly" do
+    portfolio = create(:portfolio)
+    stock = create(:stock, price_cents: 700)
+
+    create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 4, purchase_price: 5.0)
+
+    position = PortfolioPosition.for_portfolio(portfolio).first
+
+    assert_equal 4, position.shares
+    assert_in_delta 8.0, position.change_amount, 0.001
+  end
+
+  test "change_amount calculates loss correctly" do
+    portfolio = create(:portfolio)
+    stock = create(:stock, price_cents: 100)
+
+    create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 2, purchase_price: 5.0)
+    create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 3, purchase_price: 7.0)
+
+    position = PortfolioPosition.for_portfolio(portfolio).first
+
+    assert_equal 5, position.shares
+    assert_in_delta(-26.0, position.change_amount, 0.001)
+  end
+
   test "total_return_amount with multiple purchases and sells" do
     portfolio = create(:portfolio)
     stock = create(:stock, price_cents: 15_000)
@@ -77,32 +102,5 @@ class PortfolioPositionTest < ActiveSupport::TestCase
 
     expected_value = 150.0 * 12
     assert_equal expected_value, position.total_return_amount
-  end
-end
-
-class PortfolioPositionIssueExamplesTest < ActiveSupport::TestCase
-  test "example 1: 4 shares bought at $5, current price $7 => change +$8" do
-    portfolio = create(:portfolio)
-    stock = create(:stock, price_cents: 700)
-
-    create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 4, purchase_price: 5.0)
-
-    position = PortfolioPosition.for_portfolio(portfolio).first
-
-    assert_equal 4, position.shares
-    assert_in_delta 8.0, position.change_amount, 0.001
-  end
-
-  test "example 2: mixed purchases then price drop => change -$26" do
-    portfolio = create(:portfolio)
-    stock = create(:stock, price_cents: 100)
-
-    create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 2, purchase_price: 5.0)
-    create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 3, purchase_price: 7.0)
-
-    position = PortfolioPosition.for_portfolio(portfolio).first
-
-    assert_equal 5, position.shares
-    assert_in_delta(-26.0, position.change_amount, 0.001)
   end
 end
