@@ -39,17 +39,22 @@ module Admin
       student = Student.find(params["student_id"])
 
       if errors.present?
-        student.errors.add(:base, errors.join(", "))
         redirect_to edit_admin_student_path(student), alert: errors.join(", ")
-      end
+      else
+        transaction = PortfolioTransaction.new(
+          portfolio: student.portfolio,
+          amount_cents: fund_amount,
+          transaction_type: transaction_type,
+          reason: transaction_reason,
+          description: transaction_description
+        )
 
-      PortfolioTransaction.create!(
-        portfolio: student.portfolio,
-        amount_cents: fund_amount,
-        transaction_type: transaction_type,
-        reason: transaction_reason
-      )
-      redirect_to admin_student_path(student), notice: t("students.add_transaction.success")
+        if transaction.save
+          redirect_to admin_student_path(student), notice: t("students.add_transaction.success")
+        else
+          redirect_to edit_admin_student_path(student), alert: transaction.errors.full_messages.join(", ")
+        end
+      end
     end
 
     def template
@@ -163,23 +168,33 @@ module Admin
       end
     end
 
+    def transaction_params
+      params.expect(
+        student: %i[add_fund_amount transaction_type transaction_reason transaction_description]
+      )
+    end
+
     def fund_amount
-      @fund_amount ||= params["student"]["add_fund_amount"]
+      @fund_amount ||= transaction_params[:add_fund_amount]
     end
 
     def transaction_type
-      @transaction_type ||= params["student"]["transaction_type"]
+      @transaction_type ||= transaction_params[:transaction_type]
     end
 
     def transaction_reason
-      @transaction_reason ||= params["student"]["transaction_reason"]
+      @transaction_reason ||= transaction_params[:transaction_reason]
+    end
+
+    def transaction_description
+      @transaction_description ||= transaction_params[:transaction_description]
     end
 
     def validate_transaction_params
       errors = []
-      errors << "Transaction Type must be present" if transaction_type.blank?
-      errors << "Amount must be present" if fund_amount.blank?
-      errors << "Reason must be present" if transaction_reason.blank?
+      errors << t("students.add_transaction.errors.transaction_type_blank") if transaction_type.blank?
+      errors << t("students.add_transaction.errors.amount_blank") if fund_amount.blank?
+      errors << t("students.add_transaction.errors.reason_blank") if transaction_reason.blank?
       errors
     end
   end

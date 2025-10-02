@@ -8,7 +8,7 @@
 
 <% if existing_action?(collection_presenter.resource_name, :destroy) %>
   <td>
-    <% if resource.discarded? %>
+    <% if resource.respond_to?(:discarded?) && resource.discarded? %>
       <%= button_to(
         t("actions.restore", default: "Restore"),
         [:restore, namespace, resource],
