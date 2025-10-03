@@ -44,5 +44,27 @@ module Admin
 
     # See https://administrate-demo.herokuapp.com/customizing_controller_actions
     # for more information
+
+    def create
+      school = School.find(school_year_params[:school_id])
+      year = Year.find(school_year_params[:year_id])
+      school_year = SchoolYearCreationService.new(school:, year:).call
+      if school_year.persisted?
+        redirect_to(
+          after_resource_created_path(school_year),
+          notice: translate_with_resource("create.success")
+        )
+      else
+        render :new, locals: {
+          page: Administrate::Page::Form.new(dashboard, school_year)
+        }, status: :unprocessable_entity
+      end
+    end
+
+    private
+
+    def school_year_params
+      params.expect(school_year: %i[school_id year_id])
+    end
   end
 end

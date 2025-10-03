@@ -1,10 +1,10 @@
 <%= turbo_frame_tag @grade_book do  %>
-
   <div class="mt-8"
-       <% unless @grade_book.completed? %>
-       data-controller="autosave"
-       data-autosave-interval-value="30000">
+    <% unless @grade_book.completed? %>
+      data-controller="autosave"
+      data-autosave-interval-value="30000"
     <% end %>
+  >
     <div class="flex justify-between items-center mb-4">
       <h3 class="text-lg font-medium text-gray-900">Grade Book</h3>
       <div data-autosave-target="status" class="text-sm text-gray-500"></div>
@@ -15,19 +15,19 @@
                   method: :patch,
                   html: { data: { autosave_target: "form" } } do |f| %>
 
-    <%= render partial: "table", locals: { grade_book: @grade_book } %>
+      <%= render partial: "table", locals: { grade_book: @grade_book } %>
 
-    <br/>
+      <br/>
 
-    <div class="flex flex-col items-center">
-      <%= render partial: "submit_button" %>
-    </div>
-
+      <div class="flex flex-col items-center">
+        <%= render partial: "submit_button" %>
+      </div>
     <% end %>
+
     <% if current_user.admin? %>
-    <div class="flex flex-col items-center pt-4">
-      <%= render partial: "finalize_button" %>
-    </div>
+      <div class="flex flex-col items-center pt-4">
+        <%= render partial: "finalize_button" %>
+      </div>
     <% end %>
   </div>
 <% end %>

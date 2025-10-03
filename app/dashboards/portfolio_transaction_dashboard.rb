@@ -17,6 +17,7 @@ class PortfolioTransactionDashboard < Administrate::BaseDashboard
       collection: ->(field) { field.resource.class.send(field.attribute.to_s.pluralize).keys }
     ),
     reason: Field::String,
+    description: Field::Text,
     amount_cents: Field::Number.with_options(
       prefix: "$",
       decimals: 2,
@@ -45,6 +46,7 @@ class PortfolioTransactionDashboard < Administrate::BaseDashboard
     portfolio
     transaction_type
     reason
+    description
     amount_cents
     created_at
     updated_at
@@ -57,6 +59,7 @@ class PortfolioTransactionDashboard < Administrate::BaseDashboard
     portfolio
     transaction_type
     reason
+    description
     amount_cents
   ].freeze
 

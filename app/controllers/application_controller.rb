@@ -8,14 +8,6 @@ class ApplicationController < ActionController::Base
 
   protected
 
-  def after_sign_in_path_for(resource)
-    if resource.student?
-      user_portfolio_path(resource, resource.portfolio)
-    else
-      classrooms_path
-    end
-  end
-
   def ensure_teacher_or_admin
     authorize :application, :teacher_or_admin_required?
   end

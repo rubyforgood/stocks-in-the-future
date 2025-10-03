@@ -22,5 +22,42 @@ class StockPolicy < ApplicationPolicy
   def portfolio_present?
     # Student must actually have a persisted portfolio. Nil-safe, avoids relying on cached association state.
     user&.portfolio&.persisted?
+  def index?
+    user.present?
+  end
+
+  def show?
+    user.present?
+  end
+
+  def new?
+    create?
+  end
+
+  def create?
+    admin_required?
+  end
+
+  def edit?
+    update?
+  end
+
+  def update?
+    admin_required?
+  end
+
+  def destroy?
+    admin_required?
+  end
+
+  # Scope to control which stocks are visible in listings
+  class Scope < ApplicationPolicy::Scope
+    def resolve
+      if user&.admin? || user&.teacher?
+        scope.all
+      else
+        scope.active
+      end
+    end
   end
 end

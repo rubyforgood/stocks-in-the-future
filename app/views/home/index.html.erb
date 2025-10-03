@@ -40,8 +40,20 @@
 		<div class="flex">
 			<div class="rounded-xl border-2 border-black overflow-hidden bg-white w-full flex flex-col">
 				<div class="bg-teal-500 text-white py-3 px-5 font-semibold text-base tracking-wide border-b-2 border-black">Announcements</div>
-				<div class="p-6 text-sm text-gray-600 min-h-[200px] flex items-start">
-					<p class="italic text-gray-400">No announcements yet.</p>
+				<div class="p-6 text-sm text-gray-600 min-h-[200px] flex flex-col">
+					<% if @current_announcement %>
+						<% cache @current_announcement do %>
+							<div class="space-y-3">
+								<h3 class="font-semibold text-gray-900 text-base"><%= @current_announcement.title %></h3>
+								<div class="text-gray-700 trix-content">
+									<%= @current_announcement.excerpt %>
+								</div>
+								<%= link_to "Read More", announcement_path(@current_announcement), class: "inline-flex items-center text-teal-600 hover:text-teal-700 font-medium text-sm mt-2" %>
+							</div>
+						<% end %>
+					<% else %>
+						<p class="italic text-gray-400">No announcements yet.</p>
+					<% end %>
 				</div>
 			</div>
 		</div>
@@ -59,7 +71,7 @@
 			] %>
 			<% steps.each do |s| %>
 				<div class="flex gap-3 md:gap-2 items-start">
-					<div class="pr-1"><%= image_tag "#{s[:num]}.png", alt: "Step #{s[:num]}", class: "w-40 h-40" %></div>
+					<div class="pr-1"><%= image_tag "#{s[:num]}.png", alt: "Step #{s[:num]}", class: "w-40 h-20" %></div>
 					<div class="space-y-1">
 						<p class="font-semibold leading-snug"><%= s[:title] %></p>
 						<p class="text-[13px] text-gray-700 leading-snug"><%= s[:body] %></p>

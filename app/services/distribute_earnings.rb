@@ -51,7 +51,7 @@ class DistributeEarnings
     user.portfolio.portfolio_transactions.create!(
       amount_cents: amount_cents,
       transaction_type: :deposit,
-      reason: "Earnings from grades"
+      reason: PortfolioTransaction::REASONS[:grade_earnings] # TODO: Replace this with the broken out reasons
     )
   end
 end
