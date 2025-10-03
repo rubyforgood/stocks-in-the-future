@@ -9,7 +9,15 @@
     <!-- Header with stock symbol and company name -->
     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
       <div class="flex items-center gap-3 min-w-0 flex-1">
-        <div class="flex items-center gap-1 text-2xl flex-shrink-0"><span>📈📊</span></div>
+        <% logo_path = "stock_logos/#{@stock.ticker}-logo.svg" %>
+        <% if File.exist?("app/assets/images/#{logo_path}") %>
+          <%= image_tag asset_path(logo_path),
+                        class: "w-10 h-10 rounded-full flex-shrink-0",
+                        alt: "#{@stock.ticker} logo",
+                        loading: "lazy" %>
+        <% else %>
+          <div class="flex items-center gap-1 text-2xl flex-shrink-0"><span>📈📊</span></div>
+        <% end %>
         <div class="min-w-0 flex-1">
           <h1 class="text-xl lg:text-2xl font-bold tracking-wide truncate">
             <%= @stock.ticker %>
