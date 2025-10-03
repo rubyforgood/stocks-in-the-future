@@ -19,15 +19,17 @@
       <%= number_to_currency(stock.current_price) %>
     </span>
   </td>
-  <% if current_user.student? %>
+  <%  if policy(stock).show_holdings? %>
     <td class="table-body-cell">
       <span class="table-cell-content">
         <%= @portfolio&.shares_owned(stock.id) || 0 %>
       </span>
     </td>
     <td class="table-body-cell table-body-cell-center" colspan="2">
-      <%= link_to '<i class="fa-solid fa-angle-up"></i> Buy'.html_safe, new_order_path(stock_id: stock.id, transaction_type: :buy), class: "tw-btn-buy -ml-1", style: "margin-right: 100px;", data: { turbo_frame: "modal_frame" } %>
-      <%= link_to '<i class="fa-solid fa-angle-down"></i> Sell'.html_safe, new_order_path(stock_id: stock.id, transaction_type: :sell), class: "tw-btn-sell -mr-1", data: { turbo_frame: "modal_frame" } %>
+      <% if policy(stock).show_trading_link? %>
+        <%= link_to '<i class="fa-solid fa-angle-up"></i> Buy'.html_safe, new_order_path(stock_id: stock.id, transaction_type: :buy), class: "tw-btn-buy -ml-1", style: "margin-right: 100px;", data: { turbo_frame: "modal_frame" } %>
+        <%= link_to '<i class="fa-solid fa-angle-down"></i> Sell'.html_safe, new_order_path(stock_id: stock.id, transaction_type: :sell), class: "tw-btn-sell -mr-1", data: { turbo_frame: "modal_frame" } %>
+      <% end %>
     </td>
   <% end %>
 </tr>
