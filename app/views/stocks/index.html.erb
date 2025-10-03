@@ -47,38 +47,7 @@
       <tbody>
         <% if @stocks.any? %>
           <% @stocks.each do |stock| %>
-
-            <tr class="table-body-row">
-              <td class="table-body-cell">
-                <% logo_path = "stock_logos/#{stock.ticker}-logo.svg" %>
-                <% if File.exist?("app/assets/images/#{logo_path}") %>
-                  <%= image_tag asset_path(logo_path),
-                                class: "w-10 h-10 rounded-full inline-block mr-2 align-middle",
-                                alt: "#{stock.ticker} logo",
-                                loading: "lazy" %>
-                <% end %>
-                <%= link_to stock.ticker, stock_path(stock) %><br>
-                <span class="text-gray-500">(<%= stock.company_name %>)</span>
-              </td>
-              <td class="table-body-cell table-body-cell-right">
-                <span class="table-cell-content">
-                  <%= number_to_currency(stock.current_price) %>
-                </span>
-              </td>
-              <% if policy(stock).show_holdings? %>
-                <td class="table-body-cell">
-                  <span class="table-cell-content">
-                    <%= @portfolio&.shares_owned(stock.id) || 0 %>
-                  </span>
-                </td>
-                <td class="table-body-cell table-body-cell-center" colspan="2">
-                      <% if policy(stock).show_trading_link? %>
-                        <%= link_to '<i class="fa-solid fa-angle-up"></i> Buy'.html_safe, new_order_path(stock_id: stock.id, transaction_type: :buy), class: "tw-btn-buy -ml-1", style: "margin-right: 100px;", data: { turbo_frame: "modal_frame" } %>
-                        <%= link_to '<i class="fa-solid fa-angle-down"></i> Sell'.html_safe, new_order_path(stock_id: stock.id, transaction_type: :sell), class: "tw-btn-sell -mr-1", data: { turbo_frame: "modal_frame" } %>
-                      <% end %>
-                </td>
-              <% end %>
-            </tr>
+            <%= render "stocks/index_row", stock: stock %>
           <% end %>
         <% else %>
           <tr class="table-body-row">

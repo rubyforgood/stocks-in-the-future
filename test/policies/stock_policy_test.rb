@@ -50,6 +50,7 @@ class StockPolicyTest < ActiveSupport::TestCase
     refute_permit student, stock, :show_trading_link
     # holdings may still be shown depending on policy; our policy hides only trading links
     assert_permit student, stock, :show_holdings
+  end
   test "index? allows any logged-in user and denies guests" do
     stock = build(:stock)
 
