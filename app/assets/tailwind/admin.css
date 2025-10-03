@@ -16,4 +16,6 @@
 
   .header-controls    { @apply flex items-center justify-between mb-4; }
   .action-buttons     { @apply flex gap-2; }
+
+  .form-select        { @apply w-full rounded-md border border-input bg-transparent p-2 text-sm; }
 }
