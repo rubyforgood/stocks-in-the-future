@@ -76,7 +76,7 @@
                       },
                       class: "inline-flex items-center justify-center w-8 h-8 text-amber-600 hover:text-amber-800 hover:bg-amber-50 rounded-lg transition-all duration-150 group",
                       title: "Reset password" do %>
-                    <i class="fa fa-key fa-lg group-hover:scale-110 transition-transform duration-150"></i>
+                    <%= lucide_icon("refresh-cw") %>
                   <% end %>
 
                   <%= link_to classroom_student_path(@classroom, student),
