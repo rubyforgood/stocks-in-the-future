@@ -6,8 +6,6 @@ class StudentsController < ApplicationController
   before_action :set_classroom
   before_action :set_student, except: %i[new create]
 
-  def show; end
-
   def new
     @student = Student.new(classroom: @classroom)
   end
