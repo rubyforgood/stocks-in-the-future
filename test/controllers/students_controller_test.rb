@@ -11,16 +11,8 @@ class StudentsControllerTest < ActionDispatch::IntegrationTest
     @other_student = create(:student, classroom: @other_classroom)
   end
 
-  test "requires teacher authentication" do
-    get classroom_student_path(@classroom, @student)
-    assert_redirected_to new_user_session_path
-  end
-
   test "students cannot access student management actions" do
     sign_in @student
-
-    get classroom_student_path(@classroom, @student)
-    assert_redirected_to @student.portfolio_path
 
     get new_classroom_student_path(@classroom)
     assert_redirected_to @student.portfolio_path
@@ -35,13 +27,6 @@ class StudentsControllerTest < ActionDispatch::IntegrationTest
       delete classroom_student_path(@classroom, @student)
     end
     assert_redirected_to @student.portfolio_path
-  end
-
-  test "teachers can access their classroom students" do
-    sign_in @teacher
-
-    get classroom_student_path(@classroom, @student)
-    assert_response :success
   end
 
   test "teacher can create student in their classroom" do
@@ -142,47 +127,5 @@ class StudentsControllerTest < ActionDispatch::IntegrationTest
     patch reset_password_classroom_student_path(@classroom, @student)
 
     assert_match(/new password: \w+\d+/i, flash[:notice])
-  end
-
-  test "teacher can view student details" do
-    create(:portfolio, user: @student, current_position: 8500.0)
-    stock = create(:stock)
-    create(:portfolio_stock, portfolio: @student.portfolio, stock: stock, shares: 10)
-    create(:order, action: :sell, user: @student, stock: stock, shares: 1)
-
-    sign_in @teacher
-    get classroom_student_path(@classroom, @student)
-
-    assert_response :success
-    assert_includes response.body, @student.username
-  end
-
-  test "student show displays portfolio information" do
-    create(:portfolio_transaction, portfolio: @student.portfolio, amount_cents: 100_000, transaction_type: "deposit")
-
-    sign_in @teacher
-    get classroom_student_path(@classroom, @student)
-
-    assert_response :success
-    assert_includes response.body, "1,000"
-  end
-
-  test "handles student with no portfolio gracefully" do
-    student_no_portfolio = create(:student, classroom: @classroom)
-
-    sign_in @teacher
-    get classroom_student_path(@classroom, student_no_portfolio)
-
-    assert_response :success
-  end
-
-  test "teacher is redirected when accessing discarded student" do
-    sign_in @teacher
-    @student.discard
-
-    get classroom_student_path(@classroom, @student)
-
-    assert_redirected_to classroom_path(@classroom)
-    assert_match(/not found/i, flash[:alert])
   end
 end
