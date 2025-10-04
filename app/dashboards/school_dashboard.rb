@@ -12,10 +12,8 @@ class SchoolDashboard < Administrate::BaseDashboard
   ATTRIBUTE_TYPES = {
     id: Field::Number,
     name: Field::String,
-    school_years: Field::HasMany,
     years: Field::HasMany,
-    created_at: Field::DateTime,
-    updated_at: Field::DateTime
+    created_at: Field::Date,
   }.freeze
 
   # COLLECTION_ATTRIBUTES
@@ -26,8 +24,8 @@ class SchoolDashboard < Administrate::BaseDashboard
   COLLECTION_ATTRIBUTES = %i[
     id
     name
-    school_years
     years
+    created_at
   ].freeze
 
   # SHOW_PAGE_ATTRIBUTES
@@ -35,10 +33,8 @@ class SchoolDashboard < Administrate::BaseDashboard
   SHOW_PAGE_ATTRIBUTES = %i[
     id
     name
-    school_years
     years
     created_at
-    updated_at
   ].freeze
 
   # FORM_ATTRIBUTES

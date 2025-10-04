@@ -36,7 +36,6 @@ Rails.application.routes.draw do
     resources :announcements
     resources :classrooms
     resources :portfolio_transactions, except: [:index]
-    resources :school_years
     resources :schools
     resources :stocks
     resources :students do
