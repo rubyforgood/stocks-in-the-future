@@ -11,7 +11,8 @@ class TeacherDashboard < Administrate::BaseDashboard
   # on pages throughout the dashboard.
   ATTRIBUTE_TYPES = {
     id: Field::Number,
-    classroom_id: Field::Number,
+    classrooms: Field::HasMany,
+    classroom_names: Field::String.with_options(searchable: false),
     email: Field::String,
     username: Field::String,
     name: Field::String,
@@ -28,7 +29,7 @@ class TeacherDashboard < Administrate::BaseDashboard
     id
     username
     name
-    classroom_id
+    classroom_names
     email
   ].freeze
 
@@ -36,7 +37,7 @@ class TeacherDashboard < Administrate::BaseDashboard
   # an array of attributes that will be displayed on the model's show page.
   SHOW_PAGE_ATTRIBUTES = %i[
     id
-    classroom_id
+    classrooms
     email
     username
     name
@@ -48,7 +49,7 @@ class TeacherDashboard < Administrate::BaseDashboard
   # an array of attributes that will be displayed
   # on the model's form (`new` and `edit`) pages.
   FORM_ATTRIBUTES = %i[
-    classroom_id
+    classrooms
     email
     username
     name
