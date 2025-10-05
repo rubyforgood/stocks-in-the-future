@@ -37,6 +37,7 @@ Rails.application.routes.draw do
     resources :classrooms
     resources :portfolio_transactions, except: [:index]
     resources :schools
+    resources :school_years
     resources :stocks
     resources :students do
       collection do
