@@ -87,3 +87,16 @@
 .animate-scroll {
   animation: scroll 20s linear infinite;
 }
+
+/* Trading Floor collapse chevron toggle */
+details .icon-up {
+  display: none;
+}
+
+details[open] .icon-down {
+  display: none;
+}
+
+details[open] .icon-up {
+  display: block;
+}
