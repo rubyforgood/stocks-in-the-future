@@ -27,8 +27,8 @@
     </td>
     <td class="table-body-cell table-body-cell-center" colspan="2">
       <% if policy(stock).show_trading_link? %>
-        <%= link_to '<i class="fa-solid fa-angle-up"></i> Buy'.html_safe, new_order_path(stock_id: stock.id, transaction_type: :buy), class: "tw-btn-buy -ml-1", style: "margin-right: 100px;", data: { turbo_frame: "modal_frame" } %>
-        <%= link_to '<i class="fa-solid fa-angle-down"></i> Sell'.html_safe, new_order_path(stock_id: stock.id, transaction_type: :sell), class: "tw-btn-sell -mr-1", data: { turbo_frame: "modal_frame" } %>
+        <%= buy_button(stock.id, class: "-ml-1", style: "margin-right: 100px;") %>
+        <%= sell_button(stock.id, class: "-mr-1") %>
       <% end %>
     </td>
   <% end %>

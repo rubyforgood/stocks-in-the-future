@@ -23,7 +23,8 @@
       <div class="flex gap-3 flex-shrink-0">
         <%= link_to "Back to stocks", stocks_path, class: "tw-btn-tertiary" %>
         <% if policy(@stock).show_trading_link? %>
-          <%= link_to "Trade Stock", new_order_path(stock_id: @stock.id), class: "inline-flex items-center justify-center rounded-full bg-sky-800 text-white px-6 py-2 text-sm font-medium shadow hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-1 transition-colors" %>
+          <%= buy_button(@stock.id) %>
+          <%= sell_button(@stock.id) %>
         <% end %>
       </div>
     </div>

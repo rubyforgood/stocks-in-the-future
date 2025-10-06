@@ -24,14 +24,7 @@
         </p>
     </div>
     <div class="flex gap-2">
-        <% if stock.archived? %>
-          <button disabled class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:-ring-3 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background h-9 rounded-md px-3">
-              Buy
-          </button>
-        <% else %>
-          <%= link_to "Buy", new_order_path(stock_id: stock.id, transaction_type: :buy), class: "inline-flex items-center justify-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-3 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 rounded-md px-3" %>
-        <% end %>
-
-        <%= link_to "Sell", new_order_path(stock_id: stock.id, transaction_type: :sell), class: "inline-flex items-center justify-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-3 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 rounded-md px-3" %>
+        <%= buy_button(stock.id, disabled: stock.archived?) %>
+        <%= sell_button(stock.id) %>
     </div>
 </div>
