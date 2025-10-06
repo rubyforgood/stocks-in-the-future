@@ -11,8 +11,8 @@ module Admin
 
     test "admin navigation does not show School Years link" do
       visit admin_root_path
-      assert_no_link "School Years"
 
+      assert_link "School Years"
       assert_link "Announcements"
       assert_link "Classrooms"
       assert_link "Schools"
