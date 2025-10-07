@@ -2,7 +2,7 @@
 
 module ApplicationHelper
   def navbar_stocks
-    Stock.all
+    Stock.active
   end
 
   def ticker_stocks
