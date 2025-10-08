@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@rails/actiontext": "^8.0.300",
+    "chart.js": "^4.5.0",
     "trix": "^2.1.15"
   }
 }

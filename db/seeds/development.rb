@@ -58,6 +58,11 @@ puts "Creating orders..."
 load(Rails.root.join("db", "seeds", "partials", "orders.rb"))
 puts "...done."
 
+# Create portfolio snapshots
+puts "Creating portfolio snapshots..."
+load(Rails.root.join("db", "seeds", "partials", "portfolio_snapshots.rb"))
+puts "...done."
+
 # ------------------------------------------------------------------------------
 
 end_time = Time.now
