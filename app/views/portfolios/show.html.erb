@@ -9,6 +9,8 @@
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
     <!-- Left area (spans 2 columns on large screens): metrics + holdings table -->
     <div class="flex flex-col gap-6 lg:col-span-2">
+      <%= render 'portfolios/portfolio_chart' %>
+
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <%# Total Earnings Card %>
         <div class="bg-white rounded-[22px] border border-black/30 py-4 px-5 flex flex-col justify-between min-h-[120px]">

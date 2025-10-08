@@ -23,4 +23,29 @@ class PortfoliosControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
   end
+
+  test "show displays empty state when less than 2 snapshots" do
+    portfolio = create(:portfolio)
+    create(:portfolio_snapshot, portfolio: portfolio, date: Date.current, worth_cents: 10_000)
+
+    sign_in(portfolio.user)
+
+    get portfolio_path(portfolio)
+
+    assert_response :success
+    assert_select ".text-gray-600", text: "Not Enough Data"
+  end
+
+  test "show displays chart when 2 or more snapshots exist" do
+    portfolio = create(:portfolio)
+    create(:portfolio_snapshot, portfolio: portfolio, date: 1.month.ago.to_date, worth_cents: 10_000)
+    create(:portfolio_snapshot, portfolio: portfolio, date: Date.current, worth_cents: 15_000)
+
+    sign_in(portfolio.user)
+
+    get portfolio_path(portfolio)
+
+    assert_response :success
+    assert_select "canvas[data-controller='portfolio-chart']"
+  end
 end
