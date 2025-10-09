@@ -20,43 +20,33 @@ class ImportStudentService
   end
 
   def call(username:, classroom_id:)
-    username = username&.to_s&.strip
-    classroom_id = classroom_id&.to_s&.strip
+    username = sanitize_input(username)
+    classroom_id = sanitize_input(classroom_id)
+    return skip_result("Username is required") if username.blank?
+    return skip_result("Student with username '#{username}' already exists") if Student.exists?(username: username)
+    return skip_result("Classroom ID is required") if classroom_id.blank?
 
-    early_result = check_preconditions(username)
-    return early_result if early_result
-
-    student = create_student(username, classroom_id)
-    build_result_for_student(student, classroom_id)
+    import_student(username: username, classroom_id: classroom_id)
   end
 
   private
 
-  def check_preconditions(username)
-    return skip_result("Username is required") if username.blank?
-    return skip_result("Student with username '#{username}' already exists") if duplicate_username?(username)
-
-    nil
+  def sanitize_input(input)
+    input&.to_s&.strip
   end
 
-  def build_result_for_student(student, classroom_id)
-    if student.persisted?
-      success_result(student)
-    else
-      error_result(student, classroom_id)
-    end
-  end
-
-  def duplicate_username?(username)
-    Student.exists?(username: username)
-  end
-
-  def create_student(username, classroom_id)
-    Student.create(
+  def import_student(username:, classroom_id:)
+    student = Student.new(
       username: username,
       classroom_id: classroom_id,
       password: MemorablePasswordGenerator.generate
     )
+
+    if student.save
+      success_result(student)
+    else
+      error_result(student)
+    end
   end
 
   def success_result(student)
@@ -77,21 +67,12 @@ class ImportStudentService
     )
   end
 
-  def error_result(student, classroom_id)
-    error_message = build_detailed_error_message(student, classroom_id)
+  def error_result(student)
     Result.new(
       success?: false,
       student: student,
-      error_message: error_message,
+      error_message: student.errors.full_messages.join(", "),
       action: :failed
     )
-  end
-
-  def build_detailed_error_message(student, classroom_id)
-    errors = student.errors.full_messages
-
-    errors << "Classroom ID '#{classroom_id}' not found" if student.errors[:classroom].any? && classroom_id.present?
-
-    errors.join(", ")
   end
 end
