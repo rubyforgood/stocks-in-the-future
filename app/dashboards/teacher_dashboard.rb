@@ -12,7 +12,6 @@ class TeacherDashboard < Administrate::BaseDashboard
   ATTRIBUTE_TYPES = {
     id: Field::Number,
     classrooms: Field::HasMany,
-    classroom_names: Field::String.with_options(searchable: false),
     email: Field::String,
     username: Field::String,
     name: Field::String,
@@ -29,7 +28,7 @@ class TeacherDashboard < Administrate::BaseDashboard
     id
     username
     name
-    classroom_names
+    classrooms
     email
   ].freeze
 
