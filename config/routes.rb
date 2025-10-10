@@ -23,7 +23,7 @@ Rails.application.routes.draw do
         post :finalize
       end
     end
-    resources :students, except: [:index] do
+    resources :students, except: %i[index show] do
       member do
         patch :reset_password
         patch :generate_password
@@ -36,8 +36,8 @@ Rails.application.routes.draw do
     resources :announcements
     resources :classrooms
     resources :portfolio_transactions, except: [:index]
-    resources :school_years
     resources :schools
+    resources :school_years
     resources :stocks
     resources :students do
       collection do
@@ -61,6 +61,5 @@ Rails.application.routes.draw do
   end
   resources :portfolios, only: :show
   resources :stocks, only: %i[show index]
-  resources :students, only: :show
   resources :announcements, only: :show
 end
