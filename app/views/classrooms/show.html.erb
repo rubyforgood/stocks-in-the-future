@@ -4,7 +4,13 @@
       <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-lg inline-block" id="notice"><%= notice %></p>
     <% end %>
 
-    <%= render @classroom %>
+    <h1 class="text-3xl font-bold mb-6">
+      <%= [
+            @classroom.name,
+            ("Grade #{@classroom.grade}" if @classroom.grade.present?),
+            @classroom.school_year.year.name
+          ].compact.join(', ') %>
+    </h1>
     <%= render 'classroom_students_table', students: @classroom.users %>
 
     <% if policy(Classroom).edit? || policy(Classroom).destroy? %>
