@@ -75,7 +75,7 @@
               <% end %>
 
               <div class="box-border content-stretch flex flex-col items-start justify-start p-[8px] relative w-full ml-6">
-                <% navbar_stocks.each do |stock| %>
+                <% stocks.each do |stock| %>
                   <div class="content-stretch flex items-center justify-start relative rounded-[16px] shrink-0 w-full">
                     <% stock_active = request.path == stock_path(stock) %>
                     <%= link_to stock_path(stock), class: "basis-0 box-border content-stretch flex gap-2 grow h-8 items-center justify-start min-h-px min-w-px p-[8px] relative rounded-[16px] shrink-0 hover:bg-black/20 hover:bg-black" do %>

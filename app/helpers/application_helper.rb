@@ -1,10 +1,6 @@
 # frozen_string_literal: true
 
 module ApplicationHelper
-  def navbar_stocks
-    Stock.all
-  end
-
   def ticker_stocks
     Stock.active.order(:ticker)
   end
