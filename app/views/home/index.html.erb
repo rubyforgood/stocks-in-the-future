@@ -7,11 +7,11 @@
 			<div class="flex-1 flex flex-col gap-2 pr-0 md:pr-8 relative z-10">
 				<div class="flex flex-col sm:flex-row sm:items-center sm:gap-4">
 					<% if user_signed_in? %>
-						<p class="text-base md:text-lg font-semibold tracking-tight mb-2 sm:mb-0 text-gray-900">Hi, <%= current_user.username.presence || 'Username' %>!</p>
+						<p class="font-semibold tracking-tight mb-2 sm:mb-0 text-gray-900" style="font-size: 28px;">Hi, <%= current_user.username.presence || 'Username' %>!</p>
 					<% end %>
 					<% if current_user&.student? && current_user.portfolio %>
-						<div class="funds-pill inline-flex items-center gap-2 rounded-full border-2 border-black bg-white pl-10 pr-5 py-2.5 text-sm md:text-base font-medium shadow-md relative tracking-tight">
-							<%= image_tag 'party_popper.png', class: 'h-10 w-10 object-contain absolute -left-1 -top-4', alt: 'Party popper celebration' %>
+						<div class="funds-pill inline-flex items-center gap-5 rounded-full border-2 border-black bg-white py-5 text-xl md:text-2xl font-medium shadow-md relative tracking-tight" style="padding-left: 125px; padding-right: 150px;">
+							<%= image_tag 'party_popper.png', class: 'object-contain absolute', style: 'height: 100px; width: 100px; margin-left: -110px; top: -45px;', alt: 'Party popper celebration' %>
 							<span class="leading-snug">You have <strong><%= number_to_currency(current_user.portfolio.cash_balance) %></strong> to invest! Lets Get Trading!</span>
 						</div>
 					<% end %>
