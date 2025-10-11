@@ -3,6 +3,20 @@
 require "test_helper"
 
 class UserTest < ActiveSupport::TestCase
+  test "returns true when the user holds the stock" do
+    student = create(:student)
+    stock = create(:stock)
+    portfolio = create(:portfolio, user: student)
+    create(:portfolio_stock, portfolio: portfolio, stock: stock)
+    assert student.holding?(stock)
+  end
+
+  test "returns false when the user does not hold the stock" do
+    student = create(:student)
+    other_stock = create(:stock)
+    assert_not student.holding?(other_stock)
+  end
+
   test "factory" do
     assert build(:student).validate!
   end

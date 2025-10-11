@@ -64,6 +64,10 @@ class User < ApplicationRecord
     false
   end
 
+  def holding?(stock)
+    portfolio&.portfolio_stocks&.exists?(stock_id: stock.id)
+  end
+
   private
 
   def soft_delete_guard

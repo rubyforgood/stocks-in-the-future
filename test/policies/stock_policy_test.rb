@@ -42,15 +42,20 @@ class StockPolicyTest < ActiveSupport::TestCase
     refute_permit admin, stock, :show_holdings
   end
 
-  test "archived stock hides trading links even for students with portfolio" do
+  test "archived stock allows trading link only if student holds it" do
     student = create(:student)
-    create(:portfolio, user: student)
+    portfolio = create(:portfolio, user: student)
     stock = create(:stock, archived: true)
 
     refute_permit student, stock, :show_trading_link
+
+    create(:portfolio_stock, portfolio: portfolio, stock: stock)
+    assert_permit student, stock, :show_trading_link
+
     # holdings may still be shown depending on policy; our policy hides only trading links
     assert_permit student, stock, :show_holdings
   end
+
   test "index? allows any logged-in user and denies guests" do
     stock = build(:stock)
 

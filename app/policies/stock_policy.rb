@@ -4,7 +4,7 @@ class StockPolicy < ApplicationPolicy
   # Show trading-related links (buy/sell/trade) when the user is a student
   # and has a portfolio (safeguard for nil portfolio) and the stock is not archived.
   def show_trading_link?
-    user.present? && user.student? && portfolio_present? && !record.archived?
+    show_holdings? && (!record.archived? || user.holding?(record))
   end
 
   # Show holdings column / counts for students with a portfolio
