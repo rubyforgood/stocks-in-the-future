@@ -22,18 +22,9 @@ class GradeEntry < ApplicationRecord
     value
   end
 
-  def earnings_for_reading = grade_based_earnings(reading_grade)
-
   def earnings_for_math = grade_based_earnings(math_grade)
 
-  def total_earnings = earnings_for_attendance + earnings_for_reading + earnings_for_math
-
-  def improvement_earnings(previous_entry)
-    earnings = 0
-    earnings += EARNINGS_FOR_IMPROVED_GRADE if improved_grade?(math_grade, previous_entry.math_grade)
-    earnings += EARNINGS_FOR_IMPROVED_GRADE if improved_grade?(reading_grade, previous_entry.reading_grade)
-    earnings
-  end
+  def earnings_for_reading = grade_based_earnings(reading_grade)
 
   def math_improvement_earnings(previous_entry)
     return 0 unless previous_entry
