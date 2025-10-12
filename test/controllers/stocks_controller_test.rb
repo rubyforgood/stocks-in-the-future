@@ -21,4 +21,15 @@ class StocksControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
   end
+
+  test "trade stock button links to trading floor for students" do
+    stock = create(:stock)
+    student = create(:student)
+    create(:portfolio, user: student)
+    sign_in student
+
+    get stock_url(stock)
+
+    assert_select "a[href='#{stocks_path}']", text: "Trade Stock"
+  end
 end
