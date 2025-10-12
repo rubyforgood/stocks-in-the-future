@@ -48,12 +48,16 @@ class GradeEntryTest < ActiveSupport::TestCase
     assert_equal 240, entry.earnings_for_attendance
   end
 
-  test "#earnings_for_attendance includes $1 bonus if perfect attendance" do
+  test "#attendance_perfect_earnings returns $1 only for perfect attendance with days" do
     entry = build(:grade_entry, attendance_days: 5, is_perfect_attendance: true)
-    assert_equal 2_00, entry.earnings_for_attendance
+    assert_equal 1_00, entry.attendance_perfect_earnings
 
     entry.is_perfect_attendance = false
-    assert_equal 1_00, entry.earnings_for_attendance
+    assert_equal 0, entry.attendance_perfect_earnings
+
+    entry.is_perfect_attendance = true
+    entry.attendance_days = 0
+    assert_equal 0, entry.attendance_perfect_earnings
   end
 
   test "#earnings_for_reading grade is $2 for B, $3 for an A" do

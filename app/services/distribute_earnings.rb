@@ -25,13 +25,9 @@ class DistributeEarnings
     @grade_book.grade_entries.each do |entry|
       previous_entry = @previous_entries[entry.user_id]&.first
 
-      attendance_earnings = entry.earnings_for_attendance
-      math_earnings = entry.earnings_for_math + entry.math_improvement_earnings(previous_entry)
-      reading_earnings = entry.earnings_for_reading + entry.reading_improvement_earnings(previous_entry)
-
-      distribute_earnings(entry.user, attendance_earnings, :attendance_earnings)
-      distribute_earnings(entry.user, math_earnings, :math_earnings)
-      distribute_earnings(entry.user, reading_earnings, :reading_earnings)
+      distribute_earnings(entry.user, attendance_earnings(entry, previous_entry), :attendance_earnings)
+      distribute_earnings(entry.user, math_earnings(entry, previous_entry), :math_earnings)
+      distribute_earnings(entry.user, reading_earnings(entry, previous_entry), :reading_earnings)
     end
   end
 
@@ -53,5 +49,26 @@ class DistributeEarnings
       transaction_type: :deposit,
       reason: PortfolioTransaction::REASONS[reason_key]
     )
+  end
+
+  def attendance_earnings(entry, _previous_entry)
+    [
+      entry.earnings_for_attendance,
+      entry.attendance_perfect_earnings
+    ].sum
+  end
+
+  def math_earnings(entry, previous_entry)
+    [
+      entry.earnings_for_math,
+      entry.math_improvement_earnings(previous_entry)
+    ].sum
+  end
+
+  def reading_earnings(entry, previous_entry)
+    [
+      entry.earnings_for_reading,
+      entry.reading_improvement_earnings(previous_entry)
+    ].sum
   end
 end

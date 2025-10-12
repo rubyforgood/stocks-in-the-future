@@ -17,14 +17,19 @@ class GradeEntry < ApplicationRecord
   def earnings_for_attendance
     return 0 unless attendance_days.present? && attendance_days.nonzero?
 
-    value = (attendance_days || 0) * EARNINGS_PER_DAY_ATTENDANCE
-    value += EARNINGS_FOR_PERFECT_ATTENDANCE if is_perfect_attendance
-    value
+    attendance_days * EARNINGS_PER_DAY_ATTENDANCE
   end
 
   def earnings_for_math = grade_based_earnings(math_grade)
 
   def earnings_for_reading = grade_based_earnings(reading_grade)
+
+  def attendance_perfect_earnings
+    return 0 unless attendance_days.present? && attendance_days.nonzero?
+    return 0 unless is_perfect_attendance
+
+    EARNINGS_FOR_PERFECT_ATTENDANCE
+  end
 
   def math_improvement_earnings(previous_entry)
     return 0 unless previous_entry
