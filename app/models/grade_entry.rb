@@ -35,6 +35,18 @@ class GradeEntry < ApplicationRecord
     earnings
   end
 
+  def math_improvement_earnings(previous_entry)
+    return 0 unless previous_entry
+
+    improved_grade?(math_grade, previous_entry.math_grade) ? EARNINGS_FOR_IMPROVED_GRADE : 0
+  end
+
+  def reading_improvement_earnings(previous_entry)
+    return 0 unless previous_entry
+
+    improved_grade?(reading_grade, previous_entry.reading_grade) ? EARNINGS_FOR_IMPROVED_GRADE : 0
+  end
+
   private
 
   def grade_based_earnings(grade)

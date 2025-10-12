@@ -131,4 +131,23 @@ class GradeEntryTest < ActiveSupport::TestCase
 
     assert_equal 4_00, entry.improvement_earnings(previous_entry)
   end
+
+  test "subject improvement earnings returns 0 when no previous entry or no improvement" do
+    entry = build(:grade_entry, math_grade: "A", reading_grade: "A")
+    assert_equal 0, entry.math_improvement_earnings(nil)
+    assert_equal 0, entry.reading_improvement_earnings(nil)
+
+    previous_entry = build(:grade_entry, math_grade: "B", reading_grade: "B")
+    worse_entry = build(:grade_entry, math_grade: "C", reading_grade: "C")
+    assert_equal 0, worse_entry.math_improvement_earnings(previous_entry)
+    assert_equal 0, worse_entry.reading_improvement_earnings(previous_entry)
+  end
+
+  test "subject improvement earnings returns $2 when grade has improved" do
+    previous_entry = build(:grade_entry, math_grade: "C", reading_grade: "C")
+    improved_entry = build(:grade_entry, math_grade: "B", reading_grade: "B")
+
+    assert_equal 2_00, improved_entry.math_improvement_earnings(previous_entry)
+    assert_equal 2_00, improved_entry.reading_improvement_earnings(previous_entry)
+  end
 end
