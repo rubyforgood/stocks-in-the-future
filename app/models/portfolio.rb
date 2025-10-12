@@ -41,6 +41,17 @@ class Portfolio < ApplicationRecord
     )
   end
 
+  def chart_data
+    snapshots = portfolio_snapshots.order(date: :asc).last(12)
+
+    snapshots.map do |snapshot|
+      {
+        label: snapshot.date.strftime("%b %Y"),
+        value: snapshot.current_worth
+      }
+    end
+  end
+
   private
 
   def cash_on_hand
