@@ -49,7 +49,6 @@ class PortfolioDashboard < Administrate::BaseDashboard
     current_position
     portfolio_stocks
     portfolio_transactions
-    user
   ].freeze
 
   # COLLECTION_FILTERS
