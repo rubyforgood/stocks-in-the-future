@@ -17,12 +17,9 @@
       <thead class="bg-gray-50">
         <tr>
           <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Username</th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Portfolio</th>
           <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Portfolio Value</th>
           <% if @can_manage_students %>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Available Funds</th>
-          <% end %>
-          <% if @can_manage_students %>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Available Cash</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
           <% end %>
         </tr>
@@ -32,32 +29,21 @@
           <tr class="group hover:bg-gray-50 transition-colors duration-150">
             <td class="px-6 py-4 whitespace-nowrap">
               <% if student.username.present? %>
-                <%= link_to student.username, classroom_student_path(@classroom, student), class: "text-blue-600 hover:text-blue-900 font-medium" %>
+                <% if student.portfolio %>
+                  <%= link_to student.username, user_portfolio_path(student, student.portfolio), class: "text-blue-600 hover:text-blue-900 font-medium" %>
+                <% else %>
+                  <span class="text-gray-400 italic"><%= student.username %></span>
+                <% end %>
               <% else %>
                 <span class="text-gray-400 italic">No username set</span>
               <% end %>
             </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <% if student.portfolio %>
-                <%= link_to "View Portfolio", user_portfolio_path(student, student.portfolio), class: "tw-btn-secondary" %>
-              <% else %>
-                <span class="text-gray-400">No portfolio</span>
-              <% end %>
-            </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
-              <% if student.portfolio %>
-                $<%= number_with_precision(student.portfolio.current_position, precision: 2) %>
-              <% else %>
-                $0.00
-              <% end %>
+              <%= number_to_currency(student.portfolio&.current_position || 0) %>
             </td>
             <% if @can_manage_students %>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
-                <% if student.portfolio %>
-                  <%= number_to_currency(student.portfolio.cash_balance) %>
-                <% else %>
-                  <%= number_to_currency(0) %>
-                <% end %>
+                <%= number_to_currency(student.portfolio&.cash_balance || 0) %>
               </td>
             <% end %>
             <% if @can_manage_students %>
