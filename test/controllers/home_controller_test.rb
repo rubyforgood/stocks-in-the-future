@@ -87,4 +87,40 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     assert_no_match(/#{long_content}/, response.body)
     assert_select "a", text: "Read More"
   end
+
+  test "should show positive balance message when student has money" do
+    student = create(:student)
+    portfolio = student.portfolio
+
+    create(:portfolio_transaction, :deposit, portfolio: portfolio, amount_cents: 5000) # $50.00
+
+    sign_in student
+    get root_url
+
+    assert_response :success
+    assert_select "span", text: /You have.*\$50\.00.*to invest! Lets Get Trading!/
+    assert_select "img[alt='Party popper celebration']"
+  end
+
+  test "should show no earnings message when student has zero balance" do
+    student = create(:student)
+    sign_in student
+
+    get root_url
+
+    assert_response :success
+    assert_select "span", text: "Sorry, you don't have any earnings to invest yet"
+    assert_no_match(/to invest! Lets Get Trading!/, response.body)
+  end
+
+  test "should not show balance message for non-student users" do
+    teacher = create(:teacher)
+    sign_in teacher
+
+    get root_url
+
+    assert_response :success
+    assert_no_match(/You have.*to invest/, response.body)
+    assert_no_match(/Sorry, you don't have any earnings/, response.body)
+  end
 end
