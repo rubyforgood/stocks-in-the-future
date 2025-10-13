@@ -322,24 +322,8 @@ class OrderTest < ActiveSupport::TestCase
   test ".for_student" do
     stock = create(:stock, price_cents: 1_000)
     classroom = create(:classroom)
-    student1 = create(:student, classroom: classroom)
-    portfolio1 = create(:portfolio, user: student1)
-    create(
-      :portfolio_transaction,
-      :deposit,
-      portfolio: portfolio1,
-      amount_cents: 10_000
-    )
-    order1 = create(:order, :buy, user: student1, stock:)
-    student2 = create(:student, classroom: classroom)
-    portfolio2 = create(:portfolio, user: student2)
-    create(
-      :portfolio_transaction,
-      :deposit,
-      portfolio: portfolio2,
-      amount_cents: 10_000
-    )
-    create(:order, :buy, user: student2, stock:)
+    student1, order1 = create_student_and_order(stock, classroom)
+    _student2, _order2 = create_student_and_order(stock, classroom)
 
     result = Order.for_student(student1)
 
@@ -348,37 +332,10 @@ class OrderTest < ActiveSupport::TestCase
 
   test ".for_teacher" do
     stock = create(:stock, price_cents: 1_000)
-    classroom1 = create(:classroom)
-    classroom3 = create(:classroom)
+    classroom1, order1 = create_classroom_and_student_order(stock)
+    _classroom2, _order2 = create_classroom_and_student_order(stock)
+    classroom3, order3 = create_classroom_and_student_order(stock)
     teacher = create(:teacher, classrooms: [classroom1, classroom3])
-    student1 = create(:student, classroom: classroom1)
-    portfolio1 = create(:portfolio, user: student1)
-    create(
-      :portfolio_transaction,
-      :deposit,
-      portfolio: portfolio1,
-      amount_cents: 10_000
-    )
-    order1 = create(:order, :buy, user: student1, stock:)
-    classroom2 = create(:classroom)
-    student2 = create(:student, classroom: classroom2)
-    portfolio2 = create(:portfolio, user: student2)
-    create(
-      :portfolio_transaction,
-      :deposit,
-      portfolio: portfolio2,
-      amount_cents: 10_000
-    )
-    create(:order, :buy, user: student2, stock:)
-    student3 = create(:student, classroom: classroom3)
-    portfolio3 = create(:portfolio, user: student3)
-    create(
-      :portfolio_transaction,
-      :deposit,
-      portfolio: portfolio3,
-      amount_cents: 10_000
-    )
-    order3 = create(:order, :buy, user: student3, stock:)
 
     result = Order.for_teacher(teacher)
 
@@ -388,18 +345,28 @@ class OrderTest < ActiveSupport::TestCase
   test ".for_teacher with no classrooms" do
     teacher = create(:teacher)
     stock = create(:stock, price_cents: 1_000)
-    student = create(:student)
-    portfolio = create(:portfolio, user: student)
-    create(
-      :portfolio_transaction,
-      :deposit,
-      portfolio: portfolio,
-      amount_cents: 10_000
-    )
-    create(:order, :buy, user: student, stock:)
+    _classroom, _order = create_classroom_and_student_order(stock)
 
     result = Order.for_teacher(teacher)
 
     assert_empty result
+  end
+
+  private
+
+  def create_classroom_and_student_order(stock)
+    classroom = create(:classroom)
+    _student, order = create_student_and_order(stock, classroom)
+
+    [classroom, order]
+  end
+
+  def create_student_and_order(stock, classroom)
+    student = create(:student, classroom:)
+    portfolio = create(:portfolio, user: student)
+    create(:portfolio_transaction, :deposit, portfolio:, amount_cents: 10_000)
+    order = create(:order, :buy, user: student, stock:)
+
+    [student, order]
   end
 end
