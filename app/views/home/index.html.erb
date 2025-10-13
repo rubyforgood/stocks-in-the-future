@@ -10,10 +10,16 @@
 						<p class="font-semibold tracking-tight mb-2 sm:mb-0 text-gray-900" style="font-size: 28px;">Hi, <%= current_user.username.presence || 'Username' %>!</p>
 					<% end %>
 					<% if current_user&.student? && current_user.portfolio %>
-						<div class="funds-pill inline-flex items-center gap-5 rounded-full border-2 border-black bg-white py-5 text-xl md:text-2xl font-medium shadow-md relative tracking-tight" style="padding-left: 125px; padding-right: 150px;">
-							<%= image_tag 'party_popper.png', class: 'object-contain absolute', style: 'height: 100px; width: 100px; margin-left: -110px; top: -45px;', alt: 'Party popper celebration' %>
-							<span class="leading-snug">You have <strong><%= number_to_currency(current_user.portfolio.cash_balance) %></strong> to invest! Lets Get Trading!</span>
-						</div>
+						<% if current_user.portfolio.cash_balance > 0 %>
+							<div class="funds-pill inline-flex items-center gap-5 rounded-full border-2 border-black bg-white py-5 text-xl md:text-2xl font-medium shadow-md relative tracking-tight" style="padding-left: 125px; padding-right: 150px;">
+								<%= image_tag 'party_popper.png', class: 'object-contain absolute', style: 'height: 100px; width: 100px; margin-left: -110px; top: -45px;', alt: 'Party popper celebration' %>
+								<span class="leading-snug">You have <strong><%= number_to_currency(current_user.portfolio.cash_balance) %></strong> to invest! Lets Get Trading!</span>
+							</div>
+						<% else %>
+							<div class="funds-pill inline-flex items-center gap-5 rounded-full border-2 border-black bg-white py-5 text-xl md:text-2xl font-medium shadow-md relative tracking-tight" style="padding-left: 125px; padding-right: 150px;">
+								<span class="leading-snug">Sorry, you don't have any earnings to invest yet</span>
+							</div>
+						<% end %>
 					<% end %>
 				</div>
 				<h1 class="text-[32px] md:text-[40px] font-bold tracking-tight leading-tight mt-3 text-gray-900">WELCOME TO YOUR FINANCIAL JOURNEY!</h1>
