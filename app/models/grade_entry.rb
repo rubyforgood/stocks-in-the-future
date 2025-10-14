@@ -15,17 +15,20 @@ class GradeEntry < ApplicationRecord
   def finalizable? = math_grade.present? && reading_grade.present? && attendance_days.present?
 
   def earnings_for_attendance
-    return 0 unless attendance_days.present? && attendance_days.nonzero?
+    return 0 if attendance_days.blank?
 
     attendance_days * EARNINGS_PER_DAY_ATTENDANCE
   end
 
-  def earnings_for_math = grade_based_earnings(math_grade)
+  def earnings_for_math
+    grade_based_earnings(math_grade)
+  end
 
-  def earnings_for_reading = grade_based_earnings(reading_grade)
+  def earnings_for_reading
+    grade_based_earnings(reading_grade)
+  end
 
   def attendance_perfect_earnings
-    return 0 unless attendance_days.present? && attendance_days.nonzero?
     return 0 unless is_perfect_attendance
 
     EARNINGS_FOR_PERFECT_ATTENDANCE
