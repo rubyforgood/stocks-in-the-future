@@ -4,6 +4,12 @@ en:
     attributes:
       user:
         type: Role
+    errors:
+      models:
+        stock:
+          attributes:
+            company_website:
+              invalid: must be a valid HTTP or HTTPS URL
   announcements:
     not_found: Announcement not found.
   application:
