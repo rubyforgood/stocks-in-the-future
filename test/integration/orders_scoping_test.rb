@@ -4,26 +4,10 @@ require "test_helper"
 
 class OrdersScopingTest < ActionDispatch::IntegrationTest
   test "student sees only their own orders" do
-    stock = create(:stock)
+    stock = create(:stock, price_cents: 1_000)
     classroom = create(:classroom)
-    student1 = create(:student, classroom: classroom)
-    portfolio1 = create(:portfolio, user: student1)
-    create(
-      :portfolio_transaction,
-      :deposit,
-      portfolio: portfolio1,
-      amount_cents: 50_000
-    )
-    order1 = create(:order, :buy, user: student1, stock:)
-    student2 = create(:student, classroom: classroom)
-    portfolio2 = create(:portfolio, user: student2)
-    create(
-      :portfolio_transaction,
-      :deposit,
-      portfolio: portfolio2,
-      amount_cents: 50_000
-    )
-    order2 = create(:order, :buy, user: student2, stock:)
+    student1, order1 = create_student_and_order(stock, classroom)
+    _student2, order2 = create_student_and_order(stock, classroom)
     sign_in(student1)
 
     get orders_path
@@ -34,38 +18,11 @@ class OrdersScopingTest < ActionDispatch::IntegrationTest
   end
 
   test "teacher sees orders from students in their classrooms" do
-    stock = create(:stock)
-    classroom1 = create(:classroom)
-    classroom2 = create(:classroom)
-    classroom3 = create(:classroom)
+    stock = create(:stock, price_cents: 1_000)
+    classroom1, order1 = create_classroom_and_student_order(stock)
+    _classroom2, order2 = create_classroom_and_student_order(stock)
+    classroom3, order3 = create_classroom_and_student_order(stock)
     teacher = create(:teacher, classrooms: [classroom1, classroom3])
-    student1 = create(:student, classroom: classroom1)
-    portfolio1 = create(:portfolio, user: student1)
-    create(
-      :portfolio_transaction,
-      :deposit,
-      portfolio: portfolio1,
-      amount_cents: 50_000
-    )
-    order1 = create(:order, :buy, user: student1, stock:)
-    student2 = create(:student, classroom: classroom2)
-    portfolio2 = create(:portfolio, user: student2)
-    create(
-      :portfolio_transaction,
-      :deposit,
-      portfolio: portfolio2,
-      amount_cents: 50_000
-    )
-    order2 = create(:order, :buy, user: student2, stock:)
-    student3 = create(:student, classroom: classroom3)
-    portfolio3 = create(:portfolio, user: student3)
-    create(
-      :portfolio_transaction,
-      :deposit,
-      portfolio: portfolio3,
-      amount_cents: 50_000
-    )
-    order3 = create(:order, :buy, user: student3, stock:)
     sign_in(teacher)
 
     get orders_path
@@ -78,27 +35,9 @@ class OrdersScopingTest < ActionDispatch::IntegrationTest
 
   test "admin sees all orders" do
     admin = create(:admin)
-    stock = create(:stock)
-    classroom1 = create(:classroom)
-    student1 = create(:student, classroom: classroom1)
-    portfolio1 = create(:portfolio, user: student1)
-    create(
-      :portfolio_transaction,
-      :deposit,
-      portfolio: portfolio1,
-      amount_cents: 50_000
-    )
-    order1 = create(:order, :buy, user: student1, stock:)
-    classroom2 = create(:classroom)
-    student2 = create(:student, classroom: classroom2)
-    portfolio2 = create(:portfolio, user: student2)
-    create(
-      :portfolio_transaction,
-      :deposit,
-      portfolio: portfolio2,
-      amount_cents: 50_000
-    )
-    order2 = create(:order, :buy, user: student2, stock:)
+    stock = create(:stock, price_cents: 1_000)
+    _classroom1, order1 = create_classroom_and_student_order(stock)
+    _classroom2, order2 = create_classroom_and_student_order(stock)
     sign_in(admin)
 
     get orders_path
@@ -109,6 +48,8 @@ class OrdersScopingTest < ActionDispatch::IntegrationTest
   end
 
   test "user with no orders sees empty list" do
+    stock = create(:stock, price_cents: 1_000)
+    create_classroom_and_student_order(stock)
     student = create(:student)
     sign_in(student)
 
@@ -119,6 +60,8 @@ class OrdersScopingTest < ActionDispatch::IntegrationTest
   end
 
   test "teacher with no classrooms sees no orders" do
+    stock = create(:stock, price_cents: 1_000)
+    create_classroom_and_student_order(stock)
     teacher = create(:teacher, classrooms: [])
     sign_in(teacher)
 
@@ -126,5 +69,23 @@ class OrdersScopingTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "tr[data-testid='no-orders']"
+  end
+
+  private
+
+  def create_classroom_and_student_order(stock)
+    classroom = create(:classroom)
+    _student, order = create_student_and_order(stock, classroom)
+
+    [classroom, order]
+  end
+
+  def create_student_and_order(stock, classroom)
+    student = create(:student, classroom:)
+    portfolio = create(:portfolio, user: student)
+    create(:portfolio_transaction, :deposit, portfolio:, amount_cents: 10_000)
+    order = create(:order, :buy, user: student, stock:)
+
+    [student, order]
   end
 end
