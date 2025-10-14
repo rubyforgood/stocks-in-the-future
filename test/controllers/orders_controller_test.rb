@@ -12,6 +12,12 @@ class OrdersControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "index as guest" do
+    get orders_path
+
+    assert_redirected_to new_user_session_path
+  end
+
   test "new" do
     user = create(:student)
     stock = create(:stock)
