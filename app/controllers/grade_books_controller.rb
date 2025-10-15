@@ -43,6 +43,11 @@ class GradeBooksController < ApplicationController
   def set_classroom_and_grade_book
     @classroom = Classroom.find(params[:classroom_id])
     @grade_book = @classroom.grade_books.includes(grade_entries: :user).find(params[:id])
+
+    # Redirect if classroom is archived and user is not an admin
+    if @classroom.archived? && !current_user.admin?
+      redirect_to root_path, alert: "This classroom has been archived and is no longer accessible."
+    end
   end
 
   def grade_entry_params
