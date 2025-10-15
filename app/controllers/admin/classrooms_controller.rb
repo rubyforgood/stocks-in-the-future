@@ -54,7 +54,7 @@ module Admin
         classroom.archive!
         flash[:notice] = "Classroom has been archived."
       end
-      redirect_to admin_classroom_path(classroom)
+      redirect_to admin_classrooms_path
     end
   end
 end
