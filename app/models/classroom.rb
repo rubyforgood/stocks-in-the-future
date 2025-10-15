@@ -17,7 +17,18 @@ class Classroom < ApplicationRecord
 
   validates :name, presence: true
 
+  scope :active, -> { where(archived: false) }
+  scope :archived, -> { where(archived: true) }
+
   def grade_display
     grade&.ordinalize
+  end
+
+  def archive!
+    update!(archived: true)
+  end
+
+  def unarchive!
+    update!(archived: false)
   end
 end
