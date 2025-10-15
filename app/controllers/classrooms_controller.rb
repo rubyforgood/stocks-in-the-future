@@ -96,6 +96,12 @@ class ClassroomsController < ApplicationController
   end
 
   def check_classroom_eligibility
+    # Redirect if classroom is archived and user is not an admin
+    if @classroom.archived? && !current_user.admin?
+      redirect_to root_path, alert: "This classroom has been archived and is no longer accessible."
+      return
+    end
+
     return if current_user.admin? ||
               (current_user.teacher? &&
                 @classroom.teachers.include?(current_user))
