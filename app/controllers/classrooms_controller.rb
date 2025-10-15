@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class ClassroomsController < ApplicationController
-  before_action :set_classroom, only: %i[show edit update destroy]
+  before_action :set_classroom, only: %i[show edit update]
   before_action :authorize_classroom
   before_action :authenticate_user!
   before_action :ensure_teacher_or_admin, except: %i[index show]
@@ -51,12 +51,6 @@ class ClassroomsController < ApplicationController
       dropdown_data
       render :edit, status: :unprocessable_content
     end
-  end
-
-  def destroy
-    @classroom.destroy!
-
-    redirect_to classrooms_url, notice: t(".notice")
   end
 
   private
