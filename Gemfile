@@ -32,6 +32,7 @@ gem "discard", "~> 1.4"
 gem "tzinfo-data", platforms: %i[windows jruby]
 
 group :development, :test do
+  gem "brakeman", require: false
   gem "debug", platforms: %i[mri windows]
   gem "pry", "~> 0.15.2"
   gem "pry-byebug"
