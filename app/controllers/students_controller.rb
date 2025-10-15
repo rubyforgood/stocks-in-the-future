@@ -57,6 +57,11 @@ class StudentsController < ApplicationController
 
   def set_classroom
     @classroom = Classroom.find(params[:classroom_id])
+
+    # Redirect if classroom is archived and user is not an admin
+    if @classroom.archived? && !current_user.admin?
+      redirect_to root_path, alert: "This classroom has been archived and is no longer accessible."
+    end
   end
 
   def set_student
