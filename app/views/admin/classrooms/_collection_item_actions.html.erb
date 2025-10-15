@@ -1,0 +1,27 @@
+<% if existing_action?(collection_presenter.resource_name, :edit) %>
+  <td><%= link_to(
+    t("administrate.actions.edit"),
+    [:edit, namespace, resource],
+    class: "action-edit",
+  ) if accessible_action?(resource, :edit) %></td>
+<% end %>
+
+<td>
+  <% if resource.archived? %>
+    <%= button_to(
+      "Unarchive",
+      [:archive, namespace, resource],
+      class: "link link--success",
+      method: :patch,
+      data: { turbo_confirm: "Are you sure you want to unarchive this classroom?" }
+    ) %>
+  <% else %>
+    <%= button_to(
+      "Archive",
+      [:archive, namespace, resource],
+      class: "link link--danger",
+      method: :patch,
+      data: { turbo_confirm: "Are you sure you want to archive this classroom?" }
+    ) %>
+  <% end %>
+</td>
