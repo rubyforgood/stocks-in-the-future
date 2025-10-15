@@ -44,5 +44,17 @@ module Admin
 
     # See https://administrate-demo.herokuapp.com/customizing_controller_actions
     # for more information
+
+    def archive
+      classroom = Classroom.find(params[:id])
+      if classroom.archived?
+        classroom.unarchive!
+        flash[:notice] = "Classroom has been unarchived."
+      else
+        classroom.archive!
+        flash[:notice] = "Classroom has been archived."
+      end
+      redirect_to admin_classroom_path(classroom)
+    end
   end
 end
