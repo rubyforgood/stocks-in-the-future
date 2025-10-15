@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_01_202324) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_15_181930) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -66,6 +66,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_01_202324) do
     t.datetime "updated_at", null: false
     t.bigint "school_year_id"
     t.integer "grade"
+    t.boolean "archived", default: false, null: false
     t.index ["school_year_id"], name: "index_classrooms_on_school_year_id"
   end
 
