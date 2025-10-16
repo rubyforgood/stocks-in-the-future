@@ -318,4 +318,55 @@ class OrderTest < ActiveSupport::TestCase
       assert sell_order.errors[:shares].any?
     end
   end
+
+  test ".for_student" do
+    stock = create(:stock, price_cents: 1_000)
+    classroom = create(:classroom)
+    student1, order1 = create_student_and_order(stock, classroom)
+    _student2, _order2 = create_student_and_order(stock, classroom)
+
+    result = Order.for_student(student1)
+
+    assert_equal [order1], result
+  end
+
+  test ".for_teacher" do
+    stock = create(:stock, price_cents: 1_000)
+    classroom1, order1 = create_classroom_and_student_order(stock)
+    _classroom2, _order2 = create_classroom_and_student_order(stock)
+    classroom3, order3 = create_classroom_and_student_order(stock)
+    teacher = create(:teacher, classrooms: [classroom1, classroom3])
+
+    result = Order.for_teacher(teacher)
+
+    assert_equal [order1.id, order3.id], result.pluck(:id).sort
+  end
+
+  test ".for_teacher with no classrooms" do
+    teacher = create(:teacher)
+    stock = create(:stock, price_cents: 1_000)
+    _classroom, _order = create_classroom_and_student_order(stock)
+
+    result = Order.for_teacher(teacher)
+
+    assert_empty result
+  end
+
+  private
+
+  def create_classroom_and_student_order(stock)
+    classroom = create(:classroom)
+    _student, order = create_student_and_order(stock, classroom)
+
+    [classroom, order]
+  end
+
+  def create_student_and_order(stock, classroom)
+    student = create(:student, classroom:)
+    portfolio = create(:portfolio, user: student)
+    create(:portfolio_transaction, :deposit, portfolio:, amount_cents: 10_000)
+    order = create(:order, :buy, user: student, stock:)
+
+    [student, order]
+  end
 end

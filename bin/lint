@@ -11,6 +11,7 @@ fi
 
 bundle exec i18n-tasks check-normalized
 bundle exec rubocop -f "$FORMATTER"
+bin/brakeman --no-pager --exit-on-warn --quiet
 
 echo ""
 echo "🎉 All checks passed!"

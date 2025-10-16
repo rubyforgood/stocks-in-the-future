@@ -28,6 +28,11 @@ local:
 #   storage_access_key: <%= Rails.application.credentials.dig(:azure_storage, :storage_access_key) %>
 #   container: your_container_name-<%= Rails.env %>
 
+# For Heroku - using local with no attachments for now
+heroku:
+  service: Disk
+  root: <%= Rails.root.join("tmp/storage") %>
+
 # mirror:
 #   service: Mirror
 #   primary: local

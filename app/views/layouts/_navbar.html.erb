@@ -59,7 +59,7 @@
             <% end %>
 
             <li>
-              <details <%= 'open' if request.path.match?(/\/stocks\/\d+/) %> data-controller="stock-navbar-toggle">
+              <details <%= 'open' if request.path.include?('stocks') %> data-controller="stock-navbar-toggle">
                 <summary class="flex items-center justify-between px-3 py-2 rounded-lg w-full list-none <%= 'bg-[#d3df44]' if request.path.include?('stocks') %>" style="<%= request.path.include?('stocks') ? 'background-color: #d3df44;' : '' %>">
                   <% is_active = request.path.include?('stocks') %>
                   <%= link_to stocks_path, class: "flex gap-3 items-center flex-1 hover:opacity-80", data: { action: "click->stock-navbar-toggle#navigateLink" } do %>

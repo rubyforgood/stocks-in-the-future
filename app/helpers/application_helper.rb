@@ -8,4 +8,11 @@ module ApplicationHelper
   def format_money(cents)
     format("$%.2f", cents / 100.0)
   end
+
+  def safe_url(url)
+    uri = URI.parse(url)
+    %w[http https].include?(uri.scheme) ? url : nil
+  rescue URI::InvalidURIError
+    nil
+  end
 end
