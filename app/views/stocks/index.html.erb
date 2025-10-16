@@ -25,40 +25,8 @@
   </div>
 
   <main class="flex-1 p-6">
-    <%= render "shared/table_container" do %>
-      <thead>
-        <tr class="table-header-row">
-          <th class="table-header-cell table-header-cell-left">
-            Company (Exchange)
-          </th>
-          <th class="table-header-cell table-header-cell-right">
-            Last Price
-          </th>
-          <% if current_user.student? %>
-            <th class="table-header-cell table-header-cell-left">
-              Your Holdings
-            </th>
-            <th class="table-header-cell table-header-cell-center" colspan="2">
-
-            </th>
-          <% end %>
-        </tr>
-      </thead>
-      <tbody>
-        <% if @stocks.any? %>
-          <% @stocks.each do |stock| %>
-            <%= render "stocks/index_row", stock: stock %>
-          <% end %>
-        <% else %>
-          <tr class="table-body-row">
-            <td class="table-empty-cell" colspan="<%== current_user.student? ? 5 : 2 %>">
-              <p class="text-lg">No stocks found</p>
-              <p class="mt-2">No stocks available for trading.</p>
-            </td>
-          </tr>
-        <% end %>
-      </tbody>
-    <% end %>
+    <%= render "stocks/stocks_table", title: "Active Stocks", stocks: @stocks.active %>
+    <%= render "stocks/stocks_table", title: "Archived Stocks", stocks: @stocks.archived %>
   </main>
 </div>
 <%= render "shared/modal" %>

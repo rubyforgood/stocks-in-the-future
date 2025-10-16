@@ -1,45 +1,26 @@
-<table class="table-auto">
+<h2 class="text-2xl font-semibold mb-4"><%= title %></h2>
+<%= render "shared/table_container" do %>
   <thead>
-    <tr>
-      <th class="px-4 py-2">Company (Exchange)</th>
-      <th class="px-4 py-2">Last Price</th>
+    <tr class="table-header-row">
+      <th class="table-header-cell table-header-cell-left">Company (Exchange)</th>
+      <th class="table-header-cell table-header-cell-right">Last Price</th>
       <% if current_user.student? %>
-        <th class="px-4 py-2">Your Holdings</th>
+        <th class="table-header-cell table-header-cell-left">Your Holdings</th>
+        <th class="table-header-cell table-header-cell-center" colspan="2"></th>
       <% end %>
-      <th class="px-4 py-2"></th>
     </tr>
   </thead>
   <tbody>
-  <% stocks.each do |stock| %>
-    <tr>
-      <td class="px-4 py-2">
-        <%= link_to stock.ticker, stock_path(stock) %><br>
-        <span class="text-gray-500">(<%= stock.company_name %>)</span>
-        <% if stock.archived? %>
-          <br><span class="text-gray-400 text-sm font-medium">ARCHIVED</span>
-        <% end %>
-      </td>
-      <td class="px-4 py-2">
-        <%= number_to_currency(stock.current_price) %>
-      </td>
-      <% if current_user.student? %>
-      <td class="px-4 py-2">
-        <%= current_user.portfolio.shares_owned(stock.id) %>
-      </td>
-        <td class="px-4 py-2">
-            <% if stock.archived? %>
-              <span class="tw-btn-buy opacity-50 cursor-not-allowed">
-                <i class="fa-solid fa-angle-up"></i> Buy
-              </span>
-            <% else %>
-              <%= link_to '<i class="fa-solid fa-angle-up"></i> Buy'.html_safe, new_order_path(stock_id: stock.id, transaction_type: :buy), class: "tw-btn-buy", data: { turbo_frame: "modal_frame" } %>
-            <% end %>
-        </td>
-        <td class="px-4 py-2">
-          <%= link_to '<i class="fa-solid fa-angle-down"></i> Sell'.html_safe, new_order_path(stock_id: stock.id, transaction_type: :sell), class: "tw-btn-sell", data: { turbo_frame: "modal_frame" } %>
-        </td>
+    <% if stocks.any? %>
+      <% stocks.each do |stock| %>
+        <%= render "stocks/index_row", stock: stock %>
       <% end %>
-    </tr>
-  <% end %>
+    <% else %>
+      <tr class="table-body-row">
+        <td class="table-empty-cell" colspan="<%= current_user.student? ? 5 : 2 %>">
+          <p class="text-lg">No <%= title.downcase %> found</p>
+        </td>
+      </tr>
+    <% end %>
   </tbody>
-</table>
+<% end %>

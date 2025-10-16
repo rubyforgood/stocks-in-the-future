@@ -6,7 +6,7 @@ class StocksController < ApplicationController
   before_action :set_portfolio
 
   def index
-    @stocks = policy_scope(Stock).includes(portfolio_stocks: :portfolio)
+    @stocks = Stock.all
     @portfolio = current_user.portfolio if current_user.student?
   end
 
