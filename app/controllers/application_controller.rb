@@ -20,7 +20,7 @@ class ApplicationController < ActionController::Base
   private
 
   def set_navbar_stocks
-    @navbar_stocks = Stock.order(archived: :asc, ticker: :asc)
+    @navbar_stocks = policy_scope(Stock)
   end
 
   def configure_permitted_parameters
