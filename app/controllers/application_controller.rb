@@ -5,7 +5,7 @@ class ApplicationController < ActionController::Base
 
   before_action :authenticate_user!
   before_action :configure_permitted_parameters, if: :devise_controller?
-  before_action :set_stocks
+  before_action :set_navbar_stocks
 
   protected
 
@@ -19,8 +19,8 @@ class ApplicationController < ActionController::Base
 
   private
 
-  def set_stocks
-    @stocks = policy_scope(Stock).includes(portfolio_stocks: :portfolio)
+  def set_navbar_stocks
+    @navbar_stocks = Stock.order(archived: :asc, ticker: :asc)
   end
 
   def configure_permitted_parameters
