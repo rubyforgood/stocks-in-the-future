@@ -36,7 +36,7 @@ Rails.application.routes.draw do
     resources :announcements
     resources :classrooms, except: [:destroy] do
       member do
-        patch :archive
+        patch :toggle_archive
       end
     end
     resources :portfolio_transactions, except: [:index]
