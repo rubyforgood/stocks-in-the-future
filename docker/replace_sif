@@ -1,0 +1,23 @@
+#!/bin/bash
+
+STR1="$1"
+STR2="$2"
+FILENAME="$3"
+
+# This script replaces incidences of one string (STR1) with another (STR2)
+# within a file (FILENAME).
+
+# Determine whether this script is being executed in Linux or Mac OS.
+# The sed command is different on these systems.
+UNAME=`uname`
+
+if [ "$UNAME" == 'Darwin' ]; then
+  sed -i '' "s/$STR1/$STR2/g" "$FILENAME" # MacOS
+elif [ "$UNAME" == 'Linux' ]; then
+  sed -i "s/$STR1/$STR2/g" "$FILENAME" # Linux
+else
+  echo 'Sorry, this script does NOT work in Windows.'
+  echo 'Your best bet is to run Linux in a virtual environment,'
+  echo 'such as WSL, QEMU, or VirtualBox.'
+  exit 1
+fi

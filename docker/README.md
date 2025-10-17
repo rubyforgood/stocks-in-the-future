@@ -16,6 +16,9 @@ These scripts are provided to make it easy to execute routine tasks in Docker.  
 ## Seeding Data
 Enter the command `docker/seed`.
 
+## Generating Block Diagrams
+Enter the command `docker/outline`.
+
 ## Bash Shell
 Enter the command `docker/bash` to enter a Bash shell within the Docker container.  This allows you to enter commands from directly within the Docker container.  Commands like `bundle install`, `rails db:migrate`, and `rails test` will work here.
 

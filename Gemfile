@@ -53,3 +53,15 @@ group :test do
   gem "simplecov", require: false
   gem "webmock"
 end
+
+# BEGIN: for docker/outline
+# NOTE: These gems are commented out by default.
+# They are briefly uncommented when in use and then
+# commented out again when no longer in use.
+# group :development do #DOCKER-OUTLINE
+# gem 'ostruct' # Removed from Ruby standard library beginning with 3.5.0
+# gem 'railroady' # Generates block diagrams of controllers
+# gem 'rails-erd' # Generates block diagram of models
+# plugin 'bundler-graph' # Needed for the "graph" command
+# end #DOCKER-OUTLINE
+# END: for docker/outline

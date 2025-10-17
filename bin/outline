@@ -1,0 +1,80 @@
+#!/bin/bash
+
+DIR_BLOCK_DIAGRAMS='tmp/block-diagrams'
+DIR_RAILROADY="$DIR_BLOCK_DIAGRAMS/railroady"
+FILE_RAILROADY_SCREEN_OUTPUT="$DIR_RAILROADY/screen-output.txt"
+mkdir -p "$DIR_BLOCK_DIAGRAMS"
+mkdir -p "$DIR_RAILROADY"
+
+FILE_RAILS_ERD='tmp/block-diagrams/rails-erd'
+FILE_GEMS='tmp/block-diagrams/diagram-gems'
+
+STR_GEMFILE_1A='# group :development do #DOCKER-OUTLINE'
+STR_GEMFILE_1B='group :development do #DOCKER-OUTLINE'
+STR_GEMFILE_2A='# end #DOCKER-OUTLINE'
+STR_GEMFILE_2B='end #DOCKER-OUTLINE'
+
+docker/replace_sif "$STR_GEMFILE_1A" "$STR_GEMFILE_1B" 'Gemfile'
+docker/replace_sif "$STR_GEMFILE_2A" "$STR_GEMFILE_2B" 'Gemfile'
+docker/replace_sif "# gem 'ostruct'" "gem 'ostruct'" 'Gemfile'
+docker/replace_sif "# gem 'railroady'" "gem 'railroady'" 'Gemfile'
+docker/replace_sif "# gem 'rails-erd'" "gem 'rails-erd'" 'Gemfile'
+docker/replace_sif "# plugin 'bundler-graph'" "plugin 'bundler-graph'" 'Gemfile'
+
+# NOTE: I've found it necessary to install graphviz in this script.
+# Otherwise, the rails-erd and railroady gems do not work.
+# Installing graphviz in Dockerfile.dev does NOT work, because the
+# installation is lost.
+
+echo '------------------'
+echo 'apt-get update -qq'
+apt-get update -qq
+
+echo '---------------------------------------'
+echo 'apt-get install -y graphviz > /dev/null'
+apt-get install -y graphviz > /dev/null
+
+echo '----------------------'
+echo 'bundle install --quiet'
+bundle install --quiet
+
+echo '---------------'
+echo 'Using rails-erd'
+bundle exec erd --attributes=foreign_keys,primary_keys,timestamps,inheritance,content --filetype=dot --filename="$FILE_RAILS_ERD" --inheritance --notation=bachman
+echo
+echo "The models diagram is at $FILE_RAILS_ERD.dot"
+echo
+
+echo '---------------'
+echo 'Using railroady'
+echo 'NOTE: Screen output is being redirected to'
+echo "$FILE_RAILROADY_SCREEN_OUTPUT"
+
+rake diagram:all &> "$FILE_RAILROADY_SCREEN_OUTPUT"
+
+mv doc/* "$DIR_RAILROADY"
+echo "The railroady output files are in $DIR_RAILROADY"
+
+echo '-------------------------'
+echo 'gem install ruby-graphviz'
+gem install ruby-graphviz
+
+echo '-----------------------------------------------'
+echo "Drawing gem dependency diagram ($FILE_GEMS.png)"
+bundle graph --file="$FILE_GEMS" --version
+
+docker/replace_sif "$STR_GEMFILE_1B" "$STR_GEMFILE_1A" 'Gemfile'
+docker/replace_sif "$STR_GEMFILE_2B" "$STR_GEMFILE_2A" 'Gemfile'
+docker/replace_sif "gem 'ostruct'" "# gem 'ostruct'" 'Gemfile'
+docker/replace_sif "gem 'railroady'" "# gem 'railroady'" 'Gemfile'
+docker/replace_sif "gem 'rails-erd'" "# gem 'rails-erd'" 'Gemfile'
+docker/replace_sif "plugin 'bundler-graph'" "# plugin 'bundler-graph'" 'Gemfile'
+
+echo '----------------------'
+echo 'bundle install --quiet'
+bundle install --quiet
+
+echo '**********************************'
+echo 'Block diagram output files are in:'
+echo "$DIR_BLOCK_DIAGRAMS"
+echo
