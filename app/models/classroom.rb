@@ -23,12 +23,4 @@ class Classroom < ApplicationRecord
   def grade_display
     grade&.ordinalize
   end
-
-  def archive!
-    update!(archived: true)
-  end
-
-  def unarchive!
-    update!(archived: false)
-  end
 end
