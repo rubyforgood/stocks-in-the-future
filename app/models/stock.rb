@@ -5,6 +5,13 @@ class Stock < ApplicationRecord
   has_many :orders, dependent: :restrict_with_error
 
   validates :ticker, presence: true
+  validates(
+    :company_website,
+    format: {
+      with: URI::DEFAULT_PARSER.make_regexp(%w[http https]),
+      allow_blank: true
+    }
+  )
 
   scope :active, -> { where(archived: false) }
   scope :archived, -> { where(archived: true) }

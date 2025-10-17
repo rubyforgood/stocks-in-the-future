@@ -32,6 +32,8 @@ gem "discard", "~> 1.4"
 gem "tzinfo-data", platforms: %i[windows jruby]
 
 group :development, :test do
+  gem "brakeman", require: false
+  gem "bundler-audit", require: false
   gem "debug", platforms: %i[mri windows]
   gem "pry", "~> 0.15.2"
   gem "pry-byebug"
@@ -40,7 +42,6 @@ group :development, :test do
 end
 
 group :development do
-  gem "bundler-audit"
   gem "i18n-tasks"
   gem "web-console"
 end

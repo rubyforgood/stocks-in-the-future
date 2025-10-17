@@ -151,4 +151,52 @@ class PortfolioTest < ActiveSupport::TestCase
 
     assert_equal 500.0, portfolio.calculate_total_value
   end
+
+  test "#chart_data returns empty array when no snapshots exist" do
+    portfolio = create(:portfolio)
+
+    result = portfolio.chart_data
+    assert_equal [], result
+  end
+
+  test "#chart_data returns formatted data for single snapshot" do
+    portfolio = create(:portfolio)
+    create(:portfolio_snapshot, portfolio: portfolio, date: Date.new(2025, 1, 1), worth_cents: 10_000)
+
+    result = portfolio.chart_data
+    assert_equal 1, result.length
+    assert_equal "Jan 2025", result.first[:label]
+    assert_equal 100.0, result.first[:value]
+  end
+
+  test "#chart_data returns last 12 snapshots in chronological order" do
+    portfolio = create(:portfolio)
+
+    15.times do |i|
+      create(:portfolio_snapshot,
+             portfolio: portfolio,
+             date: (14 - i).months.ago.beginning_of_month.to_date,
+             worth_cents: (100 + (i * 10)) * 100)
+    end
+
+    result = portfolio.chart_data
+    assert_equal 12, result.length
+  end
+
+  test "#chart_data formats dates as 'Mon YYYY'" do
+    portfolio = create(:portfolio)
+    create(:portfolio_snapshot, portfolio: portfolio, date: Date.new(2025, 3, 15), worth_cents: 15_000)
+    create(:portfolio_snapshot, portfolio: portfolio, date: Date.new(2024, 12, 1), worth_cents: 20_000)
+
+    result = portfolio.chart_data
+    assert_equal(["Dec 2024", "Mar 2025"], result.pluck(:label))
+  end
+
+  test "#chart_data converts worth_cents to dollars" do
+    portfolio = create(:portfolio)
+    create(:portfolio_snapshot, portfolio: portfolio, date: Date.current, worth_cents: 123_456)
+
+    result = portfolio.chart_data
+    assert_equal 1234.56, result.first[:value]
+  end
 end

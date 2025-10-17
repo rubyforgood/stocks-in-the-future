@@ -46,7 +46,7 @@
       <tbody>
         <% if @orders.any? %>
           <% @orders.each do |order| %>
-            <tr class="table-body-row">
+            <tr id="<%= dom_id(order) %>" class="table-body-row">
               <td class="table-body-cell">
                 <span class="table-cell-content">
                   <%= order.created_at.to_date %>
@@ -130,7 +130,7 @@
             </tr>
           <% end %>
         <% else %>
-          <tr class="table-body-row">
+          <tr class="table-body-row" data-testid="no-orders">
             <td class="table-empty-cell" colspan="9">
               <p class="text-lg">No orders found</p>
               <p class="mt-2">Create your first order to get started!</p>

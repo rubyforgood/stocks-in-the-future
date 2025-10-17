@@ -32,6 +32,11 @@ class Order < ApplicationRecord
   scope :completed, -> { where(status: :completed) }
   scope :canceled, -> { where(status: :canceled) }
 
+  scope :for_student, ->(student) { where(user: student) }
+  scope :for_teacher, lambda { |teacher|
+    joins(user: :classroom).where(users: { classroom: teacher.classrooms })
+  }
+
   def cancel!
     update(status: :canceled)
   end

@@ -2,6 +2,10 @@
 [![Lint](https://github.com/rubyforgood/stocks-in-the-future/actions/workflows/lint.yml/badge.svg)](https://github.com/rubyforgood/stocks-in-the-future/actions/workflows/lint.yml)
 [![Dependabot Updates](https://github.com/rubyforgood/stocks-in-the-future/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/rubyforgood/stocks-in-the-future/actions/workflows/dependabot/dependabot-updates)
 
+[![Help wanted](https://badgen.net/github/label-issues/rubyforgood/stocks-in-the-future/help%20wanted/open??color=green&icon=github&cache=3600)](https://github.com/rubyforgood/stocks-in-the-future/labels/help%20wanted)
+[![Open PRs](https://badgen.net/github/open-prs/rubyforgood/stocks-in-the-future??color=green&icon=github&cache=3600)](https://github.com/rubyforgood/stocks-in-the-future/pulls)
+[![Last commit](https://badgen.net/github/last-commit/rubyforgood/stocks-in-the-future??icon=github&cache=3600)](https://github.com/rubyforgood/stocks-in-the-future/commits)
+
 # Requirements
 
 - A ruby version manager such as [rvm](https://rvm.io/rvm/install), [rbenv](https://formulae.brew.sh/formula/rbenv) or [asdf](https://asdf-vm.com/guide/getting-started.html)

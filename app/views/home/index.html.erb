@@ -2,53 +2,55 @@
 <div class="max-w-[1180px] mx-auto space-y-6 pb-16" style="font-family: Inter, system-ui, sans-serif;">
 	<!-- Welcome / Funds Banner (Hero) -->
 	<div class="relative mb-8">
-		<div class="hero-banner rounded-[20px] border-2 border-black bg-gradient-to-r from-[#F4D18D] to-[#F8DBA8] px-8 md:px-10 py-6 md:py-8 flex flex-col md:flex-row gap-4 md:gap-6 items-start md:items-center justify-between relative">
+		<div class="hero-banner rounded-[16px] border-2 border-black bg-gradient-to-r from-[#F4D18D] to-[#F8DBA8] px-4 md:px-6 py-2 md:py-3 flex flex-col md:flex-row gap-2 md:gap-3 items-start md:items-center justify-between relative">
 			<!-- Decorative coins scattered in background -->
-			<div class="flex-1 flex flex-col gap-2 pr-0 md:pr-8 relative z-10">
+			<div class="flex-1 flex flex-col gap-1 pr-0 md:pr-6 relative z-10">
 				<div class="flex flex-col sm:flex-row sm:items-center sm:gap-4">
-					<% if user_signed_in? %>
-						<p class="text-base md:text-lg font-semibold tracking-tight mb-2 sm:mb-0 text-gray-900">Hi, <%= current_user.username.presence || 'Username' %>!</p>
-					<% end %>
 					<% if current_user&.student? && current_user.portfolio %>
-						<div class="funds-pill inline-flex items-center gap-2 rounded-full border-2 border-black bg-white pl-10 pr-5 py-2.5 text-sm md:text-base font-medium shadow-md relative tracking-tight">
-							<%= image_tag 'party_popper.png', class: 'h-10 w-10 object-contain absolute -left-1 -top-4', alt: 'Party popper celebration' %>
-							<span class="leading-snug">You have <strong><%= number_to_currency(current_user.portfolio.cash_balance) %></strong> to invest! Lets Get Trading!</span>
-						</div>
+						<% if current_user.portfolio.cash_balance > 0 %>
+							<div class="funds-pill inline-flex items-center gap-1 rounded-full border-2 border-black bg-white py-1 px-8 md:px-12 text-xs md:text-sm font-medium shadow-md relative tracking-tight">
+								<%= image_tag 'party_popper.png', class: 'object-contain absolute w-6 h-6 md:w-8 md:h-8', style: 'margin-left: -2rem; top: -0.75rem;', alt: 'Party popper celebration' %>
+								<span class="leading-snug">You have <strong><%= number_to_currency(current_user.portfolio.cash_balance) %></strong> to invest! Lets Get Trading!</span>
+							</div>
+						<% else %>
+							<div class="funds-pill inline-flex items-center gap-1 rounded-full border-2 border-black bg-white py-1 px-8 md:px-12 text-xs md:text-sm font-medium shadow-md relative tracking-tight">
+								<span class="leading-snug">Sorry, you don't have any earnings to invest yet</span>
+							</div>
+						<% end %>
 					<% end %>
 				</div>
-				<h1 class="text-[32px] md:text-[40px] font-bold tracking-tight leading-tight mt-3 text-gray-900">WELCOME TO YOUR FINANCIAL JOURNEY!</h1>
-				<p class="text-base md:text-lg text-gray-800 mt-1 font-medium">This Is Your Launchpad To Earn, Invest, And Grow.</p>
+				<h1 class="text-[20px] md:text-[24px] font-bold tracking-tight leading-tight mt-1 text-gray-900">WELCOME TO YOUR FINANCIAL JOURNEY!</h1>
+				<p class="text-xs md:text-sm text-gray-800 mt-1 font-medium">This Is Your Launchpad To Earn, Invest, And Grow.</p>
 			</div>
 			<!-- Piggy Bank Illustration -->
 			<div class="hidden sm:block absolute -bottom-8 right-4 md:right-8 z-20">
-				<%= image_tag 'piggy_bank.png', class: 'w-[200px] md:w-[240px] lg:w-[280px] h-auto object-contain', alt: 'Piggy bank with coins' %>
+				<%= image_tag 'piggy_bank.png', class: 'w-24 md:w-32 lg:w-36 xl:w-40 h-auto object-contain', alt: 'Piggy bank with coins' %>
 			</div>
 		</div>
 	</div>
 
 	<!-- Middle Two-Column Section: Images (left) + Announcements (right) -->
-	<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch mt-12">
+	<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-stretch mt-6">
 		<!-- Left Images -->
 		<div class="flex items-center justify-center">
 			<div class="flex gap-4 justify-center items-center w-full">
-				<%= image_tag 'girl_skateboarding_holding_laptop.png', class: 'w-1/2 max-w-[240px] h-auto object-contain pointer-events-none select-none', alt: 'Student with laptop' %>
-				<%= image_tag 'boy_using_computer.png', class: 'w-1/2 max-w-[240px] h-auto object-contain pointer-events-none select-none', alt: 'Student using computer' %>
+				<%= image_tag 'girl_skateboarding_holding_laptop.png', class: 'w-full max-w-48 md:max-w-56 lg:max-w-64 h-auto object-contain pointer-events-none select-none mx-auto -mt-8 relative z-10', alt: 'SITF Home Teens' %>
 			</div>
 		</div>
 
 		<!-- Right Announcements -->
-		<div class="flex">
+		<div class="flex -ml-16 relative z-20">
 			<div class="rounded-xl border-2 border-black overflow-hidden bg-white w-full flex flex-col">
-				<div class="bg-teal-500 text-white py-3 px-5 font-semibold text-base tracking-wide border-b-2 border-black">Announcements</div>
-				<div class="p-6 text-sm text-gray-600 min-h-[200px] flex flex-col">
+				<div class="bg-teal-500 text-white py-2 px-3 font-semibold text-sm tracking-wide border-b-2 border-black">Announcements</div>
+				<div class="p-4 text-xs text-gray-600 min-h-[150px] flex flex-col">
 					<% if @current_announcement %>
 						<% cache @current_announcement do %>
 							<div class="space-y-3">
-								<h3 class="font-semibold text-gray-900 text-base"><%= @current_announcement.title %></h3>
+								<h3 class="font-semibold text-gray-900 text-sm"><%= @current_announcement.title %></h3>
 								<div class="text-gray-700 trix-content">
 									<%= @current_announcement.excerpt %>
 								</div>
-								<%= link_to "Read More", announcement_path(@current_announcement), class: "inline-flex items-center text-teal-600 hover:text-teal-700 font-medium text-sm mt-2" %>
+								<%= link_to "Read More", announcement_path(@current_announcement), class: "inline-flex items-center text-teal-600 hover:text-teal-700 font-medium text-xs mt-2" %>
 							</div>
 						<% end %>
 					<% else %>
@@ -62,7 +64,7 @@
 	<!-- Getting Started Full Width -->
 	<div class="rounded-xl border-2 border-black bg-white overflow-hidden">
 		<div class="bg-[#d3df44] py-3 px-5 font-semibold text-base tracking-wide border-b-2 border-black">Getting Started</div>
-		<div class="px-8 pt-8 pb-10 grid grid-cols-1 md:grid-cols-4 gap-6 text-sm">
+		<div class="px-4 pt-4 pb-6 grid grid-cols-1 md:grid-cols-4 gap-4 text-xs">
 			<% steps = [
 				{ num: '1_Number', title: 'Earn Funds', body: 'Show Up, Stay Engaged, And Earn Investment Funds Based On Your Attendance, Participation, And Performance.' },
 				{ num: '2_Number', title: 'Go To The Trading Floor', body: 'Once You Have Funds, Explore The Trading Floor And The Company’s To Buy Your First Stock.' },
@@ -71,7 +73,7 @@
 			] %>
 			<% steps.each do |s| %>
 				<div class="flex gap-3 md:gap-2 items-start">
-					<div class="pr-1"><%= image_tag "#{s[:num]}.png", alt: "Step #{s[:num]}", class: "w-40 h-20" %></div>
+					<div class="pr-1"><%= image_tag "#{s[:num]}.png", alt: "Step #{s[:num]}", class: "w-16 h-8 md:w-20 md:h-10 lg:w-24 lg:h-12" %></div>
 					<div class="space-y-1">
 						<p class="font-semibold leading-snug"><%= s[:title] %></p>
 						<p class="text-[13px] text-gray-700 leading-snug"><%= s[:body] %></p>
