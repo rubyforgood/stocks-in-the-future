@@ -174,7 +174,7 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
 
   test "teachers cannot archive classrooms" do
     sign_in @teacher
-    # Teachers shouldn't be able to archive 
+    # Teachers shouldn't be able to archive
     patch toggle_archive_admin_classroom_path(@classroom)
     assert_redirected_to root_path
   end
