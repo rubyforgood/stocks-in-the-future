@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class ClassroomsController < ApplicationController
-  before_action :set_classroom, only: %i[show edit update destroy]
+  before_action :set_classroom, only: %i[show edit update]
   before_action :authorize_classroom
   before_action :authenticate_user!
   before_action :ensure_teacher_or_admin, except: %i[index show]
@@ -53,12 +53,6 @@ class ClassroomsController < ApplicationController
     end
   end
 
-  def destroy
-    @classroom.destroy!
-
-    redirect_to classrooms_url, notice: t(".notice")
-  end
-
   private
 
   def set_classroom
@@ -102,6 +96,12 @@ class ClassroomsController < ApplicationController
   end
 
   def check_classroom_eligibility
+    # Redirect if classroom is archived and user is not an admin
+    if @classroom.archived? && !current_user.admin?
+      redirect_to root_path, alert: t("classrooms.archived.alert")
+      return
+    end
+
     return if current_user.admin? ||
               (current_user.teacher? &&
                 @classroom.teachers.include?(current_user))

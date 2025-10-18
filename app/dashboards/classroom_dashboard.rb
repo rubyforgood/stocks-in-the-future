@@ -19,6 +19,7 @@ class ClassroomDashboard < Administrate::BaseDashboard
       searchable: false
     ),
     name: Field::String,
+    archived: Field::Boolean,
     school_year: Field::BelongsTo,
     school: Field::HasOne,
     students: Field::HasMany,
@@ -39,6 +40,7 @@ class ClassroomDashboard < Administrate::BaseDashboard
     name
     teachers
     school_year
+    archived
   ].freeze
 
   # SHOW_PAGE_ATTRIBUTES
@@ -47,6 +49,7 @@ class ClassroomDashboard < Administrate::BaseDashboard
     id
     grade_display
     name
+    archived
     school_year
     students
     teachers

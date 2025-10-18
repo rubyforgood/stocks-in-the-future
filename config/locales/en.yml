@@ -17,6 +17,8 @@ en:
       admin_required: Access denied. Admin privileges required.
       no_access: You do not have access to this page.
   classrooms:
+    archived:
+      alert: This classroom has been archived and is no longer accessible.
     create:
       notice: Classroom was successfully created.
     destroy:
