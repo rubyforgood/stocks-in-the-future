@@ -47,7 +47,7 @@ class GradeBooksController < ApplicationController
     # Redirect if classroom is archived and user is not an admin
     return unless @classroom.archived? && !current_user.admin?
 
-    redirect_to root_path, alert: "This classroom has been archived and is no longer accessible."
+    redirect_to root_path, alert: t("classrooms.archived.alert")
   end
 
   def grade_entry_params
