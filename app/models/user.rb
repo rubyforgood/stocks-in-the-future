@@ -65,7 +65,7 @@ class User < ApplicationRecord
   end
 
   def holding?(stock)
-    portfolio&.portfolio_stocks&.exists?(stock_id: stock.id)
+    portfolio&.shares_owned(stock.id)&.positive?
   end
 
   private
