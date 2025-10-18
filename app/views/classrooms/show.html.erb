@@ -19,7 +19,7 @@
           <h3 class="text-lg font-medium text-gray-900">Classroom Actions</h3>
           <div class="flex items-center gap-3">
             <% if policy(Classroom).edit? %>
-              <%= render partial: "components/action_icon_button", locals: { options: { path: edit_classroom_path(@classroom), icon: "fa-pencil", title: "Edit classroom", aria_label: "Edit classroom", text_class: "text-blue-600" } } %>
+              <%= render partial: "components/action_icon_button", locals: { options: { path: edit_classroom_path(@classroom), icon: "fa-pencil", title: "Edit classroom", aria_label: "Edit classroom", text_class: "text-black" } } %>
             <% end %>
             <% if policy(Classroom).destroy? %>
               <%= render partial: "components/action_icon_button", locals: { options: { path: classroom_path(@classroom), icon: "fa-trash", title: "Delete classroom", aria_label: "Delete classroom", text_class: "text-red-600", method: :delete, data: { turbo_confirm: "Are you sure you want to delete this classroom? This action cannot be undone." } } } %>
