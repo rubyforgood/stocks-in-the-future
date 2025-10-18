@@ -29,6 +29,9 @@ Rails.application.configure do
   # Assume all access to the app is happening through a SSL-terminating reverse proxy.
   config.assume_ssl = true
 
+  # Set timezone for recurring job schedules (EST for "1am EST" schedule)
+  config.time_zone = "Eastern Time (US & Canada)"
+
   # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
   config.force_ssl = true
 
