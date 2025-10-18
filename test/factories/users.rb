@@ -15,6 +15,12 @@ FactoryBot.define do
     classroom { create(:classroom) }
     sequence(:username) { |n| "student_#{n}" }
     sequence(:email) { |n| "student_#{n}@example.com" }
+
+    trait :with_portfolio do
+      after(:create) do |student|
+        create(:portfolio, user: student)
+      end
+    end
   end
 
   factory :teacher, class: "Teacher" do

@@ -64,6 +64,10 @@ class User < ApplicationRecord
     false
   end
 
+  def holding?(stock)
+    portfolio&.shares_owned(stock.id)&.positive?
+  end
+
   private
 
   def soft_delete_guard
