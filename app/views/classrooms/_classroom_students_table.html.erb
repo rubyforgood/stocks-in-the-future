@@ -30,7 +30,7 @@
             <td class="px-6 py-4 whitespace-nowrap">
               <% if student.username.present? %>
                 <% if student.portfolio %>
-                  <%= link_to student.username, user_portfolio_path(student, student.portfolio), class: "text-blue-600 hover:text-blue-900 font-medium" %>
+                  <%= link_to student.username, user_portfolio_path(student, student.portfolio), class: "text-black underline hover:text-[var(--sitf-secondary-chart2)] font-medium" %>
                 <% else %>
                   <span class="text-gray-400 italic"><%= student.username %></span>
                 <% end %>
@@ -50,7 +50,7 @@
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                 <div class="flex items-center gap-2">
                   <%= link_to edit_classroom_student_path(@classroom, student),
-                      class: "inline-flex items-center justify-center w-8 h-8 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-all duration-150 group",
+                      class: "inline-flex items-center justify-center w-8 h-8 text-black hover:text-[var(--sitf-secondary-chart2)] hover:bg-blue-50 rounded-lg transition-all duration-150 group",
                       title: "Edit student" do %>
                     <i class="fa fa-pencil fa-lg group-hover:scale-110 transition-transform duration-150"></i>
                   <% end %>
