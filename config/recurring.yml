@@ -20,5 +20,8 @@ development: &default
 test:
   # No recurring jobs in test environment
 
+staging:
+  <<: *default
+
 production:
   <<: *default
