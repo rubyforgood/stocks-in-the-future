@@ -41,16 +41,15 @@
 		<!-- Right Announcements -->
 		<div class="flex -ml-16 relative z-20">
 			<div class="rounded-xl border-2 border-black overflow-hidden bg-white w-full flex flex-col">
-				<div class="bg-teal-500 text-white py-2 px-3 font-semibold text-sm tracking-wide border-b-2 border-black">Announcements</div>
-				<div class="p-4 text-xs text-gray-600 min-h-[150px] flex flex-col">
+				<div class="bg-teal-500 text-white py-1.5 px-3 font-semibold text-xs tracking-wide border-b-2 border-black">Announcements</div>
+				<div class="p-4 text-xs text-gray-600 max-h-[480px] overflow-y-auto">
 					<% if @current_announcement %>
 						<% cache @current_announcement do %>
 							<div class="space-y-3">
 								<h3 class="font-semibold text-gray-900 text-sm"><%= @current_announcement.title %></h3>
-								<div class="text-gray-700 trix-content">
-									<%= @current_announcement.excerpt %>
+								<div class="text-gray-700" style="max-height: 480px; overflow-y: auto;">
+									<%= @current_announcement.content %>
 								</div>
-								<%= link_to "Read More", announcement_path(@current_announcement), class: "inline-flex items-center text-black underline hover:text-[var(--sitf-secondary-chart2)] font-medium text-xs mt-2" %>
 							</div>
 						<% end %>
 					<% else %>
