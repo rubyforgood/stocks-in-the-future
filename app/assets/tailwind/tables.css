@@ -4,11 +4,11 @@
 }
 
 .table-wrapper {
-  @apply bg-white overflow-x-auto border-2 border-black rounded-[20px];
+  @apply bg-white border-2 border-black rounded-[20px];
 }
 
 .table-base {
-  @apply w-full min-w-[700px] border-collapse font-sans bg-white rounded-[20px];
+  @apply w-full border-collapse font-sans bg-white rounded-[20px];
 }
 
 .table-header-row {
@@ -24,8 +24,7 @@
 }
 
 .table-header-cell-left:nth-child(3) {
-  @apply text-left;
-  padding-left: 400px;
+  @apply text-left px-4 lg:px-7;
 }
 
 .table-header-cell-right {
@@ -46,7 +45,7 @@
 }
 
 .table-body-cell:nth-child(3) {
-  padding-left: 400px;
+  @apply px-4 lg:px-7;
 }
 
 .table-body-cell-right {
