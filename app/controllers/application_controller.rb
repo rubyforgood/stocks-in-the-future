@@ -20,7 +20,7 @@ class ApplicationController < ActionController::Base
   private
 
   def set_navbar_stocks
-    @navbar_stocks = policy_scope(Stock)
+    @navbar_stocks = policy_scope(Stock).active
   end
 
   def configure_permitted_parameters
