@@ -25,10 +25,16 @@
         <%= @portfolio&.shares_owned(stock.id) || 0 %>
       </span>
     </td>
-    <td class="table-body-cell table-body-cell-center" colspan="2">
+    <td class="table-body-cell table-body-cell-center whitespace-nowrap" colspan="2">
       <% if policy(stock).show_trading_link? %>
-        <%= link_to '<i class="fa-solid fa-angle-up"></i> Buy'.html_safe, new_order_path(stock_id: stock.id, transaction_type: :buy), class: "tw-btn-buy -ml-1", style: "margin-right: 100px;", data: { turbo_frame: "modal_frame" } %>
-        <%= link_to '<i class="fa-solid fa-angle-down"></i> Sell'.html_safe, new_order_path(stock_id: stock.id, transaction_type: :sell), class: "tw-btn-sell -mr-1", data: { turbo_frame: "modal_frame" } %>
+        <div class="flex gap-2 justify-center">
+          <%= link_to new_order_path(stock_id: stock.id, transaction_type: :buy), class: "tw-btn-buy", data: { turbo_frame: "modal_frame" } do %>
+            <%= lucide_icon("arrow-up") %> Buy
+          <% end %>
+          <%= link_to new_order_path(stock_id: stock.id, transaction_type: :sell), class: "tw-btn-sell", data: { turbo_frame: "modal_frame" } do %>
+            <%= lucide_icon("arrow-down") %> Sell
+          <% end %>
+        </div>
       <% end %>
     </td>
   <% end %>

@@ -26,17 +26,21 @@
       <td class="px-4 py-2">
         <%= current_user.portfolio.shares_owned(stock.id) %>
       </td>
-        <td class="px-4 py-2">
+        <td class="px-4 py-2 whitespace-nowrap">
+          <div class="flex gap-2">
             <% if stock.archived? %>
               <span class="tw-btn-buy opacity-50 cursor-not-allowed">
-                <i class="fa-solid fa-angle-up"></i> Buy
+                <%= lucide_icon("arrow-up") %> Buy
               </span>
             <% else %>
-              <%= link_to '<i class="fa-solid fa-angle-up"></i> Buy'.html_safe, new_order_path(stock_id: stock.id, transaction_type: :buy), class: "tw-btn-buy", data: { turbo_frame: "modal_frame" } %>
+              <%= link_to new_order_path(stock_id: stock.id, transaction_type: :buy), class: "tw-btn-buy", data: { turbo_frame: "modal_frame" } do %>
+                <%= lucide_icon("arrow-up") %> Buy
+              <% end %>
             <% end %>
-        </td>
-        <td class="px-4 py-2">
-          <%= link_to '<i class="fa-solid fa-angle-down"></i> Sell'.html_safe, new_order_path(stock_id: stock.id, transaction_type: :sell), class: "tw-btn-sell", data: { turbo_frame: "modal_frame" } %>
+            <%= link_to new_order_path(stock_id: stock.id, transaction_type: :sell), class: "tw-btn-sell", data: { turbo_frame: "modal_frame" } do %>
+              <%= lucide_icon("arrow-down") %> Sell
+            <% end %>
+          </div>
         </td>
       <% end %>
     </tr>
