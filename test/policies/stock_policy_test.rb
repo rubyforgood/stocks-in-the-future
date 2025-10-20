@@ -131,7 +131,7 @@ class StockPolicyTest < ActiveSupport::TestCase
     student_scope = StockPolicy::Scope.new(student, Stock.all).resolve
     assert_includes student_scope, active1
     assert_includes student_scope, active2
-    assert_not_includes student_scope, archived
+    assert_includes student_scope, archived
 
     guest_scope = StockPolicy::Scope.new(nil, Stock.all).resolve
     assert_includes guest_scope, active1

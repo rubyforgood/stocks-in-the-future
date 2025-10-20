@@ -50,7 +50,7 @@ class StockPolicy < ApplicationPolicy
   # Scope to control which stocks are visible in listings
   class Scope < ApplicationPolicy::Scope
     def resolve
-      if user&.admin? || user&.teacher?
+      if user&.admin? || user&.teacher? || user&.student?
         scope.all
       else
         scope.active
