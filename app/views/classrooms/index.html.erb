@@ -40,7 +40,7 @@
             <tr class="table-body-row">
               <td class="table-body-cell">
                 <span class="table-cell-content">
-                  <%= link_to classroom.name, classroom_path(classroom), class: "text-blue-600 hover:text-blue-800" %>
+                  <%= link_to classroom.name, classroom_path(classroom), class: "text-black underline hover:text-[var(--sitf-secondary-chart2)]" %>
                 </span>
               </td>
               <td class="table-body-cell py-4">
@@ -79,7 +79,7 @@
                           icon: "fa-pencil",
                           title: "Edit classroom",
                           aria_label: "Edit classroom",
-                          text_class: "text-blue-600"
+                          text_class: "text-black"
                         }
                       } %>
                 <% else %>

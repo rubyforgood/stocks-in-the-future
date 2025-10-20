@@ -6,7 +6,8 @@ class OrderExecutionJob < ApplicationJob
   retry_on StandardError, wait: :exponentially_longer, attempts: 3
 
   def perform
-    Rails.logger.info "Starting order execution job at #{Time.current}"
+    Rails.logger.info "[RECURRING JOB] OrderExecutionJob starting at #{Time.current} (#{Time.zone})"
+    Rails.logger.info "[RECURRING JOB] Current environment: #{Rails.env}"
 
     pending_orders = Order.pending
     log_pending_orders_count(pending_orders)
