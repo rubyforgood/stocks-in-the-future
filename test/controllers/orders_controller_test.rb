@@ -112,8 +112,10 @@ class OrdersControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "cancel route exists" do
-    assert_routing({ path: "orders/1/cancel", method: "patch" },
-                   { controller: "orders", action: "cancel", id: "1" })
+    assert_routing(
+      { path: "orders/1/cancel", method: "patch" },
+      { controller: "orders", action: "cancel", id: "1" }
+    )
   end
 
   test "cancel with unauthorized user" do

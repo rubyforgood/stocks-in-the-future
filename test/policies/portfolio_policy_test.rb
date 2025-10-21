@@ -6,8 +6,10 @@ class PortfolioPolicyTest < ActiveSupport::TestCase
   def setup
     classroom = create(:classroom)
     @student = User.create!(username: "student", type: "Student", password: "password", classroom: classroom)
-    @other_student = User.create!(username: "other_student", type: "Student", password: "password",
-                                  classroom: classroom)
+    @other_student = User.create!(
+      username: "other_student", type: "Student", password: "password",
+      classroom: classroom
+    )
     @portfolio = Portfolio.create!(user: @student)
     @other_portfolio = Portfolio.create!(user: @other_student)
   end
