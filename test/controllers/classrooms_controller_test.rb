@@ -69,13 +69,13 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Classroom has been archived.", flash[:notice]
   end
 
-  test "unarchive classroom" do
+  test "activate classroom" do
     sign_in(@admin)
     @classroom.update!(archived: true)
     patch toggle_archive_admin_classroom_path(@classroom)
     assert_redirected_to admin_classrooms_path
     assert_not @classroom.reload.archived?
-    assert_equal "Classroom has been unarchived.", flash[:notice]
+    assert_equal "Classroom has been activated.", flash[:notice]
   end
 
   test "admins can see all classrooms in index" do
