@@ -40,14 +40,14 @@
 
 		<!-- Right Announcements -->
 		<div class="flex -ml-16 relative z-20">
-			<div class="rounded-xl border-2 border-black overflow-hidden bg-white w-full flex flex-col">
+			<div class="rounded-xl border-2 border-black overflow-hidden bg-white w-full flex flex-col" role="region" aria-label="Announcements">
 				<div class="bg-teal-500 text-white py-1.5 px-3 font-semibold text-xs tracking-wide border-b-2 border-black">Announcements</div>
-				<div class="p-4 text-xs text-gray-600 max-h-[480px] overflow-y-auto">
+				<div class="p-4 text-xs text-gray-600 flex flex-col">
 					<% if @current_announcement %>
 						<% cache @current_announcement do %>
 							<div class="space-y-3">
 								<h3 class="font-semibold text-gray-900 text-sm"><%= @current_announcement.title %></h3>
-								<div class="text-gray-700" style="max-height: 480px; overflow-y: auto;">
+								<div class="text-gray-700 trix-content max-h-[480px] overflow-y-auto">
 									<%= @current_announcement.content %>
 								</div>
 							</div>
