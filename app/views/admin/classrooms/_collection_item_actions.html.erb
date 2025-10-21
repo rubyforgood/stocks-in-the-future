@@ -10,11 +10,11 @@
   <td>
     <% if resource.archived? %>
       <%= button_to(
-        "Unarchive",
+        "Activate",
         [:toggle_archive, namespace, resource],
         class: "link link--success",
         method: :patch,
-        data: { turbo_confirm: "Are you sure you want to unarchive this classroom?" }
+        data: { turbo_confirm: "Are you sure you want to activate this classroom?" }
       ) %>
     <% else %>
       <%= button_to(
@@ -22,7 +22,7 @@
         [:toggle_archive, namespace, resource],
         class: "link link--danger",
         method: :patch,
-        data: { turbo_confirm: "Are you sure you want to archive this classroom?" }
+        data: { turbo_confirm: "Are you sure you want to archive this classroom? Teachers and students will no longer be able to access it, but all historical data will be preserved." }
       ) %>
     <% end %>
   </td>

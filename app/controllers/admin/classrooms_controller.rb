@@ -48,7 +48,7 @@ module Admin
     def toggle_archive
       classroom = Classroom.find(params[:id])
       classroom.update!(archived: !classroom.archived)
-      flash[:notice] = classroom.archived? ? "Classroom has been archived." : "Classroom has been unarchived."
+      flash[:notice] = classroom.archived? ? "Classroom has been archived." : "Classroom has been activated."
       redirect_to admin_classrooms_path
     end
   end
