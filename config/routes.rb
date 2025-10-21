@@ -55,7 +55,6 @@ Rails.application.routes.draw do
     end
     resources :teachers
     resources :users
-    resources :years
   end
 
   resources :orders do
