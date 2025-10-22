@@ -48,6 +48,14 @@
   </div>
 
   <div class="my-5">
+    <div class="flex items-center gap-3">
+      <%= form.check_box :trading_enabled, class: "rounded border-gray-300 text-blue-600 focus:ring-blue-500" %>
+      <%= form.label :trading_enabled, "Enable Trading", class: 'tw-label-primary' %>
+    </div>
+    <p class="text-sm text-gray-600 mt-1">When enabled, students in this classroom can place buy and sell orders.</p>
+  </div>
+
+  <div class="my-5">
     <%= label_tag :teacher_ids, "Teachers", class: 'tw-label-primary flex items-center gap-2' %>
 
     <!-- Single hidden field to handle empty selections -->

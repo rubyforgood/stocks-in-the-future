@@ -2,7 +2,8 @@
 
 class ClassroomsController < ApplicationController
   before_action :set_classroom, only: %i[show edit update]
-  before_action :authorize_classroom
+  before_action :authorize_classroom, except: %i[edit update]
+  before_action :authorize_classroom_instance, only: %i[edit update]
   before_action :authenticate_user!
   before_action :ensure_teacher_or_admin, except: %i[index show]
   before_action :check_classroom_eligibility, only: :show
@@ -63,8 +64,12 @@ class ClassroomsController < ApplicationController
     authorize Classroom
   end
 
+  def authorize_classroom_instance
+    authorize @classroom
+  end
+
   def classroom_params
-    params.expect(classroom: [:name, :grade, :school_id, :year_id, { teacher_ids: [] }])
+    params.expect(classroom: [:name, :grade, :trading_enabled, :school_id, :year_id, { teacher_ids: [] }])
   end
 
   def dropdown_data

@@ -166,9 +166,16 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_path
   end
 
-  test "teachers cannot edit classrooms" do
+  test "teachers can edit their own classrooms" do
     sign_in @teacher
     get edit_classroom_path(@classroom)
+    assert_response :success
+  end
+
+  test "teachers cannot edit other teachers' classrooms" do
+    other_classroom = create(:classroom, name: "Other Class")
+    sign_in @teacher
+    get edit_classroom_path(other_classroom)
     assert_redirected_to root_path
   end
 

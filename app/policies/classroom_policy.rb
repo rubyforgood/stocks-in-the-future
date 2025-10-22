@@ -14,7 +14,10 @@ class ClassroomPolicy < ApplicationPolicy
   end
 
   def edit?
-    user.admin?
+    return true if user.admin?
+    return false unless user.teacher?
+
+    user.classroom_ids.include?(record.id)
   end
 
   def create?
@@ -22,7 +25,10 @@ class ClassroomPolicy < ApplicationPolicy
   end
 
   def update?
-    user.admin?
+    return true if user.admin?
+    return false unless user.teacher?
+
+    user.classroom_ids.include?(record.id)
   end
 
   def destroy?
