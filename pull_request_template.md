@@ -10,7 +10,7 @@ Resolves
 ## Changes
 - Short bullet list of the main changes
 
-## Screenshots(if applicable)
+## Screenshots (if applicable)
 
 ## Checklist
 - [ ] Issue is assigned (commenting on the issue page is needed)
