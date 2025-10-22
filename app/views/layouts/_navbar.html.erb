@@ -117,7 +117,7 @@
                 </summary>
 
                 <div class="box-border content-stretch flex flex-col items-start justify-start p-2 ml-6">
-                  <% navbar_stocks.each do |stock| %>
+                  <% stocks.each do |stock| %>
                     <div class="content-stretch flex items-center justify-start relative rounded-2xl w-full">
                       <% stock_active = request.path == stock_path(stock) %>
                       <label for="mobile-menu-toggle" class="lg:cursor-default cursor-pointer w-full">
