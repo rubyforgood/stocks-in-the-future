@@ -58,10 +58,19 @@
               <% shares = position.shares %>
               <% change_amount = position.change_amount %>
               <% total_return_amount = position.total_return_amount %>
+              <% logo_path = "stock_logos/#{position.stock_ticker}-logo.svg" %>
               <tr class="border-t first:border-t-0 border-black/40">
                 <td class="py-4 pl-6 pr-4 align-middle">
-                  <div class="flex items-center gap-3">
-                    <span class="font-medium"><%= position.stock_ticker %></span>
+                  <div class="flex items-center gap-4">
+                    <% if File.exist?("app/assets/images/#{logo_path}") %>
+                      <%= image_tag asset_path(logo_path),
+                                    class: "w-10 h-10 rounded-lg flex-shrink-0",
+                                    alt: "#{position.stock_ticker} logo",
+                                    loading: "lazy" %>
+                    <% end %>
+                    <div class="flex flex-col">
+                      <span class="font-medium"><%= position.stock_ticker %></span>
+                    </div>
                   </div>
                 </td>
                 <td class="py-4 px-4 align-middle"><%= shares %></td>
