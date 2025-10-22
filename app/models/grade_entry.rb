@@ -15,24 +15,35 @@ class GradeEntry < ApplicationRecord
   def finalizable? = math_grade.present? && reading_grade.present? && attendance_days.present?
 
   def earnings_for_attendance
-    return 0 unless attendance_days.present? && attendance_days.nonzero?
+    return 0 if attendance_days.blank?
 
-    value = (attendance_days || 0) * EARNINGS_PER_DAY_ATTENDANCE
-    value += EARNINGS_FOR_PERFECT_ATTENDANCE if is_perfect_attendance
-    value
+    attendance_days * EARNINGS_PER_DAY_ATTENDANCE
   end
 
-  def earnings_for_reading = grade_based_earnings(reading_grade)
+  def earnings_for_math
+    grade_based_earnings(math_grade)
+  end
 
-  def earnings_for_math = grade_based_earnings(math_grade)
+  def earnings_for_reading
+    grade_based_earnings(reading_grade)
+  end
 
-  def total_earnings = earnings_for_attendance + earnings_for_reading + earnings_for_math
+  def attendance_perfect_earnings
+    return 0 unless is_perfect_attendance
 
-  def improvement_earnings(previous_entry)
-    earnings = 0
-    earnings += EARNINGS_FOR_IMPROVED_GRADE if improved_grade?(math_grade, previous_entry.math_grade)
-    earnings += EARNINGS_FOR_IMPROVED_GRADE if improved_grade?(reading_grade, previous_entry.reading_grade)
-    earnings
+    EARNINGS_FOR_PERFECT_ATTENDANCE
+  end
+
+  def math_improvement_earnings(previous_entry)
+    return 0 unless previous_entry
+
+    improved_grade?(math_grade, previous_entry.math_grade) ? EARNINGS_FOR_IMPROVED_GRADE : 0
+  end
+
+  def reading_improvement_earnings(previous_entry)
+    return 0 unless previous_entry
+
+    improved_grade?(reading_grade, previous_entry.reading_grade) ? EARNINGS_FOR_IMPROVED_GRADE : 0
   end
 
   private

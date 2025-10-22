@@ -10,22 +10,36 @@
     <%= javascript_importmap_tags %>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   </head>
-  <body class="h-screen w-screen overflow-hidden">
+  <body class="min-h-screen bg-[#f7f9f3]">
     <% if user_signed_in? %>
       <div class="fixed top-0 left-0 w-full z-50 flex items-center justify-between py-4 px-6 h-16 bg-[#f7f9f3]">
-        <%= image_tag "SITF-Horz-no-tag-logo.svg", class: "h-8 w-auto", alt: "Stocks in The Future" %>
-        <%= render 'layouts/stock_ticker' %>
+        <div class="flex items-center gap-4">
+          <label
+            for="mobile-menu-toggle"
+            class="lg:hidden cursor-pointer flex items-center justify-center w-10 h-10 bg-[#00698c] text-white rounded-lg hover:bg-[#004f6b] transition-colors"
+            aria-label="Toggle menu"
+          >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </label>
+          <%= image_tag "SITF-Horz-no-tag-logo.svg", class: "h-8 w-auto", alt: "Stocks in The Future" %>
+        </div>
+        <div class="hidden lg:block">
+          <%= render 'layouts/stock_ticker' %>
+        </div>
       </div>
 
       <div class="fixed w-full h-px z-40 top-16 bg-[#004f6b]"></div>
 
       <%= render 'layouts/navbar', stocks: @navbar_stocks %>
 
-      <main class="h-full overflow-auto p-6 ml-50 mt-16 bg-[#f7f9f3]">
+      <!-- Main: responsive margins and padding -->
+      <main class="min-h-screen overflow-auto px-4 sm:px-6 ml-0 lg:ml-50 mt-16 pb-6 bg-[#f7f9f3]">
         <%= yield %>
       </main>
     <% else %>
-      <main class="h-full overflow-auto p-6 bg-[#f7f9f3]">
+      <main class="min-h-screen overflow-auto p-6 bg-[#f7f9f3]">
         <%= yield %>
       </main>
     <% end %>

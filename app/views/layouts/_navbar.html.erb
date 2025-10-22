@@ -1,38 +1,74 @@
-<div class="fixed z-50 flex w-50 top-16 bottom-0">
-  <div class="flex grow flex-col gap-y-5 overflow-y-auto px-0 pt-4 pb-4 bg-[#00698c]">
+<!-- Hidden checkbox for menu toggle (CSS-only, no JavaScript!) -->
+<input type="checkbox" id="mobile-menu-toggle" class="hidden peer" />
+
+<!-- Overlay - shows when checkbox is checked -->
+<label
+  for="mobile-menu-toggle"
+  class="fixed inset-0 bg-black/50 z-40 hidden peer-checked:block lg:hidden"
+></label>
+
+<!-- Sidebar - slides in when checkbox is checked -->
+<nav class="fixed z-50 top-0 bottom-0 left-0 w-64
+            transform -translate-x-full peer-checked:translate-x-0
+            lg:translate-x-0 lg:top-16 lg:w-50
+            transition-transform duration-300 ease-in-out">
+  <div class="flex flex-col h-full overflow-y-auto px-0 pt-16 lg:pt-4 pb-4 bg-[#00698c]">
+
+    <!-- Close button (mobile only) -->
+    <label
+      for="mobile-menu-toggle"
+      class="lg:hidden absolute top-4 right-4
+             flex items-center justify-center w-10 h-10
+             text-white hover:bg-white/10 rounded-lg
+             cursor-pointer transition-colors"
+    >
+      <!-- X icon -->
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </label>
 
     <nav class="flex flex-1 flex-col">
       <ul role="list" class="flex flex-1 flex-col gap-y-1 px-3">
         <li>
           <ul role="list" class="space-y-1">
+            <!-- Home link -->
             <li>
               <% is_active = request.path == root_path %>
-              <%= link_to root_path, class: "flex items-center justify-start px-3 py-2 rounded-lg w-full group hover:bg-black/20 #{'bg-[#d3df44]' if is_active}", style: is_active ? "background-color: #d3df44;" : "" do %>
-                <div class="flex gap-3 items-center">
-                  <div class="w-6 h-6">
-                    <%= image_tag "house.svg", class: "w-6 h-6", style: "filter: brightness(0) saturate(100%) #{is_active ? 'invert(20%) sepia(8%) saturate(348%) hue-rotate(114deg) brightness(98%) contrast(85%)' : 'invert(93%) sepia(13%) saturate(343%) hue-rotate(31deg) brightness(115%) contrast(90%)'};" %>
+              <label for="mobile-menu-toggle" class="lg:cursor-default cursor-pointer">
+                <%= link_to root_path, class: "flex items-center justify-start px-3 py-3 rounded-lg w-full group hover:bg-black/20 #{'bg-[#d3df44]' if is_active}", style: is_active ? "background-color: #d3df44;" : "" do %>
+                  <div class="flex gap-3 items-center">
+                    <div class="w-6 h-6">
+                      <%= image_tag "house.svg", class: "w-6 h-6", style: "filter: brightness(0) saturate(100%) #{is_active ? 'invert(20%) sepia(8%) saturate(348%) hue-rotate(114deg) brightness(98%) contrast(85%)' : 'invert(93%) sepia(13%) saturate(343%) hue-rotate(31deg) brightness(115%) contrast(90%)'};" %>
+                    </div>
+                    <span class="font-medium text-sm" style="color: <%= is_active ? '#323232' : 'white' %>; font-family: Inter, sans-serif;">Home</span>
                   </div>
-                  <span class="font-medium text-sm" style="color: <%= is_active ? '#323232' : 'white' %>; font-family: Inter, sans-serif;">Home</span>
-                </div>
-              <% end %>
+                <% end %>
+              </label>
             </li>
+
+            <!-- Portfolio link -->
             <% if current_user.portfolio && policy(current_user.portfolio).show? %>
               <li>
                 <% is_active = request.path.include?('portfolios') %>
-                <%= link_to user_portfolio_path(current_user, current_user.portfolio), class: "flex items-center justify-start px-3 py-2 rounded-lg w-full group hover:bg-black/20 #{'bg-[#d3df44]' if is_active}", style: is_active ? "background-color: #d3df44;" : "" do %>
-                  <div class="flex gap-3 items-center">
-                    <div class="w-6 h-6">
-                      <%= image_tag "id-card.svg", class: "w-6 h-6", style: "filter: brightness(0) saturate(100%) #{is_active ? 'invert(20%) sepia(8%) saturate(348%) hue-rotate(114deg) brightness(98%) contrast(85%)' : 'invert(93%) sepia(13%) saturate(343%) hue-rotate(31deg) brightness(115%) contrast(90%)'};" %>
+                <label for="mobile-menu-toggle" class="lg:cursor-default cursor-pointer">
+                  <%= link_to user_portfolio_path(current_user, current_user.portfolio), class: "flex items-center justify-start px-3 py-3 rounded-lg w-full group hover:bg-black/20 #{'bg-[#d3df44]' if is_active}", style: is_active ? "background-color: #d3df44;" : "" do %>
+                    <div class="flex gap-3 items-center">
+                      <div class="w-6 h-6">
+                        <%= image_tag "id-card.svg", class: "w-6 h-6", style: "filter: brightness(0) saturate(100%) #{is_active ? 'invert(20%) sepia(8%) saturate(348%) hue-rotate(114deg) brightness(98%) contrast(85%)' : 'invert(93%) sepia(13%) saturate(343%) hue-rotate(31deg) brightness(115%) contrast(90%)'};" %>
+                      </div>
+                      <span class="font-medium text-sm" style="color: <%= is_active ? '#323232' : 'white' %>; font-family: Inter, sans-serif;">My Portfolio</span>
                     </div>
-                    <span class="font-medium text-sm" style="color: <%= is_active ? '#323232' : 'white' %>; font-family: Inter, sans-serif;">My Portfolio</span>
-                  </div>
-                <% end %>
+                  <% end %>
+                </label>
               </li>
             <% end %>
 
-              <li>
-                <% is_active = request.path.include?('orders') %>
-                <%= link_to orders_path, class: "flex items-center justify-start px-3 py-2 rounded-lg w-full group hover:bg-black/20", style: is_active ? "background-color: #d3df44;" : "" do %>
+            <!-- Transactions link -->
+            <li>
+              <% is_active = request.path.include?('orders') %>
+              <label for="mobile-menu-toggle" class="lg:cursor-default cursor-pointer">
+                <%= link_to orders_path, class: "flex items-center justify-start px-3 py-3 rounded-lg w-full group hover:bg-black/20", style: is_active ? "background-color: #d3df44;" : "" do %>
                   <div class="flex gap-3 items-center">
                     <div class="w-6 h-6">
                       <%= image_tag "receipt.svg", class: "w-6 h-6", style: "filter: brightness(0) saturate(100%) #{is_active ? 'invert(20%) sepia(8%) saturate(348%) hue-rotate(114deg) brightness(98%) contrast(85%)' : 'invert(100%)'}" %>
@@ -40,27 +76,32 @@
                     <span class="font-medium text-sm" style="color: <%= is_active ? '#323232' : 'white' %>; font-family: Inter, sans-serif;">Transactions</span>
                   </div>
                 <% end %>
-              </li>
+              </label>
+            </li>
 
-             <% if policy(Classroom).index? %>
+            <!-- Classes link -->
+            <% if policy(Classroom).index? %>
               <li>
                 <% is_active = (request.path.include?('classrooms') && !request.path.include?('admin')) %>
-                <%= link_to classrooms_path, class: "flex items-center justify-start px-3 pr-3 py-2 rounded-lg w-full group hover:bg-black/20", style: is_active ? "background-color: #d3df44;" : "" do %>
-                  <div class="flex gap-3 items-center">
-                    <div class="w-6 h-6">
-                      <svg class="w-6 h-6" style="color: <%= is_active ? '#323232' : 'white' %>;" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
-                      </svg>
+                <label for="mobile-menu-toggle" class="lg:cursor-default cursor-pointer">
+                  <%= link_to classrooms_path, class: "flex items-center justify-start px-3 py-3 rounded-lg w-full group hover:bg-black/20", style: is_active ? "background-color: #d3df44;" : "" do %>
+                    <div class="flex gap-3 items-center">
+                      <div class="w-6 h-6">
+                        <svg class="w-6 h-6" style="color: <%= is_active ? '#323232' : 'white' %>;" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+                        </svg>
+                      </div>
+                      <span class="font-medium text-sm" style="color: <%= is_active ? '#323232' : 'white' %>; font-family: Inter, sans-serif;">Classes</span>
                     </div>
-                    <span class="font-medium text-sm" style="color: <%= is_active ? '#323232' : 'white' %>; font-family: Inter, sans-serif;">Classes</span>
-                  </div>
-                <% end %>
+                  <% end %>
+                </label>
               </li>
             <% end %>
 
+            <!-- Trading Floor with collapsible stocks -->
             <li>
               <details <%= 'open' if request.path.include?('stocks') %> data-controller="stock-navbar-toggle">
-                <summary class="flex items-center justify-between px-3 py-2 rounded-lg w-full list-none <%= 'bg-[#d3df44]' if request.path.include?('stocks') %>" style="<%= request.path.include?('stocks') ? 'background-color: #d3df44;' : '' %>">
+                <summary class="flex items-center justify-between px-3 py-3 rounded-lg w-full list-none cursor-pointer <%= 'bg-[#d3df44]' if request.path.include?('stocks') %>" style="<%= request.path.include?('stocks') ? 'background-color: #d3df44;' : '' %>">
                   <% is_active = request.path.include?('stocks') %>
                   <%= link_to stocks_path, class: "flex gap-3 items-center flex-1 hover:opacity-80", data: { action: "click->stock-navbar-toggle#navigateLink" } do %>
                     <div class="w-6 h-6">
@@ -69,21 +110,23 @@
                     <span class="font-medium text-sm" style="color: <%= is_active ? '#323232' : 'white' %>; font-family: Inter, sans-serif;">Trading Floor</span>
                   <% end %>
 
-                  <div class="w-4 h-4 flex items-center justify-center cursor-pointer hover:opacity-70">
+                  <div class="w-4 h-4 flex items-center justify-center cursor-pointer hover:opacity-70" data-action="click->stock-navbar-toggle#toggleChevron">
                     <i class="fa-solid fa-angle-down icon-down" style="color: <%= is_active ? '#323232' : 'white' %>;"></i>
                     <i class="fa-solid fa-angle-up icon-up" style="color: <%= is_active ? '#323232' : 'white' %>;"></i>
                   </div>
                 </summary>
 
-                <div class="box-border content-stretch flex flex-col items-start justify-start p-[8px] relative w-full ml-6">
+                <div class="box-border content-stretch flex flex-col items-start justify-start p-2 ml-6">
                   <% stocks.each do |stock| %>
-                    <div class="content-stretch flex items-center justify-start relative rounded-[16px] shrink-0 w-full">
+                    <div class="content-stretch flex items-center justify-start relative rounded-2xl w-full">
                       <% stock_active = request.path == stock_path(stock) %>
-                      <%= link_to stock_path(stock), class: "basis-0 box-border content-stretch flex gap-2 grow h-8 items-center justify-start min-h-px min-w-px p-[8px] relative rounded-[16px] shrink-0 hover:bg-black/20 hover:bg-black" do %>
-                        <div class="basis-0 font-['Geist',sans-serif] font-normal grow leading-[0] min-h-px min-w-px overflow-ellipsis overflow-hidden relative shrink-0 text-[14px] text-nowrap text-white <%= 'underline decoration-2 underline-offset-2' if stock_active %>">
-                          <p class="leading-none overflow-inherit"><%= stock.ticker %></p>
-                        </div>
-                      <% end %>
+                      <label for="mobile-menu-toggle" class="lg:cursor-default cursor-pointer w-full">
+                        <%= link_to stock_path(stock), class: "flex gap-2 grow min-h-[44px] items-center justify-start px-3 py-2 rounded-2xl hover:bg-black/20 w-full" do %>
+                          <div class="font-['Geist',sans-serif] font-normal text-sm text-white <%= 'underline decoration-2 underline-offset-2' if stock_active %>">
+                            <p class="leading-none"><%= stock.ticker %></p>
+                          </div>
+                        <% end %>
+                      </label>
                     </div>
                   <% end %>
                 </div>
@@ -95,27 +138,35 @@
       </ul>
     </nav>
 
+    <!-- Bottom section (Admin, Logout) -->
     <div class="flex flex-col items-center justify-start w-full mt-auto">
       <div class="h-px w-full bg-[#004f6b]"></div>
       <div class="flex flex-col items-start justify-start w-full py-2">
-       <% if policy(Classroom).new? %>
+
+        <% if policy(Classroom).new? %>
           <% is_active = request.path.include?('admin') %>
-          <%= link_to admin_classrooms_path, class: "flex items-center gap-x-4 px-6 py-3 text-sm font-semibold hover:bg-black/20 w-full", style: is_active ? "background-color: #d3df44;" : "" do %>
-            <svg class="w-5 h-5" style="color: <%= is_active ? '#323232' : 'white' %>;" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a6.759 6.759 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-            </svg>
-            <span style="color: <%= is_active ? '#323232' : 'white' %>; font-family: Inter, sans-serif;">Admin</span>
-          <% end %>
+          <label for="mobile-menu-toggle" class="lg:cursor-default cursor-pointer w-full">
+            <%= link_to admin_classrooms_path, class: "flex items-center gap-x-4 px-6 py-3 text-sm font-semibold hover:bg-black/20 w-full", style: is_active ? "background-color: #d3df44;" : "" do %>
+              <svg class="w-5 h-5" style="color: <%= is_active ? '#323232' : 'white' %>;" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a6.759 6.759 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+              </svg>
+              <span style="color: <%= is_active ? '#323232' : 'white' %>; font-family: Inter, sans-serif;">Admin</span>
+            <% end %>
+          </label>
         <% end %>
 
-        <%= link_to destroy_user_session_path, data: { turbo_method: :delete }, class: "flex items-center gap-x-4 px-6 py-3 text-sm font-semibold hover:bg-black/20 w-full" do %>
-          <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" />
-          </svg>
-          <span class="text-white" style="font-family: Inter, sans-serif;">Logout</span>
-        <% end %>
+        <label for="mobile-menu-toggle" class="lg:cursor-default cursor-pointer w-full">
+          <%= link_to destroy_user_session_path, data: { turbo_method: :delete }, class: "flex items-center gap-x-4 px-6 py-3 text-sm font-semibold hover:bg-black/20 w-full" do %>
+            <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" />
+            </svg>
+            <span class="text-white" style="font-family: Inter, sans-serif;">Logout</span>
+          <% end %>
+        </label>
+
       </div>
     </div>
+
   </div>
-</div>
+</nav>
