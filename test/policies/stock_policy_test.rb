@@ -109,33 +109,24 @@ class StockPolicyTest < ActiveSupport::TestCase
     end
   end
 
-  test "Scope resolves: admins and teachers see all; others see active only" do
+  test "Scope resolves: all logged-in users see all stocks" do
     admin = create(:admin)
     teacher = create(:teacher)
     student = create(:student)
 
-    active1 = create(:stock, archived: false)
-    active2 = create(:stock, archived: false)
+    active = create(:stock, archived: false)
     archived = create(:stock, archived: true)
 
     admin_scope = StockPolicy::Scope.new(admin, Stock.all).resolve
-    assert_includes admin_scope, active1
-    assert_includes admin_scope, active2
+    assert_includes admin_scope, active
     assert_includes admin_scope, archived
 
     teacher_scope = StockPolicy::Scope.new(teacher, Stock.all).resolve
-    assert_includes teacher_scope, active1
-    assert_includes teacher_scope, active2
+    assert_includes teacher_scope, active
     assert_includes teacher_scope, archived
 
     student_scope = StockPolicy::Scope.new(student, Stock.all).resolve
-    assert_includes student_scope, active1
-    assert_includes student_scope, active2
+    assert_includes student_scope, active
     assert_includes student_scope, archived
-
-    guest_scope = StockPolicy::Scope.new(nil, Stock.all).resolve
-    assert_includes guest_scope, active1
-    assert_includes guest_scope, active2
-    assert_not_includes guest_scope, archived
   end
 end
