@@ -3,7 +3,7 @@
 ## Summary
 Describe what this PR changes and why.
 
-## Related issue
+## Related Issue
 Resolves 
 (link the issue url, e.g. Resolves https://github.com/rubyforgood/stocks-in-the-future/issues/708)
 
