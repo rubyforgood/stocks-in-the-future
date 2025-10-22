@@ -26,15 +26,19 @@ class DistributeEarningsTest < ActiveSupport::TestCase
     last_quarter = create(:quarter, number: 1, school_year:)
     student = create(:student)
     previous_grade_book = create(:grade_book, quarter: last_quarter)
-    create(:grade_entry, grade_book: previous_grade_book, user: student, attendance_days: 6, math_grade: "C",
-                         reading_grade: "C")
+    create(
+      :grade_entry, grade_book: previous_grade_book, user: student, attendance_days: 6, math_grade: "C",
+                    reading_grade: "C"
+    )
     previous_grade_book.completed!
 
     # Now we create the current quarter and grade book with a grade entry for the same student
     current_quarter = create(:quarter, number: 2, school_year:)
     grade_book = create(:grade_book, quarter: current_quarter, classroom: previous_grade_book.classroom)
-    create(:grade_entry, grade_book: grade_book, user: student, attendance_days: 12, math_grade: "B",
-                         reading_grade: "A")
+    create(
+      :grade_entry, grade_book: grade_book, user: student, attendance_days: 12, math_grade: "B",
+                    reading_grade: "A"
+    )
     grade_book.verified!
 
     assert_difference -> { student.portfolio.portfolio_transactions.count }, 1 do

@@ -36,17 +36,21 @@ class GradeBookTest < ActiveSupport::TestCase
   end
 
   test "gradebook is finalizable? if all entries are finalizable" do
-    book = build(:grade_book,
-                 grade_entries: build_list(:grade_entry, 3, math_grade: "A", reading_grade: "B", attendance_days: 30))
+    book = build(
+      :grade_book,
+      grade_entries: build_list(:grade_entry, 3, math_grade: "A", reading_grade: "B", attendance_days: 30)
+    )
 
     assert_not_empty book.grade_entries
     assert book.finalizable?
   end
 
   test "gradebook is not finalizable? if complete" do
-    book = build(:grade_book,
-                 status: :completed,
-                 grade_entries: build_list(:grade_entry, 3, math_grade: "A", reading_grade: "B", attendance_days: 30))
+    book = build(
+      :grade_book,
+      status: :completed,
+      grade_entries: build_list(:grade_entry, 3, math_grade: "A", reading_grade: "B", attendance_days: 30)
+    )
     assert_not book.finalizable?
   end
 end

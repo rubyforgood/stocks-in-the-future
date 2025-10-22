@@ -35,15 +35,19 @@ class PortfolioTest < ActiveSupport::TestCase
     # successful completed stock purchase, should decrease cash_balance
     # -$5.00
     buy_order = create(:order, :completed, :buy, stock: stock, shares: 5, user: user)
-    create(:portfolio_transaction, :debit, portfolio: portfolio, amount_cents: 5_00,
-                                           order: buy_order)
+    create(
+      :portfolio_transaction, :debit, portfolio: portfolio, amount_cents: 5_00,
+                                      order: buy_order
+    )
     create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 5, purchase_price: 100)
 
     # successful completed stock sale, should increase cash_balance
     #  # +$6.00
     sell_order = create(:order, :completed, :sell, stock: stock, shares: 6, user: user)
-    create(:portfolio_transaction, :credit, portfolio: portfolio, amount_cents: 6_00,
-                                            order: sell_order)
+    create(
+      :portfolio_transaction, :credit, portfolio: portfolio, amount_cents: 6_00,
+                                       order: sell_order
+    )
     create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: -6, purchase_price: 100)
 
     # withdrawal from the account, should decrease cash_balance
@@ -173,10 +177,12 @@ class PortfolioTest < ActiveSupport::TestCase
     portfolio = create(:portfolio)
 
     15.times do |i|
-      create(:portfolio_snapshot,
-             portfolio: portfolio,
-             date: (14 - i).months.ago.beginning_of_month.to_date,
-             worth_cents: (100 + (i * 10)) * 100)
+      create(
+        :portfolio_snapshot,
+        portfolio: portfolio,
+        date: (14 - i).months.ago.beginning_of_month.to_date,
+        worth_cents: (100 + (i * 10)) * 100
+      )
     end
 
     result = portfolio.chart_data

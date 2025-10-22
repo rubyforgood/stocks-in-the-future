@@ -27,6 +27,9 @@ Style/Documentation:
 Style/StringLiterals:
   EnforcedStyle: double_quotes
 
+Layout/FirstMethodArgumentLineBreak:
+  Enabled: true
+
 Layout/LineLength:
   Max: 120
 
