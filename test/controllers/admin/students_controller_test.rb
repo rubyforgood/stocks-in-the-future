@@ -36,7 +36,7 @@ module Admin
     test "given a add_fund_amount, creates a transaction" do
       params = { student: {
         transaction_type: "deposit",
-        add_fund_amount: 1_050,
+        add_fund_amount: 10.50,
         transaction_reason: :awards
       } }
       admin = create(:admin)
@@ -148,7 +148,7 @@ module Admin
     test "add_transaction stores transaction_description" do
       params = { student: {
         transaction_type: "deposit",
-        add_fund_amount: 1_050,
+        add_fund_amount: 10.50,
         transaction_reason: :awards,
         transaction_description: "Extra credit for science fair"
       } }
@@ -169,7 +169,7 @@ module Admin
     test "add_transaction creates debit transaction" do
       params = { student: {
         transaction_type: "debit",
-        add_fund_amount: 500,
+        add_fund_amount: 5.00,
         transaction_reason: :administrative_adjustments
       } }
       admin = create(:admin)
