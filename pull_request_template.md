@@ -10,6 +10,8 @@ Resolves
 ## Changes
 - Short bullet list of the main changes
 
+## Screenshots(if applicable)
+
 ## Checklist
 - [ ] Issue is assigned (commenting on the issue page is needed)
 - [ ] Issue link added to the PR's description
@@ -17,7 +19,6 @@ Resolves
 - [ ] Commits are small and descriptive
 - [ ] Ran linter and fixed issues
 - [ ] Ran tests and all tests pass
-- [ ] Checked coverage
 - [ ] CI checks passing
 - [ ] Review requested from team members
 
