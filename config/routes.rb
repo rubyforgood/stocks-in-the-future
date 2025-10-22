@@ -17,7 +17,7 @@ Rails.application.routes.draw do
     resources :portfolios, only: :show
   end
 
-  resources :classrooms do
+  resources :classrooms, except: [:destroy] do
     resources :grade_books, only: %i[show update] do
       member do
         post :finalize
@@ -34,7 +34,11 @@ Rails.application.routes.draw do
   namespace :admin do
     root "classrooms#index"
     resources :announcements
-    resources :classrooms
+    resources :classrooms, except: [:destroy] do
+      member do
+        patch :toggle_archive
+      end
+    end
     resources :portfolio_transactions, except: [:index]
     resources :schools
     resources :school_years
@@ -51,7 +55,6 @@ Rails.application.routes.draw do
     end
     resources :teachers
     resources :users
-    resources :years
   end
 
   resources :orders do

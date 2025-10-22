@@ -13,12 +13,12 @@ development: &default
     # This is the last day of the month each month 
     schedule: "0 23 L * *"
   
-  clear_solid_queue_finished_jobs:
-    command: "SolidQueue::Job.clear_finished_in_batches(sleep_between_batches: 0.3)"
-    schedule: every hour at minute 12
 
 test:
   # No recurring jobs in test environment
+
+staging:
+  <<: *default
 
 production:
   <<: *default
