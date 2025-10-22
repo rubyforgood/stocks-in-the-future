@@ -22,4 +22,4 @@ Resolves
 - [ ] Review requested from team members
 
 ## Notes
-- Discuss new or non-trivial changes in [#stocks-in-the-future Slack](https://join.slack.com/t/rubyforgood/shared_invite/zt-2k5ezv241-Ia2Iac3amxDS8CuhOr69ZA) before or during implementation.
+- Discuss new or non-trivial changes in [#stocks-in-the-future slack channel](https://join.slack.com/t/rubyforgood/shared_invite/zt-2k5ezv241-Ia2Iac3amxDS8CuhOr69ZA) before or during implementation.
