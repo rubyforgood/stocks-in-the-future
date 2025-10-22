@@ -42,7 +42,7 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     get root_url
     assert_response :success
     assert_select "h3", text: "Welcome Students!"
-    assert_select "a[href=?]", announcement_path(announcement), text: "Read More"
+    assert_select "a[href=?]", announcement_path(announcement), text: "Read More", count: 0
   end
 
   test "should show most recent announcement when multiple exist" do
@@ -73,10 +73,10 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     assert_select "p", text: "No announcements yet."
   end
 
-  test "should truncate long announcement content" do
+  test "should show full announcement content in scrollable box" do
     sign_in create(:student)
 
-    long_content = "This is a long announcement content that should be truncated when displayed. " * 5
+    long_content = "This is a long announcement content that is displayed in full in a scrollable box. " * 5
     Announcement.create!(
       title: "Long Announcement",
       content: long_content
@@ -84,8 +84,8 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
 
     get root_url
     assert_response :success
-    assert_no_match(/#{long_content}/, response.body)
-    assert_select "a", text: "Read More"
+    assert_select "h3", text: "Long Announcement"
+    assert_select "a", text: "Read More", count: 0
   end
 
   test "should show positive balance message when student has money" do
