@@ -20,6 +20,7 @@ class ClassroomDashboard < Administrate::BaseDashboard
     ),
     name: Field::String,
     archived: Field::Boolean,
+    trading_enabled: Field::Boolean,
     school_year: Field::BelongsTo,
     school: Field::HasOne,
     students: Field::HasMany,
@@ -41,6 +42,7 @@ class ClassroomDashboard < Administrate::BaseDashboard
     teachers
     school_year
     archived
+    trading_enabled
   ].freeze
 
   # SHOW_PAGE_ATTRIBUTES
@@ -50,6 +52,7 @@ class ClassroomDashboard < Administrate::BaseDashboard
     grade_display
     name
     archived
+    trading_enabled
     school_year
     students
     teachers
@@ -63,6 +66,7 @@ class ClassroomDashboard < Administrate::BaseDashboard
   FORM_ATTRIBUTES = %i[
     grade
     name
+    trading_enabled
     school_year
     students
     teachers
