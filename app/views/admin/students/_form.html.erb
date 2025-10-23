@@ -61,6 +61,7 @@ and renders all form fields for a resource's editable attributes.
     <%= f.submit %>
   </div>
 <% end %>
+<% if page.resource.persisted? %>
 <hr />
 <%= form_with url: admin_student_add_transaction_path(page.resource), method: :post do |form| %>
   <% if action_name == 'edit' || action_name == 'update' %>
@@ -106,4 +107,5 @@ and renders all form fields for a resource's editable attributes.
   </div>
 
   <%= form.submit "Add transaction", class: "button" %>
+<% end %>
 <% end %>
