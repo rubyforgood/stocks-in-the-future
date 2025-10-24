@@ -1,0 +1,45 @@
+name: Deploy to Staging
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy-staging:
+    runs-on: ubuntu-latest
+
+    concurrency:
+      group: deploy-staging
+      cancel-in-progress: false
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v5
+
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.4.1'
+        bundler-cache: true
+
+    - name: Install Kamal
+      run: gem install kamal
+
+    - name: Set up SSH key
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.STAGING_SSH_PRIVATE_KEY }}" > ~/.ssh/stocks_staging_web_rsa.pem
+        chmod 600 ~/.ssh/stocks_staging_web_rsa.pem
+
+    - name: Deploy to staging with Kamal
+      env:
+        KAMAL_REGISTRY_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        KAMAL_REGISTRY_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
+        DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+        SECRET_KEY_BASE: ${{ secrets.STAGING_SECRET_KEY_BASE }}
+        RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
+        AWS_ACCESS_KEY_ID: ${{ secrets.STAGING_AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.STAGING_AWS_SECRET_ACCESS_KEY }}
+      run: |
+        bin/kamal deploy -d staging
