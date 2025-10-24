@@ -1,0 +1,3 @@
+# Name of the container image.
+image: stocks/stocks
+service: stocks-web
