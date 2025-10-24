@@ -1,0 +1,54 @@
+# Production deployment configuration
+# Deploy to production server
+servers:
+  web:
+    hosts:
+      - 52.207.28.226
+
+proxy:
+  ssl: false
+  host: 52.207.28.226
+  app_port: 3000
+
+registry:
+  username:
+    - KAMAL_REGISTRY_USERNAME
+  password:
+    - KAMAL_REGISTRY_PASSWORD
+
+# Production environment variables
+env:
+  secret:
+    - AWS_ACCESS_KEY_ID
+    - AWS_SECRET_ACCESS_KEY
+    - DATABASE_URL
+    - RAILS_MASTER_KEY
+    - SECRET_KEY_BASE
+  clear:
+    AWS_BUCKET_NAME: stocks-production
+    AWS_DEFAULT_REGION: us-east-1
+    AWS_ENDPOINT_URL: ""
+    RAILS_ENV: production
+    RAILS_MAX_THREADS: 5
+    S3_SKIP_SIGNATURE_VALIDATION: "0"
+    WEB_CONCURRENCY: 2
+
+aliases:
+  console: app exec --interactive --reuse "bin/rails console"
+  shell: app exec --interactive --reuse "bash"
+  logs: app logs -f
+  dbc: app exec --interactive --reuse "bin/rails dbconsole"
+
+volumes:
+  - "stocks_production_storage:/rails/storage"
+
+asset_path: /rails/public/assets
+
+builder:
+  arch: amd64
+
+ssh:
+  user: ubuntu
+  keys_only: true
+  keys:
+    - ~/.ssh/stocks_production_web_rsa.pem
