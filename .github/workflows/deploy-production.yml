@@ -1,6 +1,8 @@
 name: Deploy to Production
 
 on:
+  push:
+    branches: [ feature/kamal-deployment ]
   workflow_dispatch:
 
 jobs:
