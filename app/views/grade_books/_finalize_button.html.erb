@@ -1,6 +1,6 @@
 <%= button_to "Finalize Grades", finalize_classroom_grade_book_path(@classroom, @grade_book),
               disabled: !@grade_book.finalizable?,
               class: @grade_book.finalizable? ? "tw-btn-primary" : "tw-btn-primary-disabled",
-              data: { autosave_target: "button" },
+              data: { autosave_target: "button", turbo_frame: "_top" },
               form: { id: "finalize-button" }
 %>
