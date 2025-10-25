@@ -52,4 +52,20 @@ class GradeBooksTest < ApplicationSystemTestCase
     assert_text "A"
     assert_field "grade_entries[#{@grade_book.grade_entries.second.id}][attendance_days]", with: "87"
   end
+
+  test "admin sees success message when finalizing grade book" do
+    DistributeEarnings.stubs(:execute)
+    admin = create(:admin)
+    sign_in(admin)
+
+    # Fill out all entries to make grade book finalizable
+    @grade_book.grade_entries.each do |entry|
+      entry.update!(math_grade: "A", reading_grade: "B", attendance_days: 30)
+    end
+
+    visit classroom_grade_book_path(@classroom, @grade_book)
+    click_on "Finalize Grades"
+
+    assert_text "Grade book finalized. Funds have been distributed."
+  end
 end
