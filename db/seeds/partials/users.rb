@@ -26,8 +26,7 @@ unless student.persisted?
     password_confirmation: "password",
     admin: false,
     type: "Student",
-    classroom: Classroom.first,
-    portfolio_attributes: { current_position: 10_000.0 }
+    classroom: Classroom.first
   }
   student.save
   puts "Created Student user: #{student.email}"
@@ -64,8 +63,7 @@ unless mike.persisted?
     password_confirmation: "password",
     admin: false,
     type: "Student",
-    classroom: Classroom.first,
-    portfolio_attributes: { current_position: 10_000.0 }
+    classroom: Classroom.first
   }
   mike.save
   puts "Created portfolio transactions user: #{mike.email}"
