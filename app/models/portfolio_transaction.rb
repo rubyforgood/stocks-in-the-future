@@ -24,4 +24,8 @@ class PortfolioTransaction < ApplicationRecord
   scope :credits, -> { where(transaction_type: :credit) }
   scope :withdrawals, -> { where(transaction_type: :withdrawal) }
   scope :fees, -> { where(transaction_type: :fee) }
+
+  def reason_humanized
+    reason&.humanize
+  end
 end

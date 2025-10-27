@@ -35,6 +35,9 @@ en:
       notice: Grade book finalized. Funds have been distributed.
   helpers:
     label:
+      portfolio_transaction:
+        amount_cents: Amount
+        reason_humanized: Reason
       student:
         portfolio_path: Portfolio Link
   orders:
