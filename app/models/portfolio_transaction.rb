@@ -26,6 +26,6 @@ class PortfolioTransaction < ApplicationRecord
   scope :fees, -> { where(transaction_type: :fee) }
 
   def reason_humanized
-    reason&.humanize
+    REASONS.fetch(reason.to_sym) { reason.to_s.humanize }
   end
 end
