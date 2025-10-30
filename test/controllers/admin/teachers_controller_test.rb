@@ -54,5 +54,31 @@ module Admin
 
       assert_redirected_to admin_teacher_path(teacher)
     end
+
+    test "create" do
+      admin = create(:admin)
+      classroom = create(:classroom)
+      sign_in(admin)
+
+      teacher_params = {
+        email: "newteacher@example.com",
+        name: "New Teacher",
+        username: "newteacher1",
+        classroom_id: classroom.id
+      }
+
+      assert_difference("Teacher.count") do
+        post admin_teachers_path, params: { teacher: teacher_params }
+      end
+
+      teacher = Teacher.order(created_at: :desc).first
+      assert_equal "newteacher@example.com", teacher.email
+      assert_equal "New Teacher", teacher.name
+      assert_equal "newteacher1", teacher.username
+      assert_includes teacher.classrooms, classroom
+
+      assert_redirected_to admin_teachers_path
+      assert_match I18n.t("teachers.create.notice"), flash[:notice]
+    end
   end
 end
