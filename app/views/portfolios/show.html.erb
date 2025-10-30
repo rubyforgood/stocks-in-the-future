@@ -27,7 +27,7 @@
         <%# Total Stocks %>
         <div class="bg-white rounded-[22px] border border-black/30 py-4 px-5 flex flex-col justify-between min-h-[120px]">
           <div class="text-sm text-gray-600">Total Stocks</div>
-          <div class="text-2xl font-semibold"><%= @portfolio.portfolio_stocks.sum(:shares) %></div>
+          <div class="text-2xl font-semibold"><%= @portfolio.portfolio_stocks.sum(:shares).to_i %></div>
           <div><%# Trending up/down this month will go here %></div>
         </div>
       </div>
