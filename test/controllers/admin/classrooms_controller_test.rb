@@ -88,5 +88,15 @@ module Admin
       assert_response :redirect
       assert_redirected_to root_url
     end
+
+    test "non-admin users cannot toggle archive classrooms" do
+      sign_out @admin
+      teacher = create(:teacher)
+      sign_in teacher
+
+      patch toggle_archive_admin_classroom_url(@classroom)
+      assert_response :redirect
+      assert_redirected_to root_url
+    end
   end
 end

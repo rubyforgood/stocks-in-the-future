@@ -17,7 +17,7 @@ class ClassroomPolicyTest < ActiveSupport::TestCase
     assert_permit admin, classroom, :create
     assert_permit admin, classroom, :edit
     assert_permit admin, classroom, :update
-    assert_permit admin, classroom, :destroy
+    assert_permit admin, classroom, :toggle_archive
   end
 
   test "classroom policy allows teacher only `index` and `show` classroom routes" do
@@ -30,7 +30,7 @@ class ClassroomPolicyTest < ActiveSupport::TestCase
     refute_permit teacher, classroom, :create
     refute_permit teacher, classroom, :edit
     refute_permit teacher, classroom, :update
-    refute_permit teacher, classroom, :destroy
+    refute_permit teacher, classroom, :toggle_archive
   end
 
   test "classroom policy does not allow student any classroom routes" do
@@ -43,7 +43,7 @@ class ClassroomPolicyTest < ActiveSupport::TestCase
     refute_permit student, classroom, :create
     refute_permit student, classroom, :edit
     refute_permit student, classroom, :update
-    refute_permit student, classroom, :destroy
+    refute_permit student, classroom, :toggle_archive
   end
 
   test "classroom policy allows admins access to all the classrooms" do

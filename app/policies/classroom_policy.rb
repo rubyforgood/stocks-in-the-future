@@ -25,7 +25,7 @@ class ClassroomPolicy < ApplicationPolicy
     user.admin?
   end
 
-  def destroy?
+  def toggle_archive?
     user.admin?
   end
 
