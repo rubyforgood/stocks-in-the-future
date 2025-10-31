@@ -63,7 +63,7 @@ module Admin
     private
 
     def teacher_params
-      params.expect(teacher: %i[email username classroom_id])
+      params.expect(teacher: %i[email name username classroom_id])
     end
 
     # See https://administrate-demo.herokuapp.com/customizing_controller_actions
