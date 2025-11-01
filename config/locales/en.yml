@@ -31,7 +31,7 @@ en:
         portfolio: Portfolio
   grade_books:
     finalize:
-      incomplete: 'Cannot finalize: Some entries are incomplete.'
+      incomplete: 'Cannot finalize: Grade book already finalized.'
       notice: Grade book finalized. Funds have been distributed.
   helpers:
     label:
