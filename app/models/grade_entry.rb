@@ -12,8 +12,6 @@ class GradeEntry < ApplicationRecord
 
   GRADE_OPTIONS = ["A+", "A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D", "F"].freeze
 
-  def finalizable? = math_grade.present? && reading_grade.present? && attendance_days.present?
-
   def earnings_for_attendance
     return 0 if attendance_days.blank?
 
