@@ -64,7 +64,11 @@ class GradeBooksTest < ApplicationSystemTestCase
     end
 
     visit classroom_grade_book_path(@classroom, @grade_book)
-    click_on "Finalize Grades"
+
+    # Accept the confirmation dialog
+    accept_confirm "Are you sure you want to finalize these grades? This action cannot be undone." do
+      click_on "Finalize Grades"
+    end
 
     assert_text "Grade book finalized. Funds have been distributed."
   end
