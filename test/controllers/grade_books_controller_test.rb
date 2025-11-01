@@ -71,7 +71,7 @@ class GradeBooksControllerTest < ActionDispatch::IntegrationTest
     assert @grade_book.verified?
   end
 
-  test "finalize does not finalize if entries are incomplete" do
+  test "finalize does finalize even if entries are incomplete" do
     sign_in(create(:admin))
     # Ensure at least one entry is incomplete
     entry = @grade_book.grade_entries.first
@@ -80,33 +80,19 @@ class GradeBooksControllerTest < ActionDispatch::IntegrationTest
     post finalize_classroom_grade_book_path(@classroom, @grade_book)
 
     assert_redirected_to classroom_grade_book_path(@classroom, @grade_book)
-    @grade_book.reload
-    assert_not @grade_book.verified?
-  end
-
-  test "finalize shows success notice when grade book is finalized" do
-    DistributeEarnings.stubs(:execute)
-    sign_in(create(:admin))
-
-    @grade_book.grade_entries.each do |entry|
-      entry.update!(math_grade: "A", reading_grade: "B", attendance_days: 30)
-    end
-
-    post finalize_classroom_grade_book_path(@classroom, @grade_book)
-
-    assert_redirected_to classroom_grade_book_path(@classroom, @grade_book)
     assert_equal "Grade book finalized. Funds have been distributed.", flash[:notice]
+    @grade_book.reload
+
+    assert @grade_book.completed?
   end
 
-  test "finalize shows alert when grade book cannot be finalized" do
+  test "finalize does not finalize if grade book is already completed" do
     sign_in(create(:admin))
-
-    entry = @grade_book.grade_entries.first
-    entry.update!(math_grade: nil, reading_grade: "B", attendance_days: 30)
+    @grade_book.update!(status: :completed)
 
     post finalize_classroom_grade_book_path(@classroom, @grade_book)
 
     assert_redirected_to classroom_grade_book_path(@classroom, @grade_book)
-    assert_equal "Cannot finalize: Some entries are incomplete.", flash[:alert]
+    assert_equal "Cannot finalize: Grade book already finalized.", flash[:alert]
   end
 end
