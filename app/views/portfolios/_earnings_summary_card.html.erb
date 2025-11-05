@@ -1,25 +1,30 @@
 <div class="rounded-xl border border-black/60 overflow-hidden bg-white">
   <div class="bg-amber-300 py-3 px-5 font-medium text-sm tracking-wide rounded-t-xl">Investment Earnings Summary</div>
   <div class="divide-y divide-black/40 text-sm">
-    <% summary_rows = [
-      ['Attendance Earnings', 5.00],
-      ['Reading Earnings', 5.00],
-      ['Math Earnings', 1.00],
-      ['Rewards', 0.00]
-    ] %>
-    <% summary_rows.each do |label, amount| %>
+    <% earnings = (@earnings_summary&.fees_by_reason || []) %>
+    <% if earnings.any? %>
+      <% earnings.each do |earning| %>
+        <div class="flex items-center justify-between py-4 px-5 bg-white">
+          <span><%= earning[:reason_humanized] %></span>
+          <span class="tabular-nums">$ <%= sprintf('%.2f', earning[:total]) %></span>
+        </div>
+      <% end %>
+
+      <% total_earnings = earnings.sum { |e| e[:total] } %>
+      <div class="flex items-center justify-between py-4 px-5 font-semibold bg-[#eceec8]">
+        <span>Total Earnings</span>
+        <span class="tabular-nums">$ <%= sprintf('%.2f', total_earnings) %></span>
+      </div>
+      <div class="flex items-center justify-between py-4 px-5 font-medium text-red-600">
+        <span>Transition Fees</span>
+        <span class="tabular-nums">$ 0.00</span>
+      </div>
+
+    <% else %>
       <div class="flex items-center justify-between py-4 px-5 bg-white">
-        <span><%= label %></span>
-        <span class="tabular-nums">$ <%= sprintf('%.2f', amount) %></span>
+        <span>Investment Earnings</span>
+        <span class="tabular-nums">$ 0.00</span>
       </div>
     <% end %>
-    <div class="flex items-center justify-between py-4 px-5 font-semibold bg-[#eceec8]">
-      <span>Total Earnings</span>
-      <span class="tabular-nums">$ 11.00</span>
-    </div>
-    <div class="flex items-center justify-between py-4 px-5 font-medium text-red-600">
-      <span>Transition Fees</span>
-      <span class="tabular-nums">$ 0.00</span>
-    </div>
   </div>
 </div>
