@@ -1,16 +1,32 @@
-<div class="bg-white rounded-[22px] border border-black/30 h-[120px] px-5 overflow-hidden">
-  <div class="h-full flex items-center justify-between gap-4">
-    <div class="flex flex-col justify-center">
-      <p class="text-sm text-gray-600">My Earnings to Invest</p>
-      <p class="text-2xl font-semibold leading-tight tracking-tight mt-1"><%= number_to_currency(@portfolio.cash_balance) %></p>
+<% if show_invest_button %>
+  <%# Portfolio Page (with button) %>
+  <div class="bg-white rounded-[22px] border border-black/30 h-[120px] px-5 overflow-hidden">
+    <div class="h-full flex items-center justify-between gap-4">
+      <div class="flex flex-col justify-center">
+        <p class="text-sm text-gray-600">My Earnings to Invest</p>
+        <p class="text-2xl font-semibold leading-tight tracking-tight mt-1"><%= number_to_currency(earnings_amount) %></p>
 
-      <%# This line only shows the button if show_invest_button is true %>
-      <% if show_invest_button %>
+        <%# The button is part of this version %>
         <%= link_to "Invest Now", orders_path, class: "mt-2 bg-teal-600 hover:bg-teal-500 text-white text-sm font-medium px-4 py-1.5 rounded-md shadow w-fit" %>
-      <% end %>
-
+      </div>
+      <%= image_tag 'investment-funds.png', class: 'w-16 h-16 object-contain select-none pointer-events-none', alt: 'Investment Funds' %>
     </div>
-    <%= image_tag 'investment-funds.png', class: 'w-16 h-16 object-contain select-none pointer-events-none', alt: 'Investment Funds' %>
   </div>
-</div>
 
+<% else %>
+
+  <%# Trading Floor (no button) %>
+  <div class="bg-white box-border flex flex-col gap-2 items-start justify-start py-6 pl-6 pr-60 relative rounded-[24px] shadow-xs">
+    <div class="absolute border border-black inset-0 pointer-events-none rounded-[24px]"></div>
+    <div class="flex flex-col gap-1 items-start justify-start">
+      <div class="flex h-6 items-center justify-start relative">
+        <p class="font-normal text-[#333333] text-base leading-6">Earnings to Invest</p>
+      </div>
+      <div class="font-semibold text-black text-3xl leading-9 tracking-[-0.75px]">
+        <p class="whitespace-pre"><%= number_to_currency(earnings_amount) %></p>
+      </div>
+    </div>
+    <%= image_tag "investment-funds.png", class: "w-32 h-32 flex-shrink-0 absolute bottom-0 right-6 transform translate-y-[-5%]", alt: "Investment Funds" %>
+  </div>
+
+<% end %>
