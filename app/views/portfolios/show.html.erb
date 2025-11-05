@@ -84,7 +84,10 @@
 
     <!-- Right column (single column on large screens): My Earnings to Invest + Summary -->
     <div class="flex flex-col gap-6 lg:col-span-1">
-      <%= render 'portfolios/earnings_to_invest_card' %>
+      <%= render 'shared/earnings_to_invest_card', 
+           earnings_amount: @portfolio.cash_balance, 
+           show_invest_button: true 
+      %>
       <%= render 'portfolios/earnings_summary_card' %>
     </div>
   </div>
