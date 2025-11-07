@@ -10,7 +10,7 @@
     <% summary_rows.each do |label, amount| %>
       <div class="flex items-center justify-between py-4 px-5 bg-white">
         <span><%= label %></span>
-        <span class="tabular-nums">$ <%= sprintf('%.2f', amount) %></span>
+        <span class="tabular-nums">$ <%= number_to_currency(amount) %></span>
       </div>
     <% end %>
     <div class="flex items-center justify-between py-4 px-5 font-semibold bg-[#eceec8]">
