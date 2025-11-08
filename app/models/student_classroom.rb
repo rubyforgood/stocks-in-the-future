@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class StudentClassroom < ApplicationRecord
   belongs_to :student, class_name: "Student"
   belongs_to :classroom
