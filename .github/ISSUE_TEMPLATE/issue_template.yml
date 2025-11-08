@@ -1,6 +1,6 @@
 name: Issue Template
 description: Report an issue or request a feature
-title: ""
+title: "Issue: "
 labels: ["needs-triage"]
 
 body:

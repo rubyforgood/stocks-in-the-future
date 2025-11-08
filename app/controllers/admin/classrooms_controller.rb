@@ -44,5 +44,13 @@ module Admin
 
     # See https://administrate-demo.herokuapp.com/customizing_controller_actions
     # for more information
+
+    def toggle_archive
+      classroom = Classroom.find(params[:id])
+      authorize classroom, :toggle_archive?
+      classroom.update!(archived: !classroom.archived)
+      flash[:notice] = classroom.archived? ? "Classroom has been archived." : "Classroom has been activated."
+      redirect_to admin_classrooms_path
+    end
   end
 end

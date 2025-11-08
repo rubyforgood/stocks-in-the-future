@@ -59,13 +59,23 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
     assert_equal t("classrooms.update.notice"), flash[:notice]
   end
 
-  test "destroy" do
+  test "archive classroom" do
     sign_in(@admin)
-    assert_difference("Classroom.count", -1) do
-      delete classroom_path(@classroom)
+    assert_no_difference("Classroom.count") do
+      patch toggle_archive_admin_classroom_path(@classroom)
     end
-    assert_redirected_to classrooms_path
-    assert_equal t("classrooms.destroy.notice"), flash[:notice]
+    assert_redirected_to admin_classrooms_path
+    assert @classroom.reload.archived?
+    assert_equal "Classroom has been archived.", flash[:notice]
+  end
+
+  test "activate classroom" do
+    sign_in(@admin)
+    @classroom.update!(archived: true)
+    patch toggle_archive_admin_classroom_path(@classroom)
+    assert_redirected_to admin_classrooms_path
+    assert_not @classroom.reload.archived?
+    assert_equal "Classroom has been activated.", flash[:notice]
   end
 
   test "admins can see all classrooms in index" do
@@ -92,6 +102,19 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
     classroom2 = create(:classroom, name: "Teacher 2 Class")
     teacher = create(:teacher, classroom: classroom1)
     teacher.classrooms << classroom1
+    sign_in teacher
+    get classrooms_path
+    assert_response :success
+    assert_includes response.body, classroom1.name
+    assert_not_includes response.body, classroom2.name
+  end
+
+  test "teachers cannot see archived classrooms in index" do
+    classroom1 = create(:classroom, name: "Active Class")
+    classroom2 = create(:classroom, name: "Archived Class", archived: true)
+    teacher = create(:teacher)
+    teacher.classrooms << classroom1
+    teacher.classrooms << classroom2
     sign_in teacher
     get classrooms_path
     assert_response :success
@@ -127,18 +150,13 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to @student.portfolio_path
   end
 
-  test "students cannot create, edit, or delete classrooms" do
+  test "students cannot create or edit classrooms" do
     sign_in @student
 
     get new_classroom_path
     assert_redirected_to @student.portfolio_path
 
     get edit_classroom_path(@classroom)
-    assert_redirected_to @student.portfolio_path
-
-    assert_no_difference("Classroom.count") do
-      delete classroom_path(@classroom)
-    end
     assert_redirected_to @student.portfolio_path
   end
 
@@ -154,11 +172,10 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_path
   end
 
-  test "teachers cannot delete classrooms" do
+  test "teachers cannot archive classrooms" do
     sign_in @teacher
-    assert_no_difference("Classroom.count") do
-      delete classroom_path(@classroom)
-    end
+    # Teachers shouldn't be able to archive
+    patch toggle_archive_admin_classroom_path(@classroom)
     assert_redirected_to root_path
   end
 

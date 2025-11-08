@@ -16,7 +16,7 @@ class PortfolioTransactionDashboard < Administrate::BaseDashboard
       searchable: false,
       collection: ->(field) { field.resource.class.send(field.attribute.to_s.pluralize).keys }
     ),
-    reason: Field::String,
+    reason_humanized: Field::String,
     description: Field::Text,
     amount_cents: Field::Number.with_options(
       prefix: "$",
@@ -34,9 +34,9 @@ class PortfolioTransactionDashboard < Administrate::BaseDashboard
   # Feel free to add, remove, or rearrange items.
   COLLECTION_ATTRIBUTES = %i[
     id
-    portfolio
     transaction_type
-    reason
+    amount_cents
+    reason_humanized
   ].freeze
 
   # SHOW_PAGE_ATTRIBUTES

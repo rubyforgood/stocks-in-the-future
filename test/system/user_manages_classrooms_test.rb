@@ -57,17 +57,4 @@ class UserManagesClassroomsTest < ApplicationSystemTestCase
     assert_equal school2, classroom.school
     assert_equal year2, classroom.year
   end
-
-  test "should destroy Classroom" do
-    classroom = create(:classroom)
-    admin = create(:admin)
-    sign_in(admin)
-    visit classroom_path(classroom)
-
-    accept_confirm do
-      click_on "Delete classroom"
-    end
-
-    assert_text "Classroom was successfully destroyed"
-  end
 end

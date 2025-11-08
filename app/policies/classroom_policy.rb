@@ -25,7 +25,7 @@ class ClassroomPolicy < ApplicationPolicy
     user.admin?
   end
 
-  def destroy?
+  def toggle_archive?
     user.admin?
   end
 
@@ -42,7 +42,7 @@ class ClassroomPolicy < ApplicationPolicy
       if user.admin?
         scope.all
       elsif user.teacher?
-        scope.joins(:teacher_classrooms).where(teacher_classrooms: { teacher_id: user.id })
+        scope.active.joins(:teacher_classrooms).where(teacher_classrooms: { teacher_id: user.id })
       else
         []
       end

@@ -13,6 +13,7 @@ class StudentDashboard < Administrate::BaseDashboard
     id: Field::Number,
     classroom: Field::BelongsTo,
     email: Field::String,
+    password: Field::Password,
     portfolio: Field::HasOne,
     portfolio_path: PortfolioLink,
     username: Field::String,
@@ -48,6 +49,7 @@ class StudentDashboard < Administrate::BaseDashboard
   # on the model's form (`new` and `edit`) pages.
   FORM_ATTRIBUTES = %i[
     username
+    password
     classroom
     email
     portfolio

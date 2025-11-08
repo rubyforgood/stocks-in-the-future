@@ -4,7 +4,7 @@ source "https://rubygems.org"
 
 ruby "3.4.4"
 
-gem "rails", "~> 8.0.3"
+gem "rails", "~> 8.1.1"
 
 gem "administrate", "1.0.0.beta3"
 gem "bootsnap", require: false
@@ -22,7 +22,7 @@ gem "propshaft"
 gem "puma", ">= 5.0"
 gem "pundit", "~> 2.5"
 gem "shadcn-ui", "~> 0.0.15"
-gem "solid_queue", "~> 1.0"
+gem "solid_queue", "~> 1.2"
 gem "stimulus-rails"
 gem "strong_migrations", "~> 2.5"
 gem "tailwindcss-rails"
@@ -33,6 +33,7 @@ gem "tzinfo-data", platforms: %i[windows jruby]
 
 group :development, :test do
   gem "brakeman", require: false
+  gem "bundler-audit", require: false
   gem "debug", platforms: %i[mri windows]
   gem "pry", "~> 0.15.2"
   gem "pry-byebug"
@@ -41,7 +42,6 @@ group :development, :test do
 end
 
 group :development do
-  gem "bundler-audit"
   gem "i18n-tasks"
   gem "web-console"
 end

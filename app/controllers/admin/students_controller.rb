@@ -175,7 +175,8 @@ module Admin
     end
 
     def fund_amount
-      @fund_amount ||= transaction_params[:add_fund_amount]
+      amount = transaction_params[:add_fund_amount]
+      @fund_amount ||= amount.present? ? (amount.to_f * 100).to_i : nil
     end
 
     def transaction_type

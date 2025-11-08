@@ -8,6 +8,8 @@
 # you're free to overwrite the RESTful controller actions.
 module Admin
   class ApplicationController < Administrate::ApplicationController
+    include Pundit::Authorization
+
     before_action :authenticate_admin
 
     def authenticate_admin
