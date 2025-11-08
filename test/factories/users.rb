@@ -19,6 +19,8 @@ FactoryBot.define do
     after(:create) do |student, _evaluator|
       if student.classroom && !student.student_classrooms.exists?(classroom: student.classroom)
         student.student_classrooms.create!(classroom: student.classroom)
+      end
+    end
     trait :with_portfolio do
       after(:create) do |student|
         create(:portfolio, user: student)
