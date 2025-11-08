@@ -48,12 +48,12 @@ class GradeEntryTest < ActiveSupport::TestCase
     assert_equal 240, entry.earnings_for_attendance
   end
 
-  test "#earnings_for_attendance includes $1 bonus if perfect attendance" do
+  test "#attendance_perfect_earnings returns $1 only for perfect attendance" do
     entry = build(:grade_entry, attendance_days: 5, is_perfect_attendance: true)
-    assert_equal 2_00, entry.earnings_for_attendance
+    assert_equal 1_00, entry.attendance_perfect_earnings
 
     entry.is_perfect_attendance = false
-    assert_equal 1_00, entry.earnings_for_attendance
+    assert_equal 0, entry.attendance_perfect_earnings
   end
 
   test "#earnings_for_reading grade is $2 for B, $3 for an A" do
@@ -94,41 +94,22 @@ class GradeEntryTest < ActiveSupport::TestCase
     end
   end
 
-  test "#total_earnings sums attendance, reading, and math earnings" do
-    entry = build(:grade_entry, math_grade: "A", reading_grade: "B", attendance_days: 9)
-    assert_equal 3_00 + 2_00 + (9 * 20), entry.total_earnings
+  test "subject improvement earnings returns 0 when no previous entry or no improvement" do
+    entry = build(:grade_entry, math_grade: "A", reading_grade: "A")
+    assert_equal 0, entry.math_improvement_earnings(nil)
+    assert_equal 0, entry.reading_improvement_earnings(nil)
+
+    previous_entry = build(:grade_entry, math_grade: "B", reading_grade: "B")
+    worse_entry = build(:grade_entry, math_grade: "C", reading_grade: "C")
+    assert_equal 0, worse_entry.math_improvement_earnings(previous_entry)
+    assert_equal 0, worse_entry.reading_improvement_earnings(previous_entry)
   end
 
-  test "#improvement_earnings is 0 if no improvement from the previous entry" do
+  test "subject improvement earnings returns $2 when grade has improved" do
     previous_entry = build(:grade_entry, math_grade: "C", reading_grade: "C")
-    entry = build(:grade_entry, math_grade: "C", reading_grade: "D")
+    improved_entry = build(:grade_entry, math_grade: "B", reading_grade: "B")
 
-    assert_equal 0, entry.improvement_earnings(previous_entry)
-  end
-
-  test "#improvement_earnings is $2 if math grade has improved" do
-    previous_entry = build(:grade_entry, math_grade: "C", reading_grade: "C")
-    improved_grades = %w[B B+ A- A A+]
-    improved_grades.each do |grade|
-      entry = build(:grade_entry, math_grade: grade, reading_grade: "C")
-      assert_equal 2_00, entry.improvement_earnings(previous_entry), "Grade #{grade} should yield improvement earnings"
-    end
-  end
-
-  test "#improvement_earnings is $2 if reading grade has improved" do
-    previous_entry = build(:grade_entry, math_grade: "C", reading_grade: "C")
-    improved_grades = %w[B B+ A- A A+]
-    improved_grades.each do |grade|
-      entry = build(:grade_entry, math_grade: "C", reading_grade: grade)
-      assert_equal 2_00, entry.improvement_earnings(previous_entry), "Grade #{grade} should yield improvement earnings"
-    end
-  end
-
-  test "#improvement_earnings is $4 if both grades have improved" do
-    previous_entry = build(:grade_entry, math_grade: "C", reading_grade: "C")
-
-    entry = build(:grade_entry, math_grade: "B", reading_grade: "A")
-
-    assert_equal 4_00, entry.improvement_earnings(previous_entry)
+    assert_equal 2_00, improved_entry.math_improvement_earnings(previous_entry)
+    assert_equal 2_00, improved_entry.reading_improvement_earnings(previous_entry)
   end
 end

@@ -1,5 +1,26 @@
 # frozen_string_literal: true
 
+# Create transactions for Student user
+student = User.find_by(email: "student@example.com")
+
+if student
+  portfolio = Portfolio.find_or_create_by(user: student)
+
+  # Initial deposit to give student starting balance
+  PortfolioTransaction.create(
+    portfolio: portfolio,
+    transaction_type: :deposit,
+    amount_cents: 10_000_00
+  )
+
+  puts "Seeded portfolio transactions for Student user"
+  Rails.logger.info "Seeded portfolio transactions for Student user"
+else
+  puts "Student user not found. Skipping Student portfolio transactions seeding."
+  Rails.logger.warn "Student user not found. Skipping Student portfolio transactions seeding."
+end
+
+# Create transactions for Mike user
 mike = User.find_by(email: "mike@example.com")
 
 if mike

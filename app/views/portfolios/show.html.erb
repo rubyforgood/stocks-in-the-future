@@ -37,13 +37,13 @@
         <%# Total Cash Value %>
         <div class="bg-white rounded-[22px] border border-black/30 py-4 px-5 flex flex-col justify-between min-h-[120px]">
           <div class="text-sm text-gray-600">Total Cash Value</div>
-          <div class="text-2xl font-semibold">$<%= sprintf('%.2f', @portfolio.cash_balance) %></div>
+          <div class="text-2xl font-semibold"><%= number_to_currency(@portfolio.cash_balance) %></div>
           <div><%# Trending up/down this month will go here %></div>
         </div>
-        <%# Total Stock Buys %>
+        <%# Total Stocks %>
         <div class="bg-white rounded-[22px] border border-black/30 py-4 px-5 flex flex-col justify-between min-h-[120px]">
-          <div class="text-sm text-gray-600">Total Stock Buys</div>
-          <div class="text-2xl font-semibold"><%= @portfolio.portfolio_transactions.where(transaction_type: 'buy').count %></div>
+          <div class="text-sm text-gray-600">Total Stocks</div>
+          <div class="text-2xl font-semibold"><%= @portfolio.portfolio_stocks.sum(:shares).to_i %></div>
           <div><%# Trending up/down this month will go here %></div>
         </div>
       </div>
@@ -74,10 +74,19 @@
               <% shares = position.shares %>
               <% change_amount = position.change_amount %>
               <% total_return_amount = position.total_return_amount %>
+              <% logo_path = "stock_logos/#{position.stock_ticker}-logo.svg" %>
               <tr class="border-t first:border-t-0 border-black/40">
                 <td class="py-4 pl-6 pr-4 align-middle">
-                  <div class="flex items-center gap-3">
-                    <span class="font-medium"><%= position.stock_ticker %></span>
+                  <div class="flex items-center gap-4">
+                    <% if File.exist?("app/assets/images/#{logo_path}") %>
+                      <%= image_tag asset_path(logo_path),
+                                    class: "w-10 h-10 rounded-lg flex-shrink-0",
+                                    alt: "#{position.stock_ticker} logo",
+                                    loading: "lazy" %>
+                    <% end %>
+                    <div class="flex flex-col">
+                      <span class="font-medium"><%= position.stock_ticker %></span>
+                    </div>
                   </div>
                 </td>
                 <td class="py-4 px-4 align-middle"><%= shares %></td>
@@ -100,7 +109,10 @@
 
     <!-- Right column (single column on large screens): My Earnings to Invest + Summary -->
     <div class="flex flex-col gap-6 lg:col-span-1">
-      <%= render 'portfolios/earnings_to_invest_card' %>
+      <%= render 'shared/earnings_to_invest_card', 
+           earnings_amount: @portfolio.cash_balance, 
+           show_invest_button: true 
+      %>
       <%= render 'portfolios/earnings_summary_card' %>
     </div>
   </div>

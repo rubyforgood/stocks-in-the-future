@@ -23,10 +23,11 @@ class DistributeEarnings
 
   def distribute_funds_to_students
     @grade_book.grade_entries.each do |entry|
-      earnings = entry.total_earnings + calculate_improvement_bonus(entry)
-      next if earnings.zero?
+      previous_entry = @previous_entries[entry.user_id]&.first
 
-      create_earnings_transaction(entry.user, earnings)
+      distribute_earnings(entry.user, attendance_earnings(entry, previous_entry), :attendance_earnings)
+      distribute_earnings(entry.user, math_earnings(entry, previous_entry), :math_earnings)
+      distribute_earnings(entry.user, reading_earnings(entry, previous_entry), :reading_earnings)
     end
   end
 
@@ -40,18 +41,34 @@ class DistributeEarnings
     previous_grade_book.grade_entries.to_a.group_by(&:user_id)
   end
 
-  def calculate_improvement_bonus(current_entry)
-    previous_entry = @previous_entries[current_entry.user_id]&.first
-    return 0 unless previous_entry
+  def distribute_earnings(user, amount_cents, reason_key)
+    return if amount_cents.zero?
 
-    current_entry.improvement_earnings(previous_entry)
-  end
-
-  def create_earnings_transaction(user, amount_cents)
     user.portfolio.portfolio_transactions.create!(
       amount_cents: amount_cents,
       transaction_type: :deposit,
-      reason: PortfolioTransaction::REASONS[:grade_earnings] # TODO: Replace this with the broken out reasons
+      reason: PortfolioTransaction::REASONS[reason_key]
     )
+  end
+
+  def attendance_earnings(entry, _previous_entry)
+    [
+      entry.earnings_for_attendance,
+      entry.attendance_perfect_earnings
+    ].sum
+  end
+
+  def math_earnings(entry, previous_entry)
+    [
+      entry.earnings_for_math,
+      entry.math_improvement_earnings(previous_entry)
+    ].sum
+  end
+
+  def reading_earnings(entry, previous_entry)
+    [
+      entry.earnings_for_reading,
+      entry.reading_improvement_earnings(previous_entry)
+    ].sum
   end
 end

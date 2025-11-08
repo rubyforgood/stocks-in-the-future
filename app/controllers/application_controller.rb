@@ -5,6 +5,7 @@ class ApplicationController < ActionController::Base
 
   before_action :authenticate_user!
   before_action :configure_permitted_parameters, if: :devise_controller?
+  before_action :set_navbar_stocks
 
   protected
 
@@ -17,6 +18,10 @@ class ApplicationController < ActionController::Base
   end
 
   private
+
+  def set_navbar_stocks
+    @navbar_stocks = policy_scope(Stock).active
+  end
 
   def configure_permitted_parameters
     devise_parameter_sanitizer.permit(:sign_up, keys: %i[username type classroom_id])

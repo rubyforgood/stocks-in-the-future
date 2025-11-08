@@ -31,7 +31,7 @@ class ClassroomPolicy < ApplicationPolicy
     user.classroom_ids.include?(record.id)
   end
 
-  def destroy?
+  def toggle_archive?
     user.admin?
   end
 

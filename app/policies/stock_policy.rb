@@ -3,9 +3,9 @@
 class StockPolicy < ApplicationPolicy
   # Show trading-related links (buy/sell/trade) when the user is a student
   # and has a portfolio (safeguard for nil portfolio) and the stock is not archived
-  # and trading is enabled for their classroom.
+  # (or if archived, user is holding it) and trading is enabled for their classroom.
   def show_trading_link?
-    user.present? && user.student? && portfolio_present? && !record.archived? && user.classroom&.trading_enabled?
+    show_holdings? && (!record.archived? || user.holding?(record)) && user.classroom&.trading_enabled?
   end
 
   # Show holdings column / counts for students with a portfolio
@@ -51,11 +51,7 @@ class StockPolicy < ApplicationPolicy
   # Scope to control which stocks are visible in listings
   class Scope < ApplicationPolicy::Scope
     def resolve
-      if user&.admin? || user&.teacher?
-        scope.all
-      else
-        scope.active
-      end
+      scope.all
     end
   end
 end

@@ -22,18 +22,10 @@
   <div class="flex justify-between items-center pb-2 pt-4">
     <h1 class="font-bold text-4xl">Trading Floor</h1>
   <% if policy(Stock).show_holdings? || (current_user.present? && current_user.student?) %>
-      <div class="bg-white box-border flex flex-col gap-2 items-start justify-start py-6 pl-6 pr-60 relative rounded-[24px] shadow-xs">
-        <div class="absolute border border-black inset-0 pointer-events-none rounded-[24px]"></div>
-        <div class="flex flex-col gap-1 items-start justify-start">
-          <div class="flex h-6 items-center justify-start relative">
-            <p class="font-normal text-[#333333] text-base leading-6">Earnings to Invest</p>
-          </div>
-          <div class="font-semibold text-black text-3xl leading-9 tracking-[-0.75px]">
-            <p class="whitespace-pre"><%= number_to_currency(@portfolio.cash_balance) %></p>
-          </div>
-        </div>
-        <%= image_tag "investment-funds.png", class: "w-32 h-32 flex-shrink-0 absolute bottom-0 right-6 transform translate-y-[-5%]", alt: "Investment Funds" %>
-      </div>
+      <%= render 'shared/earnings_to_invest_card',
+        earnings_amount: @portfolio.cash_balance,
+        show_invest_button: false
+      %> 
     <% end %>
 
   </div>
@@ -41,40 +33,8 @@
   </div>
 
   <main class="flex-1 p-6">
-    <%= render "shared/table_container" do %>
-      <thead>
-        <tr class="table-header-row">
-          <th class="table-header-cell table-header-cell-left">
-            Company (Exchange)
-          </th>
-          <th class="table-header-cell table-header-cell-right">
-            Last Price
-          </th>
-          <% if current_user.student? %>
-            <th class="table-header-cell table-header-cell-left">
-              Your Holdings
-            </th>
-            <th class="table-header-cell table-header-cell-center" colspan="2">
-
-            </th>
-          <% end %>
-        </tr>
-      </thead>
-      <tbody>
-        <% if @stocks.any? %>
-          <% @stocks.each do |stock| %>
-            <%= render "stocks/index_row", stock: stock %>
-          <% end %>
-        <% else %>
-          <tr class="table-body-row">
-            <td class="table-empty-cell" colspan="<%== current_user.student? ? 5 : 2 %>">
-              <p class="text-lg">No stocks found</p>
-              <p class="mt-2">No stocks available for trading.</p>
-            </td>
-          </tr>
-        <% end %>
-      </tbody>
-    <% end %>
+    <%= render "stocks/stocks_table", title: "Active Stocks", stocks: @stocks.active %>
+    <%= render "stocks/stocks_table", title: "Archived Stocks", stocks: @stocks.archived %>
   </main>
 </div>
 <%= render "shared/modal" %>

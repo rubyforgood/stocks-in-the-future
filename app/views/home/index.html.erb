@@ -1,7 +1,7 @@
 <%# Home Dashboard Page - aligns with portfolio card styling and app color palette %>
 <div class="max-w-[1180px] mx-auto space-y-6 pb-16" style="font-family: Inter, system-ui, sans-serif;">
 	<!-- Welcome / Funds Banner (Hero) -->
-	<div class="relative mb-8">
+	<div class="relative mb-8 mt-10">
 		<div class="hero-banner rounded-[16px] border-2 border-black bg-gradient-to-r from-[#F4D18D] to-[#F8DBA8] px-4 md:px-6 py-2 md:py-3 flex flex-col md:flex-row gap-2 md:gap-3 items-start md:items-center justify-between relative">
 			<!-- Decorative coins scattered in background -->
 			<div class="flex-1 flex flex-col gap-1 pr-0 md:pr-6 relative z-10">
@@ -30,7 +30,7 @@
 	</div>
 
 	<!-- Middle Two-Column Section: Images (left) + Announcements (right) -->
-	<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-stretch mt-6">
+	<div class="grid grid-cols-1 gap-4 lg:gap-8 lg:grid-cols-2 items-stretch mt-6">
 		<!-- Left Images -->
 		<div class="flex items-center justify-center">
 			<div class="flex gap-4 justify-center items-center w-full">
@@ -39,18 +39,17 @@
 		</div>
 
 		<!-- Right Announcements -->
-		<div class="flex -ml-16 relative z-20">
-			<div class="rounded-xl border-2 border-black overflow-hidden bg-white w-full flex flex-col">
-				<div class="bg-teal-500 text-white py-2 px-3 font-semibold text-sm tracking-wide border-b-2 border-black">Announcements</div>
-				<div class="p-4 text-xs text-gray-600 min-h-[150px] flex flex-col">
+		<div class="flex ml-0 relative z-20">
+			<div class="rounded-xl border-2 border-black overflow-hidden bg-white w-full flex flex-col" role="region" aria-label="Announcements">
+				<div class="bg-teal-500 text-white py-1.5 px-3 font-semibold text-xs tracking-wide border-b-2 border-black">Announcements</div>
+				<div class="p-4 text-xs text-gray-600 flex flex-col">
 					<% if @current_announcement %>
 						<% cache @current_announcement do %>
 							<div class="space-y-3">
 								<h3 class="font-semibold text-gray-900 text-sm"><%= @current_announcement.title %></h3>
-								<div class="text-gray-700 trix-content">
-									<%= @current_announcement.excerpt %>
+								<div class="text-gray-700 trix-content max-h-[480px] overflow-y-auto">
+									<%= @current_announcement.content %>
 								</div>
-								<%= link_to "Read More", announcement_path(@current_announcement), class: "inline-flex items-center text-black underline hover:text-[var(--sitf-secondary-chart2)] font-medium text-xs mt-2" %>
 							</div>
 						<% end %>
 					<% else %>
@@ -73,7 +72,8 @@
 			] %>
 			<% steps.each do |s| %>
 				<div class="flex gap-3 md:gap-2 items-start">
-					<div class="pr-1"><%= image_tag "#{s[:num]}.png", alt: "Step #{s[:num]}", class: "w-16 h-8 md:w-20 md:h-10 lg:w-24 lg:h-12" %></div>
+					<% scale_style = (s[:num] == '3_Number' || s[:num] == '4_Number') ? "object-fit: contain; object-position: center; transform: scale(1.4);" : "object-fit: contain; object-position: center;" %>
+					<div class="pr-1"><%= image_tag "#{s[:num]}.svg", alt: "Step #{s[:num]}", class: "w-20 h-10 md:w-28 md:h-14 lg:w-32 lg:h-16", style: scale_style %></div>
 					<div class="space-y-1">
 						<p class="font-semibold leading-snug"><%= s[:title] %></p>
 						<p class="text-[13px] text-gray-700 leading-snug"><%= s[:body] %></p>
