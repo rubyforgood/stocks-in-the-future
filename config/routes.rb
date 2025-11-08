@@ -18,6 +18,9 @@ Rails.application.routes.draw do
   end
 
   resources :classrooms, except: [:destroy] do
+    member do
+      patch :toggle_trading
+    end
     resources :grade_books, only: %i[show update] do
       member do
         post :finalize

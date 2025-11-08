@@ -35,6 +35,13 @@ class ClassroomPolicy < ApplicationPolicy
     user.admin?
   end
 
+  def toggle_trading?
+    return true if user.admin?
+    return false unless user.teacher?
+
+    user.classroom_ids.include?(record.id)
+  end
+
   # there has to be a scope class associated here
   class Scope
     attr_reader :user, :scope

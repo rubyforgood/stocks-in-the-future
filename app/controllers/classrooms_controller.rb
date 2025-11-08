@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 class ClassroomsController < ApplicationController
-  before_action :set_classroom, only: %i[show edit update]
-  before_action :authorize_classroom, except: %i[edit update]
-  before_action :authorize_classroom_instance, only: %i[edit update]
+  before_action :set_classroom, only: %i[show edit update toggle_trading]
+  before_action :authorize_classroom, except: %i[edit update toggle_trading]
+  before_action :authorize_classroom_instance, only: %i[edit update toggle_trading]
   before_action :authenticate_user!
   before_action :ensure_teacher_or_admin, except: %i[index show]
   before_action :check_classroom_eligibility, only: :show
@@ -51,6 +51,15 @@ class ClassroomsController < ApplicationController
     else
       dropdown_data
       render :edit, status: :unprocessable_content
+    end
+  end
+
+  def toggle_trading
+    if @classroom.update(trading_enabled: !@classroom.trading_enabled)
+      status = @classroom.trading_enabled? ? "enabled" : "disabled"
+      redirect_to classroom_url(@classroom), notice: "Trading has been #{status} for this classroom."
+    else
+      redirect_to classroom_url(@classroom), alert: "Unable to update trading status."
     end
   end
 
