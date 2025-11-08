@@ -15,6 +15,12 @@ FactoryBot.define do
     classroom { create(:classroom) }
     sequence(:username) { |n| "student_#{n}" }
     sequence(:email) { |n| "student_#{n}@example.com" }
+
+    after(:create) do |student, evaluator|
+      if student.classroom && !student.student_classrooms.exists?(classroom: student.classroom)
+        student.student_classrooms.create!(classroom: student.classroom)
+      end
+    end
   end
 
   factory :teacher, class: "Teacher" do
