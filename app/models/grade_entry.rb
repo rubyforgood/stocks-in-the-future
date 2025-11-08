@@ -34,12 +34,14 @@ class GradeEntry < ApplicationRecord
 
   def math_improvement_earnings(previous_entry)
     return 0 unless previous_entry
+    return 0 if math_grade.nil? || previous_entry.math_grade.nil?
 
     improved_grade?(math_grade, previous_entry.math_grade) ? EARNINGS_FOR_IMPROVED_GRADE : 0
   end
 
   def reading_improvement_earnings(previous_entry)
     return 0 unless previous_entry
+    return 0 if reading_grade.nil? || previous_entry.reading_grade.nil?
 
     improved_grade?(reading_grade, previous_entry.reading_grade) ? EARNINGS_FOR_IMPROVED_GRADE : 0
   end
