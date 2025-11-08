@@ -5,13 +5,11 @@
 
   <div class="flex justify-between items-center pb-2 pt-4">
     <h1 class="font-bold text-4xl">Trading Floor</h1>
-  <% if policy(Stock).show_holdings? || (current_user.present? && current_user.student?) %>
-      <%= render 'shared/earnings_to_invest_card',
-        earnings_amount: @portfolio.cash_balance,
-        show_invest_button: false
-      %> 
+    <% if policy(Stock).show_holdings? || (current_user.present? && current_user.student?) %>
+      <div class="mt-4">
+        <%= render 'shared/earnings_to_invest_card' %>
+      </div>
     <% end %>
-
   </div>
 
   </div>
