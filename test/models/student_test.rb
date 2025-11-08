@@ -17,7 +17,7 @@ class StudentTest < ActiveSupport::TestCase
 
   test "has many classrooms through student_classrooms" do
     student = create(:student)
-    initial_classroom_count = student.classrooms.count  # Factory creates 1 default classroom
+    initial_classroom_count = student.classrooms.count # Factory creates 1 default classroom
     classroom1 = create(:classroom)
     classroom2 = create(:classroom)
 
@@ -31,7 +31,7 @@ class StudentTest < ActiveSupport::TestCase
 
   test "can have archived classroom in history" do
     student = create(:student)
-    initial_count = student.student_classrooms.count  # Factory creates 1 default join record
+    initial_count = student.student_classrooms.count # Factory creates 1 default join record
     classroom1 = create(:classroom)
     classroom2 = create(:classroom)
 

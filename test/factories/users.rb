@@ -16,7 +16,7 @@ FactoryBot.define do
     sequence(:username) { |n| "student_#{n}" }
     sequence(:email) { |n| "student_#{n}@example.com" }
 
-    after(:create) do |student, evaluator|
+    after(:create) do |student, _evaluator|
       if student.classroom && !student.student_classrooms.exists?(classroom: student.classroom)
         student.student_classrooms.create!(classroom: student.classroom)
       end
