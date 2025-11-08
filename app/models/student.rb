@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 class Student < User
-  validates :classroom, presence: true
+  has_many :student_classrooms, dependent: :destroy
+  has_many :classrooms, through: :student_classrooms
 
   # Ensure students have nil email by default (not empty string)
   after_initialize :set_default_email, if: :new_record?
