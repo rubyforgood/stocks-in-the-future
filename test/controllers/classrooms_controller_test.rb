@@ -166,16 +166,24 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_path
   end
 
-  test "teachers can edit their own classrooms" do
+  test "teachers can toggle trading for their own classrooms" do
     sign_in @teacher
-    get edit_classroom_path(@classroom)
-    assert_response :success
+    assert_not @classroom.trading_enabled
+    patch toggle_trading_classroom_path(@classroom)
+    assert_redirected_to classroom_path(@classroom)
+    assert @classroom.reload.trading_enabled
   end
 
-  test "teachers cannot edit other teachers' classrooms" do
+  test "teachers cannot edit classrooms" do
+    sign_in @teacher
+    get edit_classroom_path(@classroom)
+    assert_redirected_to root_path
+  end
+
+  test "teachers cannot toggle trading for other teachers' classrooms" do
     other_classroom = create(:classroom, name: "Other Class")
     sign_in @teacher
-    get edit_classroom_path(other_classroom)
+    patch toggle_trading_classroom_path(other_classroom)
     assert_redirected_to root_path
   end
 

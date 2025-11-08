@@ -4,7 +4,7 @@ FactoryBot.define do
   factory :classroom do
     sequence(:name) { |n| "Classroom #{n}" }
     grade { Classroom::GRADE_RANGE.sample }
-    trading_enabled { true }
+    trading_enabled { false }
     association :school_year
   end
 end
