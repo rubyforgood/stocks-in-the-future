@@ -5,7 +5,7 @@ class EarningsSummary
     @portfolio = portfolio
   end
 
-  def fees_by_reason
+  def earnings_breakdown
     earnings_by_reason = PortfolioTransaction
                          .where(portfolio: @portfolio, transaction_type: :fee)
                          .group("reason")
