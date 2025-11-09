@@ -31,7 +31,7 @@
     <p class="text-sm text-gray-500 font-medium">Total Cost</p>
     <p class="text-lg font-semibold">
       <% if order.stock.price_cents && order.shares %>
-        $<%= sprintf("%.2f", order.purchase_cost / 100.0) %>
+        <%= number_to_currency(order.purchase_cost / 100.0) %>
       <% else %>
         <span class="text-gray-400">Price unavailable</span>
       <% end %>
