@@ -8,7 +8,7 @@ Also, only the production environment is in scope, although, it's ok and normal 
 
 ## Reporting a Vulnerability
 
-Open a github issue (but do NOT provide vulnerability details on github) to notify us that you need to report an issue.
+Please report a vulnerability by emailing [casa@rubyforgood.org](mailto:polly@rubyforgood.org)
 
 We will reply to all reported issues.
 
