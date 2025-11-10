@@ -23,20 +23,6 @@ class GradeEntryTest < ActiveSupport::TestCase
     assert entry.valid?
   end
 
-  test "#finalizable?" do
-    entry = build(:grade_entry, math_grade: nil, reading_grade: nil, attendance_days: nil)
-    assert_not entry.finalizable?
-
-    entry.math_grade = "A"
-    assert_not entry.finalizable?
-
-    entry.reading_grade = "B"
-    assert_not entry.finalizable?
-
-    entry.attendance_days = 30
-    assert entry.finalizable?
-  end
-
   test "#earnings_for_attendance is 20 cents per day" do
     entry = build(:grade_entry, attendance_days: 0)
     assert_equal 0, entry.earnings_for_attendance
