@@ -47,7 +47,7 @@ class DistributeEarnings
     user.portfolio.portfolio_transactions.create!(
       amount_cents: amount_cents,
       transaction_type: :deposit,
-      reason: PortfolioTransaction::REASONS[reason_key]
+      reason: reason_key
     )
   end
 
