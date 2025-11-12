@@ -1,9 +1,14 @@
 <%# Redesigned Portfolio Page %>
-<div class="max-w-[1180px] mx-auto space-y-6" style="font-family: Inter, system-ui, sans-serif;">
+<div class="max-w-[1180px] mx-auto px-4 sm:px-6 py-6 space-y-6" style="font-family: Inter, system-ui, sans-serif;">
   <!-- Header with badge icons and title -->
-  <div class="flex items-center gap-3">
-    <div class="flex items-center gap-1 text-2xl"><span>📙💰</span></div>
-    <h1 class="text-lg md:text-xl font-medium tracking-wide"><%= @portfolio.user.username.upcase %>, PORTFOLIO <span class="font-normal text-gray-500">| <%= @portfolio.user.school&.name %></span></h1>
+  <div class="flex items-center gap-2 sm:gap-3">
+    <div class="flex items-center gap-1 text-xl sm:text-2xl"><span>📙💰</span></div>
+    <h1 class="text-sm sm:text-base md:text-lg lg:text-xl font-medium tracking-wide">
+      <%= @portfolio.user.username.upcase %>, PORTFOLIO
+      <span class="font-normal text-gray-500 block sm:inline">
+        <span class="hidden sm:inline">| </span><%= @portfolio.user.school&.name %>
+      </span>
+    </h1>
   </div>
 
   <% if @portfolio.user.student? && !@portfolio.user.classroom&.trading_enabled? %>
@@ -27,7 +32,7 @@
     <div class="flex flex-col gap-6 lg:col-span-2">
       <%= render 'portfolios/portfolio_chart' %>
 
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
         <%# Total Earnings Card %>
         <div class="bg-white rounded-[22px] border border-black/30 py-4 px-5 flex flex-col justify-between min-h-[120px]">
           <div class="text-sm text-gray-600">Total Earnings</div>
@@ -49,8 +54,9 @@
       </div>
       <!-- Holdings Table -->
       <div class="rounded-xl border border-black/60 bg-white overflow-hidden">
-        <table class="w-full border-collapse">
-          <colgroup>
+        <div class="overflow-x-auto">
+          <table class="w-full min-w-[700px] border-collapse">
+          <colgroup class="hidden lg:table-column-group">
             <col class="w-[34%]">
             <col class="w-[8%]">
             <col class="w-[18%]">
@@ -59,7 +65,7 @@
             <col class="w-[14%]">
           </colgroup>
           <thead>
-            <tr class="bg-amber-300/95 text-[13px]">
+            <tr class="bg-amber-300/95 text-xs sm:text-[13px]">
               <th scope="col" class="text-left py-3 pl-6 pr-4 font-medium">Current Holdings</th>
               <th scope="col" class="text-left py-3 px-4 font-medium">Qty.</th>
               <th scope="col" class="text-left py-3 px-4 font-medium">Last Price</th>
@@ -68,7 +74,7 @@
               <th class="py-3 pr-6"></th>
             </tr>
           </thead>
-          <tbody class="text-[14px]">
+          <tbody class="text-xs sm:text-[14px]">
             <% @portfolio.positions.each do |position| %>
               <% price = position.stock_current_price %>
               <% shares = position.shares %>
@@ -98,21 +104,19 @@
                   <% if total_return_amount >= 0 %>+<% end %> <%= number_to_currency(total_return_amount) %>
                 </td>
                 <td class="py-3 pr-6 align-middle">
-                  <%= link_to "Trade", stocks_path, class: "inline-flex items-center justify-center rounded-full bg-sky-800 text-white px-6 py-2 text-sm font-medium shadow hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-1 transition-colors" %>
+                  <%= link_to "Trade", stocks_path, class: "inline-flex items-center justify-center rounded-full bg-sky-800 text-white px-6 py-2 text-xs sm:text-sm font-medium shadow hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-1 transition-colors" %>
                 </td>
               </tr>
             <% end %>
           </tbody>
         </table>
+        </div>
       </div>
     </div>
 
     <!-- Right column (single column on large screens): My Earnings to Invest + Summary -->
     <div class="flex flex-col gap-6 lg:col-span-1">
-      <%= render 'shared/earnings_to_invest_card', 
-           earnings_amount: @portfolio.cash_balance, 
-           show_invest_button: true 
-      %>
+      <%= render 'shared/earnings_to_invest_card' %>
       <%= render 'portfolios/earnings_summary_card' %>
     </div>
   </div>

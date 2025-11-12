@@ -23,14 +23,14 @@ class GradeBooksController < ApplicationController
   end
 
   def finalize
-    if @grade_book.finalizable?
+    if @grade_book.completed?
+      redirect_to classroom_grade_book_path(@classroom, @grade_book),
+                  alert: t(".already_completed")
+    else
       @grade_book.verified!
       DistributeEarnings.execute(@grade_book)
       redirect_to classroom_grade_book_path(@classroom, @grade_book),
                   notice: t(".notice")
-    else
-      redirect_to classroom_grade_book_path(@classroom, @grade_book),
-                  alert: t(".incomplete")
     end
   end
 
