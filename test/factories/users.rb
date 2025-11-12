@@ -17,8 +17,8 @@ FactoryBot.define do
     sequence(:email) { |n| "student_#{n}@example.com" }
 
     after(:create) do |student, _evaluator|
-      if student.classroom && !student.student_classrooms.exists?(classroom: student.classroom)
-        student.student_classrooms.create!(classroom: student.classroom)
+      if student.classroom && !student.enrollments.exists?(classroom: student.classroom)
+        student.enrollments.create!(classroom: student.classroom)
       end
     end
     trait :with_portfolio do
