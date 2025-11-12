@@ -38,9 +38,11 @@ class ImportStudentService
   def import_student(username:, classroom_id:)
     student = Student.new(
       username: username,
-      classroom_id: classroom_id,
       password: MemorablePasswordGenerator.generate
     )
+
+    # Build the enrollment association before saving
+    student.enrollments.build(classroom_id: classroom_id)
 
     if student.save
       success_result(student)
