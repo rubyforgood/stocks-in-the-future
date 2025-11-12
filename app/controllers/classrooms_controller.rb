@@ -56,10 +56,10 @@ class ClassroomsController < ApplicationController
 
   def toggle_trading
     if @classroom.update(trading_enabled: !@classroom.trading_enabled)
-      status = @classroom.trading_enabled? ? "enabled" : "disabled"
-      redirect_to classroom_url(@classroom), notice: "Trading has been #{status} for this classroom."
+      notice_key = @classroom.trading_enabled? ? :enabled : :disabled
+      redirect_to classroom_url(@classroom), notice: t(".#{notice_key}")
     else
-      redirect_to classroom_url(@classroom), alert: "Unable to update trading status."
+      redirect_to classroom_url(@classroom), alert: t(".alert")
     end
   end
 
