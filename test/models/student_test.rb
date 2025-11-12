@@ -15,14 +15,14 @@ class StudentTest < ActiveSupport::TestCase
     assert_equal classroom, student.classroom
   end
 
-  test "has many classrooms through student_classrooms" do
+  test "has many classrooms through enrollments" do
     student = create(:student)
     initial_classroom_count = student.classrooms.count # Factory creates 1 default classroom
     classroom1 = create(:classroom)
     classroom2 = create(:classroom)
 
-    student.student_classrooms.create!(classroom: classroom1)
-    student.student_classrooms.create!(classroom: classroom2)
+    student.enrollments.create!(classroom: classroom1)
+    student.enrollments.create!(classroom: classroom2)
 
     assert_equal initial_classroom_count + 2, student.classrooms.count
     assert_includes student.classrooms, classroom1
@@ -31,16 +31,16 @@ class StudentTest < ActiveSupport::TestCase
 
   test "can have archived classroom in history" do
     student = create(:student)
-    initial_count = student.student_classrooms.count # Factory creates 1 default join record
+    initial_count = student.enrollments.count # Factory creates 1 default join record
     classroom1 = create(:classroom)
     classroom2 = create(:classroom)
 
-    student.student_classrooms.create!(classroom: classroom1, archived: false)
-    student.student_classrooms.create!(classroom: classroom2, archived: true)
+    student.enrollments.create!(classroom: classroom1, archived: false)
+    student.enrollments.create!(classroom: classroom2, archived: true)
 
-    assert_equal initial_count + 2, student.student_classrooms.count
-    assert_equal initial_count + 1, student.student_classrooms.where(archived: false).count
-    assert_equal 1, student.student_classrooms.where(archived: true).count
+    assert_equal initial_count + 2, student.enrollments.count
+    assert_equal initial_count + 1, student.enrollments.where(archived: false).count
+    assert_equal 1, student.enrollments.where(archived: true).count
   end
 
   test "has portfolio association" do
