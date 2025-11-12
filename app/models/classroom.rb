@@ -12,10 +12,10 @@ class Classroom < ApplicationRecord
   has_many :users, dependent: :nullify
   has_many :teacher_classrooms, dependent: :destroy
   has_many :teachers, through: :teacher_classrooms
-  has_many :student_classrooms, dependent: :destroy
-  has_many :students, -> { kept }, through: :student_classrooms
+  has_many :enrollments, dependent: :destroy
+  has_many :students, -> { kept }, through: :enrollments
   has_many :grade_books, dependent: :nullify
-
+ 
   validates :name, presence: true
 
   scope :active, -> { where(archived: false) }
