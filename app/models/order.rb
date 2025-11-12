@@ -28,6 +28,9 @@ class Order < ApplicationRecord
 
   delegate :portfolio, to: :user
 
+  scope :buy, -> { where(action: :buy) }
+  scope :sell, -> { where(action: :sell) }
+
   scope :pending, -> { where(status: :pending) }
   scope :completed, -> { where(status: :completed) }
   scope :canceled, -> { where(status: :canceled) }
