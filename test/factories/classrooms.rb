@@ -6,5 +6,9 @@ FactoryBot.define do
     grade { Classroom::GRADE_RANGE.sample }
     trading_enabled { false }
     association :school_year
+
+    trait :with_trading do
+      trading_enabled { true }
+    end
   end
 end

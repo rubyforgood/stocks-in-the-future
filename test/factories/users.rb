@@ -12,7 +12,7 @@ FactoryBot.define do
   factory :student, class: "Student" do
     type { "Student" }
     password { "Passw0rd" }
-    classroom { create(:classroom, trading_enabled: true) }
+    classroom { create(:classroom, :with_trading) }
     sequence(:username) { |n| "student_#{n}" }
     sequence(:email) { |n| "student_#{n}@example.com" }
 
