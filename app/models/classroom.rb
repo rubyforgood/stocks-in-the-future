@@ -15,7 +15,7 @@ class Classroom < ApplicationRecord
   has_many :enrollments, dependent: :destroy
   has_many :students, -> { kept }, through: :enrollments
   has_many :grade_books, dependent: :nullify
- 
+
   validates :name, presence: true
 
   scope :active, -> { where(archived: false) }

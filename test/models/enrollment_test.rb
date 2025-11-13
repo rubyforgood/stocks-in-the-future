@@ -48,12 +48,12 @@ class EnrollmentTest < ActiveSupport::TestCase
 
   test "student can enroll in multiple classrooms" do
     student = create(:student)
-    initial_count = student.enrollments.count  # Factory may create a default enrollment
+    initial_count = student.enrollments.count # Factory may create a default enrollment
     classroom1 = create(:classroom)
     classroom2 = create(:classroom)
 
-    enrollment1 = Enrollment.create!(student: student, classroom: classroom1)
-    enrollment2 = Enrollment.create!(student: student, classroom: classroom2)
+    Enrollment.create!(student: student, classroom: classroom1)
+    Enrollment.create!(student: student, classroom: classroom2)
 
     assert_equal initial_count + 2, student.enrollments.count
     assert_includes student.classrooms, classroom1

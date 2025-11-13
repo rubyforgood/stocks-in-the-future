@@ -19,5 +19,4 @@ class Student < User
   def ensure_portfolio
     create_portfolio!(current_position: 0) if portfolio.blank?
   end
-
 end
