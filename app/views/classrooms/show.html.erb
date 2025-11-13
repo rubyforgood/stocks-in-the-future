@@ -11,7 +11,7 @@
             @classroom.school_year.year.name
           ].compact.join(', ') %>
     </h1>
-    <%= render 'classroom_students_table', students: @classroom.users %>
+    <%= render 'classroom_students_table', students: @classroom.students %>
 
     <% if policy(Classroom).edit? %>
       <div class="mt-8 pt-6 border-t border-gray-200">
