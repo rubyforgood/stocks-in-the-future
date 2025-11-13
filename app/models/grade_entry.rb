@@ -12,8 +12,6 @@ class GradeEntry < ApplicationRecord
 
   GRADE_OPTIONS = ["A+", "A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D", "F"].freeze
 
-  def finalizable? = math_grade.present? && reading_grade.present? && attendance_days.present?
-
   def earnings_for_attendance
     return 0 if attendance_days.blank?
 
@@ -36,12 +34,14 @@ class GradeEntry < ApplicationRecord
 
   def math_improvement_earnings(previous_entry)
     return 0 unless previous_entry
+    return 0 if math_grade.blank? || previous_entry.math_grade.blank?
 
     improved_grade?(math_grade, previous_entry.math_grade) ? EARNINGS_FOR_IMPROVED_GRADE : 0
   end
 
   def reading_improvement_earnings(previous_entry)
     return 0 unless previous_entry
+    return 0 if reading_grade.blank? || previous_entry.reading_grade.blank?
 
     improved_grade?(reading_grade, previous_entry.reading_grade) ? EARNINGS_FOR_IMPROVED_GRADE : 0
   end

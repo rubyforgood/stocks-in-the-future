@@ -8,7 +8,7 @@ The application uses **Solid Queue** for both job processing and recurring job s
 
 ### Scheduled Jobs
 
-1. **OrderExecutionJob** - Executes pending stock orders (both buy and sell) at 1:00 AM ET daily
+1. **OrderExecutionJob** - Executes pending stock orders (both buy and sell) at 1:00 AM ET weekdays only (Monday-Friday)
 2. **StockPricesUpdateJob** - Updates stock prices from Alpha Vantage API (automatically triggered after OrderExecutionJob)
 3. **MonthlyPortfolioSnapshotJob** - Creates portfolio snapshots on the last day of each month at 11:00 PM ET
 
@@ -22,12 +22,12 @@ development: &default
   daily_order_execution:
     class: OrderExecutionJob
     queue: default
-    schedule: at 1am every day
-  
+    schedule: "0 6 * * 1-5"  # Monday-Friday at 6 AM UTC (1 AM EST)
+
   monthly_portfolio_snapshot:
     class: MonthlyPortfolioSnapshotJob
     queue: default
-    schedule: at 11pm on the last day of every month
+    schedule: "0 23 L * *"  # Last day of month at 11 PM UTC
 
 production:
   <<: *default
@@ -50,15 +50,17 @@ default: &default
 
 ## Job Execution Flow
 
-### Daily Stock Processing (1:00 AM ET)
+### Daily Stock Processing (1:00 AM ET, Weekdays Only)
 1. **OrderExecutionJob** runs first (scheduled via recurring.yml)
-   - Processes all pending buy/sell orders
-   - Applies transaction fees
-   - **Automatically triggers** StockPricesUpdateJob upon completion
+    - Processes all pending buy/sell orders
+    - Applies transaction fees
+    - **Automatically triggers** StockPricesUpdateJob upon completion
+    - **Only runs Monday through Friday** (weekdays)
 
 2. **StockPricesUpdateJob** runs second (triggered by OrderExecutionJob)
-   - Updates current stock prices from Alpha Vantage API
-   - Saves yesterday's prices for historical tracking
+    - Updates current stock prices from Alpha Vantage API
+    - Saves yesterday's prices for historical tracking
+    - **Only runs on weekdays** (when OrderExecutionJob runs)
 
 ### Monthly Portfolio Snapshots (Last Day, 11:00 PM ET)
 3. **MonthlyPortfolioSnapshotJob** runs monthly
@@ -245,10 +247,11 @@ SolidQueue::Job.delete_all
 
 ## Time Zone Considerations
 
-- **Recurring jobs use server time zone** 
+- **Recurring jobs use server time zone**
 - **Jobs are scheduled in Eastern Time (America/New_York)**
-- **Heroku**: Runs in UTC, so 1 AM ET = 5 AM UTC (EST) or 4 AM UTC (EDT)
+- **Heroku**: Runs in UTC, so 1 AM ET = 6 AM UTC (EST) or 5 AM UTC (EDT)
 - **AWS**: Configure server time zone or adjust schedule accordingly
+- **Weekday scheduling**: OrderExecutionJob and StockPricesUpdateJob only run Monday-Friday
 
 ## Migration from Previous System
 
