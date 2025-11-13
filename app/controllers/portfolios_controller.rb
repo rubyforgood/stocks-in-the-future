@@ -6,6 +6,7 @@ class PortfoliosController < ApplicationController
 
   def show
     @stocks = @portfolio.stocks
+    @earnings_summary = EarningsSummary.new(@portfolio)
   end
 
   private
