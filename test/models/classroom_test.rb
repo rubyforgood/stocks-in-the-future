@@ -56,7 +56,7 @@ class ClassroomTest < ActiveSupport::TestCase
     classroom = create(:classroom)
     student1 = create(:student, classroom: classroom)
     student2 = create(:student, classroom: classroom)
-    
+
     create(:enrollment, student: student1, classroom: classroom)
     create(:enrollment, student: student2, classroom: classroom)
 
@@ -80,7 +80,7 @@ class ClassroomTest < ActiveSupport::TestCase
     student = create(:student, classroom: classroom)
     teacher = create(:teacher, classroom: classroom)
     admin = create(:admin, classroom: classroom)
-    
+
     create(:enrollment, student: student, classroom: classroom)
 
     assert_includes classroom.students, student
@@ -101,7 +101,7 @@ class ClassroomTest < ActiveSupport::TestCase
     classroom = create(:classroom)
     kept_student = create(:student, classroom: classroom)
     discarded_student = create(:student, classroom: classroom)
-  
+
     create(:enrollment, student: kept_student, classroom: classroom)
     create(:enrollment, student: discarded_student, classroom: classroom)
     discarded_student.discard
