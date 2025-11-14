@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class Student < User
+  validates :classroom, presence: true
   has_many :enrollments, dependent: :destroy
   has_many :classrooms, through: :enrollments
 
