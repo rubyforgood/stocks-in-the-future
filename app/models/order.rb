@@ -23,6 +23,7 @@ class Order < ApplicationRecord
            on: %i[create update]
   validate :sufficient_funds_for_buy, if: -> { buy? }, on: :create
   validate :prevent_archived_stock_purchase, if: -> { buy? }, on: %i[create update]
+  validate :trading_enabled_for_classroom, on: :create
 
   after_update :update_portfolio_transaction_for_pending_order
 
@@ -134,5 +135,11 @@ class Order < ApplicationRecord
     return true if new_record?
 
     shares_changed?
+  end
+
+  def trading_enabled_for_classroom
+    return if user&.classroom&.trading_enabled?
+
+    errors.add(:base, "Trading is currently disabled for your classroom")
   end
 end

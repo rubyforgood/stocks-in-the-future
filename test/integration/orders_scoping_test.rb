@@ -5,7 +5,7 @@ require "test_helper"
 class OrdersScopingTest < ActionDispatch::IntegrationTest
   test "student sees only their own orders" do
     stock = create(:stock, price_cents: 1_000)
-    classroom = create(:classroom)
+    classroom = create(:classroom, :with_trading)
     student1, order1 = create_student_and_order(stock, classroom)
     _student2, order2 = create_student_and_order(stock, classroom)
     sign_in(student1)
@@ -74,7 +74,7 @@ class OrdersScopingTest < ActionDispatch::IntegrationTest
   private
 
   def create_classroom_and_student_order(stock)
-    classroom = create(:classroom)
+    classroom = create(:classroom, :with_trading)
     _student, order = create_student_and_order(stock, classroom)
 
     [classroom, order]

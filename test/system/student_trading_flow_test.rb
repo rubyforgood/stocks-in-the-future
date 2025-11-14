@@ -4,7 +4,7 @@ require "application_system_test_case"
 
 class StudentTradingFlowTest < ApplicationSystemTestCase
   test "student buys a stock" do
-    classroom = create(:classroom)
+    classroom = create(:classroom, :with_trading)
     student = create(:student, :with_portfolio, classroom: classroom)
     student.reload
     portfolio = student.portfolio
@@ -44,7 +44,7 @@ class StudentTradingFlowTest < ApplicationSystemTestCase
   end
 
   test "student sells a stock" do
-    classroom = create(:classroom)
+    classroom = create(:classroom, :with_trading)
     student = create(:student, :with_portfolio, classroom: classroom)
     student.reload
     portfolio = student.portfolio
@@ -89,7 +89,7 @@ class StudentTradingFlowTest < ApplicationSystemTestCase
   end
 
   test "student updates pending order" do
-    classroom = create(:classroom)
+    classroom = create(:classroom, :with_trading)
     student = create(:student, :with_portfolio, classroom: classroom)
     student.reload
     portfolio = student.portfolio
@@ -125,7 +125,7 @@ class StudentTradingFlowTest < ApplicationSystemTestCase
   end
 
   test "student cancels pending order" do
-    classroom = create(:classroom)
+    classroom = create(:classroom, :with_trading)
     student = create(:student, :with_portfolio, classroom: classroom)
     student.reload
     portfolio = student.portfolio
@@ -158,7 +158,7 @@ class StudentTradingFlowTest < ApplicationSystemTestCase
   end
 
   test "student cannot buy with insufficient funds" do
-    classroom = create(:classroom)
+    classroom = create(:classroom, :with_trading)
     student = create(:student, :with_portfolio, classroom: classroom)
     student.reload
     portfolio = student.portfolio
@@ -190,7 +190,7 @@ class StudentTradingFlowTest < ApplicationSystemTestCase
   end
 
   test "student cannot sell more shares than owned" do
-    classroom = create(:classroom)
+    classroom = create(:classroom, :with_trading)
     student = create(:student, :with_portfolio, classroom: classroom)
     student.reload
     portfolio = student.portfolio
