@@ -2,6 +2,8 @@
 
 class Student < User
   validates :classroom, presence: true
+  has_many :enrollments, dependent: :destroy
+  has_many :classrooms, through: :enrollments
 
   # Ensure students have nil email by default (not empty string)
   after_initialize :set_default_email, if: :new_record?

@@ -12,7 +12,7 @@ class ClassroomsController < ApplicationController
   end
 
   def show
-    @students = @classroom.users.students.kept.includes(
+    @students = @classroom.students.includes(
       :portfolio,
       :orders,
       portfolio: :portfolio_transactions
