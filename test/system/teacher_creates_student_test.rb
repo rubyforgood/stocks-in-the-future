@@ -69,10 +69,9 @@ class TeacherCreatesStudentTest < ApplicationSystemTestCase
 
     visit classroom_path(classroom)
 
-    accept_confirm "Are you sure you want to reset jane_smith's password?" do
-      within "tr", text: jane.username do
-        find("a[title='Reset password']").click
-      end
+    auto_accept_confirmations
+    within "tr", text: jane.username do
+      find("a[title='Reset password']").click
     end
 
     assert_text "Password reset for jane_smith"
@@ -153,10 +152,10 @@ class TeacherCreatesStudentTest < ApplicationSystemTestCase
     assert_text "alice_wong"
 
     assert_no_difference("Student.count") do
-      accept_confirm "Are you sure you want to delete alice_wong?" do
-        within "tr", text: "alice_wong" do
-          find("i.fa-trash").click
-        end
+      auto_accept_confirmations
+
+      within "tr", text: "alice_wong" do
+        find("i.fa-trash").click
       end
 
       assert_text "Student alice_wong deleted successfully"
@@ -173,6 +172,8 @@ class TeacherCreatesStudentTest < ApplicationSystemTestCase
 
     # Verify discarded student cannot log in
     click_on "Logout"
+
+    assert_current_path new_user_session_path
 
     fill_in "Username", with: student.username
     fill_in "Password", with: student.password
