@@ -57,7 +57,7 @@ module Admin
       else
         render :new, locals: {
           page: Administrate::Page::Form.new(dashboard, school_year)
-        }, status: :unprocessable_entity
+        }, status: :unprocessable_content
       end
     end
 

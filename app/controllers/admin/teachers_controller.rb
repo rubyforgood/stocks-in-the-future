@@ -52,7 +52,7 @@ module Admin
       @teacher.classrooms << classroom if classroom
 
       unless @teacher.save
-        return render :new, status: :unprocessable_entity,
+        return render :new, status: :unprocessable_content,
                             locals: { page: Administrate::Page::Form.new(dashboard, @teacher) }
       end
 
