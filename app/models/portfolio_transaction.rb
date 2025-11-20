@@ -6,15 +6,15 @@ class PortfolioTransaction < ApplicationRecord
   # credit/debit is for stock transactions ie buy/sell stocks
   enum :transaction_type, { deposit: 0, withdrawal: 1, credit: 2, debit: 3, fee: 4 }
 
-  REASONS = {
-    math_earnings: "Earnings from Math",
-    reading_earnings: "Earnings from Reading",
-    attendance_earnings: "Earnings from Attendance",
-    grade_earnings: "Earnings from Grades", # TODO: Remove this
-    transaction_fees: "Transaction Fees",
-    awards: "Award",
-    administrative_adjustments: "Administrative Adjustment"
-  }.freeze
+  enum :reason, {
+    math_earnings: 0,
+    reading_earnings: 1,
+    attendance_earnings: 2,
+    grade_earnings: 3, # Deprecated, will be removed in future
+    transaction_fees: 4,
+    awards: 5,
+    administrative_adjustments: 6
+  }, allow_nil: true
 
   belongs_to :portfolio
   has_one :order, dependent: :destroy
@@ -24,8 +24,4 @@ class PortfolioTransaction < ApplicationRecord
   scope :credits, -> { where(transaction_type: :credit) }
   scope :withdrawals, -> { where(transaction_type: :withdrawal) }
   scope :fees, -> { where(transaction_type: :fee) }
-
-  def reason_humanized
-    REASONS.fetch(reason.to_sym) { reason.to_s.humanize }
-  end
 end
