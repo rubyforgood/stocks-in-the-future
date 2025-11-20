@@ -9,7 +9,6 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
     @teacher = create(:teacher)
     @teacher.classrooms << @classroom
     @student = create(:student, classroom: @classroom)
-    create(:enrollment, student: @student, classroom: @classroom)
   end
 
   test "index" do
