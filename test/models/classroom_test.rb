@@ -77,7 +77,7 @@ class ClassroomTest < ActiveSupport::TestCase
     student = create(:student, classroom: classroom)
     teacher = create(:teacher, classroom: classroom)
     admin = create(:admin, classroom: classroom)
-    
+
     assert_includes classroom.students, student
     assert_not_includes classroom.students, teacher
     assert_not_includes classroom.students, admin
