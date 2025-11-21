@@ -5,6 +5,7 @@ class PortfoliosController < ApplicationController
   before_action :authenticate_user!
 
   def show
+    authorize @portfolio
     @stocks = @portfolio.stocks
   end
 
