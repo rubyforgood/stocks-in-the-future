@@ -65,11 +65,7 @@ Access the app via `localhost:3000`
 
 ## Linting
 
-## ERB Linting
-
 This project uses [erb_lint](https://github.com/Shopify/erb-lint) to catch ERB template errors during development.
-
-### Running erb_lint
 
 To check all ERB templates:
 
