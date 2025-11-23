@@ -39,6 +39,7 @@ group :development, :test do
   gem "pry-byebug"
   gem "rubocop"
   gem "rubocop-rails"
+  gem 'erb_lint', require: false
 end
 
 group :development do
