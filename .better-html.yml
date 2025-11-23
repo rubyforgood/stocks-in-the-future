@@ -1,0 +1,3 @@
+---
+allow_single_quoted_attributes: true
+allow_unquoted_attributes: false
