@@ -1,6 +1,6 @@
 <!-- TODO: make price display with two decimal places -->
 <div class="grid grid-cols-[1fr_auto_auto] items-center gap-4">
-    <% stock = Stock.find_by_id(portfolio_stock.stock_id) %>
+    <% stock = Stock.find_by(id: portfolio_stock.stock_id) %>
     <div>
         <h3 class="font-medium">
             <%= stock.company_name %> (<%= stock.ticker %>)

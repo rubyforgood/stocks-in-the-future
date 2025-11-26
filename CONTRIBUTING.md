@@ -62,6 +62,22 @@
    - Wait for CI checks to pass
    - Request review from team members
 
+## Linting
+
+This project uses [erb_lint](https://github.com/Shopify/erb-lint) to catch ERB template errors during development.
+
+To check all ERB templates:
+
+```console
+$ bin/dc bundle exec erb_lint --lint-all
+```
+
+To see autocorrectable issues:
+
+```console
+$ bin/dc bundle exec erb_lint --lint-all --autocorrect
+```
+
 ## Getting Help
 
 If you need help at any point, comment on the issue you're working on or ask in the #stocks-in-the-future channel on the Ruby for Good Slack.

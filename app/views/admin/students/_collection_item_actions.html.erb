@@ -1,29 +1,35 @@
 <% if existing_action?(collection_presenter.resource_name, :edit) %>
-  <td><%= link_to(
-    t("administrate.actions.edit"),
-    [:edit, namespace, resource],
-    class: "action-edit",
-  ) if accessible_action?(resource, :edit) %></td>
+  <td><%= if accessible_action?(resource, :edit)
+            link_to(
+              t("administrate.actions.edit"),
+              [:edit, namespace, resource],
+              class: "action-edit"
+            )
+          end %></td>
 <% end %>
 
 <% if existing_action?(collection_presenter.resource_name, :destroy) %>
   <td>
     <% if resource.respond_to?(:discarded?) && resource.discarded? %>
-      <%= button_to(
-        t("actions.restore", default: "Restore"),
-        [:restore, namespace, resource],
-        class: "link link--success",
-        method: :patch,
-        data: { turbo_confirm: "Are you sure you want to restore this student?" }
-      ) if accessible_action?(resource, :restore) %>
+      <%= if accessible_action?(resource, :restore)
+            button_to(
+              t("actions.restore", default: "Restore"),
+              [:restore, namespace, resource],
+              class: "link link--success",
+              method: :patch,
+              data: { turbo_confirm: "Are you sure you want to restore this student?" }
+            )
+          end %>
     <% else %>
-      <%= button_to(
-        t("actions.discard", default: t("administrate.actions.destroy")),
-        [namespace, resource],
-        class: "link link--danger",
-        method: :delete,
-        data: { turbo_confirm: t("administrate.actions.confirm") }
-      ) if accessible_action?(resource, :destroy) %>
+      <%= if accessible_action?(resource, :destroy)
+            button_to(
+              t("actions.discard", default: t("administrate.actions.destroy")),
+              [namespace, resource],
+              class: "link link--danger",
+              method: :delete,
+              data: { turbo_confirm: t("administrate.actions.confirm") }
+            )
+          end %>
     <% end %>
   </td>
 <% end %>

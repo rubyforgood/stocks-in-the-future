@@ -39,11 +39,11 @@
               <label class="text-sm font-medium text-gray-600">Website</label>
               <p class="mt-1">
                 <%= link_to(
-                  stock.company_website,
-                  safe_url(stock.company_website),
-                  target: "_blank",
-                  class: "text-black underline hover:text-[var(--sitf-secondary-chart2)]"
-                ) %>
+                      stock.company_website,
+                      safe_url(stock.company_website),
+                      target: "_blank",
+                      class: "text-black underline hover:text-[var(--sitf-secondary-chart2)]", rel: "noopener"
+                    ) %>
               </p>
             </div>
           <% end %>
