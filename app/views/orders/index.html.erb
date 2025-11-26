@@ -107,7 +107,7 @@
               <td class="table-body-cell table-body-cell-right">
                 <span class="table-cell-content">
                   <% if order.stock.price_cents && order.shares %>
-                    $<%= sprintf("%.2f", order.purchase_cost / 100.0) %>
+                    <%= number_to_currency(order.purchase_cost / 100.0) %>
                   <% else %>
                     <span class="text-gray-600">Price unavailable</span>
                   <% end %>

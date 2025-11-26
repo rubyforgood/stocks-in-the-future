@@ -1,32 +1,21 @@
-<div class="w-full ps-4">
+<div class="w-full px-6">
   <% if notice.present? %>
     <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-lg inline-block" id="notice"><%= notice %></p>
   <% end %>
 
-  <div class="flex justify-between items-center pb-2 pt-4">
+  <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center pb-2 pt-4 gap-4">
     <h1 class="font-bold text-4xl">Trading Floor</h1>
-  <% if policy(Stock).show_holdings? || (current_user.present? && current_user.student?) %>
-      <div class="bg-white box-border flex flex-col gap-2 items-start justify-start py-6 pl-6 pr-60 relative rounded-[24px] shadow-xs">
-        <div class="absolute border border-black inset-0 pointer-events-none rounded-[24px]"></div>
-        <div class="flex flex-col gap-1 items-start justify-start">
-          <div class="flex h-6 items-center justify-start relative">
-            <p class="font-normal text-[#333333] text-base leading-6">Earnings to Invest</p>
-          </div>
-          <div class="font-semibold text-black text-3xl leading-9 tracking-[-0.75px]">
-            <p class="whitespace-pre"><%= number_to_currency(@portfolio.cash_balance) %></p>
-          </div>
-        </div>
-        <%= image_tag "investment-funds.png", class: "w-32 h-32 flex-shrink-0 absolute bottom-0 right-6 transform translate-y-[-5%]", alt: "Investment Funds" %>
+    <% if policy(Stock).show_holdings? || (current_user.present? && current_user.student?) %>
+      <div class="mt-4">
+        <%= render 'shared/earnings_to_invest_card' %>
       </div>
     <% end %>
-
   </div>
 
-  </div>
-
-  <main class="flex-1 p-6">
+  <main class="flex-1 py-6">
     <%= render "stocks/stocks_table", title: "Active Stocks", stocks: @stocks.active %>
     <%= render "stocks/stocks_table", title: "Archived Stocks", stocks: @stocks.archived %>
   </main>
 </div>
+
 <%= render "shared/modal" %>
