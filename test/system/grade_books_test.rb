@@ -13,8 +13,8 @@ class GradeBooksTest < ApplicationSystemTestCase
     @teacher = create(:teacher, classroom: @classroom)
     TeacherClassroom.create(teacher: @teacher, classroom: @classroom)
 
-    create(:grade_entry, grade_book: @grade_book, user: @student1)
-    create(:grade_entry, grade_book: @grade_book, user: @student2)
+    @student1_entry = create(:grade_entry, grade_book: @grade_book, user: @student1)
+    @student2_entry = create(:grade_entry, grade_book: @grade_book, user: @student2)
 
     sign_in(@teacher)
   end
@@ -22,35 +22,34 @@ class GradeBooksTest < ApplicationSystemTestCase
   test "teacher updates grade book entries" do
     visit classroom_grade_book_path(@classroom, @grade_book)
 
-    # It renders the table correctly
     assert_text @student1.username
     assert_text @student2.username
 
-    # Update grade entry values
-    within("tbody tr:nth-child(1)") do
-      select "A",  from: "grade_entries_#{@grade_book.grade_entries.first.id}_math_grade"
-      select "B+", from: "grade_entries_#{@grade_book.grade_entries.first.id}_reading_grade"
-      fill_in "grade_entries_#{@grade_book.grade_entries.first.id}_attendance_days", with: 95
+    within("tr", text: @student1.username) do
+      select "A",  from: "grade_entries_#{@student1_entry.id}_math_grade"
+      select "B+", from: "grade_entries_#{@student1_entry.id}_reading_grade"
+      fill_in "grade_entries_#{@student1_entry.id}_attendance_days", with: 95
     end
 
-    within("tbody tr:nth-child(2)") do
-      select "B", from: "grade_entries_#{@grade_book.grade_entries.second.id}_math_grade"
-      select "A", from: "grade_entries_#{@grade_book.grade_entries.second.id}_reading_grade"
-      fill_in "grade_entries_#{@grade_book.grade_entries.second.id}_attendance_days", with: 87
+    within("tr", text: @student2.username) do
+      select "B", from: "grade_entries_#{@student2_entry.id}_math_grade"
+      select "A", from: "grade_entries_#{@student2_entry.id}_reading_grade"
+      fill_in "grade_entries_#{@student2_entry.id}_attendance_days", with: 87
     end
 
     click_on "Save Grades"
 
-    # update the assertions so we just check against the text on the page~
-    assert_text @grade_book.grade_entries.first.user.username
-    assert_text "A"
-    assert_text "B+"
-    assert_field "grade_entries[#{@grade_book.grade_entries.first.id}][attendance_days]", with: "95"
+    within("tr", text: @student1.username) do
+      assert_text "A"
+      assert_text "B+"
+      assert_field "grade_entries[#{@student1_entry.id}][attendance_days]", with: "95", wait: 5
+    end
 
-    assert_text @grade_book.grade_entries.second.user.username
-    assert_text "B"
-    assert_text "A"
-    assert_field "grade_entries[#{@grade_book.grade_entries.second.id}][attendance_days]", with: "87"
+    within("tr", text: @student2.username) do
+      assert_text "B"
+      assert_text "A"
+      assert_field "grade_entries[#{@student2_entry.id}][attendance_days]", with: "87", wait: 5
+    end
   end
 
   test "admin sees success message when finalizing grade book" do
