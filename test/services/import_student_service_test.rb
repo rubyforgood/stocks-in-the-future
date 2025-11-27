@@ -17,7 +17,7 @@ class ImportStudentServiceTest < ActiveSupport::TestCase
       assert result.success?
       assert_equal :created, result.action
       assert_equal "student001", result.student.username
-      assert_equal @classroom, result.student.classroom
+      assert_equal @classroom, result.student.classrooms.first
       assert_nil result.error_message
     end
   end
@@ -49,7 +49,7 @@ class ImportStudentServiceTest < ActiveSupport::TestCase
       assert_equal :failed, result.action
       assert_not_nil result.student
       assert_not result.student.persisted?
-      assert_match(/Classroom can't be blank/, result.error_message)
+      assert_match(/Enrollments is invalid/, result.error_message)
     end
   end
 
