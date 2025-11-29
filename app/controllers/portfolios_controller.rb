@@ -7,6 +7,7 @@ class PortfoliosController < ApplicationController
   def show
     authorize @portfolio
     @stocks = @portfolio.stocks
+    @earnings_summary = EarningsSummary.new(@portfolio)
   end
 
   private
