@@ -93,8 +93,8 @@ and renders all form fields for a resource's editable attributes.
     <div class="field-unit__field">
       <select required name="student[transaction_reason]" id="student_transaction_reason" aria-required="true" data-controller="select">
         <option value=""></option>
-        <% PortfolioTransaction::REASONS.each do |key, label| %>
-          <option value="<%= key %>"><%= label %></option>
+        <% PortfolioTransaction.reasons.keys.each do |key| %>
+        <option value="<%= key %>"><%= PortfolioTransaction.human_attribute_name("reason.#{key}") %></option>
         <% end %>
       </select>
     </div>

@@ -106,7 +106,7 @@ class StudentTradingFlowTest < ApplicationSystemTestCase
     visit orders_path
 
     within "tr", text: stock.ticker do
-      find("i.fa-pencil").click
+      find("[data-testid='edit-order-button']").click
     end
 
     fill_in "Number of shares", with: updated_shares
@@ -143,7 +143,7 @@ class StudentTradingFlowTest < ApplicationSystemTestCase
     assert_difference -> { Order.pending.count } => -1, -> { Order.canceled.count } => +1 do
       accept_confirm do
         within "tr", text: stock.ticker do
-          find("button i.fa-ban").click
+          find("[data-testid='cancel-order-button']").click
         end
       end
 

@@ -17,7 +17,7 @@ class UserManagesOrdersTest < ApplicationSystemTestCase
 
     accept_confirm do
       within "tr", text: order.stock.company_name do
-        find("button i.fa-ban").click
+        find("[data-testid='cancel-order-button']").click
       end
     end
 
@@ -36,7 +36,7 @@ class UserManagesOrdersTest < ApplicationSystemTestCase
 
     accept_confirm do
       within "tr", text: order.stock.company_name do
-        find("button i.fa-ban").click
+        find("[data-testid='cancel-order-button']").click
       end
     end
 
