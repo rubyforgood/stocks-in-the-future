@@ -15,14 +15,18 @@ class UserManagesOrdersTest < ApplicationSystemTestCase
 
     visit orders_path
 
-    accept_confirm do
-      within "tr", text: order.stock.company_name do
-        find("[data-testid='cancel-order-button']").click
+    assert_difference -> { Order.pending.count } => -1, -> { Order.canceled.count } => +1 do
+      accept_confirm do
+        within "tr", text: order.stock.company_name do
+          find("[data-testid='cancel-order-button']").click
+        end
       end
+
+      assert_text "Order was successfully canceled"
     end
 
-    assert_text "Order was successfully canceled"
-    assert_text "Canceled"
+    order.reload
+    assert order.canceled?
   end
 
   test "canceling an order with modal" do
@@ -34,13 +38,18 @@ class UserManagesOrdersTest < ApplicationSystemTestCase
 
     visit orders_path
 
-    accept_confirm do
-      within "tr", text: order.stock.company_name do
-        find("[data-testid='cancel-order-button']").click
+    assert_difference -> { Order.pending.count } => -1, -> { Order.canceled.count } => +1 do
+      accept_confirm do
+        within "tr", text: order.stock.company_name do
+          find("[data-testid='cancel-order-button']").click
+        end
       end
+
+      assert_text "Order was successfully canceled"
     end
 
-    assert_text "Order was successfully canceled"
+    order.reload
+    assert order.canceled?
     within "tr", text: order.stock.company_name do
       assert_text "Canceled"
     end
