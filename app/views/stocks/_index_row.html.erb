@@ -30,13 +30,13 @@
         <div class="flex gap-2 justify-center">
           <%= link_to new_order_path(stock_id: stock.id, transaction_type: :buy),
             class: "tw-btn-buy -ml-1",
-            data: { turbo_frame: "modal_frame" } do %>
+            data: { turbo_frame: "modal_frame", testid: "buy-stock-button" } do %>
               <%= lucide_icon("arrow-up") %> Buy
           <% end if !stock.archived? %>
 
           <%= link_to new_order_path(stock_id: stock.id, transaction_type: :sell),
             class: "tw-btn-sell -mr-1",
-            data: { turbo_frame: "modal_frame" } do %>
+            data: { turbo_frame: "modal_frame", testid: "sell-stock-button" } do %>
               <%= lucide_icon("arrow-down") %> Sell
           <% end %>
         </div>

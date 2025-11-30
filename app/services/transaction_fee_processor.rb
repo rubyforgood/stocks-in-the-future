@@ -23,8 +23,10 @@ class TransactionFeeProcessor
   def add_transaction_fee(order)
     return if @users.include?(order.portfolio.user_id)
 
-    order.portfolio.portfolio_transactions.fees.create!(amount_cents: PortfolioTransaction::TRANSACTION_FEE_CENTS,
-                                                        reason: PortfolioTransaction::REASONS[:transaction_fee])
+    order.portfolio.portfolio_transactions.fees.create!(
+      amount_cents: PortfolioTransaction::TRANSACTION_FEE_CENTS,
+      reason: :transaction_fees
+    )
     @users << order.portfolio.user_id
   end
 end
