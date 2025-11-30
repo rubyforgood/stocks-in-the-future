@@ -5,13 +5,12 @@
   <p class="py-2 px-3 bg-red-50 mb-5 text-red-500 font-medium rounded-lg inline-block" id="alert"><%= alert %></p>
 <% end %>
 
-<%= turbo_frame_tag @grade_book do  %>
+<%= turbo_frame_tag @grade_book do %>
   <div class="mt-8"
     <% unless @grade_book.completed? %>
       data-controller="autosave"
       data-autosave-interval-value="30000"
-    <% end %>
-  >
+    <% end %>>
     <div class="flex justify-between items-center mb-4">
       <h3 class="text-lg font-medium text-gray-900">Grade Book</h3>
       <div data-autosave-target="status" class="text-sm text-gray-500"></div>
@@ -24,7 +23,7 @@
 
       <%= render partial: "table", locals: { grade_book: @grade_book } %>
 
-      <br/>
+      <br>
 
       <div class="flex flex-col items-center">
         <%= render partial: "submit_button" %>

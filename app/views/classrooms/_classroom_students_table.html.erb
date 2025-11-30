@@ -4,7 +4,7 @@
     <% if @can_manage_students %>
       <div class="flex gap-2">
         <%= link_to "Add Student", new_classroom_student_path(@classroom),
-          class: "tw-btn-primary" %>
+                    class: "tw-btn-primary" %>
         <!-- TODO: Add bulk functionality in future PR -->
       </div>
     <% end %>
@@ -48,28 +48,28 @@
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                 <div class="flex items-center gap-2">
                   <%= link_to edit_classroom_student_path(@classroom, student),
-                      class: "inline-flex items-center justify-center w-8 h-8 text-black hover:text-[var(--sitf-secondary-chart2)] hover:bg-blue-50 rounded-lg transition-all duration-150 group",
-                      title: "Edit student" do %>
+                              class: "inline-flex items-center justify-center w-8 h-8 text-black hover:text-[var(--sitf-secondary-chart2)] hover:bg-blue-50 rounded-lg transition-all duration-150 group",
+                              title: "Edit student" do %>
                     <i class="fa fa-pencil fa-lg group-hover:scale-110 transition-transform duration-150"></i>
                   <% end %>
 
                   <%= link_to reset_password_classroom_student_path(@classroom, student),
-                      data: {
-                        turbo_method: :patch,
-                        turbo_confirm: "Are you sure you want to reset #{student.username}'s password?"
-                      },
-                      class: "inline-flex items-center justify-center w-8 h-8 text-amber-600 hover:text-amber-800 hover:bg-amber-50 rounded-lg transition-all duration-150 group",
-                      title: "Reset password" do %>
+                              data: {
+                                turbo_method: :patch,
+                                turbo_confirm: "Are you sure you want to reset #{student.username}'s password?"
+                              },
+                              class: "inline-flex items-center justify-center w-8 h-8 text-amber-600 hover:text-amber-800 hover:bg-amber-50 rounded-lg transition-all duration-150 group",
+                              title: "Reset password" do %>
                     <%= lucide_icon("refresh-cw") %>
                   <% end %>
 
                   <%= link_to classroom_student_path(@classroom, student),
-                      data: {
-                        turbo_method: :delete,
-                        turbo_confirm: "Are you sure you want to delete #{student.username}?"
-                      },
-                      class: "inline-flex items-center justify-center w-8 h-8 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-all duration-150 group",
-                      title: "Delete student" do %>
+                              data: {
+                                turbo_method: :delete,
+                                turbo_confirm: "Are you sure you want to delete #{student.username}?"
+                              },
+                              class: "inline-flex items-center justify-center w-8 h-8 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-all duration-150 group",
+                              title: "Delete student" do %>
                     <i class="fa fa-trash fa-lg group-hover:scale-110 transition-transform duration-150"></i>
                   <% end %>
                 </div>
@@ -86,7 +86,7 @@
       <p class="text-gray-500">No students in this classroom yet.</p>
       <% if @can_manage_students %>
         <%= link_to "Add the first student", new_classroom_student_path(@classroom),
-            class: "mt-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700" %>
+                    class: "mt-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700" %>
       <% end %>
     </div>
   <% end %>

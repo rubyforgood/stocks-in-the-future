@@ -10,7 +10,7 @@
       </tr>
     </thead>
     <tbody class="bg-white divide-y divide-gray-200">
-      <%= render partial: "grade_entry", collection: grade_book.grade_entries.sort_by { it.user.username }, as: :entry, locals: { disabled: grade_book.completed?} %>
+      <%= render partial: "grade_entry", collection: grade_book.grade_entries.sort_by { it.user.username }, as: :entry, locals: { disabled: grade_book.completed? } %>
     </tbody>
   </table>
 </div>

@@ -63,22 +63,6 @@ Use the **username** and **password** to log in and test the application locally
 
 Access the app via `localhost:3000`
 
-## Linting
-
-This project uses [erb_lint](https://github.com/Shopify/erb-lint) to catch ERB template errors during development.
-
-To check all ERB templates:
-
-```console
-$ bin/dc bundle exec erb_lint --lint-all
-```
-
-To see autocorrectable issues:
-
-```console
-$ bin/dc bundle exec erb_lint --lint-all --autocorrect
-```
-
 ## Contributing
 
 To understand the project better, read the [project documentation](docs/README.md).
