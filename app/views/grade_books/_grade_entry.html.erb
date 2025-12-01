@@ -8,7 +8,8 @@
                    options_for_select(GradeEntry::GRADE_OPTIONS, entry.math_grade),
                    { include_blank: true },
                    disabled:,
-                   class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" %>
+                   class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm",
+                   data: { testid: "math-grade-select" } %>
     </td>
 
     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
@@ -16,18 +17,21 @@
                    options_for_select(GradeEntry::GRADE_OPTIONS, entry.reading_grade),
                    { include_blank: true },
                    disabled:,
-                   class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" %>
+                   class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm",
+                   data: { testid: "reading-grade-select" } %>
     </td>
     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
       <%= f.number_field :attendance_days,
                          class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm",
                          disabled:,
-                         min: 0 %>
+                         min: 0,
+                         data: { testid: "attendance-days-input" } %>
     </td>
     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
       <%= f.checkbox :is_perfect_attendance,
                      disabled:,
-                     class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" %>
+                     class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm",
+                     data: { testid: "perfect-attendance-checkbox" } %>
     </td>
 
   <% end %>
