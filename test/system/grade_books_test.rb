@@ -201,9 +201,9 @@ class GradeBooksTest < ApplicationSystemTestCase
     visit classroom_grade_book_path(@classroom, @grade_book)
 
     # Verify form fields are disabled
-    assert_selector "select[disabled]", count: 4  # 2 students × 2 grade dropdowns
-    assert_selector "input[type='number'][disabled]", count: 2  # 2 attendance fields
-    assert_selector "input[type='checkbox'][disabled]", count: 2  # 2 perfect attendance checkboxes
+    assert_selector "select[disabled]", count: 4 # 2 students × 2 grade dropdowns
+    assert_selector "input[type='number'][disabled]", count: 2 # 2 attendance fields
+    assert_selector "input[type='checkbox'][disabled]", count: 2 # 2 perfect attendance checkboxes
 
     # Save button should not appear or be disabled
     assert_no_button "Save Grades"
