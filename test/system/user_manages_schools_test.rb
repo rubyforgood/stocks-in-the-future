@@ -11,9 +11,12 @@ class UserManagesSchoolsTest < ApplicationSystemTestCase
     click_on "New school"
 
     fill_in "Name", with: "Abc123"
-    click_on "Create School"
 
-    assert_selector ".flash", text: "School was successfully created"
+    assert_difference("School.count", 1) do
+      click_on "Create School"
+
+      assert_selector ".flash", text: "School was successfully created"
+    end
   end
 
   test "updating a school" do
@@ -24,9 +27,12 @@ class UserManagesSchoolsTest < ApplicationSystemTestCase
 
     click_on "Edit School"
     fill_in "Name", with: "Abc123"
-    click_on "Update School"
 
-    assert_selector ".flash", text: "School was successfully updated"
+    assert_no_difference("School.count") do
+      click_on "Update School"
+
+      assert_selector ".flash", text: "School was successfully updated"
+    end
   end
 
   test "deleting a school" do
@@ -35,10 +41,12 @@ class UserManagesSchoolsTest < ApplicationSystemTestCase
     school = create(:school)
     visit admin_school_url(school)
 
-    accept_confirm do
-      click_on "Destroy"
-    end
+    assert_difference("School.count", -1) do
+      accept_confirm do
+        click_on "Destroy"
+      end
 
-    assert_selector ".flash", text: "School was successfully destroyed"
+      assert_selector ".flash", text: "School was successfully destroyed"
+    end
   end
 end

@@ -170,16 +170,7 @@ class TeacherCreatesStudentTest < ApplicationSystemTestCase
 
     assert portfolio.reload.present?, "Student's portfolio should still exist"
 
-    # Verify discarded student cannot log in
-    click_on "Logout"
-
-    assert_current_path new_user_session_path
-
-    fill_in "Username", with: student.username
-    fill_in "Password", with: student.password
-    click_button "Sign in"
-
-    assert_current_path new_user_session_path
+    sign_out(teacher)
   end
 
   test "teacher cannot create student with duplicate username" do

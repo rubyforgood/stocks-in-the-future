@@ -9,7 +9,7 @@
     <h1 class="text-2xl font-bold">Classrooms</h1>
     <% if policy(Classroom).new? %>
       <%= link_to "New classroom", new_classroom_path,
-          class: "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" %>
+                  class: "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" %>
     <% end %>
   </header>
 
@@ -73,15 +73,15 @@
               <td class="table-body-cell table-body-cell-center">
                 <% if policy(classroom).edit? %>
                   <%= render partial: "components/action_icon_button",
-                      locals: {
-                        options: {
-                          path: edit_classroom_path(classroom),
-                          icon: "fa-pencil",
-                          title: "Edit classroom",
-                          aria_label: "Edit classroom",
-                          text_class: "text-black"
-                        }
-                      } %>
+                             locals: {
+                               options: {
+                                 path: edit_classroom_path(classroom),
+                                 icon: "fa-pencil",
+                                 title: "Edit classroom",
+                                 aria_label: "Edit classroom",
+                                 text_class: "text-black"
+                               }
+                             } %>
                 <% else %>
                   <span class="table-no-permission">-</span>
                 <% end %>

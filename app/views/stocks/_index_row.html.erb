@@ -19,7 +19,7 @@
       <%= number_to_currency(stock.current_price) %>
     </span>
   </td>
-  <%  if policy(stock).show_holdings? %>
+  <% if policy(stock).show_holdings? %>
     <td class="table-body-cell">
       <span class="table-cell-content">
         <%= @portfolio&.shares_owned(stock.id) || 0 %>
@@ -29,14 +29,14 @@
       <% if policy(stock).show_trading_link? %>
         <div class="flex gap-2 justify-center">
           <%= link_to new_order_path(stock_id: stock.id, transaction_type: :buy),
-            class: "tw-btn-buy -ml-1",
-            data: { turbo_frame: "modal_frame", testid: "buy-stock-button" } do %>
+                      class: "tw-btn-buy -ml-1",
+                      data: { turbo_frame: "modal_frame", testid: "buy-stock-button" } do %>
               <%= lucide_icon("arrow-up") %> Buy
           <% end if !stock.archived? %>
 
           <%= link_to new_order_path(stock_id: stock.id, transaction_type: :sell),
-            class: "tw-btn-sell -mr-1",
-            data: { turbo_frame: "modal_frame", testid: "sell-stock-button" } do %>
+                      class: "tw-btn-sell -mr-1",
+                      data: { turbo_frame: "modal_frame", testid: "sell-stock-button" } do %>
               <%= lucide_icon("arrow-down") %> Sell
           <% end %>
         </div>

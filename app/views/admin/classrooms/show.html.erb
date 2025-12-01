@@ -1,22 +1,22 @@
 <% content_for(:header_last) do %>
   <% if page.resource.archived? %>
     <%= button_to(
-      "Activate",
-      [:toggle_archive, namespace, page.resource],
-      class: "button button--success",
-      method: :patch,
-      form: { style: "display: inline-block; margin-left: 0.5em;" },
-      data: { turbo_confirm: "Are you sure you want to activate this classroom?" }
-    ) %>
+          "Activate",
+          [:toggle_archive, namespace, page.resource],
+          class: "button button--success",
+          method: :patch,
+          form: { style: "display: inline-block; margin-left: 0.5em;" },
+          data: { turbo_confirm: "Are you sure you want to activate this classroom?" }
+        ) %>
   <% else %>
     <%= button_to(
-      "Archive",
-      [:toggle_archive, namespace, page.resource],
-      class: "button button--danger",
-      method: :patch,
-      form: { style: "display: inline-block; margin-left: 0.5em;" },
-      data: { turbo_confirm: "Are you sure you want to archive this classroom? Teachers and students will no longer be able to access it, but all historical data will be preserved." }
-    ) %>
+          "Archive",
+          [:toggle_archive, namespace, page.resource],
+          class: "button button--danger",
+          method: :patch,
+          form: { style: "display: inline-block; margin-left: 0.5em;" },
+          data: { turbo_confirm: "Are you sure you want to archive this classroom? Teachers and students will no longer be able to access it, but all historical data will be preserved." }
+        ) %>
   <% end %>
 <% end %>
 

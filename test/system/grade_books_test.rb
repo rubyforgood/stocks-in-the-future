@@ -13,8 +13,8 @@ class GradeBooksTest < ApplicationSystemTestCase
     @teacher = create(:teacher, classroom: @classroom)
     TeacherClassroom.create(teacher: @teacher, classroom: @classroom)
 
-    create(:grade_entry, grade_book: @grade_book, user: @student1)
-    create(:grade_entry, grade_book: @grade_book, user: @student2)
+    @student1_entry = create(:grade_entry, grade_book: @grade_book, user: @student1)
+    @student2_entry = create(:grade_entry, grade_book: @grade_book, user: @student2)
 
     sign_in(@teacher)
   end
@@ -22,35 +22,34 @@ class GradeBooksTest < ApplicationSystemTestCase
   test "teacher updates grade book entries" do
     visit classroom_grade_book_path(@classroom, @grade_book)
 
-    # It renders the table correctly
     assert_text @student1.username
     assert_text @student2.username
 
-    # Update grade entry values
-    within("tbody tr:nth-child(1)") do
-      find("select", match: :first).select("A") # Math grade
-      all("select")[1].select("B+") # Reading grade
-      fill_in type: "number", with: 95           # Attendance days
+    within("tr", text: @student1.username) do
+      find("[data-testid='math-grade-select']").select("A")
+      find("[data-testid='reading-grade-select']").select("B+")
+      fill_in type: "number", with: 95
     end
 
-    within("tbody tr:nth-child(2)") do
-      find("select", match: :first).select("B")  # Math grade
-      all("select")[1].select("A")               # Reading grade
-      fill_in type: "number", with: 87           # Attendance days
+    within("tr", text: @student2.username) do
+      find("[data-testid='math-grade-select']").select("B")
+      find("[data-testid='reading-grade-select']").select("A")
+      fill_in type: "number", with: 87
     end
 
     click_on "Save Grades"
 
-    # update the assertions so we just check against the text on the page~
-    assert_text @grade_book.grade_entries.first.user.username
-    assert_text "A"
-    assert_text "B+"
-    assert_field "grade_entries[#{@grade_book.grade_entries.first.id}][attendance_days]", with: "95"
+    within("tr", text: @student1.username) do
+      assert_text "A"
+      assert_text "B+"
+      assert_field "grade_entries[#{@student1_entry.id}][attendance_days]", with: "95", wait: 5
+    end
 
-    assert_text @grade_book.grade_entries.second.user.username
-    assert_text "B"
-    assert_text "A"
-    assert_field "grade_entries[#{@grade_book.grade_entries.second.id}][attendance_days]", with: "87"
+    within("tr", text: @student2.username) do
+      assert_text "B"
+      assert_text "A"
+      assert_field "grade_entries[#{@student2_entry.id}][attendance_days]", with: "87", wait: 5
+    end
   end
 
   test "admin sees success message when finalizing grade book" do
@@ -81,16 +80,16 @@ class GradeBooksTest < ApplicationSystemTestCase
     assert_text @student2.username
 
     # Enter grades for both students
-    within("tbody tr:nth-child(1)") do
-      find("select", match: :first).select("A")  # Math
-      all("select")[1].select("B+")              # Reading
-      fill_in type: "number", with: 95           # Attendance
+    within("tr", text: @student1.username) do
+      find("[data-testid='math-grade-select']").select("A")
+      find("[data-testid='reading-grade-select']").select("B+")
+      fill_in type: "number", with: 95
     end
 
-    within("tbody tr:nth-child(2)") do
-      find("select", match: :first).select("B")  # Math
-      all("select")[1].select("A")               # Reading
-      fill_in type: "number", with: 87           # Attendance
+    within("tr", text: @student2.username) do
+      find("[data-testid='math-grade-select']").select("B")
+      find("[data-testid='reading-grade-select']").select("A")
+      fill_in type: "number", with: 87
     end
 
     click_on "Save Grades"
@@ -107,7 +106,7 @@ class GradeBooksTest < ApplicationSystemTestCase
 
   test "teacher updates previously entered grades" do
     # Pre-populate grades for first student
-    @grade_book.grade_entries.first.update!(math_grade: "B", reading_grade: "C", attendance_days: 20)
+    @student1_entry.update!(math_grade: "B", reading_grade: "C", attendance_days: 20)
 
     visit classroom_grade_book_path(@classroom, @grade_book)
 
@@ -116,10 +115,10 @@ class GradeBooksTest < ApplicationSystemTestCase
     assert_text "C"
 
     # Update the grades
-    within("tbody tr:nth-child(1)") do
-      find("select", match: :first).select("A")  # Math: B → A
-      all("select")[1].select("B+")              # Reading: C → B+
-      fill_in type: "number", with: 25           # Attendance: 20 → 25
+    within("tr", text: @student1.username) do
+      find("[data-testid='math-grade-select']").select("A")
+      find("[data-testid='reading-grade-select']").select("B+")
+      fill_in type: "number", with: 25
     end
 
     click_on "Save Grades"
@@ -133,11 +132,11 @@ class GradeBooksTest < ApplicationSystemTestCase
     visit classroom_grade_book_path(@classroom, @grade_book)
 
     # Enter grades with perfect attendance checkbox
-    within("tbody tr:nth-child(1)") do
-      find("select", match: :first).select("A")
-      all("select")[1].select("A")
+    within("tr", text: @student1.username) do
+      find("[data-testid='math-grade-select']").select("A")
+      find("[data-testid='reading-grade-select']").select("A")
       fill_in type: "number", with: 90
-      find("input[type='checkbox']").check # Perfect attendance
+      find("[data-testid='perfect-attendance-checkbox']").check
     end
 
     click_on "Save Grades"
@@ -146,8 +145,8 @@ class GradeBooksTest < ApplicationSystemTestCase
     assert_text @student1.username
 
     # Verify checkbox is still checked after save
-    within("tbody tr:nth-child(1)") do
-      assert find("input[type='checkbox']").checked?
+    within("tr", text: @student1.username) do
+      assert find("[data-testid='perfect-attendance-checkbox']").checked?
     end
   end
 
@@ -185,9 +184,7 @@ class GradeBooksTest < ApplicationSystemTestCase
 
     # Enter invalid attendance (negative number blocked by HTML5 min=0)
     # Test is mainly to document that validation exists
-    within("tbody tr:nth-child(1)") do
-      find("select", match: :first).select("A")
-      all("select")[1].select("B+")
+    within("tr", text: @student1.username) do
       # HTML5 number field with min=0 prevents negative input
       # So this test mainly documents that the field has validation
       assert_selector "input[type='number'][min='0']"
@@ -204,9 +201,9 @@ class GradeBooksTest < ApplicationSystemTestCase
     visit classroom_grade_book_path(@classroom, @grade_book)
 
     # Verify form fields are disabled
-    assert_selector "select[disabled]", count: 4 # 2 students × 2 grade dropdowns
-    assert_selector "input[type='number'][disabled]", count: 2 # 2 attendance fields
-    assert_selector "input[type='checkbox'][disabled]", count: 2 # 2 perfect attendance checkboxes
+    assert_selector "select[disabled]", count: 4  # 2 students × 2 grade dropdowns
+    assert_selector "input[type='number'][disabled]", count: 2  # 2 attendance fields
+    assert_selector "input[type='checkbox'][disabled]", count: 2  # 2 perfect attendance checkboxes
 
     # Save button should not appear or be disabled
     assert_no_button "Save Grades"

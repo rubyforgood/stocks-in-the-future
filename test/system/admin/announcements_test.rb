@@ -20,11 +20,14 @@ module Admin
       click_on "New announcement"
 
       fill_in "Title", with: "New Admin Announcement"
-      # Administrate may use trix-editor for ActionText
       find("trix-editor").set("Admin created this announcement")
-      click_on "Create Announcement"
 
-      assert_text "Announcement was successfully created"
+      assert_difference("Announcement.count", 1) do
+        click_on "Create Announcement"
+
+        assert_text "Announcement was successfully created"
+      end
+
       assert_text "New Admin Announcement"
     end
 
@@ -34,9 +37,13 @@ module Admin
 
       fill_in "Title", with: "Updated by Admin"
       find("trix-editor").set("Updated content by admin")
-      click_on "Update Announcement"
 
-      assert_text "Announcement was successfully updated"
+      assert_no_difference("Announcement.count") do
+        click_on "Update Announcement"
+
+        assert_text "Announcement was successfully updated"
+      end
+
       assert_text "Updated by Admin"
     end
 
@@ -45,9 +52,12 @@ module Admin
       assert_text @announcement.title
 
       visit admin_announcement_url(@announcement)
-      accept_confirm { click_on "Destroy", match: :first }
 
-      assert_text "Announcement was successfully destroyed"
+      assert_difference("Announcement.count", -1) do
+        accept_confirm { click_on "Destroy", match: :first }
+
+        assert_text "Announcement was successfully destroyed"
+      end
     end
 
     test "non-admin cannot access admin announcements" do
