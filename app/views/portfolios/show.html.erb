@@ -40,20 +40,20 @@
           <div><%# Trending up/down this month will go here %></div>
         </div>
         <%# Total Cash Value %>
-        <div class="bg-white rounded-[22px] border border-black/30 py-4 px-5 flex flex-col justify-between min-h-[120px]">
+        <div class="bg-white rounded-[22px] border border-black/30 py-4 px-5 flex flex-col justify-between min-h-[120px]" data-testid="cash-balance">
           <div class="text-sm text-gray-600">Total Cash Value</div>
           <div class="text-2xl font-semibold"><%= number_to_currency(@portfolio.cash_balance) %></div>
           <div><%# Trending up/down this month will go here %></div>
         </div>
         <%# Total Stocks %>
-        <div class="bg-white rounded-[22px] border border-black/30 py-4 px-5 flex flex-col justify-between min-h-[120px]">
+        <div class="bg-white rounded-[22px] border border-black/30 py-4 px-5 flex flex-col justify-between min-h-[120px]" data-testid="total-stocks">
           <div class="text-sm text-gray-600">Total Stocks</div>
           <div class="text-2xl font-semibold"><%= @portfolio.portfolio_stocks.sum(:shares).to_i %></div>
           <div><%# Trending up/down this month will go here %></div>
         </div>
       </div>
       <!-- Holdings Table -->
-      <div class="rounded-xl border border-black/60 bg-white overflow-hidden">
+      <div class="rounded-xl border border-black/60 bg-white overflow-hidden" data-testid="holdings-table">
         <div class="overflow-x-auto">
           <table class="w-full min-w-[700px] border-collapse">
           <colgroup class="hidden lg:table-column-group">

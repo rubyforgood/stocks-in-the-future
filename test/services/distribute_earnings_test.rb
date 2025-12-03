@@ -64,17 +64,17 @@ class DistributeEarningsTest < ActiveSupport::TestCase
     expected_math = GradeEntry::EARNINGS_FOR_B_GRADE + GradeEntry::EARNINGS_FOR_IMPROVED_GRADE
     expected_reading = GradeEntry::EARNINGS_FOR_A_GRADE + GradeEntry::EARNINGS_FOR_IMPROVED_GRADE
 
-    attendance_transaction = transactions.find { |t| t.reason == PortfolioTransaction::REASONS[:attendance_earnings] }
+    attendance_transaction = transactions.find(&:attendance_earnings?)
     assert_not_nil attendance_transaction
     assert_equal expected_attendance, attendance_transaction.amount_cents
     assert attendance_transaction.deposit?
 
-    math_transaction = transactions.find { |t| t.reason == PortfolioTransaction::REASONS[:math_earnings] }
+    math_transaction = transactions.find(&:math_earnings?)
     assert_not_nil math_transaction
     assert_equal expected_math, math_transaction.amount_cents
     assert math_transaction.deposit?
 
-    reading_transaction = transactions.find { |t| t.reason == PortfolioTransaction::REASONS[:reading_earnings] }
+    reading_transaction = transactions.find(&:reading_earnings?)
     assert_not_nil reading_transaction
     assert_equal expected_reading, reading_transaction.amount_cents
     assert reading_transaction.deposit?

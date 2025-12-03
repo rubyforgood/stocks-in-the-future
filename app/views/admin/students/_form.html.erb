@@ -22,10 +22,10 @@ and renders all form fields for a resource's editable attributes.
     <div id="error_explanation">
       <h2>
         <%= t(
-          "administrate.form.errors",
-          pluralized_errors: pluralize(page.resource.errors.count, t("administrate.form.error")),
-          resource_name: display_resource_name(page.resource_name, singular: true)
-        ) %>
+              "administrate.form.errors",
+              pluralized_errors: pluralize(page.resource.errors.count, t("administrate.form.error")),
+              resource_name: display_resource_name(page.resource_name, singular: true)
+            ) %>
       </h2>
 
       <ul>
@@ -62,13 +62,13 @@ and renders all form fields for a resource's editable attributes.
   </div>
 <% end %>
 <% if page.resource.persisted? %>
-<hr />
+<hr>
 <%= form_with url: admin_student_add_transaction_path(page.resource), method: :post do |form| %>
   <% if action_name == 'edit' || action_name == 'update' %>
     <div class="field-unit">
       <div class="field-unit__label"><label>Cash balance</label></div>
       <div class="field-unit__field">
-        <%= number_to_currency(page.resource&.portfolio&.cash_balance || 0)%>
+        <%= number_to_currency(page.resource&.portfolio&.cash_balance || 0) %>
       </div>
     </div>
   <% end %>
@@ -85,7 +85,7 @@ and renders all form fields for a resource's editable attributes.
   <div class="field-unit">
     <div class="field-unit__label"><label for="student_add_fund_amount">Amount</label></div>
     <div class="field-unit__field">
-      <input step="any" type="number" name="student[add_fund_amount]" id="student_add_fund_amount" aria-required="false">
+      <input step="any" type="number" name="student[add_fund_amount]" id="student_add_fund_amount" aria-required="false" autocomplete="off">
     </div>
   </div>
   <div class="field-unit">
@@ -93,8 +93,8 @@ and renders all form fields for a resource's editable attributes.
     <div class="field-unit__field">
       <select required name="student[transaction_reason]" id="student_transaction_reason" aria-required="true" data-controller="select">
         <option value=""></option>
-        <% PortfolioTransaction::REASONS.each do |key, label| %>
-          <option value="<%= key %>"><%= label %></option>
+        <% PortfolioTransaction.reasons.keys.each do |key| %>
+        <option value="<%= key %>"><%= PortfolioTransaction.human_attribute_name("reason.#{key}") %></option>
         <% end %>
       </select>
     </div>

@@ -52,19 +52,19 @@
 
   <!-- Shares Input -->
   <div class="mb-6">
-    <%= form.label :shares, 
-        "Number of shares", 
-        class: "block text-sm font-medium text-[var(--sitf-foreground)] mb-2" %>
-    <%= form.number_field :shares, 
-        min: 1, 
-        step: 1,
-        required: true, 
-        placeholder: "Enter quantity",
-        class: "w-full px-4 py-3 text-lg border-2 border-[var(--sitf-muted)] rounded-lg focus:ring-2 focus:ring-[var(--sitf-ring)] focus:border-[var(--sitf-ring)] outline-none", 
-        data: { 
-          order_form_target: "shares", 
-          action: "input->order-form#calculateTotal" 
-        } %>
+    <%= form.label :shares,
+                   "Number of shares",
+                   class: "block text-sm font-medium text-[var(--sitf-foreground)] mb-2" %>
+    <%= form.number_field :shares,
+                          min: 1,
+                          step: 1,
+                          required: true,
+                          placeholder: "Enter quantity",
+                          class: "w-full px-4 py-3 text-lg border-2 border-[var(--sitf-muted)] rounded-lg focus:ring-2 focus:ring-[var(--sitf-ring)] focus:border-[var(--sitf-ring)] outline-none",
+                          data: {
+                            order_form_target: "shares",
+                            action: "input->order-form#calculateTotal"
+                          } %>
   </div>
 
   <!-- Order Total -->
@@ -73,12 +73,12 @@
       <span class="text-[var(--sitf-foreground)] font-medium">
         Total <%= order.action == 'buy' ? 'Cost' : 'Proceeds' %>:
       </span>
-      <span class="text-xl font-bold text-[var(--sitf-foreground)]" 
+      <span class="text-xl font-bold text-[var(--sitf-foreground)]"
             data-order-form-target="totalCost">
         $0.00
       </span>
     </div>
-    
+
     <!-- Daily Transaction Fee Notice -->
     <div class="pt-2 border-t border-[var(--sitf-muted)]/20">
       <p class="text-xs text-[var(--sitf-muted-foreground)] flex items-center">
@@ -96,13 +96,13 @@
 
   <!-- Submit Button -->
   <div class="flex gap-3">
-    <button type="button" 
+    <button type="button"
             class="flex-1 px-4 py-3 border border-[var(--sitf-8)]/50 text-[var(--sitf-input)] font-medium rounded-lg hover:bg-[var(--sitf-8)]/10 transition-colors cursor-pointer"
             data-action="click->modal#close">
       Cancel
     </button>
-    <%= form.submit "#{order.action == 'buy' ? 'Buy' : 'Sell'} Shares", 
-        class: "flex-1 px-4 py-3 #{order.action == 'buy' ? 'bg-[var(--sitf-secondary-chart2)] hover:bg-[var(--sitf-secondary-chart2)]/90' : 'bg-[var(--sitf-accent2-chart5)] hover:bg-[var(--sitf-accent2-chart5)]/90'} text-[var(--sitf-primary-secondary-foreground-card)] font-medium rounded-lg transition-colors shadow-sm cursor-pointer" %>
+    <%= form.submit "#{order.action == 'buy' ? 'Buy' : 'Sell'} Shares",
+                    class: "flex-1 px-4 py-3 #{order.action == 'buy' ? 'bg-[var(--sitf-secondary-chart2)] hover:bg-[var(--sitf-secondary-chart2)]/90' : 'bg-[var(--sitf-accent2-chart5)] hover:bg-[var(--sitf-accent2-chart5)]/90'} text-[var(--sitf-primary-secondary-foreground-card)] font-medium rounded-lg transition-colors shadow-sm cursor-pointer" %>
   </div>
 
 <% end %>

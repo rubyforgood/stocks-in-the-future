@@ -92,7 +92,24 @@ class OrdersControllerTest < ActionDispatch::IntegrationTest
     assert order.shares, 3
   end
 
-  # TODO: Add test for update with invalid params
+  test "update with invalid shares handles validation errors" do
+    user = create(:student)
+    stock = create(:stock, price_cents: 1_000)
+    create(:portfolio_stock, portfolio: user.portfolio, stock: stock, shares: 10)
+    order = create(:order, :pending, action: :sell, user: user, stock: stock, shares: 5)
+    sign_in(user)
+
+    [nil, "", "not_a_number", -1, 0].each do |invalid_shares|
+      params = { order: { shares: invalid_shares } }
+
+      assert_no_changes "order.reload.shares" do
+        assert_nothing_raised do
+          patch(order_path(order), params: params)
+          assert_response :unprocessable_content
+        end
+      end
+    end
+  end
 
   test "cancel" do
     user = create(:student)

@@ -1,11 +1,10 @@
 <!-- Hidden checkbox for menu toggle (CSS-only, no JavaScript!) -->
-<input type="checkbox" id="mobile-menu-toggle" class="hidden peer" />
+<input type="checkbox" id="mobile-menu-toggle" class="hidden peer">
 
 <!-- Overlay - shows when checkbox is checked -->
 <label
   for="mobile-menu-toggle"
-  class="fixed inset-0 bg-black/50 z-40 hidden peer-checked:block lg:hidden"
-></label>
+  class="fixed inset-0 bg-black/50 z-40 hidden peer-checked:block lg:hidden"></label>
 
 <!-- Sidebar - slides in when checkbox is checked -->
 <nav class="fixed z-50 top-0 bottom-0 left-0 w-64
@@ -20,8 +19,7 @@
       class="lg:hidden absolute top-4 right-4
              flex items-center justify-center w-10 h-10
              text-white hover:bg-white/10 rounded-lg
-             cursor-pointer transition-colors"
-    >
+             cursor-pointer transition-colors">
       <!-- X icon -->
       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -82,7 +80,7 @@
             <!-- Classes link -->
             <% if policy(Classroom).index? %>
               <li>
-                <% is_active = (request.path.include?('classrooms') && !request.path.include?('admin')) %>
+                <% is_active = request.path.include?('classrooms') && request.path.exclude?('admin') %>
                 <label for="mobile-menu-toggle" class="lg:cursor-default cursor-pointer">
                   <%= link_to classrooms_path, class: "flex items-center justify-start px-3 py-3 rounded-lg w-full group hover:bg-black/20", style: is_active ? "background-color: #d3df44;" : "" do %>
                     <div class="flex gap-3 items-center">
