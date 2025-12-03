@@ -321,7 +321,7 @@ class OrderTest < ActiveSupport::TestCase
 
   test ".for_student" do
     stock = create(:stock, price_cents: 1_000)
-    classroom = create(:classroom)
+    classroom = create(:classroom, :with_trading)
     student1, order1 = create_student_and_order(stock, classroom)
     _student2, _order2 = create_student_and_order(stock, classroom)
 
@@ -355,7 +355,7 @@ class OrderTest < ActiveSupport::TestCase
   private
 
   def create_classroom_and_student_order(stock)
-    classroom = create(:classroom)
+    classroom = create(:classroom, :with_trading)
     _student, order = create_student_and_order(stock, classroom)
 
     [classroom, order]

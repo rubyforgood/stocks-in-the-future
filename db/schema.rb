@@ -66,6 +66,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_16_135149) do
     t.integer "grade"
     t.string "name"
     t.bigint "school_year_id"
+    t.boolean "trading_enabled", default: false, null: false
     t.datetime "updated_at", null: false
     t.index ["school_year_id"], name: "index_classrooms_on_school_year_id"
   end

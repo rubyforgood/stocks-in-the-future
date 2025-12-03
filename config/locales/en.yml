@@ -32,6 +32,10 @@ en:
       notice: Classroom was successfully created.
     destroy:
       notice: Classroom was successfully destroyed.
+    toggle_trading:
+      alert: Unable to update trading status.
+      disabled: Trading has been disabled for this classroom.
+      enabled: Trading has been enabled for this classroom.
     update:
       notice: Classroom was successfully updated.
   fields:
