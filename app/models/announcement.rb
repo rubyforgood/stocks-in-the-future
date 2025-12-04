@@ -6,6 +6,8 @@ class Announcement < ApplicationRecord
   validates :title, presence: true, length: { maximum: 255 }
   validates :content, presence: true
 
+  before_save :unfeature_other_announcements, if: :featured?
+
   scope :latest, -> { order(created_at: :desc) }
 
   def self.current
@@ -18,5 +20,11 @@ class Announcement < ApplicationRecord
 
   def published_at
     created_at # Alias for semantic clarity
+  end
+
+  private
+
+  def unfeature_other_announcements
+    self.class.where.not(id: id).update_all(featured: false)
   end
 end
