@@ -7,12 +7,14 @@ class AnnouncementDashboard < Administrate::BaseDashboard
     id: Field::Number,
     title: Field::String,
     content: Field::RichText,
+    featured: Field::Boolean,
     created_at: Field::DateTime,
     updated_at: Field::DateTime
   }.freeze
 
   COLLECTION_ATTRIBUTES = %i[
     title
+    featured
     created_at
     updated_at
   ].freeze
@@ -27,6 +29,7 @@ class AnnouncementDashboard < Administrate::BaseDashboard
   FORM_ATTRIBUTES = %i[
     title
     content
+    featured
   ].freeze
 
   COLLECTION_FILTERS = {}.freeze
