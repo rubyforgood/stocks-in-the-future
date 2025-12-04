@@ -36,7 +36,8 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
 
     announcement = Announcement.create!(
       title: "Welcome Students!",
-      content: "This is an important announcement for all students."
+      content: "This is an important announcement for all students.",
+      featured: true
     )
 
     get root_url
@@ -45,23 +46,25 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[href=?]", announcement_path(announcement), text: "Read More", count: 0
   end
 
-  test "should show most recent announcement when multiple exist" do
+  test "should show featured announcement when multiple exist" do
     sign_in create(:student)
 
     Announcement.create!(
       title: "Old Announcement",
       content: "This is old news.",
-      created_at: 2.days.ago
+      created_at: 2.days.ago,
+      featured: false
     )
 
     Announcement.create!(
-      title: "Latest News",
-      content: "This is the latest announcement."
+      title: "Featured News",
+      content: "This is the featured announcement.",
+      featured: true
     )
 
     get root_url
     assert_response :success
-    assert_select "h3", text: "Latest News"
+    assert_select "h3", text: "Featured News"
     assert_no_match(/Old Announcement/, response.body)
   end
 
@@ -79,7 +82,8 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     long_content = "This is a long announcement content that is displayed in full in a scrollable box. " * 5
     Announcement.create!(
       title: "Long Announcement",
-      content: long_content
+      content: long_content,
+      featured: true
     )
 
     get root_url

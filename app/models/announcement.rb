@@ -6,7 +6,7 @@ class Announcement < ApplicationRecord
   validates :title, presence: true, length: { maximum: 255 }
   validates :content, presence: true
 
-  before_save :unfeature_other_announcements, if: :featured?
+  before_save :unfeature_other_announcements, if: :will_save_change_to_featured?
 
   scope :latest, -> { order(created_at: :desc) }
 
@@ -25,6 +25,9 @@ class Announcement < ApplicationRecord
   private
 
   def unfeature_other_announcements
-    self.class.where.not(id: id).update_all(featured: false)
+    return unless featured? && will_save_change_to_featured?(to: true)
+
+    currently_featured = self.class.where(featured: true).where.not(id: id).first
+    currently_featured&.update(featured: false)
   end
 end
