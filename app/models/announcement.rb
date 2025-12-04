@@ -11,7 +11,7 @@ class Announcement < ApplicationRecord
   scope :latest, -> { order(created_at: :desc) }
 
   def self.current
-    latest.first
+    find_by(featured: true)
   end
 
   def excerpt(limit: 150)
