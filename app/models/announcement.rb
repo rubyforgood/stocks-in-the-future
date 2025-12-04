@@ -6,10 +6,12 @@ class Announcement < ApplicationRecord
   validates :title, presence: true, length: { maximum: 255 }
   validates :content, presence: true
 
+  before_save :unfeature_other_announcements, if: :will_save_change_to_featured?
+
   scope :latest, -> { order(created_at: :desc) }
 
   def self.current
-    latest.first
+    find_by(featured: true)
   end
 
   def excerpt(limit: 150)
@@ -18,5 +20,14 @@ class Announcement < ApplicationRecord
 
   def published_at
     created_at # Alias for semantic clarity
+  end
+
+  private
+
+  def unfeature_other_announcements
+    return unless featured? && will_save_change_to_featured?(to: true)
+
+    currently_featured = self.class.where(featured: true).where.not(id: id).first
+    currently_featured&.update(featured: false)
   end
 end
