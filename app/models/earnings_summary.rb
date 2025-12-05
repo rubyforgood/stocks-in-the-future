@@ -35,8 +35,8 @@ class EarningsSummary
 
   def sum_by_reason(reason)
     portfolio.portfolio_transactions
-            .deposits
-            .where(reason: reason)
-            .sum(:amount_cents)
+             .deposits
+             .where(reason: reason)
+             .sum(:amount_cents)
   end
 end
