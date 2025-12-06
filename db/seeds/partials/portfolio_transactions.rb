@@ -13,6 +13,42 @@ if student
     amount_cents: 10_000_00
   )
 
+  # Add earnings transactions with reasons for testing
+  PortfolioTransaction.create(
+    portfolio: portfolio,
+    transaction_type: :deposit,
+    amount_cents: 500_00,
+    reason: :attendance_earnings
+  )
+
+  PortfolioTransaction.create(
+    portfolio: portfolio,
+    transaction_type: :deposit,
+    amount_cents: 500_00,
+    reason: :reading_earnings
+  )
+
+  PortfolioTransaction.create(
+    portfolio: portfolio,
+    transaction_type: :deposit,
+    amount_cents: 100_00,
+    reason: :math_earnings
+  )
+
+  PortfolioTransaction.create(
+    portfolio: portfolio,
+    transaction_type: :deposit,
+    amount_cents: 50_00,
+    reason: :awards
+  )
+
+  PortfolioTransaction.create(
+    portfolio: portfolio,
+    transaction_type: :deposit,
+    amount_cents: 25_00,
+    reason: :transaction_fees
+  )
+
   puts "Seeded portfolio transactions for Student user"
   Rails.logger.info "Seeded portfolio transactions for Student user"
 else
