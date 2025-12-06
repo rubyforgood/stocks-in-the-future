@@ -68,14 +68,58 @@ class AnnouncementTest < ActiveSupport::TestCase
     assert_equal old_announcement, latest_announcements.last
   end
 
-  test "current scope should return the most recent announcement" do
-    Announcement.create!(title: "Old", content: "Old content", created_at: 1.day.ago)
-    new_announcement = Announcement.create!(title: "New", content: "New content")
+  test "current should return the featured announcement" do
+    Announcement.create!(title: "Old", content: "Old content", featured: false)
+    featured_announcement = Announcement.create!(title: "Featured", content: "Featured content", featured: true)
+    Announcement.create!(title: "New", content: "New content", featured: false)
 
-    assert_equal new_announcement, Announcement.current
+    assert_equal featured_announcement, Announcement.current
   end
 
-  test "current scope should return nil when no announcements exist" do
+  test "current should return nil when no announcement is featured" do
+    Announcement.create!(title: "Old", content: "Old content", featured: false)
     assert_nil Announcement.current
+  end
+
+  test "current should return nil when no announcements exist" do
+    assert_nil Announcement.current
+  end
+
+  test "should default featured to false" do
+    announcement = Announcement.create!(title: "Test", content: "Test content")
+    assert_equal false, announcement.featured
+  end
+
+  test "should allow setting featured to true" do
+    announcement = Announcement.create!(title: "Test", content: "Test content", featured: true)
+    assert_equal true, announcement.featured
+  end
+
+  test "should unfeature other announcements when one is featured" do
+    announcement1 = Announcement.create!(title: "First", content: "First content", featured: true)
+    announcement2 = Announcement.create!(title: "Second", content: "Second content", featured: true)
+
+    announcement1.reload
+    assert_equal false, announcement1.featured
+    assert_equal true, announcement2.featured
+  end
+
+  test "should allow multiple announcements with featured false" do
+    announcement1 = Announcement.create!(title: "First", content: "First content", featured: false)
+    announcement2 = Announcement.create!(title: "Second", content: "Second content", featured: false)
+
+    assert_equal false, announcement1.featured
+    assert_equal false, announcement2.featured
+  end
+
+  test "should unfeature announcement when updating another to featured" do
+    announcement1 = Announcement.create!(title: "First", content: "First content", featured: true)
+    announcement2 = Announcement.create!(title: "Second", content: "Second content", featured: false)
+
+    announcement2.update!(featured: true)
+
+    announcement1.reload
+    assert_equal false, announcement1.featured
+    assert_equal true, announcement2.featured
   end
 end
