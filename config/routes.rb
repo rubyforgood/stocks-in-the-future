@@ -42,6 +42,7 @@ Rails.application.routes.draw do
         patch :toggle_archive
       end
     end
+    resources :grades
     resources :portfolio_transactions, except: [:index]
     resources :schools
     resources :school_years
