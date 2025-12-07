@@ -24,8 +24,8 @@
         </div>
         <% if policy(@classroom).toggle_trading? %>
           <%= button_to toggle_trading_classroom_path(@classroom),
-              method: :patch,
-              class: "px-4 py-2 rounded-md font-medium transition-colors #{@classroom.trading_enabled? ? 'bg-yellow-600 hover:bg-yellow-700 text-white' : 'bg-green-600 hover:bg-green-700 text-white'}" do %>
+                        method: :patch,
+                        class: "px-4 py-2 rounded-md font-medium transition-colors #{@classroom.trading_enabled? ? 'bg-yellow-600 hover:bg-yellow-700 text-white' : 'bg-green-600 hover:bg-green-700 text-white'}" do %>
             <%= @classroom.trading_enabled? ? 'Disable Trading' : 'Enable Trading' %>
           <% end %>
         <% end %>
