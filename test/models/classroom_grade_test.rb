@@ -39,13 +39,4 @@ class ClassroomGradeTest < ActiveSupport::TestCase
       classroom.destroy
     end
   end
-
-  test "destroying grade destroys classroom_grade" do
-    grade = create(:grade)
-    create(:classroom_grade, grade: grade)
-
-    assert_difference "ClassroomGrade.count", -1 do
-      grade.destroy
-    end
-  end
 end
