@@ -14,7 +14,7 @@ bundle exec i18n-tasks check-normalized
 bundle exec rubocop -f "$FORMATTER"
 
 # Run ERB linting
-bin/dc bundle exec erb_lint --lint-all
+bundle exec erb_lint --lint-all
 
 # Security and audit checks
 bin/brakeman --no-pager --exit-on-warn --quiet
