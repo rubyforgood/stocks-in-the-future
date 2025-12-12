@@ -13,6 +13,8 @@ class Classroom < ApplicationRecord
   has_many :teacher_classrooms, dependent: :destroy
   has_many :teachers, through: :teacher_classrooms
   has_many :students, -> { kept }, class_name: "Student", inverse_of: :classroom, dependent: :nullify
+  has_many :classroom_grades, dependent: :destroy
+  has_many :grades, through: :classroom_grades
   has_many :grade_books, dependent: :nullify
 
   validates :name, presence: true
