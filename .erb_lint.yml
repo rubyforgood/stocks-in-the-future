@@ -1,13 +1,10 @@
 ---
 EnableDefaultLinters: true
 
-# Exclude vendor, node_modules, and other non-app code
-Exclude:
-  - '**/vendor/**/*'      # prevents linting gems
-  - '**/node_modules/**/*' # prevents linting JS deps if present
-  - '**/tmp/**/*'         # ignores temp build files
-  - '**/log/**/*'        # ignores log files
-
+glob: "**/*.{html,text,js}{+*,}.erb"
+exclude:
+  - '**/vendor/**/*'
+  - '**/node_modules/**/*'
 linters:
   ErbSafety:
     enabled: true
