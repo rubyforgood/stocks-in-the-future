@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_05_032708) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_13_034038) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -335,6 +335,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_05_032708) do
     t.decimal "industry_avg_debt_to_equity", precision: 15, scale: 2
     t.decimal "industry_avg_profit_margin", precision: 15, scale: 2
     t.decimal "industry_avg_sales_growth", precision: 15, scale: 2
+    t.date "last_trading_day"
     t.text "management"
     t.integer "price_cents"
     t.decimal "profit_margin", precision: 15, scale: 2
