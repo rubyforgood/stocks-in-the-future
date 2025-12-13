@@ -90,4 +90,36 @@ class StockPricesUpdateJobTest < ActiveJob::TestCase
     assert_equal initial_price, stock.yesterday_price_cents
     assert_equal initial_price, stock.price_cents
   end
+
+  test "stores trading day when updating stock price" do
+    stock = create(:stock, ticker: "AAPL", price_cents: 10_000, last_trading_day: nil)
+
+    StockPricesUpdateJob.perform_now
+
+    stock.reload
+    assert_equal Date.parse("2024-05-31"), stock.last_trading_day
+  end
+
+  test "skips update when trading day hasn't changed" do
+    initial_price = 10_000
+    trading_day = Date.parse("2024-05-31")
+    stock = create(:stock, ticker: "AAPL", price_cents: initial_price, last_trading_day: trading_day)
+
+    StockPricesUpdateJob.perform_now
+
+    stock.reload
+    assert_equal initial_price, stock.price_cents
+    assert_equal trading_day, stock.last_trading_day
+  end
+
+  test "updates when trading day is newer" do
+    old_trading_day = Date.parse("2024-05-30")
+    stock = create(:stock, ticker: "AAPL", price_cents: 10_000, last_trading_day: old_trading_day)
+
+    StockPricesUpdateJob.perform_now
+
+    stock.reload
+    assert_equal Date.parse("2024-05-31"), stock.last_trading_day
+    assert stock.price_cents.positive?
+  end
 end

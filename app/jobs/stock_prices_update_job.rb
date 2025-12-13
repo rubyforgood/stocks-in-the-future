@@ -57,10 +57,15 @@ class StockPricesUpdateJob < ApplicationJob
   end
 
   def process_price_update(stock, symbol)
-    price = fetch_and_validate_price(symbol)
-    return save_yesterday_price_only(stock, symbol) unless price
+    price_data = fetch_and_validate_price(symbol)
+    return save_yesterday_price_only(stock, symbol) unless price_data
 
-    save_updated_price(stock, symbol, price)
+    unless should_update?(stock, price_data[:trading_day])
+      Rails.logger.info "Skipping #{symbol}: no trading since #{stock.last_trading_day}"
+      return false
+    end
+
+    save_updated_price(stock, symbol, price_data[:price], price_data[:trading_day])
   end
 
   def save_yesterday_price_only(stock, symbol)
@@ -68,8 +73,13 @@ class StockPricesUpdateJob < ApplicationJob
     Rails.logger.warn "Could not fetch new price for #{symbol}, saved yesterday price only"
   end
 
-  def save_updated_price(stock, symbol, price)
+  def should_update?(stock, latest_trading_day)
+    stock.last_trading_day.nil? || latest_trading_day.to_date > stock.last_trading_day
+  end
+
+  def save_updated_price(stock, symbol, price, trading_day)
     stock.price_cents = convert_to_cents(price)
+    stock.last_trading_day = trading_day.to_date
     stock.save!
     log_successful_update(stock, symbol)
     stock # Return the stock object (truthy)
@@ -86,20 +96,24 @@ class StockPricesUpdateJob < ApplicationJob
 
   def fetch_and_validate_price(symbol)
     data = api_request(symbol)
-    price = data&.dig("Global Quote", "05. price")
+    extract_price_data(data, symbol)
+  end
 
-    if price
-      Rails.logger.info "API returned price #{price} for #{symbol}"
-      price
-    else
-      Rails.logger.error "Invalid API response for #{symbol}: #{data}"
-      nil
+  def extract_price_data(data, symbol)
+    price = data&.dig("Global Quote", "05. price")
+    trading_day = data&.dig("Global Quote", "07. latest trading day")
+
+    if price && trading_day
+      Rails.logger.info "API returned price #{price} for #{symbol} (trading day: #{trading_day})"
+      return { price: price, trading_day: trading_day }
     end
+
+    Rails.logger.error "Invalid API response for #{symbol}: #{data}"
+    nil
   end
 
   def api_request(symbol)
     api_key = ENV.fetch("ALPHA_VANTAGE_API_KEY", nil)
-
     unless api_key
       Rails.logger.error "ALPHA_VANTAGE_API_KEY environment variable not configured"
       return nil
