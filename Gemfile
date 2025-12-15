@@ -11,7 +11,7 @@ gem "bootsnap", require: false
 gem "csv"
 gem "daemons"
 gem "devise", "~> 4.9"
-gem "faker", "~> 3.5.2"
+gem "faker", "~> 3.5.3"
 gem "font-awesome-rails"
 gem "image_processing", "~> 1.14"
 gem "importmap-rails"

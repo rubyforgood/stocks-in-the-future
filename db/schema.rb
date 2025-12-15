@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_04_134708) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_05_032708) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -61,6 +61,16 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_04_134708) do
     t.index ["created_at"], name: "index_announcements_on_created_at", order: :desc
   end
 
+  create_table "classroom_grades", force: :cascade do |t|
+    t.bigint "classroom_id", null: false
+    t.datetime "created_at", null: false
+    t.bigint "grade_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["classroom_id", "grade_id"], name: "index_classroom_grades_on_classroom_id_and_grade_id", unique: true
+    t.index ["classroom_id"], name: "index_classroom_grades_on_classroom_id"
+    t.index ["grade_id"], name: "index_classroom_grades_on_grade_id"
+  end
+
   create_table "classrooms", force: :cascade do |t|
     t.boolean "archived", default: false, null: false
     t.datetime "created_at", null: false
@@ -95,6 +105,15 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_04_134708) do
     t.index ["grade_book_id", "user_id"], name: "index_grade_entries_on_grade_book_id_and_user_id", unique: true
     t.index ["grade_book_id"], name: "index_grade_entries_on_grade_book_id"
     t.index ["user_id"], name: "index_grade_entries_on_user_id"
+  end
+
+  create_table "grades", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "level", null: false
+    t.string "name", null: false
+    t.datetime "updated_at", null: false
+    t.index ["level"], name: "index_grades_on_level", unique: true
+    t.index ["name"], name: "index_grades_on_name", unique: true
   end
 
   create_table "orders", force: :cascade do |t|
@@ -367,6 +386,8 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_04_134708) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "classroom_grades", "classrooms"
+  add_foreign_key "classroom_grades", "grades"
   add_foreign_key "classrooms", "school_years"
   add_foreign_key "grade_books", "classrooms"
   add_foreign_key "grade_books", "quarters"
