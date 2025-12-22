@@ -41,17 +41,17 @@
     <!-- Admin Sidebar Navigation -->
     <div class="fixed top-16 left-0 h-[calc(100vh-4rem)] w-64 bg-white border-r border-gray-200 overflow-y-auto lg:block hidden" id="admin-sidebar">
       <nav class="p-4">
-        <%= render "admin/v2/shared/navigation" %>
+        <%= render "admin_v2/shared/navigation" %>
       </nav>
     </div>
 
     <!-- Mobile Sidebar Overlay -->
-    <div class="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden hidden" id="sidebar-overlay"></div>
+    <div class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden" id="sidebar-overlay" style="display: none;"></div>
 
     <!-- Mobile Sidebar -->
     <div class="fixed top-16 left-0 h-[calc(100vh-4rem)] w-64 bg-white border-r border-gray-200 overflow-y-auto z-50 transform -translate-x-full transition-transform duration-300 lg:hidden" id="mobile-sidebar">
       <nav class="p-4">
-        <%= render "admin/v2/shared/navigation" %>
+        <%= render "admin_v2/shared/navigation" %>
       </nav>
     </div>
 
@@ -84,7 +84,15 @@
         if (mobileMenuToggle && mobileSidebar && sidebarOverlay) {
           const toggleMenu = () => {
             mobileSidebar.classList.toggle('-translate-x-full');
-            sidebarOverlay.classList.toggle('hidden');
+
+            // Toggle overlay visibility with both class and style
+            if (sidebarOverlay.classList.contains('hidden')) {
+              sidebarOverlay.classList.remove('hidden');
+              sidebarOverlay.style.display = 'block';
+            } else {
+              sidebarOverlay.classList.add('hidden');
+              sidebarOverlay.style.display = 'none';
+            }
           };
 
           mobileMenuToggle.addEventListener('click', toggleMenu);
