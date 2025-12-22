@@ -122,7 +122,7 @@ GEM
     csv (3.3.5)
     daemons (1.4.1)
     date (3.5.1)
-    debug (1.11.0)
+    debug (1.11.1)
       irb (~> 1.10)
       reline (>= 0.3.8)
     devise (4.9.4)
