@@ -129,9 +129,9 @@ class StudentPortfolioViewTest < ApplicationSystemTestCase
     portfolio = student.portfolio
 
     # Create various transaction types
-    create(:portfolio_transaction, :deposit, portfolio: portfolio, amount_cents: 10_000, reason: "Initial funding")
-    create(:portfolio_transaction, :credit, portfolio: portfolio, amount_cents: 5_000, reason: "Stock sale")
-    create(:portfolio_transaction, :debit, portfolio: portfolio, amount_cents: 3_000, reason: "Stock purchase")
+    create(:portfolio_transaction, :deposit, portfolio: portfolio, amount_cents: 10_000)
+    create(:portfolio_transaction, :credit, portfolio: portfolio, amount_cents: 5_000)
+    create(:portfolio_transaction, :debit, portfolio: portfolio, amount_cents: 3_000)
 
     sign_in(student)
     visit portfolio_path(portfolio)
@@ -143,9 +143,7 @@ class StudentPortfolioViewTest < ApplicationSystemTestCase
     # Try to find transaction history section
     if has_css?("[data-testid='transaction-history']", wait: 1)
       within "[data-testid='transaction-history']" do
-        assert_text "Initial funding"
-        assert_text "Stock sale"
-        assert_text "Stock purchase"
+        # Verify transaction amounts are displayed
         assert_text "$100.00"
         assert_text "$50.00"
         assert_text "$30.00"

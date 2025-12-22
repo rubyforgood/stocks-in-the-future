@@ -2,6 +2,15 @@
 en:
   activerecord:
     attributes:
+      portfolio_transaction:
+        reasons:
+          administrative_adjustments: Administrative Adjustment
+          attendance_earnings: Earnings from Attendance
+          awards: Award
+          grade_earnings: Earnings from Grades
+          math_earnings: Earnings from Math
+          reading_earnings: Earnings from Reading
+          transaction_fees: Transaction Fees
       user:
         type: Role
     errors:
@@ -23,6 +32,10 @@ en:
       notice: Classroom was successfully created.
     destroy:
       notice: Classroom was successfully destroyed.
+    toggle_trading:
+      alert: Unable to update trading status.
+      disabled: Trading has been disabled for this classroom.
+      enabled: Trading has been enabled for this classroom.
     update:
       notice: Classroom was successfully updated.
   fields:
@@ -38,7 +51,6 @@ en:
     label:
       portfolio_transaction:
         amount_cents: Amount
-        reason_humanized: Reason
       student:
         portfolio_path: Portfolio Link
   orders:

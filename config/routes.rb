@@ -18,6 +18,9 @@ Rails.application.routes.draw do
   end
 
   resources :classrooms, except: [:destroy] do
+    member do
+      patch :toggle_trading
+    end
     resources :grade_books, only: %i[show update] do
       member do
         post :finalize
@@ -39,6 +42,7 @@ Rails.application.routes.draw do
         patch :toggle_archive
       end
     end
+    resources :grades
     resources :portfolio_transactions, except: [:index]
     resources :schools
     resources :school_years

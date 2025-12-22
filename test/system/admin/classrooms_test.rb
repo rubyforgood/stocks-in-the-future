@@ -14,7 +14,9 @@ module Admin
       visit admin_classroom_url(@classroom)
       assert_text @classroom.name
 
-      accept_confirm { click_on "Archive" }
+      accept_confirm do
+        click_on "Archive"
+      end
 
       assert_text "Classroom has been archived"
       assert_current_path admin_classrooms_path
@@ -26,7 +28,9 @@ module Admin
       visit admin_classroom_url(@classroom)
       assert_text @classroom.name
 
-      accept_confirm { click_on "Activate" }
+      accept_confirm do
+        click_on "Activate"
+      end
 
       assert_text "Classroom has been activated"
       assert_current_path admin_classrooms_path

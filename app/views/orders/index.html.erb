@@ -116,11 +116,11 @@
               <td class="table-body-cell table-body-cell-center">
                 <div class="flex justify-center space-x-2">
                   <% if order.pending? %>
-                    <%= link_to edit_order_path(order), class: "table-action-link" do %>
+                    <%= link_to edit_order_path(order), class: "table-action-link", data: { testid: "edit-order-button" } do %>
                       <i class="fa fa-pencil fa-lg"></i>
                     <% end %>
                     <%= form_with url: cancel_order_path(order), method: :patch, data: { confirm: t("orders.cancel.confirm"), turbo_confirm: t("orders.cancel.confirm") } do %>
-                      <button type="submit" class="table-action-button" title="Cancel">
+                      <button type="submit" class="table-action-button" title="Cancel" data-testid="cancel-order-button">
                         <i class="fa fa-ban fa-lg"></i>
                       </button>
                     <% end %>

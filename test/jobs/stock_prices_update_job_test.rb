@@ -7,6 +7,7 @@ class StockPricesUpdateJobTest < ActiveJob::TestCase
 
   setup do
     ENV["ALPHA_VANTAGE_API_KEY"] = "test_api_key"
+    @last_trading_date = Date.parse("2024-05-31")
 
     stub_request(:get, STOCK_URL_MATCHER)
       .with(
@@ -89,5 +90,36 @@ class StockPricesUpdateJobTest < ActiveJob::TestCase
     stock.reload
     assert_equal initial_price, stock.yesterday_price_cents
     assert_equal initial_price, stock.price_cents
+  end
+
+  test "stores trading day when updating stock price" do
+    stock = create(:stock, ticker: "AAPL", price_cents: 10_000, last_trading_day: nil)
+
+    StockPricesUpdateJob.perform_now
+
+    stock.reload
+    assert_equal @last_trading_date, stock.last_trading_day
+  end
+
+  test "skips update when trading day hasn't changed" do
+    initial_price = 10_000
+    stock = create(:stock, ticker: "AAPL", price_cents: initial_price, last_trading_day: @last_trading_date)
+
+    StockPricesUpdateJob.perform_now
+
+    stock.reload
+    assert_equal initial_price, stock.price_cents
+    assert_equal @last_trading_date, stock.last_trading_day
+  end
+
+  test "updates when trading day is newer" do
+    prev_trading_date = @last_trading_date - 1.day
+    stock = create(:stock, ticker: "AAPL", price_cents: 10_000, last_trading_day: prev_trading_date)
+
+    StockPricesUpdateJob.perform_now
+
+    stock.reload
+    assert_equal @last_trading_date, stock.last_trading_day
+    assert stock.price_cents.positive?
   end
 end

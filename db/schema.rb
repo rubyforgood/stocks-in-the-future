@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_11_12_225154) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_13_034038) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -55,9 +55,20 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_12_225154) do
   create_table "announcements", force: :cascade do |t|
     t.text "body"
     t.datetime "created_at", null: false
+    t.boolean "featured", default: false, null: false
     t.string "title"
     t.datetime "updated_at", null: false
     t.index ["created_at"], name: "index_announcements_on_created_at", order: :desc
+  end
+
+  create_table "classroom_grades", force: :cascade do |t|
+    t.bigint "classroom_id", null: false
+    t.datetime "created_at", null: false
+    t.bigint "grade_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["classroom_id", "grade_id"], name: "index_classroom_grades_on_classroom_id_and_grade_id", unique: true
+    t.index ["classroom_id"], name: "index_classroom_grades_on_classroom_id"
+    t.index ["grade_id"], name: "index_classroom_grades_on_grade_id"
   end
 
   create_table "classrooms", force: :cascade do |t|
@@ -66,6 +77,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_12_225154) do
     t.integer "grade"
     t.string "name"
     t.bigint "school_year_id"
+    t.boolean "trading_enabled", default: false, null: false
     t.datetime "updated_at", null: false
     t.index ["school_year_id"], name: "index_classrooms_on_school_year_id"
   end
@@ -104,6 +116,15 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_12_225154) do
     t.index ["grade_book_id", "user_id"], name: "index_grade_entries_on_grade_book_id_and_user_id", unique: true
     t.index ["grade_book_id"], name: "index_grade_entries_on_grade_book_id"
     t.index ["user_id"], name: "index_grade_entries_on_user_id"
+  end
+
+  create_table "grades", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "level", null: false
+    t.string "name", null: false
+    t.datetime "updated_at", null: false
+    t.index ["level"], name: "index_grades_on_level", unique: true
+    t.index ["name"], name: "index_grades_on_name", unique: true
   end
 
   create_table "orders", force: :cascade do |t|
@@ -149,7 +170,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_12_225154) do
     t.datetime "created_at", null: false
     t.text "description"
     t.bigint "portfolio_id", null: false
-    t.string "reason"
+    t.integer "reason"
     t.integer "transaction_type", null: false
     t.datetime "updated_at", null: false
     t.index ["portfolio_id"], name: "index_portfolio_transactions_on_portfolio_id"
@@ -325,6 +346,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_12_225154) do
     t.decimal "industry_avg_debt_to_equity", precision: 15, scale: 2
     t.decimal "industry_avg_profit_margin", precision: 15, scale: 2
     t.decimal "industry_avg_sales_growth", precision: 15, scale: 2
+    t.date "last_trading_day"
     t.text "management"
     t.integer "price_cents"
     t.decimal "profit_margin", precision: 15, scale: 2
@@ -376,6 +398,8 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_12_225154) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "classroom_grades", "classrooms"
+  add_foreign_key "classroom_grades", "grades"
   add_foreign_key "classrooms", "school_years"
   add_foreign_key "enrollments", "classrooms"
   add_foreign_key "enrollments", "users", column: "student_id"

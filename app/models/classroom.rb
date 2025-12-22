@@ -14,6 +14,8 @@ class Classroom < ApplicationRecord
   has_many :teachers, through: :teacher_classrooms
   has_many :enrollments, dependent: :destroy
   has_many :students, -> { kept }, through: :enrollments
+  has_many :classroom_grades, dependent: :destroy
+  has_many :grades, through: :classroom_grades
   has_many :grade_books, dependent: :nullify
 
   validates :name, presence: true
