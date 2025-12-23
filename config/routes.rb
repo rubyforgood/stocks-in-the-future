@@ -61,6 +61,12 @@ Rails.application.routes.draw do
     resources :users
   end
 
+  # Admin V2 - In-house admin implementation (dual-running with Administrate)
+  namespace :admin_v2, path: "admin-new" do
+    root "dashboard#index"
+    # Resource routes will be added incrementally in subsequent tickets
+  end
+
   resources :orders do
     member do
       patch :cancel
