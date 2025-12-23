@@ -25,11 +25,15 @@
         <i class="fas fa-graduation-cap text-blue-600 text-2xl mr-3"></i>
         <h2 class="text-lg font-semibold text-gray-900">Academic</h2>
       </div>
-      <ul class="space-y-2 text-sm text-gray-600">
-        <li><i class="fas fa-chalkboard w-4 mr-2"></i>Classrooms</li>
-        <li><i class="fas fa-school w-4 mr-2"></i>Schools</li>
-        <li><i class="fas fa-calendar-alt w-4 mr-2"></i>School Years</li>
-        <li><i class="fas fa-graduation-cap w-4 mr-2"></i>Grades</li>
+      <ul class="space-y-2 text-sm">
+        <li class="text-gray-600"><i class="fas fa-chalkboard w-4 mr-2"></i>Classrooms</li>
+        <li class="text-gray-600"><i class="fas fa-school w-4 mr-2"></i>Schools</li>
+        <li class="text-gray-600"><i class="fas fa-calendar-alt w-4 mr-2"></i>School Years</li>
+        <li>
+          <%= link_to admin_v2_grades_path, class: "text-blue-600 hover:text-blue-800 hover:underline" do %>
+            <i class="fas fa-graduation-cap w-4 mr-2"></i>Grades
+          <% end %>
+        </li>
       </ul>
     </div>
 
@@ -64,8 +68,12 @@
         <i class="fas fa-bullhorn text-orange-600 text-2xl mr-3"></i>
         <h2 class="text-lg font-semibold text-gray-900">Content</h2>
       </div>
-      <ul class="space-y-2 text-sm text-gray-600">
-        <li><i class="fas fa-bullhorn w-4 mr-2"></i>Announcements</li>
+      <ul class="space-y-2 text-sm">
+        <li>
+          <%= link_to admin_v2_announcements_path, class: "text-blue-600 hover:text-blue-800 hover:underline" do %>
+            <i class="fas fa-bullhorn w-4 mr-2"></i>Announcements
+          <% end %>
+        </li>
       </ul>
     </div>
   </div>
