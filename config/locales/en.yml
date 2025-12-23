@@ -41,6 +41,13 @@ en:
         notice: School deleted successfully.
       update:
         notice: School updated successfully.
+    years:
+      create:
+        notice: Year created successfully.
+      destroy:
+        notice: Year deleted successfully.
+      update:
+        notice: Year updated successfully.
   announcements:
     not_found: Announcement not found.
   application:

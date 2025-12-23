@@ -1,0 +1,19 @@
+<div class="max-w-7xl mx-auto">
+  <%= admin_breadcrumbs(@breadcrumbs) %>
+
+  <%= admin_table(
+        @years,
+        columns: [
+          { attribute: :id, label: "ID", sortable: true },
+          { attribute: :name, label: "Name", sortable: true },
+          { attribute: :created_at, label: "Created", sortable: true }
+        ],
+        title: "Years",
+        actions: link_to(
+          "New Year",
+          new_admin_v2_year_path,
+          class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+        ),
+        empty_message: "No years found. Create your first year to get started."
+      ) %>
+</div>
