@@ -5,13 +5,10 @@ module AdminV2
     before_action :set_announcement, only: %i[show edit update destroy]
 
     def index
-      @announcements = Announcement.latest
+      sort_column = params[:sort].presence || "created_at"
+      sort_direction = params[:direction] == "desc" ? :desc : :asc
 
-      # Apply sorting if params present
-      if params[:sort].present?
-        direction = params[:direction] == "desc" ? :desc : :asc
-        @announcements = @announcements.order(params[:sort] => direction)
-      end
+      @announcements = Announcement.reorder(sort_column => sort_direction)
 
       @breadcrumbs = [
         { label: "Announcements" }
