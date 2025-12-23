@@ -5,13 +5,10 @@ module AdminV2
     before_action :set_grade, only: %i[show edit update destroy]
 
     def index
-      @grades = Grade.order(:level)
+      sort_column = params[:sort].presence || "level"
+      sort_direction = params[:direction] == "desc" ? :desc : :asc
 
-      # Apply sorting if params present
-      if params[:sort].present?
-        direction = params[:direction] == "desc" ? :desc : :asc
-        @grades = @grades.order(params[:sort] => direction)
-      end
+      @grades = Grade.reorder(sort_column => sort_direction)
 
       @breadcrumbs = [
         { label: "Grades" }
