@@ -9,14 +9,14 @@
     <%= javascript_importmap_tags %>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   </head>
-  <body class="min-h-screen bg-gray-50">
+  <body class="min-h-screen bg-gray-50" data-controller="admin-sidebar">
     <!-- Admin Header -->
     <div class="fixed top-0 left-0 w-full z-50 bg-white border-b border-gray-200">
       <div class="flex items-center justify-between py-3 px-6 h-16">
         <div class="flex items-center gap-4">
           <button
             type="button"
-            id="mobile-menu-toggle"
+            data-action="click->admin-sidebar#toggle"
             class="lg:hidden inline-flex items-center justify-center w-10 h-10 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
             aria-label="Toggle menu">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -46,10 +46,14 @@
     </div>
 
     <!-- Mobile Sidebar Overlay -->
-    <div class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden" id="sidebar-overlay" style="display: none;"></div>
+    <div class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden"
+         data-admin-sidebar-target="overlay"
+         data-action="click->admin-sidebar#toggle"
+         style="display: none;"></div>
 
     <!-- Mobile Sidebar -->
-    <div class="fixed top-16 left-0 h-[calc(100vh-4rem)] w-64 bg-white border-r border-gray-200 overflow-y-auto z-50 transform -translate-x-full transition-transform duration-300 lg:hidden" id="mobile-sidebar">
+    <div class="fixed top-16 left-0 h-[calc(100vh-4rem)] w-64 bg-white border-r border-gray-200 overflow-y-auto z-50 transform -translate-x-full transition-transform duration-300 lg:hidden"
+         data-admin-sidebar-target="mobileSidebar">
       <nav class="p-4">
         <%= render "admin_v2/shared/navigation" %>
       </nav>
@@ -73,32 +77,5 @@
         <%= yield %>
       </div>
     </main>
-
-    <script>
-      // Mobile menu toggle
-      document.addEventListener('DOMContentLoaded', () => {
-        const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
-        const mobileSidebar = document.getElementById('mobile-sidebar');
-        const sidebarOverlay = document.getElementById('sidebar-overlay');
-
-        if (mobileMenuToggle && mobileSidebar && sidebarOverlay) {
-          const toggleMenu = () => {
-            mobileSidebar.classList.toggle('-translate-x-full');
-
-            // Toggle overlay visibility with both class and style
-            if (sidebarOverlay.classList.contains('hidden')) {
-              sidebarOverlay.classList.remove('hidden');
-              sidebarOverlay.style.display = 'block';
-            } else {
-              sidebarOverlay.classList.add('hidden');
-              sidebarOverlay.style.display = 'none';
-            }
-          };
-
-          mobileMenuToggle.addEventListener('click', toggleMenu);
-          sidebarOverlay.addEventListener('click', toggleMenu);
-        }
-      });
-    </script>
   </body>
 </html>
