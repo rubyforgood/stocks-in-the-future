@@ -31,9 +31,9 @@
   <div class="mb-8">
     <h2 class="text-xl font-semibold text-gray-900 mb-4">Search & Filter Component</h2>
     <%= admin_search_filter(
-      filters: @filters,
-      search_placeholder: "Search users..."
-    ) %>
+          filters: @filters,
+          search_placeholder: "Search users..."
+        ) %>
   </div>
 
   <hr class="my-8">
@@ -47,13 +47,13 @@
     </p>
 
     <%= admin_table(
-      @users,
-      columns: @columns,
-      title: "Users",
-      actions: link_to("New User", "#", class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"),
-      empty_message: "No users found. Create your first user to get started.",
-      show_actions: false
-    ) %>
+          @users,
+          columns: @columns,
+          title: "Users",
+          actions: link_to("New User", "#", class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"),
+          empty_message: "No users found. Create your first user to get started.",
+          show_actions: false
+        ) %>
   </div>
 
   <hr class="my-8">
@@ -64,9 +64,9 @@
     <p class="text-gray-600 mb-4">Clean attribute display for show/detail pages.</p>
 
     <%= admin_show_attributes(
-      @sample_user,
-      attributes: [:id, :email, :name, :type, :admin, :created_at, :updated_at]
-    ) %>
+          @sample_user,
+          attributes: %i[id email name type admin created_at updated_at]
+        ) %>
   </div>
 
   <hr class="my-8">

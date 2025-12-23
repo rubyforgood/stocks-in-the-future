@@ -6,22 +6,22 @@
   </div>
 
   <%= admin_show_attributes(
-    @user,
-    attributes: [:id, :email, :name, :type, :admin, :classroom_id, :created_at, :updated_at]
-  ) %>
+        @user,
+        attributes: %i[id email name type admin classroom_id created_at updated_at]
+      ) %>
 
   <div class="mt-6">
     <%= admin_actions(
-      @user,
-      actions: %i[edit delete],
-      custom_actions: [
-        {
-          label: "Back to List",
-          path: admin_v2_component_demo_index_path,
-          icon: "fas fa-arrow-left",
-          class: "text-gray-700 bg-white hover:bg-gray-50 border-gray-300"
-        }
-      ]
-    ) %>
+          @user,
+          actions: %i[edit delete],
+          custom_actions: [
+            {
+              label: "Back to List",
+              path: admin_v2_component_demo_index_path,
+              icon: "fas fa-arrow-left",
+              class: "text-gray-700 bg-white hover:bg-gray-50 border-gray-300"
+            }
+          ]
+        ) %>
   </div>
 </div>
