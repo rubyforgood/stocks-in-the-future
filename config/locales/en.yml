@@ -27,7 +27,6 @@ en:
         notice: Announcement deleted successfully.
       update:
         notice: Announcement updated successfully.
-  admin_v2:
     grades:
       create:
         notice: Grade created successfully.
