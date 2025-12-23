@@ -5,13 +5,10 @@ module AdminV2
     before_action :set_school, only: %i[show edit update destroy]
 
     def index
-      @schools = School.order(:name)
+      sort_column = params[:sort].presence || "name"
+      sort_direction = params[:direction] == "desc" ? :desc : :asc
 
-      # Apply sorting if params present
-      if params[:sort].present?
-        direction = params[:direction] == "desc" ? :desc : :asc
-        @schools = @schools.order(params[:sort] => direction)
-      end
+      @schools = School.reorder(sort_column => sort_direction)
 
       @breadcrumbs = [
         { label: "Schools" }
