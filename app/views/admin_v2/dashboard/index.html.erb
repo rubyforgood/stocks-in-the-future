@@ -64,8 +64,12 @@
         <i class="fas fa-bullhorn text-orange-600 text-2xl mr-3"></i>
         <h2 class="text-lg font-semibold text-gray-900">Content</h2>
       </div>
-      <ul class="space-y-2 text-sm text-gray-600">
-        <li><i class="fas fa-bullhorn w-4 mr-2"></i>Announcements</li>
+      <ul class="space-y-2 text-sm">
+        <li>
+          <%= link_to admin_v2_announcements_path, class: "text-blue-600 hover:text-blue-800 hover:underline" do %>
+            <i class="fas fa-bullhorn w-4 mr-2"></i>Announcements
+          <% end %>
+        </li>
       </ul>
     </div>
   </div>

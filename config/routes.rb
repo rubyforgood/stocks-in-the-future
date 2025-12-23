@@ -72,7 +72,8 @@ Rails.application.routes.draw do
       end
     end
 
-    # Resource routes will be added incrementally in subsequent tickets
+    # Resource routes
+    resources :announcements
   end
 
   resources :orders do
