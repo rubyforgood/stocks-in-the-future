@@ -27,6 +27,13 @@ en:
         notice: Announcement deleted successfully.
       update:
         notice: Announcement updated successfully.
+    grades:
+      create:
+        notice: Grade created successfully.
+      destroy:
+        notice: Grade deleted successfully.
+      update:
+        notice: Grade updated successfully.
   announcements:
     not_found: Announcement not found.
   application:
