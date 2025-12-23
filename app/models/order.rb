@@ -67,7 +67,7 @@ class Order < ApplicationRecord
     return unless shares > current_shares
 
     formatted_shares = (current_shares % 1).zero? ? current_shares.to_i : current_shares
-    errors.add(:shares, "Cannot sell more shares than you own (#{formatted_shares} available)")
+    errors.add(:base, "Cannot sell more shares than you own (#{formatted_shares} available)")
   end
 
   def sufficient_funds_for_buy
