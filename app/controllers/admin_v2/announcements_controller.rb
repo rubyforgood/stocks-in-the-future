@@ -45,7 +45,7 @@ module AdminV2
       @announcement = Announcement.new(announcement_params)
 
       if @announcement.save
-        redirect_to admin_v2_announcement_path(@announcement), notice: "Announcement created successfully."
+        redirect_to admin_v2_announcement_path(@announcement), notice: t(".notice")
       else
         @breadcrumbs = [
           { label: "Announcements", path: admin_v2_announcements_path },
@@ -57,7 +57,7 @@ module AdminV2
 
     def update
       if @announcement.update(announcement_params)
-        redirect_to admin_v2_announcement_path(@announcement), notice: "Announcement updated successfully."
+        redirect_to admin_v2_announcement_path(@announcement), notice: t(".notice")
       else
         @breadcrumbs = [
           { label: "Announcements", path: admin_v2_announcements_path },
@@ -70,7 +70,7 @@ module AdminV2
 
     def destroy
       @announcement.destroy
-      redirect_to admin_v2_announcements_path, notice: "Announcement deleted successfully."
+      redirect_to admin_v2_announcements_path, notice: t(".notice")
     end
 
     private

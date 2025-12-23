@@ -19,6 +19,13 @@ en:
           attributes:
             company_website:
               invalid: must be a valid HTTP or HTTPS URL
+  admin_v2_announcements:
+    create:
+      notice: Announcement created successfully.
+    destroy:
+      notice: Announcement deleted successfully.
+    update:
+      notice: Announcement updated successfully.
   announcements:
     not_found: Announcement not found.
   application:
