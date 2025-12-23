@@ -66,7 +66,11 @@ Rails.application.routes.draw do
     root "dashboard#index"
 
     # Component demo (development/testing only)
-    resources :component_demo, only: %i[index show]
+    resources :component_demo, only: %i[index show] do
+      collection do
+        get :form
+      end
+    end
 
     # Resource routes will be added incrementally in subsequent tickets
   end
