@@ -41,6 +41,13 @@ en:
         notice: School deleted successfully.
       update:
         notice: School updated successfully.
+    users:
+      create:
+        notice: User created successfully.
+      destroy:
+        notice: User deleted successfully.
+      update:
+        notice: User updated successfully.
     years:
       create:
         notice: Year created successfully.
