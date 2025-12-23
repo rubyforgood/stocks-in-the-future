@@ -19,6 +19,7 @@ class StockPricesUpdateJob < ApplicationJob
     updated_count = 0
     Stock.find_each do |stock|
       updated_count += 1 if update_stock_price(stock)
+      sleep(1.1) # To rate limit
     end
 
     Rails.logger.info "Stock prices update job completed: #{updated_count}/#{stock_count} stocks updated successfully"
