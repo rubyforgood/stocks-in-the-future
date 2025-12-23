@@ -75,6 +75,7 @@ Rails.application.routes.draw do
     # Resource routes
     resources :announcements
     resources :grades
+    resources :schools
   end
 
   resources :orders do
