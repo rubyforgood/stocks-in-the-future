@@ -91,8 +91,7 @@ class StockPricesUpdateJob < ApplicationJob
   end
 
   def log_successful_update(stock, symbol)
-    Rails.logger.info "Updated #{symbol}: $#{stock.yesterday_price_cents / 100.0} -> " \
-                      "$#{stock.price_cents / 100.0}"
+    Rails.logger.info "Updated #{symbol}: $#{stock.yesterday_price_cents / 100.0} -> $#{stock.price_cents / 100.0}"
   end
 
   def fetch_and_validate_price(symbol)
