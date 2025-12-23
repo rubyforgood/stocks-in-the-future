@@ -74,6 +74,7 @@ Rails.application.routes.draw do
 
     # Resource routes
     resources :announcements
+    resources :grades
   end
 
   resources :orders do

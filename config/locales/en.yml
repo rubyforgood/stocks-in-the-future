@@ -19,6 +19,7 @@ en:
           attributes:
             company_website:
               invalid: must be a valid HTTP or HTTPS URL
+<<<<<<< HEAD
   admin_v2:
     announcements:
       create:
@@ -27,6 +28,15 @@ en:
         notice: Announcement deleted successfully.
       update:
         notice: Announcement updated successfully.
+=======
+  admin_v2_grades:
+    create:
+      notice: Grade created successfully.
+    destroy:
+      notice: Grade deleted successfully.
+    update:
+      notice: Grade updated successfully.
+>>>>>>> ce3f5c6 (Resolves #928, creates admin grades pages)
   announcements:
     not_found: Announcement not found.
   application:
