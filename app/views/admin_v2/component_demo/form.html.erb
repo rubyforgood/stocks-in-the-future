@@ -32,16 +32,16 @@
           <h3 class="text-lg font-medium text-gray-900 mb-4">Text Fields</h3>
 
           <%= f.text_field :name,
-              label: "Full Name",
-              hint: "Enter the user's full name" %>
+                           label: "Full Name",
+                           hint: "Enter the user's full name" %>
 
           <%= f.email_field :email,
-              label: "Email Address",
-              placeholder: "user@example.com" %>
+                            label: "Email Address",
+                            placeholder: "user@example.com" %>
 
           <%= f.password_field :password,
-              label: "Password",
-              hint: "Minimum 8 characters" %>
+                               label: "Password",
+                               hint: "Minimum 8 characters" %>
         </div>
 
         <!-- Number & Currency Fields -->
@@ -49,14 +49,14 @@
           <h3 class="text-lg font-medium text-gray-900 mb-4">Number & Currency Fields</h3>
 
           <%= f.number_field :id,
-              label: "User ID",
-              hint: "Auto-generated unique identifier" %>
+                             label: "User ID",
+                             hint: "Auto-generated unique identifier" %>
 
           <%= f.currency_field :id,
-              label: "Account Balance",
-              multiplier: 0.01,
-              decimals: 2,
-              hint: "Currency field with $ prefix" %>
+                               label: "Account Balance",
+                               multiplier: 0.01,
+                               decimals: 2,
+                               hint: "Currency field with $ prefix" %>
         </div>
 
         <!-- Text Area -->
@@ -64,9 +64,9 @@
           <h3 class="text-lg font-medium text-gray-900 mb-4">Text Area</h3>
 
           <%= f.text_area :email,
-              label: "Biography",
-              rows: 4,
-              hint: "Tell us about yourself" %>
+                          label: "Biography",
+                          rows: 4,
+                          hint: "Tell us about yourself" %>
         </div>
 
         <!-- Select Fields -->
@@ -74,9 +74,9 @@
           <h3 class="text-lg font-medium text-gray-900 mb-4">Select Fields</h3>
 
           <%= f.select_field :type,
-              label: "User Type",
-              collection: [["Student", "Student"], ["Teacher", "Teacher"], ["User", "User"]],
-              include_blank: "Select a type..." %>
+                             label: "User Type",
+                             collection: [%w[Student Student], %w[Teacher Teacher], %w[User User]],
+                             include_blank: "Select a type..." %>
         </div>
 
         <!-- Boolean Field -->
@@ -84,8 +84,8 @@
           <h3 class="text-lg font-medium text-gray-900 mb-4">Boolean Field</h3>
 
           <%= f.boolean_field :admin,
-              label: "Administrator",
-              hint: "Grant admin privileges to this user" %>
+                              label: "Administrator",
+                              hint: "Grant admin privileges to this user" %>
         </div>
 
         <!-- Date & DateTime Fields -->
@@ -93,10 +93,10 @@
           <h3 class="text-lg font-medium text-gray-900 mb-4">Date & DateTime Fields</h3>
 
           <%= f.date_field :created_at,
-              label: "Registration Date" %>
+                           label: "Registration Date" %>
 
           <%= f.datetime_field :updated_at,
-              label: "Last Updated" %>
+                               label: "Last Updated" %>
         </div>
 
         <!-- Read-Only Fields -->
@@ -104,13 +104,13 @@
           <h3 class="text-lg font-medium text-gray-900 mb-4">Read-Only Fields</h3>
 
           <%= f.read_only_field :id,
-              label: "User ID (Read-Only)" %>
+                                label: "User ID (Read-Only)" %>
 
           <%= f.read_only_field :created_at,
-              label: "Member Since" %>
+                                label: "Member Since" %>
 
           <%= f.read_only_field :admin,
-              label: "Administrator Status" %>
+                                label: "Administrator Status" %>
         </div>
 
         <!-- Form Actions -->
@@ -131,8 +131,8 @@
       </p>
 
       <%= link_to "Show Form with Errors",
-          form_admin_v2_component_demo_index_path(show_errors: true),
-          class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700" %>
+                  form_admin_v2_component_demo_index_path(show_errors: true),
+                  class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700" %>
     </div>
   </div>
 
