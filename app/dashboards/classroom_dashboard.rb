@@ -12,7 +12,7 @@ class ClassroomDashboard < Administrate::BaseDashboard
   ATTRIBUTE_TYPES = {
     id: Field::Number,
     grades: Field::HasMany.with_options(
-      collection: -> {
+      collection: lambda {
         Grade.where(level: Classroom::GRADE_RANGE).order(:level)
       }
     ),
