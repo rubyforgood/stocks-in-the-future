@@ -61,5 +61,20 @@ module AdminV2
         { label: "User Details" }
       ]
     end
+
+    def form
+      @user = User.first || User.new(email: "", name: "", admin: false)
+
+      # Add validation errors for demo purposes if requested
+      if params[:show_errors] == "true"
+        @user.errors.add(:email, "can't be blank")
+        @user.errors.add(:name, "is too short (minimum is 3 characters)")
+      end
+
+      @breadcrumbs = [
+        { label: "Components", path: admin_v2_component_demo_index_path },
+        { label: "Form Builder Demo" }
+      ]
+    end
   end
 end

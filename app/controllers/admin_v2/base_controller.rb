@@ -4,8 +4,6 @@
 # All AdminV2 controllers inherit from this controller.
 module AdminV2
   class BaseController < ApplicationController
-    include Pundit::Authorization
-
     layout "admin_v2"
 
     before_action :authenticate_admin
