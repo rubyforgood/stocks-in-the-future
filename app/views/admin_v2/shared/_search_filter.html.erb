@@ -1,0 +1,39 @@
+filters ||= []
+  search_placeholder ||= "Search..."
+%>
+<div class="bg-white p-4 shadow-sm ring-1 ring-gray-900/5 rounded-lg mb-6">
+  <%= form_with url: request.path, method: :get, class: "space-y-4 sm:space-y-0 sm:flex sm:items-center sm:gap-4" do |form| %>
+    <!-- Search Field -->
+    <div class="flex-1">
+      <label for="search" class="sr-only">Search</label>
+      <div class="relative">
+        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-5">
+          <i class="fas fa-search h-4 w-4 text-gray-400"></i>
+        </div>
+        <%= form.text_field :search,
+                            value: params[:search],
+                            placeholder: search_placeholder,
+                            class: "block w-full rounded-md border-0 py-2 pl-14 pr-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6" %>
+      </div>
+    </div>
+
+    <!-- Filter Dropdowns -->
+    <% filters.each do |filter| %>
+      <div class="sm:w-48">
+        <label for="<%= filter[:name] %>" class="sr-only"><%= filter[:label] %></label>
+        <%= form.select filter[:name],
+                        options_for_select(filter[:options], params[filter[:name]]),
+                        { include_blank: filter[:label] },
+                        class: "block w-full rounded-md border-0 py-2 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-blue-600 sm:text-sm sm:leading-6" %>
+      </div>
+    <% end %>
+
+    <!-- Action Buttons -->
+    <div class="flex gap-2">
+      <%= form.submit "Filter", class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+      <% if params[:search].present? || filters.any? { |f| params[f[:name]].present? } %>
+        <%= link_to "Clear", request.path, class: "inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+      <% end %>
+    </div>
+  <% end %>
+</div>

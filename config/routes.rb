@@ -64,6 +64,10 @@ Rails.application.routes.draw do
   # Admin V2 - In-house admin implementation (dual-running with Administrate)
   namespace :admin_v2, path: "admin-new" do
     root "dashboard#index"
+
+    # Component demo (development/testing only)
+    resources :component_demo, only: %i[index show]
+
     # Resource routes will be added incrementally in subsequent tickets
   end
 
