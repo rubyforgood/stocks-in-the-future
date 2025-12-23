@@ -6,7 +6,14 @@ module AdminV2Helper
   # @param columns [Array<Hash>] Column definitions with :attribute, :label, :sortable keys
   # @param options [Hash] Additional options for the table
   def admin_table(collection, columns: [], **options)
-    render "admin_v2/shared/table", collection: collection, columns: columns, options: options
+    title = options.delete(:title)
+    actions = options.delete(:actions)
+    render "admin_v2/shared/table",
+           collection: collection,
+           columns: columns,
+           options: options,
+           title: title,
+           actions: actions
   end
 
   # Renders attribute rows for show pages
