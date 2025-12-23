@@ -1,0 +1,103 @@
+# frozen_string_literal: true
+
+module AdminV2Helper
+  # Renders a table for index pages with sortable columns
+  # @param collection [ActiveRecord::Relation] The records to display
+  # @param columns [Array<Hash>] Column definitions with :attribute, :label, :sortable keys
+  # @param options [Hash] Additional options for the table
+  def admin_table(collection, columns: [], **options)
+    render "admin_v2/shared/table", collection: collection, columns: columns, options: options
+  end
+
+  # Renders attribute rows for show pages
+  # @param resource [ActiveRecord::Base] The record to display
+  # @param attributes [Array<Symbol>] Attributes to display
+  def admin_show_attributes(resource, attributes: [])
+    render "admin_v2/shared/show_attributes", resource: resource, attributes: attributes
+  end
+
+  # Renders breadcrumbs for navigation
+  # @param breadcrumbs [Array<Hash>] Breadcrumb items with :label and :path keys
+  def admin_breadcrumbs(breadcrumbs = [])
+    render "admin_v2/shared/breadcrumbs", breadcrumbs: breadcrumbs
+  end
+
+  # Renders action buttons (Edit, Delete, Custom)
+  # @param resource [ActiveRecord::Base] The record for actions
+  # @param actions [Array<Symbol>] Actions to include (:edit, :delete, :custom)
+  # @param custom_actions [Array<Hash>] Custom action definitions
+  def admin_actions(resource, actions: %i[edit delete], custom_actions: [])
+    render "admin_v2/shared/actions", resource: resource, actions: actions, custom_actions: custom_actions
+  end
+
+  # Formats an attribute value for display
+  # @param resource [ActiveRecord::Base] The record
+  # @param attribute [Symbol] The attribute name
+  # @return [String] Formatted value
+  def format_attribute(resource, attribute)
+    value = resource.send(attribute)
+
+    case value
+    when TrueClass, FalseClass
+      boolean_badge(value)
+    when Time, DateTime, Date
+      value.strftime("%B %d, %Y")
+    when ActiveRecord::Base
+      link_to value.to_s, [:admin_v2, value]
+    when nil
+      content_tag(:span, "—", class: "text-gray-400")
+    else
+      value.to_s
+    end
+  end
+
+  # Renders a boolean badge
+  # @param value [Boolean] The boolean value
+  # @return [String] HTML badge
+  def boolean_badge(value)
+    if value
+      content_tag(:span, "Yes",
+                  class: "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800") # rubocop:disable Layout/LineLength
+    else
+      content_tag(:span, "No",
+                  class: "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800") # rubocop:disable Layout/LineLength
+    end
+  end
+
+  # Generates a sort link for table headers
+  # @param column [Symbol] The column name
+  # @param label [String] The display label
+  # @return [String] HTML link
+  def sort_link(column, label)
+    direction = params[:sort] == column.to_s && params[:direction] == "asc" ? "desc" : "asc"
+    icon = sort_icon(column)
+
+    # Build URL with query parameters
+    url = url_for(sort: column, direction: direction, only_path: true)
+
+    link_to url, class: "group inline-flex items-center" do
+      safe_join([
+                  label,
+                  content_tag(:span, icon, class: "ml-2 flex-none rounded text-gray-400 group-hover:text-gray-500")
+                ])
+    end
+  end
+
+  # Returns the sort icon for a column
+  # @param column [Symbol] The column name
+  # @return [String] Icon HTML
+  def sort_icon(column)
+    if params[:sort] == column.to_s
+      params[:direction] == "asc" ? "↑" : "↓"
+    else
+      "⇅"
+    end
+  end
+
+  # Renders search and filter form
+  # @param filters [Array<Hash>] Filter definitions with :name, :label, :options keys
+  # @param search_placeholder [String] Placeholder text for search field
+  def admin_search_filter(filters: [], search_placeholder: "Search...")
+    render "admin_v2/shared/search_filter", filters: filters, search_placeholder: search_placeholder
+  end
+end

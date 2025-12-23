@@ -1,0 +1,25 @@
+<nav class="flex mb-6" aria-label="Breadcrumb">
+  <ol class="inline-flex items-center space-x-1 md:space-x-3">
+    <li class="inline-flex items-center">
+      <%= link_to admin_v2_root_path, class: "inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600" do %>
+        <i class="fas fa-home w-4 h-4 mr-2"></i>
+        Dashboard
+      <% end %>
+    </li>
+
+    <% breadcrumbs.each_with_index do |crumb, index| %>
+      <li>
+        <div class="flex items-center">
+          <i class="fas fa-chevron-right w-3 h-3 text-gray-400 mx-1"></i>
+          <% if index == breadcrumbs.length - 1 %>
+            <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">
+              <%= crumb[:label] %>
+            </span>
+          <% else %>
+            <%= link_to crumb[:label], crumb[:path], class: "ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2" %>
+          <% end %>
+        </div>
+      </li>
+    <% end %>
+  </ol>
+</nav>
