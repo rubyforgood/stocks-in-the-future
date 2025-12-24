@@ -28,9 +28,9 @@
                    hint: "Select the school year for this classroom",
                    include_blank: "Select a school year" %>
 
-      <%= f.checkbox :trading_enabled,
-                     label: "Trading Enabled",
-                     hint: "Allow students to trade stocks in this classroom" %>
+      <%= f.boolean_field :trading_enabled,
+                          label: "Trading Enabled",
+                          hint: "Allow students to trade stocks in this classroom" %>
     </div>
   </div>
 
