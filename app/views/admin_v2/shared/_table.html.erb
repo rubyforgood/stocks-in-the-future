@@ -39,7 +39,7 @@
               <% columns.each do |column| %>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">
                   <% if column[:link] %>
-                    <%= link_to format_attribute(record, column[:attribute]), [:admin_v2, record], class: "text-blue-600 hover:text-blue-800 font-medium" %>
+                    <%= link_to format_attribute(record, column[:attribute]), [:admin_v2, route_model(record)], class: "text-blue-600 hover:text-blue-800 font-medium" %>
                   <% else %>
                     <%= format_attribute(record, column[:attribute]) %>
                   <% end %>
@@ -48,9 +48,9 @@
               <% if options[:show_actions] != false %>
                 <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                   <div class="flex justify-end gap-2">
-                    <%= link_to "View", [:admin_v2, record], class: "text-blue-600 hover:text-blue-800" %>
-                    <%= link_to "Edit", [:edit, :admin_v2, record], class: "text-gray-600 hover:text-gray-800" %>
-                    <%= link_to "Delete", [:admin_v2, record],
+                    <%= link_to "View", [:admin_v2, route_model(record)], class: "text-blue-600 hover:text-blue-800" %>
+                    <%= link_to "Edit", [:edit, :admin_v2, route_model(record)], class: "text-gray-600 hover:text-gray-800" %>
+                    <%= link_to "Delete", [:admin_v2, route_model(record)],
                                 data: { turbo_method: :delete, turbo_confirm: "Are you sure?" },
                                 class: "text-red-600 hover:text-red-800" %>
                   </div>
