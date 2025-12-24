@@ -1,0 +1,41 @@
+<%= form_with model: @classroom, url: @classroom.persisted? ? admin_v2_classroom_path(@classroom) : admin_v2_classrooms_path, builder: AdminV2::FormBuilder, class: "space-y-6" do |f| %>
+  <div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg">
+    <div class="px-6 py-6">
+      <h3 class="text-lg font-medium text-gray-900 mb-6">Classroom Details</h3>
+
+      <%= f.text_field :name,
+                       label: "Name",
+                       hint: "Enter the classroom name (e.g., Ms. Smith's 5th Grade)",
+                       placeholder: "Ms. Smith's 5th Grade" %>
+
+      <%= f.select :grade,
+                   options_for_select(
+                     Classroom::GRADE_RANGE.map { |g| [g.ordinalize, g] },
+                     @classroom.grade
+                   ),
+                   label: "Grade",
+                   hint: "Select the grade level (5th - 12th)",
+                   include_blank: "Select a grade" %>
+
+      <%= f.select :school_year_id,
+                   options_from_collection_for_select(
+                     SchoolYear.joins(:school, :year).order("schools.name, years.name"),
+                     :id,
+                     :to_s,
+                     @classroom.school_year_id
+                   ),
+                   label: "School Year",
+                   hint: "Select the school year for this classroom",
+                   include_blank: "Select a school year" %>
+
+      <%= f.checkbox :trading_enabled,
+                     label: "Trading Enabled",
+                     hint: "Allow students to trade stocks in this classroom" %>
+    </div>
+  </div>
+
+  <div class="flex items-center justify-end gap-x-4">
+    <%= f.cancel_button "Cancel", url: @classroom.persisted? ? admin_v2_classroom_path(@classroom) : admin_v2_classrooms_path %>
+    <%= f.submit_button @classroom.persisted? ? "Update Classroom" : "Create Classroom" %>
+  </div>
+<% end %>

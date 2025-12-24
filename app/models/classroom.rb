@@ -25,4 +25,12 @@ class Classroom < ApplicationRecord
   def grade_display
     grade&.ordinalize
   end
+
+  def to_s
+    if grade_display.present?
+      "#{name} (#{grade_display})"
+    else
+      name
+    end
+  end
 end
