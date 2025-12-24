@@ -45,10 +45,38 @@
   </div>
 
   <div class="my-5">
-    <%= form.label :grade, class: 'tw-label-primary' %>
-    <div class="mt-2">
-      <%= form.number_field :grade, class: "tw-input-primary", min: Classroom::MIN_GRADE, max: Classroom::MAX_GRADE %>
-    </div>
+  <%= form.label :grade_ids, "Grades", class: 'tw-label-primary flex items-center gap-2' %>
+
+  <!-- Single hidden field to handle empty selections -->
+  <%= hidden_field_tag "classroom[grade_ids][]", "" %>
+
+  <div class="mt-3 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 max-h-60 overflow-y-auto p-3 border border-gray-200 rounded-lg bg-gray-50">
+    <% Grade.where(level: Classroom::GRADE_RANGE).order(:level).each do |grade| %>
+      <%# Check if this grade is selected for the classroom %>
+      <% is_checked = classroom.persisted? ? classroom.grades.include?(grade) : false %>
+
+      <label class="flex items-center gap-3 p-3 hover:bg-white rounded-lg cursor-pointer transition-colors">
+        <%= check_box_tag "classroom[grade_ids][]",
+                          grade.id,
+                          is_checked,
+                          class: "rounded border-gray-300 text-blue-600 focus:ring-blue-500" %>
+
+        <div class="flex-1">
+          <div class="font-medium text-gray-900">
+            <%= grade.name %>
+          </div>
+
+          <div class="text-xs text-gray-500">
+            Level <%= grade.level %>
+          </div>
+        </div>
+      </label>
+    <% end %>
+  </div>
+
+  <p class="text-sm text-gray-600 mt-2">
+    Select all grades that apply to this classroom (e.g., multi-grade or combined classes).
+  </p>
   </div>
 
   <div class="my-5">

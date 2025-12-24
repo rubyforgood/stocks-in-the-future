@@ -78,7 +78,7 @@ class ClassroomsController < ApplicationController
   end
 
   def classroom_params
-    params.expect(classroom: [:name, :grade, :trading_enabled, :school_id, :year_id, { teacher_ids: [] }])
+    params.expect(classroom: [:name, :trading_enabled, :school_id, :year_id, { grade_ids: [] }, { teacher_ids: [] }])
   end
 
   def dropdown_data

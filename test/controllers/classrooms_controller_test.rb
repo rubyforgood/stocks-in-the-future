@@ -27,12 +27,55 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
     sign_in(@admin)
     school = create(:school)
     year = create(:year)
-    params = { classroom: { name: "Test Class", grade: 5, school_id: school.id, year_id: year.id } }
+    grade = create(:grade, level: 7)
+
+    params = {
+      classroom: {
+        name: "Test Class",
+        grade_ids: [grade.id],
+        school_id: school.id,
+        year_id: year.id
+      }
+    }
+
     assert_difference("Classroom.count") do
       post(classrooms_path, params:)
     end
-    assert_redirected_to classroom_path(Classroom.last)
+
+    classroom = Classroom.last
+
+    assert_redirected_to classroom_path(classroom)
+    assert_includes classroom.grades, grade
     assert_equal t("classrooms.create.notice"), flash[:notice]
+  end
+
+  test "create with multiple grades" do
+    sign_in(@admin)
+    school = create(:school)
+    year = create(:year)
+
+    grade1 = create(:grade, level: 6, name: "Grade 6")
+    grade2 = create(:grade, level: 7, name: "Grade 7")
+    grade3 = create(:grade, level: 8, name: "Grade 8")
+
+    params = {
+      classroom: {
+        name: "Combined Class",
+        grade_ids: [grade1.id, grade2.id, grade3.id],
+        school_id: school.id,
+        year_id: year.id
+      }
+    }
+
+    assert_difference("Classroom.count", 1) do
+      assert_difference("ClassroomGrade.count", 3) do
+        post classrooms_path, params: params
+      end
+    end
+
+    classroom = Classroom.last
+    assert_redirected_to classroom_path(classroom)
+    assert_equal [grade1, grade2, grade3].sort, classroom.grades.sort
   end
 
   test "show" do
@@ -50,13 +93,71 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
   test "update" do
     school = create(:school)
     year = create(:year)
-    params = { classroom: { name: "Abc123", grade: 6, school_id: school.id, year_id: year.id } }
+    grade = create(:grade, level: 6)
+    params = { classroom: { name: "Abc123", grade_ids: [grade.id], school_id: school.id, year_id: year.id } }
     sign_in(@admin)
+
     assert_changes "@classroom.reload.updated_at" do
       patch(classroom_path(@classroom), params:)
     end
+
     assert_redirected_to classroom_path(@classroom)
     assert_equal t("classrooms.update.notice"), flash[:notice]
+
+    @classroom.reload
+    assert_includes @classroom.grades, grade
+  end
+
+  test "update replaces grades correctly" do
+    classroom = create(:classroom)
+    old_grade = create(:grade, level: 6)
+    create(:classroom_grade, classroom: classroom, grade: old_grade)
+
+    new_grade1 = create(:grade, level: 7)
+    new_grade2 = create(:grade, level: 8)
+
+    sign_in(@admin)
+
+    params = {
+      classroom: {
+        name: "Updated Name",
+        grade_ids: [new_grade1.id, new_grade2.id]
+      }
+    }
+
+    patch classroom_path(classroom), params: params
+    classroom.reload
+
+    assert_equal [new_grade1, new_grade2].sort, classroom.grades.sort
+    assert_not_includes classroom.grades, old_grade
+  end
+
+  test "update with empty grade_ids removes all grades" do
+    classroom = create(:classroom)
+
+    grade1 = create(:grade, level: 6)
+    grade2 = create(:grade, level: 8)
+
+    create(:classroom_grade, classroom: classroom, grade: grade1)
+    create(:classroom_grade, classroom: classroom, grade: grade2)
+
+    assert_equal 2, classroom.grades.count
+
+    sign_in(@admin)
+
+    params = {
+      classroom: {
+        name: "Updated Name",
+        grade_ids: [""] # Simulates no checkboxes selected + hidden field
+      }
+    }
+
+    patch classroom_path(classroom), params: params
+    classroom.reload
+
+    assert_empty classroom.grades
+    assert_not_includes classroom.grades, grade1
+    assert_not_includes classroom.grades, grade2
   end
 
   test "archive classroom" do
