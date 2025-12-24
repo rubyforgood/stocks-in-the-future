@@ -22,9 +22,9 @@
                        hint: "Email address (required for Teachers and Admins, optional for Students)",
                        placeholder: "user@example.com" %>
 
-      <%= f.checkbox :admin,
-                     label: "Admin",
-                     hint: "Grant admin privileges to this user" %>
+      <%= f.boolean_field :admin,
+                          label: "Admin",
+                          hint: "Grant admin privileges to this user" %>
 
       <%= f.select :classroom_id,
                    options_from_collection_for_select(
