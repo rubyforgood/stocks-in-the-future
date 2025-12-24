@@ -26,7 +26,11 @@
         <h2 class="text-lg font-semibold text-gray-900">Academic</h2>
       </div>
       <ul class="space-y-2 text-sm">
-        <li class="text-gray-600"><i class="fas fa-chalkboard w-4 mr-2"></i>Classrooms</li>
+        <li>
+          <%= link_to admin_v2_classrooms_path, class: "text-blue-600 hover:text-blue-800 hover:underline" do %>
+            <i class="fas fa-chalkboard w-4 mr-2"></i>Classrooms
+          <% end %>
+        </li>
         <li>
           <%= link_to admin_v2_schools_path, class: "text-blue-600 hover:text-blue-800 hover:underline" do %>
             <i class="fas fa-school w-4 mr-2"></i>Schools

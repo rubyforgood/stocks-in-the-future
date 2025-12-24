@@ -1,0 +1,22 @@
+<div class="max-w-7xl mx-auto">
+  <%= admin_breadcrumbs(@breadcrumbs) %>
+
+  <%= admin_table(
+        @classrooms,
+        columns: [
+          { attribute: :id, label: "ID", sortable: true },
+          { attribute: :name, label: "Name", sortable: true },
+          { attribute: :grade, label: "Grade", sortable: true },
+          { attribute: :school_year, label: "School Year", sortable: false },
+          { attribute: :archived, label: "Archived", sortable: true },
+          { attribute: :trading_enabled, label: "Trading Enabled", sortable: true }
+        ],
+        title: "Classrooms",
+        actions: link_to(
+          "New Classroom",
+          new_admin_v2_classroom_path,
+          class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+        ),
+        empty_message: "No classrooms found. Create your first classroom to get started."
+      ) %>
+</div>
