@@ -35,6 +35,10 @@ class Portfolio < ApplicationRecord
     calculate_total_value_cents / 100.0
   end
 
+  def holdings_value
+    holdings_value_cents / 100.0
+  end
+
   def holdings_value_cents
     portfolio_stocks.joins(:stock).sum(
       "portfolio_stocks.shares * stocks.price_cents"
