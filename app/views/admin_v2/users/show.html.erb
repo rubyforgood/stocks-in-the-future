@@ -32,7 +32,7 @@
           <div class="text-sm text-gray-900">
             Portfolio ID: <%= @user.portfolio.id %>
             <% if @user.student? %>
-              <%= link_to "View Portfolio", portfolio_path(@user.portfolio), class: "ml-2 text-blue-600 hover:text-blue-800" %>
+              <%= link_to "View Portfolio", user_portfolio_path(@user, @user.portfolio), class: "ml-2 text-blue-600 hover:text-blue-800" %>
             <% end %>
           </div>
         </div>

@@ -74,7 +74,11 @@ Rails.application.routes.draw do
 
     # Resource routes
     resources :announcements
-    resources :classrooms
+    resources :classrooms do
+      member do
+        patch :toggle_archive
+      end
+    end
     resources :grades
     resources :schools
     resources :users
