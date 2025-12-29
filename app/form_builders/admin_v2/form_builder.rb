@@ -89,6 +89,42 @@ module AdminV2
       end
     end
 
+    # Override select to support label and hint options
+    def select(attribute, choices = nil, options = {}, html_options = {}, &block)
+      # Extract custom options if provided as hash (when called with label/hint)
+      if choices.is_a?(Hash) && options.empty? && html_options.empty?
+        # Called as: select(:attr, options_hash)
+        super
+      elsif options.is_a?(Hash) && (options.key?(:label) || options.key?(:hint))
+        # Called as: select(:attr, choices, label: "...", hint: "...", include_blank: ...)
+        label_text = options.delete(:label)
+        hint = options.delete(:hint)
+        wrapper_class = options.delete(:wrapper_class)
+
+        # Separate standard select options from html options
+        select_options = {}
+        select_options[:include_blank] = options.delete(:include_blank) if options.key?(:include_blank)
+        select_options[:prompt] = options.delete(:prompt) if options.key?(:prompt)
+        select_options[:disabled] = options.delete(:disabled) if options.key?(:disabled)
+        select_options[:selected] = options.delete(:selected) if options.key?(:selected)
+
+        # Remaining options become html_options
+        remaining_html_options = html_options.merge(options)
+
+        @template.content_tag(:div, class: "mb-6 #{wrapper_class}") do
+          (label_text ? label(attribute, label_text, class: LABEL_CLASSES) : "".html_safe) +
+            (hint ? @template.content_tag(:p, hint, class: HINT_CLASSES) : "".html_safe) +
+            @template.content_tag(:div, class: "mt-2") do
+              super(attribute, choices, select_options, remaining_html_options.merge(class: input_class(attribute)), &block)
+            end +
+            error_message(attribute)
+        end
+      else
+        # Standard call without custom options
+        super
+      end
+    end
+
     # Select field with collection
     # Usage: f.select_field :status, collection: [['Active', 'active'], ['Inactive', 'inactive']]
     # Usage: f.select_field :grade, collection: (1..12).map { |g| [g.ordinalize, g] }
