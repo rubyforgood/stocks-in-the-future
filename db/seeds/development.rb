@@ -23,6 +23,11 @@ puts "Creating school years..."
 load(Rails.root.join("db", "seeds", "partials", "school_years.rb"))
 puts "...done."
 
+# Create grades
+puts "Creating grades..."
+load(Rails.root.join("db", "seeds", "partials", "grades.rb"))
+puts "...done."
+
 # Create quarters
 puts "Creating quarters..."
 load(Rails.root.join("db", "seeds", "partials", "quarters.rb"))
