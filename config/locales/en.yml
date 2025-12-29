@@ -48,6 +48,20 @@ en:
         notice: School deleted successfully.
       update:
         notice: School updated successfully.
+    students:
+      create:
+        notice: 'Student %{username} created successfully. Password: %{password}'
+      destroy:
+        notice: Student %{username} deleted successfully.
+      update:
+        notice: Student updated successfully.
+    teachers:
+      create:
+        notice: Teacher created successfully. Password reset email has been sent.
+      destroy:
+        notice: Teacher deleted successfully.
+      update:
+        notice: Teacher updated successfully.
     users:
       create:
         notice: User created successfully.
