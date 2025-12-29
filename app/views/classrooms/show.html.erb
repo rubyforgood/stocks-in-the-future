@@ -7,7 +7,7 @@
     <h1 class="text-3xl font-bold mb-6">
       <%= [
             @classroom.name,
-            ("Grade #{@classroom.grade}" if @classroom.grade.present?),
+            ("Grade #{@classroom.grades_display}" if @classroom.grades_display.present?),
             @classroom.school_year.year.name
           ].compact.join(', ') %>
     </h1>

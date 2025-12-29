@@ -22,7 +22,24 @@ class Classroom < ApplicationRecord
   scope :active, -> { where(archived: false) }
   scope :archived, -> { where(archived: true) }
 
-  def grade_display
-    grade&.ordinalize
+  def grades_display
+    values = classroom_grades
+             .joins(:grade)
+             .pluck("grades.level")
+             .uniq
+             .sort
+    return if values.empty?
+
+    if values.one?
+      values.first.ordinalize
+    elsif continuous?(values)
+      "#{values.first.ordinalize}-#{values.last.ordinalize}"
+    else
+      values.map(&:ordinalize).join(", ")
+    end
+  end
+
+  def continuous?(values)
+    values.each_cons(2).all? { |a, b| b == a + 1 }
   end
 end
