@@ -1,0 +1,20 @@
+<div class="max-w-7xl mx-auto">
+  <%= admin_breadcrumbs(@breadcrumbs) %>
+
+  <%= admin_table(
+        @school_years,
+        columns: [
+          { attribute: :id, label: "ID", sortable: true },
+          { attribute: :school, label: "School", sortable: false },
+          { attribute: :year, label: "Year", sortable: false },
+          { attribute: :created_at, label: "Created At", sortable: true }
+        ],
+        title: "School Years",
+        actions: link_to(
+          "New School Year",
+          new_admin_v2_school_year_path,
+          class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+        ),
+        empty_message: "No school years found. Create your first school year to get started."
+      ) %>
+</div>

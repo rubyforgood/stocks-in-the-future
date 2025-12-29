@@ -48,6 +48,20 @@ en:
         notice: School deleted successfully.
       update:
         notice: School updated successfully.
+    school_years:
+      create:
+        notice: School year created successfully.
+      destroy:
+        notice: School year deleted successfully.
+      update:
+        notice: School year updated successfully.
+    stocks:
+      create:
+        notice: Stock created successfully.
+      destroy:
+        notice: Stock deleted successfully.
+      update:
+        notice: Stock updated successfully.
     students:
       create:
         notice: 'Student %{username} created successfully. Password: %{password}'

@@ -38,7 +38,12 @@
         </li>
         <li>
           <%= link_to admin_v2_years_path, class: "text-blue-600 hover:text-blue-800 hover:underline" do %>
-            <i class="fas fa-calendar-alt w-4 mr-2"></i>School Years
+            <i class="fas fa-calendar-alt w-4 mr-2"></i>Years
+          <% end %>
+        </li>
+        <li>
+          <%= link_to admin_v2_school_years_path, class: "text-blue-600 hover:text-blue-800 hover:underline" do %>
+            <i class="fas fa-calendar-check w-4 mr-2"></i>School Years
           <% end %>
         </li>
         <li>
@@ -80,9 +85,13 @@
         <i class="fas fa-chart-line text-purple-600 text-2xl mr-3"></i>
         <h2 class="text-lg font-semibold text-gray-900">Portfolio & Finance</h2>
       </div>
-      <ul class="space-y-2 text-sm text-gray-600">
-        <li><i class="fas fa-chart-line w-4 mr-2"></i>Stocks</li>
-        <li><i class="fas fa-exchange-alt w-4 mr-2"></i>Portfolio Transactions</li>
+      <ul class="space-y-2 text-sm">
+        <li>
+          <%= link_to admin_v2_stocks_path, class: "text-blue-600 hover:text-blue-800 hover:underline" do %>
+            <i class="fas fa-chart-line w-4 mr-2"></i>Stocks
+          <% end %>
+        </li>
+        <li class="text-gray-600"><i class="fas fa-exchange-alt w-4 mr-2"></i>Portfolio Transactions</li>
       </ul>
     </div>
 

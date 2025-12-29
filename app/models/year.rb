@@ -7,6 +7,10 @@ class Year < ApplicationRecord
 
   validates :name, presence: true, uniqueness: true
 
+  def to_s
+    name
+  end
+
   def previous_year
     @previous_year || Year.find_by(name: "#{start_year_value - 1} - #{start_year_value}")
   end

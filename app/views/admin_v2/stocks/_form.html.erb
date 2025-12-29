@@ -1,0 +1,49 @@
+<%= form_with model: @stock, url: @stock.persisted? ? admin_v2_stock_path(@stock) : admin_v2_stocks_path, builder: AdminV2::FormBuilder, class: "space-y-6" do |f| %>
+  <div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg">
+    <div class="px-6 py-6">
+      <h3 class="text-lg font-medium text-gray-900 mb-6">Stock Details</h3>
+
+      <%= f.text_field :ticker,
+                       label: "Ticker Symbol",
+                       hint: "Stock ticker symbol (e.g., AAPL, GOOGL)",
+                       placeholder: "AAPL" %>
+
+      <%= f.text_field :company_name,
+                       label: "Company Name",
+                       hint: "Full company name",
+                       placeholder: "Apple Inc." %>
+
+      <%= f.text_field :company_website,
+                       label: "Company Website",
+                       hint: "Company website URL (must be HTTP or HTTPS)",
+                       placeholder: "https://www.apple.com" %>
+
+      <div class="mt-6 pt-6 border-t border-gray-200">
+        <h4 class="text-md font-medium text-gray-900 mb-4">Pricing</h4>
+
+        <%= f.currency_field :price_cents,
+                             label: "Current Price",
+                             hint: "Current stock price in dollars",
+                             multiplier: 0.01,
+                             decimals: 2 %>
+
+        <%= f.currency_field :yesterday_price_cents,
+                             label: "Yesterday's Price",
+                             hint: "Previous day's closing price in dollars",
+                             multiplier: 0.01,
+                             decimals: 2 %>
+      </div>
+
+      <div class="mt-6 pt-6 border-t border-gray-200">
+        <%= f.boolean_field :archived,
+                            label: "Archived",
+                            hint: "Mark this stock as archived (hidden from active listings)" %>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex items-center justify-end gap-x-4">
+    <%= f.cancel_button "Cancel", url: @stock.persisted? ? admin_v2_stock_path(@stock) : admin_v2_stocks_path %>
+    <%= f.submit_button @stock.persisted? ? "Update Stock" : "Create Stock" %>
+  </div>
+<% end %>

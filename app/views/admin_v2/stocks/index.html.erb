@@ -1,0 +1,21 @@
+<div class="max-w-7xl mx-auto">
+  <%= admin_breadcrumbs(@breadcrumbs) %>
+
+  <%= admin_table(
+        @stocks,
+        columns: [
+          { attribute: :id, label: "ID", sortable: true },
+          { attribute: :ticker, label: "Ticker", sortable: true },
+          { attribute: :company_name, label: "Company Name", sortable: true },
+          { attribute: :current_price, label: "Current Price", sortable: false },
+          { attribute: :archived, label: "Archived", sortable: true }
+        ],
+        title: "Stocks",
+        actions: link_to(
+          "New Stock",
+          new_admin_v2_stock_path,
+          class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+        ),
+        empty_message: "No stocks found. Create your first stock to get started."
+      ) %>
+</div>
