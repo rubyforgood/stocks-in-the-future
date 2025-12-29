@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/ModuleLength
 module AdminV2Helper
   # Renders a table for index pages with sortable columns
   # @param collection [ActiveRecord::Relation] The records to display
@@ -124,4 +125,44 @@ module AdminV2Helper
       record.becomes(record.class.base_class)
     end
   end
+
+  # Renders the archive/activate toggle button for a classroom
+  # @param classroom [Classroom] The classroom record
+  # @return [String] HTML button
+  def classroom_archive_toggle_button(classroom)
+    if classroom.archived?
+      activate_button(classroom)
+    else
+      archive_button(classroom)
+    end
+  end
+
+  private
+
+  def activate_button(classroom)
+    button_class = "inline-flex items-center px-4 py-2 border border-green-300 shadow-sm " \
+                   "text-sm font-medium rounded-md text-green-700 bg-white hover:bg-green-50"
+    link_to toggle_archive_admin_v2_classroom_path(classroom),
+            data: { turbo_method: :patch, turbo_confirm: "Are you sure you want to activate this classroom?" },
+            class: button_class do
+      safe_join([
+                  content_tag(:i, "", class: "fas fa-check-circle -ml-1 mr-2 h-5 w-5 text-green-500"),
+                  "Activate"
+                ])
+    end
+  end
+
+  def archive_button(classroom)
+    button_class = "inline-flex items-center px-4 py-2 border border-yellow-300 shadow-sm " \
+                   "text-sm font-medium rounded-md text-yellow-700 bg-white hover:bg-yellow-50"
+    link_to toggle_archive_admin_v2_classroom_path(classroom),
+            data: { turbo_method: :patch, turbo_confirm: "Are you sure you want to archive this classroom?" },
+            class: button_class do
+      safe_join([
+                  content_tag(:i, "", class: "fas fa-archive -ml-1 mr-2 h-5 w-5 text-yellow-500"),
+                  "Archive"
+                ])
+    end
+  end
 end
+# rubocop:enable Metrics/ModuleLength
