@@ -2,7 +2,7 @@
 
 class Classroom < ApplicationRecord
   MIN_GRADE = 5
-  MAX_GRADE = 12
+  MAX_GRADE = 8
   GRADE_RANGE = (MIN_GRADE..MAX_GRADE).to_a.freeze
 
   belongs_to :school_year
@@ -18,6 +18,7 @@ class Classroom < ApplicationRecord
   has_many :grade_books, dependent: :nullify
 
   validates :name, presence: true
+  validate :grade_level
 
   scope :active, -> { where(archived: false) }
   scope :archived, -> { where(archived: true) }
@@ -50,4 +51,8 @@ class Classroom < ApplicationRecord
       name
     end
   end
+end
+
+def grade_level
+  errors.add(:grades, "must have at least one grade") if grades.empty?
 end

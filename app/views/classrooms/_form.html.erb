@@ -14,7 +14,9 @@
   <% end %>
 
   <div class="my-5">
-    <%= form.label :name, class: 'tw-label-primary' %>
+    <%= form.label :name, class: 'tw-label-primary' do %>
+      Name<span class="required-indicator">*</span>
+    <% end %>
     <div class="mt-2">
       <%= form.text_field :name, class: "tw-input-primary", required: true %>
     </div>
@@ -45,7 +47,9 @@
   </div>
 
   <div class="my-5">
-  <%= form.label :grade_ids, "Grades", class: 'tw-label-primary flex items-center gap-2' %>
+  <%= form.label :grade_ids, class: 'tw-label-primary flex items-center gap-2' do %>
+    Grades<span class="required-indicator">*</span>
+  <% end %>
 
   <!-- Single hidden field to handle empty selections -->
   <%= hidden_field_tag "classroom[grade_ids][]", "" %>
@@ -65,17 +69,13 @@
           <div class="font-medium text-gray-900">
             <%= grade.name %>
           </div>
-
-          <div class="text-xs text-gray-500">
-            Level <%= grade.level %>
-          </div>
         </div>
       </label>
     <% end %>
   </div>
 
   <p class="text-sm text-gray-600 mt-2">
-    Select all grades that apply to this classroom (e.g., multi-grade or combined classes).
+    <span class="text-red-500 font-medium">* Required:</span> Select at least one grade that applies to this classroom.
   </p>
   </div>
 
