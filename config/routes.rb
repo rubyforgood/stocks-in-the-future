@@ -74,8 +74,10 @@ Rails.application.routes.draw do
 
     # Resource routes
     resources :announcements
+    resources :classrooms
     resources :grades
     resources :schools
+    resources :users
     resources :years
   end
 
