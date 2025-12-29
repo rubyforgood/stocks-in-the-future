@@ -42,4 +42,12 @@ class Classroom < ApplicationRecord
   def continuous?(values)
     values.each_cons(2).all? { |a, b| b == a + 1 }
   end
+
+  def to_s
+    if grade_display.present?
+      "#{name} (#{grade_display})"
+    else
+      name
+    end
+  end
 end

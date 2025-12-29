@@ -27,6 +27,13 @@ en:
         notice: Announcement deleted successfully.
       update:
         notice: Announcement updated successfully.
+    classrooms:
+      create:
+        notice: Classroom created successfully.
+      destroy:
+        notice: Classroom deleted successfully.
+      update:
+        notice: Classroom updated successfully.
     grades:
       create:
         notice: Grade created successfully.
@@ -41,6 +48,13 @@ en:
         notice: School deleted successfully.
       update:
         notice: School updated successfully.
+    users:
+      create:
+        notice: User created successfully.
+      destroy:
+        notice: User deleted successfully.
+      update:
+        notice: User updated successfully.
     years:
       create:
         notice: Year created successfully.

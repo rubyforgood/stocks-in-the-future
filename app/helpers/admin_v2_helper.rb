@@ -50,7 +50,12 @@ module AdminV2Helper
     when Time, DateTime, Date
       value.strftime("%B %d, %Y")
     when ActiveRecord::Base
-      link_to value.to_s, [:admin_v2, value]
+      # Try to link to the resource, but fall back to text if route doesn't exist
+      begin
+        link_to value.to_s, [:admin_v2, route_model(value)]
+      rescue NoMethodError, ActionController::UrlGenerationError
+        value.to_s
+      end
     when nil
       content_tag(:span, "—", class: "text-gray-400")
     else
@@ -106,5 +111,17 @@ module AdminV2Helper
   # @param search_placeholder [String] Placeholder text for search field
   def admin_search_filter(filters: [], search_placeholder: "Search...")
     render "admin_v2/shared/search_filter", filters: filters, search_placeholder: search_placeholder
+  end
+
+  # Returns the correct model for routing purposes
+  # Handles STI (Single Table Inheritance) by returning the base class
+  # @param record [ActiveRecord::Base] The record
+  # @return [ActiveRecord::Base] The record or its base class for routing
+  def route_model(record)
+    if record.class.base_class == record.class
+      record
+    else
+      record.becomes(record.class.base_class)
+    end
   end
 end

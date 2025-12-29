@@ -89,6 +89,16 @@ module AdminV2
       end
     end
 
+    # Override select to support label and hint options
+    def select(attribute, choices = nil, options = {}, html_options = {}, &)
+      # Extract custom options if provided as hash (when called with label/hint)
+      return super if choices.is_a?(Hash) && options.empty? && html_options.empty?
+      return super unless options.is_a?(Hash) && (options.key?(:label) || options.key?(:hint))
+
+      # Called as: select(:attr, choices, label: "...", hint: "...", include_blank: ...)
+      render_select_with_wrapper(attribute, choices, options, html_options, &)
+    end
+
     # Select field with collection
     # Usage: f.select_field :status, collection: [['Active', 'active'], ['Inactive', 'inactive']]
     # Usage: f.select_field :grade, collection: (1..12).map { |g| [g.ordinalize, g] }
@@ -192,6 +202,57 @@ module AdminV2
     end
 
     private
+
+    # Renders select field with label and hint wrapper
+    def render_select_with_wrapper(attribute, choices, options, html_options, &)
+      label_text = options.delete(:label)
+      hint = options.delete(:hint)
+      wrapper_class = options.delete(:wrapper_class)
+
+      # Separate standard select options from html options
+      select_options = extract_select_options(options)
+      remaining_html_options = html_options.merge(options)
+
+      @template.content_tag(:div, class: "mb-6 #{wrapper_class}") do
+        build_label(attribute, label_text) +
+          build_hint(hint) +
+          build_select_field(attribute, choices, select_options, remaining_html_options, &) +
+          error_message(attribute)
+      end
+    end
+
+    # Build label element
+    def build_label(attribute, label_text)
+      return "".html_safe unless label_text
+
+      label(attribute, label_text, class: LABEL_CLASSES)
+    end
+
+    # Build hint element
+    def build_hint(hint)
+      return "".html_safe unless hint
+
+      @template.content_tag(:p, hint, class: HINT_CLASSES)
+    end
+
+    # Build select field element
+    def build_select_field(attribute, choices, select_options, html_options, &)
+      @template.content_tag(:div, class: "mt-2") do
+        ActionView::Helpers::FormBuilder.instance_method(:select).bind(self).call(
+          attribute, choices, select_options, html_options.merge(class: input_class(attribute)), &
+        )
+      end
+    end
+
+    # Extract standard select options from the options hash
+    def extract_select_options(options)
+      select_options = {}
+      select_options[:include_blank] = options.delete(:include_blank) if options.key?(:include_blank)
+      select_options[:prompt] = options.delete(:prompt) if options.key?(:prompt)
+      select_options[:disabled] = options.delete(:disabled) if options.key?(:disabled)
+      select_options[:selected] = options.delete(:selected) if options.key?(:selected)
+      select_options
+    end
 
     # Wraps a field with label, input, and error message
     def field_wrapper(attribute, options = {}, &)

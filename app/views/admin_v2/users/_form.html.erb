@@ -1,0 +1,62 @@
+<%= form_with model: @user, url: @user.persisted? ? admin_v2_user_path(@user) : admin_v2_users_path, builder: AdminV2::FormBuilder, class: "space-y-6" do |f| %>
+  <div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg">
+    <div class="px-6 py-6">
+      <h3 class="text-lg font-medium text-gray-900 mb-6">User Details</h3>
+
+      <%= f.text_field :username,
+                       label: "Username",
+                       hint: "Unique username for the user",
+                       placeholder: "johndoe" %>
+
+      <%= f.select :type,
+                   options_for_select(
+                     %w[User Student Teacher].map { |t| [t, t] },
+                     @user.type
+                   ),
+                   label: "User Type",
+                   hint: "Select the type of user (Student, Teacher, or generic User)",
+                   include_blank: false %>
+
+      <%= f.text_field :email,
+                       label: "Email",
+                       hint: "Email address (required for Teachers and Admins, optional for Students)",
+                       placeholder: "user@example.com" %>
+
+      <%= f.boolean_field :admin,
+                          label: "Admin",
+                          hint: "Grant admin privileges to this user" %>
+
+      <%= f.select :classroom_id,
+                   options_from_collection_for_select(
+                     Classroom.order(:name),
+                     :id,
+                     :name,
+                     @user.classroom_id
+                   ),
+                   label: "Classroom",
+                   hint: "Optional classroom assignment",
+                   include_blank: "No classroom" %>
+
+      <% if @user.new_record? %>
+        <div class="mt-6 pt-6 border-t border-gray-200">
+          <h4 class="text-md font-medium text-gray-900 mb-4">Password</h4>
+
+          <%= f.password_field :password,
+                               label: "Password",
+                               hint: "Minimum 6 characters",
+                               placeholder: "••••••••" %>
+
+          <%= f.password_field :password_confirmation,
+                               label: "Password Confirmation",
+                               hint: "Re-enter password to confirm",
+                               placeholder: "••••••••" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="flex items-center justify-end gap-x-4">
+    <%= f.cancel_button "Cancel", url: @user.persisted? ? admin_v2_user_path(@user) : admin_v2_users_path %>
+    <%= f.submit_button @user.persisted? ? "Update User" : "Create User" %>
+  </div>
+<% end %>
