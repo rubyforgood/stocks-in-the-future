@@ -80,7 +80,6 @@ Rails.application.routes.draw do
       end
     end
     resources :grades
-    resources :portfolio_stocks
     resources :schools
     resources :users
     resources :years

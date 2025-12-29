@@ -41,13 +41,6 @@ en:
         notice: Grade deleted successfully.
       update:
         notice: Grade updated successfully.
-    portfolio_stocks:
-      create:
-        notice: Portfolio stock created successfully.
-      destroy:
-        notice: Portfolio stock deleted successfully.
-      update:
-        notice: Portfolio stock updated successfully.
     schools:
       create:
         notice: School created successfully.
