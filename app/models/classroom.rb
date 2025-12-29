@@ -18,6 +18,7 @@ class Classroom < ApplicationRecord
   has_many :grade_books, dependent: :nullify
 
   validates :name, presence: true
+  validate :has_grade_level
 
   scope :active, -> { where(archived: false) }
   scope :archived, -> { where(archived: true) }
@@ -42,4 +43,10 @@ class Classroom < ApplicationRecord
   def continuous?(values)
     values.each_cons(2).all? { |a, b| b == a + 1 }
   end
+end
+
+private
+
+def has_grade_level
+  errors.add(:grades, "must have at least one grade") if grades.empty?
 end

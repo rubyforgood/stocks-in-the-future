@@ -45,7 +45,9 @@
   </div>
 
   <div class="my-5">
-  <%= form.label :grade_ids, "Grades", class: 'tw-label-primary flex items-center gap-2' %>
+  <%= form.label :grade_ids, class: 'tw-label-primary flex items-center gap-2' do %>
+    Grades<span class="required-indicator">*</span>
+  <% end %>
 
   <!-- Single hidden field to handle empty selections -->
   <%= hidden_field_tag "classroom[grade_ids][]", "" %>
@@ -75,7 +77,7 @@
   </div>
 
   <p class="text-sm text-gray-600 mt-2">
-    Select all grades that apply to this classroom (e.g., multi-grade or combined classes).
+    <span class="text-red-500 font-medium">* Required:</span> Select at least one grade that applies to this classroom (e.g., multi-grade or combined classes).
   </p>
   </div>
 
