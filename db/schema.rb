@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_21_203546) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_29_212809) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -59,6 +59,20 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_21_203546) do
     t.string "title"
     t.datetime "updated_at", null: false
     t.index ["created_at"], name: "index_announcements_on_created_at", order: :desc
+  end
+
+  create_table "classroom_enrollments", force: :cascade do |t|
+    t.bigint "classroom_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "enrolled_at", null: false
+    t.boolean "primary", default: false, null: false
+    t.bigint "student_id", null: false
+    t.datetime "unenrolled_at"
+    t.datetime "updated_at", null: false
+    t.index ["classroom_id"], name: "index_classroom_enrollments_on_classroom_id"
+    t.index ["student_id", "classroom_id", "enrolled_at"], name: "index_enrollments_on_student_classroom_enrolled"
+    t.index ["student_id", "primary"], name: "index_enrollments_on_student_primary", where: "(\"primary\" = true)"
+    t.index ["student_id"], name: "index_classroom_enrollments_on_student_id"
   end
 
   create_table "classroom_grades", force: :cascade do |t|
@@ -386,6 +400,8 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_21_203546) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "classroom_enrollments", "classrooms"
+  add_foreign_key "classroom_enrollments", "users", column: "student_id"
   add_foreign_key "classroom_grades", "classrooms"
   add_foreign_key "classroom_grades", "grades"
   add_foreign_key "classrooms", "school_years"

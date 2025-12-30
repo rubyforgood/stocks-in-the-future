@@ -12,6 +12,8 @@ class Classroom < ApplicationRecord
   has_many :users, dependent: :nullify
   has_many :teacher_classrooms, dependent: :destroy
   has_many :teachers, through: :teacher_classrooms
+  has_many :classroom_enrollments, dependent: :destroy
+  has_many :enrolled_students, through: :classroom_enrollments, source: :student
   has_many :students, -> { kept }, class_name: "Student", inverse_of: :classroom, dependent: :nullify
   has_many :classroom_grades, dependent: :destroy
   has_many :grades, through: :classroom_grades
@@ -21,6 +23,24 @@ class Classroom < ApplicationRecord
 
   scope :active, -> { where(archived: false) }
   scope :archived, -> { where(archived: true) }
+
+  # Get currently enrolled students (students with active enrollments)
+  #
+  # @return [ActiveRecord::Relation<Student>]
+  def current_students
+    enrolled_students.joins(:classroom_enrollments)
+                    .merge(classroom_enrollments.current)
+                    .distinct
+  end
+
+  # Get historically enrolled students (students with past enrollments)
+  #
+  # @return [ActiveRecord::Relation<Student>]
+  def historical_students
+    enrolled_students.joins(:classroom_enrollments)
+                    .merge(classroom_enrollments.historical)
+                    .distinct
+  end
 
   def grades_display
     values = classroom_grades
