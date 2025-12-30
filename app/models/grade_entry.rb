@@ -4,6 +4,8 @@ class GradeEntry < ApplicationRecord
   belongs_to :grade_book
   belongs_to :user
 
+  delegate :username, to: :user
+
   EARNINGS_PER_DAY_ATTENDANCE = 20
   EARNINGS_FOR_A_GRADE = 3_00
   EARNINGS_FOR_B_GRADE = 2_00

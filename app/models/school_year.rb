@@ -6,7 +6,10 @@ class SchoolYear < ApplicationRecord
   has_many :classrooms, dependent: :restrict_with_error
   has_many :quarters, dependent: :restrict_with_error
 
+  delegate :name, to: :school, prefix: true
+  delegate :name, to: :year, prefix: true
+
   def to_s
-    "#{school.name} (#{year.name})"
+    "#{school_name} (#{year_name})"
   end
 end

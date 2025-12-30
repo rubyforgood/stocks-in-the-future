@@ -9,6 +9,9 @@ class Classroom < ApplicationRecord
   has_one :school, through: :school_year
   has_one :year, through: :school_year
 
+  delegate :name, to: :school, prefix: true
+  delegate :name, to: :year, prefix: true
+
   has_many :users, dependent: :nullify
   has_many :teacher_classrooms, dependent: :destroy
   has_many :teachers, through: :teacher_classrooms

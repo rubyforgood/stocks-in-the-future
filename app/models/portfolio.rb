@@ -6,6 +6,8 @@ class Portfolio < ApplicationRecord
   belongs_to :user
   validate :user_must_be_student
 
+  delegate :username, :student?, :school_name, :trading_enabled?, to: :user
+
   has_many :portfolio_transactions, dependent: :destroy
   has_many :portfolio_stocks, dependent: :destroy
   has_many :stocks, through: :portfolio_stocks
