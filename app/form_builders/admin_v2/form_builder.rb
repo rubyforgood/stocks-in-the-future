@@ -130,6 +130,19 @@ module AdminV2
       end
     end
 
+    # Collection checkboxes with proper styling
+    def collection_check_boxes(attribute, collection, value_method, text_method, options = {})
+      label_text = options.delete(:label) || attribute.to_s.humanize
+      hint = options.delete(:hint)
+      wrapper_class = options.delete(:wrapper_class) || ""
+
+      @template.content_tag(:div, class: "mb-6 #{wrapper_class}") do
+        build_checkbox_collection_label(label_text, hint) +
+          build_checkbox_collection_items(attribute, collection, value_method, text_method) +
+          error_message(attribute)
+      end
+    end
+
     # Date field
     def date_field(attribute, options = {})
       field_wrapper(attribute, options) do
@@ -202,6 +215,54 @@ module AdminV2
     end
 
     private
+
+    # Build checkbox collection label and hint
+    def build_checkbox_collection_label(label_text, hint)
+      @template.content_tag(:label, label_text, class: LABEL_CLASSES) +
+        (hint ? @template.content_tag(:p, hint, class: HINT_CLASSES) : "".html_safe)
+    end
+
+    # Build checkbox collection items
+    def build_checkbox_collection_items(attribute, collection, value_method, text_method)
+      @template.content_tag(:div, class: "mt-2 space-y-2") do
+        collection.map do |item|
+          build_single_checkbox(attribute, item, value_method, text_method)
+        end.join.html_safe # rubocop:disable Rails/OutputSafety
+      end
+    end
+
+    # Build a single checkbox item
+    def build_single_checkbox(attribute, item, value_method, text_method)
+      value = item.send(value_method)
+      text = item.send(text_method)
+      checkbox_id = "#{object_name}_#{attribute}_#{value}"
+      checked = Array(object.send(attribute)).include?(value)
+
+      @template.content_tag(:div, class: "relative flex items-start") do
+        build_checkbox_input(attribute, value, checked, checkbox_id) +
+          build_checkbox_label(checkbox_id, text)
+      end
+    end
+
+    # Build checkbox input element
+    def build_checkbox_input(attribute, value, checked, checkbox_id)
+      @template.content_tag(:div, class: "flex h-6 items-center") do
+        @template.check_box_tag(
+          "#{object_name}[#{attribute}][]",
+          value,
+          checked,
+          id: checkbox_id,
+          class: "h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-600"
+        )
+      end
+    end
+
+    # Build checkbox label element
+    def build_checkbox_label(checkbox_id, text)
+      @template.content_tag(:div, class: "ml-3 text-sm leading-6") do
+        @template.label_tag(checkbox_id, text, class: "font-medium text-gray-900")
+      end
+    end
 
     # Renders select field with label and hint wrapper
     def render_select_with_wrapper(attribute, choices, options, html_options, &)

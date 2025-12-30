@@ -45,8 +45,8 @@ class Classroom < ApplicationRecord
   end
 
   def to_s
-    if grade_display.present?
-      "#{name} (#{grade_display})"
+    if grades_display.present?
+      "#{name} (#{grades_display})"
     else
       name
     end
