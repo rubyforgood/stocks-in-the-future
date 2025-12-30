@@ -13,7 +13,12 @@ class ClassroomsController < ApplicationController
   end
 
   def show
-    @students = @classroom.users.students.kept.includes(
+    # Get all students for this classroom (both via enrollments and legacy classroom_id)
+    enrolled_student_ids = @classroom.current_students.pluck(:id)
+    legacy_student_ids = @classroom.users.students.kept.pluck(:id)
+    all_student_ids = (enrolled_student_ids + legacy_student_ids).uniq
+
+    @students = Student.kept.where(id: all_student_ids).includes(
       :portfolio,
       :orders,
       portfolio: :portfolio_transactions

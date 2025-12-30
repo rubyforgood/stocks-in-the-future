@@ -244,4 +244,19 @@ class StudentTest < ActiveSupport::TestCase
     assert_not_nil enrollment1.reload.unenrolled_at
     assert_not_nil enrollment2.reload.unenrolled_at
   end
+
+  test "automatically creates enrollment when student is created with classroom_id" do
+    classroom = create(:classroom)
+    student = create(:student, classroom: classroom)
+
+    assert_equal 1, student.classroom_enrollments.count
+    assert_equal classroom, student.classroom_enrollments.first.classroom
+    assert student.classroom_enrollments.first.primary
+  end
+
+  test "does not create enrollment when student is created without classroom_id" do
+    student = Student.create!(username: "test_#{rand(10000)}", password: "Test1234")
+
+    assert_equal 0, student.classroom_enrollments.count
+  end
 end

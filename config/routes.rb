@@ -32,6 +32,11 @@ Rails.application.routes.draw do
         patch :generate_password
       end
     end
+    resources :classroom_enrollments, only: %i[create destroy] do
+      member do
+        patch :unenroll
+      end
+    end
   end
 
   namespace :admin do

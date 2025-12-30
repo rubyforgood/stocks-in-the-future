@@ -7,6 +7,7 @@ class Student < User
   # Ensure students have nil email by default (not empty string)
   after_initialize :set_default_email, if: :new_record?
   after_create :ensure_portfolio
+  after_create :create_initial_enrollment, if: -> { classroom_id.present? }
 
   delegate :path, to: :portfolio, prefix: true, allow_nil: true
 
@@ -76,5 +77,11 @@ class Student < User
 
   def ensure_portfolio
     create_portfolio!(current_position: 0) if portfolio.blank?
+  end
+
+  def create_initial_enrollment
+    # Create initial enrollment based on classroom_id
+    # Set as primary since it's the first enrollment
+    enroll_in!(classroom, enrolled_at: created_at, primary: true)
   end
 end
