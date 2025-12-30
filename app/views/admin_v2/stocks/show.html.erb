@@ -22,8 +22,16 @@
 
       <%= admin_show_attributes(
             @stock,
-            attributes: %i[id ticker company_name company_website archived created_at updated_at]
+            attributes: %i[id ticker company_name company_website stock_exchange archived created_at updated_at]
           ) %>
+
+      <!-- Description -->
+      <% if @stock.description.present? %>
+        <div class="mt-6 pt-6 border-t border-gray-200">
+          <h3 class="text-sm font-medium text-gray-500 mb-3">Description</h3>
+          <p class="text-sm text-gray-900 whitespace-pre-wrap"><%= @stock.description %></p>
+        </div>
+      <% end %>
 
       <!-- Price Information -->
       <div class="mt-6 pt-6 border-t border-gray-200">
@@ -47,6 +55,91 @@
           </div>
         </dl>
       </div>
+
+      <!-- Company Information -->
+      <div class="mt-6 pt-6 border-t border-gray-200">
+        <h3 class="text-sm font-medium text-gray-500 mb-3">Company Information</h3>
+        <dl class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Employees</dt>
+            <dd class="mt-1 text-sm text-gray-900"><%= @stock.employees || "—" %></dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Industry</dt>
+            <dd class="mt-1 text-sm text-gray-900"><%= @stock.industry || "—" %></dd>
+          </div>
+        </dl>
+      </div>
+
+      <!-- Financial Metrics -->
+      <div class="mt-6 pt-6 border-t border-gray-200">
+        <h3 class="text-sm font-medium text-gray-500 mb-3">Financial Metrics</h3>
+        <dl class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Cash Flow</dt>
+            <dd class="mt-1 text-sm text-gray-900"><%= @stock.cash_flow || "—" %></dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Debt</dt>
+            <dd class="mt-1 text-sm text-gray-900"><%= @stock.debt || "—" %></dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Debt to Equity</dt>
+            <dd class="mt-1 text-sm text-gray-900"><%= @stock.debt_to_equity || "—" %></dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Profit Margin</dt>
+            <dd class="mt-1 text-sm text-gray-900"><%= @stock.profit_margin || "—" %></dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Sales Growth</dt>
+            <dd class="mt-1 text-sm text-gray-900"><%= @stock.sales_growth || "—" %></dd>
+          </div>
+        </dl>
+      </div>
+
+      <!-- Industry Averages -->
+      <div class="mt-6 pt-6 border-t border-gray-200">
+        <h3 class="text-sm font-medium text-gray-500 mb-3">Industry Averages</h3>
+        <dl class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Avg Debt to Equity</dt>
+            <dd class="mt-1 text-sm text-gray-900"><%= @stock.industry_avg_debt_to_equity || "—" %></dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Avg Profit Margin</dt>
+            <dd class="mt-1 text-sm text-gray-900"><%= @stock.industry_avg_profit_margin || "—" %></dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Avg Sales Growth</dt>
+            <dd class="mt-1 text-sm text-gray-900"><%= @stock.industry_avg_sales_growth || "—" %></dd>
+          </div>
+        </dl>
+      </div>
+
+      <!-- Management -->
+      <% if @stock.management.present? %>
+        <div class="mt-6 pt-6 border-t border-gray-200">
+          <h3 class="text-sm font-medium text-gray-500 mb-3">Management</h3>
+          <p class="text-sm text-gray-900 whitespace-pre-wrap"><%= @stock.management %></p>
+        </div>
+      <% end %>
+
+      <!-- Competitors -->
+      <% if @stock.competitor_names.present? %>
+        <div class="mt-6 pt-6 border-t border-gray-200">
+          <h3 class="text-sm font-medium text-gray-500 mb-3">Competitor Names</h3>
+          <p class="text-sm text-gray-900 whitespace-pre-wrap"><%= @stock.competitor_names %></p>
+        </div>
+      <% end %>
+
+      <!-- Portfolio Stocks -->
+      <% if @stock.portfolio_stocks.any? %>
+        <div class="mt-6 pt-6 border-t border-gray-200">
+          <h3 class="text-sm font-medium text-gray-500 mb-3">Portfolio Stocks (<%= @stock.portfolio_stocks.count %>)</h3>
+          <p class="text-sm text-gray-500">This stock is held in <%= @stock.portfolio_stocks.count %> portfolio(s)</p>
+        </div>
+      <% end %>
     </div>
   </div>
 

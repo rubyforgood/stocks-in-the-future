@@ -6,6 +6,6 @@ class SchoolYear < ApplicationRecord
   has_many :classrooms, dependent: :restrict_with_error
   has_many :quarters, dependent: :restrict_with_error
 
-  delegate :name, to: :school, prefix: true
-  delegate :name, to: :year, prefix: true
+  delegate :name, to: :school, prefix: :school
+  delegate :name, to: :year, prefix: :year
 end

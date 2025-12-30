@@ -1,7 +1,7 @@
 <%= form_with model: @stock, url: @stock.persisted? ? admin_v2_stock_path(@stock) : admin_v2_stocks_path, builder: AdminV2::FormBuilder, class: "space-y-6" do |f| %>
   <div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg">
     <div class="px-6 py-6">
-      <h3 class="text-lg font-medium text-gray-900 mb-6">Stock Details</h3>
+      <h3 class="text-lg font-medium text-gray-900 mb-6">Basic Information</h3>
 
       <%= f.text_field :ticker,
                        label: "Ticker Symbol",
@@ -18,6 +18,16 @@
                        hint: "Company website URL (must be HTTP or HTTPS)",
                        placeholder: "https://www.apple.com" %>
 
+      <%= f.text_field :stock_exchange,
+                       label: "Stock Exchange",
+                       hint: "Exchange where stock is traded (e.g., NASDAQ, NYSE)",
+                       placeholder: "NASDAQ" %>
+
+      <%= f.text_area :description,
+                      label: "Description",
+                      hint: "Company description and overview",
+                      rows: 4 %>
+
       <div class="mt-6 pt-6 border-t border-gray-200">
         <h4 class="text-md font-medium text-gray-900 mb-4">Pricing</h4>
 
@@ -32,6 +42,73 @@
                              hint: "Previous day's closing price in dollars",
                              multiplier: 0.01,
                              decimals: 2 %>
+      </div>
+
+      <div class="mt-6 pt-6 border-t border-gray-200">
+        <h4 class="text-md font-medium text-gray-900 mb-4">Company Details</h4>
+
+        <%= f.number_field :employees,
+                           label: "Number of Employees",
+                           hint: "Total number of employees" %>
+
+        <%= f.text_field :industry,
+                         label: "Industry",
+                         hint: "Industry sector",
+                         placeholder: "Technology" %>
+      </div>
+
+      <div class="mt-6 pt-6 border-t border-gray-200">
+        <h4 class="text-md font-medium text-gray-900 mb-4">Financial Metrics</h4>
+
+        <%= f.text_field :cash_flow,
+                         label: "Cash Flow",
+                         hint: "Company cash flow" %>
+
+        <%= f.text_field :debt,
+                         label: "Debt",
+                         hint: "Total company debt" %>
+
+        <%= f.text_field :debt_to_equity,
+                         label: "Debt to Equity Ratio",
+                         hint: "Debt to equity ratio" %>
+
+        <%= f.text_field :profit_margin,
+                         label: "Profit Margin",
+                         hint: "Company profit margin" %>
+
+        <%= f.text_field :sales_growth,
+                         label: "Sales Growth",
+                         hint: "Sales growth percentage" %>
+      </div>
+
+      <div class="mt-6 pt-6 border-t border-gray-200">
+        <h4 class="text-md font-medium text-gray-900 mb-4">Industry Averages</h4>
+
+        <%= f.text_field :industry_avg_debt_to_equity,
+                         label: "Industry Avg Debt to Equity",
+                         hint: "Industry average debt to equity ratio" %>
+
+        <%= f.text_field :industry_avg_profit_margin,
+                         label: "Industry Avg Profit Margin",
+                         hint: "Industry average profit margin" %>
+
+        <%= f.text_field :industry_avg_sales_growth,
+                         label: "Industry Avg Sales Growth",
+                         hint: "Industry average sales growth" %>
+      </div>
+
+      <div class="mt-6 pt-6 border-t border-gray-200">
+        <h4 class="text-md font-medium text-gray-900 mb-4">Additional Information</h4>
+
+        <%= f.text_area :management,
+                        label: "Management",
+                        hint: "Information about company management",
+                        rows: 4 %>
+
+        <%= f.text_area :competitor_names,
+                        label: "Competitor Names",
+                        hint: "List of competitor companies",
+                        rows: 3 %>
       </div>
 
       <div class="mt-6 pt-6 border-t border-gray-200">
