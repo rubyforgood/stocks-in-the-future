@@ -8,8 +8,4 @@ class SchoolYear < ApplicationRecord
 
   delegate :name, to: :school, prefix: true
   delegate :name, to: :year, prefix: true
-
-  def to_s
-    "#{school_name} (#{year_name})"
-  end
 end
