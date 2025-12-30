@@ -39,9 +39,14 @@ module AdminV2
     def create
       @student = Student.new(student_params)
 
-      # Generate a random password if not provided
-      @student.password = SecureRandom.hex(8) if @student.password.blank?
-      generated_password = @student.password
+      # Generate a memorable password if not provided
+      if @student.password.blank?
+        generated_password = MemorablePasswordGenerator.generate
+        @student.password = generated_password
+        @student.password_confirmation = generated_password
+      else
+        generated_password = @student.password
+      end
 
       if @student.save
         redirect_to admin_v2_student_path(@student),
