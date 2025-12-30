@@ -114,6 +114,18 @@ module AdminV2Helper
     render "admin_v2/shared/search_filter", filters: filters, search_placeholder: search_placeholder
   end
 
+  # Determines the current discard filter state based on query parameters
+  # @return [Symbol] :active, :discarded, or :all
+  def current_discard_filter
+    if params[:discarded].present?
+      :discarded
+    elsif params[:all].present?
+      :all
+    else
+      :active
+    end
+  end
+
   # Returns the correct model for routing purposes
   # Handles STI (Single Table Inheritance) by returning the base class
   # @param record [ActiveRecord::Base] The record
@@ -137,7 +149,38 @@ module AdminV2Helper
     end
   end
 
+  # Renders the discard/restore action button for a soft-deletable resource
+  # @param resource [ActiveRecord::Base] The resource record (must respond_to :discarded?)
+  # @return [String] HTML button or link
+  def discard_restore_action(resource)
+    if resource.discarded?
+      restore_button(resource)
+    else
+      discard_link(resource)
+    end
+  end
+
   private
+
+  def restore_button(resource)
+    resource_name = resource.class.name.underscore
+    restore_path = send("restore_admin_v2_#{resource_name}_path", resource)
+
+    button_to "Restore", restore_path,
+              method: :patch,
+              data: { turbo_confirm: "Are you sure you want to restore this #{resource_name.humanize.downcase}?" },
+              class: "text-green-600 hover:text-green-800",
+              form: { style: "display: inline;" }
+  end
+
+  def discard_link(resource)
+    resource_name = resource.class.name.underscore
+    resource_path = send("admin_v2_#{resource_name}_path", resource)
+
+    link_to "Discard", resource_path,
+            data: { turbo_method: :delete, turbo_confirm: "Are you sure you want to discard this #{resource_name.humanize.downcase}?" }, # rubocop:disable Layout/LineLength
+            class: "text-red-600 hover:text-red-800"
+  end
 
   def activate_button(classroom)
     button_class = "inline-flex items-center px-4 py-2 border border-green-300 shadow-sm " \

@@ -85,7 +85,7 @@ module AdminV2
     def restore
       username = @student.username
       @student.undiscard
-      redirect_to admin_v2_students_path(discarded: 1), notice: t(".notice", username: username)
+      redirect_to admin_v2_students_path(discarded: true), notice: t(".notice", username: username)
     end
 
     private

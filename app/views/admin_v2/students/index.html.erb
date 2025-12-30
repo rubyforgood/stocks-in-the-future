@@ -12,22 +12,16 @@
       </div>
 
       <!-- Filter Tabs -->
-      <% current_filter = if params[:discarded] == "1"
-                            :discarded
-                          elsif params[:all] == "1"
-                            :all
-                          else
-                            :active
-                          end %>
+      <% current_filter = current_discard_filter %>
       <div class="flex gap-1 border-b border-gray-200">
         <%= link_to "Active",
                     admin_v2_students_path,
                     class: "px-4 py-2 text-sm font-medium #{current_filter == :active ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700 hover:border-gray-300'}" %>
         <%= link_to "Discarded",
-                    admin_v2_students_path(discarded: 1),
+                    admin_v2_students_path(discarded: true),
                     class: "px-4 py-2 text-sm font-medium #{current_filter == :discarded ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700 hover:border-gray-300'}" %>
         <%= link_to "All",
-                    admin_v2_students_path(all: 1),
+                    admin_v2_students_path(all: true),
                     class: "px-4 py-2 text-sm font-medium #{current_filter == :all ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700 hover:border-gray-300'}" %>
       </div>
     </div>
@@ -75,17 +69,7 @@
                     <% unless student.discarded? %>
                       <%= link_to "Edit", edit_admin_v2_student_path(student), class: "text-gray-600 hover:text-gray-800" %>
                     <% end %>
-                    <% if student.discarded? %>
-                      <%= button_to "Restore", restore_admin_v2_student_path(student),
-                                    method: :patch,
-                                    data: { turbo_confirm: "Are you sure you want to restore this student?" },
-                                    class: "text-green-600 hover:text-green-800",
-                                    form: { style: "display: inline;" } %>
-                    <% else %>
-                      <%= link_to "Discard", admin_v2_student_path(student),
-                                  data: { turbo_method: :delete, turbo_confirm: "Are you sure you want to discard this student?" },
-                                  class: "text-red-600 hover:text-red-800" %>
-                    <% end %>
+                    <%= discard_restore_action(student) %>
                   </div>
                 </td>
               </tr>
