@@ -45,6 +45,8 @@ en:
       create:
         notice: School year created successfully.
       destroy:
+        delete_restricted: Cannot delete school year because it has associated records.
+          Please remove all classrooms and quarters first.
         notice: School year deleted successfully.
       update:
         notice: School year updated successfully.

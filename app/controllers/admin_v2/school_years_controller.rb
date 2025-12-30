@@ -76,8 +76,8 @@ module AdminV2
     def destroy
       @school_year.destroy
       redirect_to admin_v2_school_years_path, notice: t(".notice")
-    rescue ActiveRecord::DeleteRestrictionError => e
-      redirect_to admin_v2_school_years_path, alert: "Cannot delete school year: #{e.message}"
+    rescue ActiveRecord::DeleteRestrictionError
+      redirect_to admin_v2_school_year_path(@school_year), alert: t(".delete_restricted")
     end
 
     private
