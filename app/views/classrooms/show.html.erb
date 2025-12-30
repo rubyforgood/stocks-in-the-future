@@ -8,7 +8,7 @@
       <%= [
             @classroom.name,
             ("Grade #{@classroom.grades_display}" if @classroom.grades_display.present?),
-            @classroom.school_year.year.name
+            @classroom.year_name
           ].compact.join(', ') %>
     </h1>
 

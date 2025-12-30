@@ -41,6 +41,15 @@ en:
         notice: Grade deleted successfully.
       update:
         notice: Grade updated successfully.
+    school_years:
+      create:
+        notice: School year created successfully.
+      destroy:
+        delete_restricted: Cannot delete school year because it has associated records.
+          Please remove all classrooms and quarters first.
+        notice: School year deleted successfully.
+      update:
+        notice: School year updated successfully.
     schools:
       create:
         notice: School created successfully.
@@ -48,6 +57,13 @@ en:
         notice: School deleted successfully.
       update:
         notice: School updated successfully.
+    stocks:
+      create:
+        notice: Stock created successfully.
+      destroy:
+        notice: Stock deleted successfully.
+      update:
+        notice: Stock updated successfully.
     students:
       create:
         notice: 'Student %{username} created successfully. Password: %{password}'

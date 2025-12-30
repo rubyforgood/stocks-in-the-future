@@ -81,6 +81,8 @@ Rails.application.routes.draw do
     end
     resources :grades
     resources :schools
+    resources :school_years
+    resources :stocks
     resources :students
     resources :teachers
     resources :users

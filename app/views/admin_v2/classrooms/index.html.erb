@@ -1,22 +1,96 @@
 <div class="max-w-7xl mx-auto">
   <%= admin_breadcrumbs(@breadcrumbs) %>
 
-  <%= admin_table(
-        @classrooms,
-        columns: [
-          { attribute: :id, label: "ID", sortable: true },
-          { attribute: :name, label: "Name", sortable: true },
-          { attribute: :grade, label: "Grade", sortable: true },
-          { attribute: :school_year, label: "School Year", sortable: false },
-          { attribute: :archived, label: "Archived", sortable: true },
-          { attribute: :trading_enabled, label: "Trading Enabled", sortable: true }
-        ],
-        title: "Classrooms",
-        actions: link_to(
-          "New Classroom",
-          new_admin_v2_classroom_path,
-          class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
-        ),
-        empty_message: "No classrooms found. Create your first classroom to get started."
-      ) %>
+  <div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg overflow-hidden">
+    <div class="px-4 py-5 sm:px-6 border-b border-gray-200 flex justify-between items-center">
+      <h3 class="text-lg font-semibold text-gray-900">Classrooms</h3>
+      <div class="flex gap-2">
+        <%= link_to "New Classroom", new_admin_v2_classroom_path,
+                    class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700" %>
+      </div>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-300">
+        <thead class="bg-gray-50">
+          <tr>
+            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+              <%= sort_link(:id, "ID") %>
+            </th>
+            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+              <%= sort_link(:name, "Name") %>
+            </th>
+            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+              <%= sort_link(:grade, "Grade") %>
+            </th>
+            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+              School Year
+            </th>
+            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+              <%= sort_link(:archived, "Archived") %>
+            </th>
+            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+              <%= sort_link(:trading_enabled, "Trading Enabled") %>
+            </th>
+            <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
+              <span class="sr-only">Actions</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200 bg-white">
+          <% if @classrooms.any? %>
+            <% @classrooms.each do |classroom| %>
+              <tr class="hover:bg-gray-50 transition-colors">
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">
+                  <%= classroom.id %>
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">
+                  <%= classroom.name %>
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">
+                  <%= classroom.grade %>
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">
+                  <%= "#{classroom.school_name} - #{classroom.year_name}" %>
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">
+                  <% if classroom.archived? %>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Yes</span>
+                  <% else %>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">No</span>
+                  <% end %>
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">
+                  <% if classroom.trading_enabled? %>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Yes</span>
+                  <% else %>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">No</span>
+                  <% end %>
+                </td>
+                <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+                  <div class="flex justify-end gap-2">
+                    <%= link_to "View", admin_v2_classroom_path(classroom), class: "text-blue-600 hover:text-blue-800" %>
+                    <%= link_to "Edit", edit_admin_v2_classroom_path(classroom), class: "text-gray-600 hover:text-gray-800" %>
+                    <%= link_to "Delete", admin_v2_classroom_path(classroom),
+                                data: { turbo_method: :delete, turbo_confirm: "Are you sure?" },
+                                class: "text-red-600 hover:text-red-800" %>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          <% else %>
+            <tr>
+              <td colspan="7" class="px-3 py-12 text-center text-sm text-gray-500">
+                <div class="flex flex-col items-center">
+                  <i class="fas fa-inbox text-4xl text-gray-300 mb-3"></i>
+                  <p class="font-medium">No records found</p>
+                  <p class="text-gray-400 mt-1">No classrooms found. Create your first classroom to get started.</p>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>

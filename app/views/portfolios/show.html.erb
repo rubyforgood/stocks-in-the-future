@@ -4,14 +4,14 @@
   <div class="flex items-center gap-2 sm:gap-3">
     <div class="flex items-center gap-1 text-xl sm:text-2xl"><span>📙💰</span></div>
     <h1 class="text-sm sm:text-base md:text-lg lg:text-xl font-medium tracking-wide">
-      <%= @portfolio.user.username.upcase %>, PORTFOLIO
+      <%= @portfolio.username.upcase %>, PORTFOLIO
       <span class="font-normal text-gray-500 block sm:inline">
-        <span class="hidden sm:inline">| </span><%= @portfolio.user.school&.name %>
+        <span class="hidden sm:inline">| </span><%= @portfolio.school_name %>
       </span>
     </h1>
   </div>
 
-  <% if @portfolio.user.student? && !@portfolio.user.classroom&.trading_enabled? %>
+  <% if @portfolio.student? && !@portfolio.trading_enabled? %>
     <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-lg">
       <div class="flex items-start">
         <div class="flex-shrink-0">

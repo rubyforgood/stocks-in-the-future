@@ -9,6 +9,9 @@ class Classroom < ApplicationRecord
   has_one :school, through: :school_year
   has_one :year, through: :school_year
 
+  delegate :name, to: :school, prefix: :school
+  delegate :name, to: :year, prefix: :year
+
   has_many :users, dependent: :nullify
   has_many :teacher_classrooms, dependent: :destroy
   has_many :teachers, through: :teacher_classrooms
@@ -44,15 +47,9 @@ class Classroom < ApplicationRecord
     values.each_cons(2).all? { |a, b| b == a + 1 }
   end
 
-  def to_s
-    if grades_display.present?
-      "#{name} (#{grades_display})"
-    else
-      name
-    end
-  end
-end
+  private
 
-def grade_level
-  errors.add(:grades, "must have at least one grade") if grades.empty?
+  def grade_level
+    errors.add(:grades, "must have at least one grade") if grades.empty?
+  end
 end
