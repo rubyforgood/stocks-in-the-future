@@ -3,9 +3,10 @@
 module AdminV2
   class StudentsController < BaseController
     before_action :set_student, only: %i[show edit update destroy]
+    before_action :set_discarded_student, only: %i[restore]
 
     def index
-      @students = apply_sorting(Student.kept, default: "username")
+      @students = apply_sorting(scoped_students, default: "username")
 
       @breadcrumbs = [
         { label: "Students" }
@@ -79,7 +80,27 @@ module AdminV2
       redirect_to admin_v2_students_path, notice: t(".notice", username: username)
     end
 
+    def restore
+      username = @student.username
+      @student.undiscard
+      redirect_to admin_v2_students_path(discarded: 1), notice: t(".notice", username: username)
+    end
+
     private
+
+    def scoped_students
+      if params[:discarded] == "1"
+        Student.discarded
+      elsif params[:all] == "1"
+        Student.with_discarded
+      else
+        Student.kept
+      end
+    end
+
+    def set_discarded_student
+      @student = Student.with_discarded.find(params.expect(:id))
+    end
 
     def set_student
       @student = Student.find(params.expect(:id))

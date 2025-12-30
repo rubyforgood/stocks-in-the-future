@@ -88,7 +88,11 @@ Rails.application.routes.draw do
     resources :schools
     resources :school_years
     resources :stocks
-    resources :students
+    resources :students do
+      member do
+        patch :restore
+      end
+    end
     resources :teachers
     resources :users
     resources :years

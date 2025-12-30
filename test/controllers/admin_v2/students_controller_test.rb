@@ -163,8 +163,59 @@ module AdminV2
       end
 
       assert_redirected_to admin_v2_students_path
-      assert_match(/Student student1 deleted successfully/, flash[:notice])
+      assert_match(/Student student1 discarded successfully/, flash[:notice])
       assert @student1.reload.discarded?
+    end
+
+    # Restore tests
+    test "should restore discarded student" do
+      assert @student3.discarded?
+
+      patch restore_admin_v2_student_path(@student3)
+
+      assert_redirected_to admin_v2_students_path(discarded: 1)
+      assert_match(/Student student3 restored successfully/, flash[:notice])
+      assert_not @student3.reload.discarded?
+    end
+
+    # Filter tests
+    test "index with discarded filter shows only discarded students" do
+      get admin_v2_students_path(discarded: 1)
+
+      assert_response :success
+      # Should show only discarded student3
+      assert_select "tbody tr", count: 1
+      assert_select "tbody", text: /student3/
+    end
+
+    test "index with all filter shows all students including discarded" do
+      get admin_v2_students_path(all: 1)
+
+      assert_response :success
+      # Should show all 3 students (student1, student2, student3)
+      assert_select "tbody tr", count: 3
+    end
+
+    test "index shows restore button for discarded students" do
+      get admin_v2_students_path(discarded: 1)
+
+      assert_response :success
+      assert_select "button[value=?]", restore_admin_v2_student_path(@student3), text: "Restore"
+    end
+
+    test "index shows discard button for active students" do
+      get admin_v2_students_path
+
+      assert_response :success
+      assert_select "a[data-turbo-method='delete']", text: "Discard", count: 2
+    end
+
+    test "index hides edit button for discarded students" do
+      get admin_v2_students_path(all: 1)
+
+      assert_response :success
+      # Should have edit links for active students (2) but not for discarded student3
+      assert_select "a[href*='edit']", count: 2
     end
 
     # Authorization tests
@@ -192,6 +243,17 @@ module AdminV2
       }
 
       assert_redirected_to root_path
+    end
+
+    test "non-admin cannot restore student" do
+      sign_out(@admin)
+      teacher = create(:teacher)
+      sign_in(teacher)
+
+      patch restore_admin_v2_student_path(@student3)
+
+      assert_redirected_to root_path
+      assert_equal "Access denied. Admin privileges required.", flash[:alert]
     end
   end
 end
