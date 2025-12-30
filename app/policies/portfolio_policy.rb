@@ -2,11 +2,17 @@
 
 class PortfolioPolicy < ApplicationPolicy
   def show?
-    return true if user&.admin?
-    return true if user&.teacher? && user.classroom_ids.include?(record.user.classroom_id)
+    return false if user.blank?
+    return true if user.admin?
+    return true if record.user_id == user.id
 
-    user.present? && record.user_id == user.id
+    user.teacher? && teacher_access?
   end
 
-  # Add other actions as needed
+  private
+
+  def teacher_access?
+    teacher_ids = record.user&.classroom&.teacher_ids
+    teacher_ids&.include?(user.id)
+  end
 end
