@@ -48,6 +48,13 @@ en:
         notice: Portfolio transaction deleted successfully.
       update:
         notice: Portfolio transaction updated successfully.
+    schools:
+      create:
+        notice: School created successfully.
+      destroy:
+        notice: School deleted successfully.
+      update:
+        notice: School updated successfully.
     school_years:
       create:
         notice: School year created successfully.
@@ -57,13 +64,6 @@ en:
         notice: School year deleted successfully.
       update:
         notice: School year updated successfully.
-    schools:
-      create:
-        notice: School created successfully.
-      destroy:
-        notice: School deleted successfully.
-      update:
-        notice: School updated successfully.
     stocks:
       create:
         notice: Stock created successfully.
