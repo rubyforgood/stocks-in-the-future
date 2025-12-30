@@ -47,7 +47,7 @@ module AdminV2
       end
     end
 
-    # Currency field with $ prefix and proper formatting
+    # Currency field with proper formatting
     # Usage: f.currency_field :price_cents, multiplier: 0.01, decimals: 2
     def currency_field(attribute, options = {})
       multiplier = options.delete(:multiplier) || 0.01
@@ -57,18 +57,13 @@ module AdminV2
         value = object.public_send(attribute)
         display_value = value ? (value * multiplier).round(decimals) : nil
 
-        @template.content_tag(:div, class: "relative rounded-md shadow-sm") do
-          @template.content_tag(:div, class: "pointer-events-none absolute inset-y-0 left-0 flex items-center pl-5") do
-            @template.content_tag(:span, "$", class: "text-gray-500 sm:text-sm")
-          end +
-            number_field(attribute,
-                         options.merge(
-                           value: display_value,
-                           step: (1.0 / (10**decimals)),
-                           class: "#{input_class(attribute)} pl-12",
-                           data: { currency_multiplier: (1.0 / multiplier).to_i }
-                         ))
-        end
+        number_field(attribute,
+                     options.merge(
+                       value: display_value,
+                       step: (1.0 / (10**decimals)),
+                       class: input_class(attribute),
+                       data: { currency_multiplier: (1.0 / multiplier).to_i }
+                     ))
       end
     end
 
