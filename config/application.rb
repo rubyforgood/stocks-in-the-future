@@ -23,6 +23,9 @@ module StocksInTheFuture
 
     config.active_job.queue_adapter = :solid_queue
 
+    # Add form_builders to autoload paths
+    config.autoload_paths << Rails.root.join("app/form_builders")
+
     # Configuration for the application, engines, and railties goes here.
     #
     # These settings can be overridden in specific environments using the files

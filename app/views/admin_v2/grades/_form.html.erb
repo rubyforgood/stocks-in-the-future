@@ -1,0 +1,22 @@
+<%= form_with model: @grade, url: @grade.persisted? ? admin_v2_grade_path(@grade) : admin_v2_grades_path, builder: AdminV2::FormBuilder, class: "space-y-6" do |f| %>
+  <div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg">
+    <div class="px-6 py-6">
+      <h3 class="text-lg font-medium text-gray-900 mb-6">Grade Details</h3>
+
+      <%= f.number_field :level,
+                         label: "Level",
+                         hint: "Enter the grade level number (e.g., 1 for 1st grade, 2 for 2nd grade)",
+                         placeholder: "1" %>
+
+      <%= f.text_field :name,
+                       label: "Name",
+                       hint: "Enter the grade name (e.g., Kindergarten, First Grade)",
+                       placeholder: "First Grade" %>
+    </div>
+  </div>
+
+  <div class="flex items-center justify-end gap-x-4">
+    <%= f.cancel_button "Cancel", url: @grade.persisted? ? admin_v2_grade_path(@grade) : admin_v2_grades_path %>
+    <%= f.submit_button @grade.persisted? ? "Update Grade" : "Create Grade" %>
+  </div>
+<% end %>

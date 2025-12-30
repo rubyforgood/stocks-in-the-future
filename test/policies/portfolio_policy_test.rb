@@ -11,8 +11,6 @@ class PortfolioPolicyTest < ActiveSupport::TestCase
                                   classroom: @other_classroom)
 
     @teacher = create(:teacher)
-    @other_teacher = create(:teacher)
-
     @admin = create(:admin)
 
     @portfolio = Portfolio.create!(user: @student)
@@ -30,11 +28,11 @@ class PortfolioPolicyTest < ActiveSupport::TestCase
     assert PortfolioPolicy.new(@student, @portfolio).show?
   end
 
-  test "other users cannot show the portfolio" do
+  test "other students cannot show the portfolio" do
     assert_not PortfolioPolicy.new(@other_student, @portfolio).show?
   end
 
-  test "teacher can show portfolio of student in their classroom" do
+  test "teacher can show portfolio of students in their classroom" do
     assert PortfolioPolicy.new(@teacher, @portfolio).show?
   end
 

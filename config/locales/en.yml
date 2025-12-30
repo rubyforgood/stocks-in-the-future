@@ -19,6 +19,49 @@ en:
           attributes:
             company_website:
               invalid: must be a valid HTTP or HTTPS URL
+  admin_v2:
+    announcements:
+      create:
+        notice: Announcement created successfully.
+      destroy:
+        notice: Announcement deleted successfully.
+      update:
+        notice: Announcement updated successfully.
+    classrooms:
+      create:
+        notice: Classroom created successfully.
+      destroy:
+        notice: Classroom deleted successfully.
+      update:
+        notice: Classroom updated successfully.
+    grades:
+      create:
+        notice: Grade created successfully.
+      destroy:
+        notice: Grade deleted successfully.
+      update:
+        notice: Grade updated successfully.
+    schools:
+      create:
+        notice: School created successfully.
+      destroy:
+        notice: School deleted successfully.
+      update:
+        notice: School updated successfully.
+    users:
+      create:
+        notice: User created successfully.
+      destroy:
+        notice: User deleted successfully.
+      update:
+        notice: User updated successfully.
+    years:
+      create:
+        notice: Year created successfully.
+      destroy:
+        notice: Year deleted successfully.
+      update:
+        notice: Year updated successfully.
   announcements:
     not_found: Announcement not found.
   application:

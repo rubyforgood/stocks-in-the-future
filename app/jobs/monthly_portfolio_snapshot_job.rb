@@ -10,7 +10,7 @@ class MonthlyPortfolioSnapshotJob < ApplicationJob
 
     Portfolio.includes(:portfolio_stocks, :stocks)
              .find_in_batches(batch_size: batch_size) do |batch|
-      batch.each { |portfolio| create_snapshot_for_portfolio(portfolio, target_date) }
+               batch.each { |portfolio| create_snapshot_for_portfolio(portfolio, target_date) }
     end
 
     Rails.logger.info "[RECURRING JOB] MonthlyPortfolioSnapshotJob completed successfully"

@@ -128,7 +128,7 @@ class OrderTest < ActiveSupport::TestCase
     order = build(:order, action: :sell, user: user, stock: stock, shares: 10)
 
     assert_not order.valid?
-    assert_includes order.errors[:shares], "Cannot sell more shares than you own (5 available)"
+    assert_includes order.errors[:base], "Cannot sell more shares than you own (5 available)"
   end
 
   test "sell order validation prevents selling when no shares owned" do
@@ -139,7 +139,7 @@ class OrderTest < ActiveSupport::TestCase
     order = build(:order, action: :sell, user: user, stock: stock, shares: 1)
 
     assert_not order.valid?
-    assert_includes order.errors[:shares], "Cannot sell more shares than you own (0 available)"
+    assert_includes order.errors[:base], "Cannot sell more shares than you own (0 available)"
   end
 
   test "sell order validation with multiple portfolio_stock records" do
@@ -155,7 +155,7 @@ class OrderTest < ActiveSupport::TestCase
 
     order = build(:order, action: :sell, user: user, stock: stock, shares: 20)
     assert_not order.valid?
-    assert_includes order.errors[:shares], "Cannot sell more shares than you own (15 available)"
+    assert_includes order.errors[:base], "Cannot sell more shares than you own (15 available)"
   end
 
   test "buy order validation is not affected by sell validation" do

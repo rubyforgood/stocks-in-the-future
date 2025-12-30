@@ -1,0 +1,100 @@
+<div class="space-y-6">
+  <!-- Dashboard -->
+  <div>
+    <%= link_to admin_v2_root_path, class: "flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-lg transition-colors" do %>
+      <i class="fas fa-home w-5 mr-3 text-gray-500"></i>
+      Dashboard
+    <% end %>
+  </div>
+
+  <!-- Academic Section -->
+  <div>
+    <h3 class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+      Academic
+    </h3>
+    <div class="space-y-1">
+      <%= link_to admin_v2_classrooms_path, class: "flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-lg transition-colors" do %>
+        <i class="fas fa-chalkboard w-5 mr-3 text-gray-500"></i>
+        Classrooms
+      <% end %>
+      <%= link_to admin_v2_schools_path, class: "flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-lg transition-colors" do %>
+        <i class="fas fa-school w-5 mr-3 text-gray-500"></i>
+        Schools
+      <% end %>
+      <%= link_to admin_v2_years_path, class: "flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-lg transition-colors" do %>
+        <i class="fas fa-calendar-alt w-5 mr-3 text-gray-500"></i>
+        School Years
+      <% end %>
+      <%= link_to admin_v2_grades_path, class: "flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-lg transition-colors" do %>
+        <i class="fas fa-graduation-cap w-5 mr-3 text-gray-500"></i>
+        Grades
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Users Section -->
+  <div>
+    <h3 class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+      Users
+    </h3>
+    <div class="space-y-1">
+      <%= link_to "#", class: "flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-lg transition-colors" do %>
+        <i class="fas fa-user-graduate w-5 mr-3 text-gray-500"></i>
+        Students
+      <% end %>
+      <%= link_to "#", class: "flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-lg transition-colors" do %>
+        <i class="fas fa-chalkboard-teacher w-5 mr-3 text-gray-500"></i>
+        Teachers
+      <% end %>
+      <%= link_to admin_v2_users_path, class: "flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-lg transition-colors" do %>
+        <i class="fas fa-users w-5 mr-3 text-gray-500"></i>
+        Users
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Portfolio Section -->
+  <div>
+    <h3 class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+      Portfolio
+    </h3>
+    <div class="space-y-1">
+      <%= link_to "#", class: "flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-lg transition-colors" do %>
+        <i class="fas fa-chart-line w-5 mr-3 text-gray-500"></i>
+        Stocks
+      <% end %>
+      <%= link_to "#", class: "flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-lg transition-colors" do %>
+        <i class="fas fa-exchange-alt w-5 mr-3 text-gray-500"></i>
+        Portfolio Transactions
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Content Section -->
+  <div>
+    <h3 class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+      Content
+    </h3>
+    <div class="space-y-1">
+      <%= link_to admin_v2_announcements_path, class: "flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-lg transition-colors" do %>
+        <i class="fas fa-bullhorn w-5 mr-3 text-gray-500"></i>
+        Announcements
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Development Section (remove in production) -->
+  <% if Rails.env.development? %>
+    <div>
+      <h3 class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+        Development
+      </h3>
+      <div class="space-y-1">
+        <%= link_to admin_v2_component_demo_index_path, class: "flex items-center px-3 py-2 text-sm font-medium text-purple-700 hover:bg-purple-50 hover:text-purple-900 rounded-lg transition-colors" do %>
+          <i class="fas fa-flask w-5 mr-3 text-purple-500"></i>
+          Component Demo
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>
