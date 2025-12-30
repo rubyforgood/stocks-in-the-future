@@ -2,11 +2,13 @@
 
 module AdminV2
   class StudentsController < BaseController
+    include SoftDeletableFiltering
+
     before_action :set_student, only: %i[show edit update destroy]
     before_action :set_discarded_student, only: %i[restore]
 
     def index
-      @students = apply_sorting(scoped_students, default: "username")
+      @students = apply_sorting(scoped_by_discard_status(Student), default: "username")
 
       @breadcrumbs = [
         { label: "Students" }
@@ -87,16 +89,6 @@ module AdminV2
     end
 
     private
-
-    def scoped_students
-      if params[:discarded] == "1"
-        Student.discarded
-      elsif params[:all] == "1"
-        Student.with_discarded
-      else
-        Student.kept
-      end
-    end
 
     def set_discarded_student
       @student = Student.with_discarded.find(params.expect(:id))
