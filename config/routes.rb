@@ -87,6 +87,7 @@ Rails.application.routes.draw do
     resources :teachers
     resources :users
     resources :years
+    resources :portfolio_transactions, except: [:index]
   end
 
   resources :orders do
