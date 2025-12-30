@@ -20,10 +20,32 @@
         </div>
       </div>
 
-      <%= admin_show_attributes(
-            @student,
-            attributes: %i[id username classroom created_at updated_at]
-          ) %>
+      <div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg overflow-hidden">
+        <div class="px-4 py-5 sm:px-6">
+          <dl class="divide-y divide-gray-200">
+            <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
+              <dt class="text-sm font-medium text-gray-500">Id</dt>
+              <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0"><%= @student.id %></dd>
+            </div>
+            <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
+              <dt class="text-sm font-medium text-gray-500">Username</dt>
+              <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0"><%= @student.username %></dd>
+            </div>
+            <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
+              <dt class="text-sm font-medium text-gray-500">Classroom</dt>
+              <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0"><%= @student.classroom.name %></dd>
+            </div>
+            <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
+              <dt class="text-sm font-medium text-gray-500">Created at</dt>
+              <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0"><%= @student.created_at.strftime("%B %d, %Y") %></dd>
+            </div>
+            <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
+              <dt class="text-sm font-medium text-gray-500">Updated at</dt>
+              <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0"><%= @student.updated_at.strftime("%B %d, %Y") %></dd>
+            </div>
+          </dl>
+        </div>
+      </div>
 
       <!-- Associated Portfolio -->
       <% if @student.portfolio.present? %>

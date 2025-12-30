@@ -51,12 +51,7 @@ module AdminV2Helper
     when Time, DateTime, Date
       value.strftime("%B %d, %Y")
     when ActiveRecord::Base
-      # Try to link to the resource, but fall back to text if route doesn't exist
-      begin
-        link_to value.to_s, [:admin_v2, route_model(value)]
-      rescue NoMethodError, ActionController::UrlGenerationError
-        value.to_s
-      end
+      format_association(value)
     when nil
       content_tag(:span, "—", class: "text-gray-400")
     else
@@ -160,7 +155,38 @@ module AdminV2Helper
     end
   end
 
+  # Returns the appropriate show path for a user based on their type
+  # @param user [User] The user record
+  # @return [String] Path to the type-specific show page
+  def user_show_path(user)
+    case user.type
+    when "Student"
+      admin_v2_student_path(user)
+    when "Teacher"
+      admin_v2_teacher_path(user)
+    else
+      admin_v2_user_path(user)
+    end
+  end
+
   private
+
+  def format_association(value)
+    # Use presenter if available, otherwise fall back to to_s
+    presenter_class = "#{value.class.name}Presenter".safe_constantize
+    display_value = if presenter_class
+                      presenter_class.new(value).display_name
+                    else
+                      value.to_s
+                    end
+
+    # Try to link to the resource, but fall back to text if route doesn't exist
+    begin
+      link_to display_value, [:admin_v2, route_model(value)]
+    rescue NoMethodError, ActionController::UrlGenerationError
+      display_value
+    end
+  end
 
   def restore_button(resource)
     resource_name = resource.class.name.underscore
