@@ -23,8 +23,8 @@ class Student < User
   # @return [ActiveRecord::Relation<Classroom>]
   def current_classrooms
     classrooms.joins(:classroom_enrollments)
-      .merge(classroom_enrollments.current)
-      .distinct
+              .merge(classroom_enrollments.current)
+              .distinct
   end
 
   # Get the student's primary enrollment

@@ -29,8 +29,8 @@ class Classroom < ApplicationRecord
   # @return [ActiveRecord::Relation<Student>]
   def current_students
     enrolled_students.joins(:classroom_enrollments)
-      .merge(classroom_enrollments.current)
-      .distinct
+                     .merge(classroom_enrollments.current)
+                     .distinct
   end
 
   # Get historically enrolled students (students with past enrollments)
@@ -38,8 +38,8 @@ class Classroom < ApplicationRecord
   # @return [ActiveRecord::Relation<Student>]
   def historical_students
     enrolled_students.joins(:classroom_enrollments)
-      .merge(classroom_enrollments.historical)
-      .distinct
+                     .merge(classroom_enrollments.historical)
+                     .distinct
   end
 
   def grades_display
