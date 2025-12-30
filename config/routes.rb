@@ -91,6 +91,7 @@ Rails.application.routes.draw do
     resources :students do
       member do
         patch :restore
+        post :add_transaction
       end
     end
     resources :teachers

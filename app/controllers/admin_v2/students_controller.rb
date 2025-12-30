@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
 module AdminV2
+  # rubocop:disable Metrics/ClassLength
   class StudentsController < BaseController
     include SoftDeletableFiltering
 
-    before_action :set_student, only: %i[show edit update destroy]
+    before_action :set_student, only: %i[show edit update destroy add_transaction]
     before_action :set_discarded_student, only: %i[restore]
 
     def index
@@ -88,6 +89,28 @@ module AdminV2
       redirect_to admin_v2_students_path(discarded: true), notice: t(".notice", username: username)
     end
 
+    def add_transaction
+      errors = validate_transaction_params
+
+      if errors.present?
+        redirect_to edit_admin_v2_student_path(@student), alert: errors.join(", ")
+      else
+        transaction = PortfolioTransaction.new(
+          portfolio: @student.portfolio,
+          amount_cents: transaction_amount_cents,
+          transaction_type: transaction_type,
+          reason: transaction_reason,
+          description: transaction_description
+        )
+
+        if transaction.save
+          redirect_to admin_v2_student_path(@student), notice: t(".notice")
+        else
+          redirect_to edit_admin_v2_student_path(@student), alert: transaction.errors.full_messages.join(", ")
+        end
+      end
+    end
+
     private
 
     def set_discarded_student
@@ -101,5 +124,35 @@ module AdminV2
     def student_params
       params.expect(student: %i[username classroom_id password password_confirmation])
     end
+
+    def transaction_params
+      params.expect(student: %i[add_fund_amount transaction_type transaction_reason transaction_description])
+    end
+
+    def transaction_amount_cents
+      amount = transaction_params[:add_fund_amount]
+      amount.present? ? (amount.to_f * 100).to_i : nil
+    end
+
+    def transaction_type
+      transaction_params[:transaction_type]
+    end
+
+    def transaction_reason
+      transaction_params[:transaction_reason]
+    end
+
+    def transaction_description
+      transaction_params[:transaction_description]
+    end
+
+    def validate_transaction_params
+      errors = []
+      errors << t("admin_v2.students.add_transaction.errors.transaction_type_blank") if transaction_type.blank?
+      errors << t("admin_v2.students.add_transaction.errors.amount_blank") if transaction_amount_cents.blank?
+      errors << t("admin_v2.students.add_transaction.errors.reason_blank") if transaction_reason.blank?
+      errors
+    end
   end
+  # rubocop:enable Metrics/ClassLength
 end
