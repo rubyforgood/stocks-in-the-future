@@ -16,7 +16,7 @@
 
       <%= f.select :year_id,
                    options_from_collection_for_select(
-                     Year.order(Arel.sql("CAST(name AS INTEGER) DESC")),
+                     Year.ordered_by_start_year,
                      :id,
                      :name,
                      @school_year.year_id

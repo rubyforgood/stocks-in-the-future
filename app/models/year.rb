@@ -7,6 +7,8 @@ class Year < ApplicationRecord
 
   validates :name, presence: true, uniqueness: true
 
+  scope :ordered_by_start_year, -> { order(Arel.sql("CAST(SUBSTRING(name FROM 1 FOR 4) AS INTEGER) DESC")) }
+
   def previous_year
     @previous_year || Year.find_by(name: "#{start_year_value - 1} - #{start_year_value}")
   end
