@@ -37,8 +37,8 @@ class ClassroomEnrollmentTest < ActiveSupport::TestCase
 
   test "unenrolled_at must be after enrolled_at" do
     enrollment = build(:classroom_enrollment,
-                      enrolled_at: 1.day.ago,
-                      unenrolled_at: 2.days.ago)
+                       enrolled_at: 1.day.ago,
+                       unenrolled_at: 2.days.ago)
     assert_not enrollment.valid?
     assert_includes enrollment.errors[:unenrolled_at], "must be after enrolled_at"
   end
@@ -46,8 +46,8 @@ class ClassroomEnrollmentTest < ActiveSupport::TestCase
   test "unenrolled_at can be equal to enrolled_at" do
     time = Time.current
     enrollment = build(:classroom_enrollment,
-                      enrolled_at: time,
-                      unenrolled_at: time)
+                       enrolled_at: time,
+                       unenrolled_at: time)
     assert enrollment.valid?
   end
 

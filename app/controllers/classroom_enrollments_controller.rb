@@ -54,6 +54,6 @@ class ClassroomEnrollmentsController < ApplicationController
   end
 
   def enrollment_params
-    params.require(:classroom_enrollment).permit(:student_id, :primary)
+    params.expect(classroom_enrollment: %i[student_id primary])
   end
 end

@@ -19,8 +19,6 @@ class ClassroomEnrollment < ApplicationRecord
   belongs_to :student, class_name: "Student"
   belongs_to :classroom
 
-  validates :student_id, presence: true
-  validates :classroom_id, presence: true
   validates :enrolled_at, presence: true
   validate :unenrolled_at_after_enrolled_at
   validate :only_one_primary_per_student, if: :primary?
@@ -38,8 +36,8 @@ class ClassroomEnrollment < ApplicationRecord
   def make_primary!
     transaction do
       ClassroomEnrollment.where(student: student, primary: true)
-                        .where.not(id: id)
-                        .update_all(primary: false)
+                         .where.not(id: id)
+                         .find_each { |enrollment| enrollment.update!(primary: false) }
       update!(primary: true)
     end
     self
@@ -78,7 +76,7 @@ class ClassroomEnrollment < ApplicationRecord
   end
 
   def only_one_primary_per_student
-    return unless student_id.present?
+    return if student_id.blank?
 
     existing = ClassroomEnrollment.where(student_id: student_id, primary: true)
                                   .where.not(id: id)
