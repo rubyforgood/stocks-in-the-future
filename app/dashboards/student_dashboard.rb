@@ -12,6 +12,7 @@ class StudentDashboard < Administrate::BaseDashboard
   ATTRIBUTE_TYPES = {
     id: Field::Number,
     classroom: Field::BelongsTo,
+    classroom_enrollments: Field::HasMany,
     email: Field::String,
     password: Field::Password,
     portfolio: Field::HasOne,
@@ -37,6 +38,7 @@ class StudentDashboard < Administrate::BaseDashboard
   SHOW_PAGE_ATTRIBUTES = %i[
     id
     classroom
+    classroom_enrollments
     email
     portfolio
     username

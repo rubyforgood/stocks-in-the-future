@@ -13,11 +13,8 @@ class ClassroomsController < ApplicationController
   end
 
   def show
-    @students = @classroom.users.students.kept.includes(
-      :portfolio,
-      :orders,
-      portfolio: :portfolio_transactions
-    )
+    facade = ClassroomFacade.new(@classroom)
+    @students = facade.students
     @can_manage_students = current_user.teacher_or_admin?
     @classroom_stats = calculate_classroom_stats if @can_manage_students
   end
