@@ -5,7 +5,7 @@ module AdminV2
     before_action :set_teacher, only: %i[show edit update destroy]
 
     def index
-      @teachers = apply_sorting(Teacher.all, default: "username")
+      @teachers = apply_sorting(Teacher.kept, default: "username")
 
       @breadcrumbs = [
         { label: "Teachers" }
@@ -73,8 +73,9 @@ module AdminV2
     end
 
     def destroy
+      username = @teacher.username
       @teacher.discard
-      redirect_to admin_v2_teachers_path, notice: t(".notice")
+      redirect_to admin_v2_teachers_path, notice: t(".notice", username: username)
     end
 
     private
