@@ -98,7 +98,11 @@ Rails.application.routes.draw do
         post :add_transaction
       end
     end
-    resources :teachers
+    resources :teachers do
+      member do
+        patch :reactivate
+      end
+    end
     resources :users
     resources :years
     resources :portfolio_transactions, except: [:index]

@@ -29,6 +29,9 @@
             <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
               <%= sort_link(:created_at, "Created At") %>
             </th>
+            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+              Status
+            </th>
             <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
               <span class="sr-only">Actions</span>
             </th>
@@ -53,20 +56,33 @@
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">
                   <%= teacher.created_at.strftime("%B %d, %Y") %>
                 </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm">
+                  <% if teacher.discarded? %>
+                    <span class="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10">Deactivated</span>
+                  <% else %>
+                    <span class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">Active</span>
+                  <% end %>
+                </td>
                 <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                   <div class="flex justify-end gap-2">
                     <%= link_to "View", admin_v2_teacher_path(teacher), class: "text-blue-600 hover:text-blue-800" %>
                     <%= link_to "Edit", edit_admin_v2_teacher_path(teacher), class: "text-gray-600 hover:text-gray-800" %>
-                    <%= link_to "Delete", admin_v2_teacher_path(teacher),
-                                data: { turbo_method: :delete, turbo_confirm: "Are you sure?" },
-                                class: "text-red-600 hover:text-red-800" %>
+                    <% if teacher.discarded? %>
+                      <%= link_to "Reactivate", reactivate_admin_v2_teacher_path(teacher),
+                                  data: { turbo_method: :patch, turbo_confirm: "Are you sure you want to reactivate this teacher?" },
+                                  class: "text-green-600 hover:text-green-800" %>
+                    <% else %>
+                      <%= link_to "Deactivate", admin_v2_teacher_path(teacher),
+                                  data: { turbo_method: :delete, turbo_confirm: "Are you sure you want to deactivate this teacher?" },
+                                  class: "text-red-600 hover:text-red-800" %>
+                    <% end %>
                   </div>
                 </td>
               </tr>
             <% end %>
           <% else %>
             <tr>
-              <td colspan="6" class="px-3 py-12 text-center text-sm text-gray-500">
+              <td colspan="7" class="px-3 py-12 text-center text-sm text-gray-500">
                 <div class="flex flex-col items-center">
                   <i class="fas fa-inbox text-4xl text-gray-300 mb-3"></i>
                   <p class="font-medium">No records found</p>

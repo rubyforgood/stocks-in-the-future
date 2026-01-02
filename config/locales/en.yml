@@ -94,7 +94,9 @@ en:
       create:
         notice: Teacher created successfully. Password reset email has been sent.
       destroy:
-        notice: Teacher %{username} deleted successfully.
+        notice: Teacher %{username} deactivated successfully.
+      reactivate:
+        notice: Teacher %{username} reactivated successfully.
       update:
         notice: Teacher updated successfully.
     users:
