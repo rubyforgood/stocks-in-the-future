@@ -103,7 +103,9 @@ class ClassroomsController < ApplicationController
     {
       total_students: students.count,
       active_students: students.joins(:orders).distinct.count,
-      total_portfolio_value: students.joins(:portfolio).sum("portfolios.current_position"),
+      total_portfolio_value: students.includes(:portfolio).sum { |student|
+        student.portfolio&.calculate_total_value || 0
+      },
       recent_orders_count: Order.joins(:user).where(users: { classroom: @classroom }).where("orders.created_at > ?",
                                                                                             1.week.ago).count
     }

@@ -37,6 +37,10 @@ class Portfolio < ApplicationRecord
     calculate_total_value_cents / 100.0
   end
 
+  def total_portfolio_worth
+    calculate_total_value
+  end
+
   def holdings_value
     holdings_value_cents / 100.0
   end
