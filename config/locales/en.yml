@@ -41,6 +41,13 @@ en:
         notice: Grade deleted successfully.
       update:
         notice: Grade updated successfully.
+    portfolio_transactions:
+      create:
+        notice: Portfolio transaction created successfully.
+      destroy:
+        notice: Portfolio transaction deleted successfully.
+      update:
+        notice: Portfolio transaction updated successfully.
     school_years:
       create:
         notice: School year created successfully.
