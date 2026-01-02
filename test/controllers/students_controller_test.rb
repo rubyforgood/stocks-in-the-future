@@ -64,7 +64,7 @@ class StudentsControllerTest < ActionDispatch::IntegrationTest
 
     student = Student.last
     assert_not_nil student.portfolio
-    assert_equal 0, student.portfolio.current_position
+    assert_equal 0, student.portfolio.calculate_total_value
   end
 
   test "student creation generates memorable password" do
