@@ -89,7 +89,11 @@ Rails.application.routes.draw do
     resources :school_years
     resources :stocks
     resources :students
-    resources :teachers
+    resources :teachers do
+      member do
+        patch :reactivate
+      end
+    end
     resources :users
     resources :years
     resources :portfolio_transactions, except: [:index]
