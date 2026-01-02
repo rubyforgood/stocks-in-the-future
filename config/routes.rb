@@ -100,6 +100,7 @@ Rails.application.routes.draw do
     end
     resources :teachers do
       member do
+        delete :deactivate
         patch :reactivate
       end
     end

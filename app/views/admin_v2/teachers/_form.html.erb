@@ -36,8 +36,16 @@
     </div>
   </div>
 
-  <div class="flex items-center justify-end gap-x-4">
-    <%= f.cancel_button "Cancel", url: @teacher.persisted? ? admin_v2_teacher_path(@teacher) : admin_v2_teachers_path %>
-    <%= f.submit_button @teacher.persisted? ? "Update Teacher" : "Create Teacher" %>
+  <div class="flex items-center justify-between gap-x-4">
+    <div class="flex items-center gap-x-4">
+      <%= f.cancel_button "Cancel", url: @teacher.persisted? ? admin_v2_teacher_path(@teacher) : admin_v2_teachers_path %>
+      <%= f.submit_button @teacher.persisted? ? "Update Teacher" : "Create Teacher" %>
+    </div>
+    <% if local_assigns[:show_delete] %>
+      <%= link_to "Permanently Delete",
+                  admin_v2_teacher_path(@teacher),
+                  data: { turbo_method: :delete, turbo_confirm: "Are you sure you want to permanently delete this teacher? This action cannot be undone." },
+                  class: "inline-flex items-center px-4 py-2 border border-red-300 shadow-sm text-sm font-medium rounded-md text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500" %>
+    <% end %>
   </div>
 <% end %>
