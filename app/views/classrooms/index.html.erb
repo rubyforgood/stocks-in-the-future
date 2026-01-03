@@ -67,7 +67,7 @@
               </td>
               <td class="table-body-cell table-body-cell-right">
                 <span class="table-cell-content">
-                  $<%= number_with_precision(classroom.students.sum { |s| s.portfolio&.current_position || 0 }, precision: 2) %>
+                  $<%= number_with_precision(classroom.students.sum { |s| s.portfolio&.calculate_total_value || 0 }, precision: 2) %>
                 </span>
               </td>
               <td class="table-body-cell table-body-cell-center">

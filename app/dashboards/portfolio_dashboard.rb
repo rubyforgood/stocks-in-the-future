@@ -12,7 +12,7 @@ class PortfolioDashboard < Administrate::BaseDashboard
   ATTRIBUTE_TYPES = {
     id: Field::Number,
     cash_balance: Field::Number.with_options(decimals: 2),
-    current_position: Field::Number.with_options(decimals: 2),
+    total_portfolio_worth: Field::Number.with_options(decimals: 2),
     portfolio_stocks: Field::HasMany,
     portfolio_transactions: Field::HasMany,
     user: Field::BelongsTo,
@@ -28,7 +28,7 @@ class PortfolioDashboard < Administrate::BaseDashboard
   COLLECTION_ATTRIBUTES = %i[
     id
     cash_balance
-    current_position
+    total_portfolio_worth
     portfolio_stocks
   ].freeze
 
@@ -37,7 +37,7 @@ class PortfolioDashboard < Administrate::BaseDashboard
   SHOW_PAGE_ATTRIBUTES = %i[
     id
     cash_balance
-    current_position
+    total_portfolio_worth
     portfolio_stocks
     portfolio_transactions
   ].freeze
@@ -46,7 +46,6 @@ class PortfolioDashboard < Administrate::BaseDashboard
   # an array of attributes that will be displayed
   # on the model's form (`new` and `edit`) pages.
   FORM_ATTRIBUTES = %i[
-    current_position
     portfolio_stocks
     portfolio_transactions
   ].freeze
