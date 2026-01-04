@@ -22,6 +22,9 @@ module StocksInTheFuture
     config.autoload_lib(ignore: %w[assets tasks])
 
     config.active_job.queue_adapter = :solid_queue
+    
+    # Configure solid_queue to load recurring tasks from YAML file
+    config.solid_queue.recurring_tasks_file = Rails.root.join("config/recurring.yml")
 
     # Add form_builders, presenters, and facades to autoload paths
     config.autoload_paths << Rails.root.join("app/form_builders")
