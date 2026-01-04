@@ -22,7 +22,7 @@ module StocksInTheFuture
     config.autoload_lib(ignore: %w[assets tasks])
 
     config.active_job.queue_adapter = :solid_queue
-    
+
     # Configure solid_queue to load recurring tasks from YAML file
     config.solid_queue.recurring_tasks_file = Rails.root.join("config/recurring.yml")
 
