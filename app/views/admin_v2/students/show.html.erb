@@ -66,10 +66,10 @@
             </div>
           </div>
 
-          <!-- Recent Transactions -->
-          <% recent_transactions = @student.portfolio.portfolio_transactions.order(created_at: :desc).limit(5) %>
-          <% if recent_transactions.any? %>
-            <h4 class="text-sm font-medium text-gray-700 mb-3">Recent Transactions (Last 5)</h4>
+          <!-- Transactions -->
+          <% transactions = @student.portfolio.portfolio_transactions.order(created_at: :desc) %>
+          <% if transactions.any? %>
+            <h4 class="text-sm font-medium text-gray-700 mb-3">All Transactions (<%= transactions.count %>)</h4>
             <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 rounded-lg mb-4">
               <table class="min-w-full divide-y divide-gray-300">
                 <thead class="bg-gray-50">
@@ -81,7 +81,7 @@
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200 bg-white">
-                  <% recent_transactions.each do |transaction| %>
+                  <% transactions.each do |transaction| %>
                     <tr>
                       <td class="whitespace-nowrap px-3 py-2 text-sm text-gray-900">
                         <%= transaction.created_at.strftime("%m/%d/%Y") %>
