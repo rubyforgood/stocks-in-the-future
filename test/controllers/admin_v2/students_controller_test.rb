@@ -50,11 +50,13 @@ module AdminV2
       assert_select "h2", @student1.username
     end
 
-    test "should show student portfolio link" do
+    test "should show student portfolio details inline" do
       get admin_v2_student_path(@student1)
 
       assert_response :success
-      assert_select "a[href=?]", user_portfolio_path(@student1, @student1.portfolio), text: "View Portfolio"
+      assert_select "h3", text: "Portfolio Details"
+      assert_select "div.text-blue-600", text: "Cash Balance"
+      assert_select "div.text-green-600", text: "Current Position"
     end
 
     # New tests
@@ -216,6 +218,78 @@ module AdminV2
       assert_response :success
       # Should have edit links for active students (2) but not for discarded student3
       assert_select "a[href*='edit']", count: 2
+    end
+
+    # Add transaction tests
+    test "should add transaction to student portfolio" do
+      initial_balance = @student1.portfolio.cash_balance
+
+      post add_transaction_admin_v2_student_path(@student1), params: {
+        student: {
+          transaction_type: "deposit",
+          add_fund_amount: "100.50",
+          transaction_reason: "dividend",
+          transaction_description: "Test deposit"
+        }
+      }
+
+      assert_redirected_to admin_v2_student_path(@student1)
+      assert_equal "Transaction added successfully.", flash[:notice]
+      assert_equal initial_balance + 10_050, @student1.portfolio.reload.cash_balance
+    end
+
+    test "should not add transaction without transaction type" do
+      post add_transaction_admin_v2_student_path(@student1), params: {
+        student: {
+          add_fund_amount: "100.00",
+          transaction_reason: "dividend"
+        }
+      }
+
+      assert_redirected_to edit_admin_v2_student_path(@student1)
+      assert_match(/Transaction Type must be present/, flash[:alert])
+    end
+
+    test "should not add transaction without amount" do
+      post add_transaction_admin_v2_student_path(@student1), params: {
+        student: {
+          transaction_type: "deposit",
+          transaction_reason: "dividend"
+        }
+      }
+
+      assert_redirected_to edit_admin_v2_student_path(@student1)
+      assert_match(/Amount must be present/, flash[:alert])
+    end
+
+    test "should not add transaction without reason" do
+      post add_transaction_admin_v2_student_path(@student1), params: {
+        student: {
+          transaction_type: "deposit",
+          add_fund_amount: "100.00"
+        }
+      }
+
+      assert_redirected_to edit_admin_v2_student_path(@student1)
+      assert_match(/Reason must be present/, flash[:alert])
+    end
+
+    test "should create debit transaction" do
+      @student1.portfolio.cash_balance
+
+      post add_transaction_admin_v2_student_path(@student1), params: {
+        student: {
+          transaction_type: "debit",
+          add_fund_amount: "50.25",
+          transaction_reason: "transfer_out",
+          transaction_description: "Test debit"
+        }
+      }
+
+      assert_redirected_to admin_v2_student_path(@student1)
+      transaction = @student1.portfolio.portfolio_transactions.last
+      assert_equal "debit", transaction.transaction_type
+      assert_equal 5_025, transaction.amount_cents
     end
 
     # Authorization tests

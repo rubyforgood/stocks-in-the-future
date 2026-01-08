@@ -43,3 +43,49 @@
     <%= f.submit_button @student.persisted? ? "Update Student" : "Create Student" %>
   </div>
 <% end %>
+
+<% if @student.persisted? %>
+  <%= form_with url: add_transaction_admin_v2_student_path(@student), method: :post, builder: AdminV2::FormBuilder, class: "space-y-6 mt-6" do |f| %>
+    <div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg">
+      <div class="px-6 py-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-6">Add Portfolio Transaction</h3>
+
+        <!-- Current Cash Balance (Read-only) -->
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Current Cash Balance</label>
+          <div class="text-lg font-semibold text-gray-900">
+            <%= number_to_currency(@student.portfolio&.cash_balance || 0) %>
+          </div>
+        </div>
+
+        <%= f.select :transaction_type,
+                     [["", ""], ["Deposit", "deposit"], ["Debit", "debit"]],
+                     label: "Transaction Type",
+                     hint: "Select deposit to add funds or debit to remove funds",
+                     include_blank: false %>
+
+        <%= f.number_field :add_fund_amount,
+                           label: "Amount",
+                           hint: "Transaction amount in dollars",
+                           placeholder: "0.00",
+                           step: "0.01" %>
+
+        <%= f.select :transaction_reason,
+                     PortfolioTransaction.reasons.keys.map { |key| [PortfolioTransaction.human_attribute_name("reason.#{key}"), key] },
+                     label: "Reason",
+                     hint: "Reason for this transaction",
+                     include_blank: "Select a reason" %>
+
+        <%= f.text_area :transaction_description,
+                        label: "Description (Optional)",
+                        hint: "Additional details about this transaction",
+                        placeholder: "Enter transaction details...",
+                        rows: 3 %>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-end gap-x-4">
+      <%= f.submit_button "Add Transaction" %>
+    </div>
+  <% end %>
+<% end %>
