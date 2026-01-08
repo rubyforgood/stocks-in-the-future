@@ -89,6 +89,10 @@ Rails.application.routes.draw do
     resources :school_years
     resources :stocks
     resources :students do
+      collection do
+        post :import
+        get :template
+      end
       member do
         patch :restore
         post :add_transaction
