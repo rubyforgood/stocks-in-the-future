@@ -75,7 +75,9 @@ en:
       create:
         notice: 'Student %{username} created successfully. Password: %{password}'
       destroy:
-        notice: Student %{username} deleted successfully.
+        notice: Student %{username} discarded successfully.
+      restore:
+        notice: Student %{username} restored successfully.
       update:
         notice: Student updated successfully.
     teachers:
