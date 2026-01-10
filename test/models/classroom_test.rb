@@ -102,4 +102,24 @@ class ClassroomTest < ActiveSupport::TestCase
     assert_not_includes classroom.students, discarded_student
     assert_equal [kept_student.id], classroom.students.pluck(:id)
   end
+
+  test "creates gradebooks for all quarters when classroom is created" do
+    # Create a school year with quarters
+    school_year = create(:school_year)
+    quarter1 = create(:quarter, school_year: school_year, number: 1)
+    quarter2 = create(:quarter, school_year: school_year, number: 2)
+    quarter3 = create(:quarter, school_year: school_year, number: 3)
+    quarter4 = create(:quarter, school_year: school_year, number: 4)
+
+    # Creating a classroom should create gradebooks for all quarters
+    assert_difference("GradeBook.count", 4) do
+      classroom = create(:classroom, school_year: school_year)
+
+      # Verify gradebooks were created for each quarter
+      assert GradeBook.exists?(classroom: classroom, quarter: quarter1)
+      assert GradeBook.exists?(classroom: classroom, quarter: quarter2)
+      assert GradeBook.exists?(classroom: classroom, quarter: quarter3)
+      assert GradeBook.exists?(classroom: classroom, quarter: quarter4)
+    end
+  end
 end
