@@ -114,7 +114,7 @@ class ClassroomTest < ActiveSupport::TestCase
     # Creating a classroom should create gradebooks for all quarters
     assert_difference("GradeBook.count", 4) do
       classroom = create(:classroom, school_year: school_year)
-      
+
       # Verify gradebooks were created for each quarter
       assert GradeBook.exists?(classroom: classroom, quarter: quarter1)
       assert GradeBook.exists?(classroom: classroom, quarter: quarter2)
