@@ -4,7 +4,7 @@ source "https://rubygems.org"
 
 ruby "3.4.4"
 
-gem "rails", "~> 8.1.1"
+gem "rails", "~> 8.0.0"
 
 gem "administrate", "1.0.0.beta3"
 gem "bootsnap", require: false
@@ -27,6 +27,7 @@ gem "stimulus-rails"
 gem "strong_migrations", "~> 2.5"
 gem "tailwindcss-rails"
 gem "turbo-rails"
+gem "action_text-trix", "~> 2.1.16"
 
 gem "discard", "~> 1.4"
 gem "tzinfo-data", platforms: %i[windows jruby]
