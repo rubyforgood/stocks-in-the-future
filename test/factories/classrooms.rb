@@ -6,6 +6,11 @@ FactoryBot.define do
     trading_enabled { false }
     association :school_year
 
+    # Default: create one grade (required by validation)
+    after(:create) do |classroom|
+      create(:classroom_grade, classroom: classroom)
+    end
+
     trait :with_trading do
       trading_enabled { true }
     end
