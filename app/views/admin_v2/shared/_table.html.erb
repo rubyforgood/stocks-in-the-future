@@ -35,7 +35,10 @@
       <tbody class="divide-y divide-gray-200 bg-white">
         <% if collection.any? %>
           <% collection.each do |record| %>
-            <tr id="<%= dom_id(record) %>" class="hover:bg-gray-50 transition-colors">
+            <tr id="<%= dom_id(record) %>" class="hover:bg-gray-50 transition-colors cursor-pointer"
+                data-controller="clickable-row"
+                data-clickable-row-url-value="<%= url_for([:admin_v2, route_model(record)]) %>"
+                data-action="click->clickable-row#navigate">
               <% columns.each do |column| %>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900" data-testid="<%= column[:attribute] %>">
                   <% if column[:link] %>
