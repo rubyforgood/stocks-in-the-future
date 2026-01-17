@@ -6,11 +6,14 @@ FactoryBot.define do
     trading_enabled { false }
     association :school_year
 
+    after(:build) do |classroom|
+      classroom.grades << build(:grade) if classroom.grades.empty?
+    end
+
     trait :with_trading do
       trading_enabled { true }
     end
 
-    # Default: one random grade (single-grade behavior)
     trait :with_grade do
       after(:create) do |classroom|
         create(:classroom_grade, classroom: classroom)

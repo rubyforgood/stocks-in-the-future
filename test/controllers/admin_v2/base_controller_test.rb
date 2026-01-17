@@ -33,13 +33,6 @@ module Admin
 
     # Test apply_sorting helper method
     class ApplySortingTest < ActionDispatch::IntegrationTest
-      class TestController < BaseController
-        def test_action
-          @result = apply_sorting(Grade.all, default: "level")
-          render plain: "ok"
-        end
-      end
-
       setup do
         @admin = create(:admin, admin: true)
         sign_in(@admin)
