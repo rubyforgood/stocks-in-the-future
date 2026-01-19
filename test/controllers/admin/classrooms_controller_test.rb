@@ -22,11 +22,12 @@ module Admin
 
     test "should create classroom" do
       school_year = create(:school_year)
+      grade = create(:grade, level: 9)
       assert_difference("Classroom.count") do
         post admin_classrooms_url, params: {
           classroom: {
             name: "New Classroom",
-            grade: 9,
+            grade_ids: [grade.id],
             school_year_id: school_year.id
           }
         }

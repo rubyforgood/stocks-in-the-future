@@ -476,7 +476,6 @@ DEPENDENCIES
   importmap-rails
   jbuilder
   lucide-rails
-  minitest (~> 6.0, >= 6.0.1)
   mocha
   pg (~> 1.6)
   propshaft

@@ -4,6 +4,7 @@ FactoryBot.define do
   factory :portfolio_transaction do
     portfolio
     amount_cents { 1_000 }
+    transaction_type { :credit }
   end
 
   trait :debit do

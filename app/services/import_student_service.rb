@@ -47,6 +47,9 @@ class ImportStudentService
     else
       error_result(student)
     end
+  rescue ActiveRecord::InvalidForeignKey
+    student.errors.add(:classroom, "can't be blank")
+    error_result(student)
   end
 
   def success_result(student)

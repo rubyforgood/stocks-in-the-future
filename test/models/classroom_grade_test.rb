@@ -35,7 +35,7 @@ class ClassroomGradeTest < ActiveSupport::TestCase
     classroom = create(:classroom)
     create(:classroom_grade, classroom: classroom)
 
-    assert_difference "ClassroomGrade.count", -1 do
+    assert_difference "ClassroomGrade.count", -2 do
       classroom.destroy
     end
   end

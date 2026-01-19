@@ -298,7 +298,7 @@ class OrderTest < ActiveSupport::TestCase
     order.shares = 6
 
     assert_not order.valid?
-    assert_includes order.errors[:shares], "Cannot sell more shares than you own (5 available)"
+    assert_includes order.errors[:base], "Cannot sell more shares than you own (5 available)"
   end
 
   test "validations handle invalid shares safely without exceptions" do

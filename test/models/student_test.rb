@@ -49,7 +49,7 @@ class StudentTest < ActiveSupport::TestCase
   end
 
   test "current_enrollments returns only enrollments with nil unenrolled_at" do
-    student = create(:student)
+    student = create(:student, :without_enrollment)
     classroom1 = create(:classroom)
     classroom2 = create(:classroom)
 
@@ -60,6 +60,7 @@ class StudentTest < ActiveSupport::TestCase
     historical = create(:classroom_enrollment,
                         student: student,
                         classroom: classroom2,
+                        enrolled_at: 2.days.ago,
                         unenrolled_at: 1.day.ago)
 
     assert_includes student.current_enrollments, current
@@ -67,7 +68,7 @@ class StudentTest < ActiveSupport::TestCase
   end
 
   test "current_classrooms returns classrooms with active enrollments" do
-    student = create(:student)
+    student = create(:student, :without_enrollment)
     classroom1 = create(:classroom)
     classroom2 = create(:classroom)
     classroom3 = create(:classroom)
@@ -83,6 +84,7 @@ class StudentTest < ActiveSupport::TestCase
     create(:classroom_enrollment,
            student: student,
            classroom: classroom3,
+           enrolled_at: 2.days.ago,
            unenrolled_at: 1.day.ago)
 
     assert_includes student.current_classrooms, classroom1
@@ -91,7 +93,7 @@ class StudentTest < ActiveSupport::TestCase
   end
 
   test "primary_enrollment returns the primary enrollment" do
-    student = create(:student)
+    student = create(:student, :without_enrollment)
     classroom1 = create(:classroom)
     classroom2 = create(:classroom)
 
@@ -108,7 +110,7 @@ class StudentTest < ActiveSupport::TestCase
   end
 
   test "primary_classroom returns primary enrollment classroom" do
-    student = create(:student)
+    student = create(:student, :without_enrollment)
     classroom = create(:classroom)
 
     create(:classroom_enrollment,
@@ -156,7 +158,7 @@ class StudentTest < ActiveSupport::TestCase
   end
 
   test "enroll_in! sets primary flag when requested" do
-    student = create(:student)
+    student = create(:student, :without_enrollment)
     classroom = create(:classroom)
 
     enrollment = student.enroll_in!(classroom, primary: true)
@@ -165,7 +167,7 @@ class StudentTest < ActiveSupport::TestCase
   end
 
   test "enroll_in! demotes other primary enrollments when creating new primary" do
-    student = create(:student)
+    student = create(:student, :without_enrollment)
     classroom1 = create(:classroom)
     classroom2 = create(:classroom)
 
@@ -202,11 +204,12 @@ class StudentTest < ActiveSupport::TestCase
   end
 
   test "unenroll_from! sets unenrolled_at to current time by default" do
-    student = create(:student)
+    student = create(:student, :without_enrollment)
     classroom = create(:classroom)
     enrollment = create(:classroom_enrollment,
                         student: student,
-                        classroom: classroom)
+                        classroom: classroom,
+                        enrolled_at: 1.hour.ago)
 
     freeze_time do
       student.unenroll_from!(classroom)
@@ -215,11 +218,12 @@ class StudentTest < ActiveSupport::TestCase
   end
 
   test "unenroll_from! accepts custom unenrollment time" do
-    student = create(:student)
+    student = create(:student, :without_enrollment)
     classroom = create(:classroom)
     enrollment = create(:classroom_enrollment,
                         student: student,
-                        classroom: classroom)
+                        classroom: classroom,
+                        enrolled_at: 2.weeks.ago)
     custom_time = 1.week.ago
 
     student.unenroll_from!(classroom, unenrolled_at: custom_time)
