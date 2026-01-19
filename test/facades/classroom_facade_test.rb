@@ -54,8 +54,8 @@ class ClassroomFacadeTest < ActiveSupport::TestCase
 
   test "students only returns current enrollments, not historical" do
     classroom = create(:classroom)
-    current_student = create(:student)
-    historical_student = create(:student)
+    current_student = create(:student, :without_enrollment)
+    historical_student = create(:student, :without_enrollment)
 
     create(:classroom_enrollment,
            student: current_student,
@@ -64,6 +64,7 @@ class ClassroomFacadeTest < ActiveSupport::TestCase
     create(:classroom_enrollment,
            student: historical_student,
            classroom: classroom,
+           enrolled_at: 2.weeks.ago,
            unenrolled_at: 1.week.ago)
 
     facade = ClassroomFacade.new(classroom)
@@ -87,11 +88,11 @@ class ClassroomFacadeTest < ActiveSupport::TestCase
   end
 
   test "students includes necessary associations for performance" do
-    classroom = create(:classroom)
+    classroom = create(:classroom, :with_trading)
     student = create(:student, classroom: classroom)
     portfolio = create(:portfolio, user: student)
-    create(:order, user: student)
-    create(:portfolio_transaction, portfolio: portfolio)
+    create(:portfolio_transaction, :credit, portfolio: portfolio, amount_cents: 15_000)
+    create(:order, user: student, action: :buy)
 
     facade = ClassroomFacade.new(classroom)
 

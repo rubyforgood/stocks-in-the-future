@@ -21,6 +21,10 @@ FactoryBot.define do
         create(:portfolio, user: student)
       end
     end
+
+    trait :without_enrollment do
+      classroom { nil }
+    end
   end
 
   factory :teacher, class: "Teacher" do

@@ -82,7 +82,7 @@ module AdminV2
     end
 
     def classroom_params
-      params.expect(classroom: %i[name grade trading_enabled school_year_id])
+      params.expect(classroom: [:name, :trading_enabled, :school_year_id, { grade_ids: [] }])
     end
   end
 end

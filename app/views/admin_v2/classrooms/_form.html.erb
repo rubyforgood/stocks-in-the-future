@@ -8,14 +8,13 @@
                        hint: "Enter the classroom name (e.g., Ms. Smith's 5th Grade)",
                        placeholder: "Ms. Smith's 5th Grade" %>
 
-      <%= f.select :grade,
-                   options_for_select(
-                     Classroom::GRADE_RANGE.map { |g| [g.ordinalize, g] },
-                     @classroom.grade
-                   ),
-                   label: "Grade",
-                   hint: "Select the grade level (5th - 12th)",
-                   include_blank: "Select a grade" %>
+      <%= f.collection_check_boxes :grade_ids, Grade.all, :id, :name,
+                                   label: "Grades",
+                                   hint: "Select the grade levels for this classroom" do |b|
+            content_tag :div, class: "flex items-center" do
+              b.check_box(class: "mr-2") + b.label(class: "text-sm")
+            end
+          end %>
 
       <%= f.select :school_year_id,
                    options_from_collection_for_select(
