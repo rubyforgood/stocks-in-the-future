@@ -21,10 +21,8 @@
         </div>
       </div>
 
-      <%= admin_show_attributes(
-            @classroom,
-            attributes: %i[id name grade archived trading_enabled school_year created_at updated_at]
-          ) %>
+      <%= admin_show_attributes(@classroom,
+                                attributes: %i[id name grades_display archived trading_enabled school_year created_at updated_at]) %>
 
       <!-- Associated Students -->
       <% if @classroom.students.any? %>
