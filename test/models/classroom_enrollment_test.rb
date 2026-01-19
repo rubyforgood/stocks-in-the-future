@@ -52,7 +52,7 @@ class ClassroomEnrollmentTest < ActiveSupport::TestCase
   end
 
   test "student can only have one primary enrollment" do
-    student = create(:student)
+    student = create(:student, :without_enrollment)
     classroom1 = create(:classroom)
     classroom2 = create(:classroom)
 
@@ -64,27 +64,28 @@ class ClassroomEnrollmentTest < ActiveSupport::TestCase
   end
 
   test "current scope returns enrollments with nil unenrolled_at" do
-    student = create(:student)
+    student = create(:student, :without_enrollment)
     current = create(:classroom_enrollment, student: student, unenrolled_at: nil)
-    historical = create(:classroom_enrollment, student: student, unenrolled_at: 1.day.ago)
+    historical = create(:classroom_enrollment, student: student, enrolled_at: 2.days.ago, unenrolled_at: 1.day.ago)
 
     assert_includes ClassroomEnrollment.current, current
     assert_not_includes ClassroomEnrollment.current, historical
   end
 
   test "historical scope returns enrollments with unenrolled_at set" do
-    student = create(:student)
+    student = create(:student, :without_enrollment)
     current = create(:classroom_enrollment, student: student, unenrolled_at: nil)
-    historical = create(:classroom_enrollment, student: student, unenrolled_at: 1.day.ago)
+    historical = create(:classroom_enrollment, student: student, enrolled_at: 2.days.ago, unenrolled_at: 1.day.ago)
 
     assert_includes ClassroomEnrollment.historical, historical
     assert_not_includes ClassroomEnrollment.historical, current
   end
 
   test "primary_enrollment scope returns only primary enrollments" do
-    student = create(:student)
-    primary = create(:classroom_enrollment, student: student, primary: true)
-    non_primary = create(:classroom_enrollment, student: student, primary: false)
+    student1 = create(:student, :without_enrollment)
+    student2 = create(:student, :without_enrollment)
+    primary = create(:classroom_enrollment, student: student1, primary: true)
+    non_primary = create(:classroom_enrollment, student: student2, primary: false)
 
     assert_includes ClassroomEnrollment.primary_enrollment, primary
     assert_not_includes ClassroomEnrollment.primary_enrollment, non_primary
@@ -100,9 +101,11 @@ class ClassroomEnrollmentTest < ActiveSupport::TestCase
   end
 
   test "make_primary! demotes other primary enrollments for same student" do
-    student = create(:student)
-    old_primary = create(:classroom_enrollment, student: student, primary: true)
-    new_enrollment = create(:classroom_enrollment, student: student, primary: false)
+    student = create(:student, :without_enrollment)
+    classroom1 = create(:classroom)
+    classroom2 = create(:classroom)
+    old_primary = create(:classroom_enrollment, student: student, classroom: classroom1, primary: true)
+    new_enrollment = create(:classroom_enrollment, student: student, classroom: classroom2, primary: false)
 
     new_enrollment.make_primary!
 
@@ -117,7 +120,9 @@ class ClassroomEnrollmentTest < ActiveSupport::TestCase
   end
 
   test "unenroll! sets unenrolled_at to current time by default" do
-    enrollment = create(:classroom_enrollment, unenrolled_at: nil, primary: true)
+    student = create(:student, :without_enrollment)
+    enrollment = create(:classroom_enrollment, student: student, enrolled_at: 1.hour.ago, unenrolled_at: nil,
+                                               primary: true)
 
     freeze_time do
       enrollment.unenroll!
@@ -126,7 +131,8 @@ class ClassroomEnrollmentTest < ActiveSupport::TestCase
   end
 
   test "unenroll! accepts custom unenrollment time" do
-    enrollment = create(:classroom_enrollment, unenrolled_at: nil)
+    student = create(:student, :without_enrollment)
+    enrollment = create(:classroom_enrollment, student: student, enrolled_at: 2.weeks.ago, unenrolled_at: nil)
     custom_time = 1.week.ago
 
     enrollment.unenroll!(at: custom_time)
@@ -135,7 +141,8 @@ class ClassroomEnrollmentTest < ActiveSupport::TestCase
   end
 
   test "unenroll! sets primary to false" do
-    enrollment = create(:classroom_enrollment, primary: true)
+    student = create(:student, :without_enrollment)
+    enrollment = create(:classroom_enrollment, student: student, primary: true)
 
     enrollment.unenroll!
 

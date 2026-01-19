@@ -52,7 +52,7 @@ class Student < User
     enrollment = classroom_enrollments.create!(
       classroom: classroom,
       enrolled_at: enrolled_at,
-      primary: primary
+      primary: false
     )
     enrollment.make_primary! if primary
     enrollment

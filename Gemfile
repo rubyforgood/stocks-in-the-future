@@ -50,7 +50,6 @@ end
 group :test do
   gem "capybara"
   gem "factory_bot_rails"
-  gem "minitest", "~> 6.0", ">= 6.0.1"
   gem "mocha"
   gem "selenium-webdriver"
   gem "simplecov", require: false

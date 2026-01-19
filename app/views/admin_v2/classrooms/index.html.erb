@@ -48,7 +48,7 @@
                   <%= classroom.name %>
                 </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">
-                  <%= classroom.grade %>
+                  <%= classroom.grades.pluck(:name).join(', ') %>
                 </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">
                   <%= "#{classroom.school_name} - #{classroom.year_name}" %>
