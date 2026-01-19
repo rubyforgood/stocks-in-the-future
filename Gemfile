@@ -27,7 +27,6 @@ gem "stimulus-rails"
 gem "strong_migrations", "~> 2.5"
 gem "tailwindcss-rails"
 gem "turbo-rails"
-gem "action_text-trix", "~> 2.1.16"
 
 gem "discard", "~> 1.4"
 gem "tzinfo-data", platforms: %i[windows jruby]
