@@ -11,10 +11,10 @@
       <%= f.collection_check_boxes :grade_ids, Grade.all, :id, :name,
                                    label: "Grades",
                                    hint: "Select the grade levels for this classroom" do |b|
-        content_tag :div, class: "flex items-center" do
-          b.check_box(class: "mr-2") + b.label(class: "text-sm")
-        end
-      end %>
+            content_tag :div, class: "flex items-center" do
+              b.check_box(class: "mr-2") + b.label(class: "text-sm")
+            end
+          end %>
 
       <%= f.select :school_year_id,
                    options_from_collection_for_select(
