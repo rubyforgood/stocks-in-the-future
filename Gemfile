@@ -4,7 +4,7 @@ source "https://rubygems.org"
 
 ruby "3.4.4"
 
-gem "rails", "~> 8.1.1"
+gem "rails", "~> 8.1.2"
 
 gem "administrate", "1.0.0.beta3"
 gem "bootsnap", require: false
@@ -50,6 +50,7 @@ end
 group :test do
   gem "capybara"
   gem "factory_bot_rails"
+  gem "minitest", "~> 6.0", ">= 6.0.1"
   gem "mocha"
   gem "selenium-webdriver"
   gem "simplecov", require: false
