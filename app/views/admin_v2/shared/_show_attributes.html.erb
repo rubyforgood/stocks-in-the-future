@@ -2,7 +2,7 @@
   <div class="px-4 py-5 sm:px-6">
     <dl class="divide-y divide-gray-200">
       <% attributes.each do |attribute| %>
-        <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
+        <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4" data-testid="<%= attribute %>">
           <dt class="text-sm font-medium text-gray-500">
             <%= attribute.to_s.humanize %>
           </dt>
