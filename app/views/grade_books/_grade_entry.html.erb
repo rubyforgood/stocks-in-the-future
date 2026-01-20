@@ -1,4 +1,4 @@
-<tr>
+<tr id="<%= dom_id(entry) %>">
   <%= fields_for "grade_entries[]", entry do |f| %>
     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
       <%= entry.username.presence || content_tag(:span, "No username set", class: "text-gray-400 italic") %>
