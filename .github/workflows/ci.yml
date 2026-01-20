@@ -46,6 +46,5 @@ jobs:
       - name: Run tests
         run: bin/rails test
 
-      # TODO: Re-enable system tests once fixed
-      # - name: Run systems tests
-      #   run: bin/rails test:system
+      - name: Run system tests
+        run: bin/rails test:system

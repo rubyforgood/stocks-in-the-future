@@ -2,7 +2,6 @@
 
 FactoryBot.define do
   factory :admin, class: "User" do
-    classroom { create(:classroom) }
     password { "Passw0rd" }
     sequence(:username) { |n| "admin_#{n}" }
     sequence(:email) { |n| "admin_#{n}@example.com" }

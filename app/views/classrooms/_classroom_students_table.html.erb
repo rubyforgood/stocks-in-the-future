@@ -24,8 +24,9 @@
       </thead>
       <tbody class="bg-white divide-y divide-gray-200">
         <% @students.each do |student| %>
-          <tr class="group hover:bg-gray-50 transition-colors duration-150">
-            <td class="px-6 py-4 whitespace-nowrap">
+          <tr class="group hover:bg-gray-50 transition-colors duration-150"
+              id="<%= dom_id(student) %>">
+            <td class="px-6 py-4 whitespace-nowrap" data-testid="student-username">
               <% if student.username.present? %>
                 <% if student.portfolio %>
                   <%= link_to student.username, user_portfolio_path(student, student.portfolio), class: "text-black underline hover:text-[var(--sitf-secondary-chart2)] font-medium" %>
@@ -45,18 +46,20 @@
               </td>
             <% end %>
             <% if @can_manage_students %>
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium" data-testid="student-actions">
                 <div class="flex items-center gap-2">
                   <%= link_to edit_classroom_student_path(@classroom, student),
                               class: "inline-flex items-center justify-center w-8 h-8 text-black hover:text-[var(--sitf-secondary-chart2)] hover:bg-blue-50 rounded-lg transition-all duration-150 group",
-                              title: "Edit student" do %>
+                              title: "Edit student",
+                              data: { testid: "edit-student" } do %>
                     <i class="fa fa-pencil fa-lg group-hover:scale-110 transition-transform duration-150"></i>
                   <% end %>
 
                   <%= link_to reset_password_classroom_student_path(@classroom, student),
                               data: {
                                 turbo_method: :patch,
-                                turbo_confirm: "Are you sure you want to reset #{student.username}'s password?"
+                                turbo_confirm: "Are you sure you want to reset #{student.username}'s password?",
+                                testid: "reset-password"
                               },
                               class: "inline-flex items-center justify-center w-8 h-8 text-amber-600 hover:text-amber-800 hover:bg-amber-50 rounded-lg transition-all duration-150 group",
                               title: "Reset password" do %>
@@ -66,7 +69,8 @@
                   <%= link_to classroom_student_path(@classroom, student),
                               data: {
                                 turbo_method: :delete,
-                                turbo_confirm: "Are you sure you want to delete #{student.username}?"
+                                turbo_confirm: "Are you sure you want to delete #{student.username}?",
+                                testid: "delete-student"
                               },
                               class: "inline-flex items-center justify-center w-8 h-8 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-all duration-150 group",
                               title: "Delete student" do %>

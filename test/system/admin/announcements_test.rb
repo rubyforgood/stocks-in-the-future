@@ -20,7 +20,7 @@ module Admin
       click_on "New announcement"
 
       fill_in "Title", with: "New Admin Announcement"
-      find("trix-editor").set("Admin created this announcement")
+      fill_in_rich_text_area with: "Admin created this announcement"
 
       assert_difference("Announcement.count", 1) do
         click_on "Create Announcement"
@@ -36,7 +36,7 @@ module Admin
       click_on "Edit"
 
       fill_in "Title", with: "Updated by Admin"
-      find("trix-editor").set("Updated content by admin")
+      fill_in_rich_text_area with: "Updated content by admin"
 
       assert_no_difference("Announcement.count") do
         click_on "Update Announcement"
