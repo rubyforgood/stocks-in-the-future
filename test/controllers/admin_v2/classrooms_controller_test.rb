@@ -5,160 +5,158 @@ require "test_helper"
 module Admin
   module V2
     class ClassroomsControllerTest < ActionDispatch::IntegrationTest
-      setup do
-        @admin = create(:admin, admin: true)
-        sign_in(@admin)
+      test "index" do
+        classroom1 = create(:classroom, name: "Bravo")
+        classroom2 = create(:classroom, name: "Charlie")
+        classroom3 = create(:classroom, name: "Alpha")
+        admin = create(:admin, admin: true, classroom: nil)
+        sign_in(admin)
 
-        school_year = create(:school_year)
-
-        @classroom1 = create(:classroom, name: "Math 101", school_year: school_year)
-        create(:classroom_grade, classroom: @classroom1, grade: create(:grade, level: 9))
-
-        @classroom2 = create(:classroom, name: "Science 202", school_year: school_year)
-        create(:classroom_grade, classroom: @classroom2, grade: create(:grade, level: 10))
-
-        @classroom3 = create(:classroom, name: "History 303", school_year: school_year, archived: true)
-        create(:classroom_grade, classroom: @classroom3, grade: create(:grade, level: 11))
-      end
-
-      # Index tests
-      test "should get index" do
-        skip "Admin V2 tests are broken - create separate ticket to fix"
         get admin_v2_classrooms_path
+        rows = css_select("tbody tr[id^='classroom_']")
+        ordered_row_ids = rows.pluck("id")
 
         assert_response :success
         assert_select "h3", "Classrooms"
+        assert_equal(
+          [dom_id(classroom3), dom_id(classroom1), dom_id(classroom2)],
+          ordered_row_ids
+        )
       end
 
-      test "index sorts by name by default" do
-        skip "Admin V2 tests are broken - create separate ticket to fix"
-        get admin_v2_classrooms_path
+      test "show" do
+        grade9 = create(:grade, level: 9)
+        grade10 = create(:grade, level: 10)
+        classroom = create(:classroom, grades: [grade9, grade10])
+        admin = create(:admin, admin: true, classroom: nil)
+        sign_in(admin)
+
+        get admin_v2_classroom_path(classroom)
 
         assert_response :success
-        # Check order in response (name ascending: H, M, S)
-        assert_select "tbody tr:nth-child(1)", text: /History 303/
-        assert_select "tbody tr:nth-child(2)", text: /Math 101/
-        assert_select "tbody tr:nth-child(3)", text: /Science 202/
+        assert_select "h2", classroom.name
+        assert_select "[data-testid='grades_display'] dd", text: "9th-10th"
       end
 
-      test "index sorts by grade when specified" do
-        skip "Admin V2 tests are broken - create separate ticket to fix"
-        get admin_v2_classrooms_path, params: { sort: "grade", direction: "asc" }
-
-        assert_response :success
-        # Check order in response (grade ascending: 9, 10, 11)
-        assert_select "tbody tr:nth-child(1)", text: /Math 101/
-        assert_select "tbody tr:nth-child(2)", text: /Science 202/
-        assert_select "tbody tr:nth-child(3)", text: /History 303/
-      end
-
-      # Show tests
-      test "should show classroom" do
-        skip "Admin V2 tests are broken - create separate ticket to fix"
-        # get admin_v2_classroom_path(@classroom1)
-
-        # assert_response :success
-        # assert_select "h2", @classroom1.name
-      end
-
-      # New tests
       test "should get new" do
-        skip "Admin V2 tests are broken - create separate ticket to fix"
+        admin = create(:admin, admin: true, classroom: nil)
+        sign_in(admin)
+
         get new_admin_v2_classroom_path
 
         assert_response :success
         assert_select "h1", "New Classroom"
       end
 
-      # Create tests
-      test "should create classroom" do
-        skip "Admin V2 tests are broken - create separate ticket to fix"
+      test "create" do
+        grade = create(:grade, level: 7)
         school_year = create(:school_year)
-        assert_difference("Classroom.count") do
-          post admin_v2_classrooms_path, params: {
-            classroom: {
-              name: "New Classroom",
-              grade: 12,
-              school_year_id: school_year.id,
-              trading_enabled: true
-            }
+        params = {
+          classroom: {
+            name: "Abc123",
+            grade_ids: [grade.id],
+            school_year_id: school_year.id
           }
+        }
+        admin = create(:admin, admin: true, classroom: nil)
+        sign_in(admin)
+
+        assert_difference("Classroom.count") do
+          post(admin_v2_classrooms_path, params:)
         end
 
         assert_redirected_to admin_v2_classroom_path(Classroom.last)
         assert_equal "Classroom created successfully.", flash[:notice]
       end
 
-      test "should not create classroom with invalid params" do
+      test "create with invalid params" do
+        params = { classroom: { name: "" } }
+        admin = create(:admin, admin: true, classroom: nil)
+        sign_in(admin)
+
         assert_no_difference("Classroom.count") do
-          post admin_v2_classrooms_path, params: { classroom: { name: "", grade: nil } }
+          post(admin_v2_classrooms_path, params:)
         end
 
         assert_response :unprocessable_entity
       end
 
-      # Edit tests
-      test "should get edit" do
-        skip
-        # get edit_admin_v2_classroom_path(@classroom1)
+      test "edit" do
+        classroom = create(:classroom)
+        admin = create(:admin, admin: true, classroom: nil)
+        sign_in(admin)
 
-        # assert_response :success
-        # assert_select "h1", "Edit Classroom"
+        get edit_admin_v2_classroom_path(classroom)
+
+        assert_response :success
+        assert_select "h1", "Edit Classroom"
       end
 
-      # Update tests
-      test "should update classroom" do
-        patch admin_v2_classroom_path(@classroom1), params: { classroom: { name: "Updated Classroom" } }
+      test "update" do
+        name = "Abc123"
+        classroom = create(:classroom)
+        params = { classroom: { name: } }
+        admin = create(:admin, admin: true, classroom: nil)
+        sign_in(admin)
 
-        assert_redirected_to admin_v2_classroom_path(@classroom1)
+        patch(admin_v2_classroom_path(classroom), params:)
+
+        assert_redirected_to admin_v2_classroom_path(classroom)
         assert_equal "Classroom updated successfully.", flash[:notice]
-        assert_equal "Updated Classroom", @classroom1.reload.name
+        assert_equal name, classroom.reload.name
       end
 
-      test "should not update classroom with invalid params" do
-        skip "Admin V2 tests are broken - create separate ticket to fix"
-        # patch admin_v2_classroom_path(@classroom1), params: { classroom: { name: "" } }
+      test "update with invalid params" do
+        classroom = create(:classroom)
+        params = { classroom: { name: "" } }
+        admin = create(:admin, admin: true, classroom: nil)
+        sign_in(admin)
 
-        # assert_response :unprocessable_entity
+        patch(admin_v2_classroom_path(classroom), params:)
+
+        assert_response :unprocessable_entity
       end
 
-      # Destroy tests
-      test "should destroy classroom" do
+      test "destroy" do
+        classroom = create(:classroom)
+        admin = create(:admin, admin: true, classroom: nil)
+        sign_in(admin)
+
         assert_difference("Classroom.count", -1) do
-          delete admin_v2_classroom_path(@classroom1)
+          delete admin_v2_classroom_path(classroom)
         end
 
         assert_redirected_to admin_v2_classrooms_path
         assert_equal "Classroom deleted successfully.", flash[:notice]
       end
 
-      # Toggle Archive tests
-      test "should archive classroom via toggle_archive" do
-        assert_not @classroom1.archived?
+      test "toggle_archive" do
+        classroom = create(:classroom, archived: false)
+        admin = create(:admin, admin: true, classroom: nil)
+        sign_in(admin)
 
-        patch toggle_archive_admin_v2_classroom_path(@classroom1)
+        patch toggle_archive_admin_v2_classroom_path(classroom)
+        classroom.reload
 
-        @classroom1.reload
-        assert @classroom1.archived?
-        assert_redirected_to admin_v2_classroom_path(@classroom1)
+        assert_redirected_to admin_v2_classroom_path(classroom)
         assert_equal "Classroom has been archived.", flash[:notice]
+        assert classroom.archived?
       end
 
-      test "should activate classroom via toggle_archive" do
-        skip "Admin V2 tests are broken - create separate ticket to fix"
-        # assert @classroom3.archived?
+      test "activate via toggle_archive" do
+        classroom = create(:classroom, archived: true)
+        admin = create(:admin, admin: true, classroom: nil)
+        sign_in(admin)
 
-        # patch toggle_archive_admin_v2_classroom_path(@classroom3)
+        patch toggle_archive_admin_v2_classroom_path(classroom)
+        classroom.reload
 
-        # @classroom3.reload
-        # assert_not @classroom3.archived?
-        # assert_redirected_to admin_v2_classroom_path(@classroom3)
-        # assert_equal "Classroom has been activated.", flash[:notice]
+        assert_redirected_to admin_v2_classroom_path(classroom)
+        assert_equal "Classroom has been activated.", flash[:notice]
+        assert_not classroom.archived?
       end
 
-      # Authorization tests
-      test "non-admin cannot access index" do
-        sign_out(@admin)
+      test "index when teacher" do
         teacher = create(:teacher)
         sign_in(teacher)
 
@@ -168,15 +166,13 @@ module Admin
         assert_equal "Access denied. Admin privileges required.", flash[:alert]
       end
 
-      test "non-admin cannot toggle archive classroom" do
-        skip "Admin V2 tests are broken - create separate ticket to fix"
-        sign_out(@admin)
+      test "toggle archive when teacher" do
+        classroom = create(:classroom)
         teacher = create(:teacher)
         sign_in(teacher)
 
-        patch toggle_archive_admin_v2_classroom_path(@classroom1)
+        patch toggle_archive_admin_v2_classroom_path(classroom)
 
-        assert_response :redirect
         assert_redirected_to root_path
       end
     end

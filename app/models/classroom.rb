@@ -25,6 +25,8 @@ class Classroom < ApplicationRecord
   validates :name, presence: true
   validate :grade_level
 
+  after_create :create_gradebooks_for_quarters
+
   scope :active, -> { where(archived: false) }
   scope :archived, -> { where(archived: true) }
 
@@ -68,6 +70,12 @@ class Classroom < ApplicationRecord
   end
 
   private
+
+  def create_gradebooks_for_quarters
+    school_year.quarters.each do |quarter|
+      GradeBook.find_or_create_by!(quarter: quarter, classroom: self)
+    end
+  end
 
   def grade_level
     errors.add(:grades, "must have at least one grade") if grades.empty?
