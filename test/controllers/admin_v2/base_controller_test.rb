@@ -31,7 +31,9 @@ module Admin
       end
     end
 
-    # Test apply_sorting helper method
+    # Test apply_sorting helper method via integration tests
+    # Note: sorting is tested through actual HTTP requests to the grades endpoint
+    # since apply_sorting is a private helper method
     class ApplySortingTest < ActionDispatch::IntegrationTest
       setup do
         @admin = create(:admin, admin: true)
@@ -44,44 +46,43 @@ module Admin
       end
 
       test "sorts by default column when no params" do
-        skip "Admin V2 base controller sorting is broken - create separate ticket to fix"
-        # return # TODO: Fix base controller sorting - undefined method 'filtered_parameters' for nil
-        # collection = AdminV2::BaseController.new.send(:apply_sorting, Grade.all, default: "level")
+        get admin_v2_grades_path
 
-        # assert_equal [@grade3, @grade1, @grade2], collection.to_a
+        assert_response :success
+        # Grades default sort is by level ascending
+        assert_select "tbody tr:nth-child(1)", text: /Kindergarten/
+        assert_select "tbody tr:nth-child(2)", text: /First Grade/
+        assert_select "tbody tr:nth-child(3)", text: /Second Grade/
       end
 
       test "sorts by specified column ascending" do
-        skip "Admin V2 base controller sorting is broken - create separate ticket to fix"
-        # return # TODO: Fix base controller sorting - Rails 8 params handling issue
-        # controller = AdminV2::BaseController.new
-        # controller.params = ActionController::Parameters.new(sort: "name", direction: "asc")
+        get admin_v2_grades_path, params: { sort: "name", direction: "asc" }
 
-        # collection = controller.send(:apply_sorting, Grade.all, default: "level")
-
-        # assert_equal [@grade1, @grade3, @grade2], collection.to_a
+        assert_response :success
+        # Name ascending: First, Kindergarten, Second
+        assert_select "tbody tr:nth-child(1)", text: /First Grade/
+        assert_select "tbody tr:nth-child(2)", text: /Kindergarten/
+        assert_select "tbody tr:nth-child(3)", text: /Second Grade/
       end
 
       test "sorts by specified column descending" do
-        skip "Admin V2 base controller sorting is broken - create separate ticket to fix"
-        # return # TODO: Fix base controller sorting - Rails 8 params handling issue
-        # controller = AdminV2::BaseController.new
-        # controller.params = ActionController::Parameters.new(sort: "name", direction: "desc")
+        get admin_v2_grades_path, params: { sort: "name", direction: "desc" }
 
-        # collection = controller.send(:apply_sorting, Grade.all, default: "level")
-
-        # assert_equal [@grade2, @grade3, @grade1], collection.to_a
+        assert_response :success
+        # Name descending: Second, Kindergarten, First
+        assert_select "tbody tr:nth-child(1)", text: /Second Grade/
+        assert_select "tbody tr:nth-child(2)", text: /Kindergarten/
+        assert_select "tbody tr:nth-child(3)", text: /First Grade/
       end
 
       test "defaults to ascending when direction not specified" do
-        skip "Admin V2 base controller sorting is broken - create separate ticket to fix"
-        # return # TODO: Fix base controller sorting - Rails 8 params handling issue
-        # controller = AdminV2::BaseController.new
-        # controller.params = ActionController::Parameters.new(sort: "level")
+        get admin_v2_grades_path, params: { sort: "level" }
 
-        # collection = controller.send(:apply_sorting, Grade.all, default: "name")
-
-        # assert_equal [@grade3, @grade1, @grade2], collection.to_a
+        assert_response :success
+        # Level ascending (default direction): 0, 1, 2
+        assert_select "tbody tr:nth-child(1)", text: /Kindergarten/
+        assert_select "tbody tr:nth-child(2)", text: /First Grade/
+        assert_select "tbody tr:nth-child(3)", text: /Second Grade/
       end
     end
   end

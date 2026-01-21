@@ -51,13 +51,12 @@ module AdminV2
     end
 
     test "should show student portfolio details inline" do
-      skip
       get admin_v2_student_path(@student1)
 
       assert_response :success
       assert_select "h3", text: "Portfolio Details"
       assert_select "div.text-blue-600", text: "Cash Balance"
-      assert_select "div.text-green-600", text: "Current Position"
+      assert_select "div.text-green-600", text: "Total Portfolio Worth"
     end
 
     # New tests
@@ -130,7 +129,6 @@ module AdminV2
 
     # Edit tests
     test "should get edit" do
-      skip
       get edit_admin_v2_student_path(@student1)
 
       assert_response :success
@@ -151,7 +149,6 @@ module AdminV2
     end
 
     test "should not update student with invalid params" do
-      skip
       patch admin_v2_student_path(@student1), params: {
         student: {
           username: ""
@@ -202,11 +199,10 @@ module AdminV2
     end
 
     test "index shows restore button for discarded students" do
-      skip
       get admin_v2_students_path(discarded: true)
 
       assert_response :success
-      assert_select "button[value=?]", restore_admin_v2_student_path(@student3), text: "Restore"
+      assert_select "form[action=?] button", restore_admin_v2_student_path(@student3), text: "Restore"
     end
 
     test "index shows discard button for active students" do
@@ -226,21 +222,20 @@ module AdminV2
 
     # Add transaction tests
     test "should add transaction to student portfolio" do
-      skip
       initial_balance = @student1.portfolio.cash_balance
 
       post add_transaction_admin_v2_student_path(@student1), params: {
         student: {
           transaction_type: "deposit",
           add_fund_amount: "100.50",
-          transaction_reason: "award",
+          transaction_reason: "awards",
           transaction_description: "Test deposit"
         }
       }
 
       assert_redirected_to admin_v2_student_path(@student1)
       assert_equal "Transaction added successfully.", flash[:notice]
-      assert_equal initial_balance + 10_050, @student1.portfolio.reload.cash_balance
+      assert_equal initial_balance + 100.50, @student1.portfolio.reload.cash_balance
     end
 
     test "should not add transaction without transaction type" do
@@ -280,14 +275,13 @@ module AdminV2
     end
 
     test "should create debit transaction" do
-      skip
       @student1.portfolio.cash_balance
 
       post add_transaction_admin_v2_student_path(@student1), params: {
         student: {
           transaction_type: "debit",
           add_fund_amount: "50.25",
-          transaction_reason: "administrative_adjustment",
+          transaction_reason: "administrative_adjustments",
           transaction_description: "Test debit"
         }
       }

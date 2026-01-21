@@ -90,7 +90,7 @@ en:
       create:
         notice: Teacher created successfully. Password reset email has been sent.
       destroy:
-        notice: Teacher deleted successfully.
+        notice: Teacher %{username} discarded successfully.
       update:
         notice: Teacher updated successfully.
     users:

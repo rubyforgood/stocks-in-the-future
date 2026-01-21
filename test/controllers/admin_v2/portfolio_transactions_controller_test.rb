@@ -13,13 +13,11 @@ module AdminV2
     end
 
     test "should get show" do
-      skip
       get admin_v2_portfolio_transaction_url(@portfolio_transaction)
       assert_response :success
     end
 
     test "should get new" do
-      skip
       get new_admin_v2_portfolio_transaction_url
       assert_response :success
     end
@@ -42,7 +40,6 @@ module AdminV2
     end
 
     test "should not create portfolio_transaction with invalid params" do
-      skip
       assert_no_difference("PortfolioTransaction.count") do
         post admin_v2_portfolio_transactions_url, params: {
           portfolio_transaction: {
@@ -57,7 +54,6 @@ module AdminV2
     end
 
     test "should get edit" do
-      skip
       get edit_admin_v2_portfolio_transaction_url(@portfolio_transaction)
       assert_response :success
     end
@@ -79,7 +75,6 @@ module AdminV2
     end
 
     test "should not update portfolio_transaction with invalid params" do
-      skip
       original_amount = @portfolio_transaction.amount_cents
 
       patch admin_v2_portfolio_transaction_url(@portfolio_transaction), params: {

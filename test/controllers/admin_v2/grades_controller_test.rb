@@ -33,7 +33,6 @@ module Admin
       end
 
       test "index sorts by name when specified" do
-        skip
         get admin_v2_grades_path, params: { sort: "name", direction: "asc" }
 
         assert_response :success
@@ -44,7 +43,6 @@ module Admin
       end
 
       test "index sorts descending when specified" do
-        skip "Admin V2 tests are broken - create separate ticket to fix"
         get admin_v2_grades_path, params: { sort: "level", direction: "desc" }
 
         assert_response :success
@@ -72,7 +70,6 @@ module Admin
 
       # Create tests
       test "should create grade" do
-        skip "Admin V2 tests are broken - create separate ticket to fix"
         assert_difference("Grade.count") do
           post admin_v2_grades_path, params: { grade: { name: "Third Grade", level: 3 } }
         end
@@ -82,7 +79,6 @@ module Admin
       end
 
       test "should not create grade with invalid params" do
-        skip "Admin V2 tests are broken - create separate ticket to fix"
         assert_no_difference("Grade.count") do
           post admin_v2_grades_path, params: { grade: { name: "", level: nil } }
         end
@@ -100,7 +96,6 @@ module Admin
 
       # Update tests
       test "should update grade" do
-        skip
         patch admin_v2_grade_path(@grade1), params: { grade: { name: "Updated Grade" } }
 
         assert_redirected_to admin_v2_grade_path(@grade1)
@@ -109,7 +104,6 @@ module Admin
       end
 
       test "should not update grade with invalid params" do
-        skip
         patch admin_v2_grade_path(@grade1), params: { grade: { name: "" } }
 
         assert_response :unprocessable_entity

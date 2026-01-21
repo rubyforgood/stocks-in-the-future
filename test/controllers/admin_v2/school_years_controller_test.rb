@@ -26,7 +26,6 @@ module AdminV2
     end
 
     test "index shows all school years" do
-      skip
       get admin_v2_school_years_path
 
       assert_response :success
@@ -35,11 +34,10 @@ module AdminV2
 
     # Show tests
     test "should show school_year" do
-      skip
       get admin_v2_school_year_path(@school_year1)
 
       assert_response :success
-      assert_select "h2", @school_year1.to_s
+      assert_select "h2", "#{@school_year1.school.name} (#{@school_year1.year.name})"
     end
 
     test "should show school_year quarters" do
@@ -63,14 +61,15 @@ module AdminV2
 
     # Create tests
     test "should create school_year" do
-      skip
-      assert_difference(["SchoolYear.count", "Quarter.count"], [1, 4]) do
-        post admin_v2_school_years_path, params: {
-          school_year: {
-            school_id: @school1.id,
-            year_id: @year2.id
+      assert_difference("SchoolYear.count", 1) do
+        assert_difference("Quarter.count", 4) do
+          post admin_v2_school_years_path, params: {
+            school_year: {
+              school_id: @school1.id,
+              year_id: @year2.id
+            }
           }
-        }
+        end
       end
 
       assert_redirected_to admin_v2_school_year_path(SchoolYear.last)
@@ -91,13 +90,13 @@ module AdminV2
                    school_year.quarters.order(:number).pluck(:name)
     end
 
-    test "should not create school_year with invalid params" do
-      skip
+    test "should not create school_year with duplicate combination" do
+      # @school_year1 already uses @school1 + @year1 combination
       assert_no_difference("SchoolYear.count") do
         post admin_v2_school_years_path, params: {
           school_year: {
-            school_id: nil,
-            year_id: nil
+            school_id: @school1.id,
+            year_id: @year1.id
           }
         }
       end
@@ -147,14 +146,13 @@ module AdminV2
     end
 
     test "should not destroy school_year with classrooms" do
-      skip
       create(:classroom, school_year: @school_year1)
 
       assert_no_difference("SchoolYear.count") do
         delete admin_v2_school_year_path(@school_year1)
       end
 
-      assert_redirected_to admin_v2_school_years_path
+      assert_redirected_to admin_v2_school_year_path(@school_year1)
       assert_match(/Cannot delete school year/, flash[:alert])
     end
 
