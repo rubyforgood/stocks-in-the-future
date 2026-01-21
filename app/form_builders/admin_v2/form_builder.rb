@@ -156,6 +156,7 @@ module AdminV2
     # Association select field (for BelongsTo associations)
     # Usage: f.association_select :classroom_id, collection: Classroom.all
     # Usage: f.association_select :school_year_id, collection: SchoolYear.all, label_method: :display_name
+    # Usage: f.association_select :portfolio_id, collection: Portfolio.all, label_method: ->(p) { p.user.username }
     def association_select(attribute, options = {})
       collection = options.delete(:collection)
       label_method = options.delete(:label_method) || :to_s
@@ -164,7 +165,11 @@ module AdminV2
 
       raise ArgumentError, "collection is required for association_select" unless collection
 
-      choices = collection.map { |item| [item.public_send(label_method), item.public_send(value_method)] }
+      choices = collection.map do |item|
+        label = label_method.respond_to?(:call) ? label_method.call(item) : item.public_send(label_method)
+        value = value_method.respond_to?(:call) ? value_method.call(item) : item.public_send(value_method)
+        [label, value]
+      end
 
       field_wrapper(attribute, options) do
         select(attribute, choices,
@@ -326,7 +331,7 @@ module AdminV2
 
     # Returns the appropriate CSS class for an input based on validation state
     def input_class(attribute)
-      if object.errors[attribute].any?
+      if object&.errors&.[](attribute)&.any?
         INPUT_ERROR_CLASSES
       else
         INPUT_CLASSES
@@ -341,7 +346,7 @@ module AdminV2
 
     # Displays validation error for an attribute
     def error_message(attribute)
-      return "".html_safe unless object.errors[attribute].any?
+      return "".html_safe unless object&.errors&.[](attribute)&.any?
 
       @template.content_tag(:p, class: ERROR_CLASSES, id: "#{attribute}-error") do
         @template.content_tag(:i, "", class: "fas fa-exclamation-circle mr-1") +

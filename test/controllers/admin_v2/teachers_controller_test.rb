@@ -82,7 +82,6 @@ module AdminV2
     end
 
     test "should create teacher with classroom associations" do
-      skip
       assert_difference("Teacher.count") do
         post admin_v2_teachers_path, params: {
           teacher: {
@@ -151,7 +150,7 @@ module AdminV2
     end
 
     test "should update teacher classroom associations" do
-      skip patch admin_v2_teacher_path(@teacher1), params: {
+      patch admin_v2_teacher_path(@teacher1), params: {
         teacher: {
           classroom_ids: [@classroom2.id]
         }
@@ -175,14 +174,14 @@ module AdminV2
     end
 
     # Destroy tests
-    test "should destroy teacher" do
-      skip
-      # assert_difference("Teacher.count", -1) do
-      #   delete admin_v2_teacher_path(@teacher1)
-      # end
+    test "should soft delete teacher" do
+      assert_no_difference("Teacher.count") do
+        delete admin_v2_teacher_path(@teacher1)
+      end
 
-      # assert_redirected_to admin_v2_teachers_path
-      # assert_equal "Teacher deleted successfully.", flash[:notice]
+      assert_redirected_to admin_v2_teachers_path
+      assert_match(/Teacher teacher1 discarded successfully/, flash[:notice])
+      assert @teacher1.reload.discarded?
     end
 
     # Authorization tests
