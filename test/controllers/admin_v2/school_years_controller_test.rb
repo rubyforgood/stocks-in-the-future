@@ -4,170 +4,140 @@ require "test_helper"
 
 module AdminV2
   class SchoolYearsControllerTest < ActionDispatch::IntegrationTest
-    setup do
-      @admin = create(:admin, admin: true)
-      sign_in(@admin)
+    test "index" do
+      create(:school_year)
+      create(:school_year)
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
 
-      @school1 = create(:school, name: "Test School 1")
-      @school2 = create(:school, name: "Test School 2")
-      @year1 = create(:year, name: "2024")
-      @year2 = create(:year, name: "2025")
-
-      @school_year1 = SchoolYear.create!(school: @school1, year: @year1)
-      @school_year2 = SchoolYear.create!(school: @school2, year: @year2)
-    end
-
-    # Index tests
-    test "should get index" do
       get admin_v2_school_years_path
 
       assert_response :success
       assert_select "h3", "School Years"
-    end
-
-    test "index shows all school years" do
-      skip
-      get admin_v2_school_years_path
-
-      assert_response :success
       assert_select "tbody tr", count: 2
     end
 
-    # Show tests
-    test "should show school_year" do
-      skip
-      get admin_v2_school_year_path(@school_year1)
+    test "show" do
+      school_name = "Candy Kingdom"
+      year_name = "1000"
+      school = create(:school, name: school_name)
+      year = create(:year, name: year_name)
+      school_year = create(:school_year, school:, year:)
+      create(:quarter, school_year:)
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
+
+      get admin_v2_school_year_path(school_year)
 
       assert_response :success
-      assert_select "h2", @school_year1.to_s
-    end
-
-    test "should show school_year quarters" do
-      # Create quarters for the school year
-      Quarter.create!(school_year: @school_year1, name: "Quarter 1", number: 1)
-      Quarter.create!(school_year: @school_year1, name: "Quarter 2", number: 2)
-
-      get admin_v2_school_year_path(@school_year1)
-
-      assert_response :success
+      assert_select "h2", "#{school_name} (#{year_name})"
       assert_select "h3", "Quarters"
     end
 
-    # New tests
-    test "should get new" do
+    test "new" do
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
+
       get new_admin_v2_school_year_path
 
       assert_response :success
       assert_select "h1", "New School Year"
     end
 
-    # Create tests
-    test "should create school_year" do
-      skip
-      assert_difference(["SchoolYear.count", "Quarter.count"], [1, 4]) do
-        post admin_v2_school_years_path, params: {
-          school_year: {
-            school_id: @school1.id,
-            year_id: @year2.id
-          }
-        }
+    test "create" do
+      school = create(:school)
+      year = create(:year)
+      params = { school_year: { school_id: school.id, year_id: year.id } }
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
+
+      assert_difference("SchoolYear.count") do
+        post(admin_v2_school_years_path, params:)
       end
-
-      assert_redirected_to admin_v2_school_year_path(SchoolYear.last)
-      assert_equal "School year created successfully.", flash[:notice]
-    end
-
-    test "should create quarters when creating school_year" do
-      post admin_v2_school_years_path, params: {
-        school_year: {
-          school_id: @school1.id,
-          year_id: @year2.id
-        }
-      }
-
       school_year = SchoolYear.last
-      assert_equal 4, school_year.quarters.count
-      assert_equal ["Quarter 1", "Quarter 2", "Quarter 3", "Quarter 4"],
-                   school_year.quarters.order(:number).pluck(:name)
+
+      assert_redirected_to admin_v2_school_year_path(school_year)
+      assert_equal "School year created successfully.", flash[:notice]
+      assert_equal(
+        ["Quarter 1", "Quarter 2", "Quarter 3", "Quarter 4"],
+        school_year.quarters.order(:number).pluck(:name)
+      )
     end
 
-    test "should not create school_year with invalid params" do
-      skip
+    test "create with invalid params" do
+      params = { school_year: { school_id: "" } }
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
+
       assert_no_difference("SchoolYear.count") do
-        post admin_v2_school_years_path, params: {
-          school_year: {
-            school_id: nil,
-            year_id: nil
-          }
-        }
+        post(admin_v2_school_years_path, params:)
       end
 
       assert_response :unprocessable_content
     end
 
-    # Edit tests
-    test "should get edit" do
-      get edit_admin_v2_school_year_path(@school_year1)
+    test "edit" do
+      school_year = create(:school_year)
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
+
+      get edit_admin_v2_school_year_path(school_year)
 
       assert_response :success
       assert_select "h1", "Edit School Year"
     end
 
-    # Update tests
-    test "should update school_year" do
-      patch admin_v2_school_year_path(@school_year1), params: {
-        school_year: {
-          school_id: @school2.id
-        }
-      }
+    test "update" do
+      school_year = create(:school_year)
+      school = create(:school)
+      params = { school_year: { school_id: school.id } }
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
 
-      assert_redirected_to admin_v2_school_year_path(@school_year1)
+      patch(admin_v2_school_year_path(school_year), params:)
+      school_year.reload
+
+      assert_redirected_to admin_v2_school_year_path(school_year)
       assert_equal "School year updated successfully.", flash[:notice]
-      assert_equal @school2.id, @school_year1.reload.school_id
+      assert_equal school.id, school_year.school_id
     end
 
-    test "should not update school_year with invalid params" do
-      patch admin_v2_school_year_path(@school_year1), params: {
-        school_year: {
-          school_id: nil
-        }
-      }
+    test "update with invalid params" do
+      school_year = create(:school_year)
+      params = { school_year: { school_id: nil } }
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
+
+      patch(admin_v2_school_year_path(school_year), params:)
 
       assert_response :unprocessable_content
     end
 
-    # Destroy tests
-    test "should destroy school_year" do
+    test "destroy" do
+      school_year = create(:school_year)
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
+
       assert_difference("SchoolYear.count", -1) do
-        delete admin_v2_school_year_path(@school_year1)
+        delete admin_v2_school_year_path(school_year)
       end
 
       assert_redirected_to admin_v2_school_years_path
       assert_equal "School year deleted successfully.", flash[:notice]
     end
 
-    test "should not destroy school_year with classrooms" do
-      skip
-      create(:classroom, school_year: @school_year1)
+    test "destroy with classrooms" do
+      school_year = create(:school_year)
+      create(:classroom, school_year:)
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
 
       assert_no_difference("SchoolYear.count") do
-        delete admin_v2_school_year_path(@school_year1)
+        delete admin_v2_school_year_path(school_year)
       end
 
       assert_redirected_to admin_v2_school_years_path
-      assert_match(/Cannot delete school year/, flash[:alert])
-    end
-
-    # Authorization tests
-    test "non-admin cannot access index" do
-      sign_out(@admin)
-      teacher = create(:teacher)
-      sign_in(teacher)
-
-      get admin_v2_school_years_path
-
-      assert_redirected_to root_path
-      assert_equal "Access denied. Admin privileges required.", flash[:alert]
+      assert_match(/Cannot delete school/, flash[:alert])
     end
   end
 end

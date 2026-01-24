@@ -35,9 +35,9 @@
       <tbody class="divide-y divide-gray-200 bg-white">
         <% if collection.any? %>
           <% collection.each do |record| %>
-            <tr class="hover:bg-gray-50 transition-colors">
+            <tr id="<%= dom_id(record) %>" class="hover:bg-gray-50 transition-colors">
               <% columns.each do |column| %>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900" data-testid="<%= column[:attribute] %>">
                   <% if column[:link] %>
                     <%= link_to format_attribute(record, column[:attribute]), [:admin_v2, route_model(record)], class: "text-blue-600 hover:text-blue-800 font-medium" %>
                   <% else %>

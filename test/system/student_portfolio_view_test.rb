@@ -122,40 +122,6 @@ class StudentPortfolioViewTest < ApplicationSystemTestCase
     sign_out(student)
   end
 
-  test "student views transaction history" do
-    classroom = create(:classroom)
-    student = create(:student, :with_portfolio, classroom: classroom)
-    student.reload
-    portfolio = student.portfolio
-
-    # Create various transaction types
-    create(:portfolio_transaction, :deposit, portfolio: portfolio, amount_cents: 10_000)
-    create(:portfolio_transaction, :credit, portfolio: portfolio, amount_cents: 5_000)
-    create(:portfolio_transaction, :debit, portfolio: portfolio, amount_cents: 3_000)
-
-    sign_in(student)
-    visit portfolio_path(portfolio)
-
-    # NOTE: The current portfolio view doesn't display transaction history
-    # This test will verify IF transaction history section exists
-    # If not, this test documents the missing feature
-
-    # Try to find transaction history section
-    if has_css?("[data-testid='transaction-history']", wait: 1)
-      within "[data-testid='transaction-history']" do
-        # Verify transaction amounts are displayed
-        assert_text "$100.00"
-        assert_text "$50.00"
-        assert_text "$30.00"
-      end
-    else
-      # Document that transaction history is not currently displayed
-      skip "Transaction history not yet implemented in portfolio view"
-    end
-
-    sign_out(student)
-  end
-
   test "student views empty portfolio (new account)" do
     classroom = create(:classroom)
     student = create(:student, :with_portfolio, classroom: classroom)

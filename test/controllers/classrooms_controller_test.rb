@@ -132,35 +132,6 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
     assert_not_includes classroom.grades, old_grade
   end
 
-  test "update with empty grade_ids removes all grades" do
-    skip "Test conflicts with business rule: classrooms must have at least one grade"
-    classroom = create(:classroom)
-
-    grade1 = create(:grade, level: 6)
-    grade2 = create(:grade, level: 8)
-
-    create(:classroom_grade, classroom: classroom, grade: grade1)
-    create(:classroom_grade, classroom: classroom, grade: grade2)
-
-    assert_equal 3, classroom.grades.count
-
-    sign_in(@admin)
-
-    params = {
-      classroom: {
-        name: "Updated Name",
-        grade_ids: [""] # Simulates no checkboxes selected + hidden field
-      }
-    }
-
-    patch classroom_path(classroom), params: params
-    classroom.reload
-
-    assert_empty classroom.grades
-    assert_not_includes classroom.grades, grade1
-    assert_not_includes classroom.grades, grade2
-  end
-
   test "archive classroom" do
     sign_in(@admin)
     assert_no_difference("Classroom.count") do

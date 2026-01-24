@@ -47,6 +47,8 @@ class OrderExecutionJob < ApplicationJob
     Rails.logger.info "Successfully executed #{pending_orders.count} orders"
   end
 
+  # TODO: Remove this from OrderExecutionJob. StockPricesUpdateJob should be
+  # its own independent recurring job, not coupled to order execution.
   def schedule_stock_prices_update
     Rails.logger.info "Scheduling stock prices update job"
     StockPricesUpdateJob.perform_later
