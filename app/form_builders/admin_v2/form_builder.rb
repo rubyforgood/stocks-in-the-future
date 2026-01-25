@@ -57,13 +57,15 @@ module AdminV2
         value = object.public_send(attribute)
         display_value = value ? (value * multiplier).round(decimals) : nil
 
-        number_field(attribute,
-                     options.merge(
-                       value: display_value,
-                       step: (1.0 / (10**decimals)),
-                       class: input_class(attribute),
-                       data: { currency_multiplier: (1.0 / multiplier).to_i }
-                     ))
+        number_field(
+          attribute,
+          options.merge(
+            value: display_value,
+            step: (1.0 / (10**decimals)),
+            class: input_class(attribute),
+            data: { currency_multiplier: (1.0 / multiplier).to_i }
+          )
+        )
       end
     end
 
@@ -102,9 +104,11 @@ module AdminV2
       include_blank = options.delete(:include_blank)
 
       field_wrapper(attribute, options) do
-        select(attribute, collection,
-               { include_blank: include_blank },
-               input_options(attribute, options))
+        select(
+          attribute, collection,
+          { include_blank: include_blank },
+          input_options(attribute, options)
+        )
       end
     end
 
@@ -115,8 +119,10 @@ module AdminV2
 
       @template.content_tag(:div, class: "relative flex items-start py-4") do
         @template.content_tag(:div, class: "flex h-6 items-center") do
-          check_box(attribute,
-                    class: "h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-600")
+          check_box(
+            attribute,
+            class: "h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-600"
+          )
         end +
           @template.content_tag(:div, class: "ml-3 text-sm leading-6") do
             label(attribute, label_text, class: "font-medium text-gray-900") +
@@ -169,9 +175,11 @@ module AdminV2
       end
 
       field_wrapper(attribute, options) do
-        select(attribute, choices,
-               { include_blank: include_blank },
-               input_options(attribute, options))
+        select(
+          attribute, choices,
+          { include_blank: include_blank },
+          input_options(attribute, options)
+        )
       end
     end
 

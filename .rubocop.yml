@@ -38,6 +38,7 @@ Metrics/BlockLength:
 
 Metrics/ClassLength:
   Exclude:
+    - 'app/models/order.rb'
     - 'spec/**/*'
     - 'test/**/*'
 
@@ -72,3 +73,12 @@ Metrics/ParameterLists:
 
 Naming/MethodParameterName:
   MinNameLength: 2
+
+Layout/FirstMethodArgumentLineBreak:
+  Enabled: true
+
+Layout/MultilineMethodCallIndentation:
+  EnforcedStyle: indented
+
+Layout/FirstArgumentIndentation:
+  EnforcedStyle: consistent

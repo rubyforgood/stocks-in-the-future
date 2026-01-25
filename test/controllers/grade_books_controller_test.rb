@@ -133,8 +133,10 @@ class GradeBooksControllerTest < ActionDispatch::IntegrationTest
 
     # Create new grade book for second quarter with incomplete grades
     new_grade_book = create(:grade_book, classroom: @classroom, quarter: @second_quarter)
-    create(:grade_entry, grade_book: new_grade_book, user: @student,
-                         math_grade: nil, reading_grade: nil, attendance_days: 30)
+    create(
+      :grade_entry, grade_book: new_grade_book, user: @student,
+                    math_grade: nil, reading_grade: nil, attendance_days: 30
+    )
 
     post finalize_classroom_grade_book_path(@classroom, new_grade_book)
 
@@ -156,8 +158,10 @@ class GradeBooksControllerTest < ActionDispatch::IntegrationTest
 
     # Create new grade book for second quarter with complete grades
     new_grade_book = create(:grade_book, classroom: @classroom, quarter: @second_quarter)
-    create(:grade_entry, grade_book: new_grade_book, user: @student,
-                         math_grade: "A", reading_grade: "A", attendance_days: 30)
+    create(
+      :grade_entry, grade_book: new_grade_book, user: @student,
+                    math_grade: "A", reading_grade: "A", attendance_days: 30
+    )
 
     post finalize_classroom_grade_book_path(@classroom, new_grade_book)
 
@@ -179,8 +183,10 @@ class GradeBooksControllerTest < ActionDispatch::IntegrationTest
 
     # Create new grade book for second quarter with complete grades
     new_grade_book = create(:grade_book, classroom: @classroom, quarter: @second_quarter)
-    create(:grade_entry, grade_book: new_grade_book, user: @student,
-                         math_grade: "A", reading_grade: "A", attendance_days: 30)
+    create(
+      :grade_entry, grade_book: new_grade_book, user: @student,
+                    math_grade: "A", reading_grade: "A", attendance_days: 30
+    )
 
     post finalize_classroom_grade_book_path(@classroom, new_grade_book)
 

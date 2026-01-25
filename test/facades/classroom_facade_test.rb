@@ -57,15 +57,19 @@ class ClassroomFacadeTest < ActiveSupport::TestCase
     current_student = create(:student, :without_enrollment)
     historical_student = create(:student, :without_enrollment)
 
-    create(:classroom_enrollment,
-           student: current_student,
-           classroom: classroom,
-           unenrolled_at: nil)
-    create(:classroom_enrollment,
-           student: historical_student,
-           classroom: classroom,
-           enrolled_at: 2.weeks.ago,
-           unenrolled_at: 1.week.ago)
+    create(
+      :classroom_enrollment,
+      student: current_student,
+      classroom: classroom,
+      unenrolled_at: nil
+    )
+    create(
+      :classroom_enrollment,
+      student: historical_student,
+      classroom: classroom,
+      enrolled_at: 2.weeks.ago,
+      unenrolled_at: 1.week.ago
+    )
 
     facade = ClassroomFacade.new(classroom)
     students = facade.students

@@ -99,8 +99,10 @@ class Order < ApplicationRecord
 
     formatted_balance = format_money(current_balance_cents)
     formatted_cost = format_money(total_cost)
-    errors.add(:shares,
-               "Insufficient funds. You have #{formatted_balance} but need #{formatted_cost}")
+    errors.add(
+      :shares,
+      "Insufficient funds. You have #{formatted_balance} but need #{formatted_cost}"
+    )
   end
 
   def order_is_pending

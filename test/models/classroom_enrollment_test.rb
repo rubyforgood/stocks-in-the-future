@@ -36,18 +36,22 @@ class ClassroomEnrollmentTest < ActiveSupport::TestCase
   end
 
   test "unenrolled_at must be after enrolled_at" do
-    enrollment = build(:classroom_enrollment,
-                       enrolled_at: 1.day.ago,
-                       unenrolled_at: 2.days.ago)
+    enrollment = build(
+      :classroom_enrollment,
+      enrolled_at: 1.day.ago,
+      unenrolled_at: 2.days.ago
+    )
     assert_not enrollment.valid?
     assert_includes enrollment.errors[:unenrolled_at], "must be after enrolled_at"
   end
 
   test "unenrolled_at can be equal to enrolled_at" do
     time = Time.current
-    enrollment = build(:classroom_enrollment,
-                       enrolled_at: time,
-                       unenrolled_at: time)
+    enrollment = build(
+      :classroom_enrollment,
+      enrolled_at: time,
+      unenrolled_at: time
+    )
     assert enrollment.valid?
   end
 
@@ -121,8 +125,10 @@ class ClassroomEnrollmentTest < ActiveSupport::TestCase
 
   test "unenroll! sets unenrolled_at to current time by default" do
     student = create(:student, :without_enrollment)
-    enrollment = create(:classroom_enrollment, student: student, enrolled_at: 1.hour.ago, unenrolled_at: nil,
-                                               primary: true)
+    enrollment = create(
+      :classroom_enrollment, student: student, enrolled_at: 1.hour.ago, unenrolled_at: nil,
+                             primary: true
+    )
 
     freeze_time do
       enrollment.unenroll!

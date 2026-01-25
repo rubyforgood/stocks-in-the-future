@@ -43,8 +43,8 @@ class ExecuteOrder
   def create_portfolio_stock
     share_amount = order.sell? ? -shares : shares
     @portfolio_stock = portfolio
-                       .portfolio_stocks
-                       .create!(stock:, shares: share_amount, purchase_price: stock.current_price)
+      .portfolio_stocks
+      .create!(stock:, shares: share_amount, purchase_price: stock.current_price)
   end
 
   def update_order_status

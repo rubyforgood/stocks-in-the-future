@@ -78,28 +78,30 @@ module AdminV2
 
     # rubocop:disable Metrics/MethodLength
     def stock_params
-      params.expect(stock: %i[
-                      ticker
-                      company_name
-                      company_website
-                      stock_exchange
-                      description
-                      price_cents
-                      yesterday_price_cents
-                      employees
-                      industry
-                      cash_flow
-                      debt
-                      debt_to_equity
-                      profit_margin
-                      sales_growth
-                      industry_avg_debt_to_equity
-                      industry_avg_profit_margin
-                      industry_avg_sales_growth
-                      management
-                      competitor_names
-                      archived
-                    ])
+      params.expect(
+        stock: %i[
+          ticker
+          company_name
+          company_website
+          stock_exchange
+          description
+          price_cents
+          yesterday_price_cents
+          employees
+          industry
+          cash_flow
+          debt
+          debt_to_equity
+          profit_margin
+          sales_growth
+          industry_avg_debt_to_equity
+          industry_avg_profit_margin
+          industry_avg_sales_growth
+          management
+          competitor_names
+          archived
+        ]
+      )
     end
     # rubocop:enable Metrics/MethodLength
   end
