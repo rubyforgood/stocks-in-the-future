@@ -3,5 +3,5 @@
 
   <h1 class="text-3xl font-bold text-gray-900 mb-8">Edit Teacher</h1>
 
-  <%= render "form", teacher: @teacher %>
+  <%= render "form", teacher: @teacher, show_delete: @teacher.discarded? %>
 </div>

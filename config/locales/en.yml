@@ -89,8 +89,13 @@ en:
     teachers:
       create:
         notice: Teacher created successfully. Password reset email has been sent.
+      deactivate:
+        notice: Teacher %{username} deactivated successfully.
       destroy:
-        notice: Teacher deleted successfully.
+        must_be_deactivated: Teacher must be deactivated before permanent deletion.
+        notice: Teacher %{username} permanently deleted.
+      reactivate:
+        notice: Teacher %{username} reactivated successfully.
       update:
         notice: Teacher updated successfully.
     users:

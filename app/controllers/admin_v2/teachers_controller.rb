@@ -2,10 +2,10 @@
 
 module AdminV2
   class TeachersController < BaseController
-    before_action :set_teacher, only: %i[show edit update destroy]
+    before_action :set_teacher, only: %i[show edit update destroy deactivate reactivate]
 
     def index
-      @teachers = apply_sorting(Teacher.all, default: "username")
+      @teachers = apply_sorting(Teacher.with_discarded, default: "username")
 
       @breadcrumbs = [
         { label: "Teachers" }
@@ -72,9 +72,27 @@ module AdminV2
       end
     end
 
+    def deactivate
+      username = @teacher.username
+      @teacher.discard
+      redirect_to admin_v2_teachers_path, notice: t(".notice", username: username)
+    end
+
+    def reactivate
+      username = @teacher.username
+      @teacher.undiscard
+      redirect_to admin_v2_teachers_path, notice: t(".notice", username: username)
+    end
+
     def destroy
-      @teacher.destroy
-      redirect_to admin_v2_teachers_path, notice: t(".notice")
+      unless @teacher.discarded?
+        redirect_to edit_admin_v2_teacher_path(@teacher), alert: t(".must_be_deactivated")
+        return
+      end
+
+      username = @teacher.username
+      @teacher.really_destroy!
+      redirect_to admin_v2_teachers_path, notice: t(".notice", username: username)
     end
 
     private
