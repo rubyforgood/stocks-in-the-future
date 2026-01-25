@@ -164,7 +164,9 @@ module AdminV2
 
       raise ArgumentError, "collection is required for association_select" unless collection
 
-      choices = collection.map { |item| [item.public_send(label_method), item.public_send(value_method)] }
+      choices = collection.map do |item|
+        build_select_choice(item, label_method, value_method)
+      end
 
       field_wrapper(attribute, options) do
         select(attribute, choices,
@@ -210,6 +212,22 @@ module AdminV2
     end
 
     private
+
+    def build_select_choice(item, label_method, value_method)
+      label = if label_method.respond_to?(:call)
+                label_method.call(item)
+              else
+                item.public_send(label_method)
+              end
+
+      value = if value_method.respond_to?(:call)
+                value_method.call(item)
+              else
+                item.public_send(value_method)
+              end
+
+      [label, value]
+    end
 
     # Build checkbox collection label and hint
     def build_checkbox_collection_label(label_text, hint)
@@ -326,7 +344,7 @@ module AdminV2
 
     # Returns the appropriate CSS class for an input based on validation state
     def input_class(attribute)
-      if object.errors[attribute].any?
+      if object&.errors && object.errors[attribute].any?
         INPUT_ERROR_CLASSES
       else
         INPUT_CLASSES
@@ -341,7 +359,7 @@ module AdminV2
 
     # Displays validation error for an attribute
     def error_message(attribute)
-      return "".html_safe unless object.errors[attribute].any?
+      return "".html_safe unless object&.errors && object.errors[attribute].any?
 
       @template.content_tag(:p, class: ERROR_CLASSES, id: "#{attribute}-error") do
         @template.content_tag(:i, "", class: "fas fa-exclamation-circle mr-1") +

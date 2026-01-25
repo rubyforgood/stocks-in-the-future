@@ -73,7 +73,7 @@ module AdminV2
     end
 
     def destroy
-      @teacher.destroy
+      @teacher.discard
       redirect_to admin_v2_teachers_path, notice: t(".notice")
     end
 
@@ -84,7 +84,7 @@ module AdminV2
     end
 
     def teacher_params
-      params.expect(teacher: %i[username email name classroom_ids])
+      params.expect(teacher: [:email, :name, :username, { classroom_ids: [] }])
     end
   end
 end

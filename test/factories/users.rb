@@ -24,6 +24,10 @@ FactoryBot.define do
     trait :without_enrollment do
       classroom { nil }
     end
+
+    trait :discarded do
+      discarded_at { Time.current }
+    end
   end
 
   factory :teacher, class: "Teacher" do

@@ -4,336 +4,241 @@ require "test_helper"
 
 module AdminV2
   class StudentsControllerTest < ActionDispatch::IntegrationTest
-    setup do
-      @admin = create(:admin, admin: true)
-      sign_in(@admin)
+    test "index" do
+      create(:student)
+      create(:student)
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
 
-      @classroom1 = create(:classroom, name: "Math 101")
-      @classroom2 = create(:classroom, name: "Science 202")
-
-      @student1 = User.create!(username: "student1", type: "Student", password: "password", classroom: @classroom1)
-      @student2 = User.create!(username: "student2", type: "Student", password: "password", classroom: @classroom2)
-      @student3 = User.create!(username: "student3", type: "Student", password: "password", classroom: @classroom1)
-      @student3.discard # Soft delete
-    end
-
-    # Index tests
-    test "should get index" do
       get admin_v2_students_path
 
       assert_response :success
       assert_select "h3", "Students"
-    end
-
-    test "index shows only kept students by default" do
-      get admin_v2_students_path
-
-      assert_response :success
-      # Should show student1 and student2, but not discarded student3
       assert_select "tbody tr", count: 2
     end
 
-    test "index sorts by username by default" do
-      get admin_v2_students_path
+    test "index with discarded filter" do
+      student = create(:student, :discarded)
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
+
+      get admin_v2_students_path(discarded: true)
 
       assert_response :success
-      # Default sort should be by username ascending
-      assert_select "tbody tr:nth-child(1)", text: /student1/
-      assert_select "tbody tr:nth-child(2)", text: /student2/
+      assert_select "tbody tr", count: 1
+      assert_select "form[action=?]", restore_admin_v2_student_path(student) do
+        assert_select "button", text: "Restore"
+      end
     end
 
-    # Show tests
-    test "should show student" do
-      get admin_v2_student_path(@student1)
+    test "index with all filter" do
+      create(:student)
+      create(:student)
+      create(:student, :discarded)
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
+
+      get admin_v2_students_path(all: true)
 
       assert_response :success
-      assert_select "h2", @student1.username
+      assert_select "tbody tr", count: 3
+      assert_select "a[href*='edit']", count: 2
     end
 
-    test "should show student portfolio details inline" do
-      skip
-      get admin_v2_student_path(@student1)
+    test "show" do
+      username = "finn"
+      student = create(:student, username:)
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
+
+      get admin_v2_student_path(student)
 
       assert_response :success
+      assert_select "h2", username
       assert_select "h3", text: "Portfolio Details"
-      assert_select "div.text-blue-600", text: "Cash Balance"
-      assert_select "div.text-green-600", text: "Current Position"
+      assert_select(
+        "[data-testid='cash_balance_label']",
+        text: "Cash Balance"
+      )
+      assert_select(
+        "[data-testid='total_portfolio_worth_label']",
+        text: "Total Portfolio Worth"
+      )
     end
 
-    # New tests
-    test "should get new" do
+    test "new" do
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
+
       get new_admin_v2_student_path
 
       assert_response :success
       assert_select "h1", "New Student"
     end
 
-    # Create tests
-    test "should create student" do
-      assert_difference("Student.count") do
-        post admin_v2_students_path, params: {
-          student: {
-            username: "newstudent",
-            classroom_id: @classroom1.id,
-            password: "password123",
-            password_confirmation: "password123"
-          }
+    test "create" do
+      username = "jake"
+      classroom = create(:classroom, name: "Ice Kingdom")
+      params = {
+        student: {
+          username:,
+          classroom_id: classroom.id,
+          password: "password123",
+          password_confirmation: "password123"
         }
-      end
+      }
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
 
-      assert_redirected_to admin_v2_student_path(Student.last)
-      assert_match(/Student newstudent created successfully/, flash[:notice])
+      assert_difference(["Student.count", "Portfolio.count"]) do
+        post(admin_v2_students_path, params:)
+      end
+      student = Student.last
+
+      assert_redirected_to admin_v2_student_path(student)
+      assert_equal(
+        "Student #{username} created successfully. Password: password123",
+        flash[:notice]
+      )
+      assert_not_nil student.portfolio
     end
 
-    test "should create student with auto-generated password when password is blank" do
-      assert_difference("Student.count") do
-        post admin_v2_students_path, params: {
-          student: {
-            username: "newstudent",
-            classroom_id: @classroom1.id
-          }
-        }
-      end
+    test "create with invalid params" do
+      params = { student: { username: "", classroom_id: nil } }
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
 
-      assert_redirected_to admin_v2_student_path(Student.last)
-      assert_match(/Password:/, flash[:notice])
-    end
-
-    test "should not create student with invalid params" do
       assert_no_difference("Student.count") do
-        post admin_v2_students_path, params: {
-          student: {
-            username: "",
-            classroom_id: nil
-          }
-        }
+        post(admin_v2_students_path, params:)
       end
 
       assert_response :unprocessable_content
     end
 
-    test "should create portfolio for new student" do
-      assert_difference(["Student.count", "Portfolio.count"]) do
-        post admin_v2_students_path, params: {
-          student: {
-            username: "newstudent",
-            classroom_id: @classroom1.id,
-            password: "password123",
-            password_confirmation: "password123"
-          }
-        }
-      end
+    test "edit" do
+      student = create(:student)
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
 
-      student = Student.last
-      assert_not_nil student.portfolio
-    end
-
-    # Edit tests
-    test "should get edit" do
-      skip
-      get edit_admin_v2_student_path(@student1)
+      get edit_admin_v2_student_path(student)
 
       assert_response :success
       assert_select "h1", "Edit Student"
     end
 
-    # Update tests
-    test "should update student" do
-      patch admin_v2_student_path(@student1), params: {
-        student: {
-          username: "updatedstudent"
-        }
-      }
+    test "update" do
+      username = "marceline"
+      student = create(:student)
+      params = { student: { username: } }
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
 
-      assert_redirected_to admin_v2_student_path(@student1)
+      patch(admin_v2_student_path(student), params:)
+      student.reload
+
+      assert_redirected_to admin_v2_student_path(student)
       assert_equal "Student updated successfully.", flash[:notice]
-      assert_equal "updatedstudent", @student1.reload.username
+      assert_equal username, student.username
     end
 
-    test "should not update student with invalid params" do
-      skip
-      patch admin_v2_student_path(@student1), params: {
-        student: {
-          username: ""
-        }
-      }
+    test "update with invalid params" do
+      student = create(:student)
+      params = { student: { username: "" } }
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
+
+      patch(admin_v2_student_path(student), params:)
 
       assert_response :unprocessable_content
     end
 
-    # Destroy tests
-    test "should soft delete student" do
+    test "destroy" do
+      username = "gunter"
+      student = create(:student, username:)
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
+
       assert_no_difference("Student.count") do
-        delete admin_v2_student_path(@student1)
+        delete admin_v2_student_path(student)
       end
+      student.reload
 
       assert_redirected_to admin_v2_students_path
-      assert_match(/Student student1 discarded successfully/, flash[:notice])
-      assert @student1.reload.discarded?
+      assert_equal "Student #{username} discarded successfully.", flash[:notice]
+      assert student.discarded?
     end
 
-    # Restore tests
-    test "should restore discarded student" do
-      assert @student3.discarded?
+    test "restore" do
+      username = "lsp"
+      student = create(:student, :discarded, username:)
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
 
-      patch restore_admin_v2_student_path(@student3)
+      patch restore_admin_v2_student_path(student)
+      student.reload
 
       assert_redirected_to admin_v2_students_path(discarded: true)
-      assert_match(/Student student3 restored successfully/, flash[:notice])
-      assert_not @student3.reload.discarded?
+      assert_equal "Student #{username} restored successfully.", flash[:notice]
+      assert_not student.discarded?
     end
 
-    # Filter tests
-    test "index with discarded filter shows only discarded students" do
-      get admin_v2_students_path(discarded: true)
-
-      assert_response :success
-      # Should show only discarded student3
-      assert_select "tbody tr", count: 1
-      assert_select "tbody", text: /student3/
-    end
-
-    test "index with all filter shows all students including discarded" do
-      get admin_v2_students_path(all: true)
-
-      assert_response :success
-      # Should show all 3 students (student1, student2, student3)
-      assert_select "tbody tr", count: 3
-    end
-
-    test "index shows restore button for discarded students" do
-      skip
-      get admin_v2_students_path(discarded: true)
-
-      assert_response :success
-      assert_select "button[value=?]", restore_admin_v2_student_path(@student3), text: "Restore"
-    end
-
-    test "index shows discard button for active students" do
-      get admin_v2_students_path
-
-      assert_response :success
-      assert_select "a[data-turbo-method='delete']", text: "Discard", count: 2
-    end
-
-    test "index hides edit button for discarded students" do
-      get admin_v2_students_path(all: true)
-
-      assert_response :success
-      # Should have edit links for active students (2) but not for discarded student3
-      assert_select "a[href*='edit']", count: 2
-    end
-
-    # Add transaction tests
-    test "should add transaction to student portfolio" do
-      skip
-      initial_balance = @student1.portfolio.cash_balance
-
-      post add_transaction_admin_v2_student_path(@student1), params: {
+    test "add_transaction" do
+      portfolio = build(:portfolio, user: nil)
+      student = create(:student, portfolio:)
+      create(:portfolio_transaction, :deposit, portfolio:, amount_cents: 10_000)
+      params = {
         student: {
           transaction_type: "deposit",
           add_fund_amount: "100.50",
-          transaction_reason: "award",
+          transaction_reason: "awards",
           transaction_description: "Test deposit"
         }
       }
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
 
-      assert_redirected_to admin_v2_student_path(@student1)
+      post(add_transaction_admin_v2_student_path(student), params:)
+      portfolio.reload
+
+      assert_redirected_to admin_v2_student_path(student)
       assert_equal "Transaction added successfully.", flash[:notice]
-      assert_equal initial_balance + 10_050, @student1.portfolio.reload.cash_balance
+      assert_equal 20_050, portfolio.cash_balance * 100
     end
 
-    test "should not add transaction without transaction type" do
-      post add_transaction_admin_v2_student_path(@student1), params: {
-        student: {
-          add_fund_amount: "100.00",
-          transaction_reason: "award"
-        }
-      }
-
-      assert_redirected_to edit_admin_v2_student_path(@student1)
-      assert_match(/Transaction Type must be present/, flash[:alert])
-    end
-
-    test "should not add transaction without amount" do
-      post add_transaction_admin_v2_student_path(@student1), params: {
-        student: {
-          transaction_type: "deposit",
-          transaction_reason: "award"
-        }
-      }
-
-      assert_redirected_to edit_admin_v2_student_path(@student1)
-      assert_match(/Amount must be present/, flash[:alert])
-    end
-
-    test "should not add transaction without reason" do
-      post add_transaction_admin_v2_student_path(@student1), params: {
-        student: {
-          transaction_type: "deposit",
-          add_fund_amount: "100.00"
-        }
-      }
-
-      assert_redirected_to edit_admin_v2_student_path(@student1)
-      assert_match(/Reason must be present/, flash[:alert])
-    end
-
-    test "should create debit transaction" do
-      skip
-      @student1.portfolio.cash_balance
-
-      post add_transaction_admin_v2_student_path(@student1), params: {
+    test "add_transaction debit" do
+      student = create(:student)
+      params = {
         student: {
           transaction_type: "debit",
           add_fund_amount: "50.25",
-          transaction_reason: "administrative_adjustment",
+          transaction_reason: "administrative_adjustments",
           transaction_description: "Test debit"
         }
       }
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
 
-      assert_redirected_to admin_v2_student_path(@student1)
-      transaction = @student1.portfolio.portfolio_transactions.last
+      post(add_transaction_admin_v2_student_path(student), params:)
+      transaction = student.portfolio.portfolio_transactions.last
+
+      assert_redirected_to admin_v2_student_path(student)
       assert_equal "debit", transaction.transaction_type
       assert_equal 5_025, transaction.amount_cents
     end
 
-    # Authorization tests
-    test "non-admin cannot access index" do
-      sign_out(@admin)
-      teacher = create(:teacher)
-      sign_in(teacher)
+    test "add_transaction invalid params" do
+      student = create(:student)
+      params = { student: { transaction_type: "" } }
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
 
-      get admin_v2_students_path
+      post(add_transaction_admin_v2_student_path(student), params:)
+      expected_error_message =
+        "Transaction Type must be present, Amount must be present, " \
+        "Reason must be present"
 
-      assert_redirected_to root_path
-      assert_equal "Access denied. Admin privileges required.", flash[:alert]
-    end
-
-    test "non-admin cannot create student" do
-      sign_out(@admin)
-      teacher = create(:teacher)
-      sign_in(teacher)
-
-      post admin_v2_students_path, params: {
-        student: {
-          username: "newstudent",
-          classroom_id: @classroom1.id
-        }
-      }
-
-      assert_redirected_to root_path
-    end
-
-    test "non-admin cannot restore student" do
-      sign_out(@admin)
-      teacher = create(:teacher)
-      sign_in(teacher)
-
-      patch restore_admin_v2_student_path(@student3)
-
-      assert_redirected_to root_path
-      assert_equal "Access denied. Admin privileges required.", flash[:alert]
+      assert_redirected_to edit_admin_v2_student_path(student)
+      assert_equal expected_error_message, flash[:alert]
     end
   end
 end

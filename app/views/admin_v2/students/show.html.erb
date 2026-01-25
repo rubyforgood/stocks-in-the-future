@@ -53,11 +53,15 @@
           <h3 class="text-sm font-medium text-gray-500 mb-3">Portfolio Details</h3>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <div class="bg-blue-50 p-4 rounded-lg">
-              <div class="text-xs font-medium text-blue-600 mb-1">Cash Balance</div>
+              <div class="text-xs font-medium text-blue-600 mb-1" data-testid="cash_balance_label">
+                Cash Balance
+              </div>
               <div class="text-2xl font-bold text-blue-900"><%= number_to_currency(@student.portfolio.cash_balance) %></div>
             </div>
             <div class="bg-green-50 p-4 rounded-lg">
-              <div class="text-xs font-medium text-green-600 mb-1">Total Portfolio Worth</div>
+              <div class="text-xs font-medium text-green-600 mb-1" data-testid="total_portfolio_worth_label">
+                Total Portfolio Worth
+              </div>
               <div class="text-2xl font-bold text-green-900"><%= number_to_currency(@student.portfolio.total_portfolio_worth) %></div>
             </div>
             <div class="bg-gray-50 p-4 rounded-lg">

@@ -37,27 +37,25 @@ module AdminV2
     end
 
     def create
-      school = School.find(school_year_params[:school_id])
-      year = Year.find(school_year_params[:year_id])
+      school = School.find_by(id: school_year_params[:school_id])
+      year = Year.find_by(id: school_year_params[:year_id])
 
-      @school_year = SchoolYearCreationService.new(school: school, year: year).call
+      unless school && year
+        @school_year = SchoolYear.new(school_year_params)
+        @school_year.valid?
+        return render_new_with_errors
+      end
+
+      @school_year = SchoolYearCreationService.new(school:, year:).call
 
       if @school_year.persisted?
         redirect_to admin_v2_school_year_path(@school_year), notice: t(".notice")
       else
-        @breadcrumbs = [
-          { label: "School Years", path: admin_v2_school_years_path },
-          { label: "New School Year" }
-        ]
-        render :new, status: :unprocessable_content
+        render_new_with_errors
       end
     rescue ActiveRecord::RecordInvalid => e
       @school_year = e.record
-      @breadcrumbs = [
-        { label: "School Years", path: admin_v2_school_years_path },
-        { label: "New School Year" }
-      ]
-      render :new, status: :unprocessable_content
+      render_new_with_errors
     end
 
     def update
@@ -74,10 +72,13 @@ module AdminV2
     end
 
     def destroy
-      @school_year.destroy
-      redirect_to admin_v2_school_years_path, notice: t(".notice")
+      if @school_year.destroy
+        redirect_to admin_v2_school_years_path, notice: t(".notice")
+      else
+        redirect_to admin_v2_school_years_path, alert: t(".delete_restricted")
+      end
     rescue ActiveRecord::DeleteRestrictionError
-      redirect_to admin_v2_school_year_path(@school_year), alert: t(".delete_restricted")
+      redirect_to admin_v2_school_years_path, alert: t(".delete_restricted")
     end
 
     private
@@ -88,6 +89,14 @@ module AdminV2
 
     def school_year_params
       params.expect(school_year: %i[school_id year_id])
+    end
+
+    def render_new_with_errors
+      @breadcrumbs = [
+        { label: "School Years", path: admin_v2_school_years_path },
+        { label: "New School Year" }
+      ]
+      render :new, status: :unprocessable_content
     end
   end
 end
