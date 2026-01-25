@@ -1,14 +1,9 @@
 import { Controller } from "@hotwired/stimulus"
-import { visit } from "@hotwired/turbo"
 
 // Connects to data-controller="clickable-row"
 export default class extends Controller {
   static values = {
     url: String
-  }
-
-  connect() {
-    this.element.style.cursor = "pointer"
   }
 
   navigate(event) {
@@ -22,7 +17,7 @@ export default class extends Controller {
 
     // Navigate to the show page
     if (this.urlValue) {
-      visit(this.urlValue)
+      Turbo.visit(this.urlValue)
     }
   }
 }
