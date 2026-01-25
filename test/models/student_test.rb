@@ -53,15 +53,19 @@ class StudentTest < ActiveSupport::TestCase
     classroom1 = create(:classroom)
     classroom2 = create(:classroom)
 
-    current = create(:classroom_enrollment,
-                     student: student,
-                     classroom: classroom1,
-                     unenrolled_at: nil)
-    historical = create(:classroom_enrollment,
-                        student: student,
-                        classroom: classroom2,
-                        enrolled_at: 2.days.ago,
-                        unenrolled_at: 1.day.ago)
+    current = create(
+      :classroom_enrollment,
+      student: student,
+      classroom: classroom1,
+      unenrolled_at: nil
+    )
+    historical = create(
+      :classroom_enrollment,
+      student: student,
+      classroom: classroom2,
+      enrolled_at: 2.days.ago,
+      unenrolled_at: 1.day.ago
+    )
 
     assert_includes student.current_enrollments, current
     assert_not_includes student.current_enrollments, historical
@@ -73,19 +77,25 @@ class StudentTest < ActiveSupport::TestCase
     classroom2 = create(:classroom)
     classroom3 = create(:classroom)
 
-    create(:classroom_enrollment,
-           student: student,
-           classroom: classroom1,
-           unenrolled_at: nil)
-    create(:classroom_enrollment,
-           student: student,
-           classroom: classroom2,
-           unenrolled_at: nil)
-    create(:classroom_enrollment,
-           student: student,
-           classroom: classroom3,
-           enrolled_at: 2.days.ago,
-           unenrolled_at: 1.day.ago)
+    create(
+      :classroom_enrollment,
+      student: student,
+      classroom: classroom1,
+      unenrolled_at: nil
+    )
+    create(
+      :classroom_enrollment,
+      student: student,
+      classroom: classroom2,
+      unenrolled_at: nil
+    )
+    create(
+      :classroom_enrollment,
+      student: student,
+      classroom: classroom3,
+      enrolled_at: 2.days.ago,
+      unenrolled_at: 1.day.ago
+    )
 
     assert_includes student.current_classrooms, classroom1
     assert_includes student.current_classrooms, classroom2
@@ -97,14 +107,18 @@ class StudentTest < ActiveSupport::TestCase
     classroom1 = create(:classroom)
     classroom2 = create(:classroom)
 
-    primary = create(:classroom_enrollment,
-                     student: student,
-                     classroom: classroom1,
-                     primary: true)
-    create(:classroom_enrollment,
-           student: student,
-           classroom: classroom2,
-           primary: false)
+    primary = create(
+      :classroom_enrollment,
+      student: student,
+      classroom: classroom1,
+      primary: true
+    )
+    create(
+      :classroom_enrollment,
+      student: student,
+      classroom: classroom2,
+      primary: false
+    )
 
     assert_equal primary, student.primary_enrollment
   end
@@ -113,10 +127,12 @@ class StudentTest < ActiveSupport::TestCase
     student = create(:student, :without_enrollment)
     classroom = create(:classroom)
 
-    create(:classroom_enrollment,
-           student: student,
-           classroom: classroom,
-           primary: true)
+    create(
+      :classroom_enrollment,
+      student: student,
+      classroom: classroom,
+      primary: true
+    )
 
     assert_equal classroom, student.primary_classroom
   end
@@ -171,10 +187,12 @@ class StudentTest < ActiveSupport::TestCase
     classroom1 = create(:classroom)
     classroom2 = create(:classroom)
 
-    old_primary = create(:classroom_enrollment,
-                         student: student,
-                         classroom: classroom1,
-                         primary: true)
+    old_primary = create(
+      :classroom_enrollment,
+      student: student,
+      classroom: classroom1,
+      primary: true
+    )
 
     student.enroll_in!(classroom2, primary: true)
 
@@ -194,9 +212,11 @@ class StudentTest < ActiveSupport::TestCase
   test "unenroll_from! sets unenrolled_at on enrollment" do
     student = create(:student)
     classroom = create(:classroom)
-    enrollment = create(:classroom_enrollment,
-                        student: student,
-                        classroom: classroom)
+    enrollment = create(
+      :classroom_enrollment,
+      student: student,
+      classroom: classroom
+    )
 
     student.unenroll_from!(classroom)
 
@@ -206,10 +226,12 @@ class StudentTest < ActiveSupport::TestCase
   test "unenroll_from! sets unenrolled_at to current time by default" do
     student = create(:student, :without_enrollment)
     classroom = create(:classroom)
-    enrollment = create(:classroom_enrollment,
-                        student: student,
-                        classroom: classroom,
-                        enrolled_at: 1.hour.ago)
+    enrollment = create(
+      :classroom_enrollment,
+      student: student,
+      classroom: classroom,
+      enrolled_at: 1.hour.ago
+    )
 
     freeze_time do
       student.unenroll_from!(classroom)
@@ -220,10 +242,12 @@ class StudentTest < ActiveSupport::TestCase
   test "unenroll_from! accepts custom unenrollment time" do
     student = create(:student, :without_enrollment)
     classroom = create(:classroom)
-    enrollment = create(:classroom_enrollment,
-                        student: student,
-                        classroom: classroom,
-                        enrolled_at: 2.weeks.ago)
+    enrollment = create(
+      :classroom_enrollment,
+      student: student,
+      classroom: classroom,
+      enrolled_at: 2.weeks.ago
+    )
     custom_time = 1.week.ago
 
     student.unenroll_from!(classroom, unenrolled_at: custom_time)
@@ -234,14 +258,18 @@ class StudentTest < ActiveSupport::TestCase
   test "unenroll_from! handles multiple enrollments for same classroom" do
     student = create(:student)
     classroom = create(:classroom)
-    enrollment1 = create(:classroom_enrollment,
-                         student: student,
-                         classroom: classroom,
-                         enrolled_at: 1.month.ago)
-    enrollment2 = create(:classroom_enrollment,
-                         student: student,
-                         classroom: classroom,
-                         enrolled_at: 2.weeks.ago)
+    enrollment1 = create(
+      :classroom_enrollment,
+      student: student,
+      classroom: classroom,
+      enrolled_at: 1.month.ago
+    )
+    enrollment2 = create(
+      :classroom_enrollment,
+      student: student,
+      classroom: classroom,
+      enrolled_at: 2.weeks.ago
+    )
 
     student.unenroll_from!(classroom)
 

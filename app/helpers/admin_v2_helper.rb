@@ -64,11 +64,15 @@ module AdminV2Helper
   # @return [String] HTML badge
   def boolean_badge(value)
     if value
-      content_tag(:span, "Yes",
-                  class: "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800") # rubocop:disable Layout/LineLength
+      content_tag(
+        :span, "Yes",
+        class: "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800"
+      )
     else
-      content_tag(:span, "No",
-                  class: "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800") # rubocop:disable Layout/LineLength
+      content_tag(
+        :span, "No",
+        class: "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800"
+      )
     end
   end
 
@@ -84,10 +88,15 @@ module AdminV2Helper
     url = url_for(sort: column, direction: direction, only_path: true)
 
     link_to url, class: "group inline-flex items-center" do
-      safe_join([
-                  label,
-                  content_tag(:span, icon, class: "ml-2 flex-none rounded text-gray-400 group-hover:text-gray-500")
-                ])
+      safe_join(
+        [
+          label,
+          content_tag(
+            :span, icon,
+            class: "ml-2 flex-none rounded text-gray-400 group-hover:text-gray-500"
+          )
+        ]
+      )
     end
   end
 
@@ -214,10 +223,12 @@ module AdminV2Helper
     link_to toggle_archive_admin_v2_classroom_path(classroom),
             data: { turbo_method: :patch, turbo_confirm: "Are you sure you want to activate this classroom?" },
             class: button_class do
-      safe_join([
-                  content_tag(:i, "", class: "fas fa-check-circle -ml-1 mr-2 h-5 w-5 text-green-500"),
-                  "Activate"
-                ])
+      safe_join(
+        [
+          content_tag(:i, "", class: "fas fa-check-circle -ml-1 mr-2 h-5 w-5 text-green-500"),
+          "Activate"
+        ]
+      )
     end
   end
 
@@ -227,10 +238,12 @@ module AdminV2Helper
     link_to toggle_archive_admin_v2_classroom_path(classroom),
             data: { turbo_method: :patch, turbo_confirm: "Are you sure you want to archive this classroom?" },
             class: button_class do
-      safe_join([
-                  content_tag(:i, "", class: "fas fa-archive -ml-1 mr-2 h-5 w-5 text-yellow-500"),
-                  "Archive"
-                ])
+      safe_join(
+        [
+          content_tag(:i, "", class: "fas fa-archive -ml-1 mr-2 h-5 w-5 text-yellow-500"),
+          "Archive"
+        ]
+      )
     end
   end
 end

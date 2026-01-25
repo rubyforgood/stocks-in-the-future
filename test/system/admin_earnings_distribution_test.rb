@@ -14,18 +14,22 @@ class AdminEarningsDistributionTest < ApplicationSystemTestCase
 
     initial_balance = (portfolio.cash_balance * 100).to_i
 
-    grade_book = create(:grade_book,
-                        quarter: quarter,
-                        classroom: classroom,
-                        status: :verified)
+    grade_book = create(
+      :grade_book,
+      quarter: quarter,
+      classroom: classroom,
+      status: :verified
+    )
 
-    grade_entry = create(:grade_entry,
-                         grade_book: grade_book,
-                         user: student,
-                         attendance_days: 20,
-                         is_perfect_attendance: false,
-                         math_grade: "A",
-                         reading_grade: "B")
+    grade_entry = create(
+      :grade_entry,
+      grade_book: grade_book,
+      user: student,
+      attendance_days: 20,
+      is_perfect_attendance: false,
+      math_grade: "A",
+      reading_grade: "B"
+    )
 
     assert grade_book.verified?, "Grade book should be verified before finalization"
     assert_equal 0, portfolio.portfolio_transactions.count, "Student should have no transactions initially"
@@ -75,18 +79,22 @@ class AdminEarningsDistributionTest < ApplicationSystemTestCase
     portfolio = student.portfolio
 
     attendance_days = 25
-    grade_book = create(:grade_book,
-                        quarter: quarter,
-                        classroom: classroom,
-                        status: :verified)
+    grade_book = create(
+      :grade_book,
+      quarter: quarter,
+      classroom: classroom,
+      status: :verified
+    )
 
-    grade_entry = create(:grade_entry,
-                         grade_book: grade_book,
-                         user: student,
-                         attendance_days: attendance_days,
-                         is_perfect_attendance: false,
-                         math_grade: nil,
-                         reading_grade: nil)
+    grade_entry = create(
+      :grade_entry,
+      grade_book: grade_book,
+      user: student,
+      attendance_days: attendance_days,
+      is_perfect_attendance: false,
+      math_grade: nil,
+      reading_grade: nil
+    )
 
     expected_attendance_earnings = attendance_days * GradeEntry::EARNINGS_PER_DAY_ATTENDANCE
 
@@ -125,18 +133,22 @@ class AdminEarningsDistributionTest < ApplicationSystemTestCase
     portfolio = student.portfolio
 
     attendance_days = 30
-    grade_book = create(:grade_book,
-                        quarter: quarter,
-                        classroom: classroom,
-                        status: :verified)
+    grade_book = create(
+      :grade_book,
+      quarter: quarter,
+      classroom: classroom,
+      status: :verified
+    )
 
-    grade_entry = create(:grade_entry,
-                         grade_book: grade_book,
-                         user: student,
-                         attendance_days: attendance_days,
-                         is_perfect_attendance: true,
-                         math_grade: nil,
-                         reading_grade: nil)
+    grade_entry = create(
+      :grade_entry,
+      grade_book: grade_book,
+      user: student,
+      attendance_days: attendance_days,
+      is_perfect_attendance: true,
+      math_grade: nil,
+      reading_grade: nil
+    )
 
     base_attendance_earnings = attendance_days * GradeEntry::EARNINGS_PER_DAY_ATTENDANCE
     perfect_bonus = GradeEntry::EARNINGS_FOR_PERFECT_ATTENDANCE
@@ -177,17 +189,21 @@ class AdminEarningsDistributionTest < ApplicationSystemTestCase
     student.reload
     portfolio = student.portfolio
 
-    grade_book = create(:grade_book,
-                        quarter: quarter,
-                        classroom: classroom,
-                        status: :verified)
+    grade_book = create(
+      :grade_book,
+      quarter: quarter,
+      classroom: classroom,
+      status: :verified
+    )
 
-    grade_entry = create(:grade_entry,
-                         grade_book: grade_book,
-                         user: student,
-                         attendance_days: 0,
-                         math_grade: "A",
-                         reading_grade: "A-")
+    grade_entry = create(
+      :grade_entry,
+      grade_book: grade_book,
+      user: student,
+      attendance_days: 0,
+      math_grade: "A",
+      reading_grade: "A-"
+    )
 
     expected_math_earnings = GradeEntry::EARNINGS_FOR_A_GRADE
     expected_reading_earnings = GradeEntry::EARNINGS_FOR_A_GRADE
@@ -234,17 +250,21 @@ class AdminEarningsDistributionTest < ApplicationSystemTestCase
     student.reload
     portfolio = student.portfolio
 
-    grade_book = create(:grade_book,
-                        quarter: quarter,
-                        classroom: classroom,
-                        status: :verified)
+    grade_book = create(
+      :grade_book,
+      quarter: quarter,
+      classroom: classroom,
+      status: :verified
+    )
 
-    grade_entry = create(:grade_entry,
-                         grade_book: grade_book,
-                         user: student,
-                         attendance_days: 0,
-                         math_grade: "B+",
-                         reading_grade: "B")
+    grade_entry = create(
+      :grade_entry,
+      grade_book: grade_book,
+      user: student,
+      attendance_days: 0,
+      math_grade: "B+",
+      reading_grade: "B"
+    )
 
     expected_math_earnings = GradeEntry::EARNINGS_FOR_B_GRADE
     expected_reading_earnings = GradeEntry::EARNINGS_FOR_B_GRADE
@@ -290,17 +310,21 @@ class AdminEarningsDistributionTest < ApplicationSystemTestCase
     portfolio = student.portfolio
 
     attendance_days = 10
-    grade_book = create(:grade_book,
-                        quarter: quarter,
-                        classroom: classroom,
-                        status: :verified)
+    grade_book = create(
+      :grade_book,
+      quarter: quarter,
+      classroom: classroom,
+      status: :verified
+    )
 
-    grade_entry = create(:grade_entry,
-                         grade_book: grade_book,
-                         user: student,
-                         attendance_days: attendance_days,
-                         math_grade: "C",
-                         reading_grade: "F")
+    grade_entry = create(
+      :grade_entry,
+      grade_book: grade_book,
+      user: student,
+      attendance_days: attendance_days,
+      math_grade: "C",
+      reading_grade: "F"
+    )
 
     expected_attendance_only = attendance_days * GradeEntry::EARNINGS_PER_DAY_ATTENDANCE
 
@@ -344,29 +368,37 @@ class AdminEarningsDistributionTest < ApplicationSystemTestCase
     portfolio = student.portfolio
 
     # Previous quarter with lower grades
-    previous_grade_book = create(:grade_book,
-                                 quarter: quarter1,
-                                 classroom: classroom,
-                                 status: :completed)
+    previous_grade_book = create(
+      :grade_book,
+      quarter: quarter1,
+      classroom: classroom,
+      status: :completed
+    )
 
-    previous_entry = create(:grade_entry,
-                            grade_book: previous_grade_book,
-                            user: student,
-                            math_grade: "C",
-                            reading_grade: "B")
+    previous_entry = create(
+      :grade_entry,
+      grade_book: previous_grade_book,
+      user: student,
+      math_grade: "C",
+      reading_grade: "B"
+    )
 
     # Current quarter with improved grades
-    current_grade_book = create(:grade_book,
-                                quarter: quarter2,
-                                classroom: classroom,
-                                status: :verified)
+    current_grade_book = create(
+      :grade_book,
+      quarter: quarter2,
+      classroom: classroom,
+      status: :verified
+    )
 
-    current_entry = create(:grade_entry,
-                           grade_book: current_grade_book,
-                           user: student,
-                           attendance_days: 0,
-                           math_grade: "B",
-                           reading_grade: "A")
+    current_entry = create(
+      :grade_entry,
+      grade_book: current_grade_book,
+      user: student,
+      attendance_days: 0,
+      math_grade: "B",
+      reading_grade: "A"
+    )
 
     improvement_bonus = GradeEntry::EARNINGS_FOR_IMPROVED_GRADE
     expected_math = GradeEntry::EARNINGS_FOR_B_GRADE + improvement_bonus
@@ -415,17 +447,21 @@ class AdminEarningsDistributionTest < ApplicationSystemTestCase
     portfolio = student.portfolio
 
     # First quarter - no previous quarter exists
-    grade_book = create(:grade_book,
-                        quarter: quarter,
-                        classroom: classroom,
-                        status: :verified)
+    grade_book = create(
+      :grade_book,
+      quarter: quarter,
+      classroom: classroom,
+      status: :verified
+    )
 
-    grade_entry = create(:grade_entry,
-                         grade_book: grade_book,
-                         user: student,
-                         attendance_days: 0,
-                         math_grade: "A",
-                         reading_grade: "A")
+    grade_entry = create(
+      :grade_entry,
+      grade_book: grade_book,
+      user: student,
+      attendance_days: 0,
+      math_grade: "A",
+      reading_grade: "A"
+    )
 
     expected_math = GradeEntry::EARNINGS_FOR_A_GRADE
     expected_reading = GradeEntry::EARNINGS_FOR_A_GRADE
@@ -482,34 +518,42 @@ class AdminEarningsDistributionTest < ApplicationSystemTestCase
     student3.reload
     portfolio3 = student3.portfolio
 
-    grade_book = create(:grade_book,
-                        quarter: quarter,
-                        classroom: classroom,
-                        status: :verified)
+    grade_book = create(
+      :grade_book,
+      quarter: quarter,
+      classroom: classroom,
+      status: :verified
+    )
 
-    entry1 = create(:grade_entry,
-                    grade_book: grade_book,
-                    user: student1,
-                    attendance_days: 30,
-                    is_perfect_attendance: true,
-                    math_grade: "A",
-                    reading_grade: "A")
+    entry1 = create(
+      :grade_entry,
+      grade_book: grade_book,
+      user: student1,
+      attendance_days: 30,
+      is_perfect_attendance: true,
+      math_grade: "A",
+      reading_grade: "A"
+    )
 
-    entry2 = create(:grade_entry,
-                    grade_book: grade_book,
-                    user: student2,
-                    attendance_days: 20,
-                    is_perfect_attendance: false,
-                    math_grade: "B",
-                    reading_grade: "B")
+    entry2 = create(
+      :grade_entry,
+      grade_book: grade_book,
+      user: student2,
+      attendance_days: 20,
+      is_perfect_attendance: false,
+      math_grade: "B",
+      reading_grade: "B"
+    )
 
-    entry3 = create(:grade_entry,
-                    grade_book: grade_book,
-                    user: student3,
-                    attendance_days: 5,
-                    is_perfect_attendance: false,
-                    math_grade: "D",
-                    reading_grade: "F")
+    entry3 = create(
+      :grade_entry,
+      grade_book: grade_book,
+      user: student3,
+      attendance_days: 5,
+      is_perfect_attendance: false,
+      math_grade: "D",
+      reading_grade: "F"
+    )
 
     student1_expected = entry1.earnings_for_attendance +
                         entry1.attendance_perfect_earnings +
@@ -565,17 +609,21 @@ class AdminEarningsDistributionTest < ApplicationSystemTestCase
     student.reload
     portfolio = student.portfolio
 
-    grade_book = create(:grade_book,
-                        quarter: quarter,
-                        classroom: classroom,
-                        status: :verified)
+    grade_book = create(
+      :grade_book,
+      quarter: quarter,
+      classroom: classroom,
+      status: :verified
+    )
 
-    create(:grade_entry,
-           grade_book: grade_book,
-           user: student,
-           attendance_days: 15,
-           math_grade: "A",
-           reading_grade: "B")
+    create(
+      :grade_entry,
+      grade_book: grade_book,
+      user: student,
+      attendance_days: 15,
+      math_grade: "A",
+      reading_grade: "B"
+    )
 
     sign_in(admin)
     visit classroom_grade_book_path(classroom, grade_book)
@@ -622,17 +670,21 @@ class AdminEarningsDistributionTest < ApplicationSystemTestCase
     student = create(:student, :with_portfolio, classroom: classroom)
     student.reload
 
-    grade_book = create(:grade_book,
-                        quarter: quarter,
-                        classroom: classroom,
-                        status: :completed)
+    grade_book = create(
+      :grade_book,
+      quarter: quarter,
+      classroom: classroom,
+      status: :completed
+    )
 
-    create(:grade_entry,
-           grade_book: grade_book,
-           user: student,
-           attendance_days: 20,
-           math_grade: "A",
-           reading_grade: "A")
+    create(
+      :grade_entry,
+      grade_book: grade_book,
+      user: student,
+      attendance_days: 20,
+      math_grade: "A",
+      reading_grade: "A"
+    )
 
     assert grade_book.completed?, "Grade book should already be completed"
 

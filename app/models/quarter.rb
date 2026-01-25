@@ -30,12 +30,12 @@ class Quarter < ApplicationRecord
 
       if next_year
         Quarter.joins(school_year: %i[school year])
-               .where(
-                 school_years: { school: school_year.school },
-                 years: { id: next_year.id },
-                 number: 1
-               )
-               .first
+          .where(
+            school_years: { school: school_year.school },
+            years: { id: next_year.id },
+            number: 1
+          )
+          .first
       end
     end
   end
@@ -46,12 +46,12 @@ class Quarter < ApplicationRecord
 
       if previous_year
         Quarter.joins(school_year: %i[school year])
-               .where(
-                 school_years: { school: school_year.school },
-                 years: { id: previous_year.id },
-                 number: 4
-               )
-               .first
+          .where(
+            school_years: { school: school_year.school },
+            years: { id: previous_year.id },
+            number: 4
+          )
+          .first
       end
     end
   end

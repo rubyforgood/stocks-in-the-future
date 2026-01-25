@@ -36,8 +36,8 @@ class ClassroomEnrollment < ApplicationRecord
   def make_primary!
     transaction do
       ClassroomEnrollment.where(student: student, primary: true)
-                         .where.not(id: id)
-                         .find_each { |enrollment| enrollment.update!(primary: false) }
+        .where.not(id: id)
+        .find_each { |enrollment| enrollment.update!(primary: false) }
       update!(primary: true)
     end
     self
@@ -79,8 +79,8 @@ class ClassroomEnrollment < ApplicationRecord
     return if student_id.blank?
 
     existing = ClassroomEnrollment.where(student_id: student_id, primary: true)
-                                  .where.not(id: id)
-                                  .exists?
+      .where.not(id: id)
+      .exists?
 
     errors.add(:primary, "student can only have one primary enrollment") if existing
   end

@@ -103,8 +103,10 @@ class ClassroomsController < ApplicationController
       total_portfolio_value: students.includes(:portfolio).sum do |student|
         student.portfolio&.calculate_total_value || 0
       end,
-      recent_orders_count: Order.joins(:user).where(users: { classroom: @classroom }).where("orders.created_at > ?",
-                                                                                            1.week.ago).count
+      recent_orders_count: Order.joins(:user).where(users: { classroom: @classroom }).where(
+        "orders.created_at > ?",
+        1.week.ago
+      ).count
     }
   end
 

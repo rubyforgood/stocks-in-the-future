@@ -1,10 +1,12 @@
-<%= form_with(model: order,
-              class: "w-full max-w-md mx-auto",
-              data: {
-                controller: "order-form",
-                order_form_current_price_value: order.stock.current_price,
-                turbo_frame: "_top"
-              }) do |form| %>
+<%= form_with(
+      model: order,
+      class: "w-full max-w-md mx-auto",
+      data: {
+        controller: "order-form",
+        order_form_current_price_value: order.stock.current_price,
+        turbo_frame: "_top"
+      }
+    ) do |form| %>
 
   <!-- Error Messages -->
   <% if order.errors.any? %>

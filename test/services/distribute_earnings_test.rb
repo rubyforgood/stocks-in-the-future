@@ -36,21 +36,25 @@ class DistributeEarningsTest < ActiveSupport::TestCase
     classroom = create(:classroom)
 
     previous_grade_book = create(:grade_book, quarter: previous_quarter, classroom: classroom)
-    create(:grade_entry,
-           grade_book: previous_grade_book,
-           user: student,
-           attendance_days: 6,
-           math_grade: "C",
-           reading_grade: "C")
+    create(
+      :grade_entry,
+      grade_book: previous_grade_book,
+      user: student,
+      attendance_days: 6,
+      math_grade: "C",
+      reading_grade: "C"
+    )
     previous_grade_book.completed!
 
     current_grade_book = create(:grade_book, quarter: current_quarter, classroom: classroom, status: :verified)
-    current_entry = create(:grade_entry,
-                           grade_book: current_grade_book,
-                           user: student,
-                           attendance_days: 12,
-                           math_grade: "B",
-                           reading_grade: "A")
+    current_entry = create(
+      :grade_entry,
+      grade_book: current_grade_book,
+      user: student,
+      attendance_days: 12,
+      math_grade: "B",
+      reading_grade: "A"
+    )
 
     DistributeEarnings.execute(current_grade_book)
 
