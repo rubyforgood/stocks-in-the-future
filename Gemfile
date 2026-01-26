@@ -36,7 +36,7 @@ group :development, :test do
   gem "bundler-audit", require: false
   gem "debug", platforms: %i[mri windows]
   gem "erb_lint", require: false
-  gem "pry", "~> 0.15.2"
+  gem "pry", "~> 0.16.0"
   gem "pry-byebug"
   gem "rubocop"
   gem "rubocop-rails"
