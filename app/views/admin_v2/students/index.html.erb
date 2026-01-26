@@ -50,7 +50,10 @@
         <tbody class="divide-y divide-gray-200 bg-white">
           <% if @students.any? %>
             <% @students.each do |student| %>
-              <tr class="hover:bg-gray-50 transition-colors">
+              <tr class="hover:bg-gray-50 transition-colors cursor-pointer"
+                  data-controller="clickable-row"
+                  data-clickable-row-url-value="<%= admin_v2_student_path(student) %>"
+                  data-action="click->clickable-row#navigate">
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">
                   <%= student.id %>
                 </td>
