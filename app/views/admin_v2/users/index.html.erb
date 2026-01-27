@@ -40,7 +40,10 @@
         <tbody class="divide-y divide-gray-200 bg-white">
           <% if @users.any? %>
             <% @users.each do |user| %>
-              <tr class="hover:bg-gray-50 transition-colors">
+              <tr class="hover:bg-gray-50 transition-colors cursor-pointer"
+                  data-controller="clickable-row"
+                  data-clickable-row-url-value="<%= user_show_path(user) %>"
+                  data-action="click->clickable-row#navigate">
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">
                   <%= user.id %>
                 </td>
