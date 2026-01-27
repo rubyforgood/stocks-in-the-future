@@ -152,7 +152,7 @@ GEM
     factory_bot_rails (6.5.1)
       factory_bot (~> 6.5)
       railties (>= 6.1.0)
-    faker (3.5.3)
+    faker (3.6.0)
       i18n (>= 1.8.11, < 2)
     ffi (1.17.2-aarch64-linux-gnu)
     ffi (1.17.2-arm-linux-gnu)
@@ -471,7 +471,7 @@ DEPENDENCIES
   discard (~> 1.4)
   erb_lint
   factory_bot_rails
-  faker (~> 3.5.3)
+  faker (~> 3.6.0)
   font-awesome-rails
   i18n-tasks
   image_processing (~> 1.14)
