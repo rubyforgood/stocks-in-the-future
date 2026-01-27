@@ -10,7 +10,7 @@ gem "administrate", "1.0.0.beta3"
 gem "bootsnap", require: false
 gem "csv"
 gem "daemons"
-gem "devise", "~> 4.9"
+gem "devise", "~> 5.0"
 gem "faker", "~> 3.6.0"
 gem "font-awesome-rails"
 gem "image_processing", "~> 1.14"
