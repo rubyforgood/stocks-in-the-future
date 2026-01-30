@@ -2,10 +2,12 @@
 
 module AdminV2
   class TeachersController < BaseController
+    include SoftDeletableFiltering
+
     before_action :set_teacher, only: %i[show edit update destroy deactivate reactivate]
 
     def index
-      @teachers = apply_sorting(Teacher.with_discarded, default: "username")
+      @teachers = apply_sorting(scoped_by_discard_status(Teacher), default: "username")
 
       @breadcrumbs = [
         { label: "Teachers" }
