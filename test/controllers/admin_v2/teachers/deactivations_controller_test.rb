@@ -24,15 +24,18 @@ module AdminV2
         assert @teacher1.reload.discarded?
       end
 
-      test "deactivate should soft delete teacher" do
+      test "deactivate should soft delete teacher and remove from active list" do
         post admin_v2_teacher_deactivation_path(@teacher1)
 
         # Teacher should still exist in database
         assert_not_nil Teacher.with_discarded.find_by(id: @teacher1.id)
         # But should not appear in kept scope
         assert_nil Teacher.kept.find_by(id: @teacher1.id)
-        # Should have discarded_at timestamp
-        assert_not_nil @teacher1.reload.discarded_at
+
+        follow_redirect!
+
+        # Should not appear on the default (active) index
+        assert_select "##{dom_id(@teacher1)}", count: 0
       end
     end
   end
