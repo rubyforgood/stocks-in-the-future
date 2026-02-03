@@ -41,7 +41,7 @@
       <%= f.cancel_button "Cancel", url: @teacher.persisted? ? admin_v2_teacher_path(@teacher) : admin_v2_teachers_path %>
       <%= f.submit_button @teacher.persisted? ? "Update Teacher" : "Create Teacher" %>
     </div>
-    <% if local_assigns[:show_delete] %>
+    <% if @teacher.discarded? %>
       <%= link_to "Permanently Delete",
                   admin_v2_teacher_path(@teacher),
                   data: { turbo_method: :delete, turbo_confirm: "Are you sure you want to permanently delete this teacher? This action cannot be undone." },
