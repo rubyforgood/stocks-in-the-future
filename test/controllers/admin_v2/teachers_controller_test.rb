@@ -28,18 +28,35 @@ module AdminV2
       assert_select "tbody tr:nth-child(2)", text: /teacher2/
     end
 
-    test "index shows both active and deactivated teachers" do
+    test "index shows only active teachers by default" do
       @teacher1.discard
 
       get admin_v2_teachers_path
 
       assert_response :success
-      # Both teachers should be visible
-      assert_select "tbody tr", count: 2
-      # Deactivated teacher should have red badge
-      assert_select "span.bg-red-50", text: "Deactivated"
-      # Active teacher should have green badge
+      assert_select "tbody tr", count: 1
       assert_select "span.bg-green-50", text: "Active"
+    end
+
+    test "index shows both active and deactivated teachers with all filter" do
+      @teacher1.discard
+
+      get admin_v2_teachers_path(all: true)
+
+      assert_response :success
+      assert_select "tbody tr", count: 2
+      assert_select "span.bg-red-50", text: "Deactivated"
+      assert_select "span.bg-green-50", text: "Active"
+    end
+
+    test "index shows only deactivated teachers with discarded filter" do
+      @teacher1.discard
+
+      get admin_v2_teachers_path(discarded: true)
+
+      assert_response :success
+      assert_select "tbody tr", count: 1
+      assert_select "span.bg-red-50", text: "Deactivated"
     end
 
     # Show tests
