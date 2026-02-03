@@ -8,7 +8,7 @@ module AdminV2
       def create
         username = @teacher.username
         @teacher.discard
-        redirect_to admin_v2_teachers_path, notice: t(".notice", username: username)
+        redirect_back_or_to admin_v2_teachers_path, notice: t(".notice", username: username)
       end
 
       private
