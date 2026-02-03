@@ -182,53 +182,6 @@ module AdminV2
       assert_response :unprocessable_content
     end
 
-    # Deactivate tests
-    test "should deactivate teacher" do
-      assert_no_difference("Teacher.count") do
-        delete deactivate_admin_v2_teacher_path(@teacher1)
-      end
-
-      assert_redirected_to admin_v2_teachers_path
-      assert_equal "Teacher teacher1 deactivated successfully.", flash[:notice]
-      assert @teacher1.reload.discarded?
-    end
-
-    test "deactivate should soft delete teacher" do
-      delete deactivate_admin_v2_teacher_path(@teacher1)
-
-      # Teacher should still exist in database
-      assert_not_nil Teacher.with_discarded.find_by(id: @teacher1.id)
-      # But should not appear in kept scope
-      assert_nil Teacher.kept.find_by(id: @teacher1.id)
-      # Should have discarded_at timestamp
-      assert_not_nil @teacher1.reload.discarded_at
-    end
-
-    # Reactivate tests
-    test "should reactivate deactivated teacher" do
-      @teacher1.discard
-
-      assert @teacher1.discarded?
-
-      patch reactivate_admin_v2_teacher_path(@teacher1)
-
-      assert_redirected_to admin_v2_teachers_path
-      assert_equal "Teacher teacher1 reactivated successfully.", flash[:notice]
-      assert_not @teacher1.reload.discarded?
-    end
-
-    test "reactivate should restore teacher to active status" do
-      @teacher1.discard
-      assert_not_nil @teacher1.reload.discarded_at
-
-      patch reactivate_admin_v2_teacher_path(@teacher1)
-
-      # Should clear discarded_at timestamp
-      assert_nil @teacher1.reload.discarded_at
-      # Should appear in kept scope
-      assert_not_nil Teacher.kept.find_by(id: @teacher1.id)
-    end
-
     # Hard delete (destroy) tests
     test "should permanently delete deactivated teacher" do
       @teacher1.discard

@@ -4,7 +4,7 @@ module AdminV2
   class TeachersController < BaseController
     include SoftDeletableFiltering
 
-    before_action :set_teacher, only: %i[show edit update destroy deactivate reactivate]
+    before_action :set_teacher, only: %i[show edit update destroy]
 
     def index
       @teachers = apply_sorting(scoped_by_discard_status(Teacher), default: "username")
@@ -72,18 +72,6 @@ module AdminV2
         ]
         render :edit, status: :unprocessable_content
       end
-    end
-
-    def deactivate
-      username = @teacher.username
-      @teacher.discard
-      redirect_to admin_v2_teachers_path, notice: t(".notice", username: username)
-    end
-
-    def reactivate
-      username = @teacher.username
-      @teacher.undiscard
-      redirect_to admin_v2_teachers_path, notice: t(".notice", username: username)
     end
 
     def destroy

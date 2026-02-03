@@ -99,10 +99,8 @@ Rails.application.routes.draw do
       end
     end
     resources :teachers do
-      member do
-        delete :deactivate
-        patch :reactivate
-      end
+      resource :deactivation, only: [:create], controller: "teachers/deactivations"
+      resource :reactivation, only: [:create], controller: "teachers/reactivations"
     end
     resources :users
     resources :years

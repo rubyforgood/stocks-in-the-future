@@ -84,12 +84,12 @@
                     <%= link_to "View", admin_v2_teacher_path(teacher), class: "text-blue-600 hover:text-blue-800" %>
                     <%= link_to "Edit", edit_admin_v2_teacher_path(teacher), class: "text-gray-600 hover:text-gray-800" %>
                     <% if teacher.discarded? %>
-                      <%= link_to "Reactivate", reactivate_admin_v2_teacher_path(teacher),
-                                  data: { turbo_method: :patch, turbo_confirm: "Are you sure you want to reactivate this teacher?" },
+                      <%= link_to "Reactivate", admin_v2_teacher_reactivation_path(teacher),
+                                  data: { turbo_method: :post, turbo_confirm: "Are you sure you want to reactivate this teacher?" },
                                   class: "text-green-600 hover:text-green-800" %>
                     <% else %>
-                      <%= link_to "Deactivate", deactivate_admin_v2_teacher_path(teacher),
-                                  data: { turbo_method: :delete, turbo_confirm: "Are you sure you want to deactivate this teacher?" },
+                      <%= link_to "Deactivate", admin_v2_teacher_deactivation_path(teacher),
+                                  data: { turbo_method: :post, turbo_confirm: "Are you sure you want to deactivate this teacher?" },
                                   class: "text-red-600 hover:text-red-800" %>
                     <% end %>
                   </div>
