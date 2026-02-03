@@ -56,7 +56,7 @@
         <tbody class="divide-y divide-gray-200 bg-white">
           <% if @teachers.any? %>
             <% @teachers.each do |teacher| %>
-              <tr class="hover:bg-gray-50 transition-colors">
+              <tr id="<%= dom_id(teacher) %>" class="hover:bg-gray-50 transition-colors">
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">
                   <%= teacher.id %>
                 </td>

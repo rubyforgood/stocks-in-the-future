@@ -205,16 +205,16 @@ module AdminV2
       assert_not @teacher1.reload.discarded?
     end
 
-    test "permanent delete should remove teacher from database" do
+    test "permanent delete should remove teacher from database and DOM" do
       @teacher1.discard
-      teacher_id = @teacher1.id
 
-      delete admin_v2_teacher_path(@teacher1)
-
-      # Teacher should be completely removed from database
-      assert_raises(ActiveRecord::RecordNotFound) do
-        Teacher.with_discarded.find(teacher_id)
+      assert_difference("Teacher.with_discarded.count", -1) do
+        delete admin_v2_teacher_path(@teacher1)
       end
+
+      follow_redirect!
+
+      assert_select "##{dom_id(@teacher1)}", count: 0
     end
   end
 end
