@@ -26,7 +26,7 @@ module AdminV2
         assert_not @teacher1.reload.discarded?
       end
 
-      test "reactivate should restore teacher to active status" do
+      test "reactivate should restore teacher to active status and appear in active list" do
         @teacher1.discard
         assert_not_nil @teacher1.reload.discarded_at
 
@@ -34,8 +34,11 @@ module AdminV2
 
         # Should clear discarded_at timestamp
         assert_nil @teacher1.reload.discarded_at
-        # Should appear in kept scope
-        assert_not_nil Teacher.kept.find_by(id: @teacher1.id)
+
+        follow_redirect!
+
+        # Should appear on the default (active) index
+        assert_select "##{dom_id(@teacher1)}", count: 1
       end
     end
   end
