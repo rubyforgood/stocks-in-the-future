@@ -2,11 +2,27 @@
   <%= admin_breadcrumbs(@breadcrumbs) %>
 
   <div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg overflow-hidden">
-    <div class="px-4 py-5 sm:px-6 border-b border-gray-200 flex justify-between items-center">
-      <h3 class="text-lg font-semibold text-gray-900">Teachers</h3>
-      <div class="flex gap-2">
-        <%= link_to "New Teacher", new_admin_v2_teacher_path,
-                    class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700" %>
+    <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-semibold text-gray-900">Teachers</h3>
+        <div class="flex gap-2">
+          <%= link_to "New Teacher", new_admin_v2_teacher_path,
+                      class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700" %>
+        </div>
+      </div>
+
+      <!-- Filter Tabs -->
+      <% current_filter = current_discard_filter %>
+      <div class="flex gap-1 border-b border-gray-200">
+        <%= link_to "Active",
+                    admin_v2_teachers_path,
+                    class: "px-4 py-2 text-sm font-medium #{current_filter == :active ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700 hover:border-gray-300'}" %>
+        <%= link_to "Deactivated",
+                    admin_v2_teachers_path(discarded: true),
+                    class: "px-4 py-2 text-sm font-medium #{current_filter == :discarded ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700 hover:border-gray-300'}" %>
+        <%= link_to "All",
+                    admin_v2_teachers_path(all: true),
+                    class: "px-4 py-2 text-sm font-medium #{current_filter == :all ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700 hover:border-gray-300'}" %>
       </div>
     </div>
 
