@@ -5,6 +5,7 @@ module AdminV2
     include SoftDeletableFiltering
 
     before_action :set_teacher, only: %i[show edit update destroy]
+    before_action :require_deactivated, only: %i[destroy]
 
     def index
       @teachers = apply_sorting(scoped_by_discard_status(Teacher), default: "username")
@@ -75,11 +76,6 @@ module AdminV2
     end
 
     def destroy
-      unless @teacher.discarded?
-        redirect_to edit_admin_v2_teacher_path(@teacher), alert: t(".must_be_deactivated")
-        return
-      end
-
       username = @teacher.username
       @teacher.really_destroy!
       redirect_to admin_v2_teachers_path, notice: t(".notice", username: username)
@@ -89,6 +85,12 @@ module AdminV2
 
     def set_teacher
       @teacher = Teacher.find(params.expect(:id))
+    end
+
+    def require_deactivated
+      return if @teacher.discarded?
+
+      redirect_to edit_admin_v2_teacher_path(@teacher), alert: t("admin_v2.teachers.destroy.must_be_deactivated")
     end
 
     def teacher_params
