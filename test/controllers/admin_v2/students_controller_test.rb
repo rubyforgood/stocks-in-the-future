@@ -316,7 +316,7 @@ module AdminV2
       end
 
       assert_redirected_to admin_v2_students_path
-      assert_equal "Please select a CSV file", flash[:alert]
+      assert_equal I18n.t("admin_v2.students.import.errors.no_file"), flash[:alert]
     end
 
     test "import should handle malformed CSV" do
@@ -354,11 +354,12 @@ module AdminV2
       csv_file.unlink
 
       assert_redirected_to admin_v2_students_path
-      assert_equal "No students found in CSV file", flash[:alert]
+      assert_equal I18n.t("admin_v2.students.import.errors.no_students"), flash[:alert]
     end
 
     test "import should show both success and error messages" do
-      csv_content = "classroom_id,username\n#{@classroom1.id},import_success1\n999,import_fail\n#{@classroom2.id},import_success2"
+      csv_content = "classroom_id,username\n" \
+                    "#{@classroom1.id},import_success1\n999,import_fail\n#{@classroom2.id},import_success2"
       csv_file = Tempfile.new(["test_import", ".csv"])
       csv_file.write(csv_content)
       csv_file.rewind

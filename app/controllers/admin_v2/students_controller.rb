@@ -173,7 +173,7 @@ module AdminV2
     end
 
     def redirect_with_missing_file_error
-      redirect_to admin_v2_students_path, alert: "Please select a CSV file"
+      redirect_to admin_v2_students_path, alert: t(".errors.no_file")
     end
 
     def redirect_with_import_results(results)
@@ -190,7 +190,7 @@ module AdminV2
     end
 
     def redirect_with_no_results_error
-      redirect_to admin_v2_students_path, alert: "No students found in CSV file"
+      redirect_to admin_v2_students_path, alert: t(".errors.no_students")
     end
 
     def partition_results(results)
