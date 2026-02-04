@@ -6,6 +6,11 @@
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-lg font-semibold text-gray-900">Students</h3>
         <div class="flex gap-2">
+          <%= link_to "Template", template_admin_v2_students_path,
+                      class: "inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" %>
+          <%= link_to "Import Students", "#",
+                      onclick: "document.getElementById('import-modal').classList.remove('hidden'); return false;",
+                      class: "inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" %>
           <%= link_to "New Student", new_admin_v2_student_path,
                       class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700" %>
         </div>
@@ -90,6 +95,50 @@
           <% end %>
         </tbody>
       </table>
+    </div>
+  </div>
+</div>
+
+<!-- Import Modal -->
+<div id="import-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+  <!-- Background overlay -->
+  <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="document.getElementById('import-modal').classList.add('hidden');"></div>
+
+  <!-- Modal content -->
+  <div class="relative bg-white rounded-lg shadow-xl max-w-lg w-full mx-4 z-50">
+    <div class="px-6 py-4">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-medium text-gray-900" id="modal-title">
+          Import Students from CSV
+        </h3>
+        <button type="button" class="text-gray-400 hover:text-gray-500" onclick="document.getElementById('import-modal').classList.add('hidden');">
+          <span class="sr-only">Close</span>
+          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <p class="text-sm text-gray-500 mb-4">
+        Upload a CSV file with columns: <strong>classroom_id, username</strong>
+      </p>
+
+      <%= form_with url: import_admin_v2_students_path, multipart: true, local: true do |form| %>
+        <div class="mb-4">
+          <%= form.file_field :csv_file,
+                              accept: ".csv",
+                              class: "block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none p-2" %>
+        </div>
+        <div class="flex justify-end gap-3">
+          <button type="button"
+                  onclick="document.getElementById('import-modal').classList.add('hidden');"
+                  class="inline-flex justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            Cancel
+          </button>
+          <%= form.submit "Import Students",
+                          class: "inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+        </div>
+      <% end %>
     </div>
   </div>
 </div>
