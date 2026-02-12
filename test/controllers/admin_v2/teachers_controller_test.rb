@@ -20,6 +20,11 @@ module AdminV2
     end
 
     test "index sorts by username by default" do
+      create(:teacher, username: "teacher1")
+      create(:teacher, username: "teacher2")
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
+
       get admin_v2_teachers_path
 
       assert_response :success
@@ -29,7 +34,12 @@ module AdminV2
     end
 
     test "index shows only active teachers by default" do
-      @teacher1.discard
+      teacher1 = create(:teacher, username: "teacher1")
+      create(:teacher, username: "teacher2")
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
+
+      teacher1.discard
 
       get admin_v2_teachers_path
 
@@ -39,7 +49,12 @@ module AdminV2
     end
 
     test "index shows both active and deactivated teachers with all filter" do
-      @teacher1.discard
+      teacher1 = create(:teacher, username: "teacher1")
+      create(:teacher, username: "teacher2")
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
+
+      teacher1.discard
 
       get admin_v2_teachers_path(all: true)
 
@@ -50,7 +65,11 @@ module AdminV2
     end
 
     test "index shows only deactivated teachers with discarded filter" do
-      @teacher1.discard
+      teacher1 = create(:teacher, username: "teacher1")
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
+
+      teacher1.discard
 
       get admin_v2_teachers_path(discarded: true)
 
@@ -61,19 +80,29 @@ module AdminV2
 
     # Show tests
     test "should show teacher" do
-      get admin_v2_teacher_path(@teacher1)
+      teacher = create(:teacher)
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
+
+      get admin_v2_teacher_path(teacher)
 
       assert_response :success
-      assert_select "h2", @teacher1.username
+      assert_select "h2", teacher.username
     end
 
     test "should show teacher classrooms" do
-      get admin_v2_teacher_path(@teacher1)
+      classroom = create(:classroom, name: "Math 101")
+      teacher = create(:teacher)
+      teacher.classrooms << classroom
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
+
+      get admin_v2_teacher_path(teacher)
 
       assert_response :success
-      assert_select "h2", username
+      assert_select "h2", teacher.username
       assert_select "h3", "Classrooms"
-      assert_select "li", text: classroom_name
+      assert_select "li", text: classroom.name
     end
 
     test "show when teacher has no classrooms" do
@@ -184,37 +213,49 @@ module AdminV2
 
     # Hard delete (destroy) tests
     test "should permanently delete deactivated teacher" do
-      @teacher1.discard
+      teacher = create(:teacher, username: "teacher1")
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
+
+      teacher.discard
 
       assert_difference("Teacher.with_discarded.count", -1) do
-        delete admin_v2_teacher_path(@teacher1)
+        delete admin_v2_teacher_path(teacher)
       end
 
       assert_redirected_to admin_v2_teachers_path
       assert_equal "Teacher teacher1 permanently deleted.", flash[:notice]
-      assert_nil Teacher.with_discarded.find_by(id: @teacher1.id)
+      assert_nil Teacher.with_discarded.find_by(id: teacher.id)
     end
 
     test "should not permanently delete active teacher" do
+      teacher = create(:teacher, username: "teacher1")
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
+
       assert_no_difference("Teacher.with_discarded.count") do
-        delete admin_v2_teacher_path(@teacher1)
+        delete admin_v2_teacher_path(teacher)
       end
 
-      assert_redirected_to edit_admin_v2_teacher_path(@teacher1)
+      assert_redirected_to edit_admin_v2_teacher_path(teacher)
       assert_equal "Teacher must be deactivated before permanent deletion.", flash[:alert]
-      assert_not @teacher1.reload.discarded?
+      assert_not teacher.reload.discarded?
     end
 
     test "permanent delete should remove teacher from database and DOM" do
-      @teacher1.discard
+      teacher = create(:teacher, username: "teacher1")
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
+
+      teacher.discard
 
       assert_difference("Teacher.with_discarded.count", -1) do
-        delete admin_v2_teacher_path(@teacher1)
+        delete admin_v2_teacher_path(teacher)
       end
 
       follow_redirect!
 
-      assert_select "##{dom_id(@teacher1)}", count: 0
+      assert_select "##{dom_id(teacher)}", count: 0
     end
   end
 end
