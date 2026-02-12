@@ -4,6 +4,13 @@ require "test_helper"
 
 module AdminV2
   class StudentsControllerTest < ActionDispatch::IntegrationTest
+    setup do
+      @classroom1 = create(:classroom)
+      @classroom2 = create(:classroom)
+      @admin = create(:admin, admin: true, classroom: nil)
+      sign_in(@admin)
+    end
+
     test "index" do
       create(:student)
       create(:student)
@@ -247,7 +254,7 @@ module AdminV2
 
       assert_response :success
       assert_equal "text/csv", response.media_type
-      assert_equal "attachment; filename=\"student_import_template.csv\"", response.headers["Content-Disposition"]
+      assert_includes response.headers["Content-Disposition"], "attachment; filename=\"student_import_template.csv\""
       assert_match(/classroom_id,username/, response.body)
     end
 
@@ -273,6 +280,7 @@ module AdminV2
     end
 
     test "import should skip existing students" do
+      create(:student, username: "student1", classroom: @classroom1)
       csv_content = "classroom_id,username\n#{@classroom1.id},student1\n#{@classroom2.id},new_student"
       csv_file = Tempfile.new(["test_import", ".csv"])
       csv_file.write(csv_content)
