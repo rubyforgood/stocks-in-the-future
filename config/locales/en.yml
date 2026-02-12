@@ -82,6 +82,10 @@ en:
         notice: 'Student %{username} created successfully. Password: %{password}'
       destroy:
         notice: Student %{username} discarded successfully.
+      import:
+        errors:
+          no_file: Please select a CSV file
+          no_students: No students found in CSV file
       restore:
         notice: Student %{username} restored successfully.
       update:
