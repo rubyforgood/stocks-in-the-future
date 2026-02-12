@@ -4,6 +4,13 @@ require "test_helper"
 
 module AdminV2
   class StudentsControllerTest < ActionDispatch::IntegrationTest
+    setup do
+      @classroom1 = create(:classroom)
+      @classroom2 = create(:classroom)
+      @admin = create(:admin, admin: true, classroom: nil)
+      sign_in(@admin)
+    end
+
     test "index" do
       create(:student)
       create(:student)
@@ -239,6 +246,176 @@ module AdminV2
 
       assert_redirected_to edit_admin_v2_student_path(student)
       assert_equal expected_error_message, flash[:alert]
+    end
+
+    # Import/Template tests
+    test "template should download CSV template" do
+      get template_admin_v2_students_path
+
+      assert_response :success
+      assert_equal "text/csv", response.media_type
+      assert_includes response.headers["Content-Disposition"], "attachment; filename=\"student_import_template.csv\""
+      assert_match(/classroom_id,username/, response.body)
+    end
+
+    test "import should create students from valid CSV" do
+      csv_content = "classroom_id,username\n#{@classroom1.id},import_student1\n#{@classroom2.id},import_student2"
+      csv_file = Tempfile.new(["test_import", ".csv"])
+      csv_file.write(csv_content)
+      csv_file.rewind
+
+      assert_difference("Student.count", 2) do
+        post import_admin_v2_students_path, params: {
+          csv_file: fixture_file_upload(csv_file.path, "text/csv")
+        }
+      end
+
+      csv_file.close
+      csv_file.unlink
+
+      assert_redirected_to admin_v2_students_path
+      assert_match(/Successfully created 2 students/, flash[:notice])
+      assert_match(/import_student1/, flash[:notice])
+      assert_match(/import_student2/, flash[:notice])
+    end
+
+    test "import should skip existing students" do
+      create(:student, username: "student1", classroom: @classroom1)
+      csv_content = "classroom_id,username\n#{@classroom1.id},student1\n#{@classroom2.id},new_student"
+      csv_file = Tempfile.new(["test_import", ".csv"])
+      csv_file.write(csv_content)
+      csv_file.rewind
+
+      assert_difference("Student.count", 1) do
+        post import_admin_v2_students_path, params: {
+          csv_file: fixture_file_upload(csv_file.path, "text/csv")
+        }
+      end
+
+      csv_file.close
+      csv_file.unlink
+
+      assert_redirected_to admin_v2_students_path
+      assert_match(/Successfully created 1 students/, flash[:notice])
+      assert_match(/Skipped 1 existing usernames/, flash[:notice])
+    end
+
+    test "import should handle errors and show line numbers" do
+      csv_content = "classroom_id,username\n999,invalid_student\n#{@classroom1.id},valid_student"
+      csv_file = Tempfile.new(["test_import", ".csv"])
+      csv_file.write(csv_content)
+      csv_file.rewind
+
+      post import_admin_v2_students_path, params: {
+        csv_file: fixture_file_upload(csv_file.path, "text/csv")
+      }
+
+      csv_file.close
+      csv_file.unlink
+
+      assert_redirected_to admin_v2_students_path
+      assert_match(/errors occurred/, flash[:alert])
+      assert_match(/Row 2:/, flash[:alert])
+    end
+
+    test "import should reject missing file" do
+      assert_no_difference("Student.count") do
+        post import_admin_v2_students_path
+      end
+
+      assert_redirected_to admin_v2_students_path
+      assert_equal I18n.t("admin_v2.students.import.errors.no_file"), flash[:alert]
+    end
+
+    test "import should handle malformed CSV" do
+      csv_content = "classroom_id,username\n1,\"unclosed quote\n2,another_row"
+      csv_file = Tempfile.new(["test_import", ".csv"])
+      csv_file.write(csv_content)
+      csv_file.rewind
+
+      assert_no_difference("Student.count") do
+        post import_admin_v2_students_path, params: {
+          csv_file: fixture_file_upload(csv_file.path, "text/csv")
+        }
+      end
+
+      csv_file.close
+      csv_file.unlink
+
+      assert_redirected_to admin_v2_students_path
+      assert_match(/Invalid CSV format/, flash[:alert])
+    end
+
+    test "import should handle empty CSV" do
+      csv_content = "classroom_id,username\n"
+      csv_file = Tempfile.new(["test_import", ".csv"])
+      csv_file.write(csv_content)
+      csv_file.rewind
+
+      assert_no_difference("Student.count") do
+        post import_admin_v2_students_path, params: {
+          csv_file: fixture_file_upload(csv_file.path, "text/csv")
+        }
+      end
+
+      csv_file.close
+      csv_file.unlink
+
+      assert_redirected_to admin_v2_students_path
+      assert_equal I18n.t("admin_v2.students.import.errors.no_students"), flash[:alert]
+    end
+
+    test "import should show both success and error messages" do
+      csv_content = "classroom_id,username\n" \
+                    "#{@classroom1.id},import_success1\n999,import_fail\n#{@classroom2.id},import_success2"
+      csv_file = Tempfile.new(["test_import", ".csv"])
+      csv_file.write(csv_content)
+      csv_file.rewind
+
+      post import_admin_v2_students_path, params: {
+        csv_file: fixture_file_upload(csv_file.path, "text/csv")
+      }
+
+      csv_file.close
+      csv_file.unlink
+
+      assert_redirected_to admin_v2_students_path
+      assert_match(/Successfully created 2 students/, flash[:notice])
+      assert_match(/1 errors occurred/, flash[:alert])
+    end
+
+    test "non-admin cannot access template" do
+      sign_out(@admin)
+      teacher = create(:teacher)
+      sign_in(teacher)
+
+      get template_admin_v2_students_path
+
+      assert_redirected_to root_path
+      assert_equal "Access denied. Admin privileges required.", flash[:alert]
+    end
+
+    test "non-admin cannot import students" do
+      sign_out(@admin)
+      teacher = create(:teacher)
+      sign_in(teacher)
+
+      csv_content = "classroom_id,username\n#{@classroom1.id},import_student"
+      csv_file = Tempfile.new(["test_import", ".csv"])
+      csv_file.write(csv_content)
+      csv_file.rewind
+
+      assert_no_difference("Student.count") do
+        post import_admin_v2_students_path, params: {
+          csv_file: fixture_file_upload(csv_file.path, "text/csv")
+        }
+      end
+
+      csv_file.close
+      csv_file.unlink
+
+      assert_redirected_to root_path
+      assert_equal "Access denied. Admin privileges required.", flash[:alert]
     end
   end
 end
