@@ -2,7 +2,7 @@
 
 module AdminV2
   class ClassroomsController < BaseController
-    before_action :set_classroom, only: %i[show edit update destroy toggle_archive]
+    before_action :set_classroom, only: %i[show edit update toggle_archive]
 
     def index
       @classrooms = apply_sorting(Classroom.all, default: "name")
@@ -61,11 +61,6 @@ module AdminV2
         ]
         render :edit, status: :unprocessable_content
       end
-    end
-
-    def destroy
-      @classroom.destroy
-      redirect_to admin_v2_classrooms_path, notice: t(".notice")
     end
 
     def toggle_archive
