@@ -117,19 +117,6 @@ module Admin
         assert_response :unprocessable_entity
       end
 
-      test "destroy" do
-        classroom = create(:classroom)
-        admin = create(:admin, admin: true, classroom: nil)
-        sign_in(admin)
-
-        assert_difference("Classroom.count", -1) do
-          delete admin_v2_classroom_path(classroom)
-        end
-
-        assert_redirected_to admin_v2_classrooms_path
-        assert_equal "Classroom deleted successfully.", flash[:notice]
-      end
-
       test "toggle_archive" do
         classroom = create(:classroom, archived: false)
         admin = create(:admin, admin: true, classroom: nil)

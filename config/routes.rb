@@ -79,7 +79,7 @@ Rails.application.routes.draw do
 
     # Resource routes
     resources :announcements
-    resources :classrooms do
+    resources :classrooms, except: [:destroy] do
       member do
         patch :toggle_archive
       end
