@@ -1,21 +1,114 @@
 <div class="max-w-7xl mx-auto">
   <%= admin_breadcrumbs(@breadcrumbs) %>
 
-  <%= admin_table(
-        @teachers,
-        columns: [
-          { attribute: :id, label: "ID", sortable: true },
-          { attribute: :username, label: "Username", sortable: true },
-          { attribute: :email, label: "Email", sortable: true },
-          { attribute: :name, label: "Name", sortable: true },
-          { attribute: :created_at, label: "Created At", sortable: true }
-        ],
-        title: "Teachers",
-        actions: link_to(
-          "New Teacher",
-          new_admin_v2_teacher_path,
-          class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
-        ),
-        empty_message: "No teachers found. Create your first teacher to get started."
-      ) %>
+  <div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg overflow-hidden">
+    <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-semibold text-gray-900">Teachers</h3>
+        <div class="flex gap-2">
+          <%= link_to "New Teacher", new_admin_v2_teacher_path,
+                      class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700" %>
+        </div>
+      </div>
+
+      <!-- Filter Tabs -->
+      <% current_filter = current_discard_filter %>
+      <div class="flex gap-1 border-b border-gray-200">
+        <%= link_to "Active",
+                    admin_v2_teachers_path,
+                    class: "px-4 py-2 text-sm font-medium #{current_filter == :active ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700 hover:border-gray-300'}" %>
+        <%= link_to "Deactivated",
+                    admin_v2_teachers_path(discarded: true),
+                    class: "px-4 py-2 text-sm font-medium #{current_filter == :discarded ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700 hover:border-gray-300'}" %>
+        <%= link_to "All",
+                    admin_v2_teachers_path(all: true),
+                    class: "px-4 py-2 text-sm font-medium #{current_filter == :all ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700 hover:border-gray-300'}" %>
+      </div>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-300">
+        <thead class="bg-gray-50">
+          <tr>
+            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+              <%= sort_link(:id, "ID") %>
+            </th>
+            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+              <%= sort_link(:username, "Username") %>
+            </th>
+            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+              <%= sort_link(:email, "Email") %>
+            </th>
+            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+              <%= sort_link(:name, "Name") %>
+            </th>
+            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+              <%= sort_link(:created_at, "Created At") %>
+            </th>
+            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+              Status
+            </th>
+            <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
+              <span class="sr-only">Actions</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200 bg-white">
+          <% if @teachers.any? %>
+            <% @teachers.each do |teacher| %>
+              <tr id="<%= dom_id(teacher) %>" class="hover:bg-gray-50 transition-colors">
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">
+                  <%= teacher.id %>
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">
+                  <%= teacher.username %>
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">
+                  <%= teacher.email %>
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">
+                  <%= teacher.name %>
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">
+                  <%= teacher.created_at.strftime("%B %d, %Y") %>
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm">
+                  <% if teacher.discarded? %>
+                    <span class="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10">Deactivated</span>
+                  <% else %>
+                    <span class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">Active</span>
+                  <% end %>
+                </td>
+                <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+                  <div class="flex justify-end gap-2">
+                    <%= link_to "View", admin_v2_teacher_path(teacher), class: "text-blue-600 hover:text-blue-800" %>
+                    <%= link_to "Edit", edit_admin_v2_teacher_path(teacher), class: "text-gray-600 hover:text-gray-800" %>
+                    <% if teacher.discarded? %>
+                      <%= link_to "Reactivate", admin_v2_teacher_reactivation_path(teacher),
+                                  data: { turbo_method: :post, turbo_confirm: "Are you sure you want to reactivate this teacher?" },
+                                  class: "text-green-600 hover:text-green-800" %>
+                    <% else %>
+                      <%= link_to "Deactivate", admin_v2_teacher_deactivation_path(teacher),
+                                  data: { turbo_method: :post, turbo_confirm: "Are you sure you want to deactivate this teacher?" },
+                                  class: "text-red-600 hover:text-red-800" %>
+                    <% end %>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          <% else %>
+            <tr>
+              <td colspan="7" class="px-3 py-12 text-center text-sm text-gray-500">
+                <div class="flex flex-col items-center">
+                  <i class="fas fa-inbox text-4xl text-gray-300 mb-3"></i>
+                  <p class="font-medium">No records found</p>
+                  <p class="text-gray-400 mt-1">No teachers found. Create your first teacher to get started.</p>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>

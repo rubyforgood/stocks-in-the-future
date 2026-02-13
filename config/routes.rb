@@ -98,7 +98,10 @@ Rails.application.routes.draw do
         post :add_transaction
       end
     end
-    resources :teachers
+    resources :teachers do
+      resource :deactivation, only: [:create], controller: "teachers/deactivations"
+      resource :reactivation, only: [:create], controller: "teachers/reactivations"
+    end
     resources :users
     resources :years
     resources :portfolio_transactions, except: [:index]
