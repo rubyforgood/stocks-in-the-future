@@ -41,7 +41,7 @@
         <!-- TODO: Add bulk functionality in future PR -->
       </div>
     <% end %>
-    <div class="flex gap-4">
+    <div class="flex gap-8">
       <div class="flex-1">
         <%= render 'classroom_students_table', students: @classroom.users %>
         <% if policy(@classroom).edit? %>
