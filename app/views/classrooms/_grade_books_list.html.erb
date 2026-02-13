@@ -1,13 +1,20 @@
-<div class="mt-8">
-  <h3 class="text-lg font-medium text-gray-900 mb-4">Grade Books</h3>
+<div class="mt-8 w-64 flex-initial">
+  <h3 class="bg-amber-300 py-3 px-5 font-medium text-sm tracking-wide rounded-t-xl">
+    <i class="fas fa-book w-4 h-4"></i>
+    Grade Books
+  </h3>
 
   <% if grade_books.any? %>
     <ul class="divide-y divide-gray-200 bg-white rounded-md shadow">
       <% grade_books.each do |book| %>
         <li class="px-6 py-4 hover:bg-gray-50">
-          <%= link_to book.quarter.name,
-                      classroom_grade_book_path(@classroom, book),
-                      class: "text-black underline hover:text-[var(--sitf-secondary-chart2)] font-medium" %>
+          <%= link_to classroom_grade_book_path(@classroom, book),
+                      class: "text-black underline hover:text-[var(--sitf-secondary-chart2)] font-medium" do %>
+            <span class="flex flex-between items-center justify-between w-full">
+              <%= book.quarter.name %>
+              <i class="fa-solid fa-arrow-right"></i>
+            </span>
+          <% end %>
         </li>
       <% end %>
     </ul>
