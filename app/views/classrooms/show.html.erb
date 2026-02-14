@@ -47,20 +47,9 @@
     <div class="flex gap-8">
       <div class="flex-1">
         <%= render 'classroom_students_table', students: @classroom.users %>
-        <% if policy(@classroom).edit? %>
-          <div class="mt-8 pt-6 border-t border-gray-200">
-            <div class="flex items-center justify-between">
-              <h3 class="text-lg font-medium text-gray-900">Classroom Actions</h3>
-              <div class="flex items-center gap-3">
-                <%= render partial: "components/action_icon_button", locals: { options: { path: edit_classroom_path(@classroom), icon: "fa-pencil", title: "Edit classroom", aria_label: "Edit classroom", text_class: "text-blue-600" } } %>
-              </div>
-            </div>
-          </div>
-        <% end %>
-
       </div>
-    <!-- Temporary UI, remove when tabbed table is wired up: -->
-    <%= render "grade_books_list", grade_books: @classroom.grade_books %>
+      <!-- Temporary UI, remove when tabbed table is wired up: -->
+      <%= render "grade_books_list", grade_books: @classroom.grade_books %>
     </div>
   </div>
 </div>
