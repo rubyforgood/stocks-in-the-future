@@ -35,9 +35,12 @@
       <% end %>
     </div>
     <% if @can_manage_students %>
-      <div class="flex justify-end">
+      <div class="flex justify-end gap-3">
         <%= link_to "Add Student", new_classroom_student_path(@classroom),
                     class: "tw-btn-primary" %>
+        <% if policy(@classroom).edit? %>
+          <%= link_to "Edit Class", edit_classroom_path(@classroom), class: "tw-btn-secondary !rounded-lg !py-3 !px-5 !text-base !text-black !ring-black" %>
+        <% end %>
         <!-- TODO: Add bulk functionality in future PR -->
       </div>
     <% end %>
