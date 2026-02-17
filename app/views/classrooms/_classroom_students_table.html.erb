@@ -1,20 +1,9 @@
 <div class="mt-8">
-  <div class="flex justify-between items-center mb-4">
-    <h3 class="text-lg font-medium text-gray-900">Students</h3>
-    <% if @can_manage_students %>
-      <div class="flex gap-2">
-        <%= link_to "Add Student", new_classroom_student_path(@classroom),
-                    class: "tw-btn-primary" %>
-        <!-- TODO: Add bulk functionality in future PR -->
-      </div>
-    <% end %>
-  </div>
-
   <div class="overflow-x-auto">
     <table class="min-w-full divide-y divide-gray-200">
       <thead class="bg-gray-50">
         <tr>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Username</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student [Username]</th>
           <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Portfolio Value</th>
           <% if @can_manage_students %>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Available Cash</th>
