@@ -63,7 +63,7 @@
   <!-- Getting Started Full Width -->
   <div class="rounded-xl border-2 border-black bg-white overflow-hidden">
     <div class="bg-[#d3df44] py-3 px-5 font-semibold text-base tracking-wide border-b-2 border-black">Getting Started</div>
-    <div class="px-4 pt-4 pb-6 grid grid-cols-1 md:grid-cols-4 gap-4 text-xs">
+    <div class="px-4 pt-4 pb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
       <% steps = [
            { num: '1', title: 'Earn Funds', body: 'Show Up, Stay Engaged, And Earn Investment Funds Based On Your Attendance, Participation, And Performance.' },
            { num: '2', title: 'Go To The Trading Floor', body: "Once You Have Funds, Explore The Trading Floor And The Company's To Buy Your First Stock." },
@@ -74,7 +74,7 @@
         <div class="flex flex-cols-2 gap-3 md:gap-2 items-start">
           <div class="pr-1 flex-none"><%= image_tag "#{s[:num]}_Number.png", alt: "Step #{s[:num]}", class: "h-10 md:h-14 lg:h-16" %></div>
           <div class="space-y-1">
-            <p class="font-semibold leading-snug"><%= s[:title] %></p>
+            <p class="text-xl font-semibold leading-snug"><%= s[:title] %></p>
             <p class="text-[13px] text-gray-700 leading-snug"><%= s[:body] %></p>
           </div>
         </div>
