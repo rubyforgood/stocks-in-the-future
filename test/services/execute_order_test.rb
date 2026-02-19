@@ -146,4 +146,32 @@ class ExecuteOrderTest < ActiveSupport::TestCase
     total_shares = portfolio.shares_owned(stock.id)
     assert_equal 6, total_shares
   end
+
+  test "cannot create buy order with insufficient funds" do
+    portfolio = create(:portfolio)
+    portfolio.portfolio_transactions.create!(amount_cents: 500, transaction_type: :deposit)
+    stock = create(:stock, price_cents: 100)
+
+    order = build(:order, :pending, :buy, shares: 10, stock: stock, user: portfolio.user)
+
+    assert_raises(ActiveRecord::RecordInvalid) do
+      order.save!
+    end
+
+    assert order.errors[:shares].first.include?("Insufficient funds")
+  end
+
+  test "cannot create sell order with insufficient shares" do
+    portfolio = create(:portfolio)
+    stock = create(:stock, price_cents: 100)
+    create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 5, purchase_price: 100)
+
+    order = build(:order, :pending, :sell, shares: 10, stock: stock, user: portfolio.user)
+
+    assert_raises(ActiveRecord::RecordInvalid) do
+      order.save!
+    end
+
+    assert order.errors[:base].first.include?("Cannot sell more shares than you own")
+  end
 end

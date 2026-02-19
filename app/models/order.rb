@@ -54,6 +54,29 @@ class Order < ApplicationRecord
     order_transaction_type == :debit ? "buy" : "sell"
   end
 
+  def has_sufficient_funds?
+    return true unless buy?
+    return true unless number_of_shares_valid_for_calculations?
+
+   
+    current_balance_cents = (user.portfolio&.cash_balance || 0) * 100
+
+    fee_already_subtracted = user.orders.pending.exists? ? PortfolioTransaction::TRANSACTION_FEE_CENTS : 0
+    balance_without_reservations = current_balance_cents + purchase_cost + fee_already_subtracted
+    
+    total_needed = purchase_cost + transaction_fee
+    
+    balance_without_reservations >= total_needed
+  end
+
+  def has_sufficient_shares?
+    return true unless sell?
+    return true unless number_of_shares_valid_for_calculations?
+
+    current_shares = user.portfolio&.shares_owned(stock_id) || 0
+    shares <= current_shares
+  end
+
   private
 
   def number_of_shares_valid_for_calculations?
