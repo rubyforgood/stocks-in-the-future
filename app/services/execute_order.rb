@@ -14,8 +14,9 @@ class ExecuteOrder
 
   def execute
     return unless order.pending?
+
     unless valid_order?
-      cancel_order! 
+      cancel_order!
       return
     end
 
@@ -61,9 +62,9 @@ class ExecuteOrder
 
   def valid_order?
     if order.buy?
-      order.has_sufficient_funds?
+      order.sufficient_funds?
     elsif order.sell?
-      order.has_sufficient_shares?
+      order.sufficient_shares?
     end
 
     true
