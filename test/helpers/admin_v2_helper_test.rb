@@ -71,7 +71,7 @@ class AdminV2HelperTest < ActionView::TestCase
   # TODO: Fix sort_link routing issues in AdminV2 - create separate ticket
   # Error: No route matches {direction: "desc", sort: :name}
   test "sort_link generates correct direction toggle" do
-    return # TODO: Broken due to routing issues - needs separate ticket
+    skip "Broken due to routing issues"
     # params[:sort] = "name"
     # params[:direction] = "asc"
     # result = sort_link(:name, "Name")
@@ -82,7 +82,7 @@ class AdminV2HelperTest < ActionView::TestCase
   # TODO: Fix sort_link routing issues in AdminV2 - create separate ticket
   # Error: No route matches {direction: "asc", sort: :name}
   test "sort_link defaults to asc for new sort" do
-    return # TODO: Broken due to routing issues - needs separate ticket
+    skip "Broken due to routing issues"
     # params[:sort] = nil
     # params[:direction] = nil
     # result = sort_link(:name, "Name")
