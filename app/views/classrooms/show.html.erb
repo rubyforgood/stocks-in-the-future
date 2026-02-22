@@ -4,56 +4,37 @@
       <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-lg inline-block" id="notice"><%= notice %></p>
     <% end %>
 
-    <div class="flex gap-4 items-center mb-6">
-      <h1 class="text-3xl font-bold">
-        <%= [
-              @classroom.name,
-              ("Grade #{@classroom.grades_display}" if @classroom.grades_display.present?),
-              @classroom.year_name
-            ].compact.join(', ') %>
-      </h1>
+    <div class="flex gap-4 items-center justify-between my-6">
+      <div class="flex gap-4">
+        <h1 class="text-3xl font-bold">
+          <%= [
+                @classroom.name,
+                ("Grade #{@classroom.grades_display}" if @classroom.grades_display.present?),
+                @classroom.year_name
+              ].compact.join(', ') %>
+        </h1>
 
-      <%= form_with url: toggle_trading_classroom_path(@classroom), method: :patch do %>
-        <label class="inline-flex items-center cursor-pointer">
-          <%= check_box_tag "trading", "1", @classroom.trading_enabled?, class: "sr-only peer", disabled: !policy(@classroom).toggle_trading?, onchange: "this.form.requestSubmit()" %>
-          <span class="select-none text-sm font-medium">Trading:</span>
-          <div class="relative ms-1 w-9 h-5 bg-gray-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-buffer after:content-[''] after:absolute after:top-0.5 after:start-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600"></div>
-        </label>
-      <% end %>
-    </div>
+        <%= form_with url: toggle_trading_classroom_path(@classroom), method: :patch, class: "contents" do %>
+          <label class="inline-flex items-center cursor-pointer">
+            <%= check_box_tag "trading", "1", @classroom.trading_enabled?, class: "sr-only peer", disabled: !policy(@classroom).toggle_trading?, onchange: "this.form.requestSubmit()" %>
+            <span class="select-none text-sm font-medium">Trading:</span>
+            <div class="relative ms-1 w-9 h-5 bg-gray-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-buffer after:content-[''] after:absolute after:top-0.5 after:start-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600"></div>
+          </label>
+        <% end %>
+      </div>
 
-    <div class="mb-6 p-4 rounded-lg <%= @classroom.trading_enabled? ? 'bg-green-50 border border-green-200' : 'bg-yellow-50 border border-yellow-200' %>">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <span class="text-lg font-semibold <%= @classroom.trading_enabled? ? 'text-green-800' : 'text-yellow-800' %>">
-            Trading Status:
-          </span>
-          <span class="<%= @classroom.trading_enabled? ? 'text-green-700' : 'text-yellow-700' %>">
-            <%= @classroom.trading_enabled? ? '✓ Enabled' : '⚠ Disabled' %>
-          </span>
-        </div>
-        <% if policy(@classroom).toggle_trading? %>
-          <%= button_to toggle_trading_classroom_path(@classroom),
-                        method: :patch,
-                        class: "px-4 py-2 rounded-md font-medium transition-colors #{@classroom.trading_enabled? ? 'bg-yellow-600 hover:bg-yellow-700 text-white' : 'bg-green-600 hover:bg-green-700 text-white'}" do %>
-            <%= @classroom.trading_enabled? ? 'Disable Trading' : 'Enable Trading' %>
+      <% if @can_manage_students %>
+        <div class="flex justify-end gap-3">
+          <%= link_to "Add Student", new_classroom_student_path(@classroom),
+                      class: "tw-btn-primary" %>
+          <% if policy(@classroom).edit? %>
+            <%= link_to "Edit Class", edit_classroom_path(@classroom), class: "tw-btn-secondary !rounded-lg !py-3 !px-5 !text-base !text-black !ring-black" %>
           <% end %>
-        <% end %>
-      </div>
-      <% unless @classroom.trading_enabled? %>
-        <p class="text-sm text-yellow-700 mt-1">Students cannot place orders while trading is disabled.</p>
+          <!-- TODO: Add bulk functionality in future PR -->
+        </div>
       <% end %>
     </div>
-    <% if @can_manage_students %>
-      <div class="flex justify-end gap-3">
-        <%= link_to "Add Student", new_classroom_student_path(@classroom),
-                    class: "tw-btn-primary" %>
-        <% if policy(@classroom).edit? %>
-          <%= link_to "Edit Class", edit_classroom_path(@classroom), class: "tw-btn-secondary !rounded-lg !py-3 !px-5 !text-base !text-black !ring-black" %>
-        <% end %>
-        <!-- TODO: Add bulk functionality in future PR -->
-      </div>
-    <% end %>
+
     <div class="flex gap-8">
       <div class="flex-1">
         <%= render 'classroom_students_table', students: @classroom.users %>
