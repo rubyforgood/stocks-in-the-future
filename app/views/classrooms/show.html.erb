@@ -13,11 +13,13 @@
             ].compact.join(', ') %>
       </h1>
 
-      <label class="inline-flex items-center cursor-pointer">
-        <%= check_box_tag "trading", "1", @classroom.trading_enabled?, class: "sr-only peer", disabled: !policy(@classroom).toggle_trading? %>
-        <span class="select-none text-sm font-medium">Trading:</span>
-        <div class="relative ms-1 w-9 h-5 bg-gray-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-buffer after:content-[''] after:absolute after:top-0.5 after:start-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600"></div>
-      </label>
+      <%= form_with url: toggle_trading_classroom_path(@classroom), method: :patch do %>
+        <label class="inline-flex items-center cursor-pointer">
+          <%= check_box_tag "trading", "1", @classroom.trading_enabled?, class: "sr-only peer", disabled: !policy(@classroom).toggle_trading?, onchange: "this.form.requestSubmit()" %>
+          <span class="select-none text-sm font-medium">Trading:</span>
+          <div class="relative ms-1 w-9 h-5 bg-gray-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-buffer after:content-[''] after:absolute after:top-0.5 after:start-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600"></div>
+        </label>
+      <% end %>
     </div>
 
     <div class="mb-6 p-4 rounded-lg <%= @classroom.trading_enabled? ? 'bg-green-50 border border-green-200' : 'bg-yellow-50 border border-yellow-200' %>">
