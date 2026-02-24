@@ -45,4 +45,16 @@ class UserManagesClassroomsTest < ApplicationSystemTestCase
     assert_selector "h1", text: "Updated Classroom"
     assert_selector "h1", text: "2024-2025"
   end
+
+  test "admin can update trading for a classroom" do
+    classroom = create(:classroom, trading_enabled: false)
+    admin = create(:admin)
+    sign_in(admin)
+    visit classroom_path(classroom)
+
+    check "trading", allow_label_click: true
+    assert_selector "#notice", text: "Trading has been enabled for this classroom."
+    uncheck "trading", allow_label_click: true
+    assert_selector "#notice", text: "Trading has been disabled for this classroom."
+  end
 end

@@ -2,9 +2,20 @@
 
 # TODO: more robust solution later.
 class MemorablePasswordGenerator
-  NUMBERS = (1..99).to_a.freeze
+  RANGE = (1..99)
 
-  def self.generate
-    (Faker::Superhero.name + rand(1..99).to_s + Faker::Superhero.name).delete(" ").delete("-")
+  class << self
+    def generate
+      password = Faker::Superhero.name + rand(RANGE).to_s + Faker::Superhero.name
+      normalize password
+    end
+
+    private
+
+    def normalize(password)
+      invalid_characters = [" ", "-", "'"]
+      invalid_characters.each { password.delete! it }
+      password
+    end
   end
 end

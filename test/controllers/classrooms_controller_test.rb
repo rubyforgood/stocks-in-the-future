@@ -109,12 +109,11 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "update replaces grades correctly" do
-    classroom = create(:classroom)
-    old_grade = create(:grade, level: 6)
-    create(:classroom_grade, classroom: classroom, grade: old_grade)
+    old_grade = create(:grade)
+    create(:classroom_grade, classroom: @classroom, grade: old_grade)
 
-    new_grade1 = create(:grade, level: 7)
-    new_grade2 = create(:grade, level: 8)
+    new_grade1 = create(:grade)
+    new_grade2 = create(:grade)
 
     sign_in(@admin)
 
@@ -125,11 +124,11 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
       }
     }
 
-    patch classroom_path(classroom), params: params
-    classroom.reload
+    patch classroom_path(@classroom), params: params
+    @classroom.reload
 
-    assert_equal [new_grade1, new_grade2].sort, classroom.grades.sort
-    assert_not_includes classroom.grades, old_grade
+    assert_equal [new_grade1, new_grade2].sort, @classroom.grades.sort
+    assert_not_includes @classroom.grades, old_grade
   end
 
   test "archive classroom" do
