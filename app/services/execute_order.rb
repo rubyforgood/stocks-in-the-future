@@ -61,11 +61,8 @@ class ExecuteOrder
   end
 
   def valid_order?
-    if order.buy?
-      order.sufficient_funds?
-    elsif order.sell?
-      order.sufficient_shares?
-    end
+    return order.sufficient_funds? if order.buy?
+    return order.sufficient_shares? if order.sell?
 
     true
   end
