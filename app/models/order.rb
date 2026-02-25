@@ -66,7 +66,7 @@ class Order < ApplicationRecord
     total_needed = purchase_cost + transaction_fee
 
     return true if balance_without_reservations >= total_needed
-    
+
     formatted_balance = format_money(current_balance_cents)
     formatted_cost = format_money(total_needed)
     errors.add(:shares, "Insufficient funds. You have #{formatted_balance} but need #{formatted_cost}")
@@ -81,7 +81,7 @@ class Order < ApplicationRecord
     current_shares = user.portfolio&.shares_owned(stock_id) || 0
 
     return true if shares <= current_shares
- 
+
     formatted_shares = (current_shares % 1).zero? ? current_shares.to_i : current_shares
     errors.add(:base, "Cannot sell more shares than you own (#{formatted_shares} available)")
     false
