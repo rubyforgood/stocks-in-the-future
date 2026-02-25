@@ -63,19 +63,18 @@
   <!-- Getting Started Full Width -->
   <div class="rounded-xl border-2 border-black bg-white overflow-hidden">
     <div class="bg-[#d3df44] py-3 px-5 font-semibold text-base tracking-wide border-b-2 border-black">Getting Started</div>
-    <div class="px-4 pt-4 pb-6 grid grid-cols-1 md:grid-cols-4 gap-4 text-xs">
+    <div class="px-4 pt-4 pb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
       <% steps = [
-           { num: '1_Number', title: 'Earn Funds', body: 'Show Up, Stay Engaged, And Earn Investment Funds Based On Your Attendance, Participation, And Performance.' },
-           { num: '2_Number', title: 'Go To The Trading Floor', body: "Once You Have Funds, Explore The Trading Floor And The Company's To Buy Your First Stock." },
-           { num: '3_Number', title: 'Buy & Sell', body: 'Choose Your Companies Wisely! You Can Buy And Sell As Your Portfolio Grows. Watch Your Earnings Change Based On The Market.' },
-           { num: '4_Number', title: 'Track Your Progress', body: 'Your Portfolio Shows How Your Investments Are Performing Over Time, Plus Summaries Of Your Grades And Attendance.' }
+           { num: '1', title: 'Earn Funds', body: 'Show Up, Stay Engaged, And Earn Investment Funds Based On Your Attendance, Participation, And Performance.' },
+           { num: '2', title: 'Go To The Trading Floor', body: "Once You Have Funds, Explore The Trading Floor And The Company's To Buy Your First Stock." },
+           { num: '3', title: 'Buy & Sell', body: 'Choose Your Companies Wisely! You Can Buy And Sell As Your Portfolio Grows. Watch Your Earnings Change Based On The Market.' },
+           { num: '4', title: 'Track Your Progress', body: 'Your Portfolio Shows How Your Investments Are Performing Over Time, Plus Summaries Of Your Grades And Attendance.' }
          ] %>
       <% steps.each do |s| %>
-        <div class="flex gap-3 md:gap-2 items-start">
-          <% scale_style = %w[3_Number 4_Number].include?(s[:num]) ? "object-fit: contain; object-position: center; transform: scale(1.4);" : "object-fit: contain; object-position: center;" %>
-          <div class="pr-1"><%= image_tag "#{s[:num]}.svg", alt: "Step #{s[:num]}", class: "w-20 h-10 md:w-28 md:h-14 lg:w-32 lg:h-16", style: scale_style %></div>
+        <div class="flex flex-cols-2 gap-3 md:gap-2 items-start">
+          <div class="pr-1 flex-none"><%= image_tag "#{s[:num]}_Number.png", alt: "Step #{s[:num]}", class: "h-10 md:h-14 lg:h-16" %></div>
           <div class="space-y-1">
-            <p class="font-semibold leading-snug"><%= s[:title] %></p>
+            <p class="text-xl font-semibold leading-snug"><%= s[:title] %></p>
             <p class="text-[13px] text-gray-700 leading-snug"><%= s[:body] %></p>
           </div>
         </div>
