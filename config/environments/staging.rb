@@ -40,10 +40,11 @@ Rails.application.configure do
 
   # Log to STDOUT with the current request id as a default log tag.
   config.log_tags = [:request_id]
+  $stdout.sync = true
   config.logger = ActiveSupport::TaggedLogging.logger($stdout)
 
   # Change to "debug" to log everything (including potentially personally-identifiable information!)
-  config.log_level = ENV.fetch("RAILS_LOG_LEVEL", "info")
+  config.log_level = :debug
 
   # Prevent health checks from clogging up the logs.
   config.silence_healthcheck_path = "/up"
