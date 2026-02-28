@@ -84,7 +84,6 @@ Rails.application.routes.draw do
         patch :toggle_archive
       end
     end
-    resources :grades
     resources :schools
     resources :school_years
     resources :stocks
@@ -103,7 +102,6 @@ Rails.application.routes.draw do
       resource :reactivation, only: [:create], controller: "teachers/reactivations"
     end
     resources :users
-    resources :years
     resources :portfolio_transactions, except: [:index]
   end
 
