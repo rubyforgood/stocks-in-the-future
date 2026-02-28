@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require "net/http"
-require "json"
-
 class StockPricesUpdateJob < ApplicationJob
   queue_as :default
 
@@ -10,6 +7,7 @@ class StockPricesUpdateJob < ApplicationJob
 
   def perform(...)
     Rails.logger.info "Starting stock prices update job at #{Time.current}"
+    @api_client = AlphaVantageApiClient.new
 
     stock_count = Stock.count
     Rails.logger.info "Found #{stock_count} stocks to update"
@@ -39,8 +37,10 @@ class StockPricesUpdateJob < ApplicationJob
     update_stock_with_transaction(stock, symbol)
   rescue ActiveRecord::RecordInvalid => e
     Rails.logger.error "Failed to save #{symbol}: #{e.message}"
+    false
   rescue StandardError => e
     Rails.logger.error "Failed to update stock price for #{symbol}: #{e.message}"
+    false
   end
 
   def valid_stock_symbol?(stock, symbol)
@@ -58,8 +58,8 @@ class StockPricesUpdateJob < ApplicationJob
   end
 
   def process_price_update(stock, symbol)
-    price_data = fetch_and_validate_price(symbol)
-    return save_yesterday_price_only(stock, symbol) unless price_data
+    price_data = @api_client.fetch_quote(symbol)
+    return persist_yesterday_price_with_warning(stock, symbol) unless price_data
 
     unless should_update?(stock, price_data[:trading_day])
       Rails.logger.info "Skipping #{symbol}: no trading since #{stock.last_trading_day}"
@@ -69,9 +69,10 @@ class StockPricesUpdateJob < ApplicationJob
     save_updated_price(stock, symbol, price_data[:price], price_data[:trading_day])
   end
 
-  def save_yesterday_price_only(stock, symbol)
+  def persist_yesterday_price_with_warning(stock, symbol)
     stock.save!
     Rails.logger.warn "Could not fetch new price for #{symbol}, saved yesterday price only"
+    stock
   end
 
   def should_update?(stock, latest_trading_day)
@@ -91,44 +92,8 @@ class StockPricesUpdateJob < ApplicationJob
   end
 
   def log_successful_update(stock, symbol)
-    Rails.logger.info "Updated #{symbol}: $#{stock.yesterday_price_cents / 100.0} -> $#{stock.price_cents / 100.0}"
-  end
-
-  def fetch_and_validate_price(symbol)
-    data = api_request(symbol)
-    extract_price_data(data, symbol)
-  end
-
-  def extract_price_data(data, symbol)
-    price = data&.dig("Global Quote", "05. price")
-    trading_day = data&.dig("Global Quote", "07. latest trading day")
-
-    if price && trading_day
-      Rails.logger.info "API returned price #{price} for #{symbol} (trading day: #{trading_day})"
-      return { price: price, trading_day: trading_day }
-    end
-
-    Rails.logger.error "Invalid API response for #{symbol}: #{data}"
-    nil
-  end
-
-  def api_request(symbol)
-    api_key = ENV.fetch("ALPHA_VANTAGE_API_KEY", nil)
-    unless api_key
-      Rails.logger.error "ALPHA_VANTAGE_API_KEY environment variable not configured"
-      return nil
-    end
-
-    url = "https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=#{symbol}&apikey=#{api_key}"
-    uri = URI.parse(url)
-
-    response = Net::HTTP.get(uri)
-    JSON.parse(response)
-  rescue JSON::ParserError => e
-    Rails.logger.error "Failed to parse API response for #{symbol}: #{e.message}"
-    nil
-  rescue StandardError => e
-    Rails.logger.error "API request failed for #{symbol}: #{e.message}"
-    nil
+    yesterday_price = stock.yesterday_price_cents.to_f / 100.0
+    current_price = stock.price_cents.to_f / 100.0
+    Rails.logger.info "Updated #{symbol}: $#{yesterday_price} -> $#{current_price}"
   end
 end
