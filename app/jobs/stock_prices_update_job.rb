@@ -39,8 +39,10 @@ class StockPricesUpdateJob < ApplicationJob
     update_stock_with_transaction(stock, symbol)
   rescue ActiveRecord::RecordInvalid => e
     Rails.logger.error "Failed to save #{symbol}: #{e.message}"
+    false
   rescue StandardError => e
     Rails.logger.error "Failed to update stock price for #{symbol}: #{e.message}"
+    false
   end
 
   def valid_stock_symbol?(stock, symbol)
@@ -72,6 +74,7 @@ class StockPricesUpdateJob < ApplicationJob
   def save_yesterday_price_only(stock, symbol)
     stock.save!
     Rails.logger.warn "Could not fetch new price for #{symbol}, saved yesterday price only"
+    true
   end
 
   def should_update?(stock, latest_trading_day)
@@ -91,7 +94,9 @@ class StockPricesUpdateJob < ApplicationJob
   end
 
   def log_successful_update(stock, symbol)
-    Rails.logger.info "Updated #{symbol}: $#{stock.yesterday_price_cents / 100.0} -> $#{stock.price_cents / 100.0}"
+    yesterday_price = stock.yesterday_price_cents.to_f / 100.0
+    current_price = stock.price_cents.to_f / 100.0
+    Rails.logger.info "Updated #{symbol}: $#{yesterday_price} -> $#{current_price}"
   end
 
   def fetch_and_validate_price(symbol)
