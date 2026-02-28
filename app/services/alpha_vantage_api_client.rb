@@ -1,4 +1,4 @@
-i# frozen_string_literal: true
+# frozen_string_literal: true
 
 require "net/http"
 require "json"
@@ -9,12 +9,13 @@ class AlphaVantageApiClient
 
   def initialize
     @api_key = ENV.fetch("ALPHA_VANTAGE_API_KEY", nil)
-    validate_api_key!
   end
 
   def fetch_quote(symbol)
+    return nil unless api_key_present?
+
     Rails.logger.debug { "Fetching quote for #{symbol}" }
-    
+
     data = make_request(symbol)
     extract_price_data(data, symbol)
   rescue JSON::ParserError => e
@@ -27,18 +28,17 @@ class AlphaVantageApiClient
 
   private
 
-  def validate_api_key!
-    return if @api_key
+  def api_key_present?
+    return true if @api_key
 
-    error_msg = "ALPHA_VANTAGE_API_KEY environment variable not configured"
-    Rails.logger.error error_msg
-    raise ApiError, error_msg
+    Rails.logger.error "ALPHA_VANTAGE_API_KEY environment variable not configured"
+    false
   end
 
   def make_request(symbol)
     url = build_url(symbol)
     uri = URI.parse(url)
-    
+
     response = Net::HTTP.get(uri)
     JSON.parse(response)
   end
