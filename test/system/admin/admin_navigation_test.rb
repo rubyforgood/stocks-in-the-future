@@ -9,7 +9,7 @@ module Admin
       sign_in @admin
     end
 
-    test "admin navigation does not show School Years link" do
+    test "admin navigation shows links" do
       visit admin_root_path
 
       assert_link "School Years"
@@ -20,7 +20,6 @@ module Admin
       assert_link "Students"
       assert_link "Teachers"
       assert_link "Users"
-      assert_link "Years"
     end
   end
 end
