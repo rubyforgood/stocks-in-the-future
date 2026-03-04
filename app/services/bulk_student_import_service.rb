@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class BulkStudentImportService
-  ResultWithLineNumber = Struct.new(:result, :line_number, keyword_init: true) do
+  ResultWithLineNumber = Struct.new(:result, :line_number) do
     delegate_missing_to :result
   end
 

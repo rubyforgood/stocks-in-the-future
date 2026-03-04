@@ -44,8 +44,10 @@ module ActiveSupport
   end
 end
 
+# rubocop:disable Style/OneClassPerFile
 module ActionDispatch
   class IntegrationTest
     include Devise::Test::IntegrationHelpers
   end
 end
+# rubocop:enable Style/OneClassPerFile
