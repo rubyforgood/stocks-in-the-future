@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class ImportStudentService
-  Result = Struct.new(:success?, :student, :error_message, :action, keyword_init: true) do
+  Result = Struct.new(:success?, :student, :error_message, :action) do
     def created?
       action == :created
     end
