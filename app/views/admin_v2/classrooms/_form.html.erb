@@ -20,7 +20,7 @@
                    options_from_collection_for_select(
                      SchoolYear.joins(:school, :year).order("schools.name, years.name"),
                      :id,
-                     :to_s,
+                     :name,
                      @classroom.school_year_id
                    ),
                    label: "School Year",

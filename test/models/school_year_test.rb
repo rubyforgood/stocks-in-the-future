@@ -7,6 +7,11 @@ class SchoolYearTest < ActiveSupport::TestCase
     assert build(:school_year).validate!
   end
 
+  test "name returns school name and year name" do
+    school_year = build(:school_year)
+    assert_equal "#{school_year.school_name} (#{school_year.year_name})", school_year.name
+  end
+
   test "can be destroyed when no associations exist" do
     school_year = create(:school_year)
     assert school_year.destroy
