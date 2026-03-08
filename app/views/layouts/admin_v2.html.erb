@@ -24,8 +24,10 @@
             </svg>
           </button>
           <h1 class="text-xl font-semibold text-gray-900">
-            <i class="fas fa-tools text-blue-600 mr-2"></i>
-            Admin Dashboard
+            <%= link_to admin_v2_root_path do %>
+              <i class="fas fa-tools text-blue-600 mr-2"></i>
+              Admin Dashboard
+            <% end %>
           </h1>
         </div>
         <div class="flex items-center gap-4">
