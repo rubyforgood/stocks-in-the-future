@@ -63,6 +63,6 @@ class SchoolYearDashboard < Administrate::BaseDashboard
   # across all pages of the admin dashboard.
   #
   def display_resource(school_year)
-    "#{school_year.school.name} (#{school_year.year.name})"
+    school_year.name
   end
 end

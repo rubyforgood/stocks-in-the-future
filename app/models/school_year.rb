@@ -8,4 +8,8 @@ class SchoolYear < ApplicationRecord
 
   delegate :name, to: :school, prefix: :school
   delegate :name, to: :year, prefix: :year
+
+  def name
+    "#{school_name} (#{year_name})"
+  end
 end
