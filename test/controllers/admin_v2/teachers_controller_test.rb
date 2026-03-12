@@ -126,6 +126,39 @@ module AdminV2
       assert_select "h1", "New Teacher"
     end
 
+    test "new shows warning message when no classrooms available" do
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
+
+      get new_admin_v2_teacher_path
+
+      assert_response :success
+      assert_select "h1", "New Teacher"
+
+      assert_select "h3", text: "No Classrooms Available"
+      assert_select "p", text: /No Classrooms associated with this school and active year/
+      assert_select "a[href='#{admin_v2_classrooms_path}']", text: "update classrooms"
+    end
+
+    test "new shows classrooms when available" do
+      current_year = Year.find_or_create_by(name: "2025 - 2026")
+      school = create(:school, name: "Test School")
+      school_year = create(:school_year, school: school, year: current_year)
+
+      create(:classroom, name: "Test Classroom", archived: false, school_year: school_year)
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
+
+      get new_admin_v2_teacher_path
+
+      assert_response :success
+
+      assert_select "input[type='checkbox'][name='teacher[classroom_ids][]']"
+      assert_select "label", text: "Test Classroom"
+
+      assert_select "h3", text: "No Classrooms Available", count: 0
+    end
+
     test "create" do
       classroom1 = create(:classroom, name: "Ice Kingdom")
       classroom2 = create(:classroom, name: "Candy Kingdom")

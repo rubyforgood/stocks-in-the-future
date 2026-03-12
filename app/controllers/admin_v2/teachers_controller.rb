@@ -24,6 +24,7 @@ module AdminV2
 
     def new
       @teacher = Teacher.new
+      set_form_data
 
       @breadcrumbs = [
         { label: "Teachers", path: admin_v2_teachers_path },
@@ -32,6 +33,7 @@ module AdminV2
     end
 
     def edit
+      set_form_data
       @breadcrumbs = [
         { label: "Teachers", path: admin_v2_teachers_path },
         { label: @teacher.username, path: admin_v2_teacher_path(@teacher) },
@@ -50,6 +52,7 @@ module AdminV2
         @teacher.send_reset_password_instructions
         redirect_to admin_v2_teacher_path(@teacher), notice: t(".notice")
       else
+        set_form_data
         @breadcrumbs = [
           { label: "Teachers", path: admin_v2_teachers_path },
           { label: "New Teacher" }
@@ -66,6 +69,7 @@ module AdminV2
       if @teacher.update(update_params)
         redirect_to admin_v2_teacher_path(@teacher), notice: t(".notice")
       else
+        set_form_data
         @breadcrumbs = [
           { label: "Teachers", path: admin_v2_teachers_path },
           { label: @teacher.username, path: admin_v2_teacher_path(@teacher) },
@@ -95,6 +99,17 @@ module AdminV2
 
     def teacher_params
       params.expect(teacher: [:email, :name, :username, { classroom_ids: [] }])
+    end
+
+    def set_form_data
+      active_years = Year.current_school_year(Date.current)
+      @schools = School.joins(:school_years).where(school_years: { year_id: active_years.ids }).distinct.order(:name)
+
+      @selected_school_id = params[:school_id] || @teacher.classrooms.first&.school&.id
+
+      @classrooms = Classroom.active.joins(:school_year).where(school_years: { year_id: active_years.ids })
+      @classrooms = @classrooms.where(school_years: { school_id: @selected_school_id }) if @selected_school_id.present?
+      @classrooms = @classrooms.order(:name)
     end
   end
 end
