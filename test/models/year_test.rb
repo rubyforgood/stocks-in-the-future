@@ -37,4 +37,15 @@ class YearTest < ActiveSupport::TestCase
     assert_equal year2023_to2024, year2024_to2025.previous_year
     assert_nil year2024_to2025.next_year
   end
+
+  test "current_school_year" do
+    create(:year, name: "2025 - 2026")
+    create(:year, name: "2026 - 2027")
+
+    feb_date = Date.new(2026, 2, 28)
+    assert_equal "2025 - 2026", Year.current_school_year(feb_date).first.name
+
+    sep_date = Date.new(2026, 9, 1)
+    assert_equal "2026 - 2027", Year.current_school_year(sep_date).first.name
+  end
 end

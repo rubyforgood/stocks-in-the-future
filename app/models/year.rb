@@ -9,6 +9,15 @@ class Year < ApplicationRecord
 
   scope :ordered_by_start_year, -> { order(Arel.sql("CAST(SUBSTRING(name FROM 1 FOR 4) AS INTEGER) DESC")) }
 
+  def self.current_school_year(date = Date.current)
+    name = if date.month <= 6
+             "#{date.year - 1} - #{date.year}"
+           else
+             "#{date.year} - #{date.year + 1}"
+           end
+    where(name: name)
+  end
+
   def previous_year
     @previous_year || Year.find_by(name: "#{start_year_value - 1} - #{start_year_value}")
   end
