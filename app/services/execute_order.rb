@@ -15,6 +15,11 @@ class ExecuteOrder
   def execute
     return unless order.pending?
 
+    unless valid_order?
+      cancel_order!
+      return
+    end
+
     ActiveRecord::Base.transaction do
       create_portfolio_transaction
       create_portfolio_stock
@@ -53,5 +58,16 @@ class ExecuteOrder
 
   def purchase_cost
     order.purchase_cost
+  end
+
+  def valid_order?
+    return order.sufficient_funds? if order.buy?
+    return order.sufficient_shares? if order.sell?
+
+    true
+  end
+
+  def cancel_order!
+    order.cancel!
   end
 end

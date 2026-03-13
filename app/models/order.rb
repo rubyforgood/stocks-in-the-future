@@ -54,6 +54,39 @@ class Order < ApplicationRecord
     order_transaction_type == :debit ? "buy" : "sell"
   end
 
+  def sufficient_funds?
+    return true unless buy?
+    return true unless number_of_shares_valid_for_calculations?
+
+    current_balance_cents = (user.portfolio&.cash_balance || 0) * 100
+
+    fee_to_charge = user.orders.pending.exists? ? PortfolioTransaction::TRANSACTION_FEE_CENTS : 0
+    balance_without_reservations = current_balance_cents + purchase_cost + fee_to_charge
+
+    total_needed = purchase_cost + transaction_fee
+
+    return true if balance_without_reservations >= total_needed
+
+    formatted_balance = format_money(current_balance_cents)
+    formatted_cost = format_money(total_needed)
+    errors.add(:shares, "Insufficient funds. You have #{formatted_balance} but need #{formatted_cost}")
+
+    false
+  end
+
+  def sufficient_shares?
+    return true unless sell?
+    return true unless number_of_shares_valid_for_calculations?
+
+    current_shares = user.portfolio&.shares_owned(stock_id) || 0
+
+    return true if shares <= current_shares
+
+    formatted_shares = (current_shares % 1).zero? ? current_shares.to_i : current_shares
+    errors.add(:base, "Cannot sell more shares than you own (#{formatted_shares} available)")
+    false
+  end
+
   private
 
   def number_of_shares_valid_for_calculations?
