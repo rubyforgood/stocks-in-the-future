@@ -1,16 +1,29 @@
-<h2>Forgot your password?</h2>
+<div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
+  <div class="sm:mx-auto sm:w-full sm:max-w-sm">
+    <div class="flex w-full justify-center">
+      <%= image_tag "SITF-caponly-Logo.svg", class: "navbar-logo", alt: "Stocks in The Future" %>
+    </div>
 
-<%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post }) do |f| %>
-  <%= render "devise/shared/error_messages", resource: resource %>
+    <h2 class="text-center text-2xl/9 font-bold tracking-tight text-gray-900 pb-4">Forgot your password?</h2>
+    <p class="text-center text-sm text-gray-500 pb-4">Enter your email and we'll send you reset instructions.</p>
 
-  <div class="field">
-    <%= f.label :email %><br>
-    <%= f.email_field :email, autofocus: true, autocomplete: "email" %>
+    <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post }) do |f| %>
+      <%= render "devise/shared/error_messages", resource: resource %>
+
+      <div class="space-y-4">
+        <%= f.email_field :email,
+              autofocus: true,
+              autocomplete: "email",
+              placeholder: "Email address",
+              class: "block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 shadow-xs focus-visible:outline-hidden focus-visible:ring-3 focus-visible:ring-offset-2 focus-visible:border-muted" %>
+
+        <%= f.submit "Send me reset password instructions",
+              class: "flex w-full justify-center rounded-md bg-[#00698C] px-3 py-1.5 text-sm/6 text-white shadow-xs hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 cursor-pointer" %>
+      </div>
+    <% end %>
+
+    <p class="mt-6 text-center text-sm text-gray-500">
+      <%= link_to "Back to sign in", new_session_path(resource_name), class: "font-semibold text-black underline hover:text-[var(--sitf-secondary-chart2)]" %>
+    </p>
   </div>
-
-  <div class="actions">
-    <%= f.submit "Send me reset password instructions" %>
-  </div>
-<% end %>
-
-<%= render "devise/shared/links" %>
+</div>
