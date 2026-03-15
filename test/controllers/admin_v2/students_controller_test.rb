@@ -171,7 +171,7 @@ module AdminV2
       student.reload
 
       assert_redirected_to admin_v2_students_path
-      assert_equal "Student #{username} discarded successfully.", flash[:notice]
+      assert_equal "Student #{username} archived successfully.", flash[:notice]
       assert student.discarded?
     end
 
