@@ -81,7 +81,7 @@ en:
       create:
         notice: 'Student %{username} created successfully. Password: %{password}'
       destroy:
-        notice: Student %{username} discarded successfully.
+        notice: Student %{username} archived successfully.
       import:
         errors:
           no_file: Please select a CSV file
