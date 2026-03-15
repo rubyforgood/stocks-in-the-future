@@ -3,10 +3,10 @@
     <div class="flex flex-col justify-center">
       <p class="text-sm text-gray-600">My Earnings to Invest</p>
       <p class="text-2xl font-semibold leading-tight tracking-tight mt-1"><%= number_to_currency(@portfolio.cash_balance) %></p>
-      <% if current_user.admin? %>
-        <span class="mt-2 font-medium px-6 py-2.5 rounded-full shadow-sm w-fit cursor-not-allowed" style="background-color: #a7adaf; color: #5c636a;">Invest Now</span>
-      <% else %>
+      <% if current_user.student? %>
         <%= link_to "Invest Now", stocks_path, class: "mt-2 bg-[var(--sitf-secondary-teal)] hover:bg-[var(--sitf-4)] text-white font-medium px-6 py-2.5 rounded-full shadow-sm w-fit transition-colors" %>
+      <% else %>
+        <span class="mt-2 font-medium px-6 py-2.5 rounded-full shadow-sm w-fit cursor-not-allowed bg-[var(--sitf-8)] text-[var(--sitf-7)]">Invest Now</span>
       <% end %>
     </div>
 
