@@ -190,5 +190,14 @@ module AdminV2
 
       assert_redirected_to admin_v2_schools_path
     end
+
+    test "cannot destroy school with associated years" do
+      school = create(:school, name: "Test School")
+      school.years << create(:year, name: "2025 - 2026")
+
+      assert_no_difference("School.count") do
+        delete admin_v2_school_path(school)
+      end
+    end
   end
 end
