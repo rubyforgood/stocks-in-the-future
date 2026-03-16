@@ -22,7 +22,7 @@
         <%= link_to "Active",
                     admin_v2_students_path,
                     class: "px-4 py-2 text-sm font-medium #{current_filter == :active ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700 hover:border-gray-300'}" %>
-        <%= link_to "Discarded",
+        <%= link_to "Archived",
                     admin_v2_students_path(discarded: true),
                     class: "px-4 py-2 text-sm font-medium #{current_filter == :discarded ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700 hover:border-gray-300'}" %>
         <%= link_to "All",

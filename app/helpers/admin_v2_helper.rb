@@ -212,8 +212,8 @@ module AdminV2Helper
     resource_name = resource.class.name.underscore
     resource_path = send("admin_v2_#{resource_name}_path", resource)
 
-    link_to "Discard", resource_path,
-            data: { turbo_method: :delete, turbo_confirm: "Are you sure you want to discard this #{resource_name.humanize.downcase}?" }, # rubocop:disable Layout/LineLength
+    link_to "Archive", resource_path,
+            data: { turbo_method: :delete, turbo_confirm: "Are you sure you want to archive this #{resource_name.humanize.downcase}?" }, # rubocop:disable Layout/LineLength
             class: "text-red-600 hover:text-red-800"
   end
 
