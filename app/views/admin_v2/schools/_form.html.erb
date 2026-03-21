@@ -7,6 +7,10 @@
                        label: "Name",
                        hint: "Enter the school name",
                        placeholder: "Lincoln Elementary School" %>
+
+      <%= f.collection_check_boxes :year_ids, @years, :id, :name,
+                                   label: "Years",
+                                   hint: "Select the school years this school will be active" %>
     </div>
   </div>
 
