@@ -119,11 +119,11 @@ en:
       update:
         notice: Year updated successfully.
   announcements:
-    not_found: Announcement not found.
     create:
       notice: Announcement was successfully created.
     destroy:
       notice: Announcement was successfully destroyed.
+    not_found: Announcement not found.
     update:
       notice: Announcement was successfully updated.
   application:
