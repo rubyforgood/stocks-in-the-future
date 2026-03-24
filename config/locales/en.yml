@@ -19,7 +19,7 @@ en:
           attributes:
             company_website:
               invalid: must be a valid HTTP or HTTPS URL
-  admin_v2:
+  admin:
     announcements:
       create:
         notice: Announcement created successfully.

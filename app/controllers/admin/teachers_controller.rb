@@ -1,72 +1,115 @@
 # frozen_string_literal: true
 
 module Admin
-  class TeachersController < Admin::ApplicationController
-    # Overwrite any of the RESTful controller actions to implement custom behavior
-    # For example, you may want to send an email after a foo is updated.
-    #
-    # def update
-    #   super
-    #   send_foo_updated_email(requested_resource)
-    # end
+  class TeachersController < BaseController
+    include SoftDeletableFiltering
 
-    # Override this method to specify custom lookup behavior.
-    # This will be used to set the resource for the `show`, `edit`, and `update`
-    # actions.
-    #
-    # def find_resource(param)
-    #   Foo.find_by!(slug: param)
-    # end
+    before_action :set_teacher, only: %i[show edit update destroy]
+    before_action :require_deactivated, only: %i[destroy]
 
-    # The result of this lookup will be available as `requested_resource`
+    def index
+      @teachers = apply_sorting(scoped_by_discard_status(Teacher), default: "username")
 
-    # Override this if you have certain roles that require a subset
-    # this will be used to set the records shown on the `index` action.
-    #
-    # def scoped_resource
-    #   if current_user.super_admin?
-    #     resource_class
-    #   else
-    #     resource_class.with_less_stuff
-    #   end
-    # end
+      @breadcrumbs = [
+        { label: "Teachers" }
+      ]
+    end
 
-    # Override `resource_params` if you want to transform the submitted
-    # data before it's persisted. For example, the following would turn all
-    # empty values into nil values. It uses other APIs such as `resource_class`
-    # and `dashboard`:
-    #
-    # def resource_params
-    #   params.require(resource_class.model_name.param_key).
-    #     permit(dashboard.permitted_attributes(action_name)).
-    #     transform_values { |value| value == "" ? nil : value }
-    # end
+    def show
+      @breadcrumbs = [
+        { label: "Teachers", path: admin_teachers_path },
+        { label: @teacher.username }
+      ]
+    end
 
-    # need to create the new teacher by the admin
+    def new
+      @teacher = Teacher.new
+      set_form_data
+
+      @breadcrumbs = [
+        { label: "Teachers", path: admin_teachers_path },
+        { label: "New Teacher" }
+      ]
+    end
+
+    def edit
+      set_form_data
+      @breadcrumbs = [
+        { label: "Teachers", path: admin_teachers_path },
+        { label: @teacher.username, path: admin_teacher_path(@teacher) },
+        { label: "Edit" }
+      ]
+    end
+
     def create
       temp_password = Devise.friendly_token.first(20)
-      classroom_id = teacher_params[:classroom_id]
-      classroom = Classroom.find_by(id: classroom_id)
+      classroom_ids = teacher_params[:classroom_ids]&.reject(&:blank?)
 
-      @teacher = Teacher.new(teacher_params.merge(password: temp_password))
-      @teacher.classrooms << classroom if classroom
+      @teacher = Teacher.new(teacher_params.except(:classroom_ids).merge(password: temp_password))
+      @teacher.classroom_ids = classroom_ids if classroom_ids.present?
 
-      unless @teacher.save
-        return render :new, status: :unprocessable_content,
-                            locals: { page: Administrate::Page::Form.new(dashboard, @teacher) }
+      if @teacher.save
+        @teacher.send_reset_password_instructions
+        redirect_to admin_teacher_path(@teacher), notice: t(".notice")
+      else
+        set_form_data
+        @breadcrumbs = [
+          { label: "Teachers", path: admin_teachers_path },
+          { label: "New Teacher" }
+        ]
+        render :new, status: :unprocessable_content
       end
+    end
 
-      @teacher.send_reset_password_instructions
-      redirect_to admin_teachers_path, notice: t("teachers.create.notice")
+    def update
+      classroom_ids = teacher_params[:classroom_ids]&.reject(&:blank?)
+      update_params = teacher_params.except(:classroom_ids)
+      update_params[:classroom_ids] = classroom_ids if classroom_ids.present?
+
+      if @teacher.update(update_params)
+        redirect_to admin_teacher_path(@teacher), notice: t(".notice")
+      else
+        set_form_data
+        @breadcrumbs = [
+          { label: "Teachers", path: admin_teachers_path },
+          { label: @teacher.username, path: admin_teacher_path(@teacher) },
+          { label: "Edit" }
+        ]
+        render :edit, status: :unprocessable_content
+      end
+    end
+
+    def destroy
+      username = @teacher.username
+      @teacher.really_destroy!
+      redirect_to admin_teachers_path, notice: t(".notice", username: username)
     end
 
     private
 
-    def teacher_params
-      params.expect(teacher: %i[email name username classroom_id])
+    def set_teacher
+      @teacher = Teacher.find(params.expect(:id))
     end
 
-    # See https://administrate-demo.herokuapp.com/customizing_controller_actions
-    # for more information
+    def require_deactivated
+      return if @teacher.discarded?
+
+      redirect_to edit_admin_teacher_path(@teacher), alert: t("admin.teachers.destroy.must_be_deactivated")
+    end
+
+    def teacher_params
+      params.expect(teacher: [:email, :name, :username, { classroom_ids: [] }])
+    end
+
+    def set_form_data
+      active_years = Year.current_school_year(Date.current)
+      @schools = School.joins(:school_years).where(school_years: { year_id: active_years.ids }).distinct.order(:name)
+
+      @selected_school_id = params[:school_id] || @teacher.classrooms.first&.school&.id
+
+      @classrooms = Classroom.active.joins(:school_year).where(school_years: { year_id: active_years.ids })
+      @classrooms = @classrooms.where(school_years: { school_id: @selected_school_id }) if @selected_school_id.present?
+      @classrooms = @classrooms.order(:name)
+    end
   end
 end

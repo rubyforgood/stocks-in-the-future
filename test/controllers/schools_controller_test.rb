@@ -12,7 +12,7 @@ class SchoolsControllerTest < ActionDispatch::IntegrationTest
   test "should get index" do
     get admin_schools_url
     assert_response :success
-    assert_select "title", /Schools/i
+    assert_select "title", /Admin/i
   end
 
   test "should get new" do
@@ -32,7 +32,7 @@ class SchoolsControllerTest < ActionDispatch::IntegrationTest
   test "should show school" do
     get admin_school_url(@school)
     assert_response :success
-    assert_select "h1", /School/
+    assert_select "h2", /#{@school.name}/
   end
 
   test "should get edit" do
@@ -58,6 +58,6 @@ class SchoolsControllerTest < ActionDispatch::IntegrationTest
   test "requires authentication" do
     sign_out @admin_user
     get admin_schools_url
-    assert_redirected_to root_url
+    assert_redirected_to new_user_session_url
   end
 end

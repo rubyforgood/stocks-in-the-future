@@ -1,111 +1,91 @@
-<%#
-# Form Partial
+<%= form_with model: @student, url: @student.persisted? ? admin_student_path(@student) : admin_students_path, builder: Admin::FormBuilder, class: "space-y-6" do |f| %>
+  <div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg">
+    <div class="px-6 py-6">
+      <h3 class="text-lg font-medium text-gray-900 mb-6">Student Details</h3>
 
-This partial is rendered on a resource's `new` and `edit` pages,
-and renders all form fields for a resource's editable attributes.
+      <%= f.text_field :username,
+                       label: "Username",
+                       hint: "Unique username for the student",
+                       placeholder: "johndoe" %>
 
-## Local variables:
+      <%= f.select :classroom_id,
+                   options_from_collection_for_select(
+                     Classroom.order(:name),
+                     :id,
+                     :name,
+                     @student.classroom_id
+                   ),
+                   label: "Classroom",
+                   hint: "Classroom assignment (required)",
+                   include_blank: "Select a classroom" %>
 
-- `page`:
-  An instance of [Administrate::Page::Form][1].
-  Contains helper methods to display a form,
-  and knows which attributes should be displayed in the resource's form.
+      <% if @student.new_record? %>
+        <div class="mt-6 pt-6 border-t border-gray-200">
+          <h4 class="text-md font-medium text-gray-900 mb-4">Password</h4>
+          <p class="text-sm text-gray-500 mb-4">Leave blank to generate a random password automatically</p>
 
-[1]: http://www.rubydoc.info/gems/administrate/Administrate/Page/Form
-%>
+          <%= f.password_field :password,
+                               label: "Password (Optional)",
+                               hint: "Minimum 6 characters, or leave blank to auto-generate",
+                               placeholder: "••••••••" %>
 
-<%= form_for([namespace, page.resource], html: { class: "form" }) do |f| %>
-  <% if @errors.present? %>
-    <div><%= errors.join(", ") %></div>
-  <% end %>
-  <% if page.resource.errors.any? %>
-    <div id="error_explanation">
-      <h2>
-        <%= t(
-              "administrate.form.errors",
-              pluralized_errors: pluralize(page.resource.errors.count, t("administrate.form.error")),
-              resource_name: display_resource_name(page.resource_name, singular: true)
-            ) %>
-      </h2>
-
-      <ul>
-        <% page.resource.errors.full_messages.each do |message| %>
-          <li class="flash-error"><%= message %></li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
-
-  <% page.attributes(controller.action_name).each do |title, attributes| -%>
-    <fieldset class="<%= "field-unit--nested" if title.present? %>">
-      <% if title.present? %>
-        <legend><%= t "helpers.label.#{f.object_name}.#{title}", default: title %></legend>
-      <% end %>
-
-      <% attributes.each do |attribute| %>
-        <div class="field-unit field-unit--<%= attribute.html_class %> field-unit--<%= requireness(attribute) %>">
-          <%= render_field attribute, f: f %>
-
-          <% hint_key = "administrate.field_hints.#{page.resource_name}.#{attribute.name}" %>
-          <% if I18n.exists?(hint_key) -%>
-            <div class="field-unit__hint">
-              <%= I18n.t(hint_key) %>
-            </div>
-          <% end -%>
+          <%= f.password_field :password_confirmation,
+                               label: "Password Confirmation",
+                               hint: "Re-enter password to confirm",
+                               placeholder: "••••••••" %>
         </div>
       <% end %>
-    </fieldset>
-  <% end -%>
+    </div>
+  </div>
 
-  <div class="form-actions">
-    <%= f.submit %>
+  <div class="flex items-center justify-end gap-x-4">
+    <%= f.cancel_button "Cancel", url: @student.persisted? ? admin_student_path(@student) : admin_students_path %>
+    <%= f.submit_button @student.persisted? ? "Update Student" : "Create Student" %>
   </div>
 <% end %>
-<% if page.resource.persisted? %>
-<hr>
-<%= form_with url: admin_student_add_transaction_path(page.resource), method: :post do |form| %>
-  <% if action_name == 'edit' || action_name == 'update' %>
-    <div class="field-unit">
-      <div class="field-unit__label"><label>Cash balance</label></div>
-      <div class="field-unit__field">
-        <%= number_to_currency(page.resource&.portfolio&.cash_balance || 0) %>
+
+<% if @student.persisted? %>
+  <%= form_with url: add_transaction_admin_student_path(@student), method: :post, builder: Admin::FormBuilder, class: "space-y-6 mt-6" do |f| %>
+    <div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg">
+      <div class="px-6 py-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-6">Add Portfolio Transaction</h3>
+
+        <!-- Current Cash Balance (Read-only) -->
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Current Cash Balance</label>
+          <div class="text-lg font-semibold text-gray-900">
+            <%= number_to_currency(@student.portfolio&.cash_balance || 0) %>
+          </div>
+        </div>
+
+        <%= f.select :transaction_type,
+                     [["", ""], ["Deposit", "deposit"], ["Debit", "debit"]],
+                     label: "Transaction Type",
+                     hint: "Select deposit to add funds or debit to remove funds",
+                     include_blank: false %>
+
+        <%= f.number_field :add_fund_amount,
+                           label: "Amount",
+                           hint: "Transaction amount in dollars",
+                           placeholder: "0.00",
+                           step: "0.01" %>
+
+        <%= f.select :transaction_reason,
+                     PortfolioTransaction.reasons.keys.map { |key| [PortfolioTransaction.human_attribute_name("reason.#{key}"), key] },
+                     label: "Reason",
+                     hint: "Reason for this transaction",
+                     include_blank: "Select a reason" %>
+
+        <%= f.text_area :transaction_description,
+                        label: "Description (Optional)",
+                        hint: "Additional details about this transaction",
+                        placeholder: "Enter transaction details...",
+                        rows: 3 %>
       </div>
     </div>
-  <% end %>
-  <div class="field-unit">
-    <div class="field-unit__label"><label for="student_transaction_type">Transaction Type</label></div>
-    <div class="field-unit__field">
-      <select name="student[transaction_type]" id="student_transaction_type" aria-required="false" data-controller="select">
-        <% ["", "deposit", "debit"].each do |option| %>
-          <option><%= option %></option>
-        <% end %>
-      </select>
-    </div>
-  </div>
-  <div class="field-unit">
-    <div class="field-unit__label"><label for="student_add_fund_amount">Amount</label></div>
-    <div class="field-unit__field">
-      <input step="any" type="number" name="student[add_fund_amount]" id="student_add_fund_amount" aria-required="false" autocomplete="off">
-    </div>
-  </div>
-  <div class="field-unit">
-    <div class="field-unit__label"><label for="student_transaction_reason">Reason</label></div>
-    <div class="field-unit__field">
-      <select required name="student[transaction_reason]" id="student_transaction_reason" aria-required="true" data-controller="select">
-        <option value=""></option>
-        <% PortfolioTransaction.reasons.keys.each do |key| %>
-        <option value="<%= key %>"><%= PortfolioTransaction.human_attribute_name("reason.#{key}") %></option>
-        <% end %>
-      </select>
-    </div>
-  </div>
-  <div class="field-unit">
-    <div class="field-unit__label"><label for="student_transaction_description">Description</label></div>
-    <div class="field-unit__field">
-      <textarea name="student[transaction_description]" id="student_transaction_description" aria-required="false"></textarea>
-    </div>
-  </div>
 
-  <%= form.submit "Add transaction", class: "button" %>
-<% end %>
+    <div class="flex items-center justify-end gap-x-4">
+      <%= f.submit_button "Add Transaction" %>
+    </div>
+  <% end %>
 <% end %>

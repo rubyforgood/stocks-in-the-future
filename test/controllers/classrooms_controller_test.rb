@@ -136,7 +136,7 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
     assert_no_difference("Classroom.count") do
       patch toggle_archive_admin_classroom_path(@classroom)
     end
-    assert_redirected_to admin_classrooms_path
+    assert_redirected_to admin_classroom_path(@classroom)
     assert @classroom.reload.archived?
     assert_equal "Classroom has been archived.", flash[:notice]
   end
@@ -145,7 +145,7 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
     sign_in(@admin)
     @classroom.update!(archived: true)
     patch toggle_archive_admin_classroom_path(@classroom)
-    assert_redirected_to admin_classrooms_path
+    assert_redirected_to admin_classroom_path(@classroom)
     assert_not @classroom.reload.archived?
     assert_equal "Classroom has been activated.", flash[:notice]
   end

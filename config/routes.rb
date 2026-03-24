@@ -39,45 +39,44 @@ Rails.application.routes.draw do
     end
   end
 
-  namespace :admin do
-    root "classrooms#index"
-    resources :announcements
-    resources :classrooms, except: [:destroy] do
-      member do
-        patch :toggle_archive
-      end
-    end
-    resources :grades
-    resources :portfolio_transactions, except: [:index]
-    resources :schools
-    resources :school_years
-    resources :stocks
-    resources :students do
-      collection do
-        post :import
-        get :template
-      end
-      post "add_transaction"
-      member do
-        patch :restore
-      end
-    end
-    resources :teachers
-    resources :users
-  end
+  # Old Administrate admin routes — commented out, will be removed in follow-up ticket
+  # namespace :admin do
+  #   root "classrooms#index"
+  #   resources :announcements
+  #   resources :classrooms, except: [:destroy] do
+  #     member do
+  #       patch :toggle_archive
+  #     end
+  #   end
+  #   resources :grades
+  #   resources :portfolio_transactions, except: [:index]
+  #   resources :schools
+  #   resources :school_years
+  #   resources :stocks
+  #   resources :students do
+  #     collection do
+  #       post :import
+  #       get :template
+  #     end
+  #     post "add_transaction"
+  #     member do
+  #       patch :restore
+  #     end
+  #   end
+  #   resources :teachers
+  #   resources :users
+  # end
 
-  # Admin V2 - In-house admin implementation (dual-running with Administrate)
-  namespace :admin_v2, path: "admin-new" do
+  # In-house admin (formerly admin_v2 at /admin-new, now at /admin)
+  namespace :admin do
     root "dashboard#index"
 
-    # Component demo (development/testing only)
     resources :component_demo, only: %i[index show] do
       collection do
         get :form
       end
     end
 
-    # Resource routes
     resources :announcements
     resources :classrooms, except: [:destroy] do
       member do

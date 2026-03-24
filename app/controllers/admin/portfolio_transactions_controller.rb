@@ -1,48 +1,90 @@
 # frozen_string_literal: true
 
 module Admin
-  class PortfolioTransactionsController < Admin::ApplicationController
-    # Overwrite any of the RESTful controller actions to implement custom behavior
-    # For example, you may want to send an email after a foo is updated.
-    #
-    # def update
-    #   super
-    #   send_foo_updated_email(requested_resource)
-    # end
+  class PortfolioTransactionsController < BaseController
+    before_action :set_portfolio_transaction, only: %i[show edit update destroy]
 
-    # Override this method to specify custom lookup behavior.
-    # This will be used to set the resource for the `show`, `edit`, and `update`
-    # actions.
-    #
-    # def find_resource(param)
-    #   Foo.find_by!(slug: param)
-    # end
+    def show
+      # TODO: FIX
+      # authorize @portfolio_transaction
 
-    # The result of this lookup will be available as `requested_resource`
+      @breadcrumbs = [
+        { label: "Portfolio Transaction ##{@portfolio_transaction.id}" }
+      ]
+    end
 
-    # Override this if you have certain roles that require a subset
-    # this will be used to set the records shown on the `index` action.
-    #
-    # def scoped_resource
-    #   if current_user.super_admin?
-    #     resource_class
-    #   else
-    #     resource_class.with_less_stuff
-    #   end
-    # end
+    def new
+      @portfolio_transaction = PortfolioTransaction.new
+      # TODO: FIX
+      # authorize @portfolio_transaction
 
-    # Override `resource_params` if you want to transform the submitted
-    # data before it's persisted. For example, the following would turn all
-    # empty values into nil values. It uses other APIs such as `resource_class`
-    # and `dashboard`:
-    #
-    # def resource_params
-    #   params.require(resource_class.model_name.param_key).
-    #     permit(dashboard.permitted_attributes(action_name)).
-    #     transform_values { |value| value == "" ? nil : value }
-    # end
+      @breadcrumbs = [
+        { label: "Portfolio Transactions", path: "#" },
+        { label: "New" }
+      ]
+    end
 
-    # See https://administrate-demo.herokuapp.com/customizing_controller_actions
-    # for more information
+    def edit
+      # TODO: Determine if explicit authorization is needed since BaseController already restricts to admins
+      # authorize @portfolio_transaction
+
+      @breadcrumbs = [
+        { label: "Portfolio Transaction ##{@portfolio_transaction.id}",
+          path: admin_portfolio_transaction_path(@portfolio_transaction) },
+        { label: "Edit" }
+      ]
+    end
+
+    def create
+      @portfolio_transaction = PortfolioTransaction.new(portfolio_transaction_params)
+      # TODO: Determine if explicit authorization is needed since BaseController already restricts to admins
+      # authorize @portfolio_transaction
+
+      if @portfolio_transaction.save
+        redirect_to admin_portfolio_transaction_path(@portfolio_transaction),
+                    notice: t(".notice")
+      else
+        @breadcrumbs = [
+          { label: "Portfolio Transactions", path: "#" },
+          { label: "New" }
+        ]
+        render :new, status: :unprocessable_content
+      end
+    end
+
+    def update
+      # TODO: Determine if explicit authorization is needed since BaseController already restricts to admins
+      # authorize @portfolio_transaction
+
+      if @portfolio_transaction.update(portfolio_transaction_params)
+        redirect_to admin_portfolio_transaction_path(@portfolio_transaction),
+                    notice: t(".notice")
+      else
+        @breadcrumbs = [
+          { label: "Portfolio Transaction ##{@portfolio_transaction.id}",
+            path: admin_portfolio_transaction_path(@portfolio_transaction) },
+          { label: "Edit" }
+        ]
+        render :edit, status: :unprocessable_content
+      end
+    end
+
+    def destroy
+      # TODO: Determine if explicit authorization is needed since BaseController already restricts to admins
+      # authorize @portfolio_transaction
+      @portfolio_transaction.destroy
+
+      redirect_to admin_root_path, notice: t(".notice")
+    end
+
+    private
+
+    def set_portfolio_transaction
+      @portfolio_transaction = PortfolioTransaction.find(params.expect(:id))
+    end
+
+    def portfolio_transaction_params
+      params.expect(portfolio_transaction: %i[portfolio_id transaction_type reason description amount_cents])
+    end
   end
 end

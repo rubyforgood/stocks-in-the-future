@@ -1,48 +1,81 @@
 # frozen_string_literal: true
 
 module Admin
-  class UsersController < Admin::ApplicationController
-    # Overwrite any of the RESTful controller actions to implement custom behavior
-    # For example, you may want to send an email after a foo is updated.
-    #
-    # def update
-    #   super
-    #   send_foo_updated_email(requested_resource)
-    # end
+  class UsersController < BaseController
+    before_action :set_user, only: %i[show edit update destroy]
 
-    # Override this method to specify custom lookup behavior.
-    # This will be used to set the resource for the `show`, `edit`, and `update`
-    # actions.
-    #
-    # def find_resource(param)
-    #   Foo.find_by!(slug: param)
-    # end
+    def index
+      @users = apply_sorting(User.all, default: "username")
 
-    # The result of this lookup will be available as `requested_resource`
+      @breadcrumbs = [
+        { label: "Users" }
+      ]
+    end
 
-    # Override this if you have certain roles that require a subset
-    # this will be used to set the records shown on the `index` action.
-    #
-    # def scoped_resource
-    #   if current_user.super_admin?
-    #     resource_class
-    #   else
-    #     resource_class.with_less_stuff
-    #   end
-    # end
+    def show
+      @breadcrumbs = [
+        { label: "Users", path: admin_users_path },
+        { label: @user.username }
+      ]
+    end
 
-    # Override `resource_params` if you want to transform the submitted
-    # data before it's persisted. For example, the following would turn all
-    # empty values into nil values. It uses other APIs such as `resource_class`
-    # and `dashboard`:
-    #
-    # def resource_params
-    #   params.require(resource_class.model_name.param_key).
-    #     permit(dashboard.permitted_attributes(action_name)).
-    #     transform_values { |value| value == "" ? nil : value }
-    # end
+    def new
+      @user = User.new
 
-    # See https://administrate-demo.herokuapp.com/customizing_controller_actions
-    # for more information
+      @breadcrumbs = [
+        { label: "Users", path: admin_users_path },
+        { label: "New User" }
+      ]
+    end
+
+    def edit
+      @breadcrumbs = [
+        { label: "Users", path: admin_users_path },
+        { label: @user.username, path: admin_user_path(@user) },
+        { label: "Edit" }
+      ]
+    end
+
+    def create
+      @user = User.new(user_params)
+
+      if @user.save
+        redirect_to admin_user_path(@user), notice: t(".notice")
+      else
+        @breadcrumbs = [
+          { label: "Users", path: admin_users_path },
+          { label: "New User" }
+        ]
+        render :new, status: :unprocessable_content
+      end
+    end
+
+    def update
+      if @user.update(user_params)
+        redirect_to admin_user_path(@user), notice: t(".notice")
+      else
+        @breadcrumbs = [
+          { label: "Users", path: admin_users_path },
+          { label: @user.username, path: admin_user_path(@user) },
+          { label: "Edit" }
+        ]
+        render :edit, status: :unprocessable_content
+      end
+    end
+
+    def destroy
+      @user.destroy
+      redirect_to admin_users_path, notice: t(".notice")
+    end
+
+    private
+
+    def set_user
+      @user = User.find(params.expect(:id))
+    end
+
+    def user_params
+      params.expect(user: %i[username email type admin classroom_id password password_confirmation])
+    end
   end
 end

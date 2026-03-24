@@ -4,277 +4,418 @@ require "test_helper"
 
 module Admin
   class StudentsControllerTest < ActionDispatch::IntegrationTest
-    test "should update student email" do
-      new_email = "abc123@example.com"
-      admin = create(:admin)
-      student = create(:student)
-      sign_in(admin)
-
-      assert_changes "student.reload.updated_at" do
-        patch admin_student_path(student), params: { student: { email: new_email } }
-      end
-
-      assert_equal new_email, student.email
-      assert_redirected_to admin_student_path(student)
+    setup do
+      @classroom1 = create(:classroom)
+      @classroom2 = create(:classroom)
+      @admin = create(:admin, admin: true, classroom: nil)
+      sign_in(@admin)
     end
 
-    test "should not update with an error" do
-      username = "abc123"
-      admin = create(:admin)
+    test "index" do
+      create(:student)
+      create(:student)
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
+
+      get admin_students_path
+
+      assert_response :success
+      assert_select "h3", "Students"
+      assert_select "tbody tr", count: 2
+    end
+
+    test "index with discarded filter" do
+      student = create(:student, :discarded)
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
+
+      get admin_students_path(discarded: true)
+
+      assert_response :success
+      assert_select "tbody tr", count: 1
+      assert_select "form[action=?]", restore_admin_student_path(student) do
+        assert_select "button", text: "Restore"
+      end
+    end
+
+    test "index with all filter" do
+      create(:student)
+      create(:student)
+      create(:student, :discarded)
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
+
+      get admin_students_path(all: true)
+
+      assert_response :success
+      assert_select "tbody tr", count: 3
+      assert_select "a[href*='edit']", count: 2
+    end
+
+    test "show" do
+      username = "finn"
       student = create(:student, username:)
+      admin = create(:admin, admin: true, classroom: nil)
       sign_in(admin)
 
-      assert_no_changes "student.reload.updated_at" do
-        patch admin_student_path(student), params: { student: { username: "" } }
-      end
+      get admin_student_path(student)
 
-      assert_equal username, student.username
-      assert_response :unprocessable_content
-      assert_select "div#error_explanation"
-    end
-
-    test "given a add_fund_amount, creates a transaction" do
-      params = { student: {
-        transaction_type: "deposit",
-        add_fund_amount: 10.50,
-        transaction_reason: :awards
-      } }
-      admin = create(:admin)
-      student = create(:student)
-      create(:portfolio, user: student)
-      sign_in(admin)
-
-      assert_difference("PortfolioTransaction.count", 1) do
-        post(admin_student_add_transaction_path(student), params:)
-      end
-
-      transaction = PortfolioTransaction.last
-      assert transaction.deposit?
-      assert_equal 1_050, transaction.amount_cents
-      assert_equal(
-        student.reload.portfolio.portfolio_transactions.last,
-        transaction
+      assert_response :success
+      assert_select "h2", username
+      assert_select "h3", text: "Portfolio Details"
+      assert_select(
+        "[data-testid='cash_balance_label']",
+        text: "Cash Balance"
       )
+      assert_select(
+        "[data-testid='total_portfolio_worth_label']",
+        text: "Total Portfolio Worth"
+      )
+    end
+
+    test "new" do
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
+
+      get new_admin_student_path
+
+      assert_response :success
+      assert_select "h1", "New Student"
+    end
+
+    test "create" do
+      username = "jake"
+      classroom = create(:classroom, name: "Ice Kingdom")
+      params = {
+        student: {
+          username:,
+          classroom_id: classroom.id,
+          password: "password123",
+          password_confirmation: "password123"
+        }
+      }
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
+
+      assert_difference(["Student.count", "Portfolio.count"]) do
+        post(admin_students_path, params:)
+      end
+      student = Student.last
+
       assert_redirected_to admin_student_path(student)
+      assert_equal(
+        "Student #{username} created successfully. Password: password123",
+        flash[:notice]
+      )
+      assert_not_nil student.portfolio
     end
 
-    test "given an empty add_fund_amount, does not create a transaction" do
-      params = { student: { add_fund_amount: "" } }
-      admin = create(:admin)
-      student = create(:student)
-      create(:portfolio, user: student)
+    test "create with invalid params" do
+      params = { student: { username: "", classroom_id: nil } }
+      admin = create(:admin, admin: true, classroom: nil)
       sign_in(admin)
 
-      assert_difference("PortfolioTransaction.count", 0) do
-        patch(admin_student_path(student), params:)
+      assert_no_difference("Student.count") do
+        post(admin_students_path, params:)
       end
+
+      assert_response :unprocessable_content
+    end
+
+    test "edit" do
+      student = create(:student)
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
+
+      get edit_admin_student_path(student)
+
+      assert_response :success
+      assert_select "h1", "Edit Student"
+    end
+
+    test "update" do
+      username = "marceline"
+      student = create(:student)
+      params = { student: { username: } }
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
+
+      patch(admin_student_path(student), params:)
+      student.reload
 
       assert_redirected_to admin_student_path(student)
+      assert_equal "Student updated successfully.", flash[:notice]
+      assert_equal username, student.username
     end
 
-    test "add_transaction fails when transaction_type is missing" do
-      params = { student: {
-        add_fund_amount: 1_050,
-        transaction_reason: :awards
-      } }
-      admin = create(:admin)
+    test "update with invalid params" do
       student = create(:student)
-      create(:portfolio, user: student)
+      params = { student: { username: "" } }
+      admin = create(:admin, admin: true, classroom: nil)
       sign_in(admin)
 
-      assert_no_difference("PortfolioTransaction.count") do
-        post(admin_student_add_transaction_path(student), params:)
-      end
+      patch(admin_student_path(student), params:)
 
-      assert_redirected_to edit_admin_student_path(student)
-      assert_equal "Transaction Type must be present", flash[:alert]
+      assert_response :unprocessable_content
     end
 
-    test "add_transaction fails when amount is missing" do
-      params = { student: {
-        transaction_type: "deposit",
-        transaction_reason: :awards
-      } }
-      admin = create(:admin)
-      student = create(:student)
-      create(:portfolio, user: student)
+    test "destroy" do
+      username = "gunter"
+      student = create(:student, username:)
+      admin = create(:admin, admin: true, classroom: nil)
       sign_in(admin)
 
-      assert_no_difference("PortfolioTransaction.count") do
-        post(admin_student_add_transaction_path(student), params:)
+      assert_no_difference("Student.count") do
+        delete admin_student_path(student)
       end
-
-      assert_redirected_to edit_admin_student_path(student)
-      assert_equal "Amount must be present", flash[:alert]
-    end
-
-    test "add_transaction fails when reason is missing" do
-      params = { student: {
-        transaction_type: "deposit",
-        add_fund_amount: 1_050
-      } }
-      admin = create(:admin)
-      student = create(:student)
-      create(:portfolio, user: student)
-      sign_in(admin)
-
-      assert_no_difference("PortfolioTransaction.count") do
-        post(admin_student_add_transaction_path(student), params:)
-      end
-
-      assert_redirected_to edit_admin_student_path(student)
-      assert_equal "Reason must be present", flash[:alert]
-    end
-
-    test "add_transaction fails when reason is missing even with description" do
-      params = { student: {
-        transaction_type: "deposit",
-        add_fund_amount: 1_050,
-        transaction_description: "Some notes about the transaction"
-      } }
-      admin = create(:admin)
-      student = create(:student)
-      create(:portfolio, user: student)
-      sign_in(admin)
-
-      assert_no_difference("PortfolioTransaction.count") do
-        post(admin_student_add_transaction_path(student), params:)
-      end
-
-      assert_redirected_to edit_admin_student_path(student)
-      assert_equal "Reason must be present", flash[:alert]
-    end
-
-    test "add_transaction stores transaction_description" do
-      params = { student: {
-        transaction_type: "deposit",
-        add_fund_amount: 10.50,
-        transaction_reason: :awards,
-        transaction_description: "Extra credit for science fair"
-      } }
-      admin = create(:admin)
-      student = create(:student)
-      create(:portfolio, user: student)
-      sign_in(admin)
-
-      assert_difference("PortfolioTransaction.count", 1) do
-        post(admin_student_add_transaction_path(student), params:)
-      end
-
-      transaction = PortfolioTransaction.last
-      assert_equal "Extra credit for science fair", transaction.description
-      assert_equal "awards", transaction.reason
-    end
-
-    test "add_transaction creates debit transaction" do
-      params = { student: {
-        transaction_type: "debit",
-        add_fund_amount: 5.00,
-        transaction_reason: :administrative_adjustments
-      } }
-      admin = create(:admin)
-      student = create(:student)
-      create(:portfolio, user: student)
-      sign_in(admin)
-
-      assert_difference("PortfolioTransaction.count", 1) do
-        post(admin_student_add_transaction_path(student), params:)
-      end
-
-      transaction = PortfolioTransaction.last
-      assert transaction.debit?
-      assert_equal 500, transaction.amount_cents
-    end
-
-    test "import should redirect with success message for valid CSV" do
-      admin = create(:admin)
-      classroom = create(:classroom)
-      sign_in(admin)
-
-      csv_content = [
-        "classroom_id,username",
-        "#{classroom.id},test_student"
-      ].join("\n")
-
-      with_temp_csv_file(csv_content) do |csv_file|
-        post import_admin_students_path, params: { csv_file: fixture_file_upload(csv_file.path, "text/csv") }
-
-        assert_redirected_to admin_students_path
-        assert_not_nil flash[:notice]
-      end
-    end
-
-    test "import should redirect with alert when no file provided" do
-      admin = create(:admin)
-      sign_in(admin)
-
-      post import_admin_students_path, params: {}
+      student.reload
 
       assert_redirected_to admin_students_path
-      assert_equal "Please select a CSV file", flash[:alert]
+      assert_equal "Student #{username} archived successfully.", flash[:notice]
+      assert student.discarded?
     end
 
-    test "import should handle malformed CSV" do
-      admin = create(:admin)
+    test "restore" do
+      username = "lsp"
+      student = create(:student, :discarded, username:)
+      admin = create(:admin, admin: true, classroom: nil)
       sign_in(admin)
 
-      csv_content = "classroom_id,username\n\"unclosed quote,invalid_row"
+      patch restore_admin_student_path(student)
+      student.reload
 
-      with_temp_csv_file(csv_content) do |csv_file|
-        post import_admin_students_path, params: { csv_file: fixture_file_upload(csv_file.path, "text/csv") }
-
-        assert_redirected_to admin_students_path
-        assert_match(/Invalid CSV format/, flash[:alert])
-      end
+      assert_redirected_to admin_students_path(discarded: true)
+      assert_equal "Student #{username} restored successfully.", flash[:notice]
+      assert_not student.discarded?
     end
 
-    test "import should handle empty CSV" do
-      admin = create(:admin)
+    test "add_transaction" do
+      portfolio = build(:portfolio, user: nil)
+      student = create(:student, portfolio:)
+      create(:portfolio_transaction, :deposit, portfolio:, amount_cents: 10_000)
+      params = {
+        student: {
+          transaction_type: "deposit",
+          add_fund_amount: "100.50",
+          transaction_reason: "awards",
+          transaction_description: "Test deposit"
+        }
+      }
+      admin = create(:admin, admin: true, classroom: nil)
       sign_in(admin)
 
-      csv_content = "classroom_id,username\n"
+      post(add_transaction_admin_student_path(student), params:)
+      portfolio.reload
 
-      with_temp_csv_file(csv_content) do |csv_file|
-        post import_admin_students_path, params: { csv_file: fixture_file_upload(csv_file.path, "text/csv") }
-
-        assert_redirected_to admin_students_path
-        assert_equal "No students found in CSV file", flash[:alert]
-      end
+      assert_redirected_to admin_student_path(student)
+      assert_equal "Transaction added successfully.", flash[:notice]
+      assert_equal 20_050, portfolio.cash_balance * 100
     end
 
-    test "template should download CSV template file" do
-      admin = create(:admin)
+    test "add_transaction debit" do
+      student = create(:student)
+      params = {
+        student: {
+          transaction_type: "debit",
+          add_fund_amount: "50.25",
+          transaction_reason: "administrative_adjustments",
+          transaction_description: "Test debit"
+        }
+      }
+      admin = create(:admin, admin: true, classroom: nil)
       sign_in(admin)
 
+      post(add_transaction_admin_student_path(student), params:)
+      transaction = student.portfolio.portfolio_transactions.last
+
+      assert_redirected_to admin_student_path(student)
+      assert_equal "debit", transaction.transaction_type
+      assert_equal 5_025, transaction.amount_cents
+    end
+
+    test "add_transaction invalid params" do
+      student = create(:student)
+      params = { student: { transaction_type: "" } }
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
+
+      post(add_transaction_admin_student_path(student), params:)
+      expected_error_message =
+        "Transaction Type must be present, Amount must be present, " \
+        "Reason must be present"
+
+      assert_redirected_to edit_admin_student_path(student)
+      assert_equal expected_error_message, flash[:alert]
+    end
+
+    # Import/Template tests
+    test "template should download CSV template" do
       get template_admin_students_path
 
       assert_response :success
-      assert_equal "text/csv", response.content_type
-      assert_match "attachment", response.headers["Content-Disposition"]
-      assert_match "student_import_template.csv", response.headers["Content-Disposition"]
+      assert_equal "text/csv", response.media_type
+      assert_includes response.headers["Content-Disposition"], "attachment; filename=\"student_import_template.csv\""
+      assert_match(/classroom_id,username/, response.body)
     end
 
-    test "admin discards a student" do
-      admin   = create(:admin)
-      student = create(:student)
-      sign_in admin
+    test "import should create students from valid CSV" do
+      csv_content = "classroom_id,username\n#{@classroom1.id},import_student1\n#{@classroom2.id},import_student2"
+      csv_file = Tempfile.new(["test_import", ".csv"])
+      csv_file.write(csv_content)
+      csv_file.rewind
 
-      assert_changes -> { student.reload.discarded? }, from: false, to: true do
-        delete admin_student_path(student)
+      assert_difference("Student.count", 2) do
+        post import_admin_students_path, params: {
+          csv_file: fixture_file_upload(csv_file.path, "text/csv")
+        }
       end
+
+      csv_file.close
+      csv_file.unlink
+
       assert_redirected_to admin_students_path
+      assert_match(/Successfully created 2 students/, flash[:notice])
+      assert_match(/import_student1/, flash[:notice])
+      assert_match(/import_student2/, flash[:notice])
     end
 
-    test "admin restores a student" do
-      admin   = create(:admin)
-      student = create(:student)
-      student.discard
-      sign_in admin
+    test "import should skip existing students" do
+      create(:student, username: "student1", classroom: @classroom1)
+      csv_content = "classroom_id,username\n#{@classroom1.id},student1\n#{@classroom2.id},new_student"
+      csv_file = Tempfile.new(["test_import", ".csv"])
+      csv_file.write(csv_content)
+      csv_file.rewind
 
-      patch restore_admin_student_path(student)
+      assert_difference("Student.count", 1) do
+        post import_admin_students_path, params: {
+          csv_file: fixture_file_upload(csv_file.path, "text/csv")
+        }
+      end
 
-      assert_redirected_to admin_students_path(discarded: 1)
-      assert_not_predicate student.reload, :discarded?
+      csv_file.close
+      csv_file.unlink
+
+      assert_redirected_to admin_students_path
+      assert_match(/Successfully created 1 students/, flash[:notice])
+      assert_match(/Skipped 1 existing usernames/, flash[:notice])
+    end
+
+    test "import should handle errors and show line numbers" do
+      csv_content = "classroom_id,username\n999,invalid_student\n#{@classroom1.id},valid_student"
+      csv_file = Tempfile.new(["test_import", ".csv"])
+      csv_file.write(csv_content)
+      csv_file.rewind
+
+      post import_admin_students_path, params: {
+        csv_file: fixture_file_upload(csv_file.path, "text/csv")
+      }
+
+      csv_file.close
+      csv_file.unlink
+
+      assert_redirected_to admin_students_path
+      assert_match(/errors occurred/, flash[:alert])
+      assert_match(/Row 2:/, flash[:alert])
+    end
+
+    test "import should reject missing file" do
+      assert_no_difference("Student.count") do
+        post import_admin_students_path
+      end
+
+      assert_redirected_to admin_students_path
+      assert_equal I18n.t("admin.students.import.errors.no_file"), flash[:alert]
+    end
+
+    test "import should handle malformed CSV" do
+      csv_content = "classroom_id,username\n1,\"unclosed quote\n2,another_row"
+      csv_file = Tempfile.new(["test_import", ".csv"])
+      csv_file.write(csv_content)
+      csv_file.rewind
+
+      assert_no_difference("Student.count") do
+        post import_admin_students_path, params: {
+          csv_file: fixture_file_upload(csv_file.path, "text/csv")
+        }
+      end
+
+      csv_file.close
+      csv_file.unlink
+
+      assert_redirected_to admin_students_path
+      assert_match(/Invalid CSV format/, flash[:alert])
+    end
+
+    test "import should handle empty CSV" do
+      csv_content = "classroom_id,username\n"
+      csv_file = Tempfile.new(["test_import", ".csv"])
+      csv_file.write(csv_content)
+      csv_file.rewind
+
+      assert_no_difference("Student.count") do
+        post import_admin_students_path, params: {
+          csv_file: fixture_file_upload(csv_file.path, "text/csv")
+        }
+      end
+
+      csv_file.close
+      csv_file.unlink
+
+      assert_redirected_to admin_students_path
+      assert_equal I18n.t("admin.students.import.errors.no_students"), flash[:alert]
+    end
+
+    test "import should show both success and error messages" do
+      csv_content = "classroom_id,username\n" \
+                    "#{@classroom1.id},import_success1\n999,import_fail\n#{@classroom2.id},import_success2"
+      csv_file = Tempfile.new(["test_import", ".csv"])
+      csv_file.write(csv_content)
+      csv_file.rewind
+
+      post import_admin_students_path, params: {
+        csv_file: fixture_file_upload(csv_file.path, "text/csv")
+      }
+
+      csv_file.close
+      csv_file.unlink
+
+      assert_redirected_to admin_students_path
+      assert_match(/Successfully created 2 students/, flash[:notice])
+      assert_match(/1 errors occurred/, flash[:alert])
+    end
+
+    test "non-admin cannot access template" do
+      sign_out(@admin)
+      teacher = create(:teacher)
+      sign_in(teacher)
+
+      get template_admin_students_path
+
+      assert_redirected_to root_path
+      assert_equal "Access denied. Admin privileges required.", flash[:alert]
+    end
+
+    test "non-admin cannot import students" do
+      sign_out(@admin)
+      teacher = create(:teacher)
+      sign_in(teacher)
+
+      csv_content = "classroom_id,username\n#{@classroom1.id},import_student"
+      csv_file = Tempfile.new(["test_import", ".csv"])
+      csv_file.write(csv_content)
+      csv_file.rewind
+
+      assert_no_difference("Student.count") do
+        post import_admin_students_path, params: {
+          csv_file: fixture_file_upload(csv_file.path, "text/csv")
+        }
+      end
+
+      csv_file.close
+      csv_file.unlink
+
+      assert_redirected_to root_path
+      assert_equal "Access denied. Admin privileges required.", flash[:alert]
     end
   end
 end
