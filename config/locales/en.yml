@@ -120,6 +120,12 @@ en:
         notice: Year updated successfully.
   announcements:
     not_found: Announcement not found.
+    create:
+      notice: Announcement was successfully created.
+    destroy:
+      notice: Announcement was successfully destroyed.
+    update:
+      notice: Announcement was successfully updated.
   application:
     access_denied:
       admin_required: Access denied. Admin privileges required.

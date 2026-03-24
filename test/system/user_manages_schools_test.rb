@@ -8,7 +8,7 @@ class UserManagesSchoolsTest < ApplicationSystemTestCase
     sign_in(admin)
     visit admin_schools_path
 
-    click_on "New school"
+    click_on "New School"
     fill_in "Name", with: "Test School"
     click_on "Create School"
 
@@ -21,7 +21,7 @@ class UserManagesSchoolsTest < ApplicationSystemTestCase
     sign_in(admin)
     visit admin_school_url(school)
 
-    click_on "Edit School"
+    click_on "Edit"
     fill_in "Name", with: "Updated School"
     click_on "Update School"
 
@@ -35,7 +35,7 @@ class UserManagesSchoolsTest < ApplicationSystemTestCase
     visit admin_school_url(school)
 
     accept_confirm do
-      click_on "Destroy"
+      click_on "Delete"
     end
 
     assert_selector ".flash", text: "School was successfully destroyed"
