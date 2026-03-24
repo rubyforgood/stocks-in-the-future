@@ -3,165 +3,163 @@
 require "test_helper"
 
 module Admin
-  module V2
-    class ClassroomsControllerTest < ActionDispatch::IntegrationTest
-      test "index" do
-        classroom1 = create(:classroom, name: "Bravo")
-        classroom2 = create(:classroom, name: "Charlie")
-        classroom3 = create(:classroom, name: "Alpha")
-        admin = create(:admin, admin: true, classroom: nil)
-        sign_in(admin)
+  class ClassroomsControllerTest < ActionDispatch::IntegrationTest
+    test "index" do
+      classroom1 = create(:classroom, name: "Bravo")
+      classroom2 = create(:classroom, name: "Charlie")
+      classroom3 = create(:classroom, name: "Alpha")
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
 
-        get admin_classrooms_path
-        rows = css_select("tbody tr[id^='classroom_']")
-        ordered_row_ids = rows.pluck("id")
+      get admin_classrooms_path
+      rows = css_select("tbody tr[id^='classroom_']")
+      ordered_row_ids = rows.pluck("id")
 
-        assert_response :success
-        assert_select "h3", "Classrooms"
-        assert_equal(
-          [dom_id(classroom3), dom_id(classroom1), dom_id(classroom2)],
-          ordered_row_ids
-        )
-      end
+      assert_response :success
+      assert_select "h3", "Classrooms"
+      assert_equal(
+        [dom_id(classroom3), dom_id(classroom1), dom_id(classroom2)],
+        ordered_row_ids
+      )
+    end
 
-      test "show" do
-        grade9 = create(:grade, level: 9)
-        grade10 = create(:grade, level: 10)
-        classroom = create(:classroom, grades: [grade9, grade10])
-        admin = create(:admin, admin: true, classroom: nil)
-        sign_in(admin)
+    test "show" do
+      grade9 = create(:grade, level: 9)
+      grade10 = create(:grade, level: 10)
+      classroom = create(:classroom, grades: [grade9, grade10])
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
 
-        get admin_classroom_path(classroom)
+      get admin_classroom_path(classroom)
 
-        assert_response :success
-        assert_select "h2", classroom.name
-        assert_select "[data-testid='grades_display'] dd", text: "9th-10th"
-      end
+      assert_response :success
+      assert_select "h2", classroom.name
+      assert_select "[data-testid='grades_display'] dd", text: "9th-10th"
+    end
 
-      test "should get new" do
-        admin = create(:admin, admin: true, classroom: nil)
-        sign_in(admin)
+    test "should get new" do
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
 
-        get new_admin_classroom_path
+      get new_admin_classroom_path
 
-        assert_response :success
-        assert_select "h1", "New Classroom"
-      end
+      assert_response :success
+      assert_select "h1", "New Classroom"
+    end
 
-      test "create" do
-        grade = create(:grade, level: 7)
-        school_year = create(:school_year)
-        params = {
-          classroom: {
-            name: "Abc123",
-            grade_ids: [grade.id],
-            school_year_id: school_year.id
-          }
+    test "create" do
+      grade = create(:grade, level: 7)
+      school_year = create(:school_year)
+      params = {
+        classroom: {
+          name: "Abc123",
+          grade_ids: [grade.id],
+          school_year_id: school_year.id
         }
-        admin = create(:admin, admin: true, classroom: nil)
-        sign_in(admin)
+      }
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
 
-        assert_difference("Classroom.count") do
-          post(admin_classrooms_path, params:)
-        end
-
-        assert_redirected_to admin_classroom_path(Classroom.last)
-        assert_equal "Classroom created successfully.", flash[:notice]
+      assert_difference("Classroom.count") do
+        post(admin_classrooms_path, params:)
       end
 
-      test "create with invalid params" do
-        params = { classroom: { name: "" } }
-        admin = create(:admin, admin: true, classroom: nil)
-        sign_in(admin)
+      assert_redirected_to admin_classroom_path(Classroom.last)
+      assert_equal "Classroom created successfully.", flash[:notice]
+    end
 
-        assert_no_difference("Classroom.count") do
-          post(admin_classrooms_path, params:)
-        end
+    test "create with invalid params" do
+      params = { classroom: { name: "" } }
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
 
-        assert_response :unprocessable_entity
+      assert_no_difference("Classroom.count") do
+        post(admin_classrooms_path, params:)
       end
 
-      test "edit" do
-        classroom = create(:classroom)
-        admin = create(:admin, admin: true, classroom: nil)
-        sign_in(admin)
+      assert_response :unprocessable_entity
+    end
 
-        get edit_admin_classroom_path(classroom)
+    test "edit" do
+      classroom = create(:classroom)
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
 
-        assert_response :success
-        assert_select "h1", "Edit Classroom"
-      end
+      get edit_admin_classroom_path(classroom)
 
-      test "update" do
-        name = "Abc123"
-        classroom = create(:classroom)
-        params = { classroom: { name: } }
-        admin = create(:admin, admin: true, classroom: nil)
-        sign_in(admin)
+      assert_response :success
+      assert_select "h1", "Edit Classroom"
+    end
 
-        patch(admin_classroom_path(classroom), params:)
+    test "update" do
+      name = "Abc123"
+      classroom = create(:classroom)
+      params = { classroom: { name: } }
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
 
-        assert_redirected_to admin_classroom_path(classroom)
-        assert_equal "Classroom updated successfully.", flash[:notice]
-        assert_equal name, classroom.reload.name
-      end
+      patch(admin_classroom_path(classroom), params:)
 
-      test "update with invalid params" do
-        classroom = create(:classroom)
-        params = { classroom: { name: "" } }
-        admin = create(:admin, admin: true, classroom: nil)
-        sign_in(admin)
+      assert_redirected_to admin_classroom_path(classroom)
+      assert_equal "Classroom updated successfully.", flash[:notice]
+      assert_equal name, classroom.reload.name
+    end
 
-        patch(admin_classroom_path(classroom), params:)
+    test "update with invalid params" do
+      classroom = create(:classroom)
+      params = { classroom: { name: "" } }
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
 
-        assert_response :unprocessable_entity
-      end
+      patch(admin_classroom_path(classroom), params:)
 
-      test "toggle_archive" do
-        classroom = create(:classroom, archived: false)
-        admin = create(:admin, admin: true, classroom: nil)
-        sign_in(admin)
+      assert_response :unprocessable_entity
+    end
 
-        patch toggle_archive_admin_classroom_path(classroom)
-        classroom.reload
+    test "toggle_archive" do
+      classroom = create(:classroom, archived: false)
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
 
-        assert_redirected_to admin_classroom_path(classroom)
-        assert_equal "Classroom has been archived.", flash[:notice]
-        assert classroom.archived?
-      end
+      patch toggle_archive_admin_classroom_path(classroom)
+      classroom.reload
 
-      test "activate via toggle_archive" do
-        classroom = create(:classroom, archived: true)
-        admin = create(:admin, admin: true, classroom: nil)
-        sign_in(admin)
+      assert_redirected_to admin_classroom_path(classroom)
+      assert_equal "Classroom has been archived.", flash[:notice]
+      assert classroom.archived?
+    end
 
-        patch toggle_archive_admin_classroom_path(classroom)
-        classroom.reload
+    test "activate via toggle_archive" do
+      classroom = create(:classroom, archived: true)
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
 
-        assert_redirected_to admin_classroom_path(classroom)
-        assert_equal "Classroom has been activated.", flash[:notice]
-        assert_not classroom.archived?
-      end
+      patch toggle_archive_admin_classroom_path(classroom)
+      classroom.reload
 
-      test "index when teacher" do
-        teacher = create(:teacher)
-        sign_in(teacher)
+      assert_redirected_to admin_classroom_path(classroom)
+      assert_equal "Classroom has been activated.", flash[:notice]
+      assert_not classroom.archived?
+    end
 
-        get admin_classrooms_path
+    test "index when teacher" do
+      teacher = create(:teacher)
+      sign_in(teacher)
 
-        assert_redirected_to root_path
-        assert_equal "Access denied. Admin privileges required.", flash[:alert]
-      end
+      get admin_classrooms_path
 
-      test "toggle archive when teacher" do
-        classroom = create(:classroom)
-        teacher = create(:teacher)
-        sign_in(teacher)
+      assert_redirected_to root_path
+      assert_equal "Access denied. Admin privileges required.", flash[:alert]
+    end
 
-        patch toggle_archive_admin_classroom_path(classroom)
+    test "toggle archive when teacher" do
+      classroom = create(:classroom)
+      teacher = create(:teacher)
+      sign_in(teacher)
 
-        assert_redirected_to root_path
-      end
+      patch toggle_archive_admin_classroom_path(classroom)
+
+      assert_redirected_to root_path
     end
   end
 end
