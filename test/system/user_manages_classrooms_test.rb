@@ -3,7 +3,7 @@
 require "application_system_test_case"
 
 class UserManagesClassroomsTest < ApplicationSystemTestCase
-  # TODO: Fix failing test - expected to find visible css "#notice" with text "Classroom was successfully created" but found "Order was successfully canceled"
+  # TODO: Fix failing test - #notice text mismatch (found "Order was successfully canceled")
   # test "admin can create a new classroom" do
   #   school1 = create(:school, name: "Elementary School")
   #   create(:school, name: "High School")
@@ -25,7 +25,7 @@ class UserManagesClassroomsTest < ApplicationSystemTestCase
   #   assert_selector "h1", text: "2023-2024"
   # end
 
-  # TODO: Fix failing test - expected to find visible css "#notice" with text "Classroom was successfully updated" but found "Grade book finalized. Funds have been distributed."
+  # TODO: Fix failing test - #notice text mismatch (found "Grade book finalized...")
   # test "admin can update a classroom" do
   #   school1 = create(:school, name: "Original School")
   #   school2 = create(:school, name: "New School")

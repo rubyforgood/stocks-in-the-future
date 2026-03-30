@@ -42,7 +42,7 @@
         <% if alert.present? %>
           <p class="mb-4 p-4 bg-red-50 border border-red-200 text-red-800 rounded-lg" id="alert"><%= alert %></p>
         <% end %>
-        
+
         <%= yield %>
       </main>
     <% else %>
@@ -50,7 +50,7 @@
         <%= yield %>
       </main>
     <% end %>
-    
+
     <!-- Trading Modal -->
     <%= render 'shared/modal' %>
   </body>

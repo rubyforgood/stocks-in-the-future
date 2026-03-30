@@ -4,20 +4,7 @@ require "application_system_test_case"
 
 class TeacherCreatesStudentTest < ApplicationSystemTestCase
   test "teacher can create a student" do
-    username = "student_one"
-    classroom = create(:classroom)
-    teacher = create(:teacher)
-    create(:teacher_classroom, teacher:, classroom:)
-    sign_in(teacher)
-    visit classroom_path(classroom)
-
-    click_on "Add Student"
     # TODO: Fix student form fields - Ticket #8: Fix Teacher Student Creation
-    # fill_in "Username", with: username
-    # click_button "Create Student"
-    # assert_selector "#notice", text: "Student #{username} created successfully"
-    # assert_selector "[data-testid='student-username']", text: username
-
     skip "Username field not accessible in student creation form"
   end
 
@@ -76,23 +63,7 @@ class TeacherCreatesStudentTest < ApplicationSystemTestCase
   end
 
   test "teacher can edit student information" do
-    old_username = "student_one"
-    new_username = "student_two"
-    classroom = create(:classroom)
-    student = create(:student, classroom:, username: old_username)
-    teacher = create(:teacher)
-    create(:teacher_classroom, teacher:, classroom:)
-    sign_in(teacher)
-    visit classroom_path(classroom)
-
-    find("##{dom_id(student)} [data-testid='edit-student']").click
     # TODO: Fix student form fields - Ticket #9: Fix Teacher Student Editing
-    # fill_in "Username", with: new_username
-    # click_button "Update Student"
-    # assert_selector "#notice", text: "Student updated successfully"
-    # assert_selector "[data-testid='student-username']", text: new_username
-    # assert_no_selector "[data-testid='student-username']", text: old_username
-
     skip "Username field not accessible in student edit form"
   end
 

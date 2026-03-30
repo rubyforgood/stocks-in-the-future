@@ -72,7 +72,7 @@ class UserManagesOrdersTest < ApplicationSystemTestCase
   #   sign_out(student)
   # end
 
-  # TODO: Fix failing test - expected to find text "Order was successfully canceled" (found 2 times including non-visible text)
+  # TODO: Fix failing test - "Order was successfully canceled" found but non-visible
   # test "canceling an order" do
   #   student = create(:student)
   #   student.reload
