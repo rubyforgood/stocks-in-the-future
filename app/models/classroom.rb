@@ -23,7 +23,7 @@ class Classroom < ApplicationRecord
   has_many :grade_books, dependent: :nullify
 
   validates :name, presence: true
-  validates :school_year_id, presence: { message: "School Year is required" }
+  validates :school_year_id, presence: true
   validate :grade_level
 
   after_create :create_gradebooks_for_quarters

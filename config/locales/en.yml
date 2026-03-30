@@ -15,6 +15,10 @@ en:
         type: Role
     errors:
       models:
+        classroom:
+          attributes:
+            school_year_id:
+              blank: School Year is required
         stock:
           attributes:
             company_website:
