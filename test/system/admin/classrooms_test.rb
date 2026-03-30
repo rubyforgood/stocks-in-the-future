@@ -19,7 +19,7 @@ module Admin
       end
 
       assert_text "Classroom has been archived"
-      assert_current_path admin_classrooms_path
+      assert_current_path admin_classroom_path(@classroom)
     end
 
     test "admin can activate archived classroom" do
@@ -33,7 +33,7 @@ module Admin
       end
 
       assert_text "Classroom has been activated"
-      assert_current_path admin_classrooms_path
+      assert_current_path admin_classroom_path(@classroom)
     end
 
     test "destroy button does not appear" do

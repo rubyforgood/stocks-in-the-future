@@ -19,7 +19,7 @@ en:
           attributes:
             company_website:
               invalid: must be a valid HTTP or HTTPS URL
-  admin_v2:
+  admin:
     announcements:
       create:
         notice: Announcement created successfully.
@@ -119,7 +119,13 @@ en:
       update:
         notice: Year updated successfully.
   announcements:
+    create:
+      notice: Announcement was successfully created.
+    destroy:
+      notice: Announcement was successfully destroyed.
     not_found: Announcement not found.
+    update:
+      notice: Announcement was successfully updated.
   application:
     access_denied:
       admin_required: Access denied. Admin privileges required.

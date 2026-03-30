@@ -1,70 +1,102 @@
 # frozen_string_literal: true
 
 module Admin
-  class SchoolYearsController < Admin::ApplicationController
-    # Overwrite any of the RESTful controller actions to implement custom behavior
-    # For example, you may want to send an email after a foo is updated.
-    #
-    # def update
-    #   super
-    #   send_foo_updated_email(requested_resource)
-    # end
+  class SchoolYearsController < BaseController
+    before_action :set_school_year, only: %i[show edit update destroy]
 
-    # Override this method to specify custom lookup behavior.
-    # This will be used to set the resource for the `show`, `edit`, and `update`
-    # actions.
-    #
-    # def find_resource(param)
-    #   Foo.find_by!(slug: param)
-    # end
+    def index
+      @school_years = apply_sorting(SchoolYear.includes(:school, :year), default: "id")
 
-    # The result of this lookup will be available as `requested_resource`
+      @breadcrumbs = [
+        { label: "School Years" }
+      ]
+    end
 
-    # Override this if you have certain roles that require a subset
-    # this will be used to set the records shown on the `index` action.
-    #
-    # def scoped_resource
-    #   if current_user.super_admin?
-    #     resource_class
-    #   else
-    #     resource_class.with_less_stuff
-    #   end
-    # end
+    def show
+      @breadcrumbs = [
+        { label: "School Years", path: admin_school_years_path },
+        { label: @school_year.to_s }
+      ]
+    end
 
-    # Override `resource_params` if you want to transform the submitted
-    # data before it's persisted. For example, the following would turn all
-    # empty values into nil values. It uses other APIs such as `resource_class`
-    # and `dashboard`:
-    #
-    # def resource_params
-    #   params.require(resource_class.model_name.param_key).
-    #     permit(dashboard.permitted_attributes(action_name)).
-    #     transform_values { |value| value == "" ? nil : value }
-    # end
+    def new
+      @school_year = SchoolYear.new
 
-    # See https://administrate-demo.herokuapp.com/customizing_controller_actions
-    # for more information
+      @breadcrumbs = [
+        { label: "School Years", path: admin_school_years_path },
+        { label: "New School Year" }
+      ]
+    end
+
+    def edit
+      @breadcrumbs = [
+        { label: "School Years", path: admin_school_years_path },
+        { label: @school_year.to_s, path: admin_school_year_path(@school_year) },
+        { label: "Edit" }
+      ]
+    end
 
     def create
-      school = School.find(school_year_params[:school_id])
-      year = Year.find(school_year_params[:year_id])
-      school_year = SchoolYearCreationService.new(school:, year:).call
-      if school_year.persisted?
-        redirect_to(
-          after_resource_created_path(school_year),
-          notice: translate_with_resource("create.success")
-        )
-      else
-        render :new, locals: {
-          page: Administrate::Page::Form.new(dashboard, school_year)
-        }, status: :unprocessable_content
+      school = School.find_by(id: school_year_params[:school_id])
+      year = Year.find_by(id: school_year_params[:year_id])
+
+      unless school && year
+        @school_year = SchoolYear.new(school_year_params)
+        @school_year.valid?
+        return render_new_with_errors
       end
+
+      @school_year = SchoolYearCreationService.new(school:, year:).call
+
+      if @school_year.persisted?
+        redirect_to admin_school_year_path(@school_year), notice: t(".notice")
+      else
+        render_new_with_errors
+      end
+    rescue ActiveRecord::RecordInvalid => e
+      @school_year = e.record
+      render_new_with_errors
+    end
+
+    def update
+      if @school_year.update(school_year_params)
+        redirect_to admin_school_year_path(@school_year), notice: t(".notice")
+      else
+        @breadcrumbs = [
+          { label: "School Years", path: admin_school_years_path },
+          { label: @school_year.to_s, path: admin_school_year_path(@school_year) },
+          { label: "Edit" }
+        ]
+        render :edit, status: :unprocessable_content
+      end
+    end
+
+    def destroy
+      if @school_year.destroy
+        redirect_to admin_school_years_path, notice: t(".notice")
+      else
+        redirect_to admin_school_years_path, alert: t(".delete_restricted")
+      end
+    rescue ActiveRecord::DeleteRestrictionError
+      redirect_to admin_school_years_path, alert: t(".delete_restricted")
     end
 
     private
 
+    def set_school_year
+      @school_year = SchoolYear.find(params.expect(:id))
+    end
+
     def school_year_params
       params.expect(school_year: %i[school_id year_id])
+    end
+
+    def render_new_with_errors
+      @breadcrumbs = [
+        { label: "School Years", path: admin_school_years_path },
+        { label: "New School Year" }
+      ]
+      render :new, status: :unprocessable_content
     end
   end
 end

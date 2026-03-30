@@ -1,48 +1,108 @@
 # frozen_string_literal: true
 
 module Admin
-  class StocksController < Admin::ApplicationController
-    # Overwrite any of the RESTful controller actions to implement custom behavior
-    # For example, you may want to send an email after a foo is updated.
-    #
-    # def update
-    #   super
-    #   send_foo_updated_email(requested_resource)
-    # end
+  class StocksController < BaseController
+    before_action :set_stock, only: %i[show edit update destroy]
 
-    # Override this method to specify custom lookup behavior.
-    # This will be used to set the resource for the `show`, `edit`, and `update`
-    # actions.
-    #
-    # def find_resource(param)
-    #   Foo.find_by!(slug: param)
-    # end
+    def index
+      @stocks = apply_sorting(Stock.all, default: "ticker")
 
-    # The result of this lookup will be available as `requested_resource`
+      @breadcrumbs = [
+        { label: "Stocks" }
+      ]
+    end
 
-    # Override this if you have certain roles that require a subset
-    # this will be used to set the records shown on the `index` action.
-    #
-    # def scoped_resource
-    #   if current_user.super_admin?
-    #     resource_class
-    #   else
-    #     resource_class.with_less_stuff
-    #   end
-    # end
+    def show
+      @breadcrumbs = [
+        { label: "Stocks", path: admin_stocks_path },
+        { label: @stock.ticker }
+      ]
+    end
 
-    # Override `resource_params` if you want to transform the submitted
-    # data before it's persisted. For example, the following would turn all
-    # empty values into nil values. It uses other APIs such as `resource_class`
-    # and `dashboard`:
-    #
-    # def resource_params
-    #   params.require(resource_class.model_name.param_key).
-    #     permit(dashboard.permitted_attributes(action_name)).
-    #     transform_values { |value| value == "" ? nil : value }
-    # end
+    def new
+      @stock = Stock.new
 
-    # See https://administrate-demo.herokuapp.com/customizing_controller_actions
-    # for more information
+      @breadcrumbs = [
+        { label: "Stocks", path: admin_stocks_path },
+        { label: "New Stock" }
+      ]
+    end
+
+    def edit
+      @breadcrumbs = [
+        { label: "Stocks", path: admin_stocks_path },
+        { label: @stock.ticker, path: admin_stock_path(@stock) },
+        { label: "Edit" }
+      ]
+    end
+
+    def create
+      @stock = Stock.new(stock_params)
+
+      if @stock.save
+        redirect_to admin_stock_path(@stock), notice: t(".notice")
+      else
+        @breadcrumbs = [
+          { label: "Stocks", path: admin_stocks_path },
+          { label: "New Stock" }
+        ]
+        render :new, status: :unprocessable_content
+      end
+    end
+
+    def update
+      if @stock.update(stock_params)
+        redirect_to admin_stock_path(@stock), notice: t(".notice")
+      else
+        @breadcrumbs = [
+          { label: "Stocks", path: admin_stocks_path },
+          { label: @stock.ticker, path: admin_stock_path(@stock) },
+          { label: "Edit" }
+        ]
+        render :edit, status: :unprocessable_content
+      end
+    end
+
+    def destroy
+      @stock.destroy
+      redirect_to admin_stocks_path, notice: t(".notice")
+    rescue ActiveRecord::DeleteRestrictionError => e
+      redirect_to admin_stocks_path, alert: "Cannot delete stock: #{e.message}"
+    end
+
+    private
+
+    def set_stock
+      @stock = Stock.find(params.expect(:id))
+    end
+
+    # rubocop:disable Metrics/MethodLength
+    def stock_params
+      params.expect(
+        stock: %i[
+          ticker
+          company_name
+          company_website
+          stock_exchange
+          description
+          price_cents
+          yesterday_price_cents
+          employees
+          industry
+          cash_flow
+          debt
+          debt_to_equity
+          profit_margin
+          sales_growth
+          industry_avg_debt_to_equity
+          industry_avg_profit_margin
+          industry_avg_sales_growth
+          management
+          competitor_names
+          archived
+        ]
+      )
+    end
+    # rubocop:enable Metrics/MethodLength
   end
 end

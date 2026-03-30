@@ -64,7 +64,7 @@ class TeachersControllerTest < ActionDispatch::IntegrationTest
       teacher: {
         email: "t1@example.com",
         username: "teacher1",
-        classroom_id: classroom.id
+        classroom_ids: [classroom.id]
       }
     }
 
@@ -72,10 +72,9 @@ class TeachersControllerTest < ActionDispatch::IntegrationTest
       post admin_teachers_path, params: params
     end
 
-    assert_redirected_to admin_teachers_path
-    assert_not_nil flash[:notice]
-
     teacher = Teacher.find_by!(email: "t1@example.com")
+    assert_redirected_to admin_teacher_path(teacher)
+    assert_not_nil flash[:notice]
     assert_includes teacher.classrooms, classroom
 
     teacher.reload
@@ -100,9 +99,8 @@ class TeachersControllerTest < ActionDispatch::IntegrationTest
       post admin_teachers_path, params: params
     end
 
-    assert_redirected_to admin_teachers_path
-
     teacher = Teacher.find_by!(email: "t2@example.com")
+    assert_redirected_to admin_teacher_path(teacher)
     assert_equal 0, teacher.classrooms.count, "no classroom should be associated"
   end
 

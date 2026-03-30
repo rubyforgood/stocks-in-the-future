@@ -2,25 +2,113 @@
 
 module Admin
   # rubocop:disable Metrics/ClassLength
-  class StudentsController < Admin::ApplicationController
-    # Overwrite any of the RESTful controller actions to implement custom behavior
-    # For example, you may want to send an email after a foo is updated.
+  class StudentsController < BaseController
+    include SoftDeletableFiltering
+
+    before_action :set_student, only: %i[show edit update destroy add_transaction]
+    before_action :set_discarded_student, only: %i[restore]
+
+    def index
+      @students = apply_sorting(scoped_by_discard_status(Student), default: "username")
+
+      @breadcrumbs = [
+        { label: "Students" }
+      ]
+    end
+
+    def show
+      @breadcrumbs = [
+        { label: "Students", path: admin_students_path },
+        { label: @student.username }
+      ]
+    end
+
+    def new
+      @student = Student.new
+
+      @breadcrumbs = [
+        { label: "Students", path: admin_students_path },
+        { label: "New Student" }
+      ]
+    end
+
+    def edit
+      @breadcrumbs = [
+        { label: "Students", path: admin_students_path },
+        { label: @student.username, path: admin_student_path(@student) },
+        { label: "Edit" }
+      ]
+    end
+
+    def create
+      @student = Student.new(student_params)
+
+      # Generate a memorable password if not provided
+      if @student.password.blank?
+        generated_password = MemorablePasswordGenerator.generate
+        @student.password = generated_password
+        @student.password_confirmation = generated_password
+      else
+        generated_password = @student.password
+      end
+
+      if @student.save
+        redirect_to admin_student_path(@student),
+                    notice: t(".notice", username: @student.username, password: generated_password)
+      else
+        @breadcrumbs = [
+          { label: "Students", path: admin_students_path },
+          { label: "New Student" }
+        ]
+        render :new, status: :unprocessable_content
+      end
+    end
 
     def update
-      super
+      if @student.update(student_params)
+        redirect_to admin_student_path(@student), notice: t(".notice")
+      else
+        @breadcrumbs = [
+          { label: "Students", path: admin_students_path },
+          { label: @student.username, path: admin_student_path(@student) },
+          { label: "Edit" }
+        ]
+        render :edit, status: :unprocessable_content
+      end
     end
 
     def destroy
-      username = requested_resource.username
-      requested_resource.discard
-      redirect_to admin_students_path, notice: "Discarded #{username}"
+      username = @student.username
+      @student.discard
+      redirect_to admin_students_path, notice: t(".notice", username: username)
     end
 
     def restore
-      student = resource_class.with_discarded.find(params[:id])
-      username = student.username
-      student.undiscard
-      redirect_to admin_students_path(discarded: 1), notice: "Restored #{username}"
+      username = @student.username
+      @student.undiscard
+      redirect_to admin_students_path(discarded: true), notice: t(".notice", username: username)
+    end
+
+    def add_transaction
+      errors = validate_transaction_params
+
+      if errors.present?
+        redirect_to edit_admin_student_path(@student), alert: errors.join(", ")
+      else
+        transaction = PortfolioTransaction.new(
+          portfolio: @student.portfolio,
+          amount_cents: transaction_amount_cents,
+          transaction_type: transaction_type,
+          reason: transaction_reason,
+          description: transaction_description
+        )
+
+        if transaction.save
+          redirect_to admin_student_path(@student), notice: t(".notice")
+        else
+          redirect_to edit_admin_student_path(@student), alert: transaction.errors.full_messages.join(", ")
+        end
+      end
     end
 
     def import
@@ -34,29 +122,6 @@ module Admin
       end
     end
 
-    def add_transaction
-      errors = validate_transaction_params
-      student = Student.find(params["student_id"])
-
-      if errors.present?
-        redirect_to edit_admin_student_path(student), alert: errors.join(", ")
-      else
-        transaction = PortfolioTransaction.new(
-          portfolio: student.portfolio,
-          amount_cents: fund_amount,
-          transaction_type: transaction_type,
-          reason: transaction_reason,
-          description: transaction_description
-        )
-
-        if transaction.save
-          redirect_to admin_student_path(student), notice: t("students.add_transaction.success")
-        else
-          redirect_to edit_admin_student_path(student), alert: transaction.errors.full_messages.join(", ")
-        end
-      end
-    end
-
     def template
       send_data BulkStudentImportService.generate_csv_template,
                 filename: "student_import_template.csv",
@@ -64,56 +129,51 @@ module Admin
                 disposition: "attachment"
     end
 
-    # Override this method to specify custom lookup behavior.
-    # This will be used to set the resource for the `show`, `edit`, and `update`
-    # actions.
-    #
-    # def find_resource(param)
-    #   Foo.find_by!(slug: param)
-    # end
-
-    # The result of this lookup will be available as `requested_resource`
-
-    # Override this if you have certain roles that require a subset
-    # this will be used to set the records shown on the `index` action.
-    #
-    def scoped_resource
-      scope = resource_class
-      if params[:discarded] == "1"
-        scope.discarded
-      elsif params[:all] == "1"
-        scope.with_discarded
-      else
-        scope.kept
-      end
-    end
-
-    # def scoped_resource
-    #   if current_user.super_admin?
-    #     resource_class
-    #   else
-    #     resource_class.with_less_stuff
-    #   end
-    # end
-
-    # Override `resource_params` if you want to transform the submitted
-    # data before it's persisted. For example, the following would turn all
-    # empty values into nil values. It uses other APIs such as `resource_class`
-    # and `dashboard`:
-    #
-    # def resource_params
-    #   params.require(resource_class.model_name.param_key).
-    #     permit(dashboard.permitted_attributes(action_name)).
-    #     transform_values { |value| value == "" ? nil : value }
-    # end
-
-    # See https://administrate-demo.herokuapp.com/customizing_controller_actions
-    # for more information
-    #
     private
 
+    def set_discarded_student
+      @student = Student.with_discarded.find(params.expect(:id))
+    end
+
+    def set_student
+      @student = Student.find(params.expect(:id))
+    end
+
+    def student_params
+      params.expect(student: %i[username classroom_id password password_confirmation])
+    end
+
+    def transaction_params
+      params.expect(student: %i[add_fund_amount transaction_type transaction_reason transaction_description])
+    end
+
+    def transaction_amount_cents
+      amount = transaction_params[:add_fund_amount]
+      amount.present? ? (amount.to_f * 100).to_i : nil
+    end
+
+    def transaction_type
+      transaction_params[:transaction_type]
+    end
+
+    def transaction_reason
+      transaction_params[:transaction_reason]
+    end
+
+    def transaction_description
+      transaction_params[:transaction_description]
+    end
+
+    def validate_transaction_params
+      errors = []
+      errors << t("admin.students.add_transaction.errors.transaction_type_blank") if transaction_type.blank?
+      errors << t("admin.students.add_transaction.errors.amount_blank") if transaction_amount_cents.blank?
+      errors << t("admin.students.add_transaction.errors.reason_blank") if transaction_reason.blank?
+      errors
+    end
+
     def redirect_with_missing_file_error
-      redirect_to admin_students_path, alert: "Please select a CSV file" # rubocop:disable Rails/I18nLocaleTexts
+      redirect_to admin_students_path, alert: t(".errors.no_file")
     end
 
     def redirect_with_import_results(results)
@@ -130,7 +190,7 @@ module Admin
     end
 
     def redirect_with_no_results_error
-      redirect_to admin_students_path, alert: "No students found in CSV file" # rubocop:disable Rails/I18nLocaleTexts
+      redirect_to admin_students_path, alert: t(".errors.no_students")
     end
 
     def partition_results(results)
@@ -166,37 +226,6 @@ module Admin
       else
         redirect_to admin_students_path, alert: alert_message
       end
-    end
-
-    def transaction_params
-      params.expect(
-        student: %i[add_fund_amount transaction_type transaction_reason transaction_description]
-      )
-    end
-
-    def fund_amount
-      amount = transaction_params[:add_fund_amount]
-      @fund_amount ||= amount.present? ? (amount.to_f * 100).to_i : nil
-    end
-
-    def transaction_type
-      @transaction_type ||= transaction_params[:transaction_type]
-    end
-
-    def transaction_reason
-      @transaction_reason ||= transaction_params[:transaction_reason]
-    end
-
-    def transaction_description
-      @transaction_description ||= transaction_params[:transaction_description]
-    end
-
-    def validate_transaction_params
-      errors = []
-      errors << t("students.add_transaction.errors.transaction_type_blank") if transaction_type.blank?
-      errors << t("students.add_transaction.errors.amount_blank") if fund_amount.blank?
-      errors << t("students.add_transaction.errors.reason_blank") if transaction_reason.blank?
-      errors
     end
   end
   # rubocop:enable Metrics/ClassLength

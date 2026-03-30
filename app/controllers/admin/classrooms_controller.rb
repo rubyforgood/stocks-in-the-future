@@ -1,56 +1,83 @@
 # frozen_string_literal: true
 
 module Admin
-  class ClassroomsController < Admin::ApplicationController
-    # Overwrite any of the RESTful controller actions to implement custom behavior
-    # For example, you may want to send an email after a foo is updated.
-    #
-    # def update
-    #   super
-    #   send_foo_updated_email(requested_resource)
-    # end
+  class ClassroomsController < BaseController
+    before_action :set_classroom, only: %i[show edit update toggle_archive]
 
-    # Override this method to specify custom lookup behavior.
-    # This will be used to set the resource for the `show`, `edit`, and `update`
-    # actions.
-    #
-    # def find_resource(param)
-    #   Foo.find_by!(slug: param)
-    # end
+    def index
+      @classrooms = apply_sorting(Classroom.all, default: "name")
 
-    # The result of this lookup will be available as `requested_resource`
+      @breadcrumbs = [
+        { label: "Classrooms" }
+      ]
+    end
 
-    # Override this if you have certain roles that require a subset
-    # this will be used to set the records shown on the `index` action.
-    #
-    # def scoped_resource
-    #   if current_user.super_admin?
-    #     resource_class
-    #   else
-    #     resource_class.with_less_stuff
-    #   end
-    # end
+    def show
+      @breadcrumbs = [
+        { label: "Classrooms", path: admin_classrooms_path },
+        { label: @classroom.name }
+      ]
+    end
 
-    # Override `resource_params` if you want to transform the submitted
-    # data before it's persisted. For example, the following would turn all
-    # empty values into nil values. It uses other APIs such as `resource_class`
-    # and `dashboard`:
-    #
-    # def resource_params
-    #   params.require(resource_class.model_name.param_key).
-    #     permit(dashboard.permitted_attributes(action_name)).
-    #     transform_values { |value| value == "" ? nil : value }
-    # end
+    def new
+      @classroom = Classroom.new
 
-    # See https://administrate-demo.herokuapp.com/customizing_controller_actions
-    # for more information
+      @breadcrumbs = [
+        { label: "Classrooms", path: admin_classrooms_path },
+        { label: "New Classroom" }
+      ]
+    end
+
+    def edit
+      @breadcrumbs = [
+        { label: "Classrooms", path: admin_classrooms_path },
+        { label: @classroom.name, path: admin_classroom_path(@classroom) },
+        { label: "Edit" }
+      ]
+    end
+
+    def create
+      @classroom = Classroom.new(classroom_params)
+
+      if @classroom.save
+        redirect_to admin_classroom_path(@classroom), notice: t(".notice")
+      else
+        @breadcrumbs = [
+          { label: "Classrooms", path: admin_classrooms_path },
+          { label: "New Classroom" }
+        ]
+        render :new, status: :unprocessable_content
+      end
+    end
+
+    def update
+      if @classroom.update(classroom_params)
+        redirect_to admin_classroom_path(@classroom), notice: t(".notice")
+      else
+        @breadcrumbs = [
+          { label: "Classrooms", path: admin_classrooms_path },
+          { label: @classroom.name, path: admin_classroom_path(@classroom) },
+          { label: "Edit" }
+        ]
+        render :edit, status: :unprocessable_content
+      end
+    end
 
     def toggle_archive
-      classroom = Classroom.find(params[:id])
-      authorize classroom, :toggle_archive?
-      classroom.update!(archived: !classroom.archived)
-      flash[:notice] = classroom.archived? ? "Classroom has been archived." : "Classroom has been activated."
-      redirect_to admin_classrooms_path
+      authorize @classroom, :toggle_archive?
+      @classroom.update!(archived: !@classroom.archived)
+      flash[:notice] = @classroom.archived? ? "Classroom has been archived." : "Classroom has been activated."
+      redirect_to admin_classroom_path(@classroom)
+    end
+
+    private
+
+    def set_classroom
+      @classroom = Classroom.find(params.expect(:id))
+    end
+
+    def classroom_params
+      params.expect(classroom: [:name, :trading_enabled, :school_year_id, { grade_ids: [] }])
     end
   end
 end

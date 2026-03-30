@@ -35,6 +35,14 @@
 
       <!-- Main: responsive margins and padding -->
       <main class="min-h-screen overflow-auto px-4 sm:px-6 ml-0 lg:ml-50 mt-16 pb-6 bg-[#f7f9f3]">
+        <!-- Flash Messages -->
+        <% if notice.present? %>
+          <p class="mb-4 p-4 bg-green-50 border border-green-200 text-green-800 rounded-lg" id="notice"><%= notice %></p>
+        <% end %>
+        <% if alert.present? %>
+          <p class="mb-4 p-4 bg-red-50 border border-red-200 text-red-800 rounded-lg" id="alert"><%= alert %></p>
+        <% end %>
+
         <%= yield %>
       </main>
     <% else %>
@@ -42,5 +50,8 @@
         <%= yield %>
       </main>
     <% end %>
+
+    <!-- Trading Modal -->
+    <%= render 'shared/modal' %>
   </body>
 </html>
