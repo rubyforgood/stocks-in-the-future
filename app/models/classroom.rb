@@ -23,7 +23,7 @@ class Classroom < ApplicationRecord
   has_many :grade_books, dependent: :nullify
 
   validates :name, presence: true
-  validates :school_year_id, presence: true
+  validate :school_year_presence
   validate :grade_level
 
   after_create :create_gradebooks_for_quarters
@@ -80,5 +80,9 @@ class Classroom < ApplicationRecord
 
   def grade_level
     errors.add(:grades, "must have at least one grade") if grades.empty?
+  end
+
+  def school_year_presence
+    errors.add(:school_year_id, :blank) if school_year_id.blank? && school_year.nil?
   end
 end
