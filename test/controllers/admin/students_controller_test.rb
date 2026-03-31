@@ -194,12 +194,10 @@ module Admin
       student = create(:student, portfolio:)
       create(:portfolio_transaction, :deposit, portfolio:, amount_cents: 10_000)
       params = {
-        student: {
-          transaction_type: "deposit",
-          add_fund_amount: "100.50",
-          transaction_reason: "awards",
-          transaction_description: "Test deposit"
-        }
+        transaction_type: "deposit",
+        add_fund_amount: "100.50",
+        transaction_reason: "awards",
+        transaction_description: "Test deposit"
       }
       admin = create(:admin, admin: true, classroom: nil)
       sign_in(admin)
@@ -215,12 +213,10 @@ module Admin
     test "add_transaction debit" do
       student = create(:student)
       params = {
-        student: {
-          transaction_type: "debit",
-          add_fund_amount: "50.25",
-          transaction_reason: "administrative_adjustments",
-          transaction_description: "Test debit"
-        }
+        transaction_type: "debit",
+        add_fund_amount: "50.25",
+        transaction_reason: "administrative_adjustments",
+        transaction_description: "Test debit"
       }
       admin = create(:admin, admin: true, classroom: nil)
       sign_in(admin)
@@ -235,7 +231,7 @@ module Admin
 
     test "add_transaction invalid params" do
       student = create(:student)
-      params = { student: { transaction_type: "" } }
+      params = { transaction_type: "" }
       admin = create(:admin, admin: true, classroom: nil)
       sign_in(admin)
 
@@ -246,6 +242,26 @@ module Admin
 
       assert_redirected_to edit_admin_student_path(student)
       assert_equal expected_error_message, flash[:alert]
+    end
+
+    test "add_transaction params are not nested under student key" do
+      student = create(:student)
+      params = {
+        student: {
+          transaction_type: "deposit",
+          add_fund_amount: "50.00",
+          transaction_reason: "awards",
+          transaction_description: "Nested params should be ignored"
+        }
+      }
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
+
+      assert_no_difference("PortfolioTransaction.count") do
+        post(add_transaction_admin_student_path(student), params:)
+      end
+
+      assert_redirected_to edit_admin_student_path(student)
     end
 
     # Import/Template tests
