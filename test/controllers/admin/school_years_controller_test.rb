@@ -76,6 +76,22 @@ module Admin
       assert_response :unprocessable_content
     end
 
+    test "create with duplicate school year shows error" do
+      school = create(:school)
+      year = create(:year)
+      create(:school_year, school:, year:)
+      params = { school_year: { school_id: school.id, year_id: year.id } }
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
+
+      assert_no_difference("SchoolYear.count") do
+        post(admin_school_years_path, params:)
+      end
+
+      assert_response :unprocessable_content
+      assert_select "p.text-red-600", /already exists/
+    end
+
     test "edit" do
       school_year = create(:school_year)
       admin = create(:admin, admin: true, classroom: nil)

@@ -219,6 +219,18 @@ module Admin
       @template.link_to(text, url, options)
     end
 
+    # Displays base errors (errors not tied to a specific attribute)
+    def base_errors
+      return "".html_safe unless object&.errors && object.errors[:base].any?
+
+      @template.content_tag(:div, class: "mb-6 p-4 bg-red-50 border border-red-200 rounded-lg") do
+        @template.content_tag(:p, class: "text-sm text-red-600") do
+          @template.content_tag(:i, "", class: "fas fa-exclamation-circle mr-1") +
+            object.errors[:base].join(", ")
+        end
+      end
+    end
+
     private
 
     def build_select_choice(item, label_method, value_method)
