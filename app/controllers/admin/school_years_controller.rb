@@ -56,7 +56,7 @@ module Admin
     rescue ActiveRecord::RecordNotUnique
       @school_year = SchoolYear.new(school_year_params)
       @school_year.valid?
-      @school_year.errors.add(:base, t(".duplicate"))
+      @school_year.errors.add(:base, 'A School year with this school and year already exists.')
       render_new_with_errors
     rescue ActiveRecord::RecordInvalid => e
       @school_year = e.record
