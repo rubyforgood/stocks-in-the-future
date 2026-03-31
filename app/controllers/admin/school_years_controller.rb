@@ -53,6 +53,11 @@ module Admin
       else
         render_new_with_errors
       end
+    rescue ActiveRecord::RecordNotUnique
+      @school_year = SchoolYear.new(school_year_params)
+      @school_year.valid?
+      @school_year.errors.add(:base, t(".duplicate"))
+      render_new_with_errors
     rescue ActiveRecord::RecordInvalid => e
       @school_year = e.record
       render_new_with_errors
