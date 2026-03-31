@@ -51,7 +51,7 @@ en:
     school_years:
       create:
         notice: School year created successfully.
-        duplicate: A school year with this school and year already exists.
+        duplicate: A School year with this school and year already exists.
       destroy:
         delete_restricted: Cannot delete school year because it has associated records.
           Please remove all classrooms and quarters first.
