@@ -54,9 +54,7 @@ module Admin
         render_new_with_errors
       end
     rescue ActiveRecord::RecordNotUnique
-      @school_year = SchoolYear.new(school_year_params)
-      @school_year.valid?
-      @school_year.errors.add(:base, 'A School year with this school and year already exists.')
+      save_error(school_year_params)
       render_new_with_errors
     rescue ActiveRecord::RecordInvalid => e
       @school_year = e.record
@@ -102,6 +100,12 @@ module Admin
         { label: "New School Year" }
       ]
       render :new, status: :unprocessable_content
+    end
+
+    def save_error(params)
+      @school_year = SchoolYear.new(params)
+      @school_year.valid?
+      @school_year.errors.add(:base, "A School year with this school and year already exists.")
     end
   end
 end
