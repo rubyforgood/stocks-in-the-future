@@ -62,9 +62,11 @@ class Order < ApplicationRecord
     reorder(shares: safe_direction(direction))
   }
   scope :order_by_total_cost, lambda { |direction = :asc|
-    dir = safe_direction(direction).to_s.upcase
+    dir = safe_direction(direction)
+
+    expression = Arel.sql("stocks.price_cents * orders.shares")
     joins(:stock)
-      .reorder(Arel.sql("stocks.price_cents * orders.shares #{dir}"))
+      .reorder(dir == :desc ? expression.desc : expression.asc)
   }
 
   # Apply sorting based on sort column param
