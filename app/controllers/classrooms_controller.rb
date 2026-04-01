@@ -10,6 +10,7 @@ class ClassroomsController < ApplicationController
 
   def index
     @classrooms = policy_scope(Classroom).includes(:teachers, students: :portfolio)
+    @classrooms = apply_classroom_sorting(@classrooms)
   end
 
   def show
@@ -122,5 +123,21 @@ class ClassroomsController < ApplicationController
                 @classroom.teachers.include?(current_user))
 
     redirect_to root_path, alert: t("application.access_denied.no_access")
+  end
+
+  def apply_classroom_sorting(collection)
+    sort_column = params[:sort]
+    direction = params[:direction] == "desc" ? :desc : :asc
+
+    case sort_column
+    when "student_count"
+      collection.order_by_student_count(direction)
+    when "total_earnings"
+      collection.order_by_total_earnings(direction)
+    when "name"
+      collection.reorder(name: direction)
+    else
+      collection.reorder(name: :asc)
+    end
   end
 end

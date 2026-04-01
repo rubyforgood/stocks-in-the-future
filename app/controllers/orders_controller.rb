@@ -8,6 +8,7 @@ class OrdersController < ApplicationController
 
   def index
     @orders = policy_scope(Order).order(created_at: :desc)
+    @orders = apply_order_sorting(@orders)
   end
 
   def new
@@ -108,5 +109,30 @@ class OrdersController < ApplicationController
       format.html { redirect_to orders_url, notice: t(".notice") }
       format.json { head :no_content }
     end
+  end
+
+  def apply_order_sorting(collection)
+    sort_column = params[:sort]
+    direction = params[:direction] == "desc" ? :desc : :asc
+
+    sorted = case sort_column
+             when "created_at"
+               collection.reorder(created_at: direction)
+             when "username"
+               collection.joins(:user).reorder(Arel.sql("users.username #{direction}"))
+             when "classroom"
+               collection.joins(user: :classroom).reorder(Arel.sql("classrooms.name #{direction}"))
+             when "stock"
+               collection.joins(:stock).reorder(Arel.sql("stocks.ticker #{direction}"))
+             when "price_per_share"
+               collection.joins(:stock).reorder(Arel.sql("stocks.price_cents #{direction}"))
+             when "shares"
+               collection.reorder(shares: direction)
+             when "total_cost"
+               collection.joins(:stock).reorder(Arel.sql("stocks.price_cents * orders.shares #{direction}"))
+             else
+               collection.reorder(created_at: :desc)
+             end
+    sorted
   end
 end

@@ -93,7 +93,7 @@ module AdminHelper
           label,
           content_tag(
             :span, icon,
-            class: "ml-2 flex-none rounded text-gray-400 group-hover:text-gray-500"
+            class: "ml-2 flex-none rounded text-gray-900 group-hover:text-gray-900"
           )
         ]
       )

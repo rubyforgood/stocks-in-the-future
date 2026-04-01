@@ -30,6 +30,18 @@ class Classroom < ApplicationRecord
 
   scope :active, -> { where(archived: false) }
   scope :archived, -> { where(archived: true) }
+  scope :order_by_student_count, ->(direction = :asc) {
+    joins("LEFT OUTER JOIN users ON users.classroom_id = classrooms.id AND users.type = 'Student'")
+      .group(:id)
+      .order(Arel.sql("COUNT(users.id) #{direction}"))
+  }
+  scope :order_by_total_earnings, ->(direction = :asc) {
+    joins("LEFT OUTER JOIN users ON users.classroom_id = classrooms.id AND users.type = 'Student'")
+      .joins("LEFT OUTER JOIN portfolios ON portfolios.user_id = users.id")
+      .joins("LEFT OUTER JOIN portfolio_transactions ON portfolio_transactions.portfolio_id = portfolios.id")
+      .group(:id)
+      .order(Arel.sql("COALESCE(SUM(portfolio_transactions.amount_cents), 0) #{direction}"))
+  }
 
   # Get currently enrolled students (students with active enrollments)
   #
