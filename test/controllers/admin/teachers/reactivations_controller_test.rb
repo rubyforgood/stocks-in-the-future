@@ -22,7 +22,7 @@ module Admin
         post admin_teacher_reactivation_path(@teacher1)
 
         assert_redirected_to admin_teachers_path
-        assert_equal "Teacher teacher1 reactivated successfully.", flash[:notice]
+        assert_equal "Teacher teacher1@example.com reactivated successfully.", flash[:notice]
         assert_not @teacher1.reload.discarded?
       end
 

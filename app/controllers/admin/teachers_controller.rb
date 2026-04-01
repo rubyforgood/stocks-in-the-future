@@ -98,7 +98,7 @@ module Admin
     end
 
     def teacher_params
-      params.expect(teacher: [:email, :name, :username, { classroom_ids: [] }])
+      params.expect(teacher: [:email, :name, { classroom_ids: [] }])
     end
 
     def set_form_data
