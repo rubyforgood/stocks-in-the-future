@@ -41,6 +41,43 @@ class Order < ApplicationRecord
     joins(user: :classroom).where(users: { classroom: teacher.classrooms })
   }
 
+  scope :order_by_created_at, ->(direction = :asc) { reorder(created_at: direction) }
+  scope :order_by_username, ->(direction = :asc) { joins(:user).reorder(Arel.sql("users.username #{direction}")) }
+  scope :order_by_classroom, ->(direction = :asc) { joins(user: :classroom).reorder(Arel.sql("classrooms.name #{direction}")) }
+  scope :order_by_stock, ->(direction = :asc) { joins(:stock).reorder(Arel.sql("stocks.ticker #{direction}")) }
+  scope :order_by_price_per_share, ->(direction = :asc) { joins(:stock).reorder(Arel.sql("stocks.price_cents #{direction}")) }
+  scope :order_by_shares, ->(direction = :asc) { reorder(shares: direction) }
+  scope :order_by_total_cost, ->(direction = :asc) { joins(:stock).reorder(Arel.sql("stocks.price_cents * orders.shares #{direction}")) }
+
+  # Apply sorting based on sort column param
+  # @param collection [ActiveRecord::Relation] The collection to sort (optional)
+  # @param sort_column [String] The column to sort by
+  # @param direction [Symbol] :asc or :desc
+  # @return [ActiveRecord::Relation] The sorted collection
+  def self.apply_sorting(collection = nil, sort_column = nil, direction = :asc)
+    base_scope = collection || all
+    # direction = direction == "desc" ? :desc : :asc
+
+    case sort_column
+    when "created_at"
+      base_scope.order_by_created_at(direction)
+    when "username"
+      base_scope.order_by_username(direction)
+    when "classroom"
+      base_scope.order_by_classroom(direction)
+    when "stock"
+      base_scope.order_by_stock(direction)
+    when "price_per_share"
+      base_scope.order_by_price_per_share(direction)
+    when "shares"
+      base_scope.order_by_shares(direction)
+    when "total_cost"
+      base_scope.order_by_total_cost(direction)
+    else
+      base_scope.order_by_created_at(:desc)
+    end
+  end
+
   def cancel!
     update(status: :canceled)
   end

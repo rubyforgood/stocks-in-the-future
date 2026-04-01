@@ -30,6 +30,7 @@ class Classroom < ApplicationRecord
 
   scope :active, -> { where(archived: false) }
   scope :archived, -> { where(archived: true) }
+  scope :order_by_name, ->(direction = :asc) { reorder(name: direction) }
   scope :order_by_student_count, ->(direction = :asc) {
     joins("LEFT OUTER JOIN users ON users.classroom_id = classrooms.id AND users.type = 'Student'")
       .group(:id)
@@ -42,6 +43,26 @@ class Classroom < ApplicationRecord
       .group(:id)
       .order(Arel.sql("COALESCE(SUM(portfolio_transactions.amount_cents), 0) #{direction}"))
   }
+
+  # Apply sorting based on sort column param
+  # @param collection [ActiveRecord::Relation] The collection to sort (optional)
+  # @param sort_column [String] The column to sort by
+  # @param direction [Symbol] :asc or :desc
+  # @return [ActiveRecord::Relation] The sorted collection
+  def self.apply_sorting(collection = nil, sort_column = nil, direction = :asc)
+    base_scope = collection || all
+
+    case sort_column
+    when "name"
+      base_scope.order_by_name(direction)
+    when "student_count"
+      base_scope.order_by_student_count(direction)
+    when "total_earnings"
+      base_scope.order_by_total_earnings(direction)
+    else
+      base_scope.order_by_name(:asc)
+    end
+  end
 
   # Get currently enrolled students (students with active enrollments)
   #

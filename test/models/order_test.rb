@@ -352,6 +352,72 @@ class OrderTest < ActiveSupport::TestCase
     assert_empty result
   end
 
+  # Tests for sorting scopes
+  test "order_by_created_at sorts ascending" do
+    user = create(:student)
+    stock = create(:stock)
+    create(:portfolio_stock, portfolio: user.portfolio, stock: stock, shares: 10)
+
+    order1 = create(:order, status: :completed, action: :sell, user: user, stock: stock, shares: 1, created_at: 1.day.ago)
+    order2 = create(:order, status: :completed, action: :sell, user: user, stock: stock, shares: 1, created_at: Time.current)
+
+    result = Order.order_by_created_at(:asc)
+    assert_equal [order1.id, order2.id], result.pluck(:id)
+  end
+
+  test "order_by_created_at sorts descending" do
+    user = create(:student)
+    stock = create(:stock)
+    create(:portfolio_stock, portfolio: user.portfolio, stock: stock, shares: 10)
+
+    order1 = create(:order, status: :completed, action: :sell, user: user, stock: stock, shares: 1, created_at: 1.day.ago)
+    order2 = create(:order, status: :completed, action: :sell, user: user, stock: stock, shares: 1, created_at: Time.current)
+
+    result = Order.order_by_created_at(:desc)
+    assert_equal [order2.id, order1.id], result.pluck(:id)
+  end
+
+  test "order_by_stock sorts by stock ticker" do
+    user = create(:student)
+    stock1 = create(:stock, ticker: "ZZZ")
+    stock2 = create(:stock, ticker: "AAA")
+    create(:portfolio_stock, portfolio: user.portfolio, stock: stock1, shares: 10)
+    create(:portfolio_stock, portfolio: user.portfolio, stock: stock2, shares: 10)
+
+    order1 = create(:order, status: :completed, action: :sell, user: user, stock: stock1, shares: 1, created_at: 1.day.ago)
+    order2 = create(:order, status: :completed, action: :sell, user: user, stock: stock2, shares: 1, created_at: Time.current)
+
+    result = Order.order_by_stock(:asc)
+    assert_equal "AAA", result.first.stock.ticker
+  end
+
+  test "apply_sorting defaults to created_at descending" do
+    user = create(:student)
+    stock = create(:stock)
+    create(:portfolio_stock, portfolio: user.portfolio, stock: stock, shares: 10)
+    create(:portfolio_stock, portfolio: user.portfolio, stock: stock, shares: 5)
+
+    order1 = create(:order, status: :completed, action: :sell, user: user, stock: stock, created_at: 1.day.ago)
+    order2 = create(:order, status: :completed, action: :sell, user: user, stock: stock, created_at: Time.current)
+
+    result = Order.apply_sorting(nil, nil, nil)
+    assert_equal :desc, result.order_values.first.direction
+  end
+
+  test "apply_sorting with sort_column applies correct scope" do
+    user = create(:student)
+    stock1 = create(:stock, ticker: "ZZZ")
+    stock2 = create(:stock, ticker: "AAA")
+    create(:portfolio_stock, portfolio: user.portfolio, stock: stock1, shares: 10)
+    create(:portfolio_stock, portfolio: user.portfolio, stock: stock2, shares: 5)
+
+    order1 = create(:order, status: :completed, action: :sell, user: user, stock: stock1, created_at: 1.day.ago)
+    order2 = create(:order, status: :completed, action: :sell, user: user, stock: stock2, created_at: Time.current)
+
+    result = Order.apply_sorting(nil, "stock", :asc)
+    assert_equal "AAA", result.first.stock.ticker
+  end
+
   private
 
   def create_classroom_and_student_order(stock)

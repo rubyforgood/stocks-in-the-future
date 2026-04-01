@@ -122,4 +122,54 @@ class ClassroomTest < ActiveSupport::TestCase
       assert GradeBook.exists?(classroom: classroom, quarter: quarter4)
     end
   end
+
+  # Tests for sorting scopes
+  test "order_by_name sorts by name ascending" do
+    create(:classroom, name: "Zebra")
+    create(:classroom, name: "Alpha")
+    create(:classroom, name: "Middle")
+
+    classrooms = Classroom.order_by_name(:asc)
+    assert_equal ["Alpha", "Middle", "Zebra"], classrooms.pluck(:name)
+  end
+
+  test "order_by_name sorts by name descending" do
+    create(:classroom, name: "Zebra")
+    create(:classroom, name: "Alpha")
+    create(:classroom, name: "Middle")
+
+    classrooms = Classroom.order_by_name(:desc)
+    assert_equal ["Zebra", "Middle", "Alpha"], classrooms.pluck(:name)
+  end
+
+  test "order_by_student_count sorts by student count" do
+    classroom1 = create(:classroom)
+    classroom2 = create(:classroom)
+    create(:student, classroom: classroom1)
+    create(:student, classroom: classroom1)
+    create(:student, classroom: classroom2)
+
+    classrooms = Classroom.order_by_student_count(:desc)
+    assert_equal classroom1.id, classrooms.first.id
+    assert_equal classroom2.id, classrooms.last.id
+  end
+
+  test "apply_sorting defaults to name ascending" do
+    create(:classroom, name: "Zebra")
+    create(:classroom, name: "Alpha")
+
+    classrooms = Classroom.apply_sorting(nil, nil, nil)
+    assert_equal ["Alpha", "Zebra"], classrooms.pluck(:name)
+  end
+
+  test "apply_sorting with sort_column applies correct scope" do
+    classroom1 = create(:classroom, name: "Zebra")
+    classroom2 = create(:classroom, name: "Alpha")
+    create(:student, classroom: classroom1)
+    create(:student, classroom: classroom2)
+    create(:student, classroom: classroom1)
+
+    classrooms = Classroom.apply_sorting(nil, "student_count", :desc)
+    assert_equal classroom1.id, classrooms.first.id
+  end
 end
