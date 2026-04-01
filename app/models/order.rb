@@ -62,7 +62,7 @@ class Order < ApplicationRecord
     reorder(shares: safe_direction(direction))
   }
   scope :order_by_total_cost, lambda { |direction = :asc|
-    dir = safe_direction(direction).to_s.upcase  # "ASC" or "DESC"
+    dir = safe_direction(direction).to_s.upcase
     joins(:stock)
       .reorder(Arel.sql("stocks.price_cents * orders.shares #{dir}"))
   }
