@@ -32,16 +32,20 @@ class Classroom < ApplicationRecord
   scope :archived, -> { where(archived: true) }
   scope :order_by_name, ->(direction = :asc) { reorder(name: direction) }
   scope :order_by_student_count, lambda { |direction = :asc|
+    dir = direction.to_s.upcase == "DESC" ? "DESC" : "ASC"
+
     joins("LEFT OUTER JOIN users ON users.classroom_id = classrooms.id AND users.type = 'Student'")
       .group(:id)
-      .order(Arel.sql("COUNT(users.id) #{direction}"))
+      .order(Arel.sql("COUNT(users.id) #{dir}"))
   }
   scope :order_by_total_earnings, lambda { |direction = :asc|
+    dir = direction.to_s.upcase == "DESC" ? "DESC" : "ASC"
+
     joins("LEFT OUTER JOIN users ON users.classroom_id = classrooms.id AND users.type = 'Student'")
       .joins("LEFT OUTER JOIN portfolios ON portfolios.user_id = users.id")
       .joins("LEFT OUTER JOIN portfolio_transactions ON portfolio_transactions.portfolio_id = portfolios.id")
       .group(:id)
-      .order(Arel.sql("COALESCE(SUM(portfolio_transactions.amount_cents), 0) #{direction}"))
+      .order(Arel.sql("COALESCE(SUM(portfolio_transactions.amount_cents), 0) #{dir}"))
   }
 
   # Apply sorting based on sort column param
