@@ -28,16 +28,6 @@ class ApplicationController < ActionController::Base
     devise_parameter_sanitizer.permit(:account_update, keys: %i[username email])
   end
 
-  # Apply sorting to a collection based on params
-  # @param collection [ActiveRecord::Relation] The base collection to sort
-  # @param default [String] The default column to sort by
-  # @return [ActiveRecord::Relation] The sorted collection
-  def apply_sorting(collection, default:)
-    sort_column = params[:sort].presence || default
-    sort_direction = params[:direction] == "desc" ? :desc : :asc
-    collection.reorder(sort_column => sort_direction)
-  end
-
   rescue_from Pundit::NotAuthorizedError do
     if current_user.nil?
       # go to the login page
