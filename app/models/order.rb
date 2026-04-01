@@ -41,18 +41,27 @@ class Order < ApplicationRecord
     joins(user: :classroom).where(users: { classroom: teacher.classrooms })
   }
 
-  scope :order_by_created_at, ->(direction = :asc) { reorder(created_at: direction) }
-  scope :order_by_username, ->(direction = :asc) { joins(:user).reorder(Arel.sql("users.username #{direction}")) }
-  scope :order_by_classroom, lambda { |direction = :asc|
-    joins(user: :classroom).reorder(Arel.sql("classrooms.name #{direction}"))
+  scope :order_by_created_at, ->(direction = :asc) {
+    reorder(created_at: safe_direction(direction))
   }
-  scope :order_by_stock, ->(direction = :asc) { joins(:stock).reorder(Arel.sql("stocks.ticker #{direction}")) }
-  scope :order_by_price_per_share, lambda { |direction = :asc|
-    joins(:stock).reorder(Arel.sql("stocks.price_cents #{direction}"))
+  scope :order_by_username, ->(direction = :asc) {
+    joins(:user).reorder(users: { username: safe_direction(direction) })
   }
-  scope :order_by_shares, ->(direction = :asc) { reorder(shares: direction) }
-  scope :order_by_total_cost, lambda { |direction = :asc|
-    joins(:stock).reorder(Arel.sql("stocks.price_cents * orders.shares #{direction}"))
+  scope :order_by_classroom, ->(direction = :asc) {
+    joins(user: :classroom).reorder(classrooms: { name: safe_direction(direction) })
+  }
+  scope :order_by_stock, ->(direction = :asc) {
+    joins(:stock).reorder(stocks: { ticker: safe_direction(direction) })
+  }
+  scope :order_by_price_per_share, ->(direction = :asc) {
+    joins(:stock).reorder(stocks: { price_cents: safe_direction(direction) })
+  }
+  scope :order_by_shares, ->(direction = :asc) {
+    reorder(shares: safe_direction(direction))
+  }
+  scope :order_by_total_cost, ->(direction = :asc) {
+    dir = safe_direction(direction)
+    joins(:stock).reorder(Arel.sql("stocks.price_cents * orders.shares #{dir.to_s.upcase}"))
   }
 
   # Apply sorting based on sort column param
@@ -182,5 +191,9 @@ class Order < ApplicationRecord
     return if user&.classroom&.trading_enabled?
 
     errors.add(:base, "Trading is currently disabled for your classroom")
+  end
+
+  def self.safe_direction(direction)
+    direction.to_s.downcase == "desc" ? :desc : :asc
   end
 end
