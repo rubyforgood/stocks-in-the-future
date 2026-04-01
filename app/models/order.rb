@@ -47,21 +47,25 @@ class Order < ApplicationRecord
   scope :order_by_username, ->(direction = :asc) {
     joins(:user).reorder(users: { username: safe_direction(direction) })
   }
-  scope :order_by_classroom, ->(direction = :asc) {
-    joins(user: :classroom).reorder(classrooms: { name: safe_direction(direction) })
+  scope :order_by_classroom, lambda { |direction = :asc|
+    joins(user: :classroom)
+      .reorder(classrooms: { name: safe_direction(direction) })
   }
   scope :order_by_stock, ->(direction = :asc) {
     joins(:stock).reorder(stocks: { ticker: safe_direction(direction) })
   }
-  scope :order_by_price_per_share, ->(direction = :asc) {
-    joins(:stock).reorder(stocks: { price_cents: safe_direction(direction) })
+  scope :order_by_price_per_share, lambda { |direction = :asc|
+    joins(:stock)
+      .reorder(stocks: { price_cents: safe_direction(direction) })
   }
   scope :order_by_shares, ->(direction = :asc) {
     reorder(shares: safe_direction(direction))
   }
-  scope :order_by_total_cost, ->(direction = :asc) {
-    dir = safe_direction(direction)
-    joins(:stock).reorder(Arel.sql("stocks.price_cents * orders.shares #{dir.to_s.upcase}"))
+  scope :order_by_total_cost, lambda { |direction = :asc|
+    dir = safe_direction(direction).to_s.upcase
+
+    joins(:stock)
+      .reorder(Arel.sql("stocks.price_cents * orders.shares #{dir}"))
   }
 
   # Apply sorting based on sort column param
@@ -100,6 +104,14 @@ class Order < ApplicationRecord
   def existing_transaction_type
     order_transaction_type = portfolio_transaction&.transaction_type&.to_sym
     order_transaction_type == :debit ? "buy" : "sell"
+  end
+
+  class << self
+    private
+  
+    def safe_direction(direction)
+      direction.to_s.downcase == "desc" ? :desc : :asc
+    end
   end
 
   private
@@ -191,9 +203,5 @@ class Order < ApplicationRecord
     return if user&.classroom&.trading_enabled?
 
     errors.add(:base, "Trading is currently disabled for your classroom")
-  end
-
-  def self.safe_direction(direction)
-    direction.to_s.downcase == "desc" ? :desc : :asc
   end
 end
