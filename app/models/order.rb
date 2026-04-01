@@ -62,7 +62,6 @@ class Order < ApplicationRecord
   # @return [ActiveRecord::Relation] The sorted collection
   def self.apply_sorting(collection = nil, sort_column = nil, direction = :asc)
     base_scope = collection || all
-    # direction = direction == "desc" ? :desc : :asc
 
     case sort_column
     when "created_at"
