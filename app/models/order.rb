@@ -41,24 +41,24 @@ class Order < ApplicationRecord
     joins(user: :classroom).where(users: { classroom: teacher.classrooms })
   }
 
-  scope :order_by_created_at, lambda (direction = :asc) {
+  scope :order_by_created_at, lambda { |direction = :asc|
     reorder(created_at: safe_direction(direction))
   }
-  scope :order_by_username, lambda (direction = :asc) {
+  scope :order_by_username, lambda { |direction = :asc|
     joins(:user).reorder(users: { username: safe_direction(direction) })
   }
   scope :order_by_classroom, lambda { |direction = :asc|
     joins(user: :classroom)
       .reorder(classrooms: { name: safe_direction(direction) })
   }
-  scope :order_by_stock, lambda (direction = :asc) {
+  scope :order_by_stock, lambda { |direction = :asc|
     joins(:stock).reorder(stocks: { ticker: safe_direction(direction) })
   }
   scope :order_by_price_per_share, lambda { |direction = :asc|
     joins(:stock)
       .reorder(stocks: { price_cents: safe_direction(direction) })
   }
-  scope :order_by_shares, lambda (direction = :asc) {
+  scope :order_by_shares, lambda { |direction = :asc|
     reorder(shares: safe_direction(direction))
   }
   scope :order_by_total_cost, lambda { |direction = :asc|
