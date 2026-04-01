@@ -67,8 +67,6 @@ class Order < ApplicationRecord
       .reorder(Arel.sql("stocks.price_cents * orders.shares #{dir}"))
   }
 
-  
-
   # Apply sorting based on sort column param
   # @param collection [ActiveRecord::Relation] The collection to sort (optional)
   # @param sort_column [String] The column to sort by
