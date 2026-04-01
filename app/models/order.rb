@@ -79,7 +79,6 @@ class Order < ApplicationRecord
     "shares" => :order_by_shares,
     "total_cost" => :order_by_total_cost
   }.freeze
-  # rubocop:enable Lint/ConstantDefinitionInBlock
 
   def cancel!
     update(status: :canceled)
