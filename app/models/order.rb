@@ -62,26 +62,24 @@ class Order < ApplicationRecord
   # @return [ActiveRecord::Relation] The sorted collection
   def self.apply_sorting(collection = nil, sort_column = nil, direction = :asc)
     base_scope = collection || all
+    sorting_method = SORTING_METHODS[sort_column]
 
-    case sort_column
-    when "created_at"
-      base_scope.order_by_created_at(direction)
-    when "username"
-      base_scope.order_by_username(direction)
-    when "classroom"
-      base_scope.order_by_classroom(direction)
-    when "stock"
-      base_scope.order_by_stock(direction)
-    when "price_per_share"
-      base_scope.order_by_price_per_share(direction)
-    when "shares"
-      base_scope.order_by_shares(direction)
-    when "total_cost"
-      base_scope.order_by_total_cost(direction)
-    else
-      base_scope.order_by_created_at(:desc)
-    end
+    return base_scope.order_by_created_at(:desc) unless sorting_method
+
+    base_scope.send(sorting_method, direction)
   end
+
+  # Map of sort column names to scope method names
+  SORTING_METHODS = {
+    "created_at" => :order_by_created_at,
+    "username" => :order_by_username,
+    "classroom" => :order_by_classroom,
+    "stock" => :order_by_stock,
+    "price_per_share" => :order_by_price_per_share,
+    "shares" => :order_by_shares,
+    "total_cost" => :order_by_total_cost
+  }.freeze
+  # rubocop:enable Lint/ConstantDefinitionInBlock
 
   def cancel!
     update(status: :canceled)
