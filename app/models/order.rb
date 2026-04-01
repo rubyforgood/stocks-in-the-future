@@ -106,12 +106,8 @@ class Order < ApplicationRecord
     order_transaction_type == :debit ? "buy" : "sell"
   end
 
-  class << self
-    private
-  
-    def safe_direction(direction)
-      direction.to_s.downcase == "desc" ? :desc : :asc
-    end
+  def self.safe_direction(direction)
+    direction.to_s.downcase == "desc" ? :desc : :asc
   end
 
   private
