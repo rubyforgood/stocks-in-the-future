@@ -358,8 +358,14 @@ class OrderTest < ActiveSupport::TestCase
     stock = create(:stock)
     create(:portfolio_stock, portfolio: user.portfolio, stock: stock, shares: 10)
 
-    order1 = create(:order, status: :completed, action: :sell, user: user, stock: stock, shares: 1, created_at: 1.day.ago)
-    order2 = create(:order, status: :completed, action: :sell, user: user, stock: stock, shares: 1, created_at: Time.current)
+    order1 = create(
+      :order, status: :completed, action: :sell, user: user, stock: stock, shares: 1,
+              created_at: 1.day.ago
+    )
+    order2 = create(
+      :order, status: :completed, action: :sell, user: user, stock: stock, shares: 1,
+              created_at: Time.current
+    )
 
     result = Order.order_by_created_at(:asc)
     assert_equal [order1.id, order2.id], result.pluck(:id)
@@ -370,8 +376,14 @@ class OrderTest < ActiveSupport::TestCase
     stock = create(:stock)
     create(:portfolio_stock, portfolio: user.portfolio, stock: stock, shares: 10)
 
-    order1 = create(:order, status: :completed, action: :sell, user: user, stock: stock, shares: 1, created_at: 1.day.ago)
-    order2 = create(:order, status: :completed, action: :sell, user: user, stock: stock, shares: 1, created_at: Time.current)
+    order1 = create(
+      :order, status: :completed, action: :sell, user: user, stock: stock, shares: 1,
+              created_at: 1.day.ago
+    )
+    order2 = create(
+      :order, status: :completed, action: :sell, user: user, stock: stock, shares: 1,
+              created_at: Time.current
+    )
 
     result = Order.order_by_created_at(:desc)
     assert_equal [order2.id, order1.id], result.pluck(:id)
@@ -384,8 +396,14 @@ class OrderTest < ActiveSupport::TestCase
     create(:portfolio_stock, portfolio: user.portfolio, stock: stock1, shares: 10)
     create(:portfolio_stock, portfolio: user.portfolio, stock: stock2, shares: 10)
 
-    order1 = create(:order, status: :completed, action: :sell, user: user, stock: stock1, shares: 1, created_at: 1.day.ago)
-    order2 = create(:order, status: :completed, action: :sell, user: user, stock: stock2, shares: 1, created_at: Time.current)
+    create(
+      :order, status: :completed, action: :sell, user: user, stock: stock1, shares: 1,
+              created_at: 1.day.ago
+    )
+    create(
+      :order, status: :completed, action: :sell, user: user, stock: stock2, shares: 1,
+              created_at: Time.current
+    )
 
     result = Order.order_by_stock(:asc)
     assert_equal "AAA", result.first.stock.ticker
@@ -397,8 +415,8 @@ class OrderTest < ActiveSupport::TestCase
     create(:portfolio_stock, portfolio: user.portfolio, stock: stock, shares: 10)
     create(:portfolio_stock, portfolio: user.portfolio, stock: stock, shares: 5)
 
-    order1 = create(:order, status: :completed, action: :sell, user: user, stock: stock, created_at: 1.day.ago)
-    order2 = create(:order, status: :completed, action: :sell, user: user, stock: stock, created_at: Time.current)
+    create(:order, status: :completed, action: :sell, user: user, stock: stock, created_at: 1.day.ago)
+    create(:order, status: :completed, action: :sell, user: user, stock: stock, created_at: Time.current)
 
     result = Order.apply_sorting(nil, nil, nil)
     assert_equal :desc, result.order_values.first.direction
@@ -411,8 +429,8 @@ class OrderTest < ActiveSupport::TestCase
     create(:portfolio_stock, portfolio: user.portfolio, stock: stock1, shares: 10)
     create(:portfolio_stock, portfolio: user.portfolio, stock: stock2, shares: 5)
 
-    order1 = create(:order, status: :completed, action: :sell, user: user, stock: stock1, created_at: 1.day.ago)
-    order2 = create(:order, status: :completed, action: :sell, user: user, stock: stock2, created_at: Time.current)
+    create(:order, status: :completed, action: :sell, user: user, stock: stock1, created_at: 1.day.ago)
+    create(:order, status: :completed, action: :sell, user: user, stock: stock2, created_at: Time.current)
 
     result = Order.apply_sorting(nil, "stock", :asc)
     assert_equal "AAA", result.first.stock.ticker

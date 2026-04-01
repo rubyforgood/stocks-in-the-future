@@ -43,11 +43,17 @@ class Order < ApplicationRecord
 
   scope :order_by_created_at, ->(direction = :asc) { reorder(created_at: direction) }
   scope :order_by_username, ->(direction = :asc) { joins(:user).reorder(Arel.sql("users.username #{direction}")) }
-  scope :order_by_classroom, ->(direction = :asc) { joins(user: :classroom).reorder(Arel.sql("classrooms.name #{direction}")) }
+  scope :order_by_classroom, lambda { |direction = :asc|
+    joins(user: :classroom).reorder(Arel.sql("classrooms.name #{direction}"))
+  }
   scope :order_by_stock, ->(direction = :asc) { joins(:stock).reorder(Arel.sql("stocks.ticker #{direction}")) }
-  scope :order_by_price_per_share, ->(direction = :asc) { joins(:stock).reorder(Arel.sql("stocks.price_cents #{direction}")) }
+  scope :order_by_price_per_share, lambda { |direction = :asc|
+    joins(:stock).reorder(Arel.sql("stocks.price_cents #{direction}"))
+  }
   scope :order_by_shares, ->(direction = :asc) { reorder(shares: direction) }
-  scope :order_by_total_cost, ->(direction = :asc) { joins(:stock).reorder(Arel.sql("stocks.price_cents * orders.shares #{direction}")) }
+  scope :order_by_total_cost, lambda { |direction = :asc|
+    joins(:stock).reorder(Arel.sql("stocks.price_cents * orders.shares #{direction}"))
+  }
 
   # Apply sorting based on sort column param
   # @param collection [ActiveRecord::Relation] The collection to sort (optional)

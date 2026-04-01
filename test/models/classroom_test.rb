@@ -130,7 +130,7 @@ class ClassroomTest < ActiveSupport::TestCase
     create(:classroom, name: "Middle")
 
     classrooms = Classroom.order_by_name(:asc)
-    assert_equal ["Alpha", "Middle", "Zebra"], classrooms.pluck(:name)
+    assert_equal %w[Alpha Middle Zebra], classrooms.pluck(:name)
   end
 
   test "order_by_name sorts by name descending" do
@@ -139,7 +139,7 @@ class ClassroomTest < ActiveSupport::TestCase
     create(:classroom, name: "Middle")
 
     classrooms = Classroom.order_by_name(:desc)
-    assert_equal ["Zebra", "Middle", "Alpha"], classrooms.pluck(:name)
+    assert_equal %w[Zebra Middle Alpha], classrooms.pluck(:name)
   end
 
   test "order_by_student_count sorts by student count" do
@@ -159,7 +159,7 @@ class ClassroomTest < ActiveSupport::TestCase
     create(:classroom, name: "Alpha")
 
     classrooms = Classroom.apply_sorting(nil, nil, nil)
-    assert_equal ["Alpha", "Zebra"], classrooms.pluck(:name)
+    assert_equal %w[Alpha Zebra], classrooms.pluck(:name)
   end
 
   test "apply_sorting with sort_column applies correct scope" do
