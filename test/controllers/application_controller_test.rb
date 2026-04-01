@@ -14,10 +14,10 @@ class ApplicationControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "after_sign_in_path_for redirects teachers to root" do
-    create(:teacher, username: "testteacher", password: "password123")
+    create(:teacher, email: "testteacher@example.com", password: "password123")
 
     post user_session_path, params: {
-      user: { username: "testteacher", password: "password123" }
+      user: { username: "testteacher@example.com", password: "password123" }
     }
 
     assert_redirected_to root_path

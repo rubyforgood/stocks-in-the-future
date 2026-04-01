@@ -5,8 +5,8 @@ require "test_helper"
 module Admin
   class TeachersControllerTest < ActionDispatch::IntegrationTest
     test "index" do
-      teacher1 = create(:teacher, username: "marceline")
-      teacher2 = create(:teacher, username: "lsp")
+      teacher1 = create(:teacher, email: "z@example.com")
+      teacher2 = create(:teacher, email: "a@example.com")
       admin = create(:admin, admin: true, classroom: nil)
       sign_in(admin)
 
@@ -20,15 +20,15 @@ module Admin
     end
 
     test "index sorts by username by default" do
-      create(:teacher, username: "teacher1")
-      create(:teacher, username: "teacher2")
+      create(:teacher, email: "teacher1@example.com")
+      create(:teacher, email: "teacher2@example.com")
       admin = create(:admin, admin: true, classroom: nil)
       sign_in(admin)
 
       get admin_teachers_path
 
       assert_response :success
-      # Default sort should be by username ascending
+      # Default sort should be by username ascending (username == email for teachers)
       assert_select "tbody tr:nth-child(1)", text: /teacher1/
       assert_select "tbody tr:nth-child(2)", text: /teacher2/
     end
@@ -235,7 +235,7 @@ module Admin
 
     test "update with invalid params" do
       teacher = create(:teacher)
-      params = { teacher: { username: "" } }
+      params = { teacher: { email: "" } }
       admin = create(:admin, admin: true, classroom: nil)
       sign_in(admin)
 
@@ -246,7 +246,7 @@ module Admin
 
     # Hard delete (destroy) tests
     test "should permanently delete deactivated teacher" do
-      teacher = create(:teacher, username: "teacher1")
+      teacher = create(:teacher, email: "teacher1@example.com")
       admin = create(:admin, admin: true, classroom: nil)
       sign_in(admin)
 
@@ -257,7 +257,7 @@ module Admin
       end
 
       assert_redirected_to admin_teachers_path
-      assert_equal "Teacher teacher1 permanently deleted.", flash[:notice]
+      assert_equal "Teacher teacher1@example.com permanently deleted.", flash[:notice]
       assert_nil Teacher.with_discarded.find_by(id: teacher.id)
     end
 

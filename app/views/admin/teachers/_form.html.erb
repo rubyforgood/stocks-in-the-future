@@ -3,14 +3,9 @@
     <div class="px-6 py-6">
       <h3 class="text-lg font-medium text-gray-900 mb-6">Teacher Details</h3>
 
-      <%= f.text_field :username,
-                       label: "Username",
-                       hint: "Unique username for the teacher",
-                       placeholder: "johndoe" %>
-
       <%= f.text_field :email,
                        label: "Email",
-                       hint: "Email address (required for account setup)",
+                       hint: "Also used as the teacher's login username",
                        placeholder: "teacher@example.com" %>
 
       <%= f.text_field :name,

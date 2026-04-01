@@ -20,7 +20,7 @@ module Admin
         end
 
         assert_redirected_to admin_teachers_path
-        assert_equal "Teacher teacher1 deactivated successfully.", flash[:notice]
+        assert_equal "Teacher teacher1@example.com deactivated successfully.", flash[:notice]
         assert @teacher1.reload.discarded?
       end
 
