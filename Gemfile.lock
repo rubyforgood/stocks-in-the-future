@@ -77,11 +77,6 @@ GEM
       uri (>= 0.13.1)
     addressable (2.8.9)
       public_suffix (>= 2.0.2, < 8.0)
-    administrate (1.0.0.beta3)
-      actionpack (>= 6.0, < 9.0)
-      actionview (>= 6.0, < 9.0)
-      activerecord (>= 6.0, < 9.0)
-      kaminari (~> 1.2.2)
     ast (2.4.3)
     base64 (0.3.0)
     bcrypt (3.1.22)
@@ -201,18 +196,6 @@ GEM
       actionview (>= 7.0.0)
       activesupport (>= 7.0.0)
     json (2.19.3)
-    kaminari (1.2.2)
-      activesupport (>= 4.1.0)
-      kaminari-actionview (= 1.2.2)
-      kaminari-activerecord (= 1.2.2)
-      kaminari-core (= 1.2.2)
-    kaminari-actionview (1.2.2)
-      actionview
-      kaminari-core (= 1.2.2)
-    kaminari-activerecord (1.2.2)
-      activerecord
-      kaminari-core (= 1.2.2)
-    kaminari-core (1.2.2)
     language_server-protocol (3.17.0.5)
     lint_roller (1.1.0)
     logger (1.7.0)
@@ -460,7 +443,6 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
-  administrate (= 1.0.0.beta3)
   bootsnap
   brakeman
   bundler-audit
