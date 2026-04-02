@@ -6,7 +6,6 @@ ruby "3.4.4"
 
 gem "rails", "~> 8.1.2", ">= 8.1.2.1"
 
-gem "administrate", "1.0.0.beta3"
 gem "bootsnap", require: false
 gem "csv"
 gem "daemons"
