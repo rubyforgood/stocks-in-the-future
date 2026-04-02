@@ -10,6 +10,7 @@ class ClassroomsController < ApplicationController
 
   def index
     @classrooms = policy_scope(Classroom).includes(:teachers, students: :portfolio)
+    @classrooms = Classroom.apply_sorting(@classrooms, params[:sort], params[:direction])
   end
 
   def show

@@ -7,7 +7,8 @@ class OrdersController < ApplicationController
   before_action :authenticate_user!
 
   def index
-    @orders = policy_scope(Order).order(created_at: :desc)
+    @orders = policy_scope(Order)
+    @orders = Order.apply_sorting(@orders, params[:sort], params[:direction])
   end
 
   def new

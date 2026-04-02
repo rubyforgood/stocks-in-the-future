@@ -18,16 +18,16 @@
       <thead>
         <tr class="table-header-row">
           <th class="table-header-cell table-header-cell-left">
-            Name
+            <%= sort_link(:name, "Name") %>
           </th>
           <th class="table-header-cell table-header-cell-left">
             Teacher(s)
           </th>
           <th class="table-header-cell table-header-cell-left">
-            Student Count
+            <%= sort_link(:student_count, "Student Count") %>
           </th>
           <th class="table-header-cell table-header-cell-right">
-            Total Earnings
+            <%= sort_link(:total_earnings, "Total Earnings") %>
           </th>
           <th class="table-header-cell table-header-cell-center">
             Edit

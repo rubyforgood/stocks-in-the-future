@@ -41,6 +41,59 @@ class Order < ApplicationRecord
     joins(user: :classroom).where(users: { classroom: teacher.classrooms })
   }
 
+  scope :order_by_created_at, lambda { |direction = :asc|
+    reorder(created_at: safe_direction(direction))
+  }
+  scope :order_by_username, lambda { |direction = :asc|
+    joins(:user).reorder(users: { username: safe_direction(direction) })
+  }
+  scope :order_by_classroom, lambda { |direction = :asc|
+    joins(user: :classroom)
+      .reorder(classrooms: { name: safe_direction(direction) })
+  }
+  scope :order_by_stock, lambda { |direction = :asc|
+    joins(:stock).reorder(stocks: { ticker: safe_direction(direction) })
+  }
+  scope :order_by_price_per_share, lambda { |direction = :asc|
+    joins(:stock)
+      .reorder(stocks: { price_cents: safe_direction(direction) })
+  }
+  scope :order_by_shares, lambda { |direction = :asc|
+    reorder(shares: safe_direction(direction))
+  }
+  scope :order_by_total_cost, lambda { |direction = :asc|
+    dir = safe_direction(direction)
+
+    expression = Arel.sql("stocks.price_cents * orders.shares")
+    joins(:stock)
+      .reorder(dir == :desc ? expression.desc : expression.asc)
+  }
+
+  # Apply sorting based on sort column param
+  # @param collection [ActiveRecord::Relation] The collection to sort (optional)
+  # @param sort_column [String] The column to sort by
+  # @param direction [Symbol] :asc or :desc
+  # @return [ActiveRecord::Relation] The sorted collection
+  def self.apply_sorting(collection = nil, sort_column = nil, direction = :asc)
+    base_scope = collection || all
+    sorting_method = SORTING_METHODS[sort_column]
+
+    return base_scope.order_by_created_at(:desc) unless sorting_method
+
+    base_scope.send(sorting_method, direction)
+  end
+
+  # Map of sort column names to scope method names
+  SORTING_METHODS = {
+    "created_at" => :order_by_created_at,
+    "username" => :order_by_username,
+    "classroom" => :order_by_classroom,
+    "stock" => :order_by_stock,
+    "price_per_share" => :order_by_price_per_share,
+    "shares" => :order_by_shares,
+    "total_cost" => :order_by_total_cost
+  }.freeze
+
   def cancel!
     update(status: :canceled)
   end
@@ -52,6 +105,10 @@ class Order < ApplicationRecord
   def existing_transaction_type
     order_transaction_type = portfolio_transaction&.transaction_type&.to_sym
     order_transaction_type == :debit ? "buy" : "sell"
+  end
+
+  def self.safe_direction(direction)
+    direction.to_s.downcase == "desc" ? :desc : :asc
   end
 
   private
