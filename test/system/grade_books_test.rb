@@ -38,30 +38,28 @@ class GradeBooksTest < ApplicationSystemTestCase
       assert_equal "87", find("[data-testid='attendance-days-input']").value
     end
   end
+  test "admin sees success message when finalizing grade book" do
+    DistributeEarnings.stubs(:execute)
+    classroom = create(:classroom)
+    grade_book = create(:grade_book, classroom:)
+    student1 = create(:student, classroom:)
+    student2 = create(:student, classroom:)
+    create(:grade_entry, grade_book:, user: student1)
+    create(:grade_entry, grade_book:, user: student2)
+    admin = create(:admin)
+    sign_in(admin)
+    visit classroom_grade_book_path(classroom, grade_book)
 
-  # TODO: Fix failing test - expected to find css "#notice" but there were no matches
-  # test "admin sees success message when finalizing grade book" do
-  #   DistributeEarnings.stubs(:execute)
-  #   classroom = create(:classroom)
-  #   grade_book = create(:grade_book, classroom:)
-  #   student1 = create(:student, classroom:)
-  #   student2 = create(:student, classroom:)
-  #   create(:grade_entry, grade_book:, user: student1)
-  #   create(:grade_entry, grade_book:, user: student2)
-  #   admin = create(:admin)
-  #   sign_in(admin)
-  #   visit classroom_grade_book_path(classroom, grade_book)
-  #
-  #   assert_button "Finalize Grades"
-  #   accept_confirm do
-  #     click_on "Finalize Grades"
-  #   end
-  #
-  #   assert_selector(
-  #     "#notice",
-  #     text: "Grade book finalized. Funds have been distributed."
-  #   )
-  # end
+    assert_button "Finalize Grades"
+    accept_confirm do
+      click_on "Finalize Grades"
+    end
+
+    assert_selector(
+      "#notice",
+      text: "Grade book finalized. Funds have been distributed."
+    )
+  end
 
   test "teacher enters grades for multiple students" do
     classroom = create(:classroom)

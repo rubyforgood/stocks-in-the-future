@@ -28,17 +28,16 @@ class UserManagesSchoolsTest < ApplicationSystemTestCase
     assert_selector "#notice", text: "School updated successfully"
   end
 
-  # TODO: Fix failing test - Capybara::ModalNotFound: Unable to find modal dialog
-  # test "admin can delete a school" do
-  #   school = create(:school, name: "School To Delete")
-  #   admin = create(:admin)
-  #   sign_in(admin)
-  #   visit admin_school_url(school)
-  #
-  #   accept_confirm do
-  #     click_on "Delete"
-  #   end
-  #
-  #   assert_selector "#notice", text: "School deleted successfully"
-  # end
+  test "admin can delete a school" do
+    school = create(:school, name: "School To Delete")
+    admin = create(:admin)
+    sign_in(admin)
+    visit admin_school_url(school)
+
+    accept_confirm do
+      click_on "Delete"
+    end
+
+    assert_selector "#notice", text: "School deleted successfully"
+  end
 end

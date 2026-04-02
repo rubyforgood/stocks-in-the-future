@@ -4,14 +4,22 @@ require "application_system_test_case"
 
 class TeacherCreatesStudentTest < ApplicationSystemTestCase
   test "teacher can create a student" do
-    # TODO: Fix student form fields - Ticket #8: Fix Teacher Student Creation
-    skip "Username field not accessible in student creation form"
+    username = "student_one"
+    classroom = create(:classroom)
+    teacher = create(:teacher)
+    create(:teacher_classroom, teacher:, classroom:)
+    sign_in(teacher)
+    visit classroom_path(classroom)
+
+    click_on "Add Student"
+    fill_in "Username", with: username
+    click_button "Create Student"
+
+    assert_selector "#notice", text: "Student #{username} created successfully"
+    assert_selector "[data-testid='student-username']", text: username
   end
 
   test "teacher can view and manage student list" do
-    # TODO: Fix timeout issue - Ticket #12: Fix Teacher Student List Loading
-    skip "Net::ReadTimeout when loading/managing student list"
-
     classroom = create(:classroom)
     student1 = create(:student, :with_portfolio, classroom:)
     student2 = create(:student, :with_portfolio, classroom:)
@@ -63,8 +71,22 @@ class TeacherCreatesStudentTest < ApplicationSystemTestCase
   end
 
   test "teacher can edit student information" do
-    # TODO: Fix student form fields - Ticket #9: Fix Teacher Student Editing
-    skip "Username field not accessible in student edit form"
+    old_username = "student_one"
+    new_username = "student_two"
+    classroom = create(:classroom)
+    student = create(:student, classroom:, username: old_username)
+    teacher = create(:teacher)
+    create(:teacher_classroom, teacher:, classroom:)
+    sign_in(teacher)
+    visit classroom_path(classroom)
+
+    find("##{dom_id(student)} [data-testid='edit-student']").click
+    fill_in "Username", with: new_username
+    click_button "Update Student"
+
+    assert_selector "#notice", text: "Student updated successfully"
+    assert_selector "[data-testid='student-username']", text: new_username
+    assert_no_selector "[data-testid='student-username']", text: old_username
   end
 
   test "teacher can delete a student" do
@@ -96,11 +118,9 @@ class TeacherCreatesStudentTest < ApplicationSystemTestCase
     visit classroom_path(classroom)
 
     click_on "Add Student"
-    # TODO: Fix student form fields - Ticket #10: Fix Duplicate Username Validation
-    # fill_in "Username", with: username
-    # click_button "Create Student"
-    # assert_selector ".field_with_errors", text: "Username"
+    fill_in "Username", with: username
+    click_button "Create Student"
 
-    skip "Username field not accessible in validation scenario"
+    assert_selector ".field_with_errors", text: "Username"
   end
 end

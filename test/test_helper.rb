@@ -35,7 +35,12 @@ module ActiveSupport
 
     # Use PARALLEL_WORKERS=1 if you want to change the number of workers
     # For instance, PARALLEL_WORKERS=1 bin/dc rails test
-    parallelize(workers: ENV["PARALLEL_WORKERS"]&.to_i || :number_of_processors)
+    parallel_workers = if ENV["COVERAGE"] == "true"
+                         1
+                       else
+                         ENV["PARALLEL_WORKERS"]&.to_i || :number_of_processors
+                       end
+    parallelize(workers: parallel_workers)
 
     # Add more helper methods to be used by all tests here...
     def t(...)

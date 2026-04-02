@@ -34,7 +34,6 @@ FactoryBot.define do
     type { "Teacher" }
     password { "Passw0rd" }
     classroom { create(:classroom) }
-    sequence(:username) { |n| "teacher_#{n}" }
     sequence(:email) { |n| "teacher_#{n}@example.com" }
   end
 end

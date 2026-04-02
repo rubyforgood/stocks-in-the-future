@@ -144,7 +144,7 @@ module Admin
     end
 
     def transaction_params
-      params.expect(student: %i[add_fund_amount transaction_type transaction_reason transaction_description])
+      params.permit(:add_fund_amount, :transaction_type, :transaction_reason, :transaction_description)
     end
 
     def transaction_amount_cents

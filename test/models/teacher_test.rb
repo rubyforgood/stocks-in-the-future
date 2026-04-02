@@ -15,6 +15,27 @@ class TeacherTest < ActiveSupport::TestCase
     assert_includes teacher.errors[:email], "can't be blank"
   end
 
+  test "username is automatically set to email" do
+    teacher = create(:teacher, email: "jane@school.com")
+    assert_equal "jane@school.com", teacher.username
+  end
+
+  test "username updates when email changes" do
+    teacher = create(:teacher, email: "jane@school.com")
+    teacher.update!(email: "jane.new@school.com")
+    assert_equal "jane.new@school.com", teacher.username
+  end
+
+  test "display_name returns name field" do
+    teacher = create(:teacher, name: "Jane Smith")
+    assert_equal "Jane Smith", teacher.display_name
+  end
+
+  test "display_name falls back to email prefix when name is blank" do
+    teacher = create(:teacher, name: nil, email: "jane@school.com")
+    assert_equal "jane", teacher.display_name
+  end
+
   test "can manage students in same classroom" do
     classroom = create(:classroom)
     teacher = create(:teacher, classroom: classroom)

@@ -110,8 +110,7 @@ class TeachersControllerTest < ActionDispatch::IntegrationTest
 
     params = {
       teacher: {
-        email: "hello@test.com",
-        username: ""
+        email: ""
       }
     }
 
