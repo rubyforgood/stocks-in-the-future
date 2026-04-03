@@ -90,7 +90,8 @@ class ClassroomsController < ApplicationController
 
     school = School.find(classroom_params[:school_id])
     year = Year.find(classroom_params[:year_id])
-    school_year = SchoolYear.find_or_create_by(school: school, year: year)
+    school_year = SchoolYear.find_by(school: school, year: year) ||
+                  SchoolYearCreationService.new(school: school, year: year).call
     @classroom.school_year = school_year
   end
 
