@@ -23,6 +23,7 @@ module Admin
       school = create(:school, name: school_name)
       year = create(:year, name: year_name)
       school_year = create(:school_year, school:, year:)
+      create(:quarter, school_year:)
       admin = create(:admin, admin: true, classroom: nil)
       sign_in(admin)
 
@@ -128,17 +129,17 @@ module Admin
       assert_response :unprocessable_content
     end
 
-    test "destroy is always prevented because quarters are always present" do
+    test "destroy" do
       school_year = create(:school_year)
       admin = create(:admin, admin: true, classroom: nil)
       sign_in(admin)
 
-      assert_no_difference("SchoolYear.count") do
+      assert_difference("SchoolYear.count", -1) do
         delete admin_school_year_path(school_year)
       end
 
       assert_redirected_to admin_school_years_path
-      assert_match(/Cannot delete school/, flash[:alert])
+      assert_equal "School year deleted successfully.", flash[:notice]
     end
 
     test "destroy with classrooms" do

@@ -12,22 +12,9 @@ class SchoolYearTest < ActiveSupport::TestCase
     assert_equal "#{school_year.school_name} (#{school_year.year_name})", school_year.name
   end
 
-  test "creates 4 quarters after creation" do
-    assert_difference("Quarter.count", 4) do
-      create(:school_year)
-    end
-  end
-
-  test "quarters are numbered 1 through 4 after creation" do
+  test "can be destroyed when no associations exist" do
     school_year = create(:school_year)
-    assert_equal [1, 2, 3, 4], school_year.quarters.order(:number).pluck(:number)
-  end
-
-  test "cannot be destroyed because quarters are always present" do
-    school_year = create(:school_year)
-
-    assert_not school_year.destroy
-    assert school_year.errors.added?(:base, "Cannot delete record because dependent quarters exist")
+    assert school_year.destroy
   end
 
   test "cannot be destroyed when classrooms exist" do
@@ -36,5 +23,13 @@ class SchoolYearTest < ActiveSupport::TestCase
 
     assert_not school_year.destroy
     assert school_year.errors.added?(:base, "Cannot delete record because dependent classrooms exist")
+  end
+
+  test "cannot be destroyed when quarters exist" do
+    school_year = create(:school_year)
+    create(:quarter, school_year: school_year)
+
+    assert_not school_year.destroy
+    assert school_year.errors.added?(:base, "Cannot delete record because dependent quarters exist")
   end
 end
