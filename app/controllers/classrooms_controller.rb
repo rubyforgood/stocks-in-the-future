@@ -17,7 +17,7 @@ class ClassroomsController < ApplicationController
     facade = ClassroomFacade.new(@classroom)
     @students = facade.students
     @can_manage_students = current_user.teacher_or_admin?
-    @classroom_stats = calculate_classroom_stats if @can_manage_students
+    @classroom_stats = facade.stats if @can_manage_students
   end
 
   def new
@@ -90,25 +90,9 @@ class ClassroomsController < ApplicationController
 
     school = School.find(classroom_params[:school_id])
     year = Year.find(classroom_params[:year_id])
-    school_year = SchoolYear.find_or_create_by(school: school, year: year)
+    school_year = SchoolYear.find_by(school: school, year: year) ||
+                  SchoolYearCreationService.new(school: school, year: year).call
     @classroom.school_year = school_year
-  end
-
-  def calculate_classroom_stats
-    return {} unless @classroom
-
-    students = @classroom.users.students.kept
-    {
-      total_students: students.count,
-      active_students: students.joins(:orders).distinct.count,
-      total_portfolio_value: students.includes(:portfolio).sum do |student|
-        student.portfolio&.calculate_total_value || 0
-      end,
-      recent_orders_count: Order.joins(:user).where(users: { classroom: @classroom }).where(
-        "orders.created_at > ?",
-        1.week.ago
-      ).count
-    }
   end
 
   def check_classroom_eligibility

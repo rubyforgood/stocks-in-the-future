@@ -307,6 +307,44 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "create with new school_year creates quarters and gradebooks" do
+    school = create(:school)
+    year = create(:year)
+    grade = create(:grade)
+
+    sign_in(@admin)
+    params = { classroom: { name: "New Class", grade_ids: [grade.id], school_id: school.id, year_id: year.id } }
+
+    assert_difference("Quarter.count", 4) do
+      assert_difference("GradeBook.count", 4) do
+        post(classrooms_path, params:)
+      end
+    end
+
+    classroom = Classroom.last
+    assert_equal 4, classroom.grade_books.count
+  end
+
+  test "create with existing school_year uses existing quarters for gradebooks" do
+    school = create(:school)
+    year = create(:year)
+    grade = create(:grade)
+    school_year = SchoolYearCreationService.new(school: school, year: year).call
+
+    sign_in(@admin)
+    params = { classroom: { name: "New Class", grade_ids: [grade.id], school_id: school.id, year_id: year.id } }
+
+    assert_no_difference("Quarter.count") do
+      assert_difference("GradeBook.count", 4) do
+        post(classrooms_path, params:)
+      end
+    end
+
+    classroom = Classroom.last
+    assert_equal school_year, classroom.school_year
+    assert_equal 4, classroom.grade_books.count
+  end
+
   test "create with valid school_id and year_id creates classroom with correct school_year" do
     school = create(:school, name: "Test School")
     year = create(:year, name: "2024-2025")
