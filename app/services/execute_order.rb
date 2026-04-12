@@ -62,7 +62,21 @@ class ExecuteOrder
   end
 
   def insufficient_funds?
-    portfolio.cash_balance.negative?
+    available_balance_cents = settled_balance_cents - other_pending_buy_costs
+    available_balance_cents < purchase_cost
+  end
+
+  def settled_balance_cents
+    transactions = portfolio.portfolio_transactions
+    transactions.deposits.sum(:amount_cents) +
+      transactions.credits.sum(:amount_cents) -
+      transactions.debits.sum(:amount_cents) -
+      transactions.withdrawals.sum(:amount_cents) -
+      transactions.fees.sum(:amount_cents)
+  end
+
+  def other_pending_buy_costs
+    order.user.orders.pending.buy.where.not(id: order.id).sum(&:purchase_cost)
   end
 
   def insufficient_shares?
