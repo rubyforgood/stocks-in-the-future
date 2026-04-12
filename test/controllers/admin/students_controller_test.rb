@@ -76,7 +76,10 @@ module Admin
     test "show displays earnings summary" do
       student = create(:student)
       portfolio = student.portfolio
-      portfolio.portfolio_transactions.create!(amount_cents: 500, transaction_type: :deposit, reason: :attendance_earnings)
+      portfolio.portfolio_transactions.create!(
+        amount_cents: 500, transaction_type: :deposit,
+        reason: :attendance_earnings
+      )
       portfolio.portfolio_transactions.create!(amount_cents: 300, transaction_type: :deposit, reason: :math_earnings)
       portfolio.portfolio_transactions.create!(amount_cents: 200, transaction_type: :deposit, reason: :awards)
 
