@@ -104,6 +104,57 @@ class TeachersControllerTest < ActionDispatch::IntegrationTest
     assert_equal 0, teacher.classrooms.count, "no classroom should be associated"
   end
 
+  test "create sends email with password reset link" do
+    admin = create(:admin)
+    sign_in(admin)
+    ActionMailer::Base.deliveries.clear
+
+    params = {
+      teacher: {
+        email: "newteacher@example.com",
+        username: "newteacher"
+      }
+    }
+
+    post admin_teachers_path, params: params
+
+    email = ActionMailer::Base.deliveries.last
+    assert_equal ["newteacher@example.com"], email.to
+    assert_match(/reset_password_token=/, email.body.encoded)
+    assert_match(/Change my password/, email.body.encoded)
+  end
+
+  test "teacher can set password via reset link from creation email" do
+    admin = create(:admin)
+    sign_in(admin)
+    ActionMailer::Base.deliveries.clear
+
+    post admin_teachers_path, params: {
+      teacher: { email: "resettest@example.com", username: "resettest" }
+    }
+
+    email = ActionMailer::Base.deliveries.last
+    token = email.body.encoded.match(/reset_password_token=([^"]+)/)[1]
+
+    sign_out(admin)
+
+    # Teacher follows the link from the email
+    get edit_user_password_path(reset_password_token: token)
+    assert_response :success
+
+    # Teacher sets a new password
+    put user_password_path, params: {
+      user: {
+        reset_password_token: token,
+        password: "newpassword123",
+        password_confirmation: "newpassword123"
+      }
+    }
+
+    teacher = Teacher.find_by!(email: "resettest@example.com")
+    assert teacher.valid_password?("newpassword123")
+  end
+
   test "create with invalid params renders unprocessable_entity and does not create teacher" do
     admin = create(:admin)
     sign_in(admin)
