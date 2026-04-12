@@ -118,6 +118,51 @@
     </div>
   </div>
 
+  <!-- Attendance -->
+  <div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg mb-6">
+    <div class="px-6 py-6">
+      <h3 class="text-sm font-medium text-gray-500 mb-3">Attendance</h3>
+      <% if @attendance_records.any? %>
+        <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 rounded-lg">
+          <table class="min-w-full divide-y divide-gray-300">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Year</th>
+                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Quarter</th>
+                <th class="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase">Attendance Days</th>
+                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase">Perfect Attendance</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 bg-white">
+              <% @attendance_records.each do |entry| %>
+                <tr>
+                  <td class="whitespace-nowrap px-3 py-2 text-sm text-gray-900">
+                    <%= entry.grade_book.quarter.school_year.year.name %>
+                  </td>
+                  <td class="whitespace-nowrap px-3 py-2 text-sm text-gray-900">
+                    Q<%= entry.grade_book.quarter.number %>
+                  </td>
+                  <td class="whitespace-nowrap px-3 py-2 text-sm text-right text-gray-900">
+                    <%= entry.attendance_days || "—" %>
+                  </td>
+                  <td class="whitespace-nowrap px-3 py-2 text-sm text-center">
+                    <% if entry.is_perfect_attendance %>
+                      <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">Yes</span>
+                    <% else %>
+                      <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600">No</span>
+                    <% end %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% else %>
+        <p class="text-sm text-gray-500">No attendance records found.</p>
+      <% end %>
+    </div>
+  </div>
+
   <div class="flex gap-3">
     <%= link_to "Back to Students", admin_students_path,
                 class: "inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" %>

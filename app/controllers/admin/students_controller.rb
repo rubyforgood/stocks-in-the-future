@@ -17,6 +17,11 @@ module Admin
     end
 
     def show
+      @attendance_records = GradeEntry.where(user: @student)
+        .joins(grade_book: { quarter: { school_year: :year } })
+        .includes(grade_book: { quarter: { school_year: :year } })
+        .order("years.name ASC, quarters.number ASC")
+
       @breadcrumbs = [
         { label: "Students", path: admin_students_path },
         { label: @student.username }
