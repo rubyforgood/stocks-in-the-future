@@ -107,7 +107,6 @@ class TeachersControllerTest < ActionDispatch::IntegrationTest
   test "create sends email with password reset link" do
     admin = create(:admin)
     sign_in(admin)
-    ActionMailer::Base.deliveries.clear
 
     params = {
       teacher: {
@@ -116,9 +115,12 @@ class TeachersControllerTest < ActionDispatch::IntegrationTest
       }
     }
 
-    post admin_teachers_path, params: params
+    emails = capture_emails do
+      post admin_teachers_path, params: params
+    end
 
-    email = ActionMailer::Base.deliveries.last
+    assert_equal 1, emails.size
+    email = emails.first
     assert_equal ["newteacher@example.com"], email.to
     assert_match(/reset_password_token=/, email.body.encoded)
     assert_match(/Change my password/, email.body.encoded)
