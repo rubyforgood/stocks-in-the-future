@@ -61,6 +61,9 @@ class Order < ApplicationRecord
   scope :order_by_shares, lambda { |direction = :asc|
     reorder(shares: safe_direction(direction))
   }
+  scope :order_by_status, lambda { |direction = :asc|
+    reorder(status: safe_direction(direction))
+  }
   scope :order_by_total_cost, lambda { |direction = :asc|
     dir = safe_direction(direction)
 
@@ -91,6 +94,7 @@ class Order < ApplicationRecord
     "stock" => :order_by_stock,
     "price_per_share" => :order_by_price_per_share,
     "shares" => :order_by_shares,
+    "status" => :order_by_status,
     "total_cost" => :order_by_total_cost
   }.freeze
 
