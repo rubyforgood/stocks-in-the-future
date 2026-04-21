@@ -10,7 +10,7 @@ gem "bootsnap", require: false
 gem "csv"
 gem "daemons"
 gem "devise", "~> 5.0"
-gem "faker", "~> 3.6.1"
+gem "faker", "~> 3.8.0"
 gem "font-awesome-rails"
 gem "image_processing", "~> 1.14"
 gem "importmap-rails"
