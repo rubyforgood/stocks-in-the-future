@@ -126,6 +126,37 @@ class ExecuteOrderTest < ActiveSupport::TestCase
     assert_equal [3, 5], portfolio_stocks.pluck(:shares).sort
   end
 
+  test "buy order with insufficient funds is canceled" do
+    portfolio = create(:portfolio)
+    portfolio.portfolio_transactions.create!(amount_cents: 10_000, transaction_type: :deposit)
+    stock = create(:stock, price_cents: 5000)
+    order = create(:order, :pending, :buy, shares: 1, stock: stock, user: portfolio.user)
+
+    # Simulate funds disappearing after order creation
+    portfolio.portfolio_transactions.create!(amount_cents: 9000, transaction_type: :withdrawal)
+
+    ExecuteOrder.execute(order)
+    order.reload
+
+    assert order.canceled?
+    assert_equal 0, PortfolioStock.where(portfolio: portfolio, stock: stock).count
+  end
+
+  test "sell order with insufficient shares is canceled" do
+    portfolio = create(:portfolio)
+    stock = create(:stock, price_cents: 100)
+    create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: 10, purchase_price: 100)
+    order = create(:order, :pending, :sell, shares: 5, stock: stock, user: portfolio.user)
+
+    # Simulate shares disappearing after order creation (e.g., another sell executed first)
+    create(:portfolio_stock, portfolio: portfolio, stock: stock, shares: -8, purchase_price: 100)
+
+    ExecuteOrder.execute(order)
+    order.reload
+
+    assert order.canceled?
+  end
+
   test "buy then sell orders work together correctly" do
     portfolio = create(:portfolio)
     portfolio.portfolio_transactions.create!(amount_cents: 2000, transaction_type: :deposit)
