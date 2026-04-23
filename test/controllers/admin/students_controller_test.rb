@@ -97,6 +97,27 @@ module Admin
       assert_select "p", text: "No attendance records found."
     end
 
+    test "show displays earnings summary" do
+      student = create(:student)
+      portfolio = student.portfolio
+      portfolio.portfolio_transactions.create!(
+        amount_cents: 500, transaction_type: :deposit,
+        reason: :attendance_earnings
+      )
+      portfolio.portfolio_transactions.create!(amount_cents: 300, transaction_type: :deposit, reason: :math_earnings)
+      portfolio.portfolio_transactions.create!(amount_cents: 200, transaction_type: :deposit, reason: :awards)
+
+      get admin_student_path(student)
+
+      assert_response :success
+      assert_select "h4", text: "Earnings Summary"
+      assert_select "td", text: "Attendance Earnings"
+      assert_select "td", text: "Math Earnings"
+      assert_select "td", text: "Rewards"
+      assert_select "td", text: "Total Earnings"
+      assert_select "td", text: "Transaction Fees"
+    end
+
     test "new" do
       admin = create(:admin, admin: true, classroom: nil)
       sign_in(admin)

@@ -15,6 +15,16 @@ class ExecuteOrder
   def execute
     return unless order.pending?
 
+    if order.buy? && insufficient_funds?
+      order.cancel!
+      return
+    end
+
+    if order.sell? && insufficient_shares?
+      order.cancel!
+      return
+    end
+
     ActiveRecord::Base.transaction do
       create_portfolio_transaction
       create_portfolio_stock
@@ -49,6 +59,14 @@ class ExecuteOrder
 
   def update_order_status
     order.update!(status: :completed, portfolio_stock:, portfolio_transaction:)
+  end
+
+  def insufficient_funds?
+    portfolio.cash_balance.negative?
+  end
+
+  def insufficient_shares?
+    portfolio.shares_owned(stock.id) < shares
   end
 
   def purchase_cost

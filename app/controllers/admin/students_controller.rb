@@ -17,10 +17,8 @@ module Admin
     end
 
     def show
-      @attendance_records = GradeEntry.where(user: @student)
-        .joins(grade_book: { quarter: { school_year: :year } })
-        .includes(grade_book: { quarter: { school_year: :year } })
-        .order("years.name ASC, quarters.number ASC")
+      @attendance_entries = AttendanceEntryPresenter.for_student(@student)
+      @earnings_summary = EarningsSummary.new(@student.portfolio) if @student.portfolio.present?
 
       @breadcrumbs = [
         { label: "Students", path: admin_students_path },
