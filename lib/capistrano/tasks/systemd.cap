@@ -1,0 +1,15 @@
+namespace :systemd do
+  desc "Check stocks service status"
+  task :status do
+    on roles(:app) do
+      execute :sudo, "systemctl status stocks"
+    end
+  end
+
+  desc "View recent stocks service journal"
+  task :journal do
+    on roles(:app) do
+      execute :sudo, "journalctl -u stocks -n 100 --no-pager"
+    end
+  end
+end
