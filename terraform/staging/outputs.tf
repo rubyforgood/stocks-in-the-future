@@ -16,3 +16,8 @@ output "lb_dns" {
   value       = aws_lightsail_lb.staging.dns_name
   description = "Point your staging DNS CNAME to this load balancer address"
 }
+
+output "lb_certificate_validation_records" {
+  value       = aws_lightsail_lb_certificate.staging.domain_validation_records
+  description = "Create these DNS records if the staging load balancer certificate needs validation"
+}

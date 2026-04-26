@@ -88,3 +88,14 @@ resource "aws_lightsail_lb_attachment" "staging" {
   lb_name       = aws_lightsail_lb.staging.name
   instance_name = aws_lightsail_instance.staging.name
 }
+
+resource "aws_lightsail_lb_certificate" "staging" {
+  name        = "staging-ssl"
+  lb_name     = aws_lightsail_lb.staging.name
+  domain_name = "staging.sifonline.org"
+}
+
+resource "aws_lightsail_lb_certificate_attachment" "staging" {
+  lb_name          = aws_lightsail_lb.staging.name
+  certificate_name = aws_lightsail_lb_certificate.staging.name
+}
