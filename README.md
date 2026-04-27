@@ -80,3 +80,119 @@ Use the **username** and **password** to log in and test the application locally
 ## URL
 
 Access the app via `localhost:3000`
+
+# Operations
+
+## Production And Staging Email
+
+Password reset and account setup emails are sent through Devise using Rails Action Mailer. In staging and production, Action Mailer is configured to use Amazon SES SMTP in `us-east-1`.
+
+The SES domain identity is `sifonline.org`. DKIM is verified with three CNAME records in GoDaddy DNS:
+
+```text
+xqnfudzzscsqz2vbneqh75ojqwduiphb._domainkey.sifonline.org -> xqnfudzzscsqz2vbneqh75ojqwduiphb.dkim.amazonses.com
+4zk3q7oy5kz7xubi2gxqkn2kpqglwgms._domainkey.sifonline.org -> 4zk3q7oy5kz7xubi2gxqkn2kpqglwgms.dkim.amazonses.com
+qsq7nni46gdkvr6vu7gn6cm4rexzo22u._domainkey.sifonline.org -> qsq7nni46gdkvr6vu7gn6cm4rexzo22u.dkim.amazonses.com
+```
+
+The SES SMTP credentials are stored in AWS Secrets Manager:
+
+```text
+stocks-in-the-future/ses-smtp
+```
+
+The app reads these runtime environment variables from `/etc/stocks/env` on each Lightsail instance:
+
+```text
+APP_HOST
+MAILER_SENDER
+SES_SMTP_ADDRESS
+SES_SMTP_PORT
+SES_SMTP_USERNAME
+SES_SMTP_PASSWORD
+```
+
+Expected values by environment:
+
+```text
+production APP_HOST=app.sifonline.org
+staging    APP_HOST=staging.sifonline.org
+MAILER_SENDER=no-reply@sifonline.org
+SES_SMTP_ADDRESS=email-smtp.us-east-1.amazonaws.com
+SES_SMTP_PORT=587
+```
+
+SES may still be sandboxed in a new AWS account or region. If `ProductionAccessEnabled` is `false`, SES can only send to verified recipient email addresses even if the `sifonline.org` sending domain is verified.
+
+Check SES status:
+
+```console
+AWS_PROFILE=713141626029_AdministratorAccess AWS_REGION=us-east-1 aws sesv2 get-email-identity --email-identity sifonline.org
+AWS_PROFILE=713141626029_AdministratorAccess AWS_REGION=us-east-1 aws sesv2 get-account
+```
+
+## SSM Access To Lightsail
+
+The Lightsail instances are registered with AWS Systems Manager as hybrid managed instances so routine ops do not require SSH keys.
+
+Current managed instances:
+
+```text
+production_web -> mi-059a7bcb37754c44d
+staging_web    -> mi-0c65ce3a1a596c81c
+```
+
+Check SSM connectivity:
+
+```console
+AWS_PROFILE=713141626029_AdministratorAccess AWS_REGION=us-east-1 aws ssm describe-instance-information
+```
+
+Run a safe health check through SSM:
+
+```console
+AWS_PROFILE=713141626029_AdministratorAccess AWS_REGION=us-east-1 aws ssm send-command \
+  --instance-ids mi-059a7bcb37754c44d mi-0c65ce3a1a596c81c \
+  --document-name AWS-RunShellScript \
+  --parameters '{"commands":["systemctl is-active stocks && grep -E \"^(APP_HOST|MAILER_SENDER|SES_SMTP_ADDRESS|SES_SMTP_PORT|SES_SMTP_USERNAME|SES_SMTP_PASSWORD)=\" /etc/stocks/env | sed -E \"s/=.*/=present/\""]}'
+```
+
+Do not print `SES_SMTP_PASSWORD` or other secrets in terminal output. Check for key presence only.
+
+## Email Troubleshooting
+
+If reset password emails do not send:
+
+1. Confirm the deployed code includes SES Action Mailer configuration in `config/environments/production.rb` or `config/environments/staging.rb`.
+2. Confirm the app was restarted after updating `/etc/stocks/env`: `sudo systemctl restart stocks`.
+3. Confirm required env keys exist on the server using SSM. Do not print secret values.
+4. Confirm SES identity status is `SUCCESS` and DKIM status is `SUCCESS`.
+5. Confirm SES production access is enabled, or verify the recipient email address while SES is still sandboxed.
+6. Check recent app logs:
+
+```console
+AWS_PROFILE=713141626029_AdministratorAccess AWS_REGION=us-east-1 aws ssm send-command \
+  --instance-ids mi-059a7bcb37754c44d \
+  --document-name AWS-RunShellScript \
+  --parameters '{"commands":["sudo journalctl -u stocks -n 200 --no-pager"]}'
+```
+
+If SSM stops working, first confirm the instance is listed as `Online` in `aws ssm describe-instance-information`. If it is missing or offline after a rebuild, install/register the SSM agent again with a new SSM hybrid activation, then enable the agent service so it persists across reboot.
+
+## DNS And Load Balancers
+
+The application hostname is `app.sifonline.org`. It should point to the Terraform-managed production Lightsail load balancer:
+
+```text
+stocks-production-lb
+1c0d863aa670cdbc48e7167de9d300ef-1607315586.us-east-1.elb.amazonaws.com
+```
+
+Staging uses:
+
+```text
+staging-lb
+d74e239060df7f70047c7878e32ed0c8-1040760270.us-east-1.elb.amazonaws.com
+```
+
+If the app returns an AWS ELB `503`, check whether DNS points to an old load balancer or whether the target instance is detached/unhealthy. If HTTPS fails after an HTTP redirect, check that the Lightsail load balancer has a valid attached TLS certificate and exposes port `443`.

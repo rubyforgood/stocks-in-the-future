@@ -72,6 +72,12 @@ SECRET_KEY_BASE=FILL_IN_RUN_bundle_exec_rails_secret
 SOLID_QUEUE_IN_PUMA=1
 RAILS_MAX_THREADS=3
 RAILS_LOG_LEVEL=info
+APP_HOST=app.sifonline.org
+MAILER_SENDER=no-reply@sifonline.org
+SES_SMTP_ADDRESS=email-smtp.us-east-1.amazonaws.com
+SES_SMTP_PORT=587
+SES_SMTP_USERNAME=FILL_IN_SES_SMTP_USERNAME
+SES_SMTP_PASSWORD=FILL_IN_SES_SMTP_PASSWORD
 PUMA_SOCKET=/home/ubuntu/stocks-in-the-future/shared/tmp/sockets/puma.sock
 ENVEOF
 chown root:ubuntu /etc/stocks/env
@@ -174,6 +180,7 @@ echo "   - DATABASE_URL: use db endpoint from: cd terraform/production && terraf
 echo "   - STOCKS_IN_THE_FUTURE_DATABASE_PASSWORD: the db master password"
 echo "   - ALPHA_VANTAGE_API_KEY: your API key"
 echo "   - SECRET_KEY_BASE: run 'bundle exec rails secret' locally to generate"
+echo "   - SES_SMTP_USERNAME / SES_SMTP_PASSWORD: SES SMTP credentials for us-east-1"
 echo "2. Also update shared/config/master.key:"
 echo "   echo 'your-master-key' > ~/stocks-in-the-future/shared/config/master.key"
 echo "3. Run first deploy from your local machine:"

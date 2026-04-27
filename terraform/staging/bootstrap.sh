@@ -72,6 +72,12 @@ SECRET_KEY_BASE=FILL_IN_RUN_bundle_exec_rails_secret
 SOLID_QUEUE_IN_PUMA=1
 RAILS_MAX_THREADS=3
 RAILS_LOG_LEVEL=info
+APP_HOST=staging.sifonline.org
+MAILER_SENDER=no-reply@sifonline.org
+SES_SMTP_ADDRESS=email-smtp.us-east-1.amazonaws.com
+SES_SMTP_PORT=587
+SES_SMTP_USERNAME=FILL_IN_SES_SMTP_USERNAME
+SES_SMTP_PASSWORD=FILL_IN_SES_SMTP_PASSWORD
 PUMA_SOCKET=/home/ubuntu/stocks-in-the-future/shared/tmp/sockets/puma.sock
 ENVEOF
 chown root:ubuntu /etc/stocks/env
@@ -172,7 +178,8 @@ echo "   STAGING_SERVER_IP=<instance_public_ip> cap staging deploy"
 echo "4. Generate and set SECRET_KEY_BASE:"
 echo "   ssh ubuntu@<ip> 'cd /home/ubuntu/stocks-in-the-future/current && bundle exec rails secret'"
 echo "   sudo nano /etc/stocks/env"
-echo "5. Seed the database:"
+echo "5. Add SES_SMTP_USERNAME / SES_SMTP_PASSWORD to /etc/stocks/env"
+echo "6. Seed the database:"
 echo "   cap staging rails:rake[db:seed]"
-echo "6. Start nginx:"
+echo "7. Start nginx:"
 echo "   sudo systemctl start nginx"

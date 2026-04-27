@@ -16,3 +16,8 @@ output "lb_dns" {
   value       = aws_lightsail_lb.production.dns_name
   description = "Load balancer DNS name - point your production DNS CNAME here"
 }
+
+output "lb_certificate_validation_records" {
+  value       = aws_lightsail_lb_certificate.production.domain_validation_records
+  description = "Create these DNS records if the production load balancer certificate needs validation"
+}

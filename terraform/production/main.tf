@@ -80,3 +80,14 @@ resource "aws_lightsail_lb_attachment" "production" {
   lb_name       = aws_lightsail_lb.production.name
   instance_name = aws_lightsail_instance.production.name
 }
+
+resource "aws_lightsail_lb_certificate" "production" {
+  name        = "production-ssl"
+  lb_name     = aws_lightsail_lb.production.name
+  domain_name = "app.sifonline.org"
+}
+
+resource "aws_lightsail_lb_certificate_attachment" "production" {
+  lb_name          = aws_lightsail_lb.production.name
+  certificate_name = aws_lightsail_lb_certificate.production.name
+}
