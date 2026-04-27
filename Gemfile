@@ -23,7 +23,7 @@ gem "pundit", "~> 2.5"
 gem "shadcn-ui", "~> 0.0.15"
 gem "solid_queue", "~> 1.4"
 gem "stimulus-rails"
-gem "strong_migrations", "~> 2.6"
+gem "strong_migrations", "~> 2.7"
 gem "tailwindcss-rails"
 gem "turbo-rails"
 
