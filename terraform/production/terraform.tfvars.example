@@ -1,0 +1,10 @@
+# Copy this to terraform.tfvars and fill in real values
+# terraform.tfvars is gitignored - never commit it
+
+aws_region             = "us-east-1"
+lightsail_ssh_key_name = "LightsailDefaultKey-us-east-1"
+instance_bundle_id     = "small_3_0"   # check AWS console for actual production bundle
+db_bundle_id           = "micro_2_0"   # check AWS console for actual production DB bundle
+db_master_password     = "your-production-db-password-here"
+rails_master_key       = "your-master-key-here"
+alpha_vantage_api_key  = "your-api-key-here"

@@ -41,8 +41,8 @@ class GradeBooksController < ApplicationController
   end
 
   def set_classroom_and_grade_book
-    @classroom = Classroom.find(params[:classroom_id])
-    @grade_book = @classroom.grade_books.includes(grade_entries: :user).find(params[:id])
+    @classroom = Classroom.find(params.expect(:classroom_id))
+    @grade_book = @classroom.grade_books.includes(grade_entries: :user).find(params.expect(:id))
 
     # Redirect if classroom is archived and user is not an admin
     return unless @classroom.archived? && !current_user.admin?

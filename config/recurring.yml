@@ -1,4 +1,4 @@
- development: &default
+development: &default
   # Weekdays at 1 AM EST OrderExecution runs first, then triggers StockPrices via job chaining
   # This ensures that StockPrices aren't updated before we have executed all orders
   daily_order_execution:

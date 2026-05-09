@@ -1,0 +1,75 @@
+---
+name: "Deploy to Staging"
+
+on:
+  push:
+    branches: ["main"]
+
+# Prevent concurrent deploys - queue rather than cancel
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: false
+
+jobs:
+  test:
+    name: Rails Test
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        ports:
+          - "5432:5432"
+        env:
+          POSTGRES_DB: sif
+          POSTGRES_USER: sif
+          POSTGRES_PASSWORD: password
+
+    env:
+      RAILS_ENV: test
+      DATABASE_URL: "postgres://sif:password@localhost:5432/sif"
+      BROWSERSLIST_IGNORE_OLD_DATA: true
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.4.4'
+          bundler-cache: true
+
+      - name: Set up database
+        run: bin/rails db:setup
+
+      - name: Run tests
+        run: bin/rails test
+
+  deploy:
+    name: Deploy to Staging
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.4.4'
+          bundler-cache: true
+
+      - name: Set up SSH agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.STAGING_SSH_PRIVATE_KEY }}
+
+      - name: Add staging server to known_hosts
+        run: ssh-keyscan -H ${{ secrets.STAGING_SERVER_IP }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to staging
+        env:
+          STAGING_SERVER_IP: ${{ secrets.STAGING_SERVER_IP }}
+        run: bundle exec cap staging deploy

@@ -55,7 +55,7 @@ module Admin
     # rubocop:enable Metrics/MethodLength
 
     def show
-      @user = User.find(params[:id])
+      @user = User.find(params.expect(:id))
       @breadcrumbs = [
         { label: "Components", path: admin_component_demo_index_path },
         { label: "User Details" }

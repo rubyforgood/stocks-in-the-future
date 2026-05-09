@@ -46,11 +46,11 @@ class ClassroomEnrollmentsController < ApplicationController
   private
 
   def set_classroom
-    @classroom = Classroom.find(params[:classroom_id])
+    @classroom = Classroom.find(params.expect(:classroom_id))
   end
 
   def set_enrollment
-    @enrollment = @classroom.classroom_enrollments.find(params[:id])
+    @enrollment = @classroom.classroom_enrollments.find(params.expect(:id))
   end
 
   def enrollment_params

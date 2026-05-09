@@ -73,7 +73,7 @@ module Admin
     private
 
     def set_announcement
-      @announcement = Announcement.find(params[:id])
+      @announcement = Announcement.find(params.expect(:id))
     end
 
     def announcement_params
