@@ -17,6 +17,9 @@ module Admin
     end
 
     def show
+      @attendance_entries = AttendanceEntryPresenter.for_student(@student)
+      @earnings_summary = EarningsSummary.new(@student.portfolio) if @student.portfolio.present?
+
       @breadcrumbs = [
         { label: "Students", path: admin_students_path },
         { label: @student.username }

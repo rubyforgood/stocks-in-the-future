@@ -73,6 +73,51 @@ module Admin
       )
     end
 
+    test "show displays attendance records" do
+      student = create(:student)
+      quarter = create(:quarter, number: 1)
+      grade_book = create(:grade_book, quarter: quarter, classroom: student.classroom)
+      create(:grade_entry, grade_book: grade_book, user: student, attendance_days: 42, is_perfect_attendance: true)
+
+      get admin_student_path(student)
+
+      assert_response :success
+      assert_select "h3", text: "Attendance"
+      assert_select "tbody tr", minimum: 1
+      assert_select "td", text: "Q1"
+      assert_select "td", text: "42"
+    end
+
+    test "show displays empty attendance message when no records" do
+      student = create(:student)
+
+      get admin_student_path(student)
+
+      assert_response :success
+      assert_select "p", text: "No attendance records found."
+    end
+
+    test "show displays earnings summary" do
+      student = create(:student)
+      portfolio = student.portfolio
+      portfolio.portfolio_transactions.create!(
+        amount_cents: 500, transaction_type: :deposit,
+        reason: :attendance_earnings
+      )
+      portfolio.portfolio_transactions.create!(amount_cents: 300, transaction_type: :deposit, reason: :math_earnings)
+      portfolio.portfolio_transactions.create!(amount_cents: 200, transaction_type: :deposit, reason: :awards)
+
+      get admin_student_path(student)
+
+      assert_response :success
+      assert_select "h4", text: "Earnings Summary"
+      assert_select "td", text: "Attendance Earnings"
+      assert_select "td", text: "Math Earnings"
+      assert_select "td", text: "Rewards"
+      assert_select "td", text: "Total Earnings"
+      assert_select "td", text: "Transaction Fees"
+    end
+
     test "new" do
       admin = create(:admin, admin: true, classroom: nil)
       sign_in(admin)
