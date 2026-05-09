@@ -64,11 +64,11 @@ class OrdersController < ApplicationController
   end
 
   def set_order
-    @order = Order.find(params[:id])
+    @order = Order.find(params.expect(:id))
   end
 
   def set_stock
-    @stock = Stock.find(params[:stock_id])
+    @stock = Stock.find(params.expect(:stock_id))
   end
 
   def set_shared_owned

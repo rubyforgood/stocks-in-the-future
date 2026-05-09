@@ -45,7 +45,11 @@ def run_rake_with_env(task)
 end
 
 # Override deploy:assets:precompile - skip the gem's default
-Rake::Task["deploy:assets:precompile"].clear rescue nil
+begin
+  Rake::Task["deploy:assets:precompile"].clear
+rescue StandardError
+  nil
+end
 
 namespace :deploy do
   namespace :assets do
@@ -54,14 +58,14 @@ namespace :deploy do
         within release_path do
           # Delete credentials file if it exists (it's encrypted and causes issues)
           execute :rm, "-f", "#{release_path}/config/credentials.yml.enc"
-          execute :sh, "-c '#{run_rake_with_env("assets:precompile")}'"
+          execute :sh, "-c '#{run_rake_with_env('assets:precompile')}'"
         end
       end
     end
   end
 end
 
-# Skip default migrate task entirely 
+# Skip default migrate task entirely
 set :migration_role, :none
 
 # Add our own migration task after publishing
@@ -72,7 +76,7 @@ namespace :deploy do
       within release_path do
         # Delete credentials file before migrations too
         execute :rm, "-f", "#{release_path}/config/credentials.yml.enc"
-        execute :sh, "-c '#{run_rake_with_env("db:migrate")}'"
+        execute :sh, "-c '#{run_rake_with_env('db:migrate')}'"
       end
     end
   end
@@ -89,7 +93,7 @@ namespace :deploy do
     on roles(:app) do
       # Restart Puma
       execute :sudo, "systemctl restart stocks"
-      
+
       # Fix permissions so nginx (www-data) can access the Puma socket
       # These are needed after deploy because Capistrano recreates the shared directories
       # Also fix /home and /home/ubuntu permissions for nginx to traverse

@@ -21,6 +21,6 @@ class StocksController < ApplicationController
   end
 
   def set_stock
-    @stock = Stock.find(params[:id])
+    @stock = Stock.find(params.expect(:id))
   end
 end

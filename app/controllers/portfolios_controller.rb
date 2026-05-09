@@ -13,6 +13,6 @@ class PortfoliosController < ApplicationController
   private
 
   def set_portfolio
-    @portfolio = Portfolio.find(params[:id])
+    @portfolio = Portfolio.find(params.expect(:id))
   end
 end

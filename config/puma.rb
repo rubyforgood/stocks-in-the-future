@@ -32,7 +32,7 @@ threads threads_count, threads_count
 # Bind to unix socket when PUMA_SOCKET is set (production/staging behind nginx),
 # otherwise bind to PORT for local development.
 if ENV["PUMA_SOCKET"]
-  bind "unix://#{ENV["PUMA_SOCKET"]}"
+  bind "unix://#{ENV['PUMA_SOCKET']}"
 else
   port ENV.fetch("PORT", 3000)
 end

@@ -64,7 +64,7 @@ class ClassroomsController < ApplicationController
   private
 
   def set_classroom
-    @classroom = Classroom.includes(users: :portfolio).find(params[:id].to_i)
+    @classroom = Classroom.includes(users: :portfolio).find(params.expect(:id).to_i)
   end
 
   def authorize_classroom

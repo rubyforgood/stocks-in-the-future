@@ -56,7 +56,7 @@ class StudentsController < ApplicationController
   private
 
   def set_classroom
-    @classroom = Classroom.find(params[:classroom_id])
+    @classroom = Classroom.find(params.expect(:classroom_id))
 
     # Redirect if classroom is archived and user is not an admin
     return unless @classroom.archived? && !current_user.admin?
@@ -65,7 +65,7 @@ class StudentsController < ApplicationController
   end
 
   def set_student
-    @student = @classroom.users.students.kept.find(params[:id])
+    @student = @classroom.users.students.kept.find(params.expect(:id))
   rescue ActiveRecord::RecordNotFound
     redirect_to classroom_path(@classroom), alert: t("students.not_found")
   end

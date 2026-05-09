@@ -83,7 +83,7 @@ module Admin
     private
 
     def set_school
-      @school = School.find(params[:id])
+      @school = School.find(params.expect(:id))
     end
 
     def set_form_data

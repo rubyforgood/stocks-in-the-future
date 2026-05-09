@@ -118,7 +118,7 @@ module Admin
       return redirect_with_missing_file_error if params[:csv_file].blank?
 
       begin
-        results = BulkStudentImportService.import_from_csv(params[:csv_file].path)
+        results = BulkStudentImportService.import_from_csv(params.expect(:csv_file).path)
         redirect_with_import_results(results)
       rescue CSV::MalformedCSVError => e
         redirect_to admin_students_path, alert: "Invalid CSV format: #{e.message}"
