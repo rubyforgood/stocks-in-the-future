@@ -28,12 +28,12 @@ gem "tailwindcss-rails"
 gem "turbo-rails"
 
 gem "discard", "~> 1.4"
-gem "tzinfo-data", platforms: %i[windows jruby]
+gem "tzinfo-data", platforms: %i[mingw mswin x64_mingw jruby]
 
 group :development, :test do
   gem "brakeman", require: false
   gem "bundler-audit", require: false
-  gem "debug", platforms: %i[mri windows]
+  gem "debug", platforms: %i[mri mingw mswin x64_mingw]
   gem "erb_lint", require: false
   gem "pry", "~> 0.16.0"
   gem "pry-byebug"
