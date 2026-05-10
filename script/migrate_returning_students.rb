@@ -60,6 +60,10 @@ ABSENCE_COLUMNS = {
   4 => "Q4 Absences"
 }.freeze
 
+def parse_currency(value)
+  value.to_s.gsub(/[$,]/, "").strip.to_f
+end
+
 def quarterly_attendance_days(quarterly_absences)
   earnings_cents = [900 - (quarterly_absences * 20), 0].max
   earnings_cents / 20
@@ -118,7 +122,7 @@ csv.each do |row|
     next
   end
 
-  earnings = row["last year earnings"].to_f
+  earnings = parse_currency(row["last year earnings"])
   if earnings <= 0
     warnings << "#{username}: invalid earnings value (#{row['last year earnings']}), skipping."
     next
@@ -134,7 +138,7 @@ csv.each do |row|
     end
     STOCK_COLUMNS.each do |stock|
       shares = row[stock[:shares_col]].to_i
-      price = row[stock[:price_col]].to_f
+      price = parse_currency(row[stock[:price_col]])
       next if shares <= 0
 
       cost = shares * price
@@ -170,7 +174,7 @@ csv.each do |row|
     total_spent_cents = 0
     STOCK_COLUMNS.each do |stock_cfg|
       shares = row[stock_cfg[:shares_col]].to_i
-      price = row[stock_cfg[:price_col]].to_f
+      price = parse_currency(row[stock_cfg[:price_col]])
       next if shares <= 0 || price <= 0
 
       stock = Stock.find_by(ticker: stock_cfg[:ticker])
@@ -194,7 +198,7 @@ csv.each do |row|
       total_purchases += 1
     end
 
-    expected_balance_cents = (row["Remaining Balance"].to_f * 100).round
+    expected_balance_cents = (parse_currency(row["Remaining Balance"]) * 100).round
     calculated_balance_cents = earnings_cents - total_spent_cents
     discrepancy = (calculated_balance_cents - expected_balance_cents).abs
     if discrepancy > 1
