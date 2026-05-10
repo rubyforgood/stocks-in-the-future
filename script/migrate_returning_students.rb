@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/BlockLength, Layout/LineLength
+
 # Usage: RAILS_ENV=production bin/rails runner script/migrate_returning_students.rb path/to/students.csv [--dry-run]
 
 require "csv"
@@ -16,14 +18,14 @@ STOCK_COLUMNS = [
   { shares_col: "Ford Shares", price_col: "Ford Price", ticker: "F" },
   { shares_col: "Southwest Shares", price_col: "Southwest Price", ticker: "LUV" },
   { shares_col: "Verizon Shares", price_col: "Verizon Price", ticker: "VZ" },
-  { shares_col: "Sirius XM Shares", price_col: "Sirius XM Price", ticker: "SIRI" },
+  { shares_col: "Sirius XM Shares", price_col: "Sirius XM Price", ticker: "SIRI" }
 ].freeze
 
 GRADE_COLUMNS = {
   1 => { math: "Q1 Math", reading: "Q1 Reading" },
   2 => { math: "Q2 Math", reading: "Q2 Reading" },
   3 => { math: "Q3 Math", reading: "Q3 Reading" },
-  4 => { math: "Q4 Math", reading: "Q4 Reading" },
+  4 => { math: "Q4 Math", reading: "Q4 Reading" }
 }.freeze
 
 MAX_DAYS_PER_QUARTER = 45
@@ -34,16 +36,19 @@ VALID_GRADES = %w[A+ A A- B+ B B- C+ C C- D F].freeze
 
 def find_unique_username(base)
   return base unless User.exists?(username: base)
+
   suffix = 1
   loop do
     candidate = "#{base}#{suffix}"
     return candidate unless User.exists?(username: candidate)
+
     suffix += 1
   end
 end
 
 def normalize_grade(value)
   return nil if value.blank?
+
   grade = value.strip
   VALID_GRADES.include?(grade) ? grade : nil
 end
@@ -52,7 +57,7 @@ ABSENCE_COLUMNS = {
   1 => "Q1 Absences",
   2 => "Q2 Absences",
   3 => "Q3 Absences",
-  4 => "Q4 Absences",
+  4 => "Q4 Absences"
 }.freeze
 
 def quarterly_attendance_days(quarterly_absences)
@@ -115,13 +120,13 @@ csv.each do |row|
 
   earnings = row["last year earnings"].to_f
   if earnings <= 0
-    warnings << "#{username}: invalid earnings value (#{row["last year earnings"]}), skipping."
+    warnings << "#{username}: invalid earnings value (#{row['last year earnings']}), skipping."
     next
   end
 
   if dry_run
     puts "[DRY RUN] Would create student: #{username}"
-    puts "[DRY RUN]   Original: #{original_username}#{" (renamed)" if username_changed}"
+    puts "[DRY RUN]   Original: #{original_username}#{' (renamed)' if username_changed}"
     puts "[DRY RUN]   Earnings: $#{earnings}"
     (1..4).each do |q|
       absences = row[ABSENCE_COLUMNS[q]].to_i
@@ -131,6 +136,7 @@ csv.each do |row|
       shares = row[stock[:shares_col]].to_i
       price = row[stock[:price_col]].to_f
       next if shares <= 0
+
       cost = shares * price
       puts "[DRY RUN]   Purchase: #{stock[:ticker]} #{shares} shares @ $#{price} = $#{cost}"
     end
@@ -213,7 +219,7 @@ csv.each do |row|
         math_grade: normalize_grade(row[cols[:math]]),
         reading_grade: normalize_grade(row[cols[:reading]]),
         attendance_days: quarterly_attendance_days(quarterly_absences),
-        is_perfect_attendance: quarterly_absences == 0
+        is_perfect_attendance: quarterly_absences.zero?
       )
       total_grade_entries += 1
     end
@@ -224,7 +230,7 @@ end
 
 puts ""
 
-if !dry_run
+unless dry_run
   puts "--- Finalizing Grade Books ---"
   school_year = classroom.school_year
   (1..4).each do |quarter_num|
@@ -263,3 +269,5 @@ if dry_run
   puts "This was a dry run. No changes were made."
   puts "Run without --dry-run to execute the migration."
 end
+
+# rubocop:enable Metrics/BlockLength, Layout/LineLength
