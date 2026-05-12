@@ -124,7 +124,7 @@ puts "Dry run: #{dry_run}"
 puts ""
 
 csv = CSV.read(csv_path, headers: false)
-headers = csv.shift # discard header row
+csv.shift # discard header row
 puts "Processing #{csv.count} rows from CSV..."
 puts ""
 
@@ -189,7 +189,7 @@ csv.each do |row|
     passwords[username] = password
     created_count += 1
 
-    if earnings > 0
+    if earnings.positive?
       earnings_cents = (earnings * 100).round
       student.portfolio.portfolio_transactions.create!(
         amount_cents: earnings_cents,
