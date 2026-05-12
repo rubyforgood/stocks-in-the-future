@@ -11,21 +11,51 @@ require "csv"
 
 TARGET_CLASSROOM_ID = 1
 
+# Column positions in the CSV (0-indexed)
+COL = {
+  username: 0,
+  earnings: 2,
+  remaining_balance: 4,
+  ua_shares: 12,
+  ua_price: 13,
+  sony_shares: 14,
+  sony_price: 15,
+  gap_shares: 16,
+  gap_price: 17,
+  ford_shares: 18,
+  ford_price: 19,
+  southwest_shares: 20,
+  southwest_price: 21,
+  verizon_shares: 22,
+  verizon_price: 23,
+  sirius_shares: 24,
+  sirius_price: 25,
+  q1_math: 26,
+  q1_reading: 27,
+  q2_math: 28,
+  q2_reading: 29,
+  q3_math: 30,
+  q3_reading: 31,
+  q4_math: 32,
+  q4_reading: 33,
+  absences: 34
+}.freeze
+
 STOCK_COLUMNS = [
-  { shares_col: "Under Armour Shares", price_col: "Under Armour Price", ticker: "UA" },
-  { shares_col: "Sony Shares", price_col: "Sony Price", ticker: "SONY" },
-  { shares_col: "Gap Shares", price_col: "Gap Price", ticker: "GPS" },
-  { shares_col: "Ford Shares", price_col: "Ford Price", ticker: "F" },
-  { shares_col: "Southwest Shares", price_col: "Southwest Price", ticker: "LUV" },
-  { shares_col: "Verizon Shares", price_col: "Verizon Price", ticker: "VZ" },
-  { shares_col: "Sirius XM Shares", price_col: "Sirius XM Price", ticker: "SIRI" }
+  { shares_col: COL[:ua_shares], price_col: COL[:ua_price], ticker: "UA" },
+  { shares_col: COL[:sony_shares], price_col: COL[:sony_price], ticker: "SONY" },
+  { shares_col: COL[:gap_shares], price_col: COL[:gap_price], ticker: "GPS" },
+  { shares_col: COL[:ford_shares], price_col: COL[:ford_price], ticker: "F" },
+  { shares_col: COL[:southwest_shares], price_col: COL[:southwest_price], ticker: "LUV" },
+  { shares_col: COL[:verizon_shares], price_col: COL[:verizon_price], ticker: "VZ" },
+  { shares_col: COL[:sirius_shares], price_col: COL[:sirius_price], ticker: "SIRI" }
 ].freeze
 
 GRADE_COLUMNS = {
-  1 => { math: "Q1 Math", reading: "Q1 Reading" },
-  2 => { math: "Q2 Math", reading: "Q2 Reading" },
-  3 => { math: "Q3 Math", reading: "Q3 Reading" },
-  4 => { math: "Q4 Math", reading: "Q4 Reading" }
+  1 => { math: COL[:q1_math], reading: COL[:q1_reading] },
+  2 => { math: COL[:q2_math], reading: COL[:q2_reading] },
+  3 => { math: COL[:q3_math], reading: COL[:q3_reading] },
+  4 => { math: COL[:q4_math], reading: COL[:q4_reading] }
 }.freeze
 
 MAX_DAYS_PER_QUARTER = 45
@@ -53,18 +83,15 @@ def normalize_grade(value)
   VALID_GRADES.include?(grade) ? grade : nil
 end
 
-ABSENCE_COLUMNS = {
-  1 => "Q1 Absences",
-  2 => "Q2 Absences",
-  3 => "Q3 Absences",
-  4 => "Q4 Absences"
-}.freeze
+ABSENCE_COL = COL[:absences]
 
 def parse_currency(value)
   value.to_s.gsub(/[$,]/, "").strip.to_f
 end
 
-def quarterly_attendance_days(quarterly_absences)
+def quarterly_attendance_days(total_absences, quarter_num)
+  quarterly_absences = total_absences / 4
+  quarterly_absences += 1 if quarter_num <= (total_absences % 4)
   earnings_cents = [900 - (quarterly_absences * 20), 0].max
   earnings_cents / 20
 end
@@ -96,7 +123,8 @@ puts "School Year: #{classroom.school_year&.name}"
 puts "Dry run: #{dry_run}"
 puts ""
 
-csv = CSV.read(csv_path, headers: true)
+csv = CSV.read(csv_path, headers: false)
+csv.shift # discard header row
 puts "Processing #{csv.count} rows from CSV..."
 puts ""
 
@@ -107,9 +135,10 @@ passwords = {}
 total_earnings_deposited = 0
 total_purchases = 0
 total_grade_entries = 0
+student_results = []
 
 csv.each do |row|
-  username = row["username"]&.strip
+  username = row[COL[:username]]&.strip
   next if username.blank?
 
   original_username = username
@@ -122,19 +151,17 @@ csv.each do |row|
     next
   end
 
-  earnings = parse_currency(row["last year earnings"])
-  if earnings <= 0
-    warnings << "#{username}: invalid earnings value (#{row['last year earnings']}), skipping."
-    next
-  end
+  earnings = parse_currency(row[COL[:earnings]])
+  total_absences = row[ABSENCE_COL].to_f.round
 
   if dry_run
     puts "[DRY RUN] Would create student: #{username}"
     puts "[DRY RUN]   Original: #{original_username}#{' (renamed)' if username_changed}"
-    puts "[DRY RUN]   Earnings: $#{earnings}"
+    puts "[DRY RUN]   Last Year Earnings: $#{earnings}"
     (1..4).each do |q|
-      absences = row[ABSENCE_COLUMNS[q]].to_i
-      puts "[DRY RUN]   Q#{q} Absences: #{absences} -> attendance earnings: $#{quarterly_attendance_days(absences) * 0.20}"
+      days = quarterly_attendance_days(total_absences, q)
+      earnings_val = format("%.2f", days * 0.20)
+      puts "[DRY RUN]   Q#{q} Absences: -> attendance earnings: $#{earnings_val}"
     end
     STOCK_COLUMNS.each do |stock|
       shares = row[stock[:shares_col]].to_i
@@ -162,14 +189,16 @@ csv.each do |row|
     passwords[username] = password
     created_count += 1
 
-    earnings_cents = (earnings * 100).round
-    student.portfolio.portfolio_transactions.create!(
-      amount_cents: earnings_cents,
-      transaction_type: :deposit,
-      reason: :administrative_adjustments,
-      description: "Prior year earnings migration"
-    )
-    total_earnings_deposited += earnings_cents
+    if earnings.positive?
+      earnings_cents = (earnings * 100).round
+      student.portfolio.portfolio_transactions.create!(
+        amount_cents: earnings_cents,
+        transaction_type: :deposit,
+        reason: :administrative_adjustments,
+        description: "Prior year earnings migration"
+      )
+      total_earnings_deposited += earnings_cents
+    end
 
     total_spent_cents = 0
     STOCK_COLUMNS.each do |stock_cfg|
@@ -198,7 +227,7 @@ csv.each do |row|
       total_purchases += 1
     end
 
-    expected_balance_cents = (parse_currency(row["Remaining Balance"]) * 100).round
+    expected_balance_cents = (parse_currency(row[COL[:remaining_balance]]) * 100).round
     calculated_balance_cents = earnings_cents - total_spent_cents
     discrepancy = (calculated_balance_cents - expected_balance_cents).abs
     if discrepancy > 1
@@ -215,20 +244,19 @@ csv.each do |row|
 
       grade_book = GradeBook.find_or_create_by!(quarter: quarter, classroom: classroom)
 
-      quarterly_absences = row[ABSENCE_COLUMNS[quarter_num]].to_i
-
       GradeEntry.create!(
         grade_book: grade_book,
         user: student,
         math_grade: normalize_grade(row[cols[:math]]),
         reading_grade: normalize_grade(row[cols[:reading]]),
-        attendance_days: quarterly_attendance_days(quarterly_absences),
-        is_perfect_attendance: quarterly_absences.zero?
+        attendance_days: quarterly_attendance_days(total_absences, quarter_num),
+        is_perfect_attendance: total_absences.zero?
       )
       total_grade_entries += 1
     end
   end
 
+  student_results << { username: username }
   puts "Created: #{username}#{" (was #{original_username})" if username_changed}"
 end
 
@@ -251,6 +279,48 @@ unless dry_run
     else
       puts "Skipped: Quarter #{quarter_num} - already #{grade_book.status}"
     end
+  end
+
+  puts ""
+  puts "--- Student Summary ---"
+  student_results.each do |result|
+    student = Student.find_by(username: result[:username])
+    next unless student
+
+    portfolio = student.portfolio
+
+    this_year_earnings_cents = portfolio.portfolio_transactions
+      .where(transaction_type: :deposit, reason: %i[attendance_earnings math_earnings reading_earnings])
+      .sum(:amount_cents)
+
+    holdings = portfolio.portfolio_stocks
+      .joins(:stock)
+      .where("portfolio_stocks.shares > 0")
+      .pluck("stocks.ticker", "portfolio_stocks.shares", "portfolio_stocks.purchase_price")
+
+    result[:last_year_earnings] = portfolio.portfolio_transactions
+      .where(description: "Prior year earnings migration")
+      .sum(:amount_cents)
+    result[:this_year_earnings] = this_year_earnings_cents
+    result[:cash_balance] = portfolio.cash_balance
+    result[:holdings] = holdings
+  end
+
+  puts ""
+  student_results.each do |result|
+    puts "#{result[:username]}:"
+    puts "  Last Year Earnings:  $#{result[:last_year_earnings] / 100.0}"
+    puts "  This Year Earnings:  $#{result[:this_year_earnings] / 100.0}"
+    puts "  Cash Balance:        $#{result[:cash_balance]}"
+    if result[:holdings].any?
+      puts "  Holdings:"
+      result[:holdings].each do |ticker, shares, price|
+        puts "    #{ticker}: #{shares} shares @ $#{price}"
+      end
+    else
+      puts "  Holdings: none"
+    end
+    puts ""
   end
 end
 
