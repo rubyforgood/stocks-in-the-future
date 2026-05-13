@@ -14,31 +14,31 @@ TARGET_CLASSROOM_ID = 1
 # Column positions in the CSV (0-indexed)
 COL = {
   username: 0,
-  earnings: 2,
-  remaining_balance: 4,
-  ua_shares: 12,
-  ua_price: 13,
-  sony_shares: 14,
-  sony_price: 15,
-  gap_shares: 16,
-  gap_price: 17,
-  ford_shares: 18,
-  ford_price: 19,
-  southwest_shares: 20,
-  southwest_price: 21,
-  verizon_shares: 22,
-  verizon_price: 23,
-  sirius_shares: 24,
-  sirius_price: 25,
-  q1_math: 26,
-  q1_reading: 27,
-  q2_math: 28,
-  q2_reading: 29,
-  q3_math: 30,
-  q3_reading: 31,
-  q4_math: 32,
-  q4_reading: 33,
-  absences: 34
+  earnings: 1,
+  remaining_balance: 3,
+  ua_shares: 9,
+  ua_price: 10,
+  sony_shares: 11,
+  sony_price: 12,
+  gap_shares: 13,
+  gap_price: 14,
+  ford_shares: 15,
+  ford_price: 16,
+  southwest_shares: 17,
+  southwest_price: 18,
+  verizon_shares: 19,
+  verizon_price: 20,
+  sirius_shares: 21,
+  sirius_price: 22,
+  q1_math: 25,
+  q1_reading: 26,
+  q2_math: 27,
+  q2_reading: 28,
+  q3_math: 29,
+  q3_reading: 30,
+  absences_q1: 33,
+  absences_q2: 34,
+  absences_q3: 35
 }.freeze
 
 STOCK_COLUMNS = [
@@ -54,8 +54,7 @@ STOCK_COLUMNS = [
 GRADE_COLUMNS = {
   1 => { math: COL[:q1_math], reading: COL[:q1_reading] },
   2 => { math: COL[:q2_math], reading: COL[:q2_reading] },
-  3 => { math: COL[:q3_math], reading: COL[:q3_reading] },
-  4 => { math: COL[:q4_math], reading: COL[:q4_reading] }
+  3 => { math: COL[:q3_math], reading: COL[:q3_reading] }
 }.freeze
 
 MAX_DAYS_PER_QUARTER = 45
@@ -83,15 +82,17 @@ def normalize_grade(value)
   VALID_GRADES.include?(grade) ? grade : nil
 end
 
-ABSENCE_COL = COL[:absences]
+ABSENCE_COLS = {
+  1 => COL[:absences_q1],
+  2 => COL[:absences_q2],
+  3 => COL[:absences_q3]
+}.freeze
 
 def parse_currency(value)
   value.to_s.gsub(/[$,]/, "").strip.to_f
 end
 
-def quarterly_attendance_days(total_absences, quarter_num)
-  quarterly_absences = total_absences / 4
-  quarterly_absences += 1 if quarter_num <= (total_absences % 4)
+def quarterly_attendance_days(quarterly_absences)
   earnings_cents = [900 - (quarterly_absences * 20), 0].max
   earnings_cents / 20
 end
@@ -152,16 +153,17 @@ csv.each do |row|
   end
 
   earnings = parse_currency(row[COL[:earnings]])
-  total_absences = row[ABSENCE_COL].to_f.round
 
   if dry_run
     puts "[DRY RUN] Would create student: #{username}"
     puts "[DRY RUN]   Original: #{original_username}#{' (renamed)' if username_changed}"
     puts "[DRY RUN]   Last Year Earnings: $#{earnings}"
-    (1..4).each do |q|
-      days = quarterly_attendance_days(total_absences, q)
+    (1..3).each do |q|
+      absences = row[ABSENCE_COLS[q]].to_f
+      days = quarterly_attendance_days(absences)
       earnings_val = format("%.2f", days * 0.20)
-      puts "[DRY RUN]   Q#{q} Absences: -> attendance earnings: $#{earnings_val}"
+      perfect = absences == 0 ? " (+$1.00 perfect)" : ""
+      puts "[DRY RUN]   Q#{q} Absences: #{absences} -> attendance earnings: $#{earnings_val}#{perfect}"
     end
     STOCK_COLUMNS.each do |stock|
       shares = row[stock[:shares_col]].to_i
@@ -244,13 +246,15 @@ csv.each do |row|
 
       grade_book = GradeBook.find_or_create_by!(quarter: quarter, classroom: classroom)
 
+      quarterly_absences = row[ABSENCE_COLS[quarter_num]].to_f
+
       GradeEntry.create!(
         grade_book: grade_book,
         user: student,
         math_grade: normalize_grade(row[cols[:math]]),
         reading_grade: normalize_grade(row[cols[:reading]]),
-        attendance_days: quarterly_attendance_days(total_absences, quarter_num),
-        is_perfect_attendance: total_absences.zero?
+        attendance_days: quarterly_attendance_days(quarterly_absences),
+        is_perfect_attendance: quarterly_absences.zero?
       )
       total_grade_entries += 1
     end
@@ -265,7 +269,7 @@ puts ""
 unless dry_run
   puts "--- Finalizing Grade Books ---"
   school_year = classroom.school_year
-  (1..4).each do |quarter_num|
+  (1..3).each do |quarter_num|
     quarter = Quarter.find_by(school_year: school_year, number: quarter_num)
     next unless quarter
 
