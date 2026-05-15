@@ -191,8 +191,8 @@ csv.each do |row|
     passwords[username] = password
     created_count += 1
 
+    earnings_cents = (earnings * 100).round
     if earnings.positive?
-      earnings_cents = (earnings * 100).round
       student.portfolio.portfolio_transactions.create!(
         amount_cents: earnings_cents,
         transaction_type: :deposit,
