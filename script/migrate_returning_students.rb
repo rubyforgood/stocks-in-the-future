@@ -118,9 +118,32 @@ unless classroom
   exit 1
 end
 
+# Verify school year and quarters exist before processing any students
+school_year = classroom.school_year
+unless school_year
+  puts "Error: Classroom has no school year."
+  exit 1
+end
+
 puts "=== Returning Student Migration ==="
 puts "Classroom: #{classroom.name} (ID: #{classroom.id})"
-puts "School Year: #{classroom.school_year&.name}"
+puts "School Year: #{school_year.name}"
+puts ""
+
+missing_quarters = (1..3).select { |n| Quarter.find_by(school_year: school_year, number: n).nil? }
+if missing_quarters.any?
+  puts "Error: Missing quarters #{missing_quarters.join(', ')} for school year #{school_year.name}."
+  puts "Quarters must exist before running this script."
+  puts "Existing quarters: #{Quarter.where(school_year: school_year).order(:number).pluck(:number).inspect}"
+  exit 1
+end
+
+# Ensure gradebooks exist for Q1-Q3 before processing students
+(1..3).each do |quarter_num|
+  quarter = Quarter.find_by(school_year: school_year, number: quarter_num)
+  GradeBook.find_or_create_by!(quarter: quarter, classroom: classroom)
+end
+
 puts "Dry run: #{dry_run}"
 puts ""
 
@@ -218,7 +241,8 @@ csv.each do |row|
       student.portfolio.portfolio_transactions.create!(
         amount_cents: cost_cents,
         transaction_type: :debit,
-        description: "Prior year stock purchase: #{stock.company_name}"
+        reason: :administrative_adjustments,
+        description: "Retroactive stock purchase: #{stock.company_name}"
       )
       student.portfolio.portfolio_stocks.create!(
         stock: stock,
@@ -236,14 +260,8 @@ csv.each do |row|
       warnings << "#{username}: Balance mismatch - expected $#{expected_balance_cents / 100.0}, calculated $#{calculated_balance_cents / 100.0} (diff: $#{discrepancy / 100.0})"
     end
 
-    school_year = classroom.school_year
     GRADE_COLUMNS.each do |quarter_num, cols|
       quarter = Quarter.find_by(school_year: school_year, number: quarter_num)
-      unless quarter
-        warnings << "#{username}: Quarter #{quarter_num} not found for school year, skipping grade entry."
-        next
-      end
-
       grade_book = GradeBook.find_or_create_by!(quarter: quarter, classroom: classroom)
 
       quarterly_absences = row[ABSENCE_COLS[quarter_num]].to_f
@@ -268,13 +286,9 @@ puts ""
 
 unless dry_run
   puts "--- Finalizing Grade Books ---"
-  school_year = classroom.school_year
   (1..3).each do |quarter_num|
     quarter = Quarter.find_by(school_year: school_year, number: quarter_num)
-    next unless quarter
-
-    grade_book = GradeBook.find_by(classroom: classroom, quarter: quarter)
-    next unless grade_book
+    grade_book = GradeBook.find_or_create_by!(quarter: quarter, classroom: classroom)
 
     if grade_book.draft?
       grade_book.verified!
