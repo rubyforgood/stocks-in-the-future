@@ -162,7 +162,7 @@ csv.each do |row|
       absences = row[ABSENCE_COLS[q]].to_f
       days = quarterly_attendance_days(absences)
       earnings_val = format("%.2f", days * 0.20)
-      perfect = absences == 0 ? " (+$1.00 perfect)" : ""
+      perfect = absences.zero? ? " (+$1.00 perfect)" : ""
       puts "[DRY RUN]   Q#{q} Absences: #{absences} -> attendance earnings: $#{earnings_val}#{perfect}"
     end
     STOCK_COLUMNS.each do |stock|
