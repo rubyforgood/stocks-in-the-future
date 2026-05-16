@@ -44,7 +44,7 @@ COL = {
 STOCK_COLUMNS = [
   { shares_col: COL[:ua_shares], price_col: COL[:ua_price], ticker: "UA" },
   { shares_col: COL[:sony_shares], price_col: COL[:sony_price], ticker: "SONY" },
-  { shares_col: COL[:gap_shares], price_col: COL[:gap_price], ticker: "GPS" },
+  { shares_col: COL[:gap_shares], price_col: COL[:gap_price], ticker: "GAP" },
   { shares_col: COL[:ford_shares], price_col: COL[:ford_price], ticker: "F" },
   { shares_col: COL[:southwest_shares], price_col: COL[:southwest_price], ticker: "LUV" },
   { shares_col: COL[:verizon_shares], price_col: COL[:verizon_price], ticker: "VZ" },
@@ -159,7 +159,12 @@ csv.each do |row|
     puts "[DRY RUN]   Original: #{original_username}#{' (renamed)' if username_changed}"
     puts "[DRY RUN]   Last Year Earnings: $#{earnings}"
     (1..3).each do |q|
-      absences = row[ABSENCE_COLS[q]].to_f
+      raw = row[ABSENCE_COLS[q]]
+      if raw.blank?
+        puts "[DRY RUN]   Q#{q} Absences: (no record) -> no attendance earnings"
+        next
+      end
+      absences = raw.to_f
       days = quarterly_attendance_days(absences)
       earnings_val = format("%.2f", days * 0.20)
       perfect = absences.zero? ? " (+$1.00 perfect)" : ""
@@ -244,9 +249,15 @@ csv.each do |row|
         next
       end
 
+      raw_absences = row[ABSENCE_COLS[quarter_num]]
+      if raw_absences.blank?
+        warnings << "#{username}: Q#{quarter_num} has no attendance record, skipping (no earnings)."
+        next
+      end
+
       grade_book = GradeBook.find_or_create_by!(quarter: quarter, classroom: classroom)
 
-      quarterly_absences = row[ABSENCE_COLS[quarter_num]].to_f
+      quarterly_absences = raw_absences.to_f
 
       GradeEntry.create!(
         grade_book: grade_book,
