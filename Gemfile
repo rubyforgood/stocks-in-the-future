@@ -43,7 +43,7 @@ end
 
 group :development do
   gem "bcrypt_pbkdf", "~> 1.0", require: false
-  gem "capistrano", "~> 3.19", require: false
+  gem "capistrano", "~> 3.20", require: false
   gem "capistrano-bundler", "~> 2.1", require: false
   gem "capistrano-rails", "~> 1.6", require: false
   gem "capistrano-rbenv", "~> 2.2", require: false

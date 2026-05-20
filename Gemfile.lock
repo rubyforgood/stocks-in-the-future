@@ -102,7 +102,7 @@ GEM
       thor (~> 1.0)
     byebug (13.0.0)
       reline (>= 0.6.0)
-    capistrano (3.20.0)
+    capistrano (3.20.1)
       airbrussh (>= 1.0.0)
       i18n
       rake (>= 10.0.0)
@@ -483,7 +483,7 @@ DEPENDENCIES
   bootsnap
   brakeman
   bundler-audit
-  capistrano (~> 3.19)
+  capistrano (~> 3.20)
   capistrano-bundler (~> 2.1)
   capistrano-rails (~> 1.6)
   capistrano-rbenv (~> 2.2)
