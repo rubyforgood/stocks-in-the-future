@@ -3,63 +3,42 @@
 
 # rubocop:disable Metrics/BlockLength, Layout/LineLength
 
-# Usage: RAILS_ENV=production bin/rails runner script/migrate_returning_students.rb path/to/students.csv [--dry-run]
+# Usage: RAILS_ENV=production bin/rails runner script/migrate_returning_students.rb path/to/students.csv --classroom=ID [--dry-run]
+#
+# CSV must have these named headers (case-sensitive):
+#   Username, Current Earnings, Remaining Balance,
+#   Under Armour Shares, Under Armour Price, Sony Shares, Sony Price,
+#   Gap Shares, Gap Price, Ford Shares, Ford Price,
+#   Southwest Shares, Southwest Price, Verizon Shares, Verizon Price,
+#   Sirius XM Shares, Sirius XM Price,
+#   Q1 Math, Q1 Reading, Q2 Math, Q2 Reading, Q3 Math, Q3 Reading,
+#   Absences Q1, Absences Q2, Absences Q3
 
 require "csv"
 
-# --- Constants ---
+VALID_GRADES = %w[A+ A A- B+ B B- C+ C C- D F].freeze
 
-TARGET_CLASSROOM_ID = 1
-
-# Column positions in the CSV (0-indexed)
-COL = {
-  username: 0,
-  earnings: 6,
-  remaining_balance: 8,
-  ua_shares: 17,
-  ua_price: 18,
-  sony_shares: 19,
-  sony_price: 20,
-  gap_shares: 21,
-  gap_price: 22,
-  ford_shares: 23,
-  ford_price: 24,
-  southwest_shares: 25,
-  southwest_price: 26,
-  verizon_shares: 27,
-  verizon_price: 28,
-  sirius_shares: 29,
-  sirius_price: 30,
-  q1_math: 31,
-  q1_reading: 32,
-  q2_math: 33,
-  q2_reading: 34,
-  q3_math: 35,
-  q3_reading: 36,
-  absences_q1: 39,
-  absences_q2: 40,
-  absences_q3: 41
-}.freeze
-
-STOCK_COLUMNS = [
-  { shares_col: COL[:ua_shares], price_col: COL[:ua_price], ticker: "UA" },
-  { shares_col: COL[:sony_shares], price_col: COL[:sony_price], ticker: "SONY" },
-  { shares_col: COL[:gap_shares], price_col: COL[:gap_price], ticker: "GAP" },
-  { shares_col: COL[:ford_shares], price_col: COL[:ford_price], ticker: "F" },
-  { shares_col: COL[:southwest_shares], price_col: COL[:southwest_price], ticker: "LUV" },
-  { shares_col: COL[:verizon_shares], price_col: COL[:verizon_price], ticker: "VZ" },
-  { shares_col: COL[:sirius_shares], price_col: COL[:sirius_price], ticker: "SIRI" }
+STOCK_HEADERS = [
+  { shares_col: "Under Armour Shares", price_col: "Under Armour Price", ticker: "UA" },
+  { shares_col: "Sony Shares",         price_col: "Sony Price",         ticker: "SONY" },
+  { shares_col: "Gap Shares",          price_col: "Gap Price",          ticker: "GAP" },
+  { shares_col: "Ford Shares",         price_col: "Ford Price",         ticker: "F" },
+  { shares_col: "Southwest Shares",    price_col: "Southwest Price",    ticker: "LUV" },
+  { shares_col: "Verizon Shares",      price_col: "Verizon Price",      ticker: "VZ" },
+  { shares_col: "Sirius XM Shares",    price_col: "Sirius XM Price",    ticker: "SIRI" }
 ].freeze
 
-GRADE_COLUMNS = {
-  1 => { math: COL[:q1_math], reading: COL[:q1_reading] },
-  2 => { math: COL[:q2_math], reading: COL[:q2_reading] },
-  3 => { math: COL[:q3_math], reading: COL[:q3_reading] }
+GRADE_HEADERS = {
+  1 => { math: "Q1 Math", reading: "Q1 Reading" },
+  2 => { math: "Q2 Math", reading: "Q2 Reading" },
+  3 => { math: "Q3 Math", reading: "Q3 Reading" }
 }.freeze
 
-MAX_DAYS_PER_QUARTER = 45
-
-VALID_GRADES = %w[A+ A A- B+ B B- C+ C C- D F].freeze
+ABSENCE_HEADERS = {
+  1 => "Absences Q1",
+  2 => "Absences Q2",
+  3 => "Absences Q3"
+}.freeze
 
 # --- Helpers ---
 
@@ -82,12 +61,6 @@ def normalize_grade(value)
   VALID_GRADES.include?(grade) ? grade : nil
 end
 
-ABSENCE_COLS = {
-  1 => COL[:absences_q1],
-  2 => COL[:absences_q2],
-  3 => COL[:absences_q3]
-}.freeze
-
 def parse_currency(value)
   value.to_s.gsub(/[$,]/, "").strip.to_f
 end
@@ -99,11 +72,18 @@ end
 
 # --- Main ---
 
-csv_path = ARGV.find { |a| !a.start_with?("--") }
-dry_run = ARGV.include?("--dry-run")
+csv_path     = ARGV.find { |a| !a.start_with?("--") }
+dry_run      = ARGV.include?("--dry-run")
+classroom_id_arg = ARGV.find { |a| a.start_with?("--classroom=") }
+classroom_id     = classroom_id_arg&.split("=")&.last.to_i
 
 unless csv_path
-  puts "Usage: bin/rails runner #{$PROGRAM_NAME} <csv_path> [--dry-run]"
+  puts "Usage: bin/rails runner #{$PROGRAM_NAME} <csv_path> --classroom=ID [--dry-run]"
+  exit 1
+end
+
+unless classroom_id&.positive?
+  puts "Error: --classroom=ID is required. e.g. --classroom=3"
   exit 1
 end
 
@@ -112,13 +92,12 @@ unless File.exist?(csv_path)
   exit 1
 end
 
-classroom = Classroom.find_by(id: TARGET_CLASSROOM_ID)
+classroom = Classroom.find_by(id: classroom_id)
 unless classroom
-  puts "Error: Classroom with ID #{TARGET_CLASSROOM_ID} not found."
+  puts "Error: Classroom with ID #{classroom_id} not found."
   exit 1
 end
 
-# Verify school year and quarters exist before processing any students
 school_year = classroom.school_year
 unless school_year
   puts "Error: Classroom has no school year."
@@ -144,25 +123,34 @@ end
   GradeBook.find_or_create_by!(quarter: quarter, classroom: classroom)
 end
 
-puts "Dry run: #{dry_run}"
-puts ""
+# Read CSV with named headers
+csv = CSV.read(csv_path, headers: true)
 
-csv = CSV.read(csv_path, headers: false)
-csv.shift # discard header row
+# Validate required headers are present
+required_headers = ["Username", "Current Earnings", "Remaining Balance",
+                    "Q1 Math", "Q1 Reading", "Q2 Math", "Q2 Reading", "Q3 Math", "Q3 Reading",
+                    "Absences Q1", "Absences Q2", "Absences Q3"]
+missing_headers = required_headers.reject { |h| csv.headers.include?(h) }
+if missing_headers.any?
+  puts "Error: CSV is missing required headers: #{missing_headers.join(', ')}"
+  puts "Found headers: #{csv.headers.compact.inspect}"
+  exit 1
+end
+
+puts "Dry run: #{dry_run}"
 puts "Processing #{csv.count} rows from CSV..."
 puts ""
 
 created_count = 0
 skipped_count = 0
 warnings = []
-passwords = {}
 total_earnings_deposited = 0
 total_purchases = 0
 total_grade_entries = 0
 student_results = []
 
 csv.each do |row|
-  username = row[COL[:username]]&.strip
+  username = row["Username"]&.strip
   next if username.blank?
 
   original_username = username
@@ -175,31 +163,29 @@ csv.each do |row|
     next
   end
 
-  earnings = parse_currency(row[COL[:earnings]])
+  earnings = parse_currency(row["Current Earnings"])
 
   if dry_run
-    puts "[DRY RUN] Would create student: #{username}"
-    puts "[DRY RUN]   Original: #{original_username}#{' (renamed)' if username_changed}"
+    puts "[DRY RUN] Would create student: #{username}#{" (was #{original_username})" if username_changed}"
     puts "[DRY RUN]   Last Year Earnings: $#{earnings}"
     (1..3).each do |q|
-      raw = row[ABSENCE_COLS[q]]
-      if raw.blank?
-        puts "[DRY RUN]   Q#{q} Absences: (no record) -> no attendance earnings"
+      raw_absences = row[ABSENCE_HEADERS[q]]
+      if raw_absences.blank?
+        puts "[DRY RUN]   Q#{q} Absences: (blank) -> skipping quarter, no grade entry"
         next
       end
-      absences = raw.to_f
+      absences = raw_absences.to_f
       days = quarterly_attendance_days(absences)
       earnings_val = format("%.2f", days * 0.20)
       perfect = absences.zero? ? " (+$1.00 perfect)" : ""
       puts "[DRY RUN]   Q#{q} Absences: #{absences} -> attendance earnings: $#{earnings_val}#{perfect}"
     end
-    STOCK_COLUMNS.each do |stock|
+    STOCK_HEADERS.each do |stock|
       shares = row[stock[:shares_col]].to_i
-      price = parse_currency(row[stock[:price_col]])
+      price  = parse_currency(row[stock[:price_col]])
       next if shares <= 0
 
-      cost = shares * price
-      puts "[DRY RUN]   Purchase: #{stock[:ticker]} #{shares} shares @ $#{price} = $#{cost}"
+      puts "[DRY RUN]   Purchase: #{stock[:ticker]} #{shares} shares @ $#{price} = $#{format('%.2f', shares * price)}"
     end
     puts ""
     created_count += 1
@@ -216,7 +202,6 @@ csv.each do |row|
       password: password,
       password_confirmation: password
     )
-    passwords[username] = password
     created_count += 1
 
     earnings_cents = (earnings * 100).round
@@ -231,9 +216,9 @@ csv.each do |row|
     end
 
     total_spent_cents = 0
-    STOCK_COLUMNS.each do |stock_cfg|
+    STOCK_HEADERS.each do |stock_cfg|
       shares = row[stock_cfg[:shares_col]].to_i
-      price = parse_currency(row[stock_cfg[:price_col]])
+      price  = parse_currency(row[stock_cfg[:price_col]])
       next if shares <= 0 || price <= 0
 
       stock = Stock.find_by(ticker: stock_cfg[:ticker])
@@ -258,26 +243,21 @@ csv.each do |row|
       total_purchases += 1
     end
 
-    expected_balance_cents = (parse_currency(row[COL[:remaining_balance]]) * 100).round
+    expected_balance_cents   = (parse_currency(row["Remaining Balance"]) * 100).round
     calculated_balance_cents = earnings_cents - total_spent_cents
-    discrepancy = (calculated_balance_cents - expected_balance_cents).abs
+    discrepancy              = (calculated_balance_cents - expected_balance_cents).abs
     if discrepancy > 1
       warnings << "#{username}: Balance mismatch - expected $#{expected_balance_cents / 100.0}, calculated $#{calculated_balance_cents / 100.0} (diff: $#{discrepancy / 100.0})"
     end
 
-    GRADE_COLUMNS.each do |quarter_num, cols|
-      quarter = Quarter.find_by(school_year: school_year, number: quarter_num)
-      unless quarter
-        warnings << "#{username}: Quarter #{quarter_num} not found for school year, skipping grade entry."
-        next
-      end
-
-      raw_absences = row[ABSENCE_COLS[quarter_num]]
+    GRADE_HEADERS.each do |quarter_num, cols|
+      raw_absences = row[ABSENCE_HEADERS[quarter_num]]
       if raw_absences.blank?
-        warnings << "#{username}: Q#{quarter_num} has no attendance record, skipping (no earnings)."
+        warnings << "#{username}: Q#{quarter_num} absences blank, skipping grade entry."
         next
       end
 
+      quarter    = Quarter.find_by(school_year: school_year, number: quarter_num)
       grade_book = GradeBook.find_or_create_by!(quarter: quarter, classroom: classroom)
 
       quarterly_absences = raw_absences.to_f
@@ -303,7 +283,7 @@ puts ""
 unless dry_run
   puts "--- Finalizing Grade Books ---"
   (1..3).each do |quarter_num|
-    quarter = Quarter.find_by(school_year: school_year, number: quarter_num)
+    quarter    = Quarter.find_by(school_year: school_year, number: quarter_num)
     grade_book = GradeBook.find_or_create_by!(quarter: quarter, classroom: classroom)
 
     if grade_book.draft?
@@ -336,8 +316,8 @@ unless dry_run
       .where(description: "Prior year earnings migration")
       .sum(:amount_cents)
     result[:this_year_earnings] = this_year_earnings_cents
-    result[:cash_balance] = portfolio.cash_balance
-    result[:holdings] = holdings
+    result[:cash_balance]       = portfolio.cash_balance
+    result[:holdings]           = holdings
   end
 
   puts ""
@@ -348,9 +328,7 @@ unless dry_run
     puts "  Cash Balance:        $#{result[:cash_balance]}"
     if result[:holdings].any?
       puts "  Holdings:"
-      result[:holdings].each do |ticker, shares, price|
-        puts "    #{ticker}: #{shares} shares @ $#{price}"
-      end
+      result[:holdings].each { |ticker, shares, price| puts "    #{ticker}: #{shares} shares @ $#{price}" }
     else
       puts "  Holdings: none"
     end
@@ -360,11 +338,11 @@ end
 
 puts ""
 puts "=== Migration Summary ==="
-puts "Students created: #{created_count}"
-puts "Students skipped: #{skipped_count}"
-puts "Total earnings deposited: $#{total_earnings_deposited / 100.0}"
-puts "Total stock purchases recorded: #{total_purchases}"
-puts "Total grade entries created: #{total_grade_entries}"
+puts "Students created:              #{created_count}"
+puts "Students skipped:              #{skipped_count}"
+puts "Total earnings deposited:      $#{total_earnings_deposited / 100.0}"
+puts "Total stock purchases:         #{total_purchases}"
+puts "Total grade entries created:   #{total_grade_entries}"
 
 if warnings.any?
   puts ""
