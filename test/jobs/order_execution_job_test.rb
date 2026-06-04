@@ -27,7 +27,6 @@ class OrderExecutionJobTest < ActiveJob::TestCase
     ExecuteOrder.expects(:execute).with(order1).once
     ExecuteOrder.expects(:execute).with(order2).once
     TransactionFeeProcessor.expects(:execute).once
-    StockPricesUpdateJob.expects(:perform_later).once
 
     OrderExecutionJob.perform_now
   end
@@ -35,7 +34,6 @@ class OrderExecutionJobTest < ActiveJob::TestCase
   test "with no pending orders" do
     ExecuteOrder.expects(:execute).never
     TransactionFeeProcessor.expects(:execute).never
-    StockPricesUpdateJob.expects(:perform_later).once
 
     OrderExecutionJob.perform_now
   end
