@@ -13,7 +13,6 @@ class OrderExecutionJob < ApplicationJob
     log_pending_orders_count(pending_orders)
 
     process_pending_orders(pending_orders) unless pending_orders.empty?
-    schedule_stock_prices_update
 
     Rails.logger.info "Order execution job completed successfully"
   rescue StandardError => e
@@ -45,13 +44,6 @@ class OrderExecutionJob < ApplicationJob
 
   def log_successful_execution(pending_orders)
     Rails.logger.info "Successfully executed #{pending_orders.count} orders"
-  end
-
-  # TODO: Remove this from OrderExecutionJob. StockPricesUpdateJob should be
-  # its own independent recurring job, not coupled to order execution.
-  def schedule_stock_prices_update
-    Rails.logger.info "Scheduling stock prices update job"
-    StockPricesUpdateJob.perform_later
   end
 
   def log_execution_error(error)
