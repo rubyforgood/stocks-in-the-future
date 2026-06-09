@@ -2,7 +2,7 @@
 
 FactoryBot.define do
   factory :grade_book do
-    association :quarter
+    quarter { create(:school_year).quarters.first }
     association :classroom
 
     status { "draft" }

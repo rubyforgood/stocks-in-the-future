@@ -8,9 +8,9 @@ class GradeBooksControllerTest < ActionDispatch::IntegrationTest
     @teacher = create(:teacher)
     @teacher.classrooms << @classroom
     @student = create(:student, classroom: @classroom)
-    @first_quarter = create(:quarter, school_year: @classroom.school_year)
-    @second_quarter = create(:quarter, school_year: @classroom.school_year)
-    @grade_book = create(:grade_book, classroom: @classroom, quarter: @first_quarter)
+    @first_quarter = @classroom.school_year.quarters.find_by!(number: 1)
+    @second_quarter = @classroom.school_year.quarters.find_by!(number: 2)
+    @grade_book = @classroom.grade_books.find_by!(quarter: @first_quarter)
     create(:grade_entry, grade_book: @grade_book, user: @student)
   end
 
@@ -132,7 +132,7 @@ class GradeBooksControllerTest < ActionDispatch::IntegrationTest
     )
 
     # Create new grade book for second quarter with incomplete grades
-    new_grade_book = create(:grade_book, classroom: @classroom, quarter: @second_quarter)
+    new_grade_book = @classroom.grade_books.find_by!(quarter: @second_quarter)
     create(
       :grade_entry, grade_book: new_grade_book, user: @student,
                     math_grade: nil, reading_grade: nil, attendance_days: 30
@@ -157,7 +157,7 @@ class GradeBooksControllerTest < ActionDispatch::IntegrationTest
     )
 
     # Create new grade book for second quarter with complete grades
-    new_grade_book = create(:grade_book, classroom: @classroom, quarter: @second_quarter)
+    new_grade_book = @classroom.grade_books.find_by!(quarter: @second_quarter)
     create(
       :grade_entry, grade_book: new_grade_book, user: @student,
                     math_grade: "A", reading_grade: "A", attendance_days: 30
@@ -182,7 +182,7 @@ class GradeBooksControllerTest < ActionDispatch::IntegrationTest
     )
 
     # Create new grade book for second quarter with complete grades
-    new_grade_book = create(:grade_book, classroom: @classroom, quarter: @second_quarter)
+    new_grade_book = @classroom.grade_books.find_by!(quarter: @second_quarter)
     create(
       :grade_entry, grade_book: new_grade_book, user: @student,
                     math_grade: "A", reading_grade: "A", attendance_days: 30

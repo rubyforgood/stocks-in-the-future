@@ -59,9 +59,9 @@ class AttendanceEntryPresenterTest < ActiveSupport::TestCase
   def create_entry(year_name:, quarter_number:, user: nil, attendance_days: 10, is_perfect_attendance: false)
     user ||= create(:student)
     year = Year.find_or_create_by!(name: year_name)
-    school_year = create(:school_year, year: year)
-    quarter = create(:quarter, school_year: school_year, number: quarter_number)
-    grade_book = create(:grade_book, quarter: quarter, classroom: user.classroom)
+    school_year = SchoolYear.find_or_create_by!(year: year, school: user.classroom.school_year.school)
+    quarter = school_year.quarters.find_by!(number: quarter_number)
+    grade_book = GradeBook.find_or_create_by!(quarter: quarter, classroom: user.classroom)
     create(
       :grade_entry,
       grade_book: grade_book,
