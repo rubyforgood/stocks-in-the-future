@@ -1,8 +1,12 @@
 development: &default
-  # Weekdays at 1 AM EST OrderExecution runs first, then triggers StockPrices via job chaining
-  # This ensures that StockPrices aren't updated before we have executed all orders
   daily_order_execution:
     class: OrderExecutionJob
+    queue: default
+    # Every 15 minutes, every day
+    schedule: "*/15 * * * *"
+
+  daily_stock_prices_update:
+    class: StockPricesUpdateJob
     queue: default
     # Due to limitations of solid queue we need to use cron format for these schedules
     # This is Monday through Friday at 9:00 PM EST (2:00 AM UTC Tues-Sat)
