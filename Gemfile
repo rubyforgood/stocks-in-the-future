@@ -28,7 +28,7 @@ gem "strong_migrations", "~> 2.8"
 gem "tailwindcss-rails"
 gem "turbo-rails"
 
-gem "discard", "~> 1.4"
+gem "discard", "~> 2.0"
 gem "tzinfo-data", platforms: %i[mingw mswin x64_mingw jruby]
 
 group :development, :test do
