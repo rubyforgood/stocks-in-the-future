@@ -1,0 +1,53 @@
+# Dev Container services: the Rails app plus the PostgreSQL and Redis it needs.
+# The app image is built from the repo's own Dockerfile.dev.
+services:
+  db:
+    image: postgres:15
+    restart: unless-stopped
+    environment:
+      PGUSER: sif
+      POSTGRES_USER: sif
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: sif
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sif"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    volumes:
+      - postgres:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7.0
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    volumes:
+      - redis:/data
+
+  app:
+    build:
+      context: ..
+      dockerfile: Dockerfile.dev
+    # Keep the container running so the Dev Containers tooling can attach.
+    command: sleep infinity
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    volumes:
+      - ..:/workspace:cached
+    working_dir: /workspace
+    environment:
+      RAILS_ENV: development
+      DATABASE_URL: postgresql://sif:password@db/
+      REDIS_URL: redis://redis:6379/0
+      BROWSERSLIST_IGNORE_OLD_DATA: "true"
+
+volumes:
+  postgres:
+  redis:

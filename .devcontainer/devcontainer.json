@@ -1,0 +1,14 @@
+{
+  "name": "Stocks in the Future",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspace",
+  "forwardPorts": [3000],
+  "initializeCommand": "cp -n config/database.yml.sample config/database.yml",
+  "postCreateCommand": "bundle check || bundle install; bundle exec rails db:prepare",
+  "containerEnv": {
+    "RAILS_ENV": "development",
+    "DATABASE_URL": "postgresql://sif:password@db/",
+    "REDIS_URL": "redis://redis:6379/0"
+  }
+}
