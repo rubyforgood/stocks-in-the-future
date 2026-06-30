@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_01_160551) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_09_141805) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -417,7 +417,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_01_160551) do
   add_foreign_key "portfolio_stocks", "stocks"
   add_foreign_key "portfolio_transactions", "portfolios"
   add_foreign_key "portfolios", "users"
-  add_foreign_key "quarters", "school_years"
+  add_foreign_key "quarters", "school_years", on_delete: :cascade
   add_foreign_key "school_years", "schools"
   add_foreign_key "school_years", "years"
   add_foreign_key "solid_queue_blocked_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
