@@ -6,7 +6,7 @@ class AdminEarningsDistributionTest < ApplicationSystemTestCase
   test "admin finalizes grade book and distributes earnings" do
     admin = create(:admin)
     school_year = create(:school_year)
-    quarter = create(:quarter, number: 1, school_year: school_year)
+    quarter = school_year.quarters.find_by!(number: 1)
     classroom = create(:classroom)
     student = create(:student, :with_portfolio, classroom: classroom)
     student.reload
@@ -72,7 +72,7 @@ class AdminEarningsDistributionTest < ApplicationSystemTestCase
   test "attendance earnings calculated correctly" do
     admin = create(:admin)
     school_year = create(:school_year)
-    quarter = create(:quarter, number: 1, school_year: school_year)
+    quarter = school_year.quarters.find_by!(number: 1)
     classroom = create(:classroom)
     student = create(:student, :with_portfolio, classroom: classroom)
     student.reload
@@ -126,7 +126,7 @@ class AdminEarningsDistributionTest < ApplicationSystemTestCase
   test "perfect attendance bonus awarded" do
     admin = create(:admin)
     school_year = create(:school_year)
-    quarter = create(:quarter, number: 1, school_year: school_year)
+    quarter = school_year.quarters.find_by!(number: 1)
     classroom = create(:classroom)
     student = create(:student, :with_portfolio, classroom: classroom)
     student.reload
@@ -183,7 +183,7 @@ class AdminEarningsDistributionTest < ApplicationSystemTestCase
   test "A grade earnings calculated correctly" do
     admin = create(:admin)
     school_year = create(:school_year)
-    quarter = create(:quarter, number: 1, school_year: school_year)
+    quarter = school_year.quarters.find_by!(number: 1)
     classroom = create(:classroom)
     student = create(:student, :with_portfolio, classroom: classroom)
     student.reload
@@ -244,7 +244,7 @@ class AdminEarningsDistributionTest < ApplicationSystemTestCase
   test "B grade earnings calculated correctly" do
     admin = create(:admin)
     school_year = create(:school_year)
-    quarter = create(:quarter, number: 1, school_year: school_year)
+    quarter = school_year.quarters.find_by!(number: 1)
     classroom = create(:classroom)
     student = create(:student, :with_portfolio, classroom: classroom)
     student.reload
@@ -303,7 +303,7 @@ class AdminEarningsDistributionTest < ApplicationSystemTestCase
   test "no earnings for grades below B" do
     admin = create(:admin)
     school_year = create(:school_year)
-    quarter = create(:quarter, number: 1, school_year: school_year)
+    quarter = school_year.quarters.find_by!(number: 1)
     classroom = create(:classroom)
     student = create(:student, :with_portfolio, classroom: classroom)
     student.reload
@@ -360,8 +360,8 @@ class AdminEarningsDistributionTest < ApplicationSystemTestCase
     # Setup
     admin = create(:admin)
     school_year = create(:school_year)
-    quarter1 = create(:quarter, number: 1, school_year: school_year)
-    quarter2 = create(:quarter, number: 2, school_year: school_year)
+    quarter1 = school_year.quarters.find_by!(number: 1)
+    quarter2 = school_year.quarters.find_by!(number: 2)
     classroom = create(:classroom)
     student = create(:student, :with_portfolio, classroom: classroom)
     student.reload
@@ -440,7 +440,7 @@ class AdminEarningsDistributionTest < ApplicationSystemTestCase
   test "no improvement bonus for first quarter" do
     admin = create(:admin)
     school_year = create(:school_year)
-    quarter = create(:quarter, number: 1, school_year: school_year)
+    quarter = school_year.quarters.find_by!(number: 1)
     classroom = create(:classroom)
     student = create(:student, :with_portfolio, classroom: classroom)
     student.reload
@@ -500,7 +500,7 @@ class AdminEarningsDistributionTest < ApplicationSystemTestCase
   test "multiple students receive individual earnings" do
     admin = create(:admin)
     school_year = create(:school_year)
-    quarter = create(:quarter, number: 1, school_year: school_year)
+    quarter = school_year.quarters.find_by!(number: 1)
     classroom = create(:classroom)
 
     # Student 1: High grades and perfect attendance
@@ -603,7 +603,7 @@ class AdminEarningsDistributionTest < ApplicationSystemTestCase
     # Setup
     admin = create(:admin)
     school_year = create(:school_year)
-    quarter = create(:quarter, number: 1, school_year: school_year)
+    quarter = school_year.quarters.find_by!(number: 1)
     classroom = create(:classroom)
     student = create(:student, :with_portfolio, classroom: classroom)
     student.reload
@@ -665,7 +665,7 @@ class AdminEarningsDistributionTest < ApplicationSystemTestCase
   test "grade book cannot be finalized twice" do
     admin = create(:admin)
     school_year = create(:school_year)
-    quarter = create(:quarter, number: 1, school_year: school_year)
+    quarter = school_year.quarters.find_by!(number: 1)
     classroom = create(:classroom)
     student = create(:student, :with_portfolio, classroom: classroom)
     student.reload

@@ -2,6 +2,7 @@
 
 class Quarter < ApplicationRecord
   belongs_to :school_year
+  has_many :grade_books, dependent: :restrict_with_error
 
   validates :number,
             presence: true,
