@@ -329,7 +329,7 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
     school = create(:school)
     year = create(:year)
     grade = create(:grade)
-    school_year = SchoolYearCreationService.new(school: school, year: year).call
+    school_year = SchoolYear.create!(school: school, year: year)
 
     sign_in(@admin)
     params = { classroom: { name: "New Class", grade_ids: [grade.id], school_id: school.id, year_id: year.id } }
