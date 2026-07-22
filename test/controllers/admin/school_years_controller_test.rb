@@ -23,7 +23,6 @@ module Admin
       school = create(:school, name: school_name)
       year = create(:year, name: year_name)
       school_year = create(:school_year, school:, year:)
-      create(:quarter, school_year:)
       admin = create(:admin, admin: true, classroom: nil)
       sign_in(admin)
 

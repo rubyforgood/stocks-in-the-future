@@ -29,8 +29,8 @@ class DistributeEarningsTest < ActiveSupport::TestCase
 
   test "distributes earnings as separate transactions by category" do
     school_year = create(:school_year)
-    previous_quarter = create(:quarter, number: 1, school_year:)
-    current_quarter = create(:quarter, number: 2, school_year:)
+    previous_quarter = school_year.quarters.find_by!(number: 1)
+    current_quarter = school_year.quarters.find_by!(number: 2)
 
     student = create(:student)
     classroom = create(:classroom)

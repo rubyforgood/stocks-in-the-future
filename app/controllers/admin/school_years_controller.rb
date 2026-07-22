@@ -46,7 +46,7 @@ module Admin
         return render_new_with_errors
       end
 
-      @school_year = SchoolYearCreationService.new(school:, year:).call
+      @school_year = SchoolYear.create!(school:, year:)
 
       if @school_year.persisted?
         redirect_to admin_school_year_path(@school_year), notice: t(".notice")

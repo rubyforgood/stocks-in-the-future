@@ -75,8 +75,8 @@ module Admin
 
     test "show displays attendance records" do
       student = create(:student)
-      quarter = create(:quarter, number: 1)
-      grade_book = create(:grade_book, quarter: quarter, classroom: student.classroom)
+      quarter = student.classroom.school_year.quarters.find_by!(number: 1)
+      grade_book = student.classroom.grade_books.find_by!(quarter: quarter)
       create(:grade_entry, grade_book: grade_book, user: student, attendance_days: 42, is_perfect_attendance: true)
 
       get admin_student_path(student)
