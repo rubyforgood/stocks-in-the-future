@@ -141,7 +141,7 @@ module Admin
     end
 
     test "new shows classrooms when available" do
-      current_year = Year.find_or_create_by(name: "2025 - 2026")
+      current_year = Year.current_school_year.first_or_create!
       school = create(:school, name: "Test School")
       school_year = create(:school_year, school: school, year: current_year)
 
