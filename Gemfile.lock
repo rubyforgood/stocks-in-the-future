@@ -392,7 +392,7 @@ GEM
       websocket (~> 1.0)
     shadcn-ui (0.0.15)
       tailwind_merge (~> 0.12)
-    simplecov (1.0.2)
+    simplecov (1.0.3)
     sin_lru_redux (2.5.2)
     smart_properties (1.17.0)
     solid_queue (1.5.0)
