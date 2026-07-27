@@ -6,6 +6,7 @@ class StudentsControllerTest < ActionDispatch::IntegrationTest
   setup do
     @classroom = create(:classroom)
     @teacher = create(:teacher, classroom: @classroom)
+    create(:teacher_classroom, teacher: @teacher, classroom: @classroom)
     @student = create(:student, classroom: @classroom)
     @other_classroom = create(:classroom)
     @other_student = create(:student, classroom: @other_classroom)
