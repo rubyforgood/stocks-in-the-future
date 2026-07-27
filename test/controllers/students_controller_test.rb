@@ -6,6 +6,7 @@ class StudentsControllerTest < ActionDispatch::IntegrationTest
   setup do
     @classroom = create(:classroom)
     @teacher = create(:teacher, classroom: @classroom)
+    create(:teacher_classroom, teacher: @teacher, classroom: @classroom)
     @student = create(:student, classroom: @classroom)
     @other_classroom = create(:classroom)
     @other_student = create(:student, classroom: @other_classroom)
@@ -119,6 +120,16 @@ class StudentsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to classroom_path(@classroom)
     assert_match(/password reset/i, flash[:notice])
     assert_match(/new password:/i, flash[:notice])
+  end
+
+  test "password reset notice is rendered once after redirect" do
+    sign_in @teacher
+
+    patch reset_password_classroom_student_path(@classroom, @student)
+    follow_redirect!
+
+    assert_select "p#notice", 1
+    assert_select "p#notice", text: /Password reset/
   end
 
   test "password reset generates memorable password" do
