@@ -2,6 +2,17 @@
 
 lock "~> 3.19"
 
+# Ensure libvips is installed on the server (required by image_processing 2.x / ruby-vips).
+namespace :apt do
+  task :install_libvips do
+    on roles(:app) do
+      execute :sudo, "apt-get install -y --no-install-recommends libvips"
+    end
+  end
+end
+
+before "bundler:install", "apt:install_libvips"
+
 set :application, "stocks-in-the-future"
 set :repo_url, "git@github.com:rubyforgood/stocks-in-the-future.git"
 set :branch, :main
