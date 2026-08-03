@@ -1,5 +1,14 @@
 import { Controller } from "@hotwired/stimulus"
 
+// Chart.js needs concrete colour values, so read them from the token layer at
+// runtime rather than hard-coding hex here. The points were #4F46E5 (indigo-600)
+// while every other accent in the app is sitf-primary, and the line and axes
+// were pure black rather than the slate used everywhere else.
+function token(name, fallback) {
+  const value = getComputedStyle(document.documentElement).getPropertyValue(name)
+  return value.trim() || fallback
+}
+
 export default class extends Controller {
   static values = {
     data: Array
@@ -38,14 +47,14 @@ export default class extends Controller {
         data: {
           labels: labels,
           datasets: [{
-            label: "Portfolio Value",
+            label: "Portfolio value",
             data: values,
-            borderColor: "#000000",
-            backgroundColor: "rgba(0, 0, 0, 0.1)",
+            borderColor: token("--sitf-primary-chart1", "#00698c"),
+            backgroundColor: "rgba(0, 105, 140, 0.10)",
             borderWidth: 2.5,
             pointRadius: 6,
-            pointBackgroundColor: "#4F46E5",
-            pointBorderColor: "#4F46E5",
+            pointBackgroundColor: token("--sitf-primary-chart1", "#00698c"),
+            pointBorderColor: token("--sitf-primary-chart1", "#00698c"),
             pointBorderWidth: 0,
             pointHoverRadius: 8,
             tension: 0.4,
@@ -95,7 +104,7 @@ export default class extends Controller {
                   size: 12,
                   family: "'Open Sans', system-ui, sans-serif"
                 },
-                color: "#000000",
+                color: "#334155",
                 padding: 3
               },
               border: {
@@ -106,7 +115,7 @@ export default class extends Controller {
             y: {
               grid: {
                 display: true,
-                color: "rgba(0, 0, 0, 0.1)",
+                color: "rgba(51, 65, 85, 0.12)",
                 drawBorder: false
               },
               ticks: {
@@ -114,7 +123,7 @@ export default class extends Controller {
                   size: 12,
                   family: "'Open Sans', system-ui, sans-serif"
                 },
-                color: "#000000",
+                color: "#334155",
                 padding: 4,
                 callback: function(value) {
                   return "$" + value.toFixed(0)

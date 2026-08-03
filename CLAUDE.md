@@ -119,6 +119,30 @@ name the ring colour.
 `bg-opacity-*` and `ring-opacity-*` were removed in Tailwind v4 and compile to
 nothing. Use the slash syntax (`bg-black/50`).
 
+## Audit helpers and stylesheets, not just templates
+
+Twice on this branch a sweep looked complete because it only covered
+`app/views`:
+
+- A faint-text pass reported four justified exceptions while `admin_helper.rb`
+  was still rendering absent values at 2.6:1. A failing test found it, not the
+  audit.
+- A markup sweep removed every arbitrary hex and `[var(--...)]` from views, and
+  `buttons.css` kept both — including `bg-[#BOEAE5]`, which is not a valid hex
+  (letter O, not zero). Tailwind emitted it verbatim, the browser dropped the
+  declaration, and that button rendered white text on no background. The Buy
+  control on the trading floor was separately at 1.81:1 in the same file.
+
+`@apply` classes are Tailwind, so they look migrated and get skipped. They are
+not exempt from the token rules or from contrast. Any audit should cover
+`app/views`, `app/helpers`, `app/assets/tailwind` and `app/components`.
+
+Also: delete unused CSS rather than leaving it. An unused class is
+indistinguishable from a supported one until someone adopts it. `admin.css` held
+five unreferenced classes with eight `!important` declarations and pre-token hex,
+and I spent effort "fixing" a focus indicator on one of them before noticing
+nothing rendered it.
+
 ## Comments are not inert
 
 A comment containing its own terminator ends early, and the remainder becomes
