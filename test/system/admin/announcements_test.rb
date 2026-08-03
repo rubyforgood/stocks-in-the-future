@@ -72,8 +72,10 @@ module Admin
       visit admin_announcements_url
       # Should be redirected away from admin area
       assert_current_path root_path
-      # Verify we're on the home page, not the admin interface
-      assert_text "WELCOME TO YOUR FINANCIAL JOURNEY!"
+      # Verify we're on the home page, not the admin interface. Assert the
+      # denial itself plus the home heading, rather than only page copy.
+      assert_text "Access denied"
+      assert_text "Welcome to your financial journey"
     end
   end
 end
