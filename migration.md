@@ -152,6 +152,41 @@ rather than posting to the route — a POST test would have passed either way.
 **Verified.** 7 service tests, 5 controller tests, 2 system tests. Confirmed in
 development that a mid-quarter joiner is added and an existing `A` grade survives.
 
+### `EarningsCalculator`, extracted from `DistributeEarnings`
+
+**What.** `app/services/earnings_calculator.rb`. Takes a grade entry plus the same
+student's previous-quarter entry and returns an `Earnings` struct of `attendance`,
+`math` and `reading` in cents, with `#total` and `#by_reason` (keyed by
+`PortfolioTransaction` reason). `DistributeEarnings.execute` keeps its signature and
+now only persists what the calculator returns.
+
+**Why.** Steps 3 and 4 need to show a student what a grade earned, and a projection
+for the open quarter, before the grade book is finalised. Without this there would be
+a second implementation of the money rules, free to drift from the one that pays.
+
+**Behaviour is unchanged, and that is tested rather than asserted.** 18
+characterisation tests were written against the *old* code first, every amount a
+literal, and pass unchanged after the extraction — same test file, same 40 assertions.
+The pre-existing `distribute_earnings_test.rb` derives its expectations from
+`GradeEntry`'s own constants, so it agrees with whatever the code does and could not
+have caught a drift.
+
+**What the pinning exposed.** All pre-existing, none of it changed:
+
+- C and below pay nothing for the grade itself, but improvement still pays. F → D
+  earns 200 cents for improving on a grade that earns nothing.
+- Improving *within* a band counts: A- → A pays the improvement.
+- Quarter 1 pays no improvement, but not because `Quarter#previous` returns nil — it
+  falls back to quarter 4 of the previous school year at the same school. What
+  actually stops it is one level down: a classroom belongs to a single school year and
+  `create_gradebooks_for_quarters` only covers that year's quarters, so the lookup
+  asks for a grade book that cannot exist. **Giving classrooms grade books that span
+  years would silently switch improvement on in quarter 1.**
+
+**Verified.** 18 characterisation tests through `DistributeEarnings`, plus 7 unit
+tests against the calculator directly — those need no database rows at all, which is
+the point of the split.
+
 ---
 
 ## Behaviour changes
@@ -502,7 +537,7 @@ no `teacher_classrooms` row, so no seeded account could open a grade book, and
 `grade_books.update.notice` did not exist, so saving grades flashed a missing
 translation.
 
-### Step 1 — Extract the earnings calculation
+### Step 1 — Extract the earnings calculation — **done**
 
 Split `DistributeEarnings` into a pure calculator (entry plus previous entry in,
 amounts out) and a writer that persists what the calculator returns.

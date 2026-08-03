@@ -75,6 +75,24 @@ or you will see the hold released and no charge appear.
 
 The fee is once per student per job run, not per order. That is deliberate.
 
+**Earnings amounts live in `EarningsCalculator`, which is pure.** `DistributeEarnings`
+only persists what it returns. Anything that needs to *show* earnings should call the
+calculator rather than re-implement the rules. Three things about those rules surprise
+people, all pinned in `distribute_earnings_characterisation_test.rb`:
+
+- C and below earn nothing for the grade, but improvement still pays — F → D earns
+  200 cents.
+- Improving within a band counts. A- → A pays the improvement.
+- Quarter 1 pays no improvement, but *not* because `Quarter#previous` is nil: it falls
+  back to quarter 4 of the previous school year. What stops it is that a classroom
+  belongs to one school year and only has grade books for that year's quarters, so the
+  lookup asks for a grade book that cannot exist. Give classrooms grade books spanning
+  years and improvement quietly switches on in quarter 1.
+
+When changing money rules, pin the current numbers as **literals** first. The older
+`distribute_earnings_test.rb` computes its expectations from `GradeEntry`'s constants,
+so it agrees with whatever the code does and cannot detect drift.
+
 ## Copy
 
 **Sentence case everywhere.** Capitalise the first word and proper nouns only.
