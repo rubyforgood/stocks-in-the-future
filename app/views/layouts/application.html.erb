@@ -11,7 +11,7 @@
     <%= stylesheet_link_tag "actiontext", 'data-turbo-track': "reload" %>
     <%= javascript_importmap_tags %>
   </head>
-  <body class="min-h-screen bg-sitf-surface">
+  <body class="min-h-screen bg-sitf-surface" data-controller="drawer">
     <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-100 focus:rounded-md focus:bg-sitf-primary focus:px-4 focus:py-2 focus:text-sitf-on-primary focus:outline-2 focus:outline-offset-2 focus:outline-sitf-primary-dark">Skip to main content</a>
     <% if user_signed_in? %>
       <%# shadow-xs, not a rule. The bar is fixed and the same colour as the page, so it
@@ -20,14 +20,20 @@
           sitf-primary-dark - an 8.5:1 dark line across the page, far heavier than chrome. %>
       <header class="fixed top-0 left-0 w-full z-50 flex items-center justify-between py-4 px-6 h-16 bg-sitf-surface shadow-xs">
         <div class="flex items-center gap-4">
-          <label
-            for="mobile-menu-toggle"
-            class="lg:hidden cursor-pointer flex items-center justify-center min-w-11 min-h-11 bg-sitf-primary text-sitf-on-primary rounded-lg hover:bg-sitf-primary-dark focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-sitf-primary-dark transition-colors"
-            aria-label="Toggle navigation menu">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <%# A button, not a label driving a hidden checkbox: a label is announced as a
+              checkbox rather than as a control that opens navigation. %>
+          <button type="button"
+                  data-drawer-target="trigger"
+                  data-action="drawer#toggle"
+                  data-testid="open-navigation"
+                  aria-expanded="false"
+                  aria-controls="main-navigation"
+                  class="lg:hidden flex min-h-11 min-w-11 items-center justify-center rounded-lg bg-sitf-primary text-sitf-on-primary transition-colors hover:bg-sitf-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary-dark">
+            <span class="sr-only">Open navigation menu</span>
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
-          </label>
+          </button>
           <%= image_tag "SITF-Horz-no-tag-logo.svg", class: "h-8 w-auto", alt: "Stocks in The Future" %>
         </div>
         <div class="flex items-center gap-4">

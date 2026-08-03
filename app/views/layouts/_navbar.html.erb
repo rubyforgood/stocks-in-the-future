@@ -5,33 +5,37 @@
     also meant a policy_scope query on every request for a list only the sidebar read. Both are
     gone; see migration.md, Map A.
 
-    Mobile open/close is CSS-only via the peer checkbox below - no JavaScript.
+    Mobile open/close is the shared `drawer` controller - see migration.md, Map B. It was a
+    hidden checkbox with peer-checked: utilities and a <label> wrapper on every row.
     Active state carries aria-current="page" so it is not signalled by colour
     alone (WCAG 1.4.1). Icons are decorative: each sits beside a text label, so
     they take alt="" and aria-hidden. %>
-<input type="checkbox" id="mobile-menu-toggle" class="hidden peer">
+<%# Scrim behind the open drawer. One `hidden` class, toggled by the controller. %>
+<div class="fixed inset-0 z-40 hidden bg-black/50 lg:hidden"
+     data-drawer-target="scrim"
+     data-action="click->drawer#close"
+     aria-hidden="true"></div>
 
-<%# Scrim behind the open mobile menu %>
-<label
-  for="mobile-menu-toggle"
-  aria-hidden="true"
-  class="fixed inset-0 bg-black/50 z-40 hidden peer-checked:block lg:hidden"></label>
-
-<nav aria-label="Main" class="fixed z-50 top-0 bottom-0 left-0 w-64
-            transform -translate-x-full peer-checked:translate-x-0
+<nav id="main-navigation"
+     aria-label="Main"
+     data-drawer-target="panel"
+     data-action="click->drawer#closeIfLink"
+     class="fixed z-50 top-0 bottom-0 left-0 w-64
+            transform -translate-x-full
             lg:translate-x-0 lg:top-16 lg:w-64
             transition-transform duration-300 ease-in-out">
   <div class="flex flex-col h-full overflow-y-auto px-0 pt-16 lg:pt-4 pb-4 bg-white border-r border-slate-200">
 
-    <%# Close button, mobile only. 44px minimum target. %>
-    <label
-      for="mobile-menu-toggle"
-      class="lg:hidden absolute top-4 right-4 flex items-center justify-center min-w-11 min-h-11 text-slate-700 hover:bg-slate-100 rounded-lg cursor-pointer transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary">
+    <%# Close button, mobile only. 44px, since a bare icon control is where that figure applies. %>
+    <button type="button"
+            data-action="drawer#close"
+            data-testid="close-navigation"
+            class="lg:hidden absolute top-4 right-4 flex min-w-11 min-h-11 items-center justify-center rounded-lg text-slate-700 transition-colors hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary">
       <span class="sr-only">Close navigation menu</span>
       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
       </svg>
-    </label>
+    </button>
 
     <div class="flex flex-1 flex-col">
       <ul class="flex flex-1 flex-col gap-y-1 px-3">
@@ -86,7 +90,6 @@
         <ul class="flex flex-col items-start justify-start w-full py-2">
           <% active = request.path.include?("admin") %>
           <li class="w-full">
-            <label for="mobile-menu-toggle" class="block lg:cursor-default cursor-pointer w-full">
               <%= link_to admin_classrooms_path, aria: { current: ("page" if active) }, class: nav_row_class(active: active) do %>
                 <span class="<%= nav_indicator_class(active: active) %>" aria-hidden="true"></span>
                 <svg class="<%= nav_icon_class(active: active) %>" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
@@ -95,7 +98,6 @@
                 </svg>
                 <span>Admin</span>
               <% end %>
-            </label>
           </li>
         </ul>
       </div>

@@ -268,11 +268,22 @@ control that opens navigation, and the CSS-only approach cannot carry `aria-expa
 a focus trap or focus return. An open drawer is a modal surface over the page and needs all
 four; `dialog_controller` already implements them and is the model.
 
-The app and admin currently use two different mechanisms for this one interaction — checkbox
-plus `peer-checked:` in the app, a controller toggling classes and inline styles in admin, with
-admin also rendering its nav twice. Neither carries `aria-expanded`. Mapped as Map B, whose
-**step 0 is making a 375px viewport testable**: every system test runs at 1400x1400, so nothing
-in the suite has ever exercised either drawer.
+`drawer_controller` serves both layouts. It replaced two mechanisms for one interaction — a
+hidden checkbox with `peer-checked:` and a `<label>` on every row in the app, a controller
+toggling a class *and* an inline style in admin, which also rendered its nav twice. Neither
+carried `aria-expanded`. The controller no-ops above `lg`, where the sidebar is permanent rather
+than a drawer.
+
+**Testing a drawer at 375px, since three things here are not obvious:**
+
+- `ApplicationSystemTestCase#in_phone_viewport` resizes and **waits on the
+  `(min-width: 64rem)` media query**. `resize_to` returns before the browser applies it, so a
+  test can otherwise run at phone width against a desktop layout.
+- **Capybara's `visible?` cannot see an off-canvas panel** — it reads display, visibility and
+  opacity, not transforms. Assert on `getBoundingClientRect`, via `assert_offscreen` /
+  `assert_onscreen`.
+- **Those helpers wait, then assert.** The panel slides for 300ms, so reading its position
+  straight after a click catches it mid-transition.
 
 ### Dividers
 **A page title never gets a rule under it.** Spacing already separates a title from

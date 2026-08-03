@@ -809,7 +809,42 @@ by the portfolio and is a genuinely different view from the full catalogue.
 
 ---
 
-### Map B — One mobile drawer mechanism
+### Map B — One mobile drawer mechanism — **done**
+
+**Outcome.** `drawer_controller.js` serves both layouts. One nav element per layout translates
+into view; `admin_sidebar_controller.js`, the hidden checkbox, both `<label>` triggers, the four
+`<label>` row wrappers and admin's duplicated mobile nav copy are all gone.
+
+**What it gained.** `aria-expanded` on a real `<button>` trigger, Escape to close, focus moved
+into the panel and returned to the trigger, a focus trap while open, and close-on-navigate
+handled once in the controller rather than by a wrapper on every row. It also no-ops above `lg`,
+because the sidebar is permanent there and trapping focus in ordinary page furniture would be a
+bug.
+
+**Step 0 was the valuable part.** `ApplicationSystemTestCase` gained `in_phone_viewport`, and
+`mobile_navigation_test.rb` is the first test in the project's history to exercise the drawer at
+375px. Three things only that step could have found:
+
+- **Capybara's `visible?` cannot see an off-canvas panel.** It reads display, visibility and
+  opacity, not transforms, so a closed drawer looks visible. The assertions read
+  `getBoundingClientRect` instead.
+- **A bare assertion races the 300ms slide.** Reading the position immediately after a click
+  catches the panel mid-transition. `assert_offscreen` / `assert_onscreen` wait, then assert.
+- **`resize_to` returns before the browser applies it.** A test could start at phone width with
+  a desktop layout still in effect. That produced exactly one failure in one full-suite run and
+  passed on five reruns; `in_phone_viewport` now waits on the same `(min-width: 64rem)` media
+  query the CSS keys on, which makes it deterministic rather than usually fine.
+
+**A deviation from the map, stated plainly.** The map called for characterisation tests of
+current behaviour before the rewrite. I wrote target-state tests instead — red first, green
+after — because the mechanism being characterised was the one being deleted, and the target
+differs deliberately (nothing to characterise carries `aria-expanded` or Escape). The one
+characterisation that mattered is there: the desktop assertion that the sidebar is *not*
+off-canvas at 1400px, which passed before the change and still does.
+
+**Also caught by the suite, not by me:** an early `assert_eventually` returned on success without
+recording an assertion, and minitest reported "missing assertions" on three tests. A test that
+asserts nothing can pass while verifying nothing. The wait and the assertion are separate now.
 
 **Current structure.** Two mechanisms for the same interaction.
 

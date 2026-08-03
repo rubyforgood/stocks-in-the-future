@@ -5,20 +5,19 @@
       label  - visible text
       active - true when this is the current page
 
-    The wrapping <label for="mobile-menu-toggle"> closes the mobile menu on tap; that is the
-    CSS-only menu mechanism, so it must stay.
-
     aria-current="page" is what conveys "you are here" to assistive tech - the tint and the
     indicator bar alone would violate WCAG 1.4.1.
 
-    Styling comes from NavHelper, shared with the admin nav. 44px minimum height: a nav row is
-    a bare tap target, which is where the 44px figure applies. %>
+    Styling comes from NavHelper, shared with the admin nav. 44px minimum height: a nav row is a
+    bare tap target, which is where the 44px figure applies - buttons are on the 40px token.
+
+    This used to be wrapped in <label for="mobile-menu-toggle"> to uncheck the hidden checkbox
+    that held the mobile drawer open. The drawer controller closes on navigation instead, once,
+    rather than through a wrapper on every row. %>
 <li>
-  <label for="mobile-menu-toggle" class="block lg:cursor-default cursor-pointer">
-    <%= link_to path, aria: { current: ("page" if active) }, class: nav_row_class(active: active) do %>
-      <span class="<%= nav_indicator_class(active: active) %>" aria-hidden="true"></span>
-      <span class="flex h-5 w-5 shrink-0 items-center justify-center" aria-hidden="true"><%= yield %></span>
-      <span><%= label %></span>
-    <% end %>
-  </label>
+  <%= link_to path, aria: { current: ("page" if active) }, class: nav_row_class(active: active) do %>
+    <span class="<%= nav_indicator_class(active: active) %>" aria-hidden="true"></span>
+    <span class="flex h-5 w-5 shrink-0 items-center justify-center" aria-hidden="true"><%= yield %></span>
+    <span><%= label %></span>
+  <% end %>
 </li>
