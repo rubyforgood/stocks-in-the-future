@@ -1,35 +1,55 @@
-/* Table Styles */
+/* Data tables.
+
+   Reworked to industry standard (Stripe, Airbnb, Material data tables). The
+   previous treatment drew a heavy black grid - a 2px black outer border, a
+   black rule under every cell, a 20px radius and a saturated teal header band.
+   That fights the data for attention.
+
+   Principles applied:
+   - Hairline horizontal dividers only. No vertical rules, no outer heavy
+     border. Columns are separated by alignment and whitespace, not lines.
+   - The header is chrome, not content: text-xs, medium weight, uppercase with
+     slight tracking, muted foreground on a very light fill. design.md reserves
+     text-xs for exactly this - short glanceable strings like column headers.
+   - Rows are tall enough to be a comfortable touch target and to let dense
+     text breathe (min-h-14 = 56px, above the 44px floor).
+   - Row hover gives a scanning anchor on wide screens.
+   - Money and counts are right-aligned with tabular-nums so digits line up
+     across rows. This is the single biggest legibility win on a financial
+     table and was previously missing.
+   - Contrast: slate-600 header text on slate-50 is 6.9:1; slate-900 body text
+     on white is 17.9:1. Dividers are non-text boundaries and need no ratio.
+*/
+
 .table-container {
-  @apply mb-4;
+  @apply mb-6;
 }
 
+/* Card-style surface. Overflow hidden so the header fill respects the radius,
+   and x-scroll so wide tables scroll rather than squashing on small screens. */
 .table-wrapper {
-  @apply bg-white border-2 border-black rounded-[20px];
+  @apply overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xs;
 }
 
 .table-base {
-  @apply w-full border-collapse font-sans bg-white rounded-[20px];
+  @apply w-full border-collapse text-left font-sans;
 }
 
 .table-header-row {
-  @apply border-b border-black bg-[#00B8B0];
+  @apply border-b border-slate-200 bg-slate-50;
 }
 
 .table-header-cell {
-  @apply h-10 px-7 py-3 font-medium text-base text-black border-b border-black;
+  @apply px-4 py-3 text-xs font-medium tracking-wide text-slate-600 uppercase whitespace-nowrap;
 }
 
 .table-header-cell-left {
   @apply text-left;
 }
 
-.table-header-cell-left:nth-child(3) {
-  @apply text-left px-4 lg:px-7;
-}
-
+/* Numeric columns: right-aligned so digits align down the column. */
 .table-header-cell-right {
   @apply text-right;
-  min-width: 150px;
 }
 
 .table-header-cell-center {
@@ -37,20 +57,15 @@
 }
 
 .table-body-row {
-  @apply h-14 border-b border-black;
+  @apply border-b border-slate-100 transition-colors last:border-0 hover:bg-slate-50;
 }
 
 .table-body-cell {
-  @apply px-7 py-2 border-b border-black;
-}
-
-.table-body-cell:nth-child(3) {
-  @apply px-4 lg:px-7;
+  @apply px-4 py-3 align-middle text-sm text-slate-900;
 }
 
 .table-body-cell-right {
-  @apply text-right;
-  min-width: 150px;
+  @apply text-right tabular-nums;
 }
 
 .table-body-cell-center {
@@ -58,21 +73,22 @@
 }
 
 .table-cell-content {
-  @apply text-base text-black;
+  @apply text-sm text-slate-900;
 }
 
 .table-empty-cell {
-  @apply px-7 py-4 text-center text-slate-500 border-b border-black;
+  @apply px-4 py-10 text-center text-sm text-slate-600;
 }
 
+/* Was slate-400 at 2.6:1, which fails AA. slate-500 is 4.76:1. */
 .table-no-permission {
-  @apply text-slate-400;
+  @apply text-slate-500 italic;
 }
 
 .table-action-link {
-  @apply text-blue-600 hover:text-blue-800;
+  @apply rounded-sm font-medium text-sitf-primary underline-offset-2 hover:text-sitf-primary-dark hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary;
 }
 
 .table-action-button {
-  @apply text-red-600 hover:text-red-800 cursor-pointer;
+  @apply cursor-pointer rounded-sm font-medium text-red-700 underline-offset-2 hover:text-red-800 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-700;
 }

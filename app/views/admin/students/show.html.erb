@@ -56,13 +56,13 @@
               <div class="text-xs font-medium text-blue-600 mb-1" data-testid="cash_balance_label">
                 Cash Balance
               </div>
-              <div class="text-2xl font-bold text-blue-900"><%= number_to_currency(@student.portfolio.cash_balance) %></div>
+              <div class="text-2xl font-bold text-blue-900 tabular-nums"><%= number_to_currency(@student.portfolio.cash_balance) %></div>
             </div>
             <div class="bg-green-50 p-4 rounded-lg">
               <div class="text-xs font-medium text-green-600 mb-1" data-testid="total_portfolio_worth_label">
                 Total Portfolio Worth
               </div>
-              <div class="text-2xl font-bold text-green-900"><%= number_to_currency(@student.portfolio.total_portfolio_worth) %></div>
+              <div class="text-2xl font-bold text-green-900 tabular-nums"><%= number_to_currency(@student.portfolio.total_portfolio_worth) %></div>
             </div>
             <div class="bg-purple-50 p-4 rounded-lg">
               <div class="text-xs font-medium text-purple-600 mb-1">Total Stocks</div>
@@ -88,23 +88,23 @@
               <tbody class="divide-y divide-slate-200 bg-white">
                 <tr>
                   <td class="px-3 py-2 text-sm text-slate-900">Attendance Earnings</td>
-                  <td class="px-3 py-2 text-sm text-right font-medium text-slate-900"><%= number_to_currency(@earnings_summary.attendance_earnings_cents / 100.0) %></td>
+                  <td class="px-3 py-2 text-sm text-right font-medium text-slate-900 tabular-nums"><%= number_to_currency(@earnings_summary.attendance_earnings_cents / 100.0) %></td>
                 </tr>
                 <tr>
                   <td class="px-3 py-2 text-sm text-slate-900">Math Earnings</td>
-                  <td class="px-3 py-2 text-sm text-right font-medium text-slate-900"><%= number_to_currency(@earnings_summary.math_earnings_cents / 100.0) %></td>
+                  <td class="px-3 py-2 text-sm text-right font-medium text-slate-900 tabular-nums"><%= number_to_currency(@earnings_summary.math_earnings_cents / 100.0) %></td>
                 </tr>
                 <tr>
                   <td class="px-3 py-2 text-sm text-slate-900">Rewards</td>
-                  <td class="px-3 py-2 text-sm text-right font-medium text-slate-900"><%= number_to_currency(@earnings_summary.awards_cents / 100.0) %></td>
+                  <td class="px-3 py-2 text-sm text-right font-medium text-slate-900 tabular-nums"><%= number_to_currency(@earnings_summary.awards_cents / 100.0) %></td>
                 </tr>
                 <tr class="bg-green-50">
                   <td class="px-3 py-2 text-sm font-semibold text-slate-900">Total Earnings</td>
-                  <td class="px-3 py-2 text-sm text-right font-bold text-slate-900"><%= number_to_currency(@earnings_summary.total_earnings_cents / 100.0) %></td>
+                  <td class="px-3 py-2 text-sm text-right font-bold text-slate-900 tabular-nums"><%= number_to_currency(@earnings_summary.total_earnings_cents / 100.0) %></td>
                 </tr>
                 <tr>
                   <td class="px-3 py-2 text-sm font-medium text-red-600">Transaction Fees</td>
-                  <td class="px-3 py-2 text-sm text-right font-medium text-red-600"><%= number_to_currency(@earnings_summary.transaction_fees_cents / 100.0) %></td>
+                  <td class="px-3 py-2 text-sm text-right font-medium text-red-600 tabular-nums"><%= number_to_currency(@earnings_summary.transaction_fees_cents / 100.0) %></td>
                 </tr>
               </tbody>
             </table>
