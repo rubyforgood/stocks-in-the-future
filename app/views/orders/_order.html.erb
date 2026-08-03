@@ -2,7 +2,7 @@
   <div>
     <p class="text-sm text-gray-500 font-medium">Stock</p>
     <p class="text-lg font-semibold"><%= order.stock.company_name %></p>
-    <p class="text-sm text-gray-400"><%= order.stock.ticker %></p>
+    <p class="text-sm text-gray-600"><%= order.stock.ticker %></p>
   </div>
 
   <div>
@@ -33,7 +33,7 @@
       <% if order.stock.price_cents && order.shares %>
         <%= number_to_currency(order.purchase_cost / 100.0) %>
       <% else %>
-        <span class="text-gray-400">Price unavailable</span>
+        <span class="text-gray-600">Price unavailable</span>
       <% end %>
     </p>
   </div>

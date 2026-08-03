@@ -198,8 +198,8 @@ Counts are indicative, found by pattern matching - confirm by reading the file.
 
 ### Still open
 
-- [ ] Faint text (19) - needs case-by-case re-measurement; some sit on tinted rather than white surfaces.
-- [ ] `outline-none` (16) - all now paired with a visible `focus:ring`; believed to be false positives, worth confirming.
+- [x] **Faint text (19 -> 4, all justified)** - 15 fixed. Empty-state guidance and content (usernames, tickers, no-username labels, price fallback) raised to gray-600 (7.56:1); em-dash no-value markers and a search placeholder to gray-500 (4.83:1). The 4 remaining are deliberate: 2 disabled pagination spans (WCAG 1.4.3 exempts inactive components; added aria-disabled so the state is conveyed programmatically), 1 dark-mode-only variant (6.99:1 on dark), and 1 decorative empty-state icon whose meaning comes from adjacent text (gray-300 -> gray-400 for visibility).
+- [x] **outline-none (21 checked)** - confirmed rather than assumed: 20 pair the removal with an explicit ring colour and are genuinely fine. 1 real failure on the order form shares field, where the border measured 1.14:1 and the focus ring 1.99:1, both under the 3:1 WCAG 1.4.11 requires. Now a gray-500 border with a sitf-primary ring.
 - [ ] Off-brand focus rings (`ring-blue-500`/`ring-indigo-500`) - compliant but inconsistent with the brand.
 - [ ] Arbitrary `[var(--sitf-*)]` values in markup (~10) - bypass the token layer the same way raw hex did.
 - [ ] 21 unused custom CSS classes in `admin.css`/`shadcn.css`.

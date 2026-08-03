@@ -15,7 +15,7 @@
       <% if collection.prev_page %>
         <%= link_to "Previous", request.params.merge(page: collection.prev_page), class: "relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" %>
       <% else %>
-        <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-400 bg-gray-100 cursor-not-allowed">
+        <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-400 bg-gray-100 cursor-not-allowed" aria-disabled="true">
           Previous
         </span>
       <% end %>
@@ -23,7 +23,7 @@
       <% if collection.next_page %>
         <%= link_to "Next", request.params.merge(page: collection.next_page), class: "ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" %>
       <% else %>
-        <span class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-400 bg-gray-100 cursor-not-allowed">
+        <span class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-400 bg-gray-100 cursor-not-allowed" aria-disabled="true">
           Next
         </span>
       <% end %>
