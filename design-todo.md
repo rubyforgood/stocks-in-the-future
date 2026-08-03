@@ -44,8 +44,8 @@ Counts are indicative, found by pattern matching - confirm by reading the file.
 - [ ] `layouts/_navbar.html.erb` - 5 hex, 4 img no alt, 1 div-as-button, 2 FA icon
 - [ ] `layouts/_stock_item.html.erb` - clean
 - [ ] `layouts/_stock_ticker.html.erb` - clean
-- [ ] `layouts/admin.html.erb` - 1 off-tier bp, 1 div-as-button, 1 FA icon
-- [ ] `layouts/application.html.erb` - 7 hex, 1 off-tier bp
+- [ ] `layouts/admin.html.erb` - 1 off-tier bp, 1 div-as-button, 1 FA icon (partially done: `lang="en"` added)
+- [x] `layouts/application.html.erb` - **done**: tokens, `lang="en"`, per-page `<title>`, skip link, semantic `<header>`/`<main id="main-content">`, 44px menu target, extracted `_flash`
 - [ ] `shared/_earnings_to_invest_card.html.erb` - clean
 - [ ] `shared/_modal.html.erb` - 1 faint text, 1 div-as-button
 - [ ] `shared/_table_container.html.erb` - clean
@@ -57,7 +57,7 @@ Counts are indicative, found by pattern matching - confirm by reading the file.
 - [ ] `devise/passwords/new.html.erb` - 1 hex, 4 off-tier bp, 1 faint text
 - [ ] `devise/registrations/edit.html.erb` - clean
 - [ ] `devise/registrations/new.html.erb` - 1 faint text
-- [ ] `devise/sessions/new.html.erb` - 1 hex, 5 off-tier bp, 2 faint text
+- [x] `devise/sessions/new.html.erb` - **done**: visible labels (was placeholder-only), tokens, single `h1`, 44px targets, base+lg only, brand focus rings, 2 faint text
 - [ ] `devise/shared/_error_messages.html.erb` - clean
 - [ ] `devise/shared/_links.html.erb` - clean
 - [ ] `devise/unlocks/new.html.erb` - clean
@@ -167,7 +167,9 @@ Counts are indicative, found by pattern matching - confirm by reading the file.
 
 ## Cross-cutting work items
 
-- [ ] Add SITF brand colours as semantic tokens so pages stop hardcoding hex.
+- [x] Fix invalid `focus-visible:ring-2a` in `input_helper.rb` - it compiled to nothing, leaving inputs app-wide with no designed focus indicator. Now an explicit 2px `sitf-primary` ring at 5.9:1.
+
+- [x] Add SITF brand colours as semantic tokens so pages stop hardcoding hex. **done**: `sitf-surface`, `sitf-primary`, `sitf-primary-dark`, `sitf-on-primary`, `sitf-secondary`, `sitf-accent`, `sitf-warning`, `sitf-danger` in `tailwind.config.css`, sourced from `shadcn.css`.
 - [ ] Replace the Font Awesome CDN link with local SVG icons (78 usages).
 - [ ] Sweep `sm:`/`md:`/`xl:`/`2xl:` down to `base` + `lg:` (153 usages).
 - [ ] Add `scope` to every `<th>` (58 usages).

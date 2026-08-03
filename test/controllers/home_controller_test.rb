@@ -20,7 +20,7 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     get root_url
 
     assert_response :success
-    assert_select "title", /StocksInTheFuture/i
+    assert_select "title", /Stocks in the Future/i
   end
 
   test "index responds with HTML when authenticated" do

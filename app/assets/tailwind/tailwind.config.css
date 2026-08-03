@@ -41,6 +41,22 @@
   --color-card: hsl(var(--card));
   --color-card-foreground: hsl(var(--card-foreground));
 
+  /* SITF brand palette -> Tailwind utilities.
+     Values live once in shadcn.css; this block only exposes them as
+     background, text and border utilities so views never hardcode hex.
+     Contrast measured against --sitf-background (#f7f9f3):
+       sitf-primary       5.82:1  AA body text
+       sitf-primary-dark  8.50:1  AA body text
+       sitf-accent        1.37:1  FILL ONLY - never text or icons */
+  --color-sitf-surface: var(--sitf-background);
+  --color-sitf-primary: var(--sitf-primary-chart1);
+  --color-sitf-primary-dark: var(--sitf-primary-dark);
+  --color-sitf-on-primary: var(--sitf-primary-secondary-foreground-card);
+  --color-sitf-secondary: var(--sitf-secondary-chart2);
+  --color-sitf-accent: var(--sitf-accent1-chart3);
+  --color-sitf-warning: var(--sitf-accent2-chart5);
+  --color-sitf-danger: var(--sitf-status-destructive);
+
   /* Border radius */
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);

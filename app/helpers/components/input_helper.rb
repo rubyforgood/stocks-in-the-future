@@ -47,9 +47,15 @@ module Components
       " border-0 focus-visible:outline-hidden focus-visible:shadow-none focus-visible:ring-transparent"
     end
 
+    # Focus ring: explicit brand colour at 2px with an offset.
+    # `ring-2a` was an invalid class that compiled to nothing, and no ring
+    # colour was set, so the indicator fell back to currentColor by accident
+    # while `border-muted` lightened the boundary on focus. sitf-primary on
+    # white measures 5.9:1, clearing the 3:1 required by WCAG 1.4.11.
     def border_variant_default_styling
-      "shadow-xs focus-visible:outline-hidden focus-visible:ring-2a " \
-        "focus-visible:ring-3 focus-visible:ring-offset-2 focus-visible:border-muted"
+      "shadow-xs focus-visible:outline-hidden focus-visible:ring-2 " \
+        "focus-visible:ring-sitf-primary focus-visible:ring-offset-2 " \
+        "focus-visible:border-sitf-primary"
     end
   end
 end
