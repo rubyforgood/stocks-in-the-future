@@ -278,3 +278,237 @@ No architectural work has been done. **When it begins, a migration map goes here
 breaks — before any code moves. Tier 3 items in `design-todo.md` (student
 information architecture, teacher bulk grade entry, the earnings feedback loop)
 would each need one.
+
+---
+
+# Migration map: Tier 3
+
+Written before any code moves, per the convention above. This is an analysis and a
+proposal, not a record of work done — nothing in this section has been built.
+
+**Two of the three Tier 3 items I originally proposed rested on premises that turned
+out to be false.** I have corrected them below rather than carrying them forward.
+Read the "what I got wrong" note in each case.
+
+## Current structure
+
+Evidenced from the routes, the sidebar, and what each template renders.
+
+### Student-facing destinations — four
+
+| Destination | Route | Shows |
+|---|---|---|
+| Home | `/` | Welcome, "Earnings to invest" figure, announcements, a static four-step explainer |
+| My portfolio | `/users/:id/portfolios/:id` | Value chart, three stats, holdings table, earnings summary by category |
+| Transactions | `/orders` | Orders table with status |
+| Trading floor | `/stocks` | Active and archived stock lists, buy/sell entry points |
+
+### The cash figure appears in four places
+
+`Portfolio#cash_balance` is rendered on Home ("Earnings to invest"), the portfolio
+page ("Total cash value"), the trading floor (via `shared/_earnings_to_invest_card`)
+and the order form ("Available cash"). Four labels, one number. That is not a bug,
+but it means the student's most important figure has no single home.
+
+### How earnings actually reach a student
+
+```
+Teacher enters grades in a grade book  (grade_books#update, autosaved)
+        ↓
+Admin finalizes the grade book         (grade_books#finalize — admin only)
+        ↓
+DistributeEarnings.execute             (attendance, math, reading, per entry)
+        ↓
+PortfolioTransaction deposits          (with a reason)
+        ↓
+Portfolio#cash_balance rises           (visible to the student)
+```
+
+Two properties of this chain matter for the architecture:
+
+1. **`GradeBookPolicy#finalize?` is `user.admin?`.** A teacher can enter grades but
+   cannot release the earnings they produce. The step that makes a student's work
+   visible to them is held by someone outside the classroom.
+2. **Quarters carry no dates** — the schema has `number` and `name` only. So the
+   cadence is whatever a school decides, and the earnings latency is effectively one
+   quarter.
+
+### What a student cannot see
+
+`grade_entry`, `math_grade`, `reading_grade` and `attendance_days` appear in exactly
+three templates: the two teacher-facing grade book partials, and
+`admin/students/show`. **No student-facing view renders them.**
+
+So a student sees the *effect* — "Attendance earnings $5.00" in the earnings
+summary — and never the *cause*: which grades, how many days, or what would change
+it. The product's central feedback loop is one-directional.
+
+## The three Tier 3 items, re-examined
+
+### Item 10 — student information architecture. **Stands, but narrowed.**
+
+I originally said a student's question *"am I doing well, and why?"* requires
+assembling four screens. Half right. The *"am I doing well"* half is answerable
+today: the portfolio page has the value chart, the stats and the holdings.
+
+The *"why"* half is not answerable at all, on any screen, because the grades that
+generated the earnings are invisible to students. That is the real finding, and it is
+narrower and more actionable than "reshape the navigation".
+
+**So the work is not a new dashboard. It is making cause visible.**
+
+### Item 11 — teacher bulk grade entry. **Withdrawn: it already exists.**
+
+**What I got wrong.** I wrote that "grade entry appears row-by-row" and proposed
+bulk entry with keyboard navigation. I had not read `grade_books/_table.html.erb`.
+It renders every student's entry in a single form via
+`fields_for "grade_entries[]"`, with one submit for the whole grade book and a
+30-second autosave. It is already bulk entry.
+
+**What is genuinely missing, found while checking.** Nothing in application code
+creates `GradeEntry` records — the only code path that does is `db/seeds`. Grade
+*books* are created automatically per quarter by
+`Classroom#create_gradebooks_for_quarters`, but their entries are not. A teacher
+opening a real grade book therefore sees "No grade entries for this grade book yet"
+and has no way to add their students.
+
+That is a functional blocker, not an architecture question, and it blocks the entire
+earnings mechanism: no entries means no grades, which means nothing to distribute.
+**It should be fixed before any Tier 3 work and does not need a migration map.**
+
+### Item 12 — feedback loop timing. **Stands.**
+
+Earnings arrive only when an admin finalizes a grade book, so cause and effect are
+separated by a quarter. A student cannot see what their current attendance is worth
+until the quarter closes and someone else acts.
+
+## Target structure
+
+Deliberately conservative. It adds one destination and one concept, and leaves the
+existing four destinations and every route in place.
+
+### Add: an "Earnings" destination
+
+A student-facing view of the grade entries that belong to them — attendance days,
+math and reading grades, per quarter — alongside the earnings each produced. This is
+the missing half of the loop.
+
+It needs:
+
+- A `GradeEntryPolicy` allowing a student to read **their own** entries. None exists
+  today; grade entries are reachable only through `GradeBookPolicy`, which is scoped
+  to teachers and admins.
+- A read-only presentation. Students must never write to a grade entry.
+- A distinction between **finalized** and **in progress**. A grade book that is not
+  yet finalized holds provisional data, and showing it as fact would be misleading.
+
+### Add: projected earnings, clearly labelled as projected
+
+Once a student can see the current quarter's entry, the value it *would* produce is
+computable from `DistributeEarnings`' existing rules. That closes the timing gap
+without changing when money actually moves.
+
+This requires extracting the earnings calculation from `DistributeEarnings`, which
+currently computes and writes in the same pass. A pure calculator, used by both the
+distributor and the projection, keeps one definition of the rules.
+
+### Leave alone
+
+- The four existing destinations and all routes. Navigation stays.
+- When money moves. Projection is a display, not a change to the ledger.
+- The trading fee mechanism.
+- `GradeBookPolicy#finalize?` remaining admin-only. Whether teachers should finalize
+  their own classroom's grades is a policy question for the maintainers, not a
+  refactor.
+
+## Order of moves, and what each one breaks
+
+Each step is independently shippable and independently revertible. Nothing later
+depends on anything earlier being perfect.
+
+### Step 0 — Create grade entries from application code *(prerequisite, not Tier 3)*
+
+Give teachers a way to populate a grade book from its classroom's enrolled students.
+
+- **Breaks:** nothing. Purely additive.
+- **Risk:** low, but it writes records that feed the money path, so entries must be
+  idempotent — one per student per grade book. The unique index on
+  `[grade_book_id, user_id]` already enforces this at the database level.
+- **Tests first:** creating entries twice must not duplicate; a student enrolled
+  later must be addable without disturbing existing grades.
+- **Why first:** without it, nothing downstream is observable in a real environment.
+
+### Step 1 — Extract the earnings calculation
+
+Split `DistributeEarnings` into a pure calculator (entry plus previous entry in,
+amounts out) and a writer that persists what the calculator returns.
+
+- **Breaks:** nothing visible. `DistributeEarnings.execute` keeps its signature.
+- **Risk:** this is the money path. The calculator must be provably identical to the
+  current behaviour before anything else uses it.
+- **Tests first:** characterisation tests pinning the *current* outputs for
+  attendance, math and reading, including the previous-quarter comparison, written
+  and passing against the existing code before the extraction.
+- **Watch for:** `find_previous_entries` returns `{}` when there is no previous
+  quarter. First-quarter behaviour is a real branch and needs a test.
+
+### Step 2 — Student-readable grade entries
+
+Add `GradeEntryPolicy` (a student reads only their own), a scope, and a read-only
+view of the current and past quarters' entries.
+
+- **Breaks:** nothing. New policy, new route, new view.
+- **Risk:** authorization. A student must never read another student's entry. This is
+  the one step where a mistake is a privacy incident rather than a visual bug.
+- **Tests first:** a student can read their own entry; a student cannot read another's;
+  a teacher can read entries in their classroom; a student cannot write.
+- **Watch for:** `policy_scope` is used elsewhere in this app — follow that pattern
+  rather than filtering in the controller.
+
+### Step 3 — Show earnings against their cause
+
+On the new view, pair each quarter's entry with the earnings it produced, using the
+existing `reason` values on the deposits.
+
+- **Breaks:** nothing.
+- **Risk:** low. Read-only presentation.
+- **Watch for:** deposits carry a `reason` but no link to the grade book that caused
+  them, so pairing is by reason and time rather than by association. If that proves
+  ambiguous, associating the deposit with its grade book is a schema change and its
+  own step — **not** something to slip into this one.
+
+### Step 4 — Projected earnings for the open quarter
+
+Use the Step 1 calculator to show what the current, unfinalized entry would be worth.
+
+- **Breaks:** nothing in the ledger.
+- **Risk:** the projection must be unmistakably a projection. If a student reads it as
+  money they have, that is worse than not showing it. It must never be added to a
+  balance, and the copy must distinguish it.
+- **Tests first:** projected figures do not appear in `cash_balance`, and a finalized
+  quarter shows actual rather than projected.
+
+## Open product decisions
+
+These are not mine to make, and Steps 2–4 are shaped by them.
+
+1. **Should students see provisional grades at all?** A teacher part-way through
+   entering a quarter's grades has incomplete data. Showing it is honest about
+   progress but may cause anxiety or arguments; hiding it until finalized preserves the
+   current latency. **Step 2 needs this answered.**
+2. **Should teachers be able to finalize their own classroom's grade books?**
+   Currently admin-only, so the step that releases earnings sits outside the
+   classroom. This is a trust and workflow question, not a technical one.
+3. **Is a projection desirable pedagogically?** It tightens the feedback loop, which
+   is the product's mechanism. It also lets a student watch a number move without any
+   money existing, which may read as a promise.
+
+## What I am not proposing
+
+- No new navigation structure. The four destinations work; the gap was a missing view,
+  not a wrong hierarchy.
+- No consolidated dashboard. My original framing suggested one; having read the
+  screens, the portfolio page already is one.
+- No change to when money moves.
+- No schema changes in Steps 0–4. If pairing deposits to grade books in Step 3 proves
+  ambiguous, that becomes a separate step with its own map entry.
