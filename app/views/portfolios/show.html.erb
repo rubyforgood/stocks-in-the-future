@@ -33,25 +33,30 @@
     <div class="flex flex-col gap-6 lg:col-span-2">
       <%= render 'portfolios/portfolio_chart' %>
 
+      <%# Three stats, on the shared _stat primitive rather than hand-rolled cards
+          with a 22px radius and a black/30 border.
+
+          "Total earnings" and "Total cash value" both rendered
+          @portfolio.cash_balance - the same number under two different labels.
+          Earnings now come from the EarningsSummary already loaded for the panel
+          further down this page, which is what the label describes. %>
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <%# Total Earnings Card %>
-        <div class="bg-white rounded-[22px] border border-black/30 py-4 px-5 flex flex-col justify-between min-h-[120px]">
-          <div class="text-sm text-slate-600">Total earnings</div>
-          <div class="text-2xl font-semibold tabular-nums"><%= number_to_currency(@portfolio.cash_balance) %></div>
-          <div><%# Trending up/down this month will go here %></div>
-        </div>
-        <%# Total Cash Value %>
-        <div class="bg-white rounded-[22px] border border-black/30 py-4 px-5 flex flex-col justify-between min-h-[120px]" data-testid="cash-balance">
-          <div class="text-sm text-slate-600">Total cash value</div>
-          <div class="text-2xl font-semibold tabular-nums"><%= number_to_currency(@portfolio.cash_balance) %></div>
-          <div><%# Trending up/down this month will go here %></div>
-        </div>
-        <%# Total Stocks %>
-        <div class="bg-white rounded-[22px] border border-black/30 py-4 px-5 flex flex-col justify-between min-h-[120px]" data-testid="total-stocks">
-          <div class="text-sm text-slate-600">Total stocks</div>
-          <div class="text-2xl font-semibold"><%= @portfolio.portfolio_stocks.sum(:shares).to_i %></div>
-          <div><%# Trending up/down this month will go here %></div>
-        </div>
+        <%= render "components/ui/stat",
+                   label: "Total earnings",
+                   value: number_to_currency(@earnings_summary.total_earnings_cents / 100.0),
+                   hint: "Attendance, reading, math and rewards" %>
+
+        <%= render "components/ui/stat",
+                   label: "Total cash value",
+                   value: number_to_currency(@portfolio.cash_balance),
+                   hint: "Available to invest",
+                   testid: "cash-balance" %>
+
+        <%= render "components/ui/stat",
+                   label: "Total stocks",
+                   value: @portfolio.portfolio_stocks.sum(:shares).to_i,
+                   hint: "Shares held across all companies",
+                   testid: "total-stocks" %>
       </div>
       <!-- Holdings Table -->
       <div class="rounded-xl border border-black/60 bg-white overflow-hidden" data-testid="holdings-table">

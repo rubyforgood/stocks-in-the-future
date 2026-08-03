@@ -53,20 +53,35 @@ decision first.
 Never all-caps, and never the `uppercase` CSS transform on labels — use size,
 weight and colour for hierarchy.
 
-A view grep will not keep this done. Copy hides in five places a naive pattern
-misses:
+**A view grep will not keep this done.** It took six passes here, each finding
+copy the previous one structurally could not see:
 
-1. Text inside a `link_to ... do` block, which sits on its own line so no
-   `link_to "..."` pattern sees it.
-2. Multi-line `link_to` calls where the label is alone on a line.
-3. `config/locales/en.yml`, including `activerecord.attributes` names that
-   surface in validation messages.
-4. Table cells, definition lists and spans, not just headings.
-5. Test assertions and Capybara interactions (`assert_button`, `click_button`,
-   `fill_in`) that reference the copy.
+1. Headings, `form.label`, `form.submit`, placeholders.
+2. Table cells, definition lists, spans.
+3. `link_to` / `button_to` label arguments.
+4. Text inside a `link_to ... do` block — it sits on its own line, so no
+   `link_to "..."` pattern ever matches it. Same for labels alone on a line in
+   multi-line calls.
+5. `div`, `label` and `th` text nodes.
+6. The `uppercase` CSS transform written inline in markup, and copy whose
+   punctuation broke the pattern (`Perfect Attendance?`).
+
+**The hard limit: copy that is not a literal cannot be swept.** The portfolio
+heading was `username.upcase` plus PORTFOLIO in capitals. No text search would
+ever have found it — only reading the rendered page did. So:
+
+- **Look at the rendered page**, not just the templates, before calling it done.
+- Grep for `.upcase`, `.titleize`, `.capitalize` in views and helpers.
+  `stock.ticker.upcase` and an avatar initial are correct; a heading is not.
+- Grep for `uppercase` in markup as well as stylesheets.
+- `config/locales/en.yml` counts, including `activerecord.attributes` names that
+  surface inside validation messages.
+- Propagate to tests from the **views diff**, never by running the converter over
+  test files — those hold fixture data and real company names.
 
 And Title Case is sometimes correct: acronyms, tickers, CamelCase like
-`DateTime`, company names, and people's names. Protect those.
+`DateTime`, company names, and people's names. Two were caught mid-sweep and
+reverted: `John Doe` and `DateTime`.
 
 ## Components
 
@@ -103,3 +118,15 @@ name the ring colour.
 
 `bg-opacity-*` and `ring-opacity-*` were removed in Tailwind v4 and compile to
 nothing. Use the slash syntax (`bg-black/50`).
+
+## Comments are not inert
+
+A comment containing its own terminator ends early, and the remainder becomes
+content. I did this twice on this branch: a `*/` inside a CSS comment broke the
+Tailwind build, and a `%>` inside an ERB comment leaked a whole sentence onto a
+rendered page as visible text. Don't write those sequences inside the comment that
+uses them.
+
+Relatedly, interpolating an optional HTML attribute yields an *unquoted*
+attribute, which CSS and Capybara selectors will not match. Use `tag.div`, which
+omits nil attributes entirely.

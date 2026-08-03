@@ -8,9 +8,10 @@
    Principles applied:
    - Hairline horizontal dividers only. No vertical rules, no outer heavy
      border. Columns are separated by alignment and whitespace, not lines.
-   - The header is chrome, not content: text-xs, medium weight, uppercase with
-     slight tracking, muted foreground on a very light fill. design.md reserves
-     text-xs for exactly this - short glanceable strings like column headers.
+   - The header is chrome, not content: text-xs, semibold, muted foreground on a
+     very light fill, and no uppercase transform - design.md says to use size,
+     weight and colour for hierarchy rather than shouting. design.md reserves
+     text-xs for exactly this: short glanceable strings like column headers.
    - Rows are tall enough to be a comfortable touch target and to let dense
      text breathe (min-h-14 = 56px, above the 44px floor).
    - Row hover gives a scanning anchor on wide screens.

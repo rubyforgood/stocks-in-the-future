@@ -3,11 +3,11 @@
     <table class="min-w-full divide-y divide-slate-200">
       <thead class="bg-slate-50">
         <tr>
-          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Student [Username]</th>
-          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Portfolio value</th>
+          <th scope="col" class="table-header-cell table-header-cell-left">Student</th>
+          <th scope="col" class="table-header-cell table-header-cell-left">Portfolio value</th>
           <% if @can_manage_students %>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Available cash</th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Actions</th>
+            <th scope="col" class="table-header-cell table-header-cell-left">Available cash</th>
+            <th scope="col" class="table-header-cell table-header-cell-left">Actions</th>
           <% end %>
         </tr>
       </thead>

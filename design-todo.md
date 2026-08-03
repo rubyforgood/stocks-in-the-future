@@ -240,6 +240,48 @@ doing UI work. Both are recorded here because they were found during it.
       least states the rule it currently follows: charged once while an order is
       outstanding, not once per order.
 
+
+## Sentence case - treat as verified-so-far, not done
+
+design.md requires sentence case everywhere, never all-caps, and no `uppercase`
+CSS transform on labels. That is now true of everything found, across **six
+passes** - and the reason it took six is worth recording, because a seventh is
+likely.
+
+Each pass found copy the previous one structurally could not see:
+
+1. Headings, `form.label`, `form.submit`, placeholders.
+2. Table cells, definition lists, spans.
+3. `link_to` / `button_to` label arguments, single line.
+4. Text inside a `link_to ... do` block, which sits on its own line so no
+   `link_to "..."` pattern ever matches it. Also labels alone on a line in
+   multi-line calls.
+5. `div`, `label` and `th` text nodes.
+6. The `uppercase` CSS transform written inline in markup (24 places), plus
+   copy whose punctuation broke the Title Case pattern (`Perfect Attendance?`).
+
+**The hard limit: copy that is not a literal cannot be swept.** The portfolio
+heading was built as `username.upcase` plus the word PORTFOLIO in capitals. No
+text search over the views would ever have found it - it was only caught by
+reading the page. The same applies to `titleize`, `humanize` and anything
+assembled at runtime.
+
+So the standing checks are:
+
+- [ ] Before claiming sentence case is complete, **look at the rendered page**,
+      not just the templates.
+- [ ] Grep for `.upcase`, `.titleize` and `.capitalize` in views and helpers.
+      `stock.ticker.upcase` and an avatar initial are correct; a heading is not.
+- [ ] Grep for `uppercase` in markup as well as stylesheets.
+- [ ] Copy also lives in `config/locales/en.yml`, including
+      `activerecord.attributes` names that surface inside validation messages.
+- [ ] When copy changes, propagate to tests from the **views diff**, not by
+      re-running the converter over test files - those contain fixture data and
+      real company names that must not be rewritten.
+- [ ] Title Case is sometimes correct: acronyms, tickers, CamelCase such as
+      `DateTime`, company names, and people's names. Two were caught mid-sweep
+      and reverted: `John Doe` and `DateTime`.
+
 ## Page rebuilds
 
 Foundations are applied everywhere - Figtree, slate, tokens, the table system,

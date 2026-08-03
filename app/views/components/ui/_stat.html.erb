@@ -1,0 +1,23 @@
+<%# A single headline figure with its label.
+
+    Stripe reading: the number is the content, so it gets the size and weight and
+    the label stays quiet above it. Figures use tabular-nums so a row of stats
+    lines up rather than jittering.
+
+    Built with tag.div rather than a literal element because the optional
+    data-testid has to be omitted entirely when absent - interpolating it into the
+    markup produced an unquoted attribute that selectors could not match.
+
+    Locals:
+      label  - what the figure is
+      value  - the figure, already formatted
+      hint   - optional supporting line
+      testid - optional data-testid, for tests targeting a specific stat %>
+<%= tag.div class: "rounded-xl border border-slate-200 bg-white p-5 shadow-xs",
+            data: { testid: local_assigns[:testid] } do %>
+  <p class="text-sm font-medium text-slate-600"><%= label %></p>
+  <p class="mt-1 text-2xl font-bold tracking-tight text-slate-900 tabular-nums"><%= value %></p>
+  <% if local_assigns[:hint].present? %>
+    <p class="mt-1 text-xs text-slate-500"><%= hint %></p>
+  <% end %>
+<% end %>
