@@ -34,43 +34,22 @@ class NavbarPolicyVisibilityTest < ActionDispatch::IntegrationTest
     assert_select "a", text: "Admin"
   end
 
-  test "navbar shows only active stocks" do
-    active_stock = create(:stock, archived: false, ticker: "AAPL")
-    archived_stock = create(:stock, archived: true, ticker: "DEAD")
-
+  # The four tests that used to live here asserted on the per-stock sublist under the Trading
+  # floor disclosure - which stocks a student could see in the *navigation*. The nav is one
+  # level deep now (migration.md, Map A), so that subject moved to the trading floor page in
+  # stocks_controller_test, where the catalogue actually lives. It was not deleted: the page
+  # gives it a better home, since the page distinguishes active from archived rather than
+  # hiding archived entirely.
+  test "the trading floor is a flat nav row with no stock sublist" do
+    create(:stock, archived: false, ticker: "AAPL")
     sign_in @student
+
     get root_path
 
-    assert_select "p", text: active_stock.ticker
-    assert_select "p", text: archived_stock.ticker, count: 0
-  end
-
-  test "navbar stocks are displayed in trading floor dropdown" do
-    active_stock1 = create(:stock, archived: false, ticker: "AAPL")
-    active_stock2 = create(:stock, archived: false, ticker: "GOOGL")
-    archived_stock = create(:stock, archived: true, ticker: "DEAD")
-
-    sign_in @student
-    get root_path
-
-    assert_select "details[data-controller='stock-navbar-toggle']" do
-      assert_select "p", text: active_stock1.ticker
-      assert_select "p", text: active_stock2.ticker
-    end
-
-    assert_select "details[data-controller='stock-navbar-toggle']" do
-      assert_select "p", text: archived_stock.ticker, count: 0
-    end
-  end
-
-  test "navbar stocks link to correct stock paths" do
-    active_stock = create(:stock, archived: false, ticker: "AAPL")
-
-    sign_in @student
-    get root_path
-
-    assert_select "a[href='#{stock_path(active_stock)}']" do
-      assert_select "p", text: active_stock.ticker
+    assert_select "nav[aria-label='Main']" do
+      assert_select "a", text: "Trading floor"
+      assert_select "details", count: 0
+      assert_select "a[href=?]", stock_path(Stock.find_by!(ticker: "AAPL")), count: 0
     end
   end
 end

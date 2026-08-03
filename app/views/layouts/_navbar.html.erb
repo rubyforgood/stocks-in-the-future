@@ -1,4 +1,10 @@
 <%# Sidebar navigation.
+
+    Every row is a flat link, one level deep. It used to take a `stocks:` local and render one
+    row per active stock under a Trading floor disclosure - a catalogue in the navigation, which
+    also meant a policy_scope query on every request for a list only the sidebar read. Both are
+    gone; see migration.md, Map A.
+
     Mobile open/close is CSS-only via the peer checkbox below - no JavaScript.
     Active state carries aria-current="page" so it is not signalled by colour
     alone (WCAG 1.4.1). Icons are decorative: each sits beside a text label, so
@@ -59,45 +65,14 @@
           <% end %>
         <% end %>
 
-        <%# Trading Floor, with a collapsible list of stocks. %>
-        <li>
-          <% active = request.path.include?("stocks") %>
-          <details <%= "open" if active %> data-controller="stock-navbar-toggle">
-            <summary class="<%= nav_row_class(active: active) %> list-none cursor-pointer justify-between">
-              <%= link_to stocks_path, aria: { current: ("page" if active && request.path == stocks_path) }, class: "flex flex-1 items-center gap-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary", data: { action: "click->stock-navbar-toggle#navigateLink" } do %>
-                <span class="<%= nav_indicator_class(active: active) %>" aria-hidden="true"></span>
-                <span class="flex h-5 w-5 shrink-0 items-center justify-center" aria-hidden="true">
-                  <%= lucide_icon("chart-no-axes-combined", class: nav_icon_class(active: active)) %>
-                </span>
-                <span>Trading floor</span>
-              <% end %>
-
-              <%# Real button, not a clickable div, so it is keyboard operable. %>
-              <button type="button" class="flex items-center justify-center w-11 h-11 -mr-2 rounded-lg text-slate-500 hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary" data-action="click->stock-navbar-toggle#toggleChevron">
-                <span class="sr-only">Toggle stock list</span>
-                <svg class="icon-down w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                </svg>
-                <svg class="icon-up w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
-                </svg>
-              </button>
-            </summary>
-
-            <ul class="flex flex-col items-start justify-start p-2 ml-6">
-              <% stocks.each do |stock| %>
-                <% stock_active = request.path == stock_path(stock) %>
-                <li class="w-full">
-                  <label for="mobile-menu-toggle" class="block lg:cursor-default cursor-pointer w-full">
-                    <%= link_to stock_path(stock), aria: { current: ("page" if stock_active) }, class: "flex gap-2 min-h-11 w-full items-center justify-start rounded-lg px-3 py-2 text-sm hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary #{stock_active ? 'font-semibold text-sitf-primary-dark' : 'text-slate-700'}" do %>
-                      <p class="leading-none"><%= stock.ticker %></p>
-                    <% end %>
-                  </label>
-                </li>
-              <% end %>
-            </ul>
-          </details>
-        </li>
+        <%# Trading floor. Was a <details> disclosure listing every active stock, which put a
+            catalogue in the navigation and made this the only nav row with children - see
+            migration.md, Map A. Navigation holds destinations; the stocks live on the page
+            the row points at, which already lists them in labelled tables. %>
+        <% active = request.path.include?("stocks") %>
+        <%= render layout: "layouts/nav_item", locals: { path: stocks_path, label: "Trading floor", active: active } do %>
+          <%= lucide_icon("chart-no-axes-combined", class: nav_icon_class(active: active)) %>
+        <% end %>
       </ul>
     </div>
 

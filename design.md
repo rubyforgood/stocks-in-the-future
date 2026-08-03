@@ -236,19 +236,31 @@ admin you could not tell which section you were in.
 sublist while its siblings stay flat: the nav then has no consistent shape, and the expanding
 row ends up holding several controls at once.
 
-The Trading floor row is the standing exception and the reason for the rule. It is a
-`<details>` whose `<summary>` contains **both** a link and a chevron button, so one 44px row
-carries three overlapping affordances — the summary toggles, the link navigates, the button
-toggles — and a Stimulus controller exists purely to stop them fighting (`stopPropagation` on
-the link, `preventDefault` plus a manual `open` flip on the button). Its sublist is also
-unbounded: it renders one row per active stock, so the sidebar grows with the catalogue and
-repeats what the trading floor page already lists.
+The Trading floor row was the reason for the rule. It was a `<details>` whose `<summary>` held
+**both** a link and a chevron button, so one 44px row carried three overlapping affordances —
+the summary toggled, the link navigated, the button toggled — and a Stimulus controller existed
+purely to stop them fighting (`stopPropagation` on the link, `preventDefault` plus a manual
+`open` flip on the button). Its sublist rendered one row per active stock, so the sidebar grew
+with the catalogue. It is a flat link now; the controller and its chevron CSS are deleted.
 
 **A catalogue does not belong in the nav.** Navigation is for destinations; records live on the
-page that lists them. If a nav row genuinely needs children, cap them at something bounded and
-user-specific (what this student holds), never "all of them".
+page that lists them. The standard ways to reach an individual record quickly, in rough order
+of how common they are:
 
-Migration mapped in [`migration.md`](migration.md) — Map A.
+1. **Search and filter on the list page.** The list page owns discovery — this is what almost
+   every product does for a catalogue of any size, and it is the one that scales.
+2. **A command palette** (`⌘K`) once the catalogue is large enough that scanning is slow —
+   Stripe, Linear, GitHub, Notion.
+3. **Recently viewed**, bounded and per-user — Shopify, Salesforce.
+4. **Pinned or favourited items**, where the user chooses what earns a nav row.
+
+What none of them do is put every record in the sidebar. If a nav row genuinely needs children,
+cap them at something bounded and user-specific — here that would be *stocks this student
+holds*, not every stock that exists.
+
+For this app the answer is (1): the trading floor page already lists stocks in labelled active
+and archived tables, and the portfolio links to each holding. Recorded as done in
+[`migration.md`](migration.md) — Map A.
 
 **One drawer mechanism.** The mobile drawer is a Stimulus controller with a `<button>` trigger,
 not a hidden checkbox driven by `<label>`s. A `<label>` is announced as a **checkbox**, not as a

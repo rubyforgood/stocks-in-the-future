@@ -724,7 +724,26 @@ order, but the drawer one has a prerequisite that the nav-depth one does not.
 
 ---
 
-### Map A — Nav depth: the Trading floor disclosure
+### Map A — Nav depth: the Trading floor disclosure — **done**
+
+**Outcome.** The per-stock list was confirmed a leftover. Trading floor is a flat
+`nav_item` render like its four siblings; `stock_navbar_toggle_controller.js` and the chevron
+swap rules in `navbar.css` are deleted, and so are `set_navbar_stocks` and the `stocks:` local
+— that was a `policy_scope(Stock).active` query on **every request** for a list only the sidebar
+read.
+
+**The coverage moved rather than disappearing**, which was the substance of this map. Four
+tests in `navbar_policy_visibility_test` asserted which stocks a student could see *in the
+navigation*. They now live in `stocks_controller_test` against the trading floor page, and they
+test something truer there: the page separates **active** from **archived** in labelled tables,
+where the nav simply hid archived stocks. That page had almost no coverage before — one
+"responds 200" — so this is a net gain rather than a shuffle. What remains in the navbar test is
+a single assertion that the row is flat: no `<details>`, no per-stock links.
+
+**Industry standard, since it was asked:** navigation holds destinations, and a catalogue is
+reached through search and filter on its list page, with a command palette, recently-viewed, or
+pinned items as the escalations. None of them put every record in the sidebar. See design.md,
+Sidebar navigation.
 
 **Current structure.** Four of the five app nav items are flat links. Trading floor is a
 `<details data-controller="stock-navbar-toggle">` whose `<summary>` contains **two further
