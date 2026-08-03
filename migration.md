@@ -118,6 +118,48 @@ Added for show/hide dialogs whose content is already in the page, distinct from
 focus-move-in, focus trap and focus restore — the CSV import modal previously had
 four inline `onclick` handlers and none of those behaviours.
 
+### Header account menu, initials avatars, and a signed-out header
+
+**What.** `layouts/_account_menu` (a native `<details>/<summary>` disclosure),
+`dropdown_controller.js`, `AvatarHelper`, and `ApplicationHelper#account_role_label`. Both
+layouts render the menu top-right. The application layout also gained a signed-out header.
+
+**Why.** `design.md` already specified both pieces — its Dropdown section names "the header
+account menu" and there is a Person avatar spec — and neither existed. Beyond convention:
+nothing in the chrome said who was signed in, and these are shared school Chromebooks, so a
+student can land on a session someone else left open.
+
+**Behaviour changes worth knowing:**
+
+- **Sign out moved.** It is no longer in the sidebar; it lives only in the account menu.
+  There is one place to do it rather than the last item of a sidebar that collapses behind a
+  hamburger on a phone. The sidebar's bottom block now sits entirely behind the same policy
+  check as its Admin link, so the separator cannot render above an empty list.
+- **The admin bar lost its plain-text email and two bare links,** one of which was "Sign
+  out" in `red-600` on white — 4.0:1, under the gate. It renders the same menu now, with
+  "View site" as an extra link, so both layouts agree.
+- **Signed out there is now a header at all.** Logo plus one Sign in action, suppressed on
+  the sign-in page itself.
+
+**Avatars are initials, never images.** The users are schoolchildren; photographs would be a
+data-protection question rather than a design one. The tone comes from the name rather than
+the id, so it is stable across environments.
+
+**Two things verified rather than assumed:**
+
+- **Tailwind v4 does scan `.rb` files.** The avatar tone classes only exist in a Ruby helper,
+  which would render an avatar with no background if they were not generated. Confirmed by
+  putting a sentinel class in a helper, building, and finding it in the output — which also
+  retroactively confirms the `admin_*_button_class` helpers from the previous change.
+- **All six tone pairs measured**, 6.37:1 to 7.57:1 against their backgrounds.
+
+**Tested by clicking.** `test/system/account_menu_test.rb` opens the menu, signs out from
+both layouts, follows the portfolio link, and checks that Escape closes it and returns focus
+to the summary. A request test cannot tell an open disclosure from a closed one, since the
+links are in the DOM either way — `test/integration/account_header_test.rb` covers what it
+can: the name, role and initial render, the menu holds sign-out and the sidebar no longer
+does, and the signed-out header offers a way in.
+
 ### `PopulateGradeBook`, and a way to fill a grade book from the UI
 
 **What.** `app/services/populate_grade_book.rb`, plus a `populate` member route, a

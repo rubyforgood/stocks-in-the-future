@@ -100,12 +100,14 @@
       </ul>
     </div>
 
-    <%# Bottom section: Admin and Logout %>
-    <div class="flex flex-col items-center justify-start w-full mt-auto">
-      <div class="h-px w-full bg-sitf-primary-dark"></div>
-      <ul class="flex flex-col items-start justify-start w-full py-2">
-
-        <% if policy(Classroom).new? %>
+    <%# Bottom section: Admin. Signing out moved to the header account menu, so there is one
+        place to do it rather than the last item of a sidebar that collapses behind a
+        hamburger on a phone. The whole block sits behind the policy check now, so the
+        separator cannot render above an empty list. %>
+    <% if policy(Classroom).new? %>
+      <div class="flex flex-col items-center justify-start w-full mt-auto">
+        <div class="h-px w-full bg-sitf-primary-dark"></div>
+        <ul class="flex flex-col items-start justify-start w-full py-2">
           <% active = request.path.include?("admin") %>
           <li class="w-full">
             <label for="mobile-menu-toggle" class="block lg:cursor-default cursor-pointer w-full">
@@ -118,21 +120,9 @@
               <% end %>
             </label>
           </li>
-        <% end %>
-
-        <li class="w-full">
-          <label for="mobile-menu-toggle" class="block lg:cursor-default cursor-pointer w-full">
-            <%= link_to destroy_user_session_path, data: { turbo_method: :delete }, class: "flex items-center gap-x-4 min-h-11 px-6 py-3 text-sm font-semibold text-sitf-on-primary hover:bg-black/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white w-full" do %>
-              <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" />
-              </svg>
-              <span>Logout</span>
-            <% end %>
-          </label>
-        </li>
-
-      </ul>
-    </div>
+        </ul>
+      </div>
+    <% end %>
 
   </div>
 </nav>

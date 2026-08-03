@@ -30,8 +30,21 @@
           </label>
           <%= image_tag "SITF-Horz-no-tag-logo.svg", class: "h-8 w-auto", alt: "Stocks in The Future" %>
         </div>
-        <div class="hidden lg:block">
-          <%= render 'layouts/stock_ticker' %>
+        <div class="flex items-center gap-4">
+          <div class="hidden lg:block">
+            <%= render 'layouts/stock_ticker' %>
+          </div>
+
+          <%# Admin stays in the sidebar as navigation; the menu carries account actions. %>
+          <% account_links = [] %>
+          <% if current_user.portfolio && policy(current_user.portfolio).show? %>
+            <%# Named portfolio_target, not portfolio_path: that is a real route helper and
+                shadowing it here would be a trap for the next reader. %>
+            <% portfolio_target = user_portfolio_path(current_user, current_user.portfolio) %>
+            <% account_links << { label: "My portfolio", path: portfolio_target } %>
+          <% end %>
+
+          <%= render 'layouts/account_menu', extra_links: account_links %>
         </div>
       </header>
 
@@ -44,6 +57,19 @@
         <%= yield %>
       </main>
     <% else %>
+      <%# Signed out there was no header at all, so the only route in was whatever page you
+          happened to land on. The logo and one Sign in action, matching the signed-in bar. %>
+      <header class="flex h-16 w-full items-center justify-between px-6 py-4 bg-sitf-surface shadow-xs">
+        <%= link_to root_path, class: "inline-flex items-center rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary-dark" do %>
+          <%= image_tag "SITF-Horz-no-tag-logo.svg", class: "h-8 w-auto", alt: "Stocks in The Future" %>
+        <% end %>
+
+        <% unless request.path == new_user_session_path %>
+          <%= link_to "Sign in", new_user_session_path,
+                      class: "inline-flex min-h-11 items-center rounded-full bg-sitf-primary px-5 py-2 text-sm font-medium text-sitf-on-primary transition-colors hover:bg-sitf-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary-dark" %>
+        <% end %>
+      </header>
+
       <main id="main-content" class="min-h-screen overflow-auto p-6 bg-sitf-surface">
         <%= render 'layouts/flash' %>
 

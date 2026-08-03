@@ -1683,6 +1683,46 @@ the two copies never collide.
 `grid place-items-center h-9 w-9 rounded-full text-xs font-semibold` with a soft color
 pair (e.g. `bg-sky-100 text-sky-700`). **People only — never for status.**
 
+**Built here as `AvatarHelper`.** `avatar_tag(user)` renders it; `avatar_initials` takes one
+letter for a single-word name and two where the name separates on space, dot, underscore or
+hyphen (usernames here are usually one word, so one initial is the common case).
+
+- **Initials, never uploaded images.** The users are schoolchildren, so photographs are a
+  data-protection question rather than a design one.
+- **The tone is derived from the name**, not the id, so a person keeps the same colour in
+  every environment and a seeded record matches production.
+- **Six pairs, all 100/800**, measured at 6.37:1 to 7.57:1. `design.md`'s example used 700,
+  which also clears the gate; 800 buys margin on `text-xs`, and an avatar is exactly the
+  sort of near-decorative element where contrast gets skipped.
+- The initials are `aria-hidden`: they repeat the name beside them, and announcing "F"
+  adds nothing. **So an avatar-only control still needs its own visually hidden text.**
+- Tone classes live in a Ruby helper. Tailwind v4's automatic source detection does scan
+  `.rb` files — verified by putting a sentinel class in a helper and finding it in the
+  built CSS — so this generates correctly without an `@source` directive.
+
+### Header account menu
+**Every layout's top bar carries one**, on the right: initials avatar, the name at `lg` and
+up, a chevron. It is a native `<details>/<summary>` disclosure (see Dropdown / popover) so
+it works without JS, and the `dropdown` controller adds outside-click and Escape with focus
+returning to the summary.
+
+The panel holds a `bg-slate-50` identity block — name and role — then the account links,
+then Sign out. **No rule separates them**: the tint groups the identity block, so the panel
+does not need a divider.
+
+Why it matters more here than convention would suggest: nothing in the chrome used to say
+who was signed in, and these are shared school Chromebooks, so a student can land on a
+session someone else left open. Signing out was the last item in a sidebar that collapses
+behind a hamburger on a phone. **Sign out now lives only in this menu**, so there is one
+place to do it.
+
+**Signed out, the same bar shows the logo and a single Sign in action** — suppressed on the
+sign-in page itself, which would otherwise link to the page you are already on. Before this
+there was no header at all when signed out.
+
+Test it by clicking. A request-level test cannot tell an open disclosure from a closed one,
+because the links are in the DOM either way.
+
 ### Contact medium (card meta line)
 A case contact's medium (in person / video / voice / text / letter) is **how** the contact happened --
 a fact peer to date, duration, and miles. Show it as **plain text in the card meta line**

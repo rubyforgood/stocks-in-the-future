@@ -1,6 +1,16 @@
 # frozen_string_literal: true
 
 module ApplicationHelper
+  # Shown under the name in the account menu, so it is obvious which kind of account is
+  # signed in. Admin is checked first because an admin is also a User by type.
+  def account_role_label(user)
+    return "Admin" if user.admin?
+    return "Teacher" if user.teacher?
+    return "Student" if user.student?
+
+    "Account"
+  end
+
   def ticker_stocks
     Stock.active.order(:ticker)
   end
