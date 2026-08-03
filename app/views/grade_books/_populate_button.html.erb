@@ -1,0 +1,13 @@
+<%# Adds the classroom's students to this grade book.
+
+    turbo_frame: "_top" for the same reason the finalize button sets it: this page
+    lives inside a turbo frame, but the flash that reports the result is rendered by
+    the layout outside that frame, so a frame-scoped response would swallow it.
+
+    Locals:
+      label - button text, sentence case
+      style - button class to use %>
+<%= button_to label,
+              populate_classroom_grade_book_path(@classroom, @grade_book),
+              class: style,
+              data: { turbo_frame: "_top" } %>

@@ -16,22 +16,49 @@
       </p>
     </div>
 
-    <div class="mb-3 flex items-center justify-between">
+    <%# A completed grade book has already paid out, so there is nothing to add to it. %>
+    <% can_populate = policy(@grade_book).populate? && !@grade_book.completed? %>
+    <% entries = @grade_book.grade_entries.any? %>
+
+    <div class="mb-3 flex items-center justify-between gap-4">
       <h2 class="text-base font-semibold text-slate-900">Student grades</h2>
-      <%# Announced politely so a screen reader hears "Saving" without losing focus. %>
-      <div data-autosave-target="status" role="status" aria-live="polite" class="text-sm text-slate-600"></div>
+
+      <div class="flex items-center gap-4">
+        <%# Announced politely so a screen reader hears "Saving" without losing focus. %>
+        <div data-autosave-target="status" role="status" aria-live="polite" class="text-sm text-slate-600"></div>
+
+        <% if entries && can_populate %>
+          <%= render partial: "populate_button", locals: { label: "Add new students", style: "tw-btn-secondary" } %>
+        <% end %>
+      </div>
     </div>
 
-    <%= form_with model: [@classroom, @grade_book],
-                  url: classroom_grade_book_path(@classroom, @grade_book),
-                  method: :patch,
-                  html: { data: { autosave_target: "form" } } do |f| %>
+    <%# The populate buttons stay outside this form. A form cannot be nested inside
+        another - the browser drops the inner one - so a button_to placed within the
+        grades form would silently submit the grades instead of adding students. %>
+    <% if entries %>
+      <%= form_with model: [@classroom, @grade_book],
+                    url: classroom_grade_book_path(@classroom, @grade_book),
+                    method: :patch,
+                    html: { data: { autosave_target: "form" } } do %>
 
-      <%= render partial: "table", locals: { grade_book: @grade_book } %>
+        <%= render partial: "table", locals: { grade_book: @grade_book } %>
 
-      <%# Was a <br>. Spacing belongs in the layout, not in the content. %>
-      <div class="mt-6 flex flex-col items-center">
-        <%= render partial: "submit_button" %>
+        <%# Was a <br>. Spacing belongs in the layout, not in the content. %>
+        <div class="mt-6 flex flex-col items-center">
+          <%= render partial: "submit_button" %>
+        </div>
+      <% end %>
+    <% else %>
+      <div class="rounded-lg border border-slate-200 bg-white">
+        <%= render layout: "components/ui/empty_state",
+                   locals: { icon: "users",
+                             title: "No students yet",
+                             body: "Add the students in this class to start entering grades." } do %>
+          <% if can_populate %>
+            <%= render partial: "populate_button", locals: { label: "Add this class's students", style: "tw-btn-primary" } %>
+          <% end %>
+        <% end %>
       </div>
     <% end %>
 

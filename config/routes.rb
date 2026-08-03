@@ -24,6 +24,7 @@ Rails.application.routes.draw do
     resources :grade_books, only: %i[show update] do
       member do
         post :finalize
+        post :populate
       end
     end
     resources :students, except: %i[index show] do

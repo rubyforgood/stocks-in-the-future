@@ -2339,6 +2339,15 @@ both look fine in review.
 **Confirm dialogs need a subject.** "Are you sure?" gives no basis for a decision.
 Name the record and say whether the action can be undone.
 
+**`button_to` inside another form is dropped by the browser.** `button_to` renders a
+whole `<form>`, and HTML parsing discards a nested `<form>` start tag — the button
+then submits the *outer* form to the outer form's action. This is invisible in
+review, in the rendered page, and in a controller test that POSTs to the route. It
+bit the grade book empty state, where an "add students" button sat inside the grades
+form and would have saved grades instead. When an empty state carries an action,
+branch around the form instead of nesting the empty state within it, and cover the
+button with a system test that clicks it.
+
 ## Accessibility gates
 
 The per-page checklists live in

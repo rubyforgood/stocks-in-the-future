@@ -17,6 +17,19 @@ else
   puts "Teacher user already exists: #{teacher.email}"
 end
 
+# Setting classroom_id on the teacher is not enough. GradeBookPolicy asks whether
+# classroom.teachers includes the user, and that reads teacher_classrooms - so without
+# this row the seeded teacher could not open a grade book at all, let alone grade it.
+#
+# Re-fetched as a Teacher rather than reusing the object above: that one was built by
+# User.find_or_initialize_by, so it stays a User instance even once type is set, and
+# TeacherClassroom belongs_to :teacher, class_name: "Teacher", rejects a plain User.
+seeded_teacher = Teacher.find_by(email: "teacher@example.com")
+if seeded_teacher && Classroom.first
+  TeacherClassroom.find_or_create_by!(teacher: seeded_teacher, classroom: Classroom.first)
+  puts "Linked Teacher to classroom: #{Classroom.first.name}"
+end
+
 # Student
 student = User.find_or_initialize_by(email: "student@example.com")
 unless student.persisted?

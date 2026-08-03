@@ -152,6 +152,14 @@ en:
       already_completed: Cannot finalize because it's already completed.
       incomplete: 'Cannot finalize: Some entries are incomplete.'
       notice: Grade book finalized. Funds have been distributed.
+    populate:
+      completed: This grade book is complete, so students cannot be added to it.
+      none_added: Every student in this class already has a row.
+      notice:
+        one: Added 1 student to this grade book.
+        other: Added %{count} students to this grade book.
+    update:
+      notice: Grades saved.
   helpers:
     label:
       portfolio_transaction:

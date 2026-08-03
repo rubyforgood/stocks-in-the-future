@@ -118,6 +118,40 @@ Added for show/hide dialogs whose content is already in the page, distinct from
 focus-move-in, focus trap and focus restore — the CSV import modal previously had
 four inline `onclick` handlers and none of those behaviours.
 
+### `PopulateGradeBook`, and a way to fill a grade book from the UI
+
+**What.** `app/services/populate_grade_book.rb`, plus a `populate` member route, a
+controller action, a policy method, and two buttons on the grade book page: one in
+the empty state, one in the header once entries exist.
+
+**Why.** Grade entries only ever existed because seeds or a console session created
+them. A grade book for a real classroom opened empty with no way to add anyone, which
+made everything downstream of grading unobservable — including the earnings a student
+is supposed to see.
+
+**Contract.** Returns the number of entries created, or `false` when the grade book
+is `completed`. Callers have to tell `false` apart from `0`; the controller does, and
+the two cases have different flash messages.
+
+**Idempotency.** It inserts only for students with no entry and never edits an
+existing one, so re-running after a student joins mid-quarter adds just that student
+and leaves entered grades alone. The unique index on `[grade_book_id, user_id]` backs
+this at the database level.
+
+**Students only.** It reads `classroom.students` — Student-typed and `kept`-scoped —
+not `classroom.users`, which also holds the teachers and admins attached to the
+classroom. Grading one of those would pay a teacher.
+
+**Trap worth remembering.** The buttons must stay outside the grades form.
+`button_to` renders a `<form>`, and a nested form is dropped by the browser, so a
+button placed inside the grades form would silently submit the grades instead of
+adding students. `show.html.erb` now branches around the form rather than holding the
+empty state inside it, and both buttons are covered by system tests that click them
+rather than posting to the route — a POST test would have passed either way.
+
+**Verified.** 7 service tests, 5 controller tests, 2 system tests. Confirmed in
+development that a mid-quarter joiner is added and an existing `A` grade survives.
+
 ---
 
 ## Behaviour changes
@@ -163,6 +197,29 @@ defeating its own guard.
 
 **Verified.** Three consecutive `db:seed` runs leave record counts and balances
 identical. Covered by `test/db/seeds_test.rb`.
+
+### The seeded teacher is joined to a classroom, not just given a `classroom_id`
+
+**What.** `db/seeds/partials/users.rb` now creates a `TeacherClassroom` row joining
+the seeded teacher to `Classroom.first`, idempotently.
+
+**Why.** `GradeBookPolicy` asks whether `classroom.teachers` includes the user, and
+that association reads `teacher_classrooms`. A `classroom_id` on the user does not
+feed it, so the seeded teacher was refused access to every grade book — the one
+account most likely to be used to look at grading.
+
+**Trap.** The row has to be built from a `Teacher`. The seed creates the teacher via
+`User.find_or_initialize_by`, which yields a `User` instance and stays one even after
+`type` is set to `"Teacher"`; `TeacherClassroom belongs_to :teacher, class_name:
+"Teacher"` rejects it with `ActiveRecord::AssociationTypeMismatch`. The seed
+re-fetches with `Teacher.find_by`. `test/db/seeds_test.rb` caught this — a console
+check did not, because `find_by` there returned a correctly typed subclass.
+
+### `grade_books.update.notice` was missing
+
+Saving grades flashed `translation missing: en.grade_books.update.notice`. Added along
+with the `populate` keys. `Save Grades` also became `Save grades` for the sentence
+case convention, which meant updating five assertions in the system tests.
 
 ### How the trading fee works, and what changed
 
@@ -426,7 +483,7 @@ distributor and the projection, keeps one definition of the rules.
 Each step is independently shippable and independently revertible. Nothing later
 depends on anything earlier being perfect.
 
-### Step 0 — Create grade entries from application code *(prerequisite, not Tier 3)*
+### Step 0 — Create grade entries from application code *(prerequisite, not Tier 3)* — **done**
 
 Give teachers a way to populate a grade book from its classroom's enrolled students.
 
@@ -437,6 +494,13 @@ Give teachers a way to populate a grade book from its classroom's enrolled stude
 - **Tests first:** creating entries twice must not duplicate; a student enrolled
   later must be addable without disturbing existing grades.
 - **Why first:** without it, nothing downstream is observable in a real environment.
+
+Shipped as `PopulateGradeBook` — see the entry under Additions for the contract and
+the two traps found on the way (nested forms, and STI typing in the seed). Two things
+were pulled in because they blocked using the feature at all: the seeded teacher had
+no `teacher_classrooms` row, so no seeded account could open a grade book, and
+`grade_books.update.notice` did not exist, so saving grades flashed a missing
+translation.
 
 ### Step 1 — Extract the earnings calculation
 

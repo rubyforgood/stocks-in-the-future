@@ -126,6 +126,13 @@ Icons come from `lucide_icon`, which renders `aria-hidden` by default. An
 icon-only control therefore needs its own visually hidden text, or it has no
 accessible name at all.
 
+`button_to` renders a whole `<form>`. Never place one inside another form: the
+browser drops the nested `<form>` tag during parsing, and the button silently ends
+up submitting the *outer* form to the outer form's action. It looks fine, renders
+fine, and passes a controller test that POSTs to the route directly. Only a system
+test that actually clicks the button catches it. When an empty state needs an
+action, branch around the form rather than putting the empty state inside it.
+
 ## Responsive
 
 Only `base` and `lg:`. No `sm:`, `md:`, `xl:` or `2xl:`. Users are students on

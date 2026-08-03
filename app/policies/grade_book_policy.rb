@@ -13,6 +13,11 @@ class GradeBookPolicy < ApplicationPolicy
     user.admin?
   end
 
+  # Whoever may enter grades may create the rows to enter them into.
+  def populate?
+    update?
+  end
+
   private
 
   def user_is_teacher_of_classroom?
