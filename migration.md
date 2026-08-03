@@ -717,6 +717,137 @@ over. Without that check the guard would have passed either way, since it filter
 
 ---
 
+## Migration map: navigation depth and the mobile drawer
+
+Two restructures, mapped before any code moves. They are independent and can ship in either
+order, but the drawer one has a prerequisite that the nav-depth one does not.
+
+---
+
+### Map A — Nav depth: the Trading floor disclosure
+
+**Current structure.** Four of the five app nav items are flat links. Trading floor is a
+`<details data-controller="stock-navbar-toggle">` whose `<summary>` contains **two further
+interactive controls**:
+
+```
+<li>
+  <details open-if-active>
+    <summary>                        <- a control in its own right; click toggles
+      <a href=/stocks>               <- navigates; needs stopPropagation to not toggle
+      <button>chevron</button>       <- toggles; needs preventDefault + manual .open flip
+    </summary>
+    <ul> one <li> per active stock </ul>
+  </details>
+</li>
+```
+
+Three overlapping affordances in one 44px row. `stock_navbar_toggle_controller` exists only to
+keep them from fighting: `navigateLink` stops propagation so the link does not toggle the
+disclosure, and `toggleChevron` prevents the default and flips `open` by hand.
+
+Two further problems, neither of them interaction:
+
+- **The sublist is unbounded.** `ApplicationController#set_navbar_stocks` assigns
+  `policy_scope(Stock).active`, so *every* active stock is a nav row. The sidebar grows with
+  the catalogue and duplicates what the trading floor page already lists.
+- **Depth is inconsistent.** One item expands and four do not, so the nav has no consistent
+  shape to learn.
+
+**Target structure.** Trading floor becomes a flat link like its four siblings. Stocks are
+found on the trading floor page, which is what that page is for.
+
+```
+<li><a href=/stocks>Trading floor</a></li>
+```
+
+**Order of moves.**
+
+1. **Confirm nobody depends on the sublist as a navigation path** — see the open question
+   below. This is the only step that is not mechanical.
+2. Replace the `<details>` block in `layouts/_navbar` with a `nav_item` render, matching the
+   other four.
+3. Delete `stock_navbar_toggle_controller.js`. Both methods exist only to referee the
+   disclosure; nothing else calls them.
+4. Delete the chevron swap rules from `navbar.css` (`details .icon-up`, `details[open]
+   .icon-down`).
+5. Drop `set_navbar_stocks` and the `stocks:` local, if nothing else uses `@navbar_stocks` —
+   it is a `policy_scope` query on every request for a list only the sidebar reads.
+
+**What breaks.** `test/integration/navbar_policy_visibility_test.rb` asserts
+`details[data-controller='stock-navbar-toggle']` at lines 56 and 61, and those assertions are
+the point of two tests — they check a student sees only permitted stocks in the nav. If the
+sublist goes, **what those tests were protecting has to move to the trading floor page**, not
+just be deleted. That is the real work in this map.
+
+**Risk:** low mechanically, moderate in judgement. No money, no data, no routes. The risk is
+removing a navigation path someone uses daily.
+
+**Open question for a maintainer.** Is the per-stock sidebar list used, or is it a leftover?
+It is the only place in the app that lists every stock outside the trading floor itself. If it
+is wanted, the alternative target is a capped list — stocks the student holds, which is bounded
+by the portfolio and is a genuinely different view from the full catalogue.
+
+---
+
+### Map B — One mobile drawer mechanism
+
+**Current structure.** Two mechanisms for the same interaction.
+
+| | App (`layouts/_navbar`) | Admin (`layouts/admin`) |
+|---|---|---|
+| Trigger | `<label for="mobile-menu-toggle">` | `<button data-action="click->admin-sidebar#toggle">` |
+| State | hidden `<input type="checkbox">` + `peer-checked:` | `classList.toggle("-translate-x-full")` |
+| Scrim | `<label>` with `peer-checked:block` | div toggling **both** `hidden` and inline `style.display` |
+| Closing on navigate | 4 `<label for="mobile-menu-toggle">` wrappers | nothing |
+| Nav markup | one nav, translated | rendered **twice**, desktop and mobile copies |
+
+**It is also not really CSS-only.** `stock_navbar_toggle_controller#navigateLink` reaches into
+the document and sets `menuCheckbox.checked = false`, so the checkbox mechanism already depends
+on JavaScript to behave.
+
+**Accessibility gaps in both**, which is the strongest reason to do this at all:
+
+- **No `aria-expanded`** on either trigger, so neither announces open or closed.
+- The app trigger is a `<label>` driving a hidden checkbox, so assistive tech announces a
+  **checkbox**, not a button that opens navigation.
+- **No Escape, no focus trap, no focus return.** An open drawer is a modal surface over the
+  page; `dialog_controller` already does all three and is the model to copy.
+- Admin's scrim fights itself: a `hidden` class *and* an inline `display` toggled together.
+
+**Target structure.** One `drawer` Stimulus controller, used by both layouts, with a `<button>`
+trigger carrying `aria-expanded`, one nav element that translates, one scrim, Escape to close,
+focus moved in and returned, and close-on-navigate handled by the controller rather than by
+wrapping every row in a `<label>`.
+
+**Order of moves.**
+
+0. **Make mobile width testable first.** *Every system test runs at 1400x1400*
+   (`test/application_system_test_case.rb`), and the drawer only exists below `lg`. **Nothing
+   in the suite has ever exercised either mechanism.** Step 0 is a way to drive a 375px
+   viewport, plus characterisation tests of what both do today. Without it this is a rewrite
+   with no safety net, on the interaction students on phones depend on.
+1. Write `drawer_controller.js`, modelled on `dialog_controller` for Escape, focus trap and
+   focus return.
+2. Convert the **admin** layout first. It is the smaller surface, has no `<label>` wrappers to
+   unpick, and lets the duplicated mobile nav copy collapse into one.
+3. Convert the app layout: replace the checkbox, the scrim label, the close label and the four
+   row wrappers with the controller.
+4. Delete `admin_sidebar_controller.js`.
+5. Drop the `navigateLink` half of `stock_navbar_toggle_controller` — or the whole controller,
+   if Map A has already landed.
+
+**What breaks.** Nothing at request level: `bin/rails test` never sees either mechanism. That
+is precisely the problem — **a green suite will not tell you this worked.** The `<label>`
+wrappers in `layouts/_nav_item` are load-bearing for the current behaviour and their comment
+says so, so that partial changes too.
+
+**Risk:** moderate, and higher than it looks because of the missing coverage. Confine it to
+chrome: no routes, controllers or data. Do step 0 first, or the only verification available is
+looking at it once.
+
+---
+
 ## Open items owned by someone else
 
 - **Merge the CVE fix into `main`.** `main` remains on `activestorage 8.1.3` with

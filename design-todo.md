@@ -313,6 +313,17 @@ So the standing checks are:
       and because its apparent test coverage was actually exercising
       `Admin::SchoolsController`. Recorded in `migration.md`.
 - [ ] 21 unused custom CSS classes in `admin.css`/`shadcn.css` (see above).
+- [ ] **Nav depth: flatten the Trading floor disclosure.** Mapped as Map A in
+      `migration.md`. Blocked on one product answer: is the per-stock sidebar list used as a
+      navigation path, or a leftover? If it is wanted, the target is a bounded list (stocks the
+      student holds) rather than every active stock. Note that two tests in
+      `navbar_policy_visibility_test` assert on that sublist to prove a student sees only
+      permitted stocks - that coverage has to move, not disappear.
+- [ ] **One mobile drawer mechanism.** Mapped as Map B in `migration.md`. **Its step 0 is
+      making a 375px viewport testable**: every system test runs at 1400x1400 and the drawer
+      only exists below `lg`, so nothing in the suite has ever exercised either version. Doing
+      the rewrite before step 0 means a green suite that proves nothing. Both current triggers
+      also lack `aria-expanded`, Escape, a focus trap and focus return.
 - [x] ~~**Decide whether `components/ui/_card` keeps the rule under its header.**~~
       **Closed: the header keeps its rule.** The surface half is settled and was documented
       all along - `.tw-card` in `app/assets/tailwind/cards.css` is

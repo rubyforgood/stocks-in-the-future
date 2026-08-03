@@ -232,6 +232,36 @@ admin you could not tell which section you were in.
   parent row lit. `nav_section_active?` takes `exact:` for the Dashboard, because `/admin` is a
   prefix of every admin path and "inside it" is true everywhere.
 
+**Keep the nav one level deep.** Every row is a flat link. Do not expand one item into a
+sublist while its siblings stay flat: the nav then has no consistent shape, and the expanding
+row ends up holding several controls at once.
+
+The Trading floor row is the standing exception and the reason for the rule. It is a
+`<details>` whose `<summary>` contains **both** a link and a chevron button, so one 44px row
+carries three overlapping affordances — the summary toggles, the link navigates, the button
+toggles — and a Stimulus controller exists purely to stop them fighting (`stopPropagation` on
+the link, `preventDefault` plus a manual `open` flip on the button). Its sublist is also
+unbounded: it renders one row per active stock, so the sidebar grows with the catalogue and
+repeats what the trading floor page already lists.
+
+**A catalogue does not belong in the nav.** Navigation is for destinations; records live on the
+page that lists them. If a nav row genuinely needs children, cap them at something bounded and
+user-specific (what this student holds), never "all of them".
+
+Migration mapped in [`migration.md`](migration.md) — Map A.
+
+**One drawer mechanism.** The mobile drawer is a Stimulus controller with a `<button>` trigger,
+not a hidden checkbox driven by `<label>`s. A `<label>` is announced as a **checkbox**, not as a
+control that opens navigation, and the CSS-only approach cannot carry `aria-expanded`, Escape,
+a focus trap or focus return. An open drawer is a modal surface over the page and needs all
+four; `dialog_controller` already implements them and is the model.
+
+The app and admin currently use two different mechanisms for this one interaction — checkbox
+plus `peer-checked:` in the app, a controller toggling classes and inline styles in admin, with
+admin also rendering its nav twice. Neither carries `aria-expanded`. Mapped as Map B, whose
+**step 0 is making a 375px viewport testable**: every system test runs at 1400x1400, so nothing
+in the suite has ever exercised either drawer.
+
 ### Dividers
 **A page title never gets a rule under it.** Spacing already separates a title from
 its content. A horizontal line is a second, redundant signal, and it stacks visibly
