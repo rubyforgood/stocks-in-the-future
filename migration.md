@@ -334,22 +334,25 @@ HTML for all six pages, including re-adding the border to the shared partial to 
 the check could fail — which is also how I established that the shared partial backs the
 stocks index and nothing else.
 
-**Resolved: one card surface, `.tw-card`, and no rule under a card title.**
+**Resolved: one card surface, `.tw-card`. The card header keeps its rule.**
 
-I twice called this an open question needing a product decision. It was not — `design.md`'s
-`### Card / panel` section already answered both halves and I had not read it:
+The header half took two wrong turns before landing, and both are worth knowing.
 
-> `rounded-2xl border border-slate-200 bg-white shadow-sm` (pad `p-5`) … **`border-b`
-> *under the title* likewise over-segments a compact card**
+**The surface was settled all along**, in `design.md`'s `### Card / panel` section, which I
+had not read while calling it an open product decision:
 
-The same passage also says *"a card inside a card isn't a pattern in this app"*, which
-independently confirms the nested-card fix on the show pages, and means the header rule was
-never the defensible exception I described it as.
+> `rounded-2xl border border-slate-200 bg-white shadow-sm` (pad `p-5`)
+
+The same passage says *"a card inside a card isn't a pattern in this app"*, which
+independently confirms the nested-card fix on the show pages.
+
+Its next sentence — `border-b` under the title over-segmenting a card — I then read as
+settling the header too. It does not; see below.
 
 **What changed.** `app/assets/tailwind/cards.css` defines `.tw-card` as the documented
 surface. 31 replacements across 25 files now use it: `components/ui/_card`, the admin table
 card, every admin form and filter panel, and the student-facing earnings, chart,
-announcement and grade-book surfaces. `_card`'s header lost its `border-b`.
+announcement and grade-book surfaces.
 
 **The drift this removes.** Four treatments, seven distinct class strings, 22 files —
 `rounded-xl`/`shadow-xs` in the component, `rounded-lg` with `ring-1 ring-slate-900/5`
@@ -369,6 +372,29 @@ which looked exactly like the failure it was not.)
 **The guard needed updating too.** `admin_page_structure_test` located the card by its
 `rounded-lg` class, which the new surface does not have. It matches `tw-card` now, so a
 future change of surface cannot quietly turn the check into a no-op.
+
+**Then the header rule came back**, because removing it was wrong. Two mistakes compounded:
+
+1. **The sentence I relied on is scoped.** "`border-b` *under the title* likewise
+   over-segments a **compact** card; structure comes from that detail divider and the footer
+   `border-t`." It is about a compact *content* card, and it names the substitute structure
+   it depends on. Most cards here hold an attribute list or a table and have no detail
+   divider and no footer rule, so removing the header rule left them with **no boundary at
+   all**. I applied a sentence about one kind of card to every card in the app.
+2. **The padding was left stacked.** The header's `py-4` plus the body's `p-5` put 36px
+   between a title and its content — the same fault as the `pb-5` left under the page title
+   when that rule went, which had already been reported once. Padding that exists to hold
+   content off a rule has to go when the rule does.
+
+The rule is restored on `components/ui/_card`'s header: `border-b border-slate-200 px-5 py-4`
+above a `p-5` body. That matches Stripe's Box, GitHub Primer's `Box.Header` and Tailwind UI's
+card-with-header. Material and Polaris omit it, and the split falls along card type — ours
+are mostly data cards, which is what the first group's pattern is for.
+
+**Both `design.md` sections were corrected**, since they contradicted each other and the
+code: the Dividers section now states that a card header is the one place a rule is added,
+and the Card / panel section carries a scope note on the inherited sentence. A bare heading
+*inside* a card body still takes no rule — that remains the `stocks/_stock` case.
 
 ### `grade_books.update.notice` was missing
 

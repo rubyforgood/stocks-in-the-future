@@ -314,13 +314,18 @@ So the standing checks are:
       `Admin::SchoolsController`. Recorded in `migration.md`.
 - [ ] 21 unused custom CSS classes in `admin.css`/`shadcn.css` (see above).
 - [x] ~~**Decide whether `components/ui/_card` keeps the rule under its header.**~~
-      **Closed - it was never open.** `design.md`'s Card / panel section already ruled on
-      both this and the surface: `rounded-2xl border border-slate-200 bg-white shadow-sm`,
-      and a `border-b` under a card title "over-segments a compact card". I had not read
-      that section and framed it as a decision twice. Now `.tw-card` in
-      `app/assets/tailwind/cards.css`, used by every card in the app; the header rule is
-      gone. Four treatments across seven class strings in 22 files collapsed into one, and
-      none of the four had matched the spec.
+      **Closed: the header keeps its rule.** The surface half is settled and was documented
+      all along - `.tw-card` in `app/assets/tailwind/cards.css` is
+      `rounded-2xl border border-slate-200 bg-white shadow-sm`, replacing four treatments
+      across seven class strings in 22 files, none of which matched the spec.
+
+      The divider half I got wrong twice in opposite directions. First I called it an open
+      product decision when `design.md` appeared to answer it; then I removed the rule on
+      the strength of a sentence scoped to *compact content* cards, which also names the
+      substitute structure it relies on. Our cards mostly hold attribute lists and tables
+      and have no such substitute, so they were left with no boundary and a 36px gap where
+      the header padding stacked on the body's. The rule is back, matching Stripe's Box,
+      Primer's `Box.Header` and Tailwind UI. Both `design.md` sections now say so.
 
 ## Page rebuilds
 

@@ -1,10 +1,9 @@
 <%# Card surface - the default container for a block of related content.
 
     Stripe/Airbnb reading: a card earns its edges from a hairline border and a
-    low shadow, not a heavy drop shadow. Generous internal padding, with
-    whitespace doing the separating rather than rules - which is why the header
-    carries no border, despite this comment having contradicted the markup for a
-    while.
+    low shadow, not a heavy drop shadow, with generous internal padding. Its
+    header is separated by a hairline: the title and the data below it are two
+    different things, and stating that boundary is what the references do.
 
     Locals:
       title    - optional heading text
@@ -16,10 +15,14 @@
 <% padded = local_assigns.fetch(:padded, true) %>
 <section class="tw-card <%= local_assigns[:class] %>">
   <% if local_assigns[:title].present? %>
-    <%# No rule under the title. design.md: a border-b under a card title over-segments a
-        compact card - structure comes from the body's own dividers and the footer. The
-        surface is the shared .tw-card so every card in the app is one treatment. %>
-    <header class="px-5 py-4">
+    <%# The header carries a rule, matching Stripe's Box, Primer's Box.Header and Tailwind
+        UI's card-with-header. It was removed once on the strength of design.md's line about
+        a border-b over-segmenting a card - but that line is about a *compact* content card,
+        and it names the substitute structure it relies on ("that detail divider and the
+        footer border-t"). Most cards here hold an attribute list or a table and have
+        neither, so removing the rule left them with no boundary at all and the header
+        floating 36px above its content. %>
+    <header class="border-b border-slate-200 px-5 py-4">
       <h2 class="text-base font-semibold text-slate-900"><%= title %></h2>
       <% if local_assigns[:subtitle].present? %>
         <p class="mt-1 text-sm text-slate-600"><%= subtitle %></p>

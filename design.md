@@ -212,24 +212,27 @@ already doing the separating. These stay:
 - row separators within a table (`divide-y`, `tables.css`)
 - field-group separators inside a form card
 
-**A card header strip above a table gets no rule either.** Every admin index page had
-one — users, students, teachers, classrooms, school years, and stocks via the shared
-`admin/shared/_table`. The strip's own padding sets it apart, and the table beneath
-opens with a tinted `bg-slate-50` header row, which is the separation. On the students
-and teachers indexes the strip's rule was also a second line about 20px below the
-filter tab rail's own baseline.
+**A card header does get a rule** — `border-b border-slate-200` on `components/ui/_card`'s
+header. This is the app default, and it is the one place a rule is *added* rather than
+removed. Stripe's Box, Primer's `Box.Header` and Tailwind UI's card-with-header all state
+that boundary; Material and Polaris do not, and the split falls along card type. Most cards
+here hold an attribute list or a table, which is the kind the first group is designed for.
+
+This was got wrong once. The rule was removed on the strength of the Card / panel line about
+`border-b` over-segmenting a card — but that line is about a **compact content card**, and it
+names the substitute structure it depends on ("that detail divider and the footer
+`border-t`"). A data card has neither, so removing the rule left it with no boundary at all,
+and the header's `py-4` stacked on the body's `p-5` to float the title 36px above its
+content. **Don't apply the compact-card line to a card holding data.**
+
+A bare heading *inside* a card body is different and still takes no rule — that was the
+`stocks/_stock` `h3` sitting directly on a `divide-y` list.
 
 **The test:** delete a rule that duplicates a separation the page already makes some
 other way — padding, a tint, a colour change, or a surface edge. Specifically: a rule
-on the **page background** under a title, a heading rule immediately above a `divide-y`
-list, a hairline on the edge of a coloured banner, or a card header strip above a
-tinted table header.
-
-**Known exception, unresolved:** `components/ui/_card` still draws a rule under its
-header — the last instance of this pattern. Its own doc comment says "whitespace doing
-the separating rather than rules", so the markup and the comment disagree. The argument
-for keeping it is that it wraps free-form content rather than a table, so nothing else
-separates its header from its body. Worth a decision rather than drift.
+on the **page background** under a page title, a heading rule immediately above a
+`divide-y` list, or a hairline on the edge of a coloured banner. **Keep** a rule that is
+the only thing stating a real boundary, which is what a card header is.
 
 ### Iconography
 - **Bootstrap Icons** (`bi-*`), self-hosted: font binaries under `public/vendor/bootstrap-icons/`,
@@ -1359,6 +1362,12 @@ table" does) and render the `dl` unboxed. `border-b` *under the title* likewise 
 compact card; structure comes from that detail divider and the footer `border-t`. WCAG: the
 native `<details>`/`<summary>` carries its own expanded/collapsed semantics (keyboard + SR), the
 chevron is `aria-hidden`, and the `brand-600` summary + `slate-500` labels clear AA on white.
+
+**Scope note for this app.** The `border-b`-under-the-title sentence above is about a
+*compact content* card, and it leans on the detail divider and footer rule it names. A card
+holding an attribute list or a table has neither, so `components/ui/_card`'s header **does**
+carry `border-b border-slate-200` — see Dividers. Applying that sentence to a data card
+leaves it with no boundary at all, and its header padding stacking on the body's.
 
 ### Fact / detail list
 Entity facts (the case-details card) are inline `dt` (muted `font-medium text-slate-500`) :
