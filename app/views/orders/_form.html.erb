@@ -4,6 +4,7 @@
       data: {
         controller: "order-form",
         order_form_current_price_value: order.stock.current_price,
+        order_form_fee_value: order.transaction_fee / 100.0,
         turbo_frame: "_top"
       }
     ) do |form| %>
@@ -70,27 +71,44 @@
                           } %>
   </div>
 
-  <!-- Order Total -->
-  <div class="mb-6 p-4 bg-sitf-ring/10 border border-sitf-ring/20 rounded-lg">
-    <div class="flex justify-between items-center mb-3">
-      <span class="text-black font-medium">
-        Total <%= order.action == 'buy' ? 'Cost' : 'Proceeds' %>:
-      </span>
-      <span class="text-xl font-bold text-black"
-            data-order-form-target="totalCost">
-        $0.00
-      </span>
-    </div>
+  <%# Order summary, itemised.
 
-    <!-- Daily Transaction Fee Notice -->
-    <div class="pt-2 border-t border-slate-200">
-      <p class="text-xs text-slate-600 flex items-center">
-        <svg class="w-4 h-4 mr-2 text-teal-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-        </svg>
-        Trading fee: $1 per day
-      </p>
-    </div>
+      Previously this showed a single "Total Cost" of shares x price, with the
+      trading fee mentioned only as fine print underneath - so the figure the
+      student saw was not the amount they were charged. The server validates
+      against purchase_cost + transaction_fee, so the two disagreed.
+
+      The fee is charged once while an order is outstanding, not per order, so
+      it shows as zero when another pending order has already incurred it. %>
+  <% fee_cents = order.transaction_fee %>
+  <% buying = order.action == "buy" %>
+  <div class="mb-6 rounded-lg border border-slate-200 bg-slate-50 p-4">
+    <dl class="space-y-2 text-sm">
+      <div class="flex items-center justify-between">
+        <dt class="text-slate-600"><%= buying ? "Shares" : "Proceeds" %> subtotal</dt>
+        <dd class="font-medium text-slate-900 tabular-nums" data-order-form-target="subtotal">$0.00</dd>
+      </div>
+
+      <div class="flex items-center justify-between">
+        <dt class="text-slate-600">
+          Trading fee
+          <% if fee_cents.zero? %>
+            <span class="text-slate-500">(already charged)</span>
+          <% end %>
+        </dt>
+        <dd class="font-medium text-slate-900 tabular-nums"><%= number_to_currency(fee_cents / 100.0) %></dd>
+      </div>
+
+      <div class="flex items-center justify-between border-t border-slate-200 pt-2">
+        <dt class="font-semibold text-slate-900">Total <%= buying ? "cost" : "proceeds" %></dt>
+        <dd class="text-xl font-bold text-slate-900 tabular-nums" data-order-form-target="totalCost">$0.00</dd>
+      </div>
+    </dl>
+
+    <p class="mt-3 flex items-start gap-2 border-t border-slate-200 pt-3 text-xs text-slate-600">
+      <%= lucide_icon("info", class: "h-4 w-4 shrink-0 text-slate-500") %>
+      <span>The <%= number_to_currency(PortfolioTransaction::TRANSACTION_FEE_CENTS / 100.0) %> trading fee is charged once while you have an order outstanding, not once per order.</span>
+    </p>
   </div>
 
   <!-- Hidden Fields -->

@@ -106,6 +106,15 @@ class Order < ApplicationRecord
     stock.price_cents * shares
   end
 
+  # The fee is charged once while an order is outstanding, not per order, so a
+  # second pending order adds nothing. Public because the order form has to show
+  # it - the total the student sees must match what they are actually charged.
+  def transaction_fee
+    return PortfolioTransaction::TRANSACTION_FEE_CENTS unless user
+
+    user.orders.pending.where.not(id:).exists? ? 0 : PortfolioTransaction::TRANSACTION_FEE_CENTS
+  end
+
   def existing_transaction_type
     order_transaction_type = portfolio_transaction&.transaction_type&.to_sym
     order_transaction_type == :debit ? "buy" : "sell"
@@ -141,10 +150,6 @@ class Order < ApplicationRecord
     formatted_balance = format_money(current_balance_cents)
     formatted_cost = format_money(total_cost)
     errors.add(:shares, "Insufficient funds. You have #{formatted_balance} but need #{formatted_cost}")
-  end
-
-  def transaction_fee
-    user.orders.pending.where.not(id:).exists? ? 0 : PortfolioTransaction::TRANSACTION_FEE_CENTS
   end
 
   def sufficient_funds_for_buy_when_update
