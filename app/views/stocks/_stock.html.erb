@@ -67,7 +67,7 @@
           <% { "Company performance" => company_metrics, "Industry averages" => industry_metrics }.each do |heading, metrics| %>
             <% next if metrics.empty? %>
             <div>
-              <h3 class="border-b border-slate-200 pb-2 text-sm font-semibold text-slate-900"><%= heading %></h3>
+              <h3 class="pb-2 text-sm font-semibold text-slate-900"><%= heading %></h3>
               <dl class="mt-2 divide-y divide-slate-100">
                 <% metrics.each do |term, value| %>
                   <div class="flex items-center justify-between py-2">

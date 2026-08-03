@@ -146,6 +146,29 @@ Brand scale lives in `tailwind.css` `@theme` as `--color-brand-*`.
   as too much scroll. Verify these gaps at the pixel level (filter-bottom -> table-top), not
   by reading tokens.
 
+### Dividers
+**A page title never gets a rule under it.** Spacing already separates a title from
+its content. A horizontal line is a second, redundant signal, and it stacks visibly
+against the border of whatever card or table sits directly beneath — two hairlines a
+few pixels apart, which reads as a mistake rather than as structure.
+
+**No extra dividers anywhere.** A rule earns its place only as structure *inside a
+bounded surface*. These are correct and stay:
+
+- a card header separated from its body (`components/ui/_card`, and the admin index
+  header strips that sit above a table)
+- the tab rail an active tab's `border-b-2` sits on
+- the fixed admin app bar's bottom edge
+- row separators within a table (`divide-y`, `tables.css`)
+- field-group separators inside a form card
+
+**The test:** if the rule sits on the **page background**, delete it. If it sits
+**inside** a card, table, tab rail or app bar, it is doing structural work and stays.
+
+Also delete a rule that duplicates a separation the page already makes some other way
+— a heading rule immediately above a `divide-y` list, or a hairline on the edge of a
+coloured banner where the colour change is the separation.
+
 ### Iconography
 - **Bootstrap Icons** (`bi-*`), self-hosted: font binaries under `public/vendor/bootstrap-icons/`,
   CSS vendored at `app/assets/stylesheets/vendor/bootstrap-icons.css` and `@import`ed by

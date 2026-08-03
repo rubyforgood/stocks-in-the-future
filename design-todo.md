@@ -220,6 +220,33 @@ doing UI work. Both are recorded here because they were found during it.
       `main` or for anything deployed from it. **This is the most urgent item in
       this file and the only security one.**
 
+- [ ] **Three product decisions block Tier 3 Steps 2-4.** The migration map is
+      written in `migration.md` and Steps 0 and 1 are done. Each remaining step
+      needs a call that is not a design or engineering judgement:
+
+      1. **Should students see provisional grades?** Step 2 gives a student a
+         read-only view of their own grade entries. Entries exist and are editable
+         from the moment a teacher opens the grade book, so a student would see
+         figures that can still change - possibly a grade the teacher has not
+         finished entering. Showing entries only once the grade book is finalised is
+         accurate, but delays the feedback the whole earnings model rests on.
+
+      2. **Should teachers finalize their own grade books?** Finalizing pays
+         students, and `GradeBookPolicy#finalize?` is `user.admin?` today, so a
+         teacher enters every grade and then waits for an admin to release the
+         money. Widening it shortens the loop, but hands the payout trigger to the
+         same person who entered the numbers, with no second pair of eyes.
+
+      3. **Is a projected earnings figure pedagogically desirable?** Step 4 would
+         show "on current grades you would earn X" for the open quarter.
+         `EarningsCalculator` can already produce it without touching money. The
+         risk is that a student reads a projection as money they hold, and that a
+         projection falling when a grade is corrected feels like a loss.
+
+      Step 3 - pairing an earnings transaction with the grade that caused it - is
+      the closest to unblocked, since it only labels money already paid. It still
+      reads better alongside a decision on 1.
+
 - [x] ~~**Decide what the trading fee actually is.**~~ **Closed, and the premise
       was wrong.** This claimed the fee was never recorded as a transaction and
       that balances were therefore too high. It is recorded:

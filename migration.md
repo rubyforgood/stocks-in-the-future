@@ -250,6 +250,38 @@ account most likely to be used to look at grading.
 re-fetches with `Teacher.find_by`. `test/db/seeds_test.rb` caught this — a console
 check did not, because `find_by` there returned a correctly typed subclass.
 
+### Page titles lost the rule underneath them
+
+**What.** Removed `border-b` from the six page headers that had one — the shared
+`components/ui/_page_header` primitive, plus the bespoke headers on portfolio, grade
+book, trading floor, classrooms and transactions. Spacing classes were left exactly as
+they were, so nothing shifted; only the line went. Two further redundant rules went
+with them: a section `h3` sitting directly on top of a `divide-y` list, and a
+slate hairline on the bottom edge of the teal announcement banner, where the colour
+change is already the separation.
+
+**Why.** Spacing separates a title from its content on its own. The rule was a second
+signal saying the same thing, and where a card or table followed immediately it landed
+a few pixels from that surface's own border — two hairlines together, which reads as a
+bug rather than as structure.
+
+**Also fixed on the way.** `classrooms/index` and `orders/index` used a bare
+`border-b` with no colour named, so they were drawing Tailwind's default border colour
+rather than a token. Deleting the rule removed the token violation too.
+
+**What stays, and the test for it.** A rule inside a bounded surface is structure and
+was left alone: `_card`'s header, the admin index header strips above a table, the tab
+rail an active tab's `border-b-2` sits on, the fixed admin app bar, table row
+separators, and form field-group separators. The rule of thumb is in `design.md`: on
+the **page background**, delete it; **inside** a card, table, tab rail or app bar, keep
+it.
+
+**Guarded.** `test/integration/page_title_divider_test.rb` renders six pages, parses
+them with Nokogiri and walks up from the `h1`, so re-nesting a heading cannot quietly
+turn the check into a no-op — the failure mode of the regex version I tried first. It
+was verified by putting a border back and watching it fail, not just by watching it
+pass. It also asserts exactly one visible `h1` per page.
+
 ### `grade_books.update.notice` was missing
 
 Saving grades flashed `translation missing: en.grade_books.update.notice`. Added along
@@ -340,7 +372,8 @@ Verified: all 16 admin pages now have exactly one `<h1>` and a distinct title.
 | Copy | Sentence case everywhere. Never all-caps, never the `uppercase` transform on labels. |
 | Colour | Brand tokens only. No hex, no `[var(--...)]` in markup — both hid contrast failures. |
 | Tables | Hairline dividers, `text-xs` chrome headers, money right-aligned with `tabular-nums`. |
-| Page titles | One scale: `text-2xl font-bold tracking-tight text-slate-900`. |
+| Page titles | One scale: `text-2xl font-bold tracking-tight text-slate-900`, and **never a rule beneath**. |
+| Dividers | No extra dividers. A rule is structure only *inside* a bounded surface — card header, tab rail, app bar, table rows, form group. On the page background, delete it. |
 | Landmarks | Exactly one `<main>` per page — the layout provides it. |
 | Flash | Only the layout renders it, via `layouts/_flash`. |
 
