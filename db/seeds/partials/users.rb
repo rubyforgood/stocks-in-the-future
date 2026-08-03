@@ -2,6 +2,7 @@
 teacher = User.find_or_initialize_by(email: "teacher@example.com")
 unless teacher.persisted?
   teacher.attributes = {
+    username: "Teacher",
     name: "Teacher Name",
     password: "password",
     password_confirmation: "password",
@@ -9,7 +10,7 @@ unless teacher.persisted?
     type: "Teacher",
     classroom: Classroom.first
   }
-  teacher.save
+  teacher.save!
   puts "Created Teacher user: #{teacher.email}"
   Rails.logger.info "Seeded Teacher user: #{teacher.email}"
 else
@@ -27,7 +28,7 @@ unless student.persisted?
     type: "Student",
     classroom: Classroom.first
   }
-  student.save
+  student.save!
   puts "Created Student user: #{student.email}"
   Rails.logger.info "Seeded Student user: #{student.email}"
 else
@@ -45,7 +46,7 @@ unless admin.persisted?
     type: "User",
     classroom: Classroom.first
   }
-  admin.save
+  admin.save!
   puts "Created Admin user: #{admin.email}"
   Rails.logger.info "Seeded Admin user: #{admin.email}"
 else
@@ -64,7 +65,7 @@ unless mike.persisted?
     type: "Student",
     classroom: Classroom.first
   }
-  mike.save
+  mike.save!
   puts "Created portfolio transactions user: #{mike.email}"
   Rails.logger.info "Seeded user: #{mike.email}"
 else
