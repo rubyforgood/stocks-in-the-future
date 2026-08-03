@@ -1,7 +1,7 @@
 <div class="flex flex-wrap gap-3">
   <% if actions.include?(:edit) %>
     <%= link_to [:edit, :admin, resource], class: admin_secondary_button_class do %>
-      <%= lucide_icon("square-pen", class: "-ml-1 mr-2 h-5 w-5 text-slate-500 shrink-0") %>
+      <%= lucide_icon("square-pen", class: "h-5 w-5 shrink-0 text-slate-500") %>
       Edit
     <% end %>
   <% end %>
@@ -10,7 +10,7 @@
     <%= link_to [:admin, resource],
                 data: { turbo_method: :delete, turbo_confirm: "Are you sure you want to delete this #{resource.class.name.downcase}?" },
                 class: admin_danger_button_class do %>
-      <%= lucide_icon("trash-2", class: "-ml-1 mr-2 h-5 w-5 text-red-500 shrink-0") %>
+      <%= lucide_icon("trash-2", class: "h-5 w-5 shrink-0 text-red-500") %>
       Delete
     <% end %>
   <% end %>
@@ -21,7 +21,7 @@
                 data: action[:data] || {},
                 class: "#{admin_secondary_button_class} #{action[:class]}" do %>
       <% if action[:icon] %>
-        <%= lucide_icon(action[:icon], class: "-ml-1 mr-2 h-5 w-5 shrink-0") %>
+        <%= lucide_icon(action[:icon], class: "h-5 w-5 shrink-0") %>
       <% end %>
       <%= action[:label] %>
     <% end %>

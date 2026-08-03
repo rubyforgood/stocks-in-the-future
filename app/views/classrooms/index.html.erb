@@ -3,8 +3,9 @@
   <header class="flex items-center justify-between px-6 py-4">
     <h1 class="text-2xl font-bold tracking-tight text-slate-900 py-2">Classrooms</h1>
     <% if policy(Classroom).new? %>
-      <%= link_to "New classroom", new_classroom_path,
-                  class: "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" %>
+      <%# Was bg-blue-500 with white bold text: off-brand, and 3.68:1, which fails the
+          4.5:1 gate for label text. tw-btn-primary is the brand teal at 5.23:1. %>
+      <%= link_to "New classroom", new_classroom_path, class: "tw-btn-primary" %>
     <% end %>
   </header>
 

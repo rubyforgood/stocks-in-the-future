@@ -36,7 +36,10 @@ for them and mandates:
 
 - **Only two responsive tiers**: `base` and `lg:`. Do not introduce `sm:`, `md:`, `xl:`
   or `2xl:` variants, even though `design.md` uses them freely.
-- **Minimum 44px touch targets.**
+- **Buttons are 40px (`h-10`)** - design.md's height token, used by `.tw-btn-*` and the
+  admin button helpers. WCAG 2.5.8 (AA) asks 24x24, so 40px clears it; 44px is AAA / Apple
+  HIG. **44px applies to bare tap targets** with no other affordance: icon-only controls,
+  sidebar nav rows, table row actions.
 - **Test at 375px and 1366px** before every checkpoint.
 - **WCAG AA minimum.**
 
@@ -207,7 +210,8 @@ Per `docs/responsive-design-guidelines.md`. Every page, every checkpoint.
 - [ ] Verified at **375px** (phone) and **1366px** (Chromebook - our primary target).
 - [ ] Only `base` and `lg:` tiers used. No `sm:`/`md:`/`xl:`/`2xl:`.
 - [ ] Mobile-first: unprefixed styles target the small screen; `lg:` scales up.
-- [ ] All touch targets >= 44x44px, including icon buttons and table row actions.
+- [ ] Buttons on the 40px `h-10` token; bare tap targets (icon-only controls, nav rows,
+      table row actions) >= 44x44px.
 - [ ] No horizontal overflow at 375px.
 - [ ] Tables: either horizontally scrollable in a labelled container, or restructured
       into stacked cards at base width. Never a squeezed, unreadable grid.

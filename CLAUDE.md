@@ -155,7 +155,14 @@ action, branch around the form rather than putting the empty state inside it.
 
 Only `base` and `lg:`. No `sm:`, `md:`, `xl:` or `2xl:`. Users are students on
 school Chromebooks at 1366x768 and phones at 375px, so those are the two widths
-to check. Minimum 44px touch targets.
+to check.
+
+**Buttons are 40px (`h-10`), not 44px.** That is design.md's height token and what
+`.tw-btn-*` and the admin button helpers use. WCAG 2.5.8 (AA) asks for 24x24, so 40px
+clears it comfortably; 44px is the AAA / Apple HIG figure. I once set the admin buttons
+to `min-h-11` citing "44px touch targets" and they ended up visibly taller than every
+other button in the app. Reserve 44px for bare tap targets with no other affordance -
+icon-only controls, sidebar nav rows.
 
 ## Accessibility
 

@@ -3,7 +3,7 @@
 
   <%= render layout: "components/ui/page_header", locals: { title: @student.username } do %>
     <%= link_to edit_admin_student_path(@student), class: admin_secondary_button_class do %>
-      <%= lucide_icon("square-pen", class: "-ml-1 mr-2 h-5 w-5 text-slate-500 shrink-0") %>
+      <%= lucide_icon("square-pen", class: "h-5 w-5 shrink-0 text-slate-500") %>
       Edit
     <% end %>
 
@@ -11,7 +11,7 @@
                 data: { turbo_method: :delete,
                         turbo_confirm: "Archive #{@student.username}? They will no longer appear in the active list." },
                 class: admin_danger_button_class do %>
-      <%= lucide_icon("archive", class: "-ml-1 mr-2 h-5 w-5 text-red-500 shrink-0") %>
+      <%= lucide_icon("archive", class: "h-5 w-5 shrink-0 text-red-500") %>
       Archive
     <% end %>
   <% end %>

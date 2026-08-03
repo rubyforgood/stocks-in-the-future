@@ -2,15 +2,21 @@
 
 # rubocop:disable Metrics/ModuleLength
 module AdminHelper
-  # Admin button classes, named once instead of repeated as a long literal on every
-  # page. Hoisting the page headers out of the cards meant rewriting all of these
-  # anyway, and the literals were missing two things design.md requires: a visible
-  # focus indicator (they had none at all, so keyboard focus was invisible) and a 44px
-  # minimum touch target (px-4 py-2 at text-sm renders about 36px). The ring colour is
-  # always named because Tailwind v4 resolves an unset ring/outline colour to
-  # currentColor.
-  ADMIN_BUTTON_BASE = "inline-flex min-h-11 items-center px-4 py-2 shadow-sm text-sm " \
-                      "font-medium rounded-md focus-visible:outline-2 " \
+  # Admin button classes, named once instead of repeated as a long literal on every page.
+  # The literals they replaced had no focus style at all, so keyboard focus was invisible on
+  # every admin action. The ring colour is always named, because Tailwind v4 resolves an
+  # unset ring/outline colour to currentColor.
+  #
+  # h-10 (40px), matching design.md's button height token and the .tw-btn-* classes. This
+  # first shipped as min-h-11 (44px) on the strength of the "minimum 44px touch targets"
+  # note, which made every admin button visibly taller than the rest of the app. 40px is
+  # what the design system specifies - the mainstream medium-button height, per Material 3,
+  # Chakra and shadcn - and it clears WCAG 2.5.8 (AA), which asks for 24x24. The 44px figure
+  # is AAA / Apple HIG.
+  #
+  # gap-2 rather than per-icon margins, so a leading icon needs no -ml-1 mr-2 of its own.
+  ADMIN_BUTTON_BASE = "inline-flex h-10 items-center gap-2 px-4 shadow-sm text-sm " \
+                      "font-medium rounded-lg focus-visible:outline-2 " \
                       "focus-visible:outline-offset-2"
 
   def admin_primary_button_class

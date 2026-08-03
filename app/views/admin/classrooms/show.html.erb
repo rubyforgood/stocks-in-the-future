@@ -5,7 +5,7 @@
       archive toggle sits between Edit and Delete, and that order is worth keeping. %>
   <%= render layout: "components/ui/page_header", locals: { title: @classroom.name } do %>
     <%= link_to edit_admin_classroom_path(@classroom), class: admin_secondary_button_class do %>
-      <%= lucide_icon("square-pen", class: "-ml-1 mr-2 h-5 w-5 text-slate-500 shrink-0") %>
+      <%= lucide_icon("square-pen", class: "h-5 w-5 shrink-0 text-slate-500") %>
       Edit
     <% end %>
 
@@ -15,7 +15,7 @@
                 data: { turbo_method: :delete,
                         turbo_confirm: "Delete classroom \"#{@classroom.name}\"? This cannot be undone." },
                 class: admin_danger_button_class do %>
-      <%= lucide_icon("trash-2", class: "-ml-1 mr-2 h-5 w-5 text-red-500 shrink-0") %>
+      <%= lucide_icon("trash-2", class: "h-5 w-5 shrink-0 text-red-500") %>
       Delete
     <% end %>
   <% end %>

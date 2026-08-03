@@ -65,8 +65,7 @@
         <% end %>
 
         <% unless request.path == new_user_session_path %>
-          <%= link_to "Sign in", new_user_session_path,
-                      class: "inline-flex min-h-11 items-center rounded-full bg-sitf-primary px-5 py-2 text-sm font-medium text-sitf-on-primary transition-colors hover:bg-sitf-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary-dark" %>
+          <%= link_to "Sign in", new_user_session_path, class: "tw-btn-primary" %>
         <% end %>
       </header>
 

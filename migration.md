@@ -618,6 +618,36 @@ signalled by colour alone, so it now carries `aria-current="page"`.
 the table card on any of the eight index pages, and exactly one `aria-current` tab, above
 the card rather than in it. Verified by moving the tabs back inside and watching it fail.
 
+### Buttons back on the 40px height token
+
+**What.** `.tw-btn-*` and the admin button helpers are now `h-10` (40px), `px-4`, `text-sm`,
+`gap-2`, `rounded-lg`, `shadow-sm` — design.md's documented button base. Per-icon
+`-ml-1 mr-2` margins are gone in six files, since `gap-2` handles the spacing.
+
+**Why.** Two separate drifts made buttons too big:
+
+- `.tw-btn-primary` and `.tw-btn-tertiary` were `min-h-11 px-5 py-3` **with no text-size
+  class**, so they inherited 16px body text — taller and wider than the token on both axes.
+- I had set the admin helpers to `min-h-11` (44px) citing the "minimum 44px touch targets"
+  note. That note is stricter than the spec: WCAG 2.5.8 (AA) asks for 24x24, and 44px is the
+  AAA / Apple HIG figure. design.md fixes buttons at 40px, "the mainstream medium-button
+  height: Material 3, Chakra, shadcn". `CLAUDE.md` and `design-instructions.md` are corrected
+  so 44px is scoped to bare tap targets — icon-only controls, sidebar nav rows, row actions.
+
+**Two contrast failures fixed with it.** The classrooms index "New classroom" button was
+hand-written `bg-blue-500` with white bold text: off-brand, and **3.68:1**, under the 4.5:1
+gate. The teacher-picker avatar in `classrooms/_form` was the same blue. Both are the brand
+teal now, 5.23:1. Only two hand-written button strings existed app-wide; both are gone, so
+every button goes through a named class.
+
+**Removals.** `.tw-btn-danger` had no callers and is deleted — an unused class is
+indistinguishable from a supported one until someone adopts it. `.tw-btn-tertiary` no longer
+carries `ml-2`: a button holding its own margin puts layout inside the component, and one
+caller was already fighting it with `ml-0`. Its five callers now get spacing from a `flex
+gap-3` container.
+
+**Verified in the built CSS:** `.tw-btn-primary` emits `height: calc(var(--spacing) * 10)`.
+
 ### The dark bar under the top nav is gone
 
 `layouts/application.html.erb` drew a fixed full-width 1px bar in `sitf-primary-dark`

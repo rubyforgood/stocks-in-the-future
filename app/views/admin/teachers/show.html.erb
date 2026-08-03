@@ -12,7 +12,7 @@
   <%= render layout: "components/ui/page_header",
              locals: { title: @teacher.username, description: status_badge } do %>
     <%= link_to edit_admin_teacher_path(@teacher), class: admin_secondary_button_class do %>
-      <%= lucide_icon("square-pen", class: "-ml-1 mr-2 h-5 w-5 text-slate-500 shrink-0") %>
+      <%= lucide_icon("square-pen", class: "h-5 w-5 shrink-0 text-slate-500") %>
       Edit
     <% end %>
 
@@ -22,7 +22,7 @@
                           turbo_confirm: "Reactivate #{@teacher.username}?" },
                   class: "#{AdminHelper::ADMIN_BUTTON_BASE} border border-green-300 text-green-700 " \
                          "bg-white hover:bg-green-50 focus-visible:outline-green-700" do %>
-        <%= lucide_icon("circle-check", class: "-ml-1 mr-2 h-5 w-5 text-green-600 shrink-0") %>
+        <%= lucide_icon("circle-check", class: "h-5 w-5 shrink-0 text-green-600") %>
         Reactivate
       <% end %>
 
@@ -30,7 +30,7 @@
                   data: { turbo_method: :delete,
                           turbo_confirm: "Permanently delete #{@teacher.username}? This cannot be undone." },
                   class: admin_danger_button_class do %>
-        <%= lucide_icon("trash-2", class: "-ml-1 mr-2 h-5 w-5 text-red-500 shrink-0") %>
+        <%= lucide_icon("trash-2", class: "h-5 w-5 shrink-0 text-red-500") %>
         Permanently delete
       <% end %>
     <% else %>
@@ -38,7 +38,7 @@
                   data: { turbo_method: :post,
                           turbo_confirm: "Deactivate #{@teacher.username}? They will no longer be able to sign in." },
                   class: admin_danger_button_class do %>
-        <%= lucide_icon("trash-2", class: "-ml-1 mr-2 h-5 w-5 text-red-500 shrink-0") %>
+        <%= lucide_icon("trash-2", class: "h-5 w-5 shrink-0 text-red-500") %>
         Deactivate
       <% end %>
     <% end %>
