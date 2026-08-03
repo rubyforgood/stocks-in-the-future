@@ -203,3 +203,60 @@ Counts are indicative, found by pattern matching - confirm by reading the file.
 - [ ] Off-brand focus rings (`ring-blue-500`/`ring-indigo-500`) - compliant but inconsistent with the brand.
 - [x] **Arbitrary `[var(--sitf-*)]` values (25)** - all replaced with token or palette utilities; 0 remain. Uncovered several real contrast failures, the worst being the Buy/Sell submit button (white label on #1db8a6 at 2.48:1 and on #f59e0b at 2.15:1), now teal-700/amber-700 at 5.47:1 and 5.02:1. Also found `--sitf-muted-foreground` referenced but never defined, so that text rendered with no colour of its own.
 - [ ] 21 unused custom CSS classes in `admin.css`/`shadcn.css`.
+
+---
+
+## Blocked on someone else
+
+Neither of these is a design task, and neither should be closed by whoever is
+doing UI work. Both are recorded here because they were found during it.
+
+- [ ] **Merge the Active Storage CVE fix into `main`.** `main` is still on
+      `activestorage 8.1.3`, which carries **CVE-2026-66066** - arbitrary file
+      read and remote code execution in variant processing. Upstream already has
+      the fix as `dependabot/bundler/rails-8.1.3.1`; it needs a maintainer to
+      merge it. The `stocksdesign` branch merged that same commit so it is not
+      running vulnerable code and so `bin/lint` passes, but that does nothing for
+      `main` or for anything deployed from it. **This is the most urgent item in
+      this file and the only security one.**
+
+- [ ] **Decide what the trading fee actually is.** It is presented to students as
+      a fee and shown deducted from their balance, but it is never recorded as a
+      transaction. `ExecuteOrder` writes only `purchase_cost` in both directions,
+      and the fee exists solely as a notional deduction inside
+      `Portfolio#cash_on_hand_in_cents` while an order is pending - so it
+      disappears the moment the order completes. It behaves like a hold, not a
+      fee.
+
+      Three possible intents, and the code does not say which was meant:
+      1. A real fee, in which case `ExecuteOrder` should write a `fee`
+         transaction and balances are currently too high.
+      2. A hold while an order is outstanding, in which case the wording should
+         say so rather than calling it a fee.
+      3. Neither, and it should be removed.
+
+      Not touched, because any of those changes moves real student balances and
+      the answer is a product decision, not a design one. The order form now at
+      least states the rule it currently follows: charged once while an order is
+      outstanding, not once per order.
+
+## Page rebuilds
+
+Foundations are applied everywhere - Figtree, slate, tokens, the table system,
+sentence case, and the accessibility fixes - so every page already looks
+different. These are the pages not yet **rebuilt onto the primitives**.
+
+- [x] `home/index` - rebuilt on `_page_header`, `_card`, `_empty_state`
+- [x] `admin/shared/_show_attributes` - rebuilt on `_card`, which covers ten
+      admin show pages
+- [x] `portfolios/show` header - sentence-case `h1` with the school as subtitle
+- [ ] `portfolios/show` body - metric cards still hand-rolled with
+      `rounded-[22px]` and `border-black/30`; move onto `_card`. Student's main
+      screen, so highest value of what is left.
+- [ ] `stocks/_stock` and `stocks/show` - trading floor, the densest remaining
+      page
+- [ ] Admin index pages - partly upgraded already via the shared table, but need
+      `_page_header` and a `_card` wrapper
+- [ ] `classrooms/*` and `grade_books/*` - teacher-facing
+- [ ] `devise/registrations/*`, `announcements/show`
+
