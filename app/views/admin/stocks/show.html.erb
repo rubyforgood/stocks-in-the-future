@@ -36,7 +36,7 @@
       <!-- Price Information -->
       <div class="mt-6 pt-6 border-t border-gray-200">
         <h3 class="text-sm font-medium text-gray-500 mb-3">Price Information</h3>
-        <dl class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <dl class="grid grid-cols-1 gap-4 lg:grid-cols-3">
           <div>
             <dt class="text-sm font-medium text-gray-500">Current Price</dt>
             <dd class="mt-1 text-sm text-gray-900"><%= number_to_currency(@stock.current_price) %></dd>
@@ -59,7 +59,7 @@
       <!-- Company Information -->
       <div class="mt-6 pt-6 border-t border-gray-200">
         <h3 class="text-sm font-medium text-gray-500 mb-3">Company Information</h3>
-        <dl class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <dl class="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <div>
             <dt class="text-sm font-medium text-gray-500">Employees</dt>
             <dd class="mt-1 text-sm text-gray-900"><%= @stock.employees || "—" %></dd>
@@ -74,7 +74,7 @@
       <!-- Financial Metrics -->
       <div class="mt-6 pt-6 border-t border-gray-200">
         <h3 class="text-sm font-medium text-gray-500 mb-3">Financial Metrics</h3>
-        <dl class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <dl class="grid grid-cols-1 gap-4 lg:grid-cols-3">
           <div>
             <dt class="text-sm font-medium text-gray-500">Cash Flow</dt>
             <dd class="mt-1 text-sm text-gray-900"><%= @stock.cash_flow || "—" %></dd>
@@ -101,7 +101,7 @@
       <!-- Industry Averages -->
       <div class="mt-6 pt-6 border-t border-gray-200">
         <h3 class="text-sm font-medium text-gray-500 mb-3">Industry Averages</h3>
-        <dl class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <dl class="grid grid-cols-1 gap-4 lg:grid-cols-3">
           <div>
             <dt class="text-sm font-medium text-gray-500">Avg Debt to Equity</dt>
             <dd class="mt-1 text-sm text-gray-900"><%= @stock.industry_avg_debt_to_equity || "—" %></dd>

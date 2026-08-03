@@ -1,6 +1,6 @@
 <div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg overflow-hidden">
   <% if local_assigns[:title] || local_assigns[:actions] %>
-    <div class="px-4 py-5 sm:px-6 border-b border-gray-200 flex justify-between items-center">
+    <div class="px-4 py-5 lg:px-6 border-b border-gray-200 flex justify-between items-center">
       <% if local_assigns[:title] %>
         <h3 class="text-lg font-semibold text-gray-900"><%= title %></h3>
       <% end %>
@@ -26,7 +26,7 @@
             </th>
           <% end %>
           <% if options[:show_actions] != false %>
-            <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
+            <th scope="col" class="relative py-3.5 pl-3 pr-4 lg:pr-6">
               <span class="sr-only">Actions</span>
             </th>
           <% end %>
@@ -49,7 +49,7 @@
                 </td>
               <% end %>
               <% if options[:show_actions] != false %>
-                <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+                <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium lg:pr-6">
                   <div class="flex justify-end gap-2">
                     <%= link_to "View", [:admin, route_model(record)], class: "text-blue-600 hover:text-blue-800" %>
                     <%= link_to "Edit", [:edit, :admin, route_model(record)], class: "text-gray-600 hover:text-gray-800" %>
@@ -79,7 +79,7 @@
   </div>
 
   <% if collection.respond_to?(:total_pages) && collection.total_pages > 1 %>
-    <div class="px-4 py-3 border-t border-gray-200 sm:px-6">
+    <div class="px-4 py-3 border-t border-gray-200 lg:px-6">
       <%= render "admin/shared/pagination", collection: collection %>
     </div>
   <% end %>

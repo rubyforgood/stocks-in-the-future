@@ -3,9 +3,13 @@
 }
 
 .required-indicator {
-  @apply text-red-500 ml-1
+  /* red-500 measured 3.76:1 on white and failed AA; red-600 is 4.83:1. */
+  @apply text-red-600 ml-1
 }
 
 .tw-input-primary {
-  @apply block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 border border-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6
+  /* placeholder was gray-400 at 2.54:1 (failed AA), focus ring was off-brand
+     indigo, sm: is not a supported tier, and py-1.5 fell short of the 44px
+     minimum touch target. */
+  @apply block w-full min-h-11 rounded-md bg-white px-3 py-2 text-base text-gray-900 border border-gray-300 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-sitf-primary lg:text-sm/6
 }

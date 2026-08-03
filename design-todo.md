@@ -174,7 +174,7 @@ Counts are indicative, found by pattern matching - confirm by reading the file.
 
 - [x] Add SITF brand colours as semantic tokens so pages stop hardcoding hex. **done**: `sitf-surface`, `sitf-primary`, `sitf-primary-dark`, `sitf-on-primary`, `sitf-secondary`, `sitf-accent`, `sitf-warning`, `sitf-danger` in `tailwind.config.css`, sourced from `shadcn.css`.
 - [ ] Replace the Font Awesome CDN link with local SVG icons (78 usages).
-- [ ] Sweep `sm:`/`md:`/`xl:`/`2xl:` down to `base` + `lg:` (153 usages).
+- [x] Sweep `sm:`/`md:`/`xl:`/`2xl:` down to `base` + `lg:`. **done**: 122 remapped across 31 view files, 0 remaining. Multi-tier ramps (e.g. `text-sm sm:text-base md:text-lg lg:text-xl`) collapsed by hand. Also removed the off-tier usages in `forms.css` and deleted the dead legacy top-nav block in `navbar.css`.
 - [x] Add `scope` to every `<th>`. **done**: 42 added across 8 files (the original count of 58 was inflated - the audit regex also matched `<thead>`). All were column headers; 0 row headers.
 - [ ] Replace faint text colours with `gray-500` or darker (33 usages).
 - [x] Give every `outline-none` a visible focus replacement. **done**: most already paired with a visible `focus:ring`. Real failures fixed: button/textarea/checkbox rings had no colour so fell back to `currentColor` (white ring on white offset on white page = invisible); borderless input used `ring-transparent`; a file input and a school name field removed the outline with no replacement; `.filter-tab:focus` relied on a background tint alone.
@@ -183,3 +183,8 @@ Counts are indicative, found by pattern matching - confirm by reading the file.
 - [ ] Add a card / badge / empty-state primitive to `components/ui/`.
 - [ ] Reconcile `design.md` with this codebase (see blockers in design-instructions.md).
 - [ ] Untrack `app/.DS_Store` and `app/assets/.DS_Store`.
+
+## Deferred / noted
+
+- 21 unused custom CSS classes remain in `admin.css` (`.filter-tab`, `.filter-tabs`, `.form-select`, `.header-controls`, `.action-buttons`) and `shadcn.css` (`.dark`). `.dark` is applied at runtime so it is a false positive; the `admin.css` ones look like scaffolding for unfinished admin work, so they were left in place rather than deleted. Note the `.filter-tab:focus-visible` fix is therefore currently inert.
+- Font Awesome sweep (76 icons) is the last large cross-cutting item.

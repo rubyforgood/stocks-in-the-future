@@ -2,7 +2,7 @@
   <%= admin_breadcrumbs(@breadcrumbs) %>
 
   <div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg overflow-hidden">
-    <div class="px-4 py-5 sm:px-6 border-b border-gray-200 flex justify-between items-center">
+    <div class="px-4 py-5 lg:px-6 border-b border-gray-200 flex justify-between items-center">
       <h3 class="text-lg font-semibold text-gray-900">School Years</h3>
       <div class="flex gap-2">
         <%= link_to "New School Year", new_admin_school_year_path,
@@ -26,7 +26,7 @@
             <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
               <%= sort_link(:created_at, "Created At") %>
             </th>
-            <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
+            <th scope="col" class="relative py-3.5 pl-3 pr-4 lg:pr-6">
               <span class="sr-only">Actions</span>
             </th>
           </tr>
@@ -50,7 +50,7 @@
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">
                   <%= school_year.created_at.strftime("%B %d, %Y") %>
                 </td>
-                <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+                <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium lg:pr-6">
                   <div class="flex justify-end gap-2">
                     <%= link_to "View", admin_school_year_path(school_year), class: "text-blue-600 hover:text-blue-800" %>
                     <%= link_to "Edit", edit_admin_school_year_path(school_year), class: "text-gray-600 hover:text-gray-800" %>

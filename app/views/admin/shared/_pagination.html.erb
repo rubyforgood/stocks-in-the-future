@@ -1,6 +1,6 @@
 <% if collection.respond_to?(:total_pages) && collection.total_pages > 1 %>
   <nav class="flex items-center justify-between" aria-label="Pagination">
-    <div class="hidden sm:block">
+    <div class="hidden lg:block">
       <p class="text-sm text-gray-700">
         Showing
         <span class="font-medium"><%= collection.offset_value + 1 %></span>
@@ -11,7 +11,7 @@
         results
       </p>
     </div>
-    <div class="flex flex-1 justify-between sm:justify-end">
+    <div class="flex flex-1 justify-between lg:justify-end">
       <% if collection.prev_page %>
         <%= link_to "Previous", request.params.merge(page: collection.prev_page), class: "relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" %>
       <% else %>
