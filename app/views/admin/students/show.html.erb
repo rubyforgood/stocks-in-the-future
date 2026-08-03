@@ -77,7 +77,7 @@
 
           <!-- Earnings Summary -->
           <h4 class="text-sm font-medium text-gray-700 mb-3">Earnings Summary</h4>
-          <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 rounded-lg mb-6">
+          <div class="overflow-hidden shadow ring-1 ring-black/5 rounded-lg mb-6">
             <table class="min-w-full divide-y divide-gray-300">
               <thead class="bg-gray-50">
                 <tr>
@@ -114,7 +114,7 @@
           <% transactions = @student.portfolio.portfolio_transactions.order(created_at: :desc) %>
           <% if transactions.any? %>
             <h4 class="text-sm font-medium text-gray-700 mb-3">All Transactions (<%= transactions.count %>)</h4>
-            <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 rounded-lg mb-4">
+            <div class="overflow-hidden shadow ring-1 ring-black/5 rounded-lg mb-4">
               <table class="min-w-full divide-y divide-gray-300">
                 <thead class="bg-gray-50">
                   <tr>
@@ -163,7 +163,7 @@
     <div class="px-6 py-6">
       <h3 class="text-sm font-medium text-gray-500 mb-3">Attendance</h3>
       <% if @attendance_entries.any? %>
-        <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 rounded-lg">
+        <div class="overflow-hidden shadow ring-1 ring-black/5 rounded-lg">
           <table class="min-w-full divide-y divide-gray-300">
             <thead class="bg-gray-50">
               <tr>

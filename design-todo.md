@@ -188,3 +188,18 @@ Counts are indicative, found by pattern matching - confirm by reading the file.
 
 - 21 unused custom CSS classes remain in `admin.css` (`.filter-tab`, `.filter-tabs`, `.form-select`, `.header-controls`, `.action-buttons`) and `shadcn.css` (`.dark`). `.dark` is applied at runtime so it is a false positive; the `admin.css` ones look like scaffolding for unfinished admin work, so they were left in place rather than deleted. Note the `.filter-tab:focus-visible` fix is therefore currently inert.
 - Font Awesome sweep (76 icons) is the last large cross-cutting item.
+
+## Checklist pass (one at a time)
+
+- [x] **Arbitrary hex (2)** - `bg-[#eceec8]` -> new `sitf-accent-soft` token (kept the exact value; near-duplicate of legacy `--sitf-10`). `text-[#8b5cf6]` was violet-500 at 4.23:1 and failed AA -> `text-violet-700` at 7.10:1.
+- [x] **Images without alt (1, not 2)** - only `active_storage/blobs/_blob` genuinely lacked alt; now uses the caption or filename. The other flagged case was a false positive: the audit regex was line-based, so multi-line `image_tag` calls with `alt:` on the next line were miscounted.
+- [x] **Clickable divs (1, not 3)** - the only one was a modal scrim, now `aria-hidden`. While there: replaced 4 inline `onclick` handlers with a new `dialog` Stimulus controller adding Escape, focus-move-in, focus trap and focus restore; `link_to "#"` trigger -> real `<button>` with `aria-haspopup`; close button `text-gray-400` (2.54:1) -> `text-gray-600`; 44px targets.
+- [x] **Dead Tailwind v3 opacity classes (5)** - `bg-opacity-*`/`ring-opacity-*` were removed in v4 and compiled to nothing, so these were visible bugs: two modal scrims rendered fully opaque instead of translucent, and `ring-black ring-opacity-5` drew a solid black ring instead of a 5% hairline. Converted to v4 slash syntax.
+
+### Still open
+
+- [ ] Faint text (19) - needs case-by-case re-measurement; some sit on tinted rather than white surfaces.
+- [ ] `outline-none` (16) - all now paired with a visible `focus:ring`; believed to be false positives, worth confirming.
+- [ ] Off-brand focus rings (`ring-blue-500`/`ring-indigo-500`) - compliant but inconsistent with the brand.
+- [ ] Arbitrary `[var(--sitf-*)]` values in markup (~10) - bypass the token layer the same way raw hex did.
+- [ ] 21 unused custom CSS classes in `admin.css`/`shadcn.css`.

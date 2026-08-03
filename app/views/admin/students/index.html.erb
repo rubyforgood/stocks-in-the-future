@@ -1,3 +1,5 @@
+<div data-controller="dialog">
+<%# data-controller wraps both the trigger and the dialog, which are siblings. %>
 <div class="max-w-7xl mx-auto">
   <%= admin_breadcrumbs(@breadcrumbs) %>
 
@@ -8,9 +10,13 @@
         <div class="flex gap-2">
           <%= link_to "Template", template_admin_students_path,
                       class: "inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" %>
-          <%= link_to "Import Students", "#",
-                      onclick: "document.getElementById('import-modal').classList.remove('hidden'); return false;",
-                      class: "inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" %>
+          <%# A control that opens a dialog is a button, not a link to "#". %>
+          <button type="button"
+                  data-action="click->dialog#open"
+                  aria-haspopup="dialog"
+                  class="inline-flex items-center min-h-11 px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary">
+            Import Students
+          </button>
           <%= link_to "New Student", new_admin_student_path,
                       class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700" %>
         </div>
@@ -100,19 +106,24 @@
 </div>
 
 <!-- Import Modal -->
-<div id="import-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-  <!-- Background overlay -->
-  <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="document.getElementById('import-modal').classList.add('hidden');"></div>
+<div id="import-modal" data-dialog-target="dialog" class="hidden fixed inset-0 z-50 flex items-center justify-center" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+  <%# Scrim. Clicking it dismisses, but that is a convenience only - the close
+      and cancel buttons and Escape all work, so it needs no keyboard role.
+      aria-hidden keeps it out of the accessibility tree. %>
+  <div class="fixed inset-0 bg-gray-500/75 transition-opacity"
+       data-action="click->dialog#close"
+       aria-hidden="true"></div>
 
-  <!-- Modal content -->
-  <div class="relative bg-white rounded-lg shadow-xl max-w-lg w-full mx-4 z-50">
+  <div class="relative bg-white rounded-lg shadow-xl max-w-lg w-full mx-4 z-50" data-dialog-target="panel" tabindex="-1">
     <div class="px-6 py-4">
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-lg font-medium text-gray-900" id="modal-title">
           Import Students from CSV
         </h3>
-        <button type="button" class="text-gray-400 hover:text-gray-500" onclick="document.getElementById('import-modal').classList.add('hidden');">
-          <span class="sr-only">Close</span>
+        <button type="button"
+                data-action="click->dialog#close"
+                class="flex min-w-11 min-h-11 items-center justify-center rounded-full text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary">
+          <span class="sr-only">Close import dialog</span>
           <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
@@ -131,8 +142,8 @@
         </div>
         <div class="flex justify-end gap-3">
           <button type="button"
-                  onclick="document.getElementById('import-modal').classList.add('hidden');"
-                  class="inline-flex justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                  data-action="click->dialog#close"
+                  class="inline-flex justify-center items-center min-h-11 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary">
             Cancel
           </button>
           <%= form.submit "Import Students",
@@ -141,4 +152,5 @@
       <% end %>
     </div>
   </div>
+</div>
 </div>

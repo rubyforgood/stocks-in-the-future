@@ -52,6 +52,10 @@
   --sitf-on-accent: #323232;
   --sitf-hero-from: #f4d18d;
   --sitf-hero-to: #f8dba8;
+  /* Pale accent used for summary total rows. Near-identical to the legacy
+     --sitf-10 (#eeefbe); worth consolidating the two when the legacy block
+     is cleaned up. Kept at the exact original value so nothing shifts. */
+  --sitf-accent-soft: #eceec8;
   --sitf-muted: #f0f0f0;
   --sitf-status-destructive: #ef4444;
   --sitf-input: #737373;
