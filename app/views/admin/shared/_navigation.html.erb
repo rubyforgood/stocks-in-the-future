@@ -9,9 +9,9 @@
 
   <!-- Academic Section -->
   <div>
-    <h3 class="px-3 text-xs font-semibold text-slate-500 mb-2">
+    <h2 class="px-3 text-xs font-semibold text-slate-500 mb-2">
       Academic
-    </h3>
+    </h2>
     <div class="space-y-1">
       <%= link_to admin_classrooms_path, class: "flex items-center px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 rounded-lg transition-colors" do %>
         <%= lucide_icon("presentation", class: "w-5 mr-3 text-slate-500 h-5 shrink-0") %>
@@ -30,9 +30,9 @@
 
   <!-- Users Section -->
   <div>
-    <h3 class="px-3 text-xs font-semibold text-slate-500 mb-2">
+    <h2 class="px-3 text-xs font-semibold text-slate-500 mb-2">
       Users
-    </h3>
+    </h2>
     <div class="space-y-1">
       <%= link_to admin_students_path, class: "flex items-center px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 rounded-lg transition-colors" do %>
         <%= lucide_icon("graduation-cap", class: "w-5 mr-3 text-slate-500 h-5 shrink-0") %>
@@ -51,9 +51,9 @@
 
   <!-- Portfolio Section -->
   <div>
-    <h3 class="px-3 text-xs font-semibold text-slate-500 mb-2">
+    <h2 class="px-3 text-xs font-semibold text-slate-500 mb-2">
       Portfolio
-    </h3>
+    </h2>
     <div class="space-y-1">
       <%= link_to admin_stocks_path, class: "flex items-center px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 rounded-lg transition-colors" do %>
         <%= lucide_icon("chart-line", class: "w-5 mr-3 text-slate-500 h-5 shrink-0") %>
@@ -64,9 +64,9 @@
 
   <!-- Content Section -->
   <div>
-    <h3 class="px-3 text-xs font-semibold text-slate-500 mb-2">
+    <h2 class="px-3 text-xs font-semibold text-slate-500 mb-2">
       Content
-    </h3>
+    </h2>
     <div class="space-y-1">
       <%= link_to admin_announcements_path, class: "flex items-center px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 rounded-lg transition-colors" do %>
         <%= lucide_icon("megaphone", class: "w-5 mr-3 text-slate-500 h-5 shrink-0") %>
@@ -78,9 +78,9 @@
   <!-- Development Section (remove in production) -->
   <% if Rails.env.development? %>
     <div>
-      <h3 class="px-3 text-xs font-semibold text-slate-500 mb-2">
+      <h2 class="px-3 text-xs font-semibold text-slate-500 mb-2">
         Development
-      </h3>
+      </h2>
       <div class="space-y-1">
         <%= link_to admin_component_demo_index_path, class: "flex items-center px-3 py-2 text-sm font-medium text-purple-700 hover:bg-purple-50 hover:text-purple-900 rounded-lg transition-colors" do %>
           <%= lucide_icon("flask-conical", class: "w-5 mr-3 text-purple-500 h-5 shrink-0") %>

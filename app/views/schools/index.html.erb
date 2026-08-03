@@ -4,7 +4,7 @@
   <% end %>
   <div class="flex justify-between items-center">
     <h1 class="font-bold text-4xl">Schools</h1>
-    <%= link_to "New school", new_school_path, class: "rounded-lg py-3 px-5 bg-blue-600 text-white block font-medium" %>
+    <%= link_to "New school", new_school_path, class: "inline-flex min-h-11 items-center rounded-lg px-5 py-3 bg-sitf-primary text-sitf-on-primary font-medium hover:bg-sitf-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary" %>
   </div>
   <div id="schools" class="min-w-full">
     <%= render @schools %>

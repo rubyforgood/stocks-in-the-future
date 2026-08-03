@@ -16,7 +16,7 @@ module Admin
       get admin_schools_path
 
       assert_response :success
-      assert_select "h3", "Schools"
+      assert_select "h2", "Schools"
       assert_select "tbody tr", count: 2
     end
 

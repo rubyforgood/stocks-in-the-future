@@ -23,7 +23,7 @@
   <div class="bg-white shadow-sm ring-1 ring-slate-900/5 rounded-lg p-4 mb-6">
     <h3 class="text-sm font-semibold text-slate-900 mb-3">Component demos</h3>
     <div class="flex gap-3">
-      <%= link_to form_admin_component_demo_index_path, class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700" do %>
+      <%= link_to form_admin_component_demo_index_path, class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-sitf-primary hover:bg-sitf-primary-dark" do %>
         <%= lucide_icon("square-pen", class: "mr-2 w-4 h-4 shrink-0") %>
         Form builder demo
       <% end %>
@@ -61,7 +61,7 @@
           @users,
           columns: @columns,
           title: "Users",
-          actions: link_to("New User", "#", class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"),
+          actions: link_to("New User", "#", class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-sitf-primary hover:bg-sitf-primary-dark"),
           empty_message: "No users found. Create your first user to get started.",
           show_actions: false
         ) %>
@@ -90,11 +90,11 @@
     <div class="bg-white p-6 rounded-lg shadow-sm ring-1 ring-slate-900/5">
       <h3 class="text-sm font-medium text-slate-900 mb-4">Standard actions (Edit + delete)</h3>
       <div class="flex flex-wrap gap-3">
-        <%= link_to "#", class: "inline-flex items-center px-4 py-2 border border-slate-300 shadow-sm text-sm font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" do %>
+        <%= link_to "#", class: "inline-flex items-center px-4 py-2 border border-slate-300 shadow-sm text-sm font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus-visible:ring-sitf-primary" do %>
           <%= lucide_icon("square-pen", class: "-ml-1 mr-2 h-5 w-5 text-slate-500 shrink-0") %>
           Edit
         <% end %>
-        <%= link_to "#", data: { turbo_method: :delete, turbo_confirm: "Are you sure?" }, class: "inline-flex items-center px-4 py-2 border border-red-300 shadow-sm text-sm font-medium rounded-md text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500" do %>
+        <%= link_to "#", data: { turbo_method: :delete, turbo_confirm: "Are you sure?" }, class: "inline-flex items-center px-4 py-2 border border-red-300 shadow-sm text-sm font-medium rounded-md text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus-visible:ring-red-700" do %>
           <%= lucide_icon("trash-2", class: "-ml-1 mr-2 h-5 w-5 text-red-500 shrink-0") %>
           Delete
         <% end %>
@@ -104,15 +104,15 @@
 
       <h3 class="text-sm font-medium text-slate-900 mb-4">With custom actions</h3>
       <div class="flex flex-wrap gap-3">
-        <%= link_to "#", class: "inline-flex items-center px-4 py-2 border border-slate-300 shadow-sm text-sm font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" do %>
+        <%= link_to "#", class: "inline-flex items-center px-4 py-2 border border-slate-300 shadow-sm text-sm font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus-visible:ring-sitf-primary" do %>
           <%= lucide_icon("square-pen", class: "-ml-1 mr-2 h-5 w-5 text-slate-500 shrink-0") %>
           Edit
         <% end %>
-        <%= link_to "#", class: "inline-flex items-center px-4 py-2 border border-slate-300 shadow-sm text-sm font-medium rounded-md text-blue-700 bg-blue-50 hover:bg-blue-100 border-blue-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" do %>
+        <%= link_to "#", class: "inline-flex items-center px-4 py-2 border border-slate-300 shadow-sm text-sm font-medium rounded-md text-blue-700 bg-blue-50 hover:bg-blue-100 border-blue-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus-visible:ring-sitf-primary" do %>
           <%= lucide_icon("mail", class: "-ml-1 mr-2 h-5 w-5 shrink-0") %>
           Send email
         <% end %>
-        <%= link_to "#", data: { turbo_confirm: "Archive this user?" }, class: "inline-flex items-center px-4 py-2 border border-slate-300 shadow-sm text-sm font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" do %>
+        <%= link_to "#", data: { turbo_confirm: "Archive this user?" }, class: "inline-flex items-center px-4 py-2 border border-slate-300 shadow-sm text-sm font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus-visible:ring-sitf-primary" do %>
           <%= lucide_icon("archive", class: "-ml-1 mr-2 h-5 w-5 shrink-0") %>
           Archive
         <% end %>

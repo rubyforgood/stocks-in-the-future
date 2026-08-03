@@ -18,7 +18,7 @@ module Admin
       get admin_stocks_path
 
       assert_response :success
-      assert_select "h3", "Stocks"
+      assert_select "h2", "Stocks"
     end
 
     test "index shows all stocks" do

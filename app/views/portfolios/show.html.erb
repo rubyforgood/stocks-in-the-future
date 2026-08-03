@@ -1,4 +1,12 @@
-<%# Redesigned Portfolio Page %>
+<%# Student portfolio.
+
+    The Trade control appears in every holdings row and in the empty state, so its
+    classes are named once here. sitf-primary on white is 6.18:1 with a white
+    label; the previous sky-800 was fine for contrast but off-brand, and its focus
+    ring was sky-500. %>
+<% trade_class = "inline-flex min-h-11 items-center justify-center rounded-full bg-sitf-primary px-5 py-2 text-sm font-medium text-sitf-on-primary shadow-xs transition-colors hover:bg-sitf-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary-dark" %>
+<% trade_disabled_class = "inline-flex min-h-11 cursor-not-allowed items-center justify-center rounded-full bg-slate-300 px-5 py-2 text-sm font-medium text-slate-600 shadow-xs" %>
+
 <div class="max-w-[1180px] mx-auto px-4 lg:px-6 py-6 space-y-6">
   <!-- Header with badge icons and title -->
   <%# The heading used to upcase the username and append a comma plus the word
@@ -58,69 +66,82 @@
                    hint: "Shares held across all companies",
                    testid: "total-stocks" %>
       </div>
-      <!-- Holdings Table -->
-      <div class="rounded-xl border border-black/60 bg-white overflow-hidden" data-testid="holdings-table">
-        <div class="overflow-x-auto">
-          <table class="w-full min-w-[700px] border-collapse">
-          <colgroup class="hidden lg:table-column-group">
-            <col class="w-[34%]">
-            <col class="w-[8%]">
-            <col class="w-[18%]">
-            <col class="w-[18%]">
-            <col class="w-[18%]">
-            <col class="w-[14%]">
-          </colgroup>
-          <thead>
-            <tr class="bg-amber-300/95 text-xs lg:text-[13px]">
-              <th scope="col" class="text-left py-3 pl-6 pr-4 font-medium">Current holdings</th>
-              <th scope="col" class="text-left py-3 px-4 font-medium">Qty.</th>
-              <th scope="col" class="text-left py-3 px-4 font-medium">Last price</th>
-              <th scope="col" class="text-left py-3 px-4 font-medium">Change</th>
-              <th scope="col" class="text-left py-3 px-4 font-medium">Total return</th>
-              <th scope="col" class="py-3 pr-6"></th>
+      <%# Holdings, on the shared table system.
+
+          Was a saturated amber header band inside a black/60 border with a
+          black/40 rule under every row, and a min-w-[700px] that forced a
+          horizontal scroll at any width. Money columns were left-aligned.
+
+          Numeric columns are now right-aligned with tabular figures so they read
+          down the column, and there is an empty state - previously an empty
+          portfolio rendered a header with nothing under it. %>
+      <div data-testid="holdings-table">
+        <%= render layout: "components/ui/data_table", locals: { caption: "Your current holdings" } do %>
+          <thead class="table-header-row">
+            <tr>
+              <th scope="col" class="table-header-cell table-header-cell-left">Company</th>
+              <th scope="col" class="table-header-cell table-header-cell-right">Qty.</th>
+              <th scope="col" class="table-header-cell table-header-cell-right">Last price</th>
+              <th scope="col" class="table-header-cell table-header-cell-right">Change</th>
+              <th scope="col" class="table-header-cell table-header-cell-right">Total return</th>
+              <th scope="col" class="table-header-cell"><span class="sr-only">Actions</span></th>
             </tr>
           </thead>
-          <tbody class="text-xs lg:text-[14px]">
-            <% @portfolio.positions.each do |position| %>
-              <% price = position.stock_current_price %>
-              <% shares = position.shares %>
-              <% change_amount = position.change_amount %>
-              <% total_return_amount = position.total_return_amount %>
-              <% logo_path = "stock_logos/#{position.stock_ticker}-logo.svg" %>
-              <tr class="border-t first:border-t-0 border-black/40">
-                <td class="py-4 pl-6 pr-4 align-middle">
-                  <div class="flex items-center gap-4">
-                    <% if File.exist?("app/assets/images/#{logo_path}") %>
-                      <%= image_tag asset_path(logo_path),
-                                    class: "w-10 h-10 rounded-lg flex-shrink-0",
-                                    alt: "#{position.stock_ticker} logo",
-                                    loading: "lazy" %>
-                    <% end %>
-                    <div class="flex flex-col">
-                      <span class="font-medium"><%= position.stock_ticker %></span>
+          <tbody>
+            <% if @portfolio.positions.any? %>
+              <% @portfolio.positions.each do |position| %>
+                <% change_amount = position.change_amount %>
+                <% total_return_amount = position.total_return_amount %>
+                <% logo_path = "stock_logos/#{position.stock_ticker}-logo.svg" %>
+                <tr class="table-body-row">
+                  <td class="table-body-cell">
+                    <div class="flex items-center gap-3">
+                      <% if File.exist?("app/assets/images/#{logo_path}") %>
+                        <%= image_tag asset_path(logo_path),
+                                      class: "w-9 h-9 rounded-lg shrink-0",
+                                      alt: "",
+                                      loading: "lazy" %>
+                      <% end %>
+                      <span class="font-medium text-slate-900"><%= position.stock_ticker %></span>
                     </div>
-                  </div>
-                </td>
-                <td class="py-4 px-4 align-middle"><%= shares %></td>
-                <td class="py-4 px-4 align-middle tabular-nums"><%= number_to_currency(price) %></td>
-                <td class="py-4 px-4 align-middle tabular-nums <%= change_amount >= 0 ? 'text-green-600' : 'text-red-600' %>">
-                  <% if change_amount >= 0 %>+<% end %> <%= number_to_currency(change_amount) %>
-                </td>
-                <td class="py-4 px-4 align-middle tabular-nums <%= total_return_amount >= 0 ? 'text-green-600' : 'text-red-600' %>">
-                  <% if total_return_amount >= 0 %>+<% end %> <%= number_to_currency(total_return_amount) %>
-                </td>
-                <td class="py-3 pr-6 align-middle">
-                  <% if current_user.student? %>
-                    <%= link_to "Trade", stocks_path, class: "inline-flex items-center justify-center rounded-full bg-sky-800 text-white px-6 py-2 text-xs lg:text-sm font-medium shadow hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-1 transition-colors" %>
-                  <% else %>
-                    <span aria-disabled="true" class="inline-flex items-center justify-center rounded-full px-6 py-2 text-xs lg:text-sm font-medium shadow cursor-not-allowed bg-slate-400 text-slate-700">Trade</span>
+                  </td>
+                  <td class="table-body-cell table-body-cell-right"><%= position.shares %></td>
+                  <td class="table-body-cell table-body-cell-right"><%= number_to_currency(position.stock_current_price) %></td>
+
+                  <%# A sign as well as a colour, so the direction is not carried by
+                      colour alone. green-700/red-700 clear AA where 600 does not. %>
+                  <td class="table-body-cell table-body-cell-right <%= change_amount >= 0 ? 'text-green-700' : 'text-red-700' %>">
+                    <%= change_amount >= 0 ? "+" : "" %><%= number_to_currency(change_amount) %>
+                  </td>
+                  <td class="table-body-cell table-body-cell-right <%= total_return_amount >= 0 ? 'text-green-700' : 'text-red-700' %>">
+                    <%= total_return_amount >= 0 ? "+" : "" %><%= number_to_currency(total_return_amount) %>
+                  </td>
+
+                  <td class="table-body-cell text-right">
+                    <% if current_user.student? %>
+                      <%= link_to "Trade", stocks_path, class: trade_class %>
+                    <% else %>
+                      <span aria-disabled="true" class="<%= trade_disabled_class %>">Trade</span>
+                    <% end %>
+                  </td>
+                </tr>
+              <% end %>
+            <% else %>
+              <tr>
+                <td colspan="6" class="p-0">
+                  <%= render layout: "components/ui/empty_state",
+                             locals: { icon: "chart-line",
+                                       title: "No holdings yet",
+                                       body: "Buy your first shares on the trading floor and they will appear here." } do %>
+                    <% if current_user.student? %>
+                      <%= link_to "Go to the trading floor", stocks_path, class: trade_class %>
+                    <% end %>
                   <% end %>
                 </td>
               </tr>
             <% end %>
           </tbody>
-        </table>
-        </div>
+        <% end %>
       </div>
     </div>
 

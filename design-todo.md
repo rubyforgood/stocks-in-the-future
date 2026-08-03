@@ -282,6 +282,17 @@ So the standing checks are:
       `DateTime`, company names, and people's names. Two were caught mid-sweep
       and reverted: `John Doe` and `DateTime`.
 
+## Dead code found while sweeping
+
+- [ ] **`app/views/schools/` is unreachable.** Nine templates - index, show,
+      new, edit, `_form`, `_school` and three jbuilder views - plus
+      `SchoolsController`, with **no route pointing at any of it**. Schools are
+      managed at `/admin/schools`, which has its own controller and views. The
+      non-admin set 404s for every role. Left in place rather than deleted, in
+      case it is scaffolding for a planned student- or teacher-facing view, but
+      it should either be wired up or removed.
+- [ ] 21 unused custom CSS classes in `admin.css`/`shadcn.css` (see above).
+
 ## Page rebuilds
 
 Foundations are applied everywhere - Figtree, slate, tokens, the table system,
