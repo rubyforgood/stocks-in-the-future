@@ -249,6 +249,15 @@ At every checkpoint:
 3. Commit with a message naming the page and what changed.
 4. Push to the `stocksdesign` branch.
 5. Update `design-todo.md`.
+6. If the change has a long-term blast radius, add it to `migration.md` **as part
+   of the same commit** - removing a capability, changing data behaviour, adding
+   or dropping a dependency, establishing a convention, or altering a flow that
+   tests depend on. The test is whether it would surprise someone six months from
+   now. Routine styling and copy edits do not belong there.
+
+Architecture work needs a **migration map** in `migration.md` before any code
+moves: current structure, target structure, the order of moves, and what each step
+breaks.
 
 Commits stay small and page-scoped so any regression is easy to bisect and revert.
 

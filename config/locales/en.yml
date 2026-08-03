@@ -170,13 +170,6 @@ en:
       notice: Order was successfully destroyed.
     update:
       notice: Order was successfully updated.
-  schools:
-    create:
-      notice: School was successfully created.
-    destroy:
-      notice: School was successfully destroyed.
-    update:
-      notice: School was successfully updated.
   students:
     add_transaction:
       errors:

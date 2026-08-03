@@ -3,7 +3,29 @@
 Durable context for anyone — human or agent — picking up UI work here. Kept
 short on purpose. The design system lives in [`design.md`](design.md), the
 process in [`design-instructions.md`](design-instructions.md), the backlog in
-[`design-todo.md`](design-todo.md).
+[`design-todo.md`](design-todo.md), and long-term-consequence changes in
+[`migration.md`](migration.md).
+
+## Standing instruction: keep migration.md current
+
+**When you make a change with a long-term blast radius, add it to
+[`migration.md`](migration.md) as part of that change — not afterwards.**
+
+That means anything which:
+
+- removes a capability, controller, route, view or stylesheet
+- changes data behaviour, especially anything touching money or balances
+- adds or drops a dependency, or vendors an asset
+- establishes or overturns a convention
+- alters an interaction flow that tests depend on
+
+Routine styling and copy edits do not belong there; they live in the git history
+and in `design-todo.md`. The test is whether it would surprise someone six months
+from now.
+
+**Architecture work needs a migration map in `migration.md` before any code
+moves** — current structure, target structure, the order of moves, and what each
+step breaks.
 
 ## Things that will trip you up
 
