@@ -46,8 +46,14 @@
       </section>
     <% end %>
 
-    <%# Announcements %>
-    <%= render layout: "components/ui/card", locals: { title: "Announcements", padded: @current_announcement.present? } do %>
+    <%# Announcements. The card is always padded now: the empty state is the compact
+        variant, which carries no padding of its own.
+
+        It used to render the full-height centred empty state - a 48px icon tile and py-12
+        inside a card that already says "Announcements" and has three siblings. That is the
+        page-level treatment, and it made a card with nothing to say the tallest thing on
+        the screen. %>
+    <%= render layout: "components/ui/card", locals: { title: "Announcements" } do %>
       <% if @current_announcement %>
         <% cache @current_announcement do %>
           <h3 class="text-sm font-semibold text-slate-900"><%= @current_announcement.title %></h3>
@@ -57,9 +63,10 @@
         <% end %>
       <% else %>
         <%= render layout: "components/ui/empty_state",
-                   locals: { icon: "megaphone",
+                   locals: { compact: true,
+                             icon: "megaphone",
                              title: "No announcements yet",
-                             body: "When your teacher posts an announcement, it will show up here." } do %>
+                             body: "When your teacher posts one, it will show up here." } do %>
         <% end %>
       <% end %>
     <% end %>
