@@ -313,6 +313,14 @@ So the standing checks are:
       and because its apparent test coverage was actually exercising
       `Admin::SchoolsController`. Recorded in `migration.md`.
 - [ ] 21 unused custom CSS classes in `admin.css`/`shadcn.css` (see above).
+- [ ] **Decide whether `components/ui/_card` keeps the rule under its header.** It is
+      the last instance of the pattern after page titles and the admin index header
+      strips lost theirs. The component's own doc comment says "whitespace doing the
+      separating rather than rules", so markup and comment disagree. Unlike the admin
+      strips it wraps free-form content rather than a tinted table header, so nothing
+      else separates its header from its body - which is the case for keeping it. It
+      covers `home/index`, `stocks/_stock`, and ten admin show pages via
+      `admin/shared/_show_attributes`, so this is one edit with wide reach either way.
 
 ## Page rebuilds
 

@@ -269,18 +269,34 @@ bug rather than as structure.
 `border-b` with no colour named, so they were drawing Tailwind's default border colour
 rather than a token. Deleting the rule removed the token violation too.
 
-**What stays, and the test for it.** A rule inside a bounded surface is structure and
-was left alone: `_card`'s header, the admin index header strips above a table, the tab
-rail an active tab's `border-b-2` sits on, the fixed admin app bar, table row
-separators, and form field-group separators. The rule of thumb is in `design.md`: on
-the **page background**, delete it; **inside** a card, table, tab rail or app bar, keep
-it.
+**What stays.** The tab rail an active tab's `border-b-2` sits on, the fixed admin app
+bar's bottom edge, table row separators, and form field-group separators. The rule of
+thumb is in `design.md`: delete a rule that duplicates a separation the page already
+makes some other way — padding, a tint, a colour change, or a surface edge.
 
 **Guarded.** `test/integration/page_title_divider_test.rb` renders six pages, parses
 them with Nokogiri and walks up from the `h1`, so re-nesting a heading cannot quietly
 turn the check into a no-op — the failure mode of the regex version I tried first. It
 was verified by putting a border back and watching it fail, not just by watching it
 pass. It also asserts exactly one visible `h1` per page.
+
+**Follow-up: the admin index header strips went too.** All six — users, students,
+teachers, classrooms, school years, and stocks through the shared
+`admin/shared/_table` — no longer draw a rule beneath their header. They were the one
+place I had argued to keep it, on the grounds that a rule inside a bounded surface is
+structure. That argument does not survive contact with what is actually below the
+strip: the table opens with a tinted `bg-slate-50` header row, so the separation is
+already there, and on the students and teachers indexes the strip's rule was a second
+line about 20px below the filter tab rail's own baseline. Verified against rendered
+HTML for all six pages, including re-adding the border to the shared partial to confirm
+the check could fail — which is also how I established that the shared partial backs the
+stocks index and nothing else.
+
+**Still open:** `components/ui/_card` draws a rule under its header, the last instance
+of the pattern. Its own doc comment says "whitespace doing the separating rather than
+rules", so component and comment disagree. It wraps free-form content rather than a
+table, so unlike the admin strips nothing else separates header from body — which is the
+case for keeping it. Recorded in `design.md` as a decision to make rather than drift.
 
 ### `grade_books.update.notice` was missing
 
@@ -373,7 +389,7 @@ Verified: all 16 admin pages now have exactly one `<h1>` and a distinct title.
 | Colour | Brand tokens only. No hex, no `[var(--...)]` in markup — both hid contrast failures. |
 | Tables | Hairline dividers, `text-xs` chrome headers, money right-aligned with `tabular-nums`. |
 | Page titles | One scale: `text-2xl font-bold tracking-tight text-slate-900`, and **never a rule beneath**. |
-| Dividers | No extra dividers. A rule is structure only *inside* a bounded surface — card header, tab rail, app bar, table rows, form group. On the page background, delete it. |
+| Dividers | No extra dividers. A rule stays only where nothing else separates: tab rail baseline, app bar edge, table rows, form groups. Delete it under a page title and on a card header strip above a table. |
 | Landmarks | Exactly one `<main>` per page — the layout provides it. |
 | Flash | Only the layout renders it, via `layouts/_flash`. |
 

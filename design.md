@@ -152,22 +152,32 @@ its content. A horizontal line is a second, redundant signal, and it stacks visi
 against the border of whatever card or table sits directly beneath — two hairlines a
 few pixels apart, which reads as a mistake rather than as structure.
 
-**No extra dividers anywhere.** A rule earns its place only as structure *inside a
-bounded surface*. These are correct and stay:
+**No extra dividers anywhere.** A rule earns its place only where nothing else is
+already doing the separating. These stay:
 
-- a card header separated from its body (`components/ui/_card`, and the admin index
-  header strips that sit above a table)
-- the tab rail an active tab's `border-b-2` sits on
-- the fixed admin app bar's bottom edge
+- the tab rail an active tab's `border-b-2` sits on — the active tab needs a baseline
+- the fixed admin app bar's bottom edge — fixed chrome against scrolling content
 - row separators within a table (`divide-y`, `tables.css`)
 - field-group separators inside a form card
 
-**The test:** if the rule sits on the **page background**, delete it. If it sits
-**inside** a card, table, tab rail or app bar, it is doing structural work and stays.
+**A card header strip above a table gets no rule either.** Every admin index page had
+one — users, students, teachers, classrooms, school years, and stocks via the shared
+`admin/shared/_table`. The strip's own padding sets it apart, and the table beneath
+opens with a tinted `bg-slate-50` header row, which is the separation. On the students
+and teachers indexes the strip's rule was also a second line about 20px below the
+filter tab rail's own baseline.
 
-Also delete a rule that duplicates a separation the page already makes some other way
-— a heading rule immediately above a `divide-y` list, or a hairline on the edge of a
-coloured banner where the colour change is the separation.
+**The test:** delete a rule that duplicates a separation the page already makes some
+other way — padding, a tint, a colour change, or a surface edge. Specifically: a rule
+on the **page background** under a title, a heading rule immediately above a `divide-y`
+list, a hairline on the edge of a coloured banner, or a card header strip above a
+tinted table header.
+
+**Known exception, unresolved:** `components/ui/_card` still draws a rule under its
+header — the last instance of this pattern. Its own doc comment says "whitespace doing
+the separating rather than rules", so the markup and the comment disagree. The argument
+for keeping it is that it wraps free-form content rather than a table, so nothing else
+separates its header from its body. Worth a decision rather than drift.
 
 ### Iconography
 - **Bootstrap Icons** (`bi-*`), self-hosted: font binaries under `public/vendor/bootstrap-icons/`,
