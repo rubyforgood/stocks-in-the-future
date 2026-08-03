@@ -5,6 +5,10 @@
         controller: "order-form",
         order_form_current_price_value: order.stock.current_price,
         order_form_fee_value: order.transaction_fee / 100.0,
+        # Cents, divided once in the controller. Display only - the server
+        # remains authoritative for whether the order is affordable.
+        order_form_balance_cents_value: current_user&.portfolio&.cash_balance_cents.to_i,
+        order_form_buying_value: order.action == "buy",
         turbo_frame: "_top"
       }
     ) do |form| %>
@@ -115,15 +119,80 @@
   <%= form.hidden_field :action, value: order.action %>
   <%= form.hidden_field :stock_id, value: order.stock.id %>
 
-  <!-- Submit Button -->
+  <%# Review step.
+
+      A trade is hard to undo once executed, so it gets a confirmation rather
+      than submitting straight from the input. Error prevention over error
+      messages: the student sees what they are about to do, including the figure
+      that was previously nowhere in the flow - what their balance will be
+      afterwards.
+
+      Hidden until the review button is pressed. The controller moves focus here
+      and back, so this is reachable by keyboard. %>
+  <div class="mb-6 hidden rounded-lg border border-slate-300 bg-white p-4"
+       data-order-form-target="review"
+       role="group"
+       aria-labelledby="review-heading"
+       tabindex="-1">
+    <h3 id="review-heading" class="text-sm font-semibold text-slate-900">Check this is right</h3>
+
+    <dl class="mt-3 space-y-2 text-sm">
+      <div class="flex items-center justify-between">
+        <dt class="text-slate-600">Action</dt>
+        <dd class="font-medium text-slate-900">
+          <%= buying ? "Buy" : "Sell" %> <%= order.stock.ticker %>
+        </dd>
+      </div>
+      <div class="flex items-center justify-between">
+        <dt class="text-slate-600">Shares</dt>
+        <dd class="font-medium text-slate-900 tabular-nums" data-order-form-target="reviewShares">0</dd>
+      </div>
+      <div class="flex items-center justify-between">
+        <dt class="text-slate-600">Price each</dt>
+        <dd class="font-medium text-slate-900 tabular-nums"><%= number_to_currency(order.stock.current_price) %></dd>
+      </div>
+      <div class="flex items-center justify-between border-t border-slate-200 pt-2">
+        <dt class="font-semibold text-slate-900">Total <%= buying ? "cost" : "proceeds" %></dt>
+        <dd class="font-bold text-slate-900 tabular-nums" data-order-form-target="reviewTotal">$0.00</dd>
+      </div>
+      <div class="flex items-center justify-between">
+        <dt class="text-slate-600">Balance afterwards</dt>
+        <dd class="font-medium text-slate-900 tabular-nums" data-order-form-target="reviewBalance">$0.00</dd>
+      </div>
+    </dl>
+
+    <p class="mt-3 hidden items-start gap-2 rounded-md bg-red-50 p-2 text-xs text-red-800"
+       data-order-form-target="reviewWarning"
+       role="status">
+      That is more than you have available. Lower the number of shares.
+    </p>
+  </div>
+
   <div class="flex gap-3">
     <button type="button"
             class="flex-1 min-h-11 px-4 py-3 border border-slate-400 text-slate-600 font-medium rounded-lg hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary transition-colors cursor-pointer"
+            data-order-form-target="cancelButton"
             data-action="click->modal#close">
       Cancel
     </button>
-    <%= form.submit "#{order.action == 'buy' ? 'Buy' : 'Sell'} Shares",
-                    class: "flex-1 px-4 py-3 #{order.action == 'buy' ? 'bg-teal-700 hover:bg-teal-800' : 'bg-amber-700 hover:bg-amber-800'} text-white font-medium rounded-lg min-h-11 transition-colors shadow-sm cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary" %>
+
+    <button type="button"
+            class="flex-1 min-h-11 px-4 py-3 border border-slate-400 text-slate-600 font-medium rounded-lg hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary transition-colors cursor-pointer hidden"
+            data-order-form-target="backButton"
+            data-action="click->order-form#backToEdit">
+      Back
+    </button>
+
+    <button type="button"
+            class="flex-1 min-h-11 px-4 py-3 <%= buying ? 'bg-teal-700 hover:bg-teal-800' : 'bg-amber-700 hover:bg-amber-800' %> text-white font-medium rounded-lg transition-colors shadow-sm cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary"
+            data-order-form-target="reviewButton"
+            data-action="click->order-form#showReview">
+      Review order
+    </button>
+
+    <%= form.submit "#{buying ? 'Buy' : 'Sell'} Shares",
+                    data: { order_form_target: "submitButton" },
+                    class: "flex-1 px-4 py-3 #{buying ? 'bg-teal-700 hover:bg-teal-800' : 'bg-amber-700 hover:bg-amber-800'} text-white font-medium rounded-lg min-h-11 transition-colors shadow-sm cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary hidden" %>
   </div>
 
 <% end %>
