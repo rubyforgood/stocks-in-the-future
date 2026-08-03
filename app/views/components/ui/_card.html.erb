@@ -1,8 +1,10 @@
 <%# Card surface - the default container for a block of related content.
 
     Stripe/Airbnb reading: a card earns its edges from a hairline border and a
-    very low shadow, not a heavy drop shadow. Generous internal padding, with
-    whitespace doing the separating rather than rules.
+    low shadow, not a heavy drop shadow. Generous internal padding, with
+    whitespace doing the separating rather than rules - which is why the header
+    carries no border, despite this comment having contradicted the markup for a
+    while.
 
     Locals:
       title    - optional heading text
@@ -12,9 +14,12 @@
 
     Body content is passed as a block, so render with `layout:`. %>
 <% padded = local_assigns.fetch(:padded, true) %>
-<section class="rounded-xl border border-slate-200 bg-white shadow-xs <%= local_assigns[:class] %>">
+<section class="tw-card <%= local_assigns[:class] %>">
   <% if local_assigns[:title].present? %>
-    <header class="border-b border-slate-200 px-5 py-4">
+    <%# No rule under the title. design.md: a border-b under a card title over-segments a
+        compact card - structure comes from the body's own dividers and the footer. The
+        surface is the shared .tw-card so every card in the app is one treatment. %>
+    <header class="px-5 py-4">
       <h2 class="text-base font-semibold text-slate-900"><%= title %></h2>
       <% if local_assigns[:subtitle].present? %>
         <p class="mt-1 text-sm text-slate-600"><%= subtitle %></p>

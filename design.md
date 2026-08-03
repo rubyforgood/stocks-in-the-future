@@ -1319,6 +1319,18 @@ partial untouched for the Bootstrap pages.
 
 ### Card / panel
 `rounded-2xl border border-slate-200 bg-white shadow-sm` (pad `p-5`).
+
+**Implemented as `.tw-card`** in `app/assets/tailwind/cards.css`. Use it for every card,
+including the ones holding tables; `components/ui/_card` wraps it. Padding is deliberately
+not part of the class, because a card holding a flush table needs none - callers add `p-5`,
+or pass `padded:` to the partial.
+
+The surface had drifted into four treatments across seven distinct class strings in 22
+files: `rounded-xl`/`shadow-xs` in the component, `rounded-lg` with `ring-1 ring-slate-900/5`
+instead of a border throughout admin, and two one-off variants in student-facing views. None
+of them matched this spec. Naming it once is what stops that recurring - a class string
+copied 27 times cannot be held consistent by attention.
+
 A **content card with a leading icon** (the case-contact card) puts the icon **in the header
 row** next to the title (`card-title flex flex-wrap items-center gap-2` + a 32px `h-8 w-8`
 rounded-xl icon tile), **not** as a full-height gutter beside the whole body. An `items-start`

@@ -19,15 +19,16 @@ class AdminPageStructureTest < ActionDispatch::IntegrationTest
     sign_in(create(:admin))
   end
 
-  # The card is the rounded surface wrapping the table.
+  # The card is the .tw-card surface wrapping the table. Matching the shared class rather
+  # than a radius utility, so changing the surface does not silently break the check.
   def table_card
     table = response.parsed_body.at_css("table")
 
     assert_not_nil table, "expected a table on the page"
 
-    card = table.ancestors.find { |node| node["class"].to_s.split.include?("rounded-lg") }
+    card = table.ancestors.find { |node| node["class"].to_s.split.include?("tw-card") }
 
-    assert_not_nil card, "expected the table to sit inside a rounded-lg card"
+    assert_not_nil card, "expected the table to sit inside a .tw-card"
     card
   end
 

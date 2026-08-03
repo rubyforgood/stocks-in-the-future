@@ -334,11 +334,41 @@ HTML for all six pages, including re-adding the border to the shared partial to 
 the check could fail — which is also how I established that the shared partial backs the
 stocks index and nothing else.
 
-**Still open:** `components/ui/_card` draws a rule under its header, the last instance
-of the pattern. Its own doc comment says "whitespace doing the separating rather than
-rules", so component and comment disagree. It wraps free-form content rather than a
-table, so unlike the admin strips nothing else separates header from body — which is the
-case for keeping it. Recorded in `design.md` as a decision to make rather than drift.
+**Resolved: one card surface, `.tw-card`, and no rule under a card title.**
+
+I twice called this an open question needing a product decision. It was not — `design.md`'s
+`### Card / panel` section already answered both halves and I had not read it:
+
+> `rounded-2xl border border-slate-200 bg-white shadow-sm` (pad `p-5`) … **`border-b`
+> *under the title* likewise over-segments a compact card**
+
+The same passage also says *"a card inside a card isn't a pattern in this app"*, which
+independently confirms the nested-card fix on the show pages, and means the header rule was
+never the defensible exception I described it as.
+
+**What changed.** `app/assets/tailwind/cards.css` defines `.tw-card` as the documented
+surface. 31 replacements across 25 files now use it: `components/ui/_card`, the admin table
+card, every admin form and filter panel, and the student-facing earnings, chart,
+announcement and grade-book surfaces. `_card`'s header lost its `border-b`.
+
+**The drift this removes.** Four treatments, seven distinct class strings, 22 files —
+`rounded-xl`/`shadow-xs` in the component, `rounded-lg` with `ring-1 ring-slate-900/5`
+instead of a border across admin, plus two one-offs. **None matched the spec**, including
+the two I had presented as the choice.
+
+Also unboxed three tables inside the student show page's cards. I had wrapped them in
+`rounded-lg border` panels two changes earlier, which is the card-in-a-card the same passage
+rules out; they now take a `border-t` above the table instead.
+
+**Verified in the built CSS,** because an `@apply` class that fails compiles to nothing and
+would have silently stripped the surface off every card in the app: `.tw-card` emits
+`--radius-2xl`, a 1px slate-200 border, white background, `shadow-sm` and `overflow:hidden`.
+(Checked twice — the first grep used `^\.tw-card` against minified CSS and found nothing,
+which looked exactly like the failure it was not.)
+
+**The guard needed updating too.** `admin_page_structure_test` located the card by its
+`rounded-lg` class, which the new surface does not have. It matches `tw-card` now, so a
+future change of surface cannot quietly turn the check into a no-op.
 
 ### `grade_books.update.notice` was missing
 

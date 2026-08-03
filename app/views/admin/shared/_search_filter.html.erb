@@ -1,6 +1,6 @@
 <% filters ||= [] %>
 <% search_placeholder ||= "Search..." %>
-<div class="bg-white p-4 shadow-sm ring-1 ring-slate-900/5 rounded-lg mb-6">
+<div class="tw-card p-4 mb-6">
   <%= form_with url: request.path, method: :get, class: "space-y-4 lg:space-y-0 lg:flex lg:items-center lg:gap-4" do |form| %>
     <!-- Search Field -->
     <div class="flex-1">

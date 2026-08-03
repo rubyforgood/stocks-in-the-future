@@ -64,7 +64,7 @@
         </div>
 
         <h3 class="mt-6 mb-3 text-sm font-medium text-slate-700">Earnings summary</h3>
-        <div class="overflow-hidden rounded-lg border border-slate-200">
+        <div class="overflow-x-auto border-t border-slate-200">
           <table class="min-w-full divide-y divide-slate-300">
             <thead class="bg-slate-50">
               <tr>
@@ -105,7 +105,7 @@
           All transactions (<%= transactions.count %>)
         </h3>
         <% if transactions.any? %>
-          <div class="overflow-hidden rounded-lg border border-slate-200">
+          <div class="overflow-x-auto border-t border-slate-200">
             <table class="min-w-full divide-y divide-slate-300">
               <thead class="bg-slate-50">
                 <tr>
@@ -149,7 +149,7 @@
 
     <%= render layout: "components/ui/card", locals: { title: "Attendance" } do %>
       <% if @attendance_entries.any? %>
-        <div class="overflow-hidden rounded-lg border border-slate-200">
+        <div class="overflow-x-auto border-t border-slate-200">
           <table class="min-w-full divide-y divide-slate-300">
             <thead class="bg-slate-50">
               <tr>
