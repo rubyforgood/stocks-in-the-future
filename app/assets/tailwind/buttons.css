@@ -1,41 +1,51 @@
-.tw-btn-sell {
-  @apply box-border content-stretch flex gap-2 h-9 items-center justify-center px-4 py-2 relative rounded-[16px] shrink-0 inline-flex bg-[var(--sitf-primary-blue)] text-white;
-}
+/* Shared button classes.
+ *
+ * These are @apply wrappers, so they are Tailwind - but being Tailwind in a
+ * stylesheet is not the same as being maintained. This file had drifted badly:
+ *
+ *  - .tw-btn-secondary set bg-[#BOEAE5], which is not a valid hex. That is the
+ *    letter O, not a zero. Tailwind emitted "background-color:#BOEAE5" verbatim,
+ *    the browser rejected the declaration, and the button rendered white text on
+ *    no background at all. It is used on the stock detail and classroom pages.
+ *  - .tw-btn-buy put white text on #80cec8, which measures 1.81:1. That is the
+ *    Buy control on the trading floor, so the least readable button in the app
+ *    was one of the most important.
+ *  - .tw-btn-danger was red-500 on red-100 at 3.08:1.
+ *  - Arbitrary values (rounded-[16px], bg-[var(--sitf-4)]) survived here after
+ *    being swept out of the markup, because nothing was looking at CSS.
+ *  - Two Font Awesome rules outlived Font Awesome itself.
+ *
+ * Buy and sell now match the order form: teal for buy, amber for sell, both dark
+ * enough to carry a white label.
+ */
 
 .tw-btn-buy {
-  @apply box-border content-stretch flex gap-2 h-9 items-center justify-center px-4 py-2 relative rounded-[16px] shrink-0 inline-flex bg-[var(--sitf-4)] text-white;
+  @apply inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-lg bg-teal-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary;
+}
+
+.tw-btn-sell {
+  @apply inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-lg bg-amber-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-amber-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary;
 }
 
 .tw-btn-primary {
-  @apply rounded-lg py-3 px-5 bg-sitf-primary text-sitf-on-primary block font-medium cursor-pointer hover:bg-sitf-primary-dark transition-colors
+  @apply inline-flex min-h-11 items-center justify-center rounded-lg bg-sitf-primary px-5 py-3 font-medium text-sitf-on-primary transition-colors cursor-pointer hover:bg-sitf-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary-dark;
 }
 
+/* Disabled controls are exempt from contrast requirements, but slate-600 on
+   slate-200 still reads, where white on slate-300 was 1.48:1 and did not. */
 .tw-btn-primary-disabled {
-    @apply rounded-lg py-3 px-5 bg-slate-300 text-white block font-medium cursor-not-allowed
+  @apply inline-flex min-h-11 cursor-not-allowed items-center justify-center rounded-lg bg-slate-200 px-5 py-3 font-medium text-slate-600;
 }
 
 .tw-btn-secondary {
-  @apply rounded-md bg-[#BOEAE5] px-4 py-2 text-sm font-semibold text-white ring-1 ring-slate-300 ring-inset hover:bg-slate-50
+  @apply inline-flex min-h-11 items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 ring-1 ring-slate-300 ring-inset transition-colors hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary;
 }
 
 .tw-btn-tertiary {
-  @apply ml-2 rounded-lg py-3 px-5 bg-slate-100 inline-block font-medium
+  @apply ml-2 inline-flex min-h-11 items-center justify-center rounded-lg bg-slate-100 px-5 py-3 font-medium text-slate-700 transition-colors hover:bg-slate-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary;
 }
 
+/* red-700 on red-50 is 5.9:1; red-500 on red-100 was 3.08:1. */
 .tw-btn-danger {
-  @apply rounded-lg py-3 ml-2 px-5 bg-red-100 text-red-500 inline-block font-medium hover:text-red-900
-}
-
-/* Font Awesome icon styles */
-.fa-pencil, .fa-ban {
-  font-size: 1.5rem;
-  vertical-align: middle;
-}
-
-.fa-pencil {
-  color: #3b82f6; /* Blue color for edit */
-}
-
-.fa-ban {
-  color: #ef4444; /* Red color for cancel */
+  @apply ml-2 inline-flex min-h-11 items-center justify-center rounded-lg bg-red-50 px-5 py-3 font-medium text-red-700 transition-colors hover:bg-red-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-700;
 }
