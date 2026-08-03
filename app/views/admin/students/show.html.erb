@@ -65,7 +65,7 @@
               <div class="text-2xl font-bold text-green-900 tabular-nums"><%= number_to_currency(@student.portfolio.total_portfolio_worth) %></div>
             </div>
             <div class="bg-purple-50 p-4 rounded-lg">
-              <div class="text-xs font-medium text-purple-600 mb-1">Total Stocks</div>
+              <div class="text-xs font-medium text-purple-600 mb-1">Total stocks</div>
               <div class="text-2xl font-bold text-purple-900"><%= @student.portfolio.portfolio_stocks.sum(:shares).to_i %></div>
             </div>
             <%= link_to portfolio_path(@student.portfolio), class: "bg-slate-50 p-4 rounded-lg block hover:bg-slate-100 transition-colors" do %>
@@ -169,8 +169,8 @@
               <tr>
                 <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-slate-500 uppercase">Year</th>
                 <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-slate-500 uppercase">Quarter</th>
-                <th scope="col" class="px-3 py-3 text-right text-xs font-medium text-slate-500 uppercase">Attendance Days</th>
-                <th scope="col" class="px-3 py-3 text-center text-xs font-medium text-slate-500 uppercase">Perfect Attendance</th>
+                <th scope="col" class="px-3 py-3 text-right text-xs font-medium text-slate-500 uppercase">Attendance days</th>
+                <th scope="col" class="px-3 py-3 text-center text-xs font-medium text-slate-500 uppercase">Perfect attendance</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-200 bg-white">

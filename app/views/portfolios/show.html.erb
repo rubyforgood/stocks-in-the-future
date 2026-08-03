@@ -1,14 +1,15 @@
 <%# Redesigned Portfolio Page %>
-<div class="max-w-[1180px] mx-auto px-4 lg:px-6 py-6 space-y-6" style="font-family: Inter, system-ui, sans-serif;">
+<div class="max-w-[1180px] mx-auto px-4 lg:px-6 py-6 space-y-6">
   <!-- Header with badge icons and title -->
-  <div class="flex items-center gap-2 lg:gap-3">
-    <div class="flex items-center gap-1 text-xl lg:text-2xl"><span>📙💰</span></div>
-    <h1 class="text-sm lg:text-xl font-medium tracking-wide">
-      <%= @portfolio.username.upcase %>, PORTFOLIO
-      <span class="font-normal text-slate-500 block lg:inline">
-        <span class="hidden lg:inline">| </span><%= @portfolio.school_name %>
-      </span>
+  <%# The heading used to upcase the username and append a comma plus the word
+      PORTFOLIO in capitals - shouty all-caps, which design.md rules out. It was
+      built with .upcase, so no copy sweep could have found it. A username is a
+      proper noun, so it now keeps its own capitalisation. %>
+  <div class="mb-6 border-b border-slate-200 pb-5">
+    <h1 class="text-2xl font-bold tracking-tight text-slate-900">
+      <%= @portfolio.username %>'s portfolio
     </h1>
+    <p class="mt-1 text-sm text-slate-600"><%= @portfolio.school_name %></p>
   </div>
 
   <% if @portfolio.student? && !@portfolio.trading_enabled? %>
@@ -35,19 +36,19 @@
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <%# Total Earnings Card %>
         <div class="bg-white rounded-[22px] border border-black/30 py-4 px-5 flex flex-col justify-between min-h-[120px]">
-          <div class="text-sm text-slate-600">Total Earnings</div>
+          <div class="text-sm text-slate-600">Total earnings</div>
           <div class="text-2xl font-semibold tabular-nums"><%= number_to_currency(@portfolio.cash_balance) %></div>
           <div><%# Trending up/down this month will go here %></div>
         </div>
         <%# Total Cash Value %>
         <div class="bg-white rounded-[22px] border border-black/30 py-4 px-5 flex flex-col justify-between min-h-[120px]" data-testid="cash-balance">
-          <div class="text-sm text-slate-600">Total Cash Value</div>
+          <div class="text-sm text-slate-600">Total cash value</div>
           <div class="text-2xl font-semibold tabular-nums"><%= number_to_currency(@portfolio.cash_balance) %></div>
           <div><%# Trending up/down this month will go here %></div>
         </div>
         <%# Total Stocks %>
         <div class="bg-white rounded-[22px] border border-black/30 py-4 px-5 flex flex-col justify-between min-h-[120px]" data-testid="total-stocks">
-          <div class="text-sm text-slate-600">Total Stocks</div>
+          <div class="text-sm text-slate-600">Total stocks</div>
           <div class="text-2xl font-semibold"><%= @portfolio.portfolio_stocks.sum(:shares).to_i %></div>
           <div><%# Trending up/down this month will go here %></div>
         </div>
@@ -66,11 +67,11 @@
           </colgroup>
           <thead>
             <tr class="bg-amber-300/95 text-xs lg:text-[13px]">
-              <th scope="col" class="text-left py-3 pl-6 pr-4 font-medium">Current Holdings</th>
+              <th scope="col" class="text-left py-3 pl-6 pr-4 font-medium">Current holdings</th>
               <th scope="col" class="text-left py-3 px-4 font-medium">Qty.</th>
-              <th scope="col" class="text-left py-3 px-4 font-medium">Last Price</th>
+              <th scope="col" class="text-left py-3 px-4 font-medium">Last price</th>
               <th scope="col" class="text-left py-3 px-4 font-medium">Change</th>
-              <th scope="col" class="text-left py-3 px-4 font-medium">Total Return</th>
+              <th scope="col" class="text-left py-3 px-4 font-medium">Total return</th>
               <th scope="col" class="py-3 pr-6"></th>
             </tr>
           </thead>

@@ -8,11 +8,11 @@
       <div class="p-6">
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
           <div class="bg-slate-50 rounded-xl p-4">
-            <div class="text-sm text-slate-600 mb-1">Current Price</div>
+            <div class="text-sm text-slate-600 mb-1">Current price</div>
             <div class="text-2xl font-bold text-green-600 tabular-nums"><%= number_to_currency(stock.current_price) %></div>
           </div>
           <div class="bg-slate-50 rounded-xl p-4">
-            <div class="text-sm text-slate-600 mb-1">Stock Exchange</div>
+            <div class="text-sm text-slate-600 mb-1">Stock exchange</div>
             <div class="text-lg font-semibold"><%= stock.stock_exchange %></div>
           </div>
           <div class="bg-slate-50 rounded-xl p-4">
@@ -61,7 +61,7 @@
           <% end %>
           <% if stock.competitor_names.present? %>
             <div>
-              <label class="text-sm font-medium text-slate-600">Key Competitors</label>
+              <label class="text-sm font-medium text-slate-600">Key competitors</label>
               <p class="mt-1 text-slate-900"><%= stock.competitor_names %></p>
             </div>
           <% end %>

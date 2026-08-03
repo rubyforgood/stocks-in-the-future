@@ -22,8 +22,8 @@ class StudentPortfolioViewTest < ApplicationSystemTestCase
     visit portfolio_path(portfolio)
 
     # Verify page heading
-    assert_text "PORTFOLIO"
-    assert_text student.username.upcase
+    assert_text "portfolio"
+    assert_text student.username
 
     # Verify cash balance is displayed
     within "[data-testid='cash-balance']" do
@@ -64,7 +64,7 @@ class StudentPortfolioViewTest < ApplicationSystemTestCase
     visit portfolio_path(portfolio)
 
     # Verify page heading
-    assert_text "PORTFOLIO"
+    assert_text "portfolio"
 
     # Verify cash balance is displayed
     within "[data-testid='cash-balance']" do
@@ -100,7 +100,7 @@ class StudentPortfolioViewTest < ApplicationSystemTestCase
     visit portfolio_path(portfolio)
 
     # Verify page heading
-    assert_text "PORTFOLIO"
+    assert_text "portfolio"
 
     # Verify cash balance is $0
     within "[data-testid='cash-balance']" do
@@ -133,7 +133,7 @@ class StudentPortfolioViewTest < ApplicationSystemTestCase
     visit portfolio_path(portfolio)
 
     # Verify page heading
-    assert_text "PORTFOLIO"
+    assert_text "portfolio"
 
     # Verify cash balance is $0
     within "[data-testid='cash-balance']" do
@@ -206,7 +206,7 @@ class StudentPortfolioViewTest < ApplicationSystemTestCase
 
     # Should be denied access (Pundit policy blocks) and redirected to own portfolio
     # Verify Student A is viewing their own portfolio (not Student B's)
-    assert_text student_a.username.upcase
+    assert_text student_a.username
 
     # Verify this is NOT Student B's portfolio by checking stock count
     # Student B has 1 share of AMZN, Student A has 0
