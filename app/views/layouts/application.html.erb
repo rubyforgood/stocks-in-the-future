@@ -14,7 +14,11 @@
   <body class="min-h-screen bg-sitf-surface">
     <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-100 focus:rounded-md focus:bg-sitf-primary focus:px-4 focus:py-2 focus:text-sitf-on-primary focus:outline-2 focus:outline-offset-2 focus:outline-sitf-primary-dark">Skip to main content</a>
     <% if user_signed_in? %>
-      <header class="fixed top-0 left-0 w-full z-50 flex items-center justify-between py-4 px-6 h-16 bg-sitf-surface">
+      <%# shadow-xs, not a rule. The bar is fixed and the same colour as the page, so it
+          needs some cue that content passes beneath it; a very low shadow reads as a layer
+          rather than as a divider. What was here was a full-width 1px bar in
+          sitf-primary-dark - an 8.5:1 dark line across the page, far heavier than chrome. %>
+      <header class="fixed top-0 left-0 w-full z-50 flex items-center justify-between py-4 px-6 h-16 bg-sitf-surface shadow-xs">
         <div class="flex items-center gap-4">
           <label
             for="mobile-menu-toggle"
@@ -30,8 +34,6 @@
           <%= render 'layouts/stock_ticker' %>
         </div>
       </header>
-
-      <div class="fixed w-full h-px z-40 top-16 bg-sitf-primary-dark"></div>
 
       <%= render 'layouts/navbar', stocks: @navbar_stocks %>
 

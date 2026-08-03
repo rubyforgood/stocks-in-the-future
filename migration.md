@@ -520,6 +520,20 @@ signalled by colour alone, so it now carries `aria-current="page"`.
 the table card on any of the eight index pages, and exactly one `aria-current` tab, above
 the card rather than in it. Verified by moving the tabs back inside and watching it fail.
 
+### The dark bar under the top nav is gone
+
+`layouts/application.html.erb` drew a fixed full-width 1px bar in `sitf-primary-dark`
+under the header — an 8.5:1 dark rule straight across the page, which is body-text weight
+for something that is chrome. Removed.
+
+The header does still need *some* cue, because it is `fixed` and painted the same colour as
+the page, so content scrolls invisibly beneath it. It now carries `shadow-xs`, which reads
+as a layer rather than as a divider and keeps the "no extra dividers" rule intact.
+
+Note the inconsistency this leaves: the **admin** app bar is `bg-white` with a neutral
+`border-b border-slate-200`, while the main app bar is surface-coloured with a shadow. Two
+treatments for the same piece of furniture. Worth settling on one.
+
 ### Guarded
 
 `page_title_divider_test.rb` covers the twelve admin pages as well now — it could not
