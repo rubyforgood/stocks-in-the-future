@@ -95,9 +95,9 @@
 
       <div class="flex items-center justify-between">
         <dt class="text-slate-600">
-          Trading fee
+          Daily trading fee
           <% if fee_cents.zero? %>
-            <span class="text-slate-500">(already charged)</span>
+            <span class="text-slate-500">(already held today)</span>
           <% end %>
         </dt>
         <dd class="font-medium text-slate-900 tabular-nums"><%= number_to_currency(fee_cents / 100.0) %></dd>
@@ -111,7 +111,11 @@
 
     <p class="mt-3 flex items-start gap-2 border-t border-slate-200 pt-3 text-xs text-slate-600">
       <%= lucide_icon("info", class: "h-4 w-4 shrink-0 text-slate-500") %>
-      <span>The <%= number_to_currency(PortfolioTransaction::TRANSACTION_FEE_CENTS / 100.0) %> trading fee is charged once while you have an order outstanding, not once per order.</span>
+      <%# Accurate about the mechanism: the amount is held now and charged when the
+          orders run, once for the day however many trades you place. Calling it a
+          per-trade fee would misdescribe it, and "bundle your trades" is the
+          lesson the batching is there to teach. %>
+      <span>The <%= number_to_currency(PortfolioTransaction::TRANSACTION_FEE_CENTS / 100.0) %> daily trading fee is held now and charged once when your orders go through &mdash; once for the day, however many trades you place.</span>
     </p>
   </div>
 
@@ -160,6 +164,13 @@
         <dd class="font-medium text-slate-900 tabular-nums" data-order-form-target="reviewBalance">$0.00</dd>
       </div>
     </dl>
+
+    <%# At review time nothing has been charged yet - the order is placed as
+        pending, and both the share cost and the fee are held until the orders run.
+        Saying so avoids implying the money has already moved. %>
+    <p class="mt-3 border-t border-slate-200 pt-3 text-xs text-slate-600">
+      Placing this order holds the amount above. Nothing is charged until your orders go through.
+    </p>
 
     <p class="mt-3 hidden items-start gap-2 rounded-md bg-red-50 p-2 text-xs text-red-800"
        data-order-form-target="reviewWarning"

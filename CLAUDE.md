@@ -62,12 +62,18 @@ whole-dollar price prints as `$15.0`.
 Postgres types `price_cents / 100.0` as `numeric`, not double precision, so
 existing SQL that does this is exact. Do not "fix" it.
 
-**Known oddity, deliberately untouched:** the trading fee is never recorded as a
-transaction. `ExecuteOrder` writes only `purchase_cost` in both directions, and
-the fee exists solely as a notional deduction in `Portfolio#cash_on_hand_in_cents`
-while an order is pending — so it vanishes once the order completes. It behaves
-like a hold, not a fee. Changing it moves real balances, so it needs a product
-decision first.
+**The trading fee has two halves, in different files.** `Portfolio#pending_transaction_fee`
+*holds* the amount while any order is pending, without persisting anything.
+`TransactionFeeProcessor`, called by `OrderExecutionJob` after `ExecuteOrder`,
+then writes the real `PortfolioTransaction` with `transaction_type: :fee`.
+
+Reading `ExecuteOrder` alone suggests the fee is never charged — it writes only
+`purchase_cost`. I concluded exactly that and was wrong, twice, because a grep for
+`transaction_type: :fee` and `.fee.create` missed the plural scope `.fees.create!`.
+**To audit fee behaviour, run `OrderExecutionJob`, not `ExecuteOrder` directly**,
+or you will see the hold released and no charge appear.
+
+The fee is once per student per job run, not per order. That is deliberate.
 
 ## Copy
 

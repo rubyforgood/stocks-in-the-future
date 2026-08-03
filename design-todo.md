@@ -220,25 +220,19 @@ doing UI work. Both are recorded here because they were found during it.
       `main` or for anything deployed from it. **This is the most urgent item in
       this file and the only security one.**
 
-- [ ] **Decide what the trading fee actually is.** It is presented to students as
-      a fee and shown deducted from their balance, but it is never recorded as a
-      transaction. `ExecuteOrder` writes only `purchase_cost` in both directions,
-      and the fee exists solely as a notional deduction inside
-      `Portfolio#cash_on_hand_in_cents` while an order is pending - so it
-      disappears the moment the order completes. It behaves like a hold, not a
-      fee.
+- [x] ~~**Decide what the trading fee actually is.**~~ **Closed, and the premise
+      was wrong.** This claimed the fee was never recorded as a transaction and
+      that balances were therefore too high. It is recorded:
+      `TransactionFeeProcessor`, called by `OrderExecutionJob` after the orders
+      execute, writes a real `PortfolioTransaction` with `transaction_type: :fee`.
+      The mistake came from a grep that searched for `transaction_type: :fee` and
+      `.fee.create` and missed the plural scope, `.fees.create!`.
 
-      Three possible intents, and the code does not say which was meant:
-      1. A real fee, in which case `ExecuteOrder` should write a `fee`
-         transaction and balances are currently too high.
-      2. A hold while an order is outstanding, in which case the wording should
-         say so rather than calling it a fee.
-      3. Neither, and it should be removed.
-
-      Not touched, because any of those changes moves real student balances and
-      the answer is a product decision, not a design one. The order form now at
-      least states the rule it currently follows: charged once while an order is
-      outstanding, not once per order.
+      What was genuinely missing: the fee row named no orders, so a student could
+      not tell which trade caused it and the charge could not be audited. It now
+      records what it covers in `description`, the UI calls it a "daily trading
+      fee" rather than implying per-trade, and the order form distinguishes
+      holding from charging. Amount and timing unchanged - see `migration.md`.
 
 
 ## Sentence case - treat as verified-so-far, not done

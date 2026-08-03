@@ -164,6 +164,48 @@ defeating its own guard.
 **Verified.** Three consecutive `db:seed` runs leave record counts and balances
 identical. Covered by `test/db/seeds_test.rb`.
 
+### How the trading fee works, and what changed
+
+Worth writing down because it was misread once already, and the two halves live
+in different files.
+
+**The mechanism, unchanged.** There are two pieces:
+
+1. **A hold.** `Portfolio#pending_transaction_fee` subtracts the fee from the
+   *displayed* balance whenever the student has any pending order. Nothing is
+   persisted — it reserves the money so it cannot be spent twice.
+2. **A charge.** `OrderExecutionJob` runs on a schedule and calls `ExecuteOrder`
+   for each pending order, then `TransactionFeeProcessor`, which writes a real
+   `PortfolioTransaction` with `transaction_type: :fee` and
+   `reason: :transaction_fees`. `Portfolio#total_fees` reads those rows.
+
+The fee is **once per student per job run**, not once per order — both the hold
+and the charge behave that way. Batching several trades into one charge is
+deliberate: it is the "bundle your trades" lesson.
+
+**Why this is easy to misread.** `ExecuteOrder` writes only `purchase_cost`, so
+reading it alone suggests the fee is never charged. The charge is in a sibling
+service invoked by the job. Anyone auditing this should run `OrderExecutionJob`
+rather than calling `ExecuteOrder` directly, or they will see the hold released
+and no charge appear.
+
+**What changed.**
+
+- The fee now records **which orders it covers**, in the existing `description`
+  column: *"Daily trading fee, covering 2 orders: buy 1 AAPL, buy 3 GOOGL."*
+  Previously a student seeing "−$1.00 Transaction fees" could not tell which trade
+  caused it, and the charge could not be audited against the orders. Grouping is
+  per student, so one student's fee never names another's trades.
+- Renamed in the UI from "Trading fee" to **"Daily trading fee"**, because
+  "trading fee" implies per-trade and it is not.
+- The order form now says the amount is **held now and charged when the orders go
+  through**, and the review step says placing the order holds the amount rather
+  than charging it. At review time nothing has moved.
+
+**Deliberately not changed.** The fee was not moved into `ExecuteOrder`. That
+would make it per-order, changing the economics students experience and removing
+the batching lesson. The amount stayed at $1.00.
+
 ### Rails 8.1.3 → 8.1.3.1 (security)
 
 Merged upstream's `dependabot/bundler/rails-8.1.3.1` to clear **CVE-2026-66066**,
@@ -217,13 +259,15 @@ Verified: all 16 admin pages now have exactly one `<h1>` and a distinct title.
 - **Merge the CVE fix into `main`.** `main` remains on `activestorage 8.1.3` with
   CVE-2026-66066. Upstream has the fix ready as a dependabot branch; a maintainer
   needs to merge it. **The most urgent item in any of these documents.**
-- **Decide what the trading fee is.** It is presented to students as a fee and
-  shown deducted, but is never recorded as a transaction — `ExecuteOrder` writes
-  only `purchase_cost`, and the fee exists solely as a notional deduction in
-  `Portfolio#cash_on_hand_in_cents` while an order is pending, vanishing once it
-  completes. It behaves like a hold. If it is meant to be a real fee, **balances
-  are currently too high.** Untouched, because any resolution moves real student
-  balances and the answer is a product decision.
+- ~~**Decide what the trading fee is.**~~ **Resolved — and the original claim
+  here was wrong.** This previously said the fee was never recorded as a
+  transaction and that balances were therefore too high. That was incorrect. The
+  fee *is* charged: `TransactionFeeProcessor`, called by `OrderExecutionJob` after
+  the orders execute, writes a real `PortfolioTransaction` with
+  `transaction_type: :fee`. The error came from a grep that looked for
+  `transaction_type: :fee` and `.fee.create` and missed the plural scope,
+  `.fees.create!`. See the fee entry under Behaviour changes for how it actually
+  works.
 
 ---
 
