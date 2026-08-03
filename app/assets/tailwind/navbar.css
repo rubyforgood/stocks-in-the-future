@@ -88,6 +88,20 @@
   animation: scroll 20s linear infinite;
 }
 
+/* Sidebar icon tinting.
+   These icons are external SVG assets referenced via image_tag, so they cannot
+   inherit currentColor. A filter is the only way to tint them short of inlining
+   every file. Kept as named classes rather than a 100-character inline style
+   repeated on every nav item. */
+.nav-icon-inactive {
+  filter: brightness(0) saturate(100%) invert(100%);
+}
+
+.nav-icon-active {
+  filter: brightness(0) saturate(100%) invert(20%) sepia(8%) saturate(348%)
+    hue-rotate(114deg) brightness(98%) contrast(85%);
+}
+
 /* Trading Floor collapse chevron toggle */
 details .icon-up {
   display: none;

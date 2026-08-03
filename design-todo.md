@@ -35,13 +35,16 @@ Counts are indicative, found by pattern matching - confirm by reading the file.
 
 ## Foundations (do these first - every page depends on them)
 
+- [x] `layouts/_nav_item.html.erb` - **new** shared sidebar link partial
+- [x] `layouts/_flash.html.erb` - **new** accessible flash partial
+
 - [ ] `components/_action_icon_button.html.erb` - 6 off-tier bp, 2 FA icon
 - [ ] `components/ui/_button.html.erb` - clean
 - [ ] `components/ui/_checkbox.html.erb` - clean
 - [ ] `components/ui/_input.html.erb` - clean
 - [ ] `components/ui/_label.html.erb` - clean
 - [ ] `components/ui/_textarea.html.erb` - clean
-- [ ] `layouts/_navbar.html.erb` - 5 hex, 4 img no alt, 1 div-as-button, 2 FA icon
+- [x] `layouts/_navbar.html.erb` - **done**: 170->138 lines, extracted `_nav_item` partial, 5 hex + ~20 inline styles -> tokens, `aria-current="page"` on all active links, decorative icons `alt=""`, chevron div -> real `<button>`, FA chevrons -> inline SVG, un-nested the duplicate `<nav>`, 44px targets, dropped phantom `Geist` font
 - [ ] `layouts/_stock_item.html.erb` - clean
 - [ ] `layouts/_stock_ticker.html.erb` - clean
 - [ ] `layouts/admin.html.erb` - 1 off-tier bp, 1 div-as-button, 1 FA icon (partially done: `lang="en"` added)

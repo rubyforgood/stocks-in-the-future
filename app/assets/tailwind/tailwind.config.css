@@ -54,6 +54,7 @@
   --color-sitf-on-primary: var(--sitf-primary-secondary-foreground-card);
   --color-sitf-secondary: var(--sitf-secondary-chart2);
   --color-sitf-accent: var(--sitf-accent1-chart3);
+  --color-sitf-on-accent: var(--sitf-on-accent);
   --color-sitf-warning: var(--sitf-accent2-chart5);
   --color-sitf-danger: var(--sitf-status-destructive);
 
