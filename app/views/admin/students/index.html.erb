@@ -17,23 +17,13 @@
     <%= link_to "New student", new_admin_student_path, class: admin_primary_button_class %>
   <% end %>
 
-  <div class="bg-white shadow-sm ring-1 ring-slate-900/5 rounded-lg overflow-hidden">
-    <div class="px-4 py-5 lg:px-6">
-      <!-- Filter Tabs -->
-      <% current_filter = current_discard_filter %>
-      <div class="flex gap-1 border-b border-slate-200">
-        <%= link_to "Active",
-                    admin_students_path,
-                    class: "px-4 py-2 text-sm font-medium #{current_filter == :active ? 'text-blue-600 border-b-2 border-blue-600' : 'text-slate-500 hover:text-slate-700 hover:border-slate-300'}" %>
-        <%= link_to "Archived",
-                    admin_students_path(discarded: true),
-                    class: "px-4 py-2 text-sm font-medium #{current_filter == :discarded ? 'text-blue-600 border-b-2 border-blue-600' : 'text-slate-500 hover:text-slate-700 hover:border-slate-300'}" %>
-        <%= link_to "All",
-                    admin_students_path(all: true),
-                    class: "px-4 py-2 text-sm font-medium #{current_filter == :all ? 'text-blue-600 border-b-2 border-blue-600' : 'text-slate-500 hover:text-slate-700 hover:border-slate-300'}" %>
-      </div>
-    </div>
+  <%= render "admin/shared/discard_filter_tabs",
+             current: current_discard_filter,
+             tabs: [["Active", :active, admin_students_path],
+                    ["Archived", :discarded, admin_students_path(discarded: true)],
+                    ["All", :all, admin_students_path(all: true)]] %>
 
+  <div class="bg-white shadow-sm ring-1 ring-slate-900/5 rounded-lg overflow-hidden">
     <div class="overflow-x-auto">
       <table class="min-w-full divide-y divide-slate-300">
         <thead class="bg-slate-50">

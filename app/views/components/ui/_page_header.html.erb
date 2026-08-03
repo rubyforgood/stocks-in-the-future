@@ -14,7 +14,10 @@
       description - optional supporting sentence
       actions     - optional block of buttons/links, passed as a block %>
 <% content_for :own_heading, true %>
-<div class="mb-6 flex flex-col gap-3 pb-5 lg:flex-row lg:items-start lg:justify-between">
+<%# mb-6 and nothing else. The pb-5 that used to sit here existed to hold content off
+    the rule beneath the title; with the rule gone it was surplus, stacking 20px of
+    padding on top of 24px of margin. design.md's page rhythm is a 24px header block. %>
+<div class="mb-6 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
   <div class="min-w-0">
     <h1 class="text-2xl font-bold tracking-tight text-slate-900"><%= title %></h1>
     <% if local_assigns[:description].present? %>

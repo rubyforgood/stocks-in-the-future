@@ -1,0 +1,35 @@
+<%# Filter tabs, above the table card rather than inside it.
+
+    design.md treats a filter as chrome above the data: a plain borderless filter bar sits
+    mb-4 (16px) above the table, not on its surface. These tabs were inside the card,
+    which put chrome and data on one surface again - the same thing hoisting the page
+    header out of the card was meant to stop.
+
+    The rail keeps its border-b. That is the baseline the active tab's border-b-2 sits on,
+    so it is structural rather than an extra divider.
+
+    Inactive tabs carry border-b-2 border-transparent, so selecting a tab does not shift
+    the row by 2px and hover:border-slate-300 has a width to apply to - it previously set
+    a colour on a border with no width and rendered nothing.
+
+    aria-current names the selected tab. It was signalled by colour alone, which leaves it
+    unavailable to a screen reader and to anyone who cannot distinguish the two colours.
+
+    Locals:
+      current - the active filter: :active, :discarded or :all
+      tabs    - array of [label, filter, path] %>
+<div class="mb-4 flex gap-1 border-b border-slate-200">
+  <% tabs.each do |label, filter, path| %>
+    <% selected = current == filter %>
+    <% tone = if selected
+                "border-blue-600 text-blue-700"
+              else
+                "border-transparent text-slate-600 hover:border-slate-300 hover:text-slate-800"
+              end %>
+    <%= link_to label, path,
+                aria: { current: selected ? "page" : nil },
+                class: "inline-flex min-h-11 items-center border-b-2 px-4 py-2 text-sm font-medium " \
+                       "focus-visible:outline-2 focus-visible:outline-offset-2 " \
+                       "focus-visible:outline-sitf-primary #{tone}" %>
+  <% end %>
+</div>

@@ -174,6 +174,30 @@ have to remember that `content_for` yourself — and forgetting it gives the pag
 **Heading levels follow from the same structure.** Page title is `h1`, a card's title is
 `h2`, a heading inside a card body is `h3`. Do not skip a level.
 
+**The header block is `mb-6` and nothing else.** No `pb-*`. While the title carried a
+rule beneath it, the padding held content off that rule; once the rule went, the padding
+was left stacking 20px on top of 24px of margin. If a gap looks too big, check for
+padding left behind by something that was removed.
+
+**Filters and tabs go above the card as well.** A filter is chrome above the data, so a
+plain borderless filter bar or tab rail sits on the page background, `mb-4` (16px) above
+the table — not on the card's surface. `admin/shared/_discard_filter_tabs` is the shared
+rail for the active/archived/all filters on the students and teachers indexes.
+
+This is worth stating plainly because the opposite argument is persuasive and wrong: *the
+tabs filter the table directly below them, so they belong to it.* They do not. Putting
+them on the card's surface puts chrome and data back on one surface, which is the thing
+hoisting the header out was meant to stop.
+
+Two details in that rail:
+
+- Inactive tabs carry `border-b-2 border-transparent`. Without the width, selecting a tab
+  shifts the row by 2px, and the `hover:border-slate-300` sets a colour on a border that
+  has no width, so it renders nothing.
+- The selected tab gets `aria-current="page"`. It was previously signalled by colour
+  alone, which is unavailable to a screen reader (4.1.2) and to anyone who cannot
+  separate the two colours (1.4.1).
+
 ### Dividers
 **A page title never gets a rule under it.** Spacing already separates a title from
 its content. A horizontal line is a second, redundant signal, and it stacks visibly

@@ -491,6 +491,35 @@ which became `h2`.
   `admin/shared/_table` already did.
 - **`Portfolio Transaction #3`** was Title Case in a page title. Now sentence case.
 
+### Follow-up: two things the first pass got wrong
+
+Both were mine, and both came from reasoning about the layout instead of reading
+`design.md`.
+
+**Surplus padding under every page title.** Removing the rule from `_page_header` I kept
+the `pb-5` deliberately, on the grounds that leaving spacing untouched meant nothing would
+shift. But that padding only existed to hold content off the rule, so with the rule gone
+it stacked 20px of padding on 24px of margin — 44px under every title. `design.md`'s page
+rhythm is a 24px header block, so the header is now `mb-6` alone. Also removed from the
+three bespoke headers that had the same pair: portfolio, grade book, trading floor.
+
+**Filter tabs left inside the table card.** I decided they belonged to the table because
+they filter it, and wrote a comment justifying it. `design.md` says the opposite in two
+places: a filter is "chrome above the data", and a plain borderless filter bar sits `mb-4`
+(16px) *above* the table. Leaving them on the card's surface kept chrome and data on one
+surface, which is exactly what hoisting the header out was supposed to stop. They now sit
+above the card, and the two rails — students and teachers — share
+`admin/shared/_discard_filter_tabs` so they cannot drift apart again.
+
+Extracting that rail fixed two defects in it. Inactive tabs had no border width, so
+selecting a tab shifted the row by 2px and the `hover:border-slate-300` set a colour on
+nothing; they now carry `border-b-2 border-transparent`. And the selected tab was
+signalled by colour alone, so it now carries `aria-current="page"`.
+
+`admin_page_structure_test.rb` asserts all of it: no heading and no create action inside
+the table card on any of the eight index pages, and exactly one `aria-current` tab, above
+the card rather than in it. Verified by moving the tabs back inside and watching it fail.
+
 ### Guarded
 
 `page_title_divider_test.rb` covers the twelve admin pages as well now — it could not

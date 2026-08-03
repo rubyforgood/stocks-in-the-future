@@ -5,24 +5,13 @@
     <%= link_to "New teacher", new_admin_teacher_path, class: admin_primary_button_class %>
   <% end %>
 
-  <div class="bg-white shadow-sm ring-1 ring-slate-900/5 rounded-lg overflow-hidden">
-    <%# The filter tabs stay inside the card: they filter the table directly below
-        them, so they belong to it rather than to the page. %>
-    <div class="px-4 py-5 lg:px-6">
-      <% current_filter = current_discard_filter %>
-      <div class="flex gap-1 border-b border-slate-200">
-        <%= link_to "Active",
-                    admin_teachers_path,
-                    class: "px-4 py-2 text-sm font-medium #{current_filter == :active ? 'text-blue-600 border-b-2 border-blue-600' : 'text-slate-500 hover:text-slate-700 hover:border-slate-300'}" %>
-        <%= link_to "Deactivated",
-                    admin_teachers_path(discarded: true),
-                    class: "px-4 py-2 text-sm font-medium #{current_filter == :discarded ? 'text-blue-600 border-b-2 border-blue-600' : 'text-slate-500 hover:text-slate-700 hover:border-slate-300'}" %>
-        <%= link_to "All",
-                    admin_teachers_path(all: true),
-                    class: "px-4 py-2 text-sm font-medium #{current_filter == :all ? 'text-blue-600 border-b-2 border-blue-600' : 'text-slate-500 hover:text-slate-700 hover:border-slate-300'}" %>
-      </div>
-    </div>
+  <%= render "admin/shared/discard_filter_tabs",
+             current: current_discard_filter,
+             tabs: [["Active", :active, admin_teachers_path],
+                    ["Deactivated", :discarded, admin_teachers_path(discarded: true)],
+                    ["All", :all, admin_teachers_path(all: true)]] %>
 
+  <div class="bg-white shadow-sm ring-1 ring-slate-900/5 rounded-lg overflow-hidden">
     <div class="overflow-x-auto">
       <table class="min-w-full divide-y divide-slate-300">
         <thead class="bg-slate-50">
