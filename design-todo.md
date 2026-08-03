@@ -50,7 +50,7 @@ Counts are indicative, found by pattern matching - confirm by reading the file.
 - [ ] `layouts/admin.html.erb` - 1 off-tier bp, 1 div-as-button, 1 FA icon (partially done: `lang="en"` added)
 - [x] `layouts/application.html.erb` - **done**: tokens, `lang="en"`, per-page `<title>`, skip link, semantic `<header>`/`<main id="main-content">`, 44px menu target, extracted `_flash`
 - [ ] `shared/_earnings_to_invest_card.html.erb` - clean
-- [ ] `shared/_modal.html.erb` - 1 faint text, 1 div-as-button
+- [x] `shared/_modal.html.erb` - **done**: `role="dialog"` + `aria-modal`, focus moved in on open, focus trapped while open, focus restored on close, close button 32px->44px and `text-gray-400` (2.54:1) -> `text-gray-600` (7.56:1), `x` glyph -> inline SVG with `sr-only` name
 - [ ] `shared/_table_container.html.erb` - clean
 
 ## Auth (Devise)
@@ -179,7 +179,7 @@ Counts are indicative, found by pattern matching - confirm by reading the file.
 - [ ] Replace faint text colours with `gray-500` or darker (33 usages).
 - [ ] Give every `outline-none` a visible focus replacement (17 usages).
 - [ ] Convert clickable divs to real buttons (4 usages).
-- [ ] Audit the trading modal (`shared/_modal`) for focus trap, restore, and Esc.
+- [x] Audit the trading modal (`shared/_modal`) for focus trap, restore, and Esc. **done**: Esc already worked; trap and restore were both absent and are now implemented in `modal_controller.js`.
 - [ ] Add a card / badge / empty-state primitive to `components/ui/`.
 - [ ] Reconcile `design.md` with this codebase (see blockers in design-instructions.md).
 - [ ] Untrack `app/.DS_Store` and `app/assets/.DS_Store`.
