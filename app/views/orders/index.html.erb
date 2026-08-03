@@ -1,15 +1,10 @@
 <div class="flex flex-col h-full w-full">
-  <% if notice.present? %>
-    <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-lg inline-block" id="notice">
-      <%= notice %>
-    </p>
-  <% end %>
 
   <header class="flex items-center justify-between px-6 py-4 border-b">
-    <h1 class="text-2xl font-bold py-2">Transactions</h1>
+    <h1 class="text-2xl font-bold tracking-tight text-slate-900 py-2">Transactions</h1>
   </header>
 
-  <main class="flex-1 p-6">
+  <div class="flex-1 py-6">
     <%= render "shared/table_container" do %>
       <thead>
         <tr class="table-header-row min-w-full">
@@ -149,5 +144,5 @@
         <% end %>
       </tbody>
     <% end %>
-  </main>
+  </div>
 </div>

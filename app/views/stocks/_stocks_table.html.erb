@@ -1,4 +1,6 @@
-<h2 class="text-2xl font-semibold mb-4"><%= title %></h2>
+<%# design.md section-title scale: text-base font-semibold. Was text-2xl, the same
+    size as the page h1. %>
+<h2 class="mb-3 text-base font-semibold text-slate-900"><%= title %></h2>
 <%= render "shared/table_container" do %>
   <thead>
     <tr class="table-header-row">
@@ -16,11 +18,11 @@
         <%= render "stocks/index_row", stock: stock %>
       <% end %>
     <% else %>
-      <tr class="table-body-row">
-        <td class="table-empty-cell" colspan="<%= current_user.student? ? 5 : 2 %>">
-          <p class="text-lg">No <%= title.downcase %> found</p>
-        </td>
-      </tr>
+      <%= render "admin/shared/empty_row",
+                 colspan: current_user.student? ? 5 : 2,
+                 icon: "chart-line",
+                 title: "No #{title.downcase} to show",
+                 body: "Stocks appear here once your teacher adds them." %>
     <% end %>
   </tbody>
 <% end %>

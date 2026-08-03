@@ -1,7 +1,4 @@
 <div class="w-full px-6">
-  <% if notice.present? %>
-    <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-lg inline-block" id="notice"><%= notice %></p>
-  <% end %>
 
   <% if current_user.student? && !current_user.classroom&.trading_enabled? %>
     <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-lg mb-5">
@@ -19,17 +16,22 @@
     </div>
   <% end %>
 
-  <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center pb-2 pt-4 gap-4">
-    <h1 class="font-bold text-4xl">Trading floor</h1>
+  <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 border-b border-slate-200 pt-4 pb-5 mb-6">
+    <%# design.md page-title scale. Was text-4xl, which outweighed every other
+        heading in the app. %>
+    <h1 class="text-2xl font-bold tracking-tight text-slate-900">Trading floor</h1>
     <% if policy(Stock).show_holdings? || (current_user.present? && current_user.student?) %>
-      <div class="mt-4">
+      <div class="w-full lg:w-auto">
         <%= render 'shared/earnings_to_invest_card' %>
       </div>
     <% end %>
   </div>
 
-  <main class="flex-1 py-6">
-    <%= render "stocks/stocks_table", title: "Active Stocks", stocks: @stocks.active %>
-    <%= render "stocks/stocks_table", title: "Archived Stocks", stocks: @stocks.archived %>
-  </main>
+  <%# Was a second <main>. The layout already provides one, and a document may only
+      have a single main landmark. Titles were Title Case - another hiding place
+      the copy sweeps could not see, since they are keyword arguments to render. %>
+  <div class="space-y-8 pb-6">
+    <%= render "stocks/stocks_table", title: "Active stocks", stocks: @stocks.active %>
+    <%= render "stocks/stocks_table", title: "Archived stocks", stocks: @stocks.archived %>
+  </div>
 </div>

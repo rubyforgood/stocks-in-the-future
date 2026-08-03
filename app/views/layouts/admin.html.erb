@@ -64,13 +64,9 @@
     <!-- Main Content -->
     <main class="pt-16 lg:pl-64 min-h-screen">
       <div class="p-6">
-        <!-- Flash Messages -->
-        <% if notice.present? %>
-          <p class="mb-4 p-4 bg-green-50 border border-green-200 text-green-800 rounded-lg" id="notice"><%= notice %></p>
-        <% end %>
-        <% if alert.present? %>
-          <p class="mb-4 p-4 bg-red-50 border border-red-200 text-red-800 rounded-lg" id="alert"><%= alert %></p>
-        <% end %>
+        <%# The shared partial, so admin gets the same role=status announcement and
+            the icon-plus-text treatment as the rest of the app. %>
+        <%= render "layouts/flash" %>
 
         <%= yield %>
       </div>
