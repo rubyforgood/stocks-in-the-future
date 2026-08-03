@@ -73,7 +73,8 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
 
     get root_url
     assert_response :success
-    assert_select "p", text: "No announcements yet."
+    # Rendered by components/ui/_empty_state, which drops the trailing period.
+    assert_select "p", text: "No announcements yet"
   end
 
   test "should show full announcement content in scrollable box" do
@@ -102,10 +103,11 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     get root_url
 
     assert_response :success
-    assert_select "span", text: /You have.*\$50\.00.*to invest! Lets Get Trading!/
-    # The popper is decorative, so it carries alt="" (WCAG 1.1.1) - the message
-    # above is what conveys the meaning. Assert on the source instead.
-    assert_select "img[src*='party_popper']"
+    # The balance is now the headline figure in the "Earnings to invest" panel
+    # rather than a sentence inside a pill.
+    assert_select "h2", text: "Earnings to invest"
+    assert_select "p", text: /\$50\.00/
+    assert_select "p", text: /Ready when you are/
   end
 
   test "should show no earnings message when student has zero balance" do
@@ -115,8 +117,8 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     get root_url
 
     assert_response :success
-    assert_select "span", text: "Sorry, you don't have any earnings to invest yet"
-    assert_no_match(/to invest! Lets Get Trading!/, response.body)
+    assert_select "p", text: /You have no earnings to invest yet/
+    assert_no_match(/Ready when you are/, response.body)
   end
 
   test "should not show balance message for non-student users" do

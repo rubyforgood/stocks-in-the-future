@@ -20,7 +20,9 @@
     <p class="mt-1 max-w-md text-sm text-slate-600"><%= body %></p>
   <% end %>
 
-  <% if block_given? %>
-    <div class="mt-4"><%= yield %></div>
+  <%# See _page_header: check the yielded content, not block_given?. %>
+  <% action = yield %>
+  <% if action.present? %>
+    <div class="mt-4"><%= action %></div>
   <% end %>
 </div>

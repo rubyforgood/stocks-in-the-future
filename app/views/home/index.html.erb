@@ -1,86 +1,90 @@
 <% content_for :title, "Home" %>
 
-<%# Home dashboard. Only base and lg: tiers per docs/responsive-design-guidelines.md.
-    Font comes from the theme (--font-sans is already Inter), so no inline font-family. %>
-<div class="max-w-[1180px] mx-auto space-y-6 pb-16">
+<%# Home dashboard, rebuilt on the ui primitives.
 
-  <%# Hero: welcome and available funds %>
-  <div class="relative mb-8 mt-10">
-    <div class="rounded-2xl border-2 border-black bg-gradient-to-r from-sitf-hero-from to-sitf-hero-to px-4 lg:px-6 py-2 lg:py-3 flex flex-col lg:flex-row gap-2 lg:gap-3 items-start lg:items-center justify-between relative">
-      <div class="flex-1 flex flex-col gap-1 pr-0 lg:pr-6 relative z-10">
-        <div class="flex flex-col lg:flex-row lg:items-center lg:gap-4">
-          <% if current_user&.student? && current_user.portfolio %>
-            <% if current_user.portfolio.cash_balance > 0 %>
-              <div class="inline-flex items-center gap-1 rounded-full border-2 border-black bg-white py-1 px-8 lg:px-12 text-xs lg:text-sm font-medium shadow-md relative tracking-tight">
-                <%= image_tag "party_popper.png", class: "object-contain absolute w-6 h-6 lg:w-8 lg:h-8 -ml-8 -top-3", alt: "" %>
-                <span class="leading-snug">You have <strong><%= number_to_currency(current_user.portfolio.cash_balance) %></strong> to invest! Lets Get Trading!</span>
-              </div>
-            <% else %>
-              <div class="inline-flex items-center gap-1 rounded-full border-2 border-black bg-white py-1 px-8 lg:px-12 text-xs lg:text-sm font-medium shadow-md relative tracking-tight">
-                <span class="leading-snug">Sorry, you don't have any earnings to invest yet</span>
-              </div>
-            <% end %>
-          <% end %>
-        </div>
-        <h1 class="text-xl lg:text-2xl font-bold tracking-tight leading-tight mt-1 text-slate-900">WELCOME TO YOUR FINANCIAL JOURNEY!</h1>
-        <p class="text-xs lg:text-sm text-slate-800 mt-1 font-medium">This Is Your Launchpad To Earn, Invest, And Grow.</p>
-      </div>
+    Copy is sentence case throughout per design.md - the previous version used
+    ALL CAPS for the h1 and Title Case On Every Word in the step copy.
 
-      <%# Decorative illustration, hidden on small screens. %>
-      <div class="hidden lg:block absolute -bottom-8 right-4 lg:right-8 z-20">
-        <%= image_tag "piggy_bank.png", class: "w-24 lg:w-36 h-auto object-contain", alt: "" %>
-      </div>
-    </div>
-  </div>
+    Airbnb/Stripe reading: one clear primary action, generous whitespace, and
+    hairline borders rather than the heavy black outlines used before. %>
+<div class="mx-auto max-w-5xl pb-16">
 
-  <%# Illustration and announcements %>
-  <div class="grid grid-cols-1 gap-4 lg:gap-8 lg:grid-cols-2 items-stretch mt-6">
-    <div class="flex items-center justify-center">
-      <div class="flex gap-4 justify-center items-center w-full">
-        <%= image_tag "girl_skateboarding_holding_laptop.png", class: "w-full max-w-48 lg:max-w-64 h-auto object-contain pointer-events-none select-none mx-auto -mt-8 relative z-10", alt: "" %>
-      </div>
-    </div>
+  <%= render layout: "components/ui/page_header",
+             locals: { title: "Welcome to your financial journey",
+                       description: "This is your launchpad to earn, invest, and grow." } do %>
+    <% cta_class = "inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-sitf-primary px-4 py-2 text-sm font-semibold text-sitf-on-primary shadow-xs transition-colors hover:bg-sitf-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary-dark" %>
+    <% if current_user&.student? && current_user.portfolio %>
+      <%= link_to "Go to the trading floor", stocks_path, class: cta_class %>
+    <% end %>
+  <% end %>
 
-    <div class="flex ml-0 relative z-20">
-      <section class="rounded-xl border-2 border-black overflow-hidden bg-white w-full flex flex-col" aria-labelledby="announcements-heading">
-        <h2 id="announcements-heading" class="bg-teal-700 text-white py-1.5 px-3 font-semibold text-xs tracking-wide border-b-2 border-black">Announcements</h2>
-        <div class="p-4 text-xs text-slate-600 flex flex-col">
-          <% if @current_announcement %>
-            <% cache @current_announcement do %>
-              <div class="space-y-3">
-                <h3 class="font-semibold text-slate-900 text-sm"><%= @current_announcement.title %></h3>
-                <div class="text-slate-700 trix-content max-h-[480px] overflow-y-auto">
-                  <%= @current_announcement.content %>
-                </div>
-              </div>
-            <% end %>
-          <% else %>
-            <p class="italic text-slate-500">No announcements yet.</p>
-          <% end %>
+  <div class="space-y-6">
+
+    <%# Funds available. The single number a student most wants, given the room
+        to be read at a glance rather than buried in a pill. %>
+    <% if current_user&.student? && current_user.portfolio %>
+      <% balance = current_user.portfolio.cash_balance %>
+      <section class="overflow-hidden rounded-xl border border-slate-200 bg-gradient-to-r from-sitf-hero-from to-sitf-hero-to shadow-xs"
+               aria-labelledby="funds-heading">
+        <div class="flex flex-col gap-4 p-6 lg:flex-row lg:items-center lg:justify-between">
+          <div class="min-w-0">
+            <h2 id="funds-heading" class="text-sm font-medium text-slate-800">Earnings to invest</h2>
+            <p class="mt-1 text-3xl font-bold tracking-tight text-slate-900 tabular-nums">
+              <%= number_to_currency(balance) %>
+            </p>
+            <p class="mt-1 text-sm text-slate-800">
+              <% if balance > 0 %>
+                Ready when you are. Pick a company and buy your first shares.
+              <% else %>
+                You have no earnings to invest yet. Attendance and grades earn funds.
+              <% end %>
+            </p>
+          </div>
+
+          <%= image_tag "piggy_bank.png", class: "hidden h-28 w-auto shrink-0 object-contain lg:block", alt: "" %>
         </div>
       </section>
-    </div>
-  </div>
+    <% end %>
 
-  <%# Getting started steps %>
-  <section class="rounded-xl border-2 border-black bg-white overflow-hidden" aria-labelledby="getting-started-heading">
-    <h2 id="getting-started-heading" class="bg-sitf-accent text-sitf-on-accent py-3 px-5 font-semibold text-base tracking-wide border-b-2 border-black">Getting Started</h2>
-    <ol class="px-4 pt-4 pb-6 grid grid-cols-1 lg:grid-cols-4 gap-4">
-      <% steps = [
-           { num: "1", title: "Earn Funds", body: "Show Up, Stay Engaged, And Earn Investment Funds Based On Your Attendance, Participation, And Performance." },
-           { num: "2", title: "Go To The Trading Floor", body: "Once You Have Funds, Explore The Trading Floor And The Company's To Buy Your First Stock." },
-           { num: "3", title: "Buy & Sell", body: "Choose Your Companies Wisely! You Can Buy And Sell As Your Portfolio Grows. Watch Your Earnings Change Based On The Market." },
-           { num: "4", title: "Track Your Progress", body: "Your Portfolio Shows How Your Investments Are Performing Over Time, Plus Summaries Of Your Grades And Attendance." }
-         ] %>
-      <% steps.each do |s| %>
-        <li class="flex gap-3 lg:gap-2 items-start">
-          <div class="pr-1 flex-none"><%= image_tag "#{s[:num]}_Number.png", alt: "Step #{s[:num]}", class: "h-10 lg:h-16" %></div>
-          <div class="space-y-1">
-            <h3 class="text-xl font-semibold leading-snug"><%= s[:title] %></h3>
-            <p class="text-[13px] text-slate-700 leading-snug"><%= s[:body] %></p>
+    <%# Announcements %>
+    <%= render layout: "components/ui/card", locals: { title: "Announcements", padded: @current_announcement.present? } do %>
+      <% if @current_announcement %>
+        <% cache @current_announcement do %>
+          <h3 class="text-sm font-semibold text-slate-900"><%= @current_announcement.title %></h3>
+          <div class="trix-content mt-2 max-h-[480px] overflow-y-auto text-sm text-slate-700">
+            <%= @current_announcement.content %>
           </div>
-        </li>
+        <% end %>
+      <% else %>
+        <%= render layout: "components/ui/empty_state",
+                   locals: { icon: "megaphone",
+                             title: "No announcements yet",
+                             body: "When your teacher posts an announcement, it will show up here." } do %>
+        <% end %>
       <% end %>
-    </ol>
-  </section>
+    <% end %>
+
+    <%# Getting started %>
+    <%= render layout: "components/ui/card", locals: { title: "Getting started", subtitle: "Four steps from earning to tracking your progress." } do %>
+      <% steps = [
+           { title: "Earn funds", body: "Show up, stay engaged, and earn investment funds based on your attendance, participation, and performance." },
+           { title: "Go to the trading floor", body: "Once you have funds, explore the trading floor and the companies you can buy shares in." },
+           { title: "Buy and sell", body: "Choose your companies wisely. You can buy and sell as your portfolio grows, and watch your earnings change with the market." },
+           { title: "Track your progress", body: "Your portfolio shows how your investments are performing over time, plus summaries of your grades and attendance." }
+         ] %>
+      <ol class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <% steps.each_with_index do |step, i| %>
+          <li class="flex gap-4">
+            <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-sitf-primary text-sm font-semibold text-sitf-on-primary tabular-nums" aria-hidden="true">
+              <%= i + 1 %>
+            </span>
+            <div class="min-w-0">
+              <h3 class="text-sm font-semibold text-slate-900"><%= step[:title] %></h3>
+              <p class="mt-1 text-sm text-slate-600"><%= step[:body] %></p>
+            </div>
+          </li>
+        <% end %>
+      </ol>
+    <% end %>
+  </div>
 </div>

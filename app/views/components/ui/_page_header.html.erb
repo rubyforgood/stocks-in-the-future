@@ -16,7 +16,11 @@
     <% end %>
   </div>
 
-  <% if block_given? %>
-    <div class="flex shrink-0 flex-wrap items-center gap-2"><%= yield %></div>
+  <%# Always rendered with `layout:`, so yield is available. An empty block just
+      yields blank, which is why this checks content rather than block_given? -
+      that is unreliable inside a partial layout. %>
+  <% actions = yield %>
+  <% if actions.present? %>
+    <div class="flex shrink-0 flex-wrap items-center gap-2"><%= actions %></div>
   <% end %>
 </div>
