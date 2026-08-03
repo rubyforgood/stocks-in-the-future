@@ -78,15 +78,12 @@
               </tr>
             <% end %>
           <% else %>
-            <tr>
-              <td colspan="7" class="px-3 py-12 text-center text-sm text-slate-500">
-                <div class="flex flex-col items-center">
-                  <%= lucide_icon("inbox", class: "w-9 h-9 text-slate-500 mb-3 shrink-0") %>
-                  <p class="font-medium">No records found</p>
-                  <p class="text-slate-600 mt-1">No users found. Create your first user to get started.</p>
-                </div>
-              </td>
-            </tr>
+            <%= render "admin/shared/empty_row",
+                       colspan: 7,
+                       title: "No users yet",
+                       body: "Users include admins, teachers and students across every school.",
+                       action_label: "New user",
+                       action_path: new_admin_user_path %>
           <% end %>
         </tbody>
       </table>

@@ -89,15 +89,12 @@
               </tr>
             <% end %>
           <% else %>
-            <tr>
-              <td colspan="5" class="px-3 py-12 text-center text-sm text-slate-500">
-                <div class="flex flex-col items-center">
-                  <%= lucide_icon("inbox", class: "w-9 h-9 text-slate-500 mb-3 shrink-0") %>
-                  <p class="font-medium">No records found</p>
-                  <p class="text-slate-600 mt-1">No students found. Create your first student to get started.</p>
-                </div>
-              </td>
-            </tr>
+            <%= render "admin/shared/empty_row",
+                       colspan: 5,
+                       title: "No students yet",
+                       body: "Add students one at a time, or import a whole classroom from a CSV.",
+                       action_label: "New student",
+                       action_path: new_admin_student_path %>
           <% end %>
         </tbody>
       </table>

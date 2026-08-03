@@ -17,7 +17,9 @@
       <thead class="bg-slate-50">
         <tr>
           <% columns.each do |column| %>
-            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">
+            <%# Column headers are chrome, not content: smaller and muted so they
+                do not read at the same weight as the data. Matches tables.css. %>
+            <th scope="col" class="px-3 py-3 text-left text-xs font-semibold text-slate-600">
               <% if column[:sortable] %>
                 <%= sort_link(column[:attribute], column[:label]) %>
               <% else %>
@@ -53,26 +55,24 @@
                   <div class="flex justify-end gap-2">
                     <%= link_to "View", [:admin, route_model(record)], class: "text-blue-600 hover:text-blue-800" %>
                     <%= link_to "Edit", [:edit, :admin, route_model(record)], class: "text-slate-600 hover:text-slate-800" %>
+                    <%# A vague "Are you sure?" gives no basis for the decision.
+                        Name the record so the confirmation is meaningful. %>
                     <%= link_to "Delete", [:admin, route_model(record)],
-                                data: { turbo_method: :delete, turbo_confirm: "Are you sure?" },
-                                class: "text-red-600 hover:text-red-800" %>
+                                data: { turbo_method: :delete,
+                                        turbo_confirm: "Delete #{record.class.model_name.human.downcase} \"#{record.try(:name) || record.try(:username) || record.try(:title) || record.id}\"? This cannot be undone." },
+                                class: "font-medium text-red-700 hover:text-red-800" %>
                   </div>
                 </td>
               <% end %>
             </tr>
           <% end %>
         <% else %>
-          <tr>
-            <td colspan="<%= columns.length + (options[:show_actions] == false ? 0 : 1) %>" class="px-3 py-12 text-center text-sm text-slate-500">
-              <div class="flex flex-col items-center">
-                <%= lucide_icon("inbox", class: "w-9 h-9 text-slate-500 mb-3 shrink-0") %>
-                <p class="font-medium">No records found</p>
-                <% if options[:empty_message] %>
-                  <p class="text-slate-600 mt-1"><%= options[:empty_message] %></p>
-                <% end %>
-              </div>
-            </td>
-          </tr>
+          <%= render "admin/shared/empty_row",
+                     colspan: columns.length + (options[:show_actions] == false ? 0 : 1),
+                     title: options[:empty_title] || "Nothing here yet",
+                     body: options[:empty_message],
+                     action_label: options[:empty_action_label],
+                     action_path: options[:empty_action_path] %>
         <% end %>
       </tbody>
     </table>
