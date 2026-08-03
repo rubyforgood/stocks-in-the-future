@@ -11,7 +11,7 @@ module Admin
       get admin_root_path
 
       assert_response :success
-      assert_select "h1", "Admin Dashboard"
+      assert_select "h1", "Admin dashboard"
     end
 
     test "non-admin cannot access admin dashboard" do

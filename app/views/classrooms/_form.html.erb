@@ -23,7 +23,7 @@
   </div>
 
   <div class="my-5">
-    <%= form.label :school_id, "School Name", class: 'tw-label-primary' %>
+    <%= form.label :school_id, "School name", class: 'tw-label-primary' %>
     <div class="mt-2">
       <% school_year = classroom&.school_year
          selected_school_id = school_year&.school&.id %>
@@ -82,7 +82,7 @@
   <div class="my-5">
     <div class="flex items-center gap-3">
       <%= form.check_box :trading_enabled, class: "rounded border-slate-300 text-blue-600 focus:ring-blue-500" %>
-      <%= form.label :trading_enabled, "Enable Trading", class: 'tw-label-primary' %>
+      <%= form.label :trading_enabled, "Enable trading", class: 'tw-label-primary' %>
     </div>
     <p class="text-sm text-slate-600 mt-1">When enabled, students in this classroom can place buy and sell orders.</p>
   </div>

@@ -14,11 +14,11 @@
       </div>
     <% end %>
     <div class="flex items-center justify-between py-4 px-5 font-semibold bg-sitf-accent-soft">
-      <span>Total Earnings</span>
+      <span>Total earnings</span>
       <span class="tabular-nums"><%= number_to_currency(@earnings_summary.total_earnings_cents / 100.0) %></span>
     </div>
     <div class="flex items-center justify-between py-4 px-5 font-medium text-red-600">
-      <span>Transaction Fees</span>
+      <span>Transaction fees</span>
       <span class="tabular-nums"><%= number_to_currency(@earnings_summary.transaction_fees_cents / 100.0) %></span>
     </div>
   </div>

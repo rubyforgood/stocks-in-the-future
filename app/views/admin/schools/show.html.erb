@@ -28,7 +28,7 @@
       <!-- Associated Years -->
       <% if @school.years.any? %>
         <div class="mt-6 pt-6 border-t border-slate-200">
-          <h3 class="text-sm font-medium text-slate-500 mb-3">Associated Years</h3>
+          <h3 class="text-sm font-medium text-slate-500 mb-3">Associated years</h3>
           <ul class="space-y-2">
             <% @school.years.each do |year| %>
               <li class="text-sm text-slate-900">
@@ -46,7 +46,7 @@
   </div>
 
   <div class="flex gap-3">
-    <%= link_to "Back to Schools", admin_schools_path,
+    <%= link_to "Back to schools", admin_schools_path,
                 class: "inline-flex items-center px-4 py-2 border border-slate-300 shadow-sm text-sm font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50" %>
   </div>
 </div>

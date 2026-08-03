@@ -19,7 +19,7 @@ class NavbarPolicyVisibilityTest < ActionDispatch::IntegrationTest
   test "student sees My Portfolio if permitted" do
     sign_in @student
     get root_path
-    assert_select "a", text: "My Portfolio"
+    assert_select "a", text: "My portfolio"
   end
 
   test "teacher sees Classes if permitted" do

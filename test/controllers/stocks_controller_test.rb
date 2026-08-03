@@ -30,6 +30,6 @@ class StocksControllerTest < ActionDispatch::IntegrationTest
 
     get stock_url(stock)
 
-    assert_select "a[href='#{stocks_path}']", text: "Trade Stock"
+    assert_select "a[href='#{stocks_path}']", text: "Trade stock"
   end
 end

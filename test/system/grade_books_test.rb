@@ -50,9 +50,9 @@ class GradeBooksTest < ApplicationSystemTestCase
     sign_in(admin)
     visit classroom_grade_book_path(classroom, grade_book)
 
-    assert_button "Finalize Grades"
+    assert_button "Finalize grades"
     accept_confirm do
-      click_on "Finalize Grades"
+      click_on "Finalize grades"
     end
 
     assert_selector(
@@ -154,7 +154,7 @@ class GradeBooksTest < ApplicationSystemTestCase
 
     assert_selector "##{dom_id(student1_entry)}"
     assert_selector "##{dom_id(student2_entry)}"
-    assert_no_text "Finalize Grades"
+    assert_no_text "Finalize grades"
   end
 
   test "teacher cannot view grade books from other classrooms" do

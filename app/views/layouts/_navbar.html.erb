@@ -38,7 +38,7 @@
         <%# Portfolio %>
         <% if current_user.portfolio && policy(current_user.portfolio).show? %>
           <% active = request.path.include?("portfolios") %>
-          <%= render layout: "layouts/nav_item", locals: { path: user_portfolio_path(current_user, current_user.portfolio), label: "My Portfolio", active: active } do %>
+          <%= render layout: "layouts/nav_item", locals: { path: user_portfolio_path(current_user, current_user.portfolio), label: "My portfolio", active: active } do %>
             <%= image_tag "id-card.svg", class: "w-6 h-6 #{active ? 'nav-icon-active' : 'nav-icon-inactive'}", alt: "" %>
           <% end %>
         <% end %>
@@ -68,7 +68,7 @@
                 <span class="flex w-6 h-6 shrink-0 items-center justify-center" aria-hidden="true">
                   <%= image_tag "chart-no-axes-combined.svg", class: "w-6 h-6 #{active ? 'nav-icon-active' : 'nav-icon-inactive'}", alt: "" %>
                 </span>
-                <span class="font-medium text-sm">Trading Floor</span>
+                <span class="font-medium text-sm">Trading floor</span>
               <% end %>
 
               <%# Real button, not a clickable div, so it is keyboard operable. %>

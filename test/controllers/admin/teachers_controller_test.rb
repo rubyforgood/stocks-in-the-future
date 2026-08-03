@@ -123,7 +123,7 @@ module Admin
       get new_admin_teacher_path
 
       assert_response :success
-      assert_select "h1", "New Teacher"
+      assert_select "h1", "New teacher"
     end
 
     test "new shows warning message when no classrooms available" do
@@ -133,9 +133,9 @@ module Admin
       get new_admin_teacher_path
 
       assert_response :success
-      assert_select "h1", "New Teacher"
+      assert_select "h1", "New teacher"
 
-      assert_select "h3", text: "No Classrooms Available"
+      assert_select "h3", text: "No classrooms available"
       assert_select "p", text: /No Classrooms associated with this school and active year/
       assert_select "a[href='#{admin_classrooms_path}']", text: "update classrooms"
     end
@@ -156,7 +156,7 @@ module Admin
       assert_select "input[type='checkbox'][name='teacher[classroom_ids][]']"
       assert_select "label", text: "Test Classroom"
 
-      assert_select "h3", text: "No Classrooms Available", count: 0
+      assert_select "h3", text: "No classrooms available", count: 0
     end
 
     test "create" do
@@ -212,7 +212,7 @@ module Admin
       get edit_admin_teacher_path(teacher)
 
       assert_response :success
-      assert_select "h1", "Edit Teacher"
+      assert_select "h1", "Edit teacher"
     end
 
     test "update" do

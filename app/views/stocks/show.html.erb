@@ -16,14 +16,14 @@
             <span class="font-normal text-slate-600 text-base lg:text-lg">| <%= @stock.company_name %></span>
           </h1>
           <% if @stock.archived? %>
-            <span class="bg-red-100 text-red-800 text-sm font-medium px-3 py-1 rounded-full mt-2 inline-block">ARCHIVED</span>
+            <span class="bg-red-100 text-red-800 text-sm font-medium px-3 py-1 rounded-full mt-2 inline-block">Archived</span>
           <% end %>
         </div>
       </div>
       <div class="flex gap-3 flex-shrink-0">
         <%= link_to "Back to stocks", stocks_path, class: "tw-btn-tertiary" %>
         <% if policy(@stock).show_trading_link? %>
-          <%= link_to "Trade Stock", stocks_path, class: "inline-flex items-center justify-center rounded-full bg-sky-800 text-white px-6 py-2 text-sm font-medium shadow hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-1 transition-colors" %>
+          <%= link_to "Trade stock", stocks_path, class: "inline-flex items-center justify-center rounded-full bg-sky-800 text-white px-6 py-2 text-sm font-medium shadow hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-1 transition-colors" %>
         <% end %>
       </div>
     </div>

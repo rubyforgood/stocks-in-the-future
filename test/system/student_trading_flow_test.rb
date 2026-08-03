@@ -16,7 +16,7 @@ class StudentTradingFlowTest < ApplicationSystemTestCase
 
     visit stocks_path
 
-    assert_text "Trading Floor"
+    assert_text "Trading floor"
     assert_text stock.ticker
     assert_text stock.company_name
 
@@ -58,7 +58,7 @@ class StudentTradingFlowTest < ApplicationSystemTestCase
 
     visit stocks_path
 
-    assert_text "Trading Floor"
+    assert_text "Trading floor"
     assert_text stock.ticker
     assert_text stock.company_name
 

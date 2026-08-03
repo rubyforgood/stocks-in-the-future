@@ -3,7 +3,7 @@
   <%= admin_breadcrumbs(@breadcrumbs) %>
 
   <div class="mt-8 mb-8">
-    <h1 class="text-3xl font-bold text-slate-900 mb-2">Form Builder Demo</h1>
+    <h1 class="text-3xl font-bold text-slate-900 mb-2">Form builder demo</h1>
     <p class="text-slate-600">Showcase of Admin::FormBuilder with all field types</p>
   </div>
 
@@ -12,7 +12,7 @@
     <div class="flex items-start">
       <%= lucide_icon("info", class: "text-blue-600 mt-1 mr-3 w-4 h-4 shrink-0") %>
       <div>
-        <h3 class="font-semibold text-blue-900 mb-1">Form Builder Features</h3>
+        <h3 class="font-semibold text-blue-900 mb-1">Form builder features</h3>
         <p class="text-sm text-blue-800">
           This form builder provides consistent Tailwind styling, automatic error display,
           and support for all common field types including associations, currency fields, and rich text.
@@ -24,19 +24,19 @@
   <!-- Form Demo -->
   <div class="bg-white shadow-sm ring-1 ring-slate-900/5 rounded-lg mb-8">
     <div class="px-6 py-6">
-      <h2 class="text-xl font-semibold text-slate-900 mb-6">Sample Form</h2>
+      <h2 class="text-xl font-semibold text-slate-900 mb-6">Sample form</h2>
 
       <%= form_with model: @user, url: "#", builder: Admin::FormBuilder, class: "space-y-6" do |f| %>
         <!-- Text Fields -->
         <div class="border-b border-slate-200 pb-6">
-          <h3 class="text-lg font-medium text-slate-900 mb-4">Text Fields</h3>
+          <h3 class="text-lg font-medium text-slate-900 mb-4">Text fields</h3>
 
           <%= f.text_field :name,
-                           label: "Full Name",
+                           label: "Full name",
                            hint: "Enter the user's full name" %>
 
           <%= f.email_field :email,
-                            label: "Email Address",
+                            label: "Email address",
                             placeholder: "user@example.com" %>
 
           <%= f.password_field :password,
@@ -46,14 +46,14 @@
 
         <!-- Number & Currency Fields -->
         <div class="border-b border-slate-200 pb-6">
-          <h3 class="text-lg font-medium text-slate-900 mb-4">Number & Currency Fields</h3>
+          <h3 class="text-lg font-medium text-slate-900 mb-4">Number & currency fields</h3>
 
           <%= f.number_field :id,
                              label: "User ID",
                              hint: "Auto-generated unique identifier" %>
 
           <%= f.currency_field :id,
-                               label: "Account Balance",
+                               label: "Account balance",
                                multiplier: 0.01,
                                decimals: 2,
                                hint: "Currency field with $ prefix" %>
@@ -61,7 +61,7 @@
 
         <!-- Text Area -->
         <div class="border-b border-slate-200 pb-6">
-          <h3 class="text-lg font-medium text-slate-900 mb-4">Text Area</h3>
+          <h3 class="text-lg font-medium text-slate-900 mb-4">Text area</h3>
 
           <%= f.text_area :email,
                           label: "Biography",
@@ -71,17 +71,17 @@
 
         <!-- Select Fields -->
         <div class="border-b border-slate-200 pb-6">
-          <h3 class="text-lg font-medium text-slate-900 mb-4">Select Fields</h3>
+          <h3 class="text-lg font-medium text-slate-900 mb-4">Select fields</h3>
 
           <%= f.select_field :type,
-                             label: "User Type",
+                             label: "User type",
                              collection: [%w[Student Student], %w[Teacher Teacher], %w[User User]],
                              include_blank: "Select a type..." %>
         </div>
 
         <!-- Boolean Field -->
         <div class="border-b border-slate-200 pb-6">
-          <h3 class="text-lg font-medium text-slate-900 mb-4">Boolean Field</h3>
+          <h3 class="text-lg font-medium text-slate-900 mb-4">Boolean field</h3>
 
           <%= f.boolean_field :admin,
                               label: "Administrator",
@@ -90,13 +90,13 @@
 
         <!-- Date & DateTime Fields -->
         <div class="border-b border-slate-200 pb-6">
-          <h3 class="text-lg font-medium text-slate-900 mb-4">Date & DateTime Fields</h3>
+          <h3 class="text-lg font-medium text-slate-900 mb-4">Date & DateTime fields</h3>
 
           <%= f.date_field :created_at,
-                           label: "Registration Date" %>
+                           label: "Registration date" %>
 
           <%= f.datetime_field :updated_at,
-                               label: "Last Updated" %>
+                               label: "Last updated" %>
         </div>
 
         <!-- Read-Only Fields -->
@@ -107,10 +107,10 @@
                                 label: "User ID (Read-Only)" %>
 
           <%= f.read_only_field :created_at,
-                                label: "Member Since" %>
+                                label: "Member since" %>
 
           <%= f.read_only_field :admin,
-                                label: "Administrator Status" %>
+                                label: "Administrator status" %>
         </div>
 
         <!-- Form Actions -->
@@ -125,12 +125,12 @@
   <!-- Validation Error Demo -->
   <div class="bg-white shadow-sm ring-1 ring-slate-900/5 rounded-lg mb-8">
     <div class="px-6 py-6">
-      <h2 class="text-xl font-semibold text-slate-900 mb-4">Validation Error Display</h2>
+      <h2 class="text-xl font-semibold text-slate-900 mb-4">Validation error display</h2>
       <p class="text-slate-600 mb-4">
         The form builder automatically displays validation errors inline with fields.
       </p>
 
-      <%= link_to "Show Form with Errors",
+      <%= link_to "Show form with errors",
                   form_admin_component_demo_index_path(show_errors: true),
                   class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700" %>
     </div>
@@ -139,11 +139,11 @@
   <!-- Usage Examples -->
   <div class="bg-white shadow-sm ring-1 ring-slate-900/5 rounded-lg mb-8">
     <div class="px-6 py-6">
-      <h2 class="text-xl font-semibold text-slate-900 mb-4">Usage Examples</h2>
+      <h2 class="text-xl font-semibold text-slate-900 mb-4">Usage examples</h2>
 
       <div class="space-y-6">
         <div>
-          <h3 class="text-sm font-semibold text-slate-900 mb-3">Basic Form Setup</h3>
+          <h3 class="text-sm font-semibold text-slate-900 mb-3">Basic form setup</h3>
           <pre class="text-xs bg-slate-50 p-4 rounded border border-slate-200 overflow-x-auto"><code>&lt;%= form_with model: @resource, builder: Admin::FormBuilder do |f| %>
   &lt;%= f.text_field :name, label: "Name", hint: "Enter the resource name" %>
   &lt;%= f.submit_button "Save" %>
@@ -151,7 +151,7 @@
         </div>
 
         <div>
-          <h3 class="text-sm font-semibold text-slate-900 mb-3">Currency Field</h3>
+          <h3 class="text-sm font-semibold text-slate-900 mb-3">Currency field</h3>
           <pre class="text-xs bg-slate-50 p-4 rounded border border-slate-200 overflow-x-auto"><code>&lt;%= f.currency_field :amount_cents,
     multiplier: 0.01,
     decimals: 2,
@@ -159,7 +159,7 @@
         </div>
 
         <div>
-          <h3 class="text-sm font-semibold text-slate-900 mb-3">Association Select</h3>
+          <h3 class="text-sm font-semibold text-slate-900 mb-3">Association select</h3>
           <pre class="text-xs bg-slate-50 p-4 rounded border border-slate-200 overflow-x-auto"><code>&lt;%= f.association_select :classroom_id,
     collection: Classroom.all,
     label_method: :name,
@@ -168,7 +168,7 @@
         </div>
 
         <div>
-          <h3 class="text-sm font-semibold text-slate-900 mb-3">Boolean Field</h3>
+          <h3 class="text-sm font-semibold text-slate-900 mb-3">Boolean field</h3>
           <pre class="text-xs bg-slate-50 p-4 rounded border border-slate-200 overflow-x-auto"><code>&lt;%= f.boolean_field :active,
     label: "Active",
     hint: "Check to activate this resource" %></code></pre>
@@ -177,7 +177,7 @@
         <div>
           <h3 class="text-sm font-semibold text-slate-900 mb-3">Read-Only Field</h3>
           <pre class="text-xs bg-slate-50 p-4 rounded border border-slate-200 overflow-x-auto"><code>&lt;%= f.read_only_field :created_at,
-    label: "Created At",
+    label: "Created at",
     value: @resource.created_at.strftime("%B %d, %Y") %></code></pre>
         </div>
       </div>
@@ -187,7 +187,7 @@
   <!-- Field Reference -->
   <div class="bg-white shadow-sm ring-1 ring-slate-900/5 rounded-lg mb-8">
     <div class="px-6 py-6">
-      <h2 class="text-xl font-semibold text-slate-900 mb-4">Available Field Types</h2>
+      <h2 class="text-xl font-semibold text-slate-900 mb-4">Available field types</h2>
 
       <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-slate-300">

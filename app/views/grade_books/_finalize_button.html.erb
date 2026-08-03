@@ -1,4 +1,4 @@
-<%= button_to "Finalize Grades", finalize_classroom_grade_book_path(@classroom, @grade_book),
+<%= button_to "Finalize grades", finalize_classroom_grade_book_path(@classroom, @grade_book),
               disabled: @grade_book.completed?,
               class: @grade_book.completed? ? "tw-btn-primary-disabled" : "tw-btn-primary",
               data: {

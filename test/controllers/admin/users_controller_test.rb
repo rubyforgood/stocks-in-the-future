@@ -61,7 +61,7 @@ module Admin
       get new_admin_user_path
 
       assert_response :success
-      assert_select "h1", "New User"
+      assert_select "h1", "New user"
     end
 
     test "edit" do
@@ -72,7 +72,7 @@ module Admin
       get edit_admin_user_path(user)
 
       assert_response :success
-      assert_select "h1", "Edit User"
+      assert_select "h1", "Edit user"
     end
 
     test "create" do

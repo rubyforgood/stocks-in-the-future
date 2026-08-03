@@ -44,10 +44,10 @@
 
       <!-- Transaction Details -->
       <div class="mt-6 pt-6 border-t border-slate-200">
-        <h3 class="text-sm font-medium text-slate-500 mb-3">Transaction Details</h3>
+        <h3 class="text-sm font-medium text-slate-500 mb-3">Transaction details</h3>
         <dl class="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <div>
-            <dt class="text-sm font-medium text-slate-500">Transaction Type</dt>
+            <dt class="text-sm font-medium text-slate-500">Transaction type</dt>
             <dd class="mt-1 text-sm text-slate-900">
               <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                 <%= @portfolio_transaction.transaction_type.humanize %>
@@ -76,7 +76,7 @@
       <!-- Associated Order -->
       <% if @portfolio_transaction.order.present? %>
         <div class="mt-6 pt-6 border-t border-slate-200">
-          <h3 class="text-sm font-medium text-slate-500 mb-3">Associated Order</h3>
+          <h3 class="text-sm font-medium text-slate-500 mb-3">Associated order</h3>
           <p class="text-sm text-slate-900">Order #<%= @portfolio_transaction.order.id %></p>
         </div>
       <% end %>

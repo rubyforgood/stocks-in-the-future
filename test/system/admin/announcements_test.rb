@@ -18,7 +18,7 @@ module Admin
     #   visit admin_announcements_url
     #   assert_text "Announcements"
 
-    #   click_on "New Announcement"
+    #   click_on "New announcement"
 
     #   fill_in "Title", with: "New Admin Announcement"
     #   # Fill in the rich text area by finding the hidden input

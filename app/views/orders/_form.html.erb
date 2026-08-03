@@ -41,7 +41,7 @@
   <div class="grid grid-cols-2 gap-4 mb-6">
     <div class="bg-teal-700/10 border border-teal-700/20 p-4 rounded-lg text-center">
       <p class="text-sm text-teal-700 font-medium mb-1">
-        Available Cash
+        Available cash
       </p>
       <p class="font-semibold text-black">
         <%= number_to_currency(current_user&.portfolio&.cash_balance) %>
@@ -50,7 +50,7 @@
     <div class="bg-sitf-ring/10 border border-sitf-ring/20 p-4 rounded-lg text-center">
       <%# violet-500 measured 4.23:1 on this near-white panel and failed AA; violet-700 is 7.10:1. %>
       <p class="text-sm text-violet-700 font-medium mb-1">
-        Shares Owned
+        Shares owned
       </p>
       <p class="font-semibold text-black" data-testid="shares-owned-value">
         <%= shares_owned %>

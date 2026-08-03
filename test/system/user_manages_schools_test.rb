@@ -8,7 +8,7 @@ class UserManagesSchoolsTest < ApplicationSystemTestCase
     sign_in(admin)
     visit admin_schools_path
 
-    click_on "New School"
+    click_on "New school"
     fill_in "Name", with: "Test School"
     click_on "Create School"
 

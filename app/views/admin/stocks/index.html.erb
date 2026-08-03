@@ -6,14 +6,14 @@
         columns: [
           { attribute: :id, label: "ID", sortable: true },
           { attribute: :ticker, label: "Ticker", sortable: true },
-          { attribute: :company_name, label: "Company Name", sortable: true },
+          { attribute: :company_name, label: "Company name", sortable: true },
           { attribute: :company_website, label: "Website", sortable: false },
-          { attribute: :current_price, label: "Current Price", sortable: false },
+          { attribute: :current_price, label: "Current price", sortable: false },
           { attribute: :archived, label: "Archived", sortable: true }
         ],
         title: "Stocks",
         actions: link_to(
-          "New Stock",
+          "New stock",
           new_admin_stock_path,
           class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
         ),

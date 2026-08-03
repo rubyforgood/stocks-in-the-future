@@ -32,7 +32,7 @@
           <div class="text-sm text-slate-900">
             Portfolio ID: <%= @user.portfolio.id %>
             <% if @user.student? %>
-              <%= link_to "View Portfolio", user_portfolio_path(@user, @user.portfolio), class: "ml-2 text-blue-600 hover:text-blue-800" %>
+              <%= link_to "View portfolio", user_portfolio_path(@user, @user.portfolio), class: "ml-2 text-blue-600 hover:text-blue-800" %>
             <% end %>
           </div>
         </div>
@@ -45,7 +45,7 @@
   </div>
 
   <div class="flex gap-3">
-    <%= link_to "Back to Users", admin_users_path,
+    <%= link_to "Back to users", admin_users_path,
                 class: "inline-flex items-center px-4 py-2 border border-slate-300 shadow-sm text-sm font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50" %>
   </div>
 </div>

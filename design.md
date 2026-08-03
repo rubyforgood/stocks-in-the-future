@@ -6,20 +6,42 @@
 > rebuilt. Read it before building UI, and keep it current as patterns solidify.
 > The live "what's left" backlog lives in [`design-todo.md`](design-todo.md).
 
+> **Provenance.** This document began as the design system from the Ruby for Good
+> **CASA** project (`rubyforgood/casa`) and was adapted for Stocks in the Future.
+> Credit to that team. Sections describing CASA's own domain — volunteers,
+> supervisors, court dates, placements, chapters — and its Bootstrap migration do
+> **not** apply here and are being replaced as each area is reconciled.
+
 ## Status & approach
 
-Migrating the UI to **Tailwind CSS v4** with a clean, modern look (reference points:
-Stripe, Airbnb — calm, trustworthy, generous whitespace).
+Refreshing the UI with a clean, modern look. Reference points: **Stripe** for calm
+dense data and restrained colour, **Airbnb** for warmth and friendly empty states,
+**Material** for elevation and touch sizing, and HCI fundamentals over fashion.
 
-Tailwind runs **alongside the legacy Bootstrap 5 UI**. Migrate **page-by-page**:
-new/redesigned screens use a Tailwind-only layout; untouched screens keep the
-Bootstrap `application` layout. Never load both CSS resets on the same page.
+**There is no Bootstrap in this codebase.** The app is already Tailwind CSS v4
+throughout, so this is not a framework port — it is a consistency, accessibility
+and visual-quality pass, page by page onto shared primitives.
 
-- Tailwind source: `app/assets/stylesheets/tailwind.css` (CSS-first `@theme`).
-- Build: `npm run build:css` (one-off) / `build:css:dev` (watch); the `tw`
-  process in `Procfile.dev` runs the watcher. Output -> `app/assets/builds/`.
-  The name `build:css` is required — `cssbundling-rails`' `css:build` task (hooked
-  into `assets:precompile` on deploy) shells out to exactly that script.
+- Tailwind entry point: `app/assets/tailwind/application.css`, which imports
+  `figtree.css`, `shadcn.css`, `tailwind.config.css` (the `@theme` block) and the
+  component partials `navbar.css`, `tables.css`, `buttons.css`, `forms.css`,
+  `admin.css`.
+- Build: `bin/rails tailwindcss:build`, or the watcher via `bin/dev`. This project
+  uses **`tailwindcss-rails`**, not `cssbundling-rails` — the `build:css` script in
+  `package.json` is a no-op stub, so ignore any instruction to run an npm CSS build.
+- Under a process manager with no TTY the watcher needs the `always` variant:
+  `bin/rails 'tailwindcss:watch[always]'`. Without it the watcher exits
+  immediately and takes the web process down with it.
+
+### Adopted from this document, and where it was overridden
+
+| Foundation | Status here |
+|-----------|-------------|
+| **Figtree**, self-hosted, no CDN | Adopted. It is a *variable* font, so one file covers 400–800; two subsets (latin, latin-ext) live in `public/vendor/figtree/`, declared in `app/assets/tailwind/figtree.css`. Shipping one file per weight would be the same bytes five times. |
+| **slate** neutrals | Adopted app-wide. Contrast verified to hold: slate-500 4.76:1, slate-600 7.58:1, slate-700 10.35:1, slate-900 17.85:1 on white. |
+| Type scale, sentence case, `text-xs` as chrome | Adopted verbatim. |
+| Full breakpoint set (`sm:`/`md:`/`xl:`) | **Overridden.** `docs/responsive-design-guidelines.md` permits only `base` and `lg:`, because the users are students on 1366×768 Chromebooks and 375px phones. That document wins on anything responsive. |
+| Brand colour | **Overridden.** Stocks in the Future keeps its own palette (`sitf-primary` teal-blue, `sitf-accent` lime) for brand moments, exposed as tokens in `tailwind.config.css`. |
 
 ## Foundations
 
@@ -2224,3 +2246,106 @@ High-level progress; the granular, prioritized backlog lives in
 
 ## Workflow
 - On the `stocksdesign` branch: **commit and push at every checkpoint.**
+
+---
+
+# Stocks in the Future specifics
+
+Everything below is this project's own, not inherited. When it disagrees with
+anything above, this wins.
+
+## Brand tokens
+
+Defined once in `app/assets/tailwind/shadcn.css`, exposed as Tailwind utilities in
+the `@theme` block of `tailwind.config.css`. **Never write a hex value or a
+`[var(--...)]` arbitrary value in markup** — both bypass the token layer, and both
+hid contrast failures here.
+
+| Token | Value | Contrast on white | Use |
+|-------|-------|-------------------|-----|
+| `sitf-surface` | `#f7f9f3` | — | page background |
+| `sitf-primary` | `#00698c` | 5.82:1 | primary actions, links, focus rings |
+| `sitf-primary-dark` | `#004f6b` | 8.50:1 | hover, headings, nav |
+| `sitf-on-primary` | `#ffffff` | 6.18:1 on primary | labels on brand fills |
+| `sitf-accent` | `#d3df44` | **1.37:1** | **fill only** — never text or icons |
+| `sitf-on-accent` | `#323232` | 8.80:1 on accent | text on the lime fill |
+| `sitf-accent-soft` | `#eceec8` | — | summary total rows |
+| `sitf-hero-from` / `-to` | `#f4d18d` / `#f8dba8` | — | hero gradient |
+| `sitf-ring` | `#a5b4fc` | **1.99:1** | **tint only** — never a focus indicator or a control border |
+| `sitf-danger` | `#ef4444` | 3.76:1 | fills and borders, **not text** — use `red-700` for text |
+
+## Component primitives
+
+In `app/views/components/ui/`. Build on these rather than restyling inline.
+
+- **`_card`** — hairline border plus a very low shadow, not a heavy drop shadow.
+  Optional header with title and subtitle; `padded: false` for flush tables.
+- **`_page_header`** — the single `h1` at page-title scale, optional description,
+  actions aligned on the same optical line.
+- **`_badge`** — six semantic tones, each a dark foreground on a light tint so all
+  clear AA. The label always states the status, so meaning is never colour-alone.
+- **`_empty_state`** — heading, explanation and a call to action. An empty state
+  that names the next step without offering it is doing half a job.
+- **`_data_table`** — visually hidden `<caption>` for the accessible name, plus a
+  **focusable** scroll region. A plain `overflow-x-auto` div is not
+  keyboard-scrollable, which fails WCAG 2.1.1.
+- **`admin/shared/_empty_row`** — wraps `_empty_state` in the `tr`/`td`/colspan
+  plumbing for use inside a table body.
+
+Partials rendered with `render layout:` must test whether the **yielded content is
+present**, not `block_given?` — the latter is unreliable inside a partial layout.
+
+## Data tables
+
+Reworked from a heavy black grid to industry standard. Classes live in
+`app/assets/tailwind/tables.css`, so restyling them upgrades every table at once.
+
+- Hairline horizontal dividers only. No vertical rules, no heavy outer border.
+  Columns separate by alignment and whitespace.
+- The header is chrome: `text-xs` semibold `slate-600` on `slate-50`, **with no
+  uppercase transform** — this document says to use size, weight and colour for
+  hierarchy instead, and that applies to column headers too.
+- Rows tall enough to touch, with a hover anchor for scanning.
+- **Money and counts right-aligned with `tabular-nums`**, so digits line up down
+  the column. On a financial table this is the single biggest legibility win, and
+  it was missing everywhere.
+
+## Traps found the hard way
+
+Each of these was a real defect in this codebase, not a hypothetical.
+
+**Tailwind v4 resolves an unset `--tw-ring-color` to `currentColor`.** A
+`focus-visible:ring-2` with no colour named gave a *white ring on a white
+ring-offset on a white page* for the primary button — an invisible focus
+indicator. Always name the ring colour.
+
+**`bg-opacity-*` and `ring-opacity-*` were removed in v4** and compile to nothing.
+Two modal scrims were rendering fully opaque and `ring-black ring-opacity-5` drew
+a solid black rule. Use the slash syntax.
+
+**An invalid utility fails silently.** `focus-visible:ring-2a` compiled to nothing
+and went unnoticed. If a style has no effect, check the class actually exists in
+the built CSS.
+
+**`lucide_icon` renders `aria-hidden`.** An icon-only control therefore has *no*
+accessible name unless you add visually hidden text. `title` alone is not
+reliably announced.
+
+**Dead classes accumulate.** 17 legacy top-nav rules had zero usages, and
+`hero-banner`, `funds-pill` and `flex-cols-2` were referenced in markup but never
+defined anywhere. A class that is never defined and a class that is never used
+both look fine in review.
+
+**Confirm dialogs need a subject.** "Are you sure?" gives no basis for a decision.
+Name the record and say whether the action can be undone.
+
+## Accessibility gates
+
+The per-page checklists live in
+[`design-instructions.md`](design-instructions.md). Two habits matter more than
+the lists:
+
+1. **Measure contrast, do not guess.** Every failure found here looked fine.
+2. **Test the empty and error branches.** Every admin index page returned HTTP 200
+   while its empty state was broken, because the tests all created records first.
+

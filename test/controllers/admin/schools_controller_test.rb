@@ -46,7 +46,7 @@ module Admin
       get new_admin_school_path
 
       assert_response :success
-      assert_select "h1", "New School"
+      assert_select "h1", "New school"
     end
 
     test "new shows year checkboxes" do
@@ -117,7 +117,7 @@ module Admin
       get edit_admin_school_path(school)
 
       assert_response :success
-      assert_select "h1", "Edit School"
+      assert_select "h1", "Edit school"
     end
 
     test "edit shows current year selections" do

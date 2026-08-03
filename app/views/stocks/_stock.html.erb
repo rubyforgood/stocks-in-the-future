@@ -3,7 +3,7 @@
     <!-- Price and Key Metrics Card -->
     <div class="bg-white rounded-[22px] border border-black/30 overflow-hidden">
       <div class="bg-amber-300/95 px-6 py-4">
-        <h2 class="text-lg font-semibold text-slate-900">Current Price & Key Metrics</h2>
+        <h2 class="text-lg font-semibold text-slate-900">Current price & key metrics</h2>
       </div>
       <div class="p-6">
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
@@ -30,7 +30,7 @@
     <!-- Company Information Card -->
     <div class="bg-white rounded-[22px] border border-black/30 overflow-hidden">
       <div class="bg-blue-300/95 px-6 py-4">
-        <h2 class="text-lg font-semibold text-slate-900">Company Information</h2>
+        <h2 class="text-lg font-semibold text-slate-900">Company information</h2>
       </div>
       <div class="p-6">
         <div class="space-y-4">
@@ -72,40 +72,40 @@
     <!-- Financial Metrics Card -->
     <div class="bg-white rounded-[22px] border border-black/30 overflow-hidden">
       <div class="bg-green-300/95 px-6 py-4">
-        <h2 class="text-lg font-semibold text-slate-900">Financial Metrics</h2>
+        <h2 class="text-lg font-semibold text-slate-900">Financial metrics</h2>
       </div>
       <div class="p-6">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <!-- Company Metrics -->
           <div class="space-y-4">
-            <h3 class="font-medium text-slate-800 border-b border-slate-200 pb-2">Company Performance</h3>
+            <h3 class="font-medium text-slate-800 border-b border-slate-200 pb-2">Company performance</h3>
             <% if stock.sales_growth.present? %>
               <div class="flex justify-between items-center py-2">
-                <span class="text-slate-600">Sales Growth</span>
+                <span class="text-slate-600">Sales growth</span>
                 <span class="font-semibold text-slate-900"><%= stock.sales_growth %>%</span>
               </div>
             <% end %>
             <% if stock.profit_margin.present? %>
               <div class="flex justify-between items-center py-2">
-                <span class="text-slate-600">Profit Margin</span>
+                <span class="text-slate-600">Profit margin</span>
                 <span class="font-semibold text-slate-900"><%= stock.profit_margin %>%</span>
               </div>
             <% end %>
             <% if stock.debt_to_equity.present? %>
               <div class="flex justify-between items-center py-2">
-                <span class="text-slate-600">Debt to Equity</span>
+                <span class="text-slate-600">Debt to equity</span>
                 <span class="font-semibold text-slate-900"><%= stock.debt_to_equity %></span>
               </div>
             <% end %>
             <% if stock.cash_flow.present? %>
               <div class="flex justify-between items-center py-2">
-                <span class="text-slate-600">Cash Flow</span>
+                <span class="text-slate-600">Cash flow</span>
                 <span class="font-semibold text-slate-900"><%= number_to_currency(stock.cash_flow) %></span>
               </div>
             <% end %>
             <% if stock.debt.present? %>
               <div class="flex justify-between items-center py-2">
-                <span class="text-slate-600">Total Debt</span>
+                <span class="text-slate-600">Total debt</span>
                 <span class="font-semibold text-slate-900"><%= number_to_currency(stock.debt) %></span>
               </div>
             <% end %>
@@ -113,22 +113,22 @@
 
           <!-- Industry Averages -->
           <div class="space-y-4">
-            <h3 class="font-medium text-slate-800 border-b border-slate-200 pb-2">Industry Averages</h3>
+            <h3 class="font-medium text-slate-800 border-b border-slate-200 pb-2">Industry averages</h3>
             <% if stock.industry_avg_sales_growth.present? %>
               <div class="flex justify-between items-center py-2">
-                <span class="text-slate-600">Avg Sales Growth</span>
+                <span class="text-slate-600">Avg sales growth</span>
                 <span class="font-semibold text-slate-900"><%= stock.industry_avg_sales_growth %>%</span>
               </div>
             <% end %>
             <% if stock.industry_avg_profit_margin.present? %>
               <div class="flex justify-between items-center py-2">
-                <span class="text-slate-600">Avg Profit Margin</span>
+                <span class="text-slate-600">Avg profit margin</span>
                 <span class="font-semibold text-slate-900"><%= stock.industry_avg_profit_margin %>%</span>
               </div>
             <% end %>
             <% if stock.industry_avg_debt_to_equity.present? %>
               <div class="flex justify-between items-center py-2">
-                <span class="text-slate-600">Avg Debt to Equity</span>
+                <span class="text-slate-600">Avg debt to equity</span>
                 <span class="font-semibold text-slate-900"><%= stock.industry_avg_debt_to_equity %></span>
               </div>
             <% end %>
@@ -144,7 +144,7 @@
           <h3 class="font-semibold text-lg text-slate-900">
             <%= stock.ticker %>
             <% if stock.archived? %>
-              <span class="ml-2 bg-red-100 text-red-800 text-xs font-medium px-2 py-1 rounded-full">ARCHIVED</span>
+              <span class="ml-2 bg-red-100 text-red-800 text-xs font-medium px-2 py-1 rounded-full">Archived</span>
             <% end %>
           </h3>
           <p class="text-slate-600 mt-1"><%= stock.company_name %></p>
@@ -152,7 +152,7 @@
         </div>
         <div class="text-right">
           <div class="text-lg font-bold text-green-600 tabular-nums"><%= number_to_currency(stock.current_price) %></div>
-          <%= link_to "View Details", stock, class: "tw-btn-secondary mt-2" %>
+          <%= link_to "View details", stock, class: "tw-btn-secondary mt-2" %>
         </div>
       </div>
     </div>

@@ -11,9 +11,9 @@ class TeacherCreatesStudentTest < ApplicationSystemTestCase
     sign_in(teacher)
     visit classroom_path(classroom)
 
-    click_on "Add Student"
+    click_on "Add student"
     fill_in "Username", with: username
-    click_button "Create Student"
+    click_button "Create student"
 
     assert_selector "#notice", text: "Student #{username} created successfully"
     assert_selector "[data-testid='student-username']", text: username
@@ -82,7 +82,7 @@ class TeacherCreatesStudentTest < ApplicationSystemTestCase
 
     find("##{dom_id(student)} [data-testid='edit-student']").click
     fill_in "Username", with: new_username
-    click_button "Update Student"
+    click_button "Update student"
 
     assert_selector "#notice", text: "Student updated successfully"
     assert_selector "[data-testid='student-username']", text: new_username
@@ -117,9 +117,9 @@ class TeacherCreatesStudentTest < ApplicationSystemTestCase
     sign_in(teacher)
     visit classroom_path(classroom)
 
-    click_on "Add Student"
+    click_on "Add student"
     fill_in "Username", with: username
-    click_button "Create Student"
+    click_button "Create student"
 
     assert_selector ".field_with_errors", text: "Username"
   end

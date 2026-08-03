@@ -44,7 +44,7 @@ module Admin
       get new_admin_classroom_path
 
       assert_response :success
-      assert_select "h1", "New Classroom"
+      assert_select "h1", "New classroom"
     end
 
     test "create" do
@@ -88,7 +88,7 @@ module Admin
       get edit_admin_classroom_path(classroom)
 
       assert_response :success
-      assert_select "h1", "Edit Classroom"
+      assert_select "h1", "Edit classroom"
     end
 
     test "update" do

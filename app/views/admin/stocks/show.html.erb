@@ -35,10 +35,10 @@
 
       <!-- Price Information -->
       <div class="mt-6 pt-6 border-t border-slate-200">
-        <h3 class="text-sm font-medium text-slate-500 mb-3">Price Information</h3>
+        <h3 class="text-sm font-medium text-slate-500 mb-3">Price information</h3>
         <dl class="grid grid-cols-1 gap-4 lg:grid-cols-3">
           <div>
-            <dt class="text-sm font-medium text-slate-500">Current Price</dt>
+            <dt class="text-sm font-medium text-slate-500">Current price</dt>
             <dd class="mt-1 text-sm text-slate-900"><%= number_to_currency(@stock.current_price) %></dd>
           </div>
           <div>
@@ -46,7 +46,7 @@
             <dd class="mt-1 text-sm text-slate-900"><%= number_to_currency(@stock.yesterday_price) %></dd>
           </div>
           <div>
-            <dt class="text-sm font-medium text-slate-500">Percentage Change</dt>
+            <dt class="text-sm font-medium text-slate-500">Percentage change</dt>
             <dd class="mt-1 text-sm">
               <span class="<%= @stock.percentage_change.positive? ? 'text-green-600' : 'text-red-600' %>">
                 <%= @stock.percentage_change_formatted %>
@@ -58,7 +58,7 @@
 
       <!-- Company Information -->
       <div class="mt-6 pt-6 border-t border-slate-200">
-        <h3 class="text-sm font-medium text-slate-500 mb-3">Company Information</h3>
+        <h3 class="text-sm font-medium text-slate-500 mb-3">Company information</h3>
         <dl class="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <div>
             <dt class="text-sm font-medium text-slate-500">Employees</dt>
@@ -73,10 +73,10 @@
 
       <!-- Financial Metrics -->
       <div class="mt-6 pt-6 border-t border-slate-200">
-        <h3 class="text-sm font-medium text-slate-500 mb-3">Financial Metrics</h3>
+        <h3 class="text-sm font-medium text-slate-500 mb-3">Financial metrics</h3>
         <dl class="grid grid-cols-1 gap-4 lg:grid-cols-3">
           <div>
-            <dt class="text-sm font-medium text-slate-500">Cash Flow</dt>
+            <dt class="text-sm font-medium text-slate-500">Cash flow</dt>
             <dd class="mt-1 text-sm text-slate-900"><%= @stock.cash_flow || "—" %></dd>
           </div>
           <div>
@@ -84,15 +84,15 @@
             <dd class="mt-1 text-sm text-slate-900"><%= @stock.debt || "—" %></dd>
           </div>
           <div>
-            <dt class="text-sm font-medium text-slate-500">Debt to Equity</dt>
+            <dt class="text-sm font-medium text-slate-500">Debt to equity</dt>
             <dd class="mt-1 text-sm text-slate-900"><%= @stock.debt_to_equity || "—" %></dd>
           </div>
           <div>
-            <dt class="text-sm font-medium text-slate-500">Profit Margin</dt>
+            <dt class="text-sm font-medium text-slate-500">Profit margin</dt>
             <dd class="mt-1 text-sm text-slate-900"><%= @stock.profit_margin || "—" %></dd>
           </div>
           <div>
-            <dt class="text-sm font-medium text-slate-500">Sales Growth</dt>
+            <dt class="text-sm font-medium text-slate-500">Sales growth</dt>
             <dd class="mt-1 text-sm text-slate-900"><%= @stock.sales_growth || "—" %></dd>
           </div>
         </dl>
@@ -100,18 +100,18 @@
 
       <!-- Industry Averages -->
       <div class="mt-6 pt-6 border-t border-slate-200">
-        <h3 class="text-sm font-medium text-slate-500 mb-3">Industry Averages</h3>
+        <h3 class="text-sm font-medium text-slate-500 mb-3">Industry averages</h3>
         <dl class="grid grid-cols-1 gap-4 lg:grid-cols-3">
           <div>
-            <dt class="text-sm font-medium text-slate-500">Avg Debt to Equity</dt>
+            <dt class="text-sm font-medium text-slate-500">Avg debt to equity</dt>
             <dd class="mt-1 text-sm text-slate-900"><%= @stock.industry_avg_debt_to_equity || "—" %></dd>
           </div>
           <div>
-            <dt class="text-sm font-medium text-slate-500">Avg Profit Margin</dt>
+            <dt class="text-sm font-medium text-slate-500">Avg profit margin</dt>
             <dd class="mt-1 text-sm text-slate-900"><%= @stock.industry_avg_profit_margin || "—" %></dd>
           </div>
           <div>
-            <dt class="text-sm font-medium text-slate-500">Avg Sales Growth</dt>
+            <dt class="text-sm font-medium text-slate-500">Avg sales growth</dt>
             <dd class="mt-1 text-sm text-slate-900"><%= @stock.industry_avg_sales_growth || "—" %></dd>
           </div>
         </dl>
@@ -128,7 +128,7 @@
       <!-- Competitors -->
       <% if @stock.competitor_names.present? %>
         <div class="mt-6 pt-6 border-t border-slate-200">
-          <h3 class="text-sm font-medium text-slate-500 mb-3">Competitor Names</h3>
+          <h3 class="text-sm font-medium text-slate-500 mb-3">Competitor names</h3>
           <p class="text-sm text-slate-900 whitespace-pre-wrap"><%= @stock.competitor_names %></p>
         </div>
       <% end %>
@@ -144,7 +144,7 @@
   </div>
 
   <div class="flex gap-3">
-    <%= link_to "Back to Stocks", admin_stocks_path,
+    <%= link_to "Back to stocks", admin_stocks_path,
                 class: "inline-flex items-center px-4 py-2 border border-slate-300 shadow-sm text-sm font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50" %>
   </div>
 </div>

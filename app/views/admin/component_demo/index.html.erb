@@ -1,7 +1,7 @@
 <div class="max-w-7xl mx-auto">
   <!-- Page Header -->
   <div class="mb-8">
-    <h1 class="text-3xl font-bold text-slate-900 mb-2">Admin Components Demo</h1>
+    <h1 class="text-3xl font-bold text-slate-900 mb-2">Admin components demo</h1>
     <p class="text-slate-600">Showcase of all reusable admin components</p>
   </div>
 
@@ -10,7 +10,7 @@
     <div class="flex items-start">
       <%= lucide_icon("info", class: "text-blue-600 mt-1 mr-3 w-4 h-4 shrink-0") %>
       <div>
-        <h3 class="font-semibold text-blue-900 mb-1">Component Demo Page</h3>
+        <h3 class="font-semibold text-blue-900 mb-1">Component demo page</h3>
         <p class="text-sm text-blue-800">
           This page demonstrates all the reusable components created for the Admin V2 interface.
           These components will be used across all admin resource pages.
@@ -21,18 +21,18 @@
 
   <!-- Quick Links -->
   <div class="bg-white shadow-sm ring-1 ring-slate-900/5 rounded-lg p-4 mb-6">
-    <h3 class="text-sm font-semibold text-slate-900 mb-3">Component Demos</h3>
+    <h3 class="text-sm font-semibold text-slate-900 mb-3">Component demos</h3>
     <div class="flex gap-3">
       <%= link_to form_admin_component_demo_index_path, class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700" do %>
         <%= lucide_icon("square-pen", class: "mr-2 w-4 h-4 shrink-0") %>
-        Form Builder Demo
+        Form builder demo
       <% end %>
     </div>
   </div>
 
   <!-- Breadcrumbs Demo -->
   <div class="mb-8">
-    <h2 class="text-xl font-semibold text-slate-900 mb-4">Breadcrumbs Component</h2>
+    <h2 class="text-xl font-semibold text-slate-900 mb-4">Breadcrumbs component</h2>
     <%= admin_breadcrumbs(@breadcrumbs) %>
   </div>
 
@@ -40,7 +40,7 @@
 
   <!-- Search/Filter Demo -->
   <div class="mb-8">
-    <h2 class="text-xl font-semibold text-slate-900 mb-4">Search & Filter Component</h2>
+    <h2 class="text-xl font-semibold text-slate-900 mb-4">Search & filter component</h2>
     <%= admin_search_filter(
           filters: @filters,
           search_placeholder: "Search users..."
@@ -51,7 +51,7 @@
 
   <!-- Table Demo -->
   <div class="mb-8">
-    <h2 class="text-xl font-semibold text-slate-900 mb-4">Table Component</h2>
+    <h2 class="text-xl font-semibold text-slate-900 mb-4">Table component</h2>
     <p class="text-slate-600 mb-4">
       Responsive table with sortable columns and empty states.
       Click column headers to sort. (Action buttons disabled in demo - see Action Buttons section below)
@@ -71,7 +71,7 @@
 
   <!-- Show Attributes Demo -->
   <div class="mb-8">
-    <h2 class="text-xl font-semibold text-slate-900 mb-4">Show Attributes Component</h2>
+    <h2 class="text-xl font-semibold text-slate-900 mb-4">Show attributes component</h2>
     <p class="text-slate-600 mb-4">Clean attribute display for show/detail pages.</p>
 
     <%= admin_show_attributes(
@@ -84,11 +84,11 @@
 
   <!-- Action Buttons Demo -->
   <div class="mb-8">
-    <h2 class="text-xl font-semibold text-slate-900 mb-4">Action Buttons Component</h2>
+    <h2 class="text-xl font-semibold text-slate-900 mb-4">Action buttons component</h2>
     <p class="text-slate-600 mb-4">Standard and custom action buttons with icons.</p>
 
     <div class="bg-white p-6 rounded-lg shadow-sm ring-1 ring-slate-900/5">
-      <h3 class="text-sm font-medium text-slate-900 mb-4">Standard Actions (Edit + Delete)</h3>
+      <h3 class="text-sm font-medium text-slate-900 mb-4">Standard actions (Edit + delete)</h3>
       <div class="flex flex-wrap gap-3">
         <%= link_to "#", class: "inline-flex items-center px-4 py-2 border border-slate-300 shadow-sm text-sm font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" do %>
           <%= lucide_icon("square-pen", class: "-ml-1 mr-2 h-5 w-5 text-slate-500 shrink-0") %>
@@ -102,7 +102,7 @@
 
       <hr class="my-6">
 
-      <h3 class="text-sm font-medium text-slate-900 mb-4">With Custom Actions</h3>
+      <h3 class="text-sm font-medium text-slate-900 mb-4">With custom actions</h3>
       <div class="flex flex-wrap gap-3">
         <%= link_to "#", class: "inline-flex items-center px-4 py-2 border border-slate-300 shadow-sm text-sm font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" do %>
           <%= lucide_icon("square-pen", class: "-ml-1 mr-2 h-5 w-5 text-slate-500 shrink-0") %>
@@ -110,7 +110,7 @@
         <% end %>
         <%= link_to "#", class: "inline-flex items-center px-4 py-2 border border-slate-300 shadow-sm text-sm font-medium rounded-md text-blue-700 bg-blue-50 hover:bg-blue-100 border-blue-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" do %>
           <%= lucide_icon("mail", class: "-ml-1 mr-2 h-5 w-5 shrink-0") %>
-          Send Email
+          Send email
         <% end %>
         <%= link_to "#", data: { turbo_confirm: "Archive this user?" }, class: "inline-flex items-center px-4 py-2 border border-slate-300 shadow-sm text-sm font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" do %>
           <%= lucide_icon("archive", class: "-ml-1 mr-2 h-5 w-5 shrink-0") %>
@@ -124,7 +124,7 @@
 
   <!-- Boolean Badge Demo -->
   <div class="mb-8">
-    <h2 class="text-xl font-semibold text-slate-900 mb-4">Boolean Badges</h2>
+    <h2 class="text-xl font-semibold text-slate-900 mb-4">Boolean badges</h2>
     <div class="bg-white p-6 rounded-lg shadow-sm ring-1 ring-slate-900/5">
       <div class="flex gap-4 items-center">
         <div>
@@ -143,7 +143,7 @@
 
   <!-- Format Attribute Demo -->
   <div class="mb-8">
-    <h2 class="text-xl font-semibold text-slate-900 mb-4">Attribute Formatting Examples</h2>
+    <h2 class="text-xl font-semibold text-slate-900 mb-4">Attribute formatting examples</h2>
     <div class="bg-white p-6 rounded-lg shadow-sm ring-1 ring-slate-900/5">
       <dl class="space-y-4">
         <div class="flex justify-between">
@@ -170,9 +170,9 @@
 
   <!-- Component Usage Examples -->
   <div class="mb-8">
-    <h2 class="text-xl font-semibold text-slate-900 mb-4">Usage Examples</h2>
+    <h2 class="text-xl font-semibold text-slate-900 mb-4">Usage examples</h2>
     <div class="bg-slate-50 p-6 rounded-lg">
-      <h3 class="text-sm font-semibold text-slate-900 mb-3">Table Component</h3>
+      <h3 class="text-sm font-semibold text-slate-900 mb-3">Table component</h3>
       <pre class="text-xs bg-white p-4 rounded border border-slate-200 overflow-x-auto"><code>&lt;%= admin_table(
   @resources,
   columns: [
@@ -183,7 +183,7 @@
   actions: link_to("New", [:new, :admin, :resource])
 ) %&gt;</code></pre>
 
-      <h3 class="text-sm font-semibold text-slate-900 mb-3 mt-6">Show Attributes</h3>
+      <h3 class="text-sm font-semibold text-slate-900 mb-3 mt-6">Show attributes</h3>
       <pre class="text-xs bg-white p-4 rounded border border-slate-200 overflow-x-auto"><code>&lt;%= admin_show_attributes(
   @resource,
   attributes: [:name, :email, :created_at]

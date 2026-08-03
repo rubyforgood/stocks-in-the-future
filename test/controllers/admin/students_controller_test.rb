@@ -62,14 +62,14 @@ module Admin
 
       assert_response :success
       assert_select "h2", username
-      assert_select "h3", text: "Portfolio Details"
+      assert_select "h3", text: "Portfolio details"
       assert_select(
         "[data-testid='cash_balance_label']",
-        text: "Cash Balance"
+        text: "Cash balance"
       )
       assert_select(
         "[data-testid='total_portfolio_worth_label']",
-        text: "Total Portfolio Worth"
+        text: "Total portfolio worth"
       )
     end
 
@@ -110,12 +110,12 @@ module Admin
       get admin_student_path(student)
 
       assert_response :success
-      assert_select "h4", text: "Earnings Summary"
-      assert_select "td", text: "Attendance Earnings"
-      assert_select "td", text: "Math Earnings"
+      assert_select "h4", text: "Earnings summary"
+      assert_select "td", text: "Attendance earnings"
+      assert_select "td", text: "Math earnings"
       assert_select "td", text: "Rewards"
-      assert_select "td", text: "Total Earnings"
-      assert_select "td", text: "Transaction Fees"
+      assert_select "td", text: "Total earnings"
+      assert_select "td", text: "Transaction fees"
     end
 
     test "new" do
@@ -125,7 +125,7 @@ module Admin
       get new_admin_student_path
 
       assert_response :success
-      assert_select "h1", "New Student"
+      assert_select "h1", "New student"
     end
 
     test "create" do
@@ -175,7 +175,7 @@ module Admin
       get edit_admin_student_path(student)
 
       assert_response :success
-      assert_select "h1", "Edit Student"
+      assert_select "h1", "Edit student"
     end
 
     test "update" do
@@ -282,7 +282,7 @@ module Admin
 
       post(add_transaction_admin_student_path(student), params:)
       expected_error_message =
-        "Transaction Type must be present, Amount must be present, " \
+        "Transaction type must be present, Amount must be present, " \
         "Reason must be present"
 
       assert_redirected_to edit_admin_student_path(student)

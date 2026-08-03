@@ -13,7 +13,7 @@ module Admin
       get admin_school_years_path
 
       assert_response :success
-      assert_select "h3", "School Years"
+      assert_select "h3", "School years"
       assert_select "tbody tr", count: 2
     end
 
@@ -40,7 +40,7 @@ module Admin
       get new_admin_school_year_path
 
       assert_response :success
-      assert_select "h1", "New School Year"
+      assert_select "h1", "New school year"
     end
 
     test "create" do
@@ -99,7 +99,7 @@ module Admin
       get edit_admin_school_year_path(school_year)
 
       assert_response :success
-      assert_select "h1", "Edit School Year"
+      assert_select "h1", "Edit school year"
     end
 
     test "update" do

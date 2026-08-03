@@ -26,7 +26,7 @@
           <h1 class="text-xl font-semibold text-slate-900">
             <%= link_to admin_root_path do %>
               <%= lucide_icon("wrench", class: "text-blue-600 mr-2 w-4 h-4 shrink-0") %>
-              Admin Dashboard
+              Admin dashboard
             <% end %>
           </h1>
         </div>
@@ -34,8 +34,8 @@
           <span class="hidden lg:inline text-sm text-slate-600">
             <%= current_user.email %>
           </span>
-          <%= link_to "View Site", root_path, class: "text-sm text-blue-600 hover:text-blue-800" %>
-          <%= link_to "Sign Out", destroy_user_session_path, data: { turbo_method: :delete }, class: "text-sm text-red-600 hover:text-red-800" %>
+          <%= link_to "View site", root_path, class: "text-sm text-blue-600 hover:text-blue-800" %>
+          <%= link_to "Sign out", destroy_user_session_path, data: { turbo_method: :delete }, class: "text-sm text-red-600 hover:text-red-800" %>
         </div>
       </div>
     </div>
