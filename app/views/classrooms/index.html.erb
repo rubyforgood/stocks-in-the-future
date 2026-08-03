@@ -67,7 +67,9 @@
               </td>
               <td class="table-body-cell table-body-cell-right">
                 <span class="table-cell-content">
-                  $<%= number_with_precision(classroom.students.sum { |s| s.portfolio&.calculate_total_value || 0 }, precision: 2) %>
+                  <%# Sum integer cents and convert once, rather than adding up
+                      per-student Floats and accumulating error across a class. %>
+                  <%= number_to_currency(classroom.students.sum { |s| s.portfolio&.calculate_total_value_cents || 0 } / 100.0) %>
                 </span>
               </td>
               <td class="table-body-cell table-body-cell-center">

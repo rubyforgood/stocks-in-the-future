@@ -78,7 +78,8 @@
               </td>
               <td class="table-body-cell">
                 <span class="table-cell-content">
-                  $<%= order.stock.current_price %>
+                  <%# Was interpolated raw, so a whole-dollar price rendered as "$15.0". %>
+                  <%= number_to_currency(order.stock.current_price) %>
                 </span>
               </td>
               <td class="table-body-cell">

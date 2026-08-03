@@ -143,7 +143,11 @@ class Order < ApplicationRecord
   def sufficient_funds_for_buy
     return unless number_of_shares_valid_for_calculations?
 
-    current_balance_cents = (user.portfolio&.cash_balance || 0) * 100
+    # Integer cents throughout. Reading cash_balance (a Float) and multiplying by
+    # 100 recovered a value fractionally below the true balance for most
+    # two-decimal amounts, so an order the student could afford to the penny was
+    # rejected with "You have $16.06 but need $16.06".
+    current_balance_cents = user.portfolio&.cash_balance_cents || 0
     total_cost = purchase_cost + transaction_fee
     return if (current_balance_cents - total_cost) >= 0
 
@@ -159,7 +163,7 @@ class Order < ApplicationRecord
     previous_shares = shares_was
     refund = (stock.price_cents * previous_shares) + PortfolioTransaction::TRANSACTION_FEE_CENTS
 
-    current_balance_cents = ((user.portfolio&.cash_balance || 0) * 100) + refund
+    current_balance_cents = (user.portfolio&.cash_balance_cents || 0) + refund
     total_cost = purchase_cost + transaction_fee
     return if (current_balance_cents - total_cost) >= 0
 

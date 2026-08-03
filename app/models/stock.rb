@@ -16,6 +16,11 @@ class Stock < ApplicationRecord
   scope :active, -> { where(archived: false) }
   scope :archived, -> { where(archived: true) }
 
+  # Dollars, for display and for the decimal purchase_price column. price_cents
+  # is the authoritative value - never convert this back into cents for
+  # arithmetic or comparison, because the round trip loses value. Always render
+  # through number_to_currency: interpolated raw, a whole-dollar price prints as
+  # "$15.0".
   def current_price
     price_cents.to_f / 100
   end

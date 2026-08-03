@@ -13,6 +13,14 @@ class Portfolio < ApplicationRecord
   has_many :stocks, through: :portfolio_stocks
   has_many :portfolio_snapshots, dependent: :destroy
 
+  # Integer cents. Use this for any arithmetic or comparison. Converting to a
+  # Float and back loses value for most two-decimal amounts, which previously
+  # made an exactly-affordable order read as unaffordable.
+  def cash_balance_cents
+    cash_on_hand_in_cents
+  end
+
+  # Float, for display only. Never multiply this back up to get cents.
   def cash_balance
     cash_on_hand
   end
