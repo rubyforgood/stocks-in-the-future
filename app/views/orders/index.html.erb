@@ -13,36 +13,36 @@
     <%= render "shared/table_container" do %>
       <thead>
         <tr class="table-header-row min-w-full">
-          <th class="table-header-cell table-header-cell-left">
+          <th scope="col" class="table-header-cell table-header-cell-left">
             <%= sort_link(:created_at, "Date") %>
           </th>
           <% if current_user&.teacher_or_admin? %>
-            <th class="table-header-cell table-header-cell-left">
+            <th scope="col" class="table-header-cell table-header-cell-left">
               <%= sort_link(:username, "Username") %>
             </th>
-            <th class="table-header-cell table-header-cell-left">
+            <th scope="col" class="table-header-cell table-header-cell-left">
               <%= sort_link(:classroom, "Class") %>
             </th>
           <% end %>
-          <th class="table-header-cell table-header-cell-left">
+          <th scope="col" class="table-header-cell table-header-cell-left">
             <%= sort_link(:stock, "Stock") %>
           </th>
-          <th class="table-header-cell table-header-cell-left">
+          <th scope="col" class="table-header-cell table-header-cell-left">
             <%= sort_link(:price_per_share, "Price per share") %>
           </th>
-          <th class="table-header-cell table-header-cell-left">
+          <th scope="col" class="table-header-cell table-header-cell-left">
             <%= sort_link(:shares, "Shares") %>
           </th>
-          <th class="table-header-cell table-header-cell-left">
+          <th scope="col" class="table-header-cell table-header-cell-left">
             <%= sort_link(:status, "Status") %>
           </th>
-          <th class="table-header-cell table-header-cell-left">
+          <th scope="col" class="table-header-cell table-header-cell-left">
             Type
           </th>
-          <th class="table-header-cell table-header-cell-right">
+          <th scope="col" class="table-header-cell table-header-cell-right">
             <%= sort_link(:total_cost, "Total Cost") %>
           </th>
-          <th class="table-header-cell table-header-cell-right" />
+          <th scope="col" class="table-header-cell table-header-cell-right" />
         </tr>
       </thead>
       <tbody>

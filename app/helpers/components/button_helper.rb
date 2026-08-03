@@ -26,9 +26,13 @@ module Components
     private
 
     def base_class_styling
+      # Focus ring needs an explicit colour. Tailwind v4 falls back to
+      # currentColor, which on a primary button (white label) produced a white
+      # ring over a white ring-offset on a white page - an invisible focus
+      # indicator. ring-2 and ring-3 were also both set, which conflicts.
       " inline-flex items-center justify-center rounded-md text-sm font-medium " \
         "ring-offset-background transition-colors focus-visible:outline-hidden " \
-        "focus-visible:ring-2 focus-visible:ring-3 focus-visible:ring-offset-2 " \
+        "focus-visible:ring-2 focus-visible:ring-sitf-primary focus-visible:ring-offset-2 " \
         "disabled:pointer-events-none disabled:opacity-50 h-10 px-4 py-2 "
     end
   end

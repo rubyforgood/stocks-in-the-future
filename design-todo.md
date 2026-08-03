@@ -175,9 +175,9 @@ Counts are indicative, found by pattern matching - confirm by reading the file.
 - [x] Add SITF brand colours as semantic tokens so pages stop hardcoding hex. **done**: `sitf-surface`, `sitf-primary`, `sitf-primary-dark`, `sitf-on-primary`, `sitf-secondary`, `sitf-accent`, `sitf-warning`, `sitf-danger` in `tailwind.config.css`, sourced from `shadcn.css`.
 - [ ] Replace the Font Awesome CDN link with local SVG icons (78 usages).
 - [ ] Sweep `sm:`/`md:`/`xl:`/`2xl:` down to `base` + `lg:` (153 usages).
-- [ ] Add `scope` to every `<th>` (58 usages).
+- [x] Add `scope` to every `<th>`. **done**: 42 added across 8 files (the original count of 58 was inflated - the audit regex also matched `<thead>`). All were column headers; 0 row headers.
 - [ ] Replace faint text colours with `gray-500` or darker (33 usages).
-- [ ] Give every `outline-none` a visible focus replacement (17 usages).
+- [x] Give every `outline-none` a visible focus replacement. **done**: most already paired with a visible `focus:ring`. Real failures fixed: button/textarea/checkbox rings had no colour so fell back to `currentColor` (white ring on white offset on white page = invisible); borderless input used `ring-transparent`; a file input and a school name field removed the outline with no replacement; `.filter-tab:focus` relied on a background tint alone.
 - [ ] Convert clickable divs to real buttons (4 usages).
 - [x] Audit the trading modal (`shared/_modal`) for focus trap, restore, and Esc. **done**: Esc already worked; trap and restore were both absent and are now implemented in `modal_controller.js`.
 - [ ] Add a card / badge / empty-state primitive to `components/ui/`.

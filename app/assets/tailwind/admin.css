@@ -10,7 +10,9 @@
 
   .filter-tab:hover   { background-color: #f9fafb !important; color: #374151 !important; }
 
-  .filter-tab:focus   { outline: none !important; background-color: #f3f4f6 !important; color: #4b5563 !important; }
+  /* A background tint alone is not a sufficient focus indicator (WCAG 2.4.7),
+     so keep a real outline rather than removing it. */
+  .filter-tab:focus-visible { outline: 2px solid var(--sitf-primary-chart1) !important; outline-offset: 2px !important; background-color: #f3f4f6 !important; color: #4b5563 !important; }
 
   .filter-tab.active  { border-bottom-color: #2563eb !important; color: #2563eb !important; }
 

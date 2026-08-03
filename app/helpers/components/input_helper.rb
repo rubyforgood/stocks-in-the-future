@@ -44,7 +44,10 @@ module Components
     end
 
     def borderless_variant_styling
-      " border-0 focus-visible:outline-hidden focus-visible:shadow-none focus-visible:ring-transparent"
+      # ring-transparent made the focus indicator invisible. Borderless inputs
+      # still need a visible focus ring (WCAG 2.4.7).
+      " border-0 focus-visible:outline-hidden focus-visible:ring-2 " \
+        "focus-visible:ring-sitf-primary focus-visible:ring-offset-2"
     end
 
     # Focus ring: explicit brand colour at 2px with an offset.
