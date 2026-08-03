@@ -1,47 +1,49 @@
-<%# Home Dashboard Page - aligns with portfolio card styling and app color palette %>
-<div class="max-w-[1180px] mx-auto space-y-6 pb-16" style="font-family: Inter, system-ui, sans-serif;">
-  <!-- Welcome / Funds Banner (Hero) -->
+<% content_for :title, "Home" %>
+
+<%# Home dashboard. Only base and lg: tiers per docs/responsive-design-guidelines.md.
+    Font comes from the theme (--font-sans is already Inter), so no inline font-family. %>
+<div class="max-w-[1180px] mx-auto space-y-6 pb-16">
+
+  <%# Hero: welcome and available funds %>
   <div class="relative mb-8 mt-10">
-    <div class="hero-banner rounded-[16px] border-2 border-black bg-gradient-to-r from-[#F4D18D] to-[#F8DBA8] px-4 md:px-6 py-2 md:py-3 flex flex-col md:flex-row gap-2 md:gap-3 items-start md:items-center justify-between relative">
-      <!-- Decorative coins scattered in background -->
-      <div class="flex-1 flex flex-col gap-1 pr-0 md:pr-6 relative z-10">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:gap-4">
+    <div class="rounded-2xl border-2 border-black bg-gradient-to-r from-sitf-hero-from to-sitf-hero-to px-4 lg:px-6 py-2 lg:py-3 flex flex-col lg:flex-row gap-2 lg:gap-3 items-start lg:items-center justify-between relative">
+      <div class="flex-1 flex flex-col gap-1 pr-0 lg:pr-6 relative z-10">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:gap-4">
           <% if current_user&.student? && current_user.portfolio %>
             <% if current_user.portfolio.cash_balance > 0 %>
-              <div class="funds-pill inline-flex items-center gap-1 rounded-full border-2 border-black bg-white py-1 px-8 md:px-12 text-xs md:text-sm font-medium shadow-md relative tracking-tight">
-                <%= image_tag 'party_popper.png', class: 'object-contain absolute w-6 h-6 md:w-8 md:h-8', style: 'margin-left: -2rem; top: -0.75rem;', alt: 'Party popper celebration' %>
+              <div class="inline-flex items-center gap-1 rounded-full border-2 border-black bg-white py-1 px-8 lg:px-12 text-xs lg:text-sm font-medium shadow-md relative tracking-tight">
+                <%= image_tag "party_popper.png", class: "object-contain absolute w-6 h-6 lg:w-8 lg:h-8 -ml-8 -top-3", alt: "" %>
                 <span class="leading-snug">You have <strong><%= number_to_currency(current_user.portfolio.cash_balance) %></strong> to invest! Lets Get Trading!</span>
               </div>
             <% else %>
-              <div class="funds-pill inline-flex items-center gap-1 rounded-full border-2 border-black bg-white py-1 px-8 md:px-12 text-xs md:text-sm font-medium shadow-md relative tracking-tight">
+              <div class="inline-flex items-center gap-1 rounded-full border-2 border-black bg-white py-1 px-8 lg:px-12 text-xs lg:text-sm font-medium shadow-md relative tracking-tight">
                 <span class="leading-snug">Sorry, you don't have any earnings to invest yet</span>
               </div>
             <% end %>
           <% end %>
         </div>
-        <h1 class="text-[20px] md:text-[24px] font-bold tracking-tight leading-tight mt-1 text-gray-900">WELCOME TO YOUR FINANCIAL JOURNEY!</h1>
-        <p class="text-xs md:text-sm text-gray-800 mt-1 font-medium">This Is Your Launchpad To Earn, Invest, And Grow.</p>
+        <h1 class="text-xl lg:text-2xl font-bold tracking-tight leading-tight mt-1 text-gray-900">WELCOME TO YOUR FINANCIAL JOURNEY!</h1>
+        <p class="text-xs lg:text-sm text-gray-800 mt-1 font-medium">This Is Your Launchpad To Earn, Invest, And Grow.</p>
       </div>
-      <!-- Piggy Bank Illustration -->
-      <div class="hidden sm:block absolute -bottom-8 right-4 md:right-8 z-20">
-        <%= image_tag 'piggy_bank.png', class: 'w-24 md:w-32 lg:w-36 xl:w-40 h-auto object-contain', alt: 'Piggy bank with coins' %>
+
+      <%# Decorative illustration, hidden on small screens. %>
+      <div class="hidden lg:block absolute -bottom-8 right-4 lg:right-8 z-20">
+        <%= image_tag "piggy_bank.png", class: "w-24 lg:w-36 h-auto object-contain", alt: "" %>
       </div>
     </div>
   </div>
 
-  <!-- Middle Two-Column Section: Images (left) + Announcements (right) -->
+  <%# Illustration and announcements %>
   <div class="grid grid-cols-1 gap-4 lg:gap-8 lg:grid-cols-2 items-stretch mt-6">
-    <!-- Left Images -->
     <div class="flex items-center justify-center">
       <div class="flex gap-4 justify-center items-center w-full">
-        <%= image_tag 'girl_skateboarding_holding_laptop.png', class: 'w-full max-w-48 md:max-w-56 lg:max-w-64 h-auto object-contain pointer-events-none select-none mx-auto -mt-8 relative z-10', alt: 'SITF Home Teens' %>
+        <%= image_tag "girl_skateboarding_holding_laptop.png", class: "w-full max-w-48 lg:max-w-64 h-auto object-contain pointer-events-none select-none mx-auto -mt-8 relative z-10", alt: "" %>
       </div>
     </div>
 
-    <!-- Right Announcements -->
     <div class="flex ml-0 relative z-20">
-      <div class="rounded-xl border-2 border-black overflow-hidden bg-white w-full flex flex-col" role="region" aria-label="Announcements">
-        <div class="bg-teal-500 text-white py-1.5 px-3 font-semibold text-xs tracking-wide border-b-2 border-black">Announcements</div>
+      <section class="rounded-xl border-2 border-black overflow-hidden bg-white w-full flex flex-col" aria-labelledby="announcements-heading">
+        <h2 id="announcements-heading" class="bg-teal-700 text-white py-1.5 px-3 font-semibold text-xs tracking-wide border-b-2 border-black">Announcements</h2>
         <div class="p-4 text-xs text-gray-600 flex flex-col">
           <% if @current_announcement %>
             <% cache @current_announcement do %>
@@ -53,34 +55,32 @@
               </div>
             <% end %>
           <% else %>
-            <p class="italic text-gray-400">No announcements yet.</p>
+            <p class="italic text-gray-500">No announcements yet.</p>
           <% end %>
         </div>
-      </div>
+      </section>
     </div>
   </div>
 
-  <!-- Getting Started Full Width -->
-  <div class="rounded-xl border-2 border-black bg-white overflow-hidden">
-    <div class="bg-[#d3df44] py-3 px-5 font-semibold text-base tracking-wide border-b-2 border-black">Getting Started</div>
-    <div class="px-4 pt-4 pb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+  <%# Getting started steps %>
+  <section class="rounded-xl border-2 border-black bg-white overflow-hidden" aria-labelledby="getting-started-heading">
+    <h2 id="getting-started-heading" class="bg-sitf-accent text-sitf-on-accent py-3 px-5 font-semibold text-base tracking-wide border-b-2 border-black">Getting Started</h2>
+    <ol class="px-4 pt-4 pb-6 grid grid-cols-1 lg:grid-cols-4 gap-4">
       <% steps = [
-           { num: '1', title: 'Earn Funds', body: 'Show Up, Stay Engaged, And Earn Investment Funds Based On Your Attendance, Participation, And Performance.' },
-           { num: '2', title: 'Go To The Trading Floor', body: "Once You Have Funds, Explore The Trading Floor And The Company's To Buy Your First Stock." },
-           { num: '3', title: 'Buy & Sell', body: 'Choose Your Companies Wisely! You Can Buy And Sell As Your Portfolio Grows. Watch Your Earnings Change Based On The Market.' },
-           { num: '4', title: 'Track Your Progress', body: 'Your Portfolio Shows How Your Investments Are Performing Over Time, Plus Summaries Of Your Grades And Attendance.' }
+           { num: "1", title: "Earn Funds", body: "Show Up, Stay Engaged, And Earn Investment Funds Based On Your Attendance, Participation, And Performance." },
+           { num: "2", title: "Go To The Trading Floor", body: "Once You Have Funds, Explore The Trading Floor And The Company's To Buy Your First Stock." },
+           { num: "3", title: "Buy & Sell", body: "Choose Your Companies Wisely! You Can Buy And Sell As Your Portfolio Grows. Watch Your Earnings Change Based On The Market." },
+           { num: "4", title: "Track Your Progress", body: "Your Portfolio Shows How Your Investments Are Performing Over Time, Plus Summaries Of Your Grades And Attendance." }
          ] %>
       <% steps.each do |s| %>
-        <div class="flex flex-cols-2 gap-3 md:gap-2 items-start">
-          <div class="pr-1 flex-none"><%= image_tag "#{s[:num]}_Number.png", alt: "Step #{s[:num]}", class: "h-10 md:h-14 lg:h-16" %></div>
+        <li class="flex gap-3 lg:gap-2 items-start">
+          <div class="pr-1 flex-none"><%= image_tag "#{s[:num]}_Number.png", alt: "Step #{s[:num]}", class: "h-10 lg:h-16" %></div>
           <div class="space-y-1">
-            <p class="text-xl font-semibold leading-snug"><%= s[:title] %></p>
+            <h3 class="text-xl font-semibold leading-snug"><%= s[:title] %></h3>
             <p class="text-[13px] text-gray-700 leading-snug"><%= s[:body] %></p>
           </div>
-        </div>
+        </li>
       <% end %>
-    </div>
-  </div>
+    </ol>
+  </section>
 </div>
-
-<%# Future ideas: render partials for announcements, dynamic steps, and maybe a quick links panel %>

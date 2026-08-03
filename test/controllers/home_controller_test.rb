@@ -103,7 +103,9 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "span", text: /You have.*\$50\.00.*to invest! Lets Get Trading!/
-    assert_select "img[alt='Party popper celebration']"
+    # The popper is decorative, so it carries alt="" (WCAG 1.1.1) - the message
+    # above is what conveys the meaning. Assert on the source instead.
+    assert_select "img[src*='party_popper']"
   end
 
   test "should show no earnings message when student has zero balance" do

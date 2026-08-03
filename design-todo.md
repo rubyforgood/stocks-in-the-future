@@ -69,7 +69,7 @@ Counts are indicative, found by pattern matching - confirm by reading the file.
 
 - [ ] `announcements/show.html.erb` - clean
 - [ ] `fields/portfolio_link/_index.html.erb` - clean
-- [ ] `home/index.html.erb` - 3 hex, 25 off-tier bp, 1 faint text
+- [x] `home/index.html.erb` - **done**: 25 off-tier breakpoints -> base+lg only, 3 hex + 2 inline styles -> tokens, `bg-teal-500` (2.49:1) -> `teal-700` (5.47:1), `text-gray-400` (2.54:1) -> `gray-500`, heading order fixed h1->h2->h3 (styled divs were acting as headings), steps -> `<ol>`, decorative images `alt=""`, dropped dead `hero-banner`/`funds-pill`/`flex-cols-2` classes
 - [ ] `orders/_form.html.erb` - 1 hex, 1 outline-none
 - [ ] `orders/_order.html.erb` - 1 off-tier bp, 2 faint text
 - [ ] `orders/edit.html.erb` - clean
