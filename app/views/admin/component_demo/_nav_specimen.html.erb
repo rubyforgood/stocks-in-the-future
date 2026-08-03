@@ -1,0 +1,17 @@
+<%# One sidebar specimen for the temporary navigation preview. Delete with it. %>
+<div class="w-56 shrink-0 overflow-hidden rounded-xl border border-slate-200">
+  <div class="<%= variant[:brandbar] %> flex h-12 items-center px-4 text-sm font-semibold">
+    Stocks in the Future
+  </div>
+
+  <div class="<%= variant[:surface] %> space-y-1 p-3" style="min-height: 15rem">
+    <% items.each do |label, icon| %>
+      <% on = selected_labels.include?(label) %>
+      <div class="flex items-center gap-3 rounded-lg py-2 pr-3 text-sm font-medium <%= on ? variant[:selected] : variant[:idle] %>">
+        <span class="<%= on ? variant[:indicator] : 'border-l-[3px] border-transparent' %> h-5"></span>
+        <%= lucide_icon(icon, class: "h-5 w-5 shrink-0") %>
+        <span><%= label %></span>
+      </div>
+    <% end %>
+  </div>
+</div>

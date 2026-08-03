@@ -62,6 +62,14 @@ module Admin
       ]
     end
 
+    # Temporary preview: sidebar surface and selected state. Delete with its view and route.
+    def nav
+      @breadcrumbs = [
+        { label: "Components", path: admin_component_demo_index_path },
+        { label: "Navigation" }
+      ]
+    end
+
     def form
       @user = User.first || User.new(email: "", name: "", admin: false)
 

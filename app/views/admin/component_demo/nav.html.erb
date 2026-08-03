@@ -1,0 +1,120 @@
+<%# TEMPORARY decision aid: sidebar surface and selected state. Delete this view, its
+    action and its route once decided.
+
+    Every specimen shows the same items with one selected, so only the surface and the
+    selected treatment differ. Contrast figures are measured, not estimated. %>
+<% content_for :own_heading, true %>
+
+<% app_items = { "Home" => "house", "My portfolio" => "wallet", "Transactions" => "receipt",
+                 "Classes" => "users", "Trading floor" => "trending-up" } %>
+<% admin_items = { "Dashboard" => "house", "Classrooms" => "presentation",
+                   "Schools" => "school", "Students" => "graduation-cap" } %>
+<% selected_labels = %w[Transactions Classrooms] %>
+
+<% variants = {
+     "A1" => { surface: "bg-sitf-primary", idle: "text-white",
+               selected: "bg-sitf-accent text-sitf-on-accent",
+               indicator: "border-l-[3px] border-transparent",
+               brandbar: "bg-sitf-primary-dark text-white",
+               title: "A1 - as shipped.", note: "Chart accent #D3DF44 as a full fill. 8.80:1, so readable, but it is the loudest colour in the palette and the token is labelled fill-only for charts." },
+     "A2" => { surface: "bg-sitf-primary", idle: "text-white",
+               selected: "bg-sitf-primary-dark text-white",
+               indicator: "border-l-[3px] border-white",
+               brandbar: "bg-sitf-primary-dark text-white",
+               title: "A2 - darker fill plus white indicator.", note: "White on #004f6b is 9.01:1. Recedes rather than shouting, and the bar marks where you are." },
+     "A3" => { surface: "bg-sitf-primary", idle: "text-white",
+               selected: "bg-white/15 text-white",
+               indicator: "border-l-[3px] border-white",
+               brandbar: "bg-sitf-primary-dark text-white",
+               title: "A3 - light tint plus indicator.", note: "White on the blended #26809d is 4.51:1. It passes, with almost no margin, so A2 is the safer of the two." },
+     "B1" => { surface: "bg-white", idle: "text-slate-700",
+               selected: "bg-sitf-primary/10 text-sitf-primary-dark",
+               indicator: "border-l-[3px] border-sitf-primary",
+               brandbar: "bg-white text-slate-900 border-b border-slate-200",
+               title: "B1 - tint plus brand indicator.", note: "#004f6b on the blended #e6f0f4 is 7.78:1. The Stripe / Linear / GitHub treatment." },
+     "B2" => { surface: "bg-white", idle: "text-slate-700",
+               selected: "bg-sitf-primary text-white",
+               indicator: "border-l-[3px] border-transparent",
+               brandbar: "bg-white text-slate-900 border-b border-slate-200",
+               title: "B2 - filled brand pill.", note: "White on #00698c is 6.18:1. The Material drawer treatment, more emphatic than B1." },
+     "ADMIN_NOW" => { surface: "bg-white", idle: "text-slate-700",
+                      selected: "text-slate-700",
+                      indicator: "border-l-[3px] border-transparent",
+                      brandbar: "bg-white text-slate-900 border-b border-slate-200",
+                      title: "", note: "" }
+   } %>
+
+<div class="max-w-5xl mx-auto">
+  <%= admin_breadcrumbs(@breadcrumbs) %>
+
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold tracking-tight text-slate-900">Navigation</h1>
+    <p class="mt-1 text-sm text-slate-600">Temporary preview. Same items throughout, one selected.</p>
+  </div>
+
+  <div class="space-y-10">
+    <section>
+      <h2 class="text-base font-semibold text-slate-900">1. Selected state on the current dark sidebar</h2>
+      <p class="mt-1 mb-4 text-sm text-slate-600">
+        Surface stays brand teal (<code>#00698c</code>). Only the selected row changes.
+      </p>
+
+      <div class="flex flex-wrap gap-6">
+        <% %w[A1 A2 A3].each do |key| %>
+          <div>
+            <%= render "admin/component_demo/nav_specimen",
+                       variant: variants[key], items: app_items, selected_labels: selected_labels %>
+            <p class="mt-2 w-56 text-xs text-slate-600">
+              <strong><%= variants[key][:title] %></strong> <%= variants[key][:note] %>
+            </p>
+          </div>
+        <% end %>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="text-base font-semibold text-slate-900">2. Light sidebar, which is the current standard</h2>
+      <p class="mt-1 mb-4 text-sm text-slate-600">
+        Stripe, Shopify, GitHub, Notion, Vercel and Material 3's navigation drawer all use a
+        light sidebar with a subtle selected state. Brand colour moves to the logo, the primary
+        buttons and the selected indicator.
+      </p>
+
+      <div class="flex flex-wrap gap-6">
+        <% %w[B1 B2].each do |key| %>
+          <div>
+            <%= render "admin/component_demo/nav_specimen",
+                       variant: variants[key], items: app_items, selected_labels: selected_labels %>
+            <p class="mt-2 w-56 text-xs text-slate-600">
+              <strong><%= variants[key][:title] %></strong> <%= variants[key][:note] %>
+            </p>
+          </div>
+        <% end %>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="text-base font-semibold text-slate-900">3. The app-to-admin transition</h2>
+      <p class="mt-1 mb-4 text-sm text-slate-600">
+        Each pair is the app sidebar beside the admin sidebar. The admin one is white today and
+        has <strong>no selected state at all</strong>, so you cannot tell which section you are in.
+      </p>
+
+      <p class="mb-2 text-sm font-medium text-slate-900">Now - teal beside white</p>
+      <div class="mb-6 flex flex-wrap gap-4">
+        <%= render "admin/component_demo/nav_specimen",
+                   variant: variants["A1"], items: app_items, selected_labels: selected_labels %>
+        <%= render "admin/component_demo/nav_specimen",
+                   variant: variants["ADMIN_NOW"], items: admin_items, selected_labels: selected_labels %>
+      </div>
+
+      <p class="mb-2 text-sm font-medium text-slate-900">Unified on B1 - one chrome, one selected state</p>
+      <div class="flex flex-wrap gap-4">
+        <%= render "admin/component_demo/nav_specimen",
+                   variant: variants["B1"], items: app_items, selected_labels: selected_labels %>
+        <%= render "admin/component_demo/nav_specimen",
+                   variant: variants["B1"], items: admin_items, selected_labels: selected_labels %>
+      </div>
+    </section>
+  </div>
+</div>

@@ -637,7 +637,7 @@ the card rather than in it. Verified by moving the tabs back inside and watching
 **Two contrast failures fixed with it.** The classrooms index "New classroom" button was
 hand-written `bg-blue-500` with white bold text: off-brand, and **3.68:1**, under the 4.5:1
 gate. The teacher-picker avatar in `classrooms/_form` was the same blue. Both are the brand
-teal now, 5.23:1. Only two hand-written button strings existed app-wide; both are gone, so
+teal now, 6.18:1. Only two hand-written button strings existed app-wide; both are gone, so
 every button goes through a named class.
 
 **Removals.** `.tw-btn-danger` had no callers and is deleted — an unused class is
@@ -647,6 +647,11 @@ caller was already fighting it with `ml-0`. Its five callers now get spacing fro
 gap-3` container.
 
 **Verified in the built CSS:** `.tw-btn-primary` emits `height: calc(var(--spacing) * 10)`.
+
+**Correction.** I first recorded the brand teal at 5.23:1, having measured `#00778b`, which
+is not the token. `--color-sitf-primary` resolves to `--sitf-primary-chart1`, **`#00698c`**,
+which is **6.18:1** on white. Better than claimed, but it was a guess presented as a
+measurement. Resolve the variable chain before quoting a ratio.
 
 ### The dark bar under the top nav is gone
 
