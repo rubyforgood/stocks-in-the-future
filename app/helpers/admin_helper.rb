@@ -53,7 +53,9 @@ module AdminHelper
     when ActiveRecord::Base
       format_association(value)
     when nil
-      content_tag(:span, "—", class: "text-gray-400")
+      # slate-400 measures 2.6:1 on white and fails AA. slate-500 is 4.76:1 and
+      # still reads as an absent value. Matches the em-dash markers in the views.
+      content_tag(:span, "—", class: "text-slate-500")
     else
       value.to_s
     end
@@ -71,7 +73,7 @@ module AdminHelper
     else
       content_tag(
         :span, "No",
-        class: "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800"
+        class: "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800"
       )
     end
   end
@@ -93,7 +95,7 @@ module AdminHelper
           label,
           content_tag(
             :span, icon,
-            class: "ml-2 flex-none rounded text-gray-900 group-hover:text-gray-900"
+            class: "ml-2 flex-none rounded text-slate-900 group-hover:text-slate-900"
           )
         ]
       )

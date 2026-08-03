@@ -62,11 +62,11 @@
 }
 
 .table-empty-cell {
-  @apply px-7 py-4 text-center text-gray-500 border-b border-black;
+  @apply px-7 py-4 text-center text-slate-500 border-b border-black;
 }
 
 .table-no-permission {
-  @apply text-gray-400;
+  @apply text-slate-400;
 }
 
 .table-action-link {

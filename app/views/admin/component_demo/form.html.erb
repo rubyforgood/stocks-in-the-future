@@ -3,8 +3,8 @@
   <%= admin_breadcrumbs(@breadcrumbs) %>
 
   <div class="mt-8 mb-8">
-    <h1 class="text-3xl font-bold text-gray-900 mb-2">Form Builder Demo</h1>
-    <p class="text-gray-600">Showcase of Admin::FormBuilder with all field types</p>
+    <h1 class="text-3xl font-bold text-slate-900 mb-2">Form Builder Demo</h1>
+    <p class="text-slate-600">Showcase of Admin::FormBuilder with all field types</p>
   </div>
 
   <!-- Alert Box -->
@@ -22,14 +22,14 @@
   </div>
 
   <!-- Form Demo -->
-  <div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg mb-8">
+  <div class="bg-white shadow-sm ring-1 ring-slate-900/5 rounded-lg mb-8">
     <div class="px-6 py-6">
-      <h2 class="text-xl font-semibold text-gray-900 mb-6">Sample Form</h2>
+      <h2 class="text-xl font-semibold text-slate-900 mb-6">Sample Form</h2>
 
       <%= form_with model: @user, url: "#", builder: Admin::FormBuilder, class: "space-y-6" do |f| %>
         <!-- Text Fields -->
-        <div class="border-b border-gray-200 pb-6">
-          <h3 class="text-lg font-medium text-gray-900 mb-4">Text Fields</h3>
+        <div class="border-b border-slate-200 pb-6">
+          <h3 class="text-lg font-medium text-slate-900 mb-4">Text Fields</h3>
 
           <%= f.text_field :name,
                            label: "Full Name",
@@ -45,8 +45,8 @@
         </div>
 
         <!-- Number & Currency Fields -->
-        <div class="border-b border-gray-200 pb-6">
-          <h3 class="text-lg font-medium text-gray-900 mb-4">Number & Currency Fields</h3>
+        <div class="border-b border-slate-200 pb-6">
+          <h3 class="text-lg font-medium text-slate-900 mb-4">Number & Currency Fields</h3>
 
           <%= f.number_field :id,
                              label: "User ID",
@@ -60,8 +60,8 @@
         </div>
 
         <!-- Text Area -->
-        <div class="border-b border-gray-200 pb-6">
-          <h3 class="text-lg font-medium text-gray-900 mb-4">Text Area</h3>
+        <div class="border-b border-slate-200 pb-6">
+          <h3 class="text-lg font-medium text-slate-900 mb-4">Text Area</h3>
 
           <%= f.text_area :email,
                           label: "Biography",
@@ -70,8 +70,8 @@
         </div>
 
         <!-- Select Fields -->
-        <div class="border-b border-gray-200 pb-6">
-          <h3 class="text-lg font-medium text-gray-900 mb-4">Select Fields</h3>
+        <div class="border-b border-slate-200 pb-6">
+          <h3 class="text-lg font-medium text-slate-900 mb-4">Select Fields</h3>
 
           <%= f.select_field :type,
                              label: "User Type",
@@ -80,8 +80,8 @@
         </div>
 
         <!-- Boolean Field -->
-        <div class="border-b border-gray-200 pb-6">
-          <h3 class="text-lg font-medium text-gray-900 mb-4">Boolean Field</h3>
+        <div class="border-b border-slate-200 pb-6">
+          <h3 class="text-lg font-medium text-slate-900 mb-4">Boolean Field</h3>
 
           <%= f.boolean_field :admin,
                               label: "Administrator",
@@ -89,8 +89,8 @@
         </div>
 
         <!-- Date & DateTime Fields -->
-        <div class="border-b border-gray-200 pb-6">
-          <h3 class="text-lg font-medium text-gray-900 mb-4">Date & DateTime Fields</h3>
+        <div class="border-b border-slate-200 pb-6">
+          <h3 class="text-lg font-medium text-slate-900 mb-4">Date & DateTime Fields</h3>
 
           <%= f.date_field :created_at,
                            label: "Registration Date" %>
@@ -100,8 +100,8 @@
         </div>
 
         <!-- Read-Only Fields -->
-        <div class="border-b border-gray-200 pb-6">
-          <h3 class="text-lg font-medium text-gray-900 mb-4">Read-Only Fields</h3>
+        <div class="border-b border-slate-200 pb-6">
+          <h3 class="text-lg font-medium text-slate-900 mb-4">Read-Only Fields</h3>
 
           <%= f.read_only_field :id,
                                 label: "User ID (Read-Only)" %>
@@ -123,10 +123,10 @@
   </div>
 
   <!-- Validation Error Demo -->
-  <div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg mb-8">
+  <div class="bg-white shadow-sm ring-1 ring-slate-900/5 rounded-lg mb-8">
     <div class="px-6 py-6">
-      <h2 class="text-xl font-semibold text-gray-900 mb-4">Validation Error Display</h2>
-      <p class="text-gray-600 mb-4">
+      <h2 class="text-xl font-semibold text-slate-900 mb-4">Validation Error Display</h2>
+      <p class="text-slate-600 mb-4">
         The form builder automatically displays validation errors inline with fields.
       </p>
 
@@ -137,30 +137,30 @@
   </div>
 
   <!-- Usage Examples -->
-  <div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg mb-8">
+  <div class="bg-white shadow-sm ring-1 ring-slate-900/5 rounded-lg mb-8">
     <div class="px-6 py-6">
-      <h2 class="text-xl font-semibold text-gray-900 mb-4">Usage Examples</h2>
+      <h2 class="text-xl font-semibold text-slate-900 mb-4">Usage Examples</h2>
 
       <div class="space-y-6">
         <div>
-          <h3 class="text-sm font-semibold text-gray-900 mb-3">Basic Form Setup</h3>
-          <pre class="text-xs bg-gray-50 p-4 rounded border border-gray-200 overflow-x-auto"><code>&lt;%= form_with model: @resource, builder: Admin::FormBuilder do |f| %>
+          <h3 class="text-sm font-semibold text-slate-900 mb-3">Basic Form Setup</h3>
+          <pre class="text-xs bg-slate-50 p-4 rounded border border-slate-200 overflow-x-auto"><code>&lt;%= form_with model: @resource, builder: Admin::FormBuilder do |f| %>
   &lt;%= f.text_field :name, label: "Name", hint: "Enter the resource name" %>
   &lt;%= f.submit_button "Save" %>
 &lt;% end %></code></pre>
         </div>
 
         <div>
-          <h3 class="text-sm font-semibold text-gray-900 mb-3">Currency Field</h3>
-          <pre class="text-xs bg-gray-50 p-4 rounded border border-gray-200 overflow-x-auto"><code>&lt;%= f.currency_field :amount_cents,
+          <h3 class="text-sm font-semibold text-slate-900 mb-3">Currency Field</h3>
+          <pre class="text-xs bg-slate-50 p-4 rounded border border-slate-200 overflow-x-auto"><code>&lt;%= f.currency_field :amount_cents,
     multiplier: 0.01,
     decimals: 2,
     label: "Amount" %></code></pre>
         </div>
 
         <div>
-          <h3 class="text-sm font-semibold text-gray-900 mb-3">Association Select</h3>
-          <pre class="text-xs bg-gray-50 p-4 rounded border border-gray-200 overflow-x-auto"><code>&lt;%= f.association_select :classroom_id,
+          <h3 class="text-sm font-semibold text-slate-900 mb-3">Association Select</h3>
+          <pre class="text-xs bg-slate-50 p-4 rounded border border-slate-200 overflow-x-auto"><code>&lt;%= f.association_select :classroom_id,
     collection: Classroom.all,
     label_method: :name,
     value_method: :id,
@@ -168,15 +168,15 @@
         </div>
 
         <div>
-          <h3 class="text-sm font-semibold text-gray-900 mb-3">Boolean Field</h3>
-          <pre class="text-xs bg-gray-50 p-4 rounded border border-gray-200 overflow-x-auto"><code>&lt;%= f.boolean_field :active,
+          <h3 class="text-sm font-semibold text-slate-900 mb-3">Boolean Field</h3>
+          <pre class="text-xs bg-slate-50 p-4 rounded border border-slate-200 overflow-x-auto"><code>&lt;%= f.boolean_field :active,
     label: "Active",
     hint: "Check to activate this resource" %></code></pre>
         </div>
 
         <div>
-          <h3 class="text-sm font-semibold text-gray-900 mb-3">Read-Only Field</h3>
-          <pre class="text-xs bg-gray-50 p-4 rounded border border-gray-200 overflow-x-auto"><code>&lt;%= f.read_only_field :created_at,
+          <h3 class="text-sm font-semibold text-slate-900 mb-3">Read-Only Field</h3>
+          <pre class="text-xs bg-slate-50 p-4 rounded border border-slate-200 overflow-x-auto"><code>&lt;%= f.read_only_field :created_at,
     label: "Created At",
     value: @resource.created_at.strftime("%B %d, %Y") %></code></pre>
         </div>
@@ -185,94 +185,94 @@
   </div>
 
   <!-- Field Reference -->
-  <div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg mb-8">
+  <div class="bg-white shadow-sm ring-1 ring-slate-900/5 rounded-lg mb-8">
     <div class="px-6 py-6">
-      <h2 class="text-xl font-semibold text-gray-900 mb-4">Available Field Types</h2>
+      <h2 class="text-xl font-semibold text-slate-900 mb-4">Available Field Types</h2>
 
       <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-300">
+        <table class="min-w-full divide-y divide-slate-300">
           <thead>
             <tr>
-              <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900">Method</th>
-              <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Description</th>
-              <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Options</th>
+              <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-slate-900">Method</th>
+              <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">Description</th>
+              <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">Options</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-gray-200">
+          <tbody class="divide-y divide-slate-200">
             <tr>
-              <td class="py-4 pl-4 pr-3 text-sm font-mono text-gray-900">text_field</td>
-              <td class="px-3 py-4 text-sm text-gray-700">Standard text input</td>
-              <td class="px-3 py-4 text-sm text-gray-700">label, hint, placeholder</td>
+              <td class="py-4 pl-4 pr-3 text-sm font-mono text-slate-900">text_field</td>
+              <td class="px-3 py-4 text-sm text-slate-700">Standard text input</td>
+              <td class="px-3 py-4 text-sm text-slate-700">label, hint, placeholder</td>
             </tr>
             <tr>
-              <td class="py-4 pl-4 pr-3 text-sm font-mono text-gray-900">email_field</td>
-              <td class="px-3 py-4 text-sm text-gray-700">Email input with validation</td>
-              <td class="px-3 py-4 text-sm text-gray-700">label, hint, placeholder</td>
+              <td class="py-4 pl-4 pr-3 text-sm font-mono text-slate-900">email_field</td>
+              <td class="px-3 py-4 text-sm text-slate-700">Email input with validation</td>
+              <td class="px-3 py-4 text-sm text-slate-700">label, hint, placeholder</td>
             </tr>
             <tr>
-              <td class="py-4 pl-4 pr-3 text-sm font-mono text-gray-900">password_field</td>
-              <td class="px-3 py-4 text-sm text-gray-700">Password input (masked)</td>
-              <td class="px-3 py-4 text-sm text-gray-700">label, hint</td>
+              <td class="py-4 pl-4 pr-3 text-sm font-mono text-slate-900">password_field</td>
+              <td class="px-3 py-4 text-sm text-slate-700">Password input (masked)</td>
+              <td class="px-3 py-4 text-sm text-slate-700">label, hint</td>
             </tr>
             <tr>
-              <td class="py-4 pl-4 pr-3 text-sm font-mono text-gray-900">number_field</td>
-              <td class="px-3 py-4 text-sm text-gray-700">Numeric input</td>
-              <td class="px-3 py-4 text-sm text-gray-700">label, hint, step</td>
+              <td class="py-4 pl-4 pr-3 text-sm font-mono text-slate-900">number_field</td>
+              <td class="px-3 py-4 text-sm text-slate-700">Numeric input</td>
+              <td class="px-3 py-4 text-sm text-slate-700">label, hint, step</td>
             </tr>
             <tr>
-              <td class="py-4 pl-4 pr-3 text-sm font-mono text-gray-900">currency_field</td>
-              <td class="px-3 py-4 text-sm text-gray-700">Currency with $ prefix</td>
-              <td class="px-3 py-4 text-sm text-gray-700">multiplier, decimals, label, hint</td>
+              <td class="py-4 pl-4 pr-3 text-sm font-mono text-slate-900">currency_field</td>
+              <td class="px-3 py-4 text-sm text-slate-700">Currency with $ prefix</td>
+              <td class="px-3 py-4 text-sm text-slate-700">multiplier, decimals, label, hint</td>
             </tr>
             <tr>
-              <td class="py-4 pl-4 pr-3 text-sm font-mono text-gray-900">text_area</td>
-              <td class="px-3 py-4 text-sm text-gray-700">Multi-line text input</td>
-              <td class="px-3 py-4 text-sm text-gray-700">label, hint, rows</td>
+              <td class="py-4 pl-4 pr-3 text-sm font-mono text-slate-900">text_area</td>
+              <td class="px-3 py-4 text-sm text-slate-700">Multi-line text input</td>
+              <td class="px-3 py-4 text-sm text-slate-700">label, hint, rows</td>
             </tr>
             <tr>
-              <td class="py-4 pl-4 pr-3 text-sm font-mono text-gray-900">rich_text_area</td>
-              <td class="px-3 py-4 text-sm text-gray-700">Rich text editor (Trix)</td>
-              <td class="px-3 py-4 text-sm text-gray-700">label, hint</td>
+              <td class="py-4 pl-4 pr-3 text-sm font-mono text-slate-900">rich_text_area</td>
+              <td class="px-3 py-4 text-sm text-slate-700">Rich text editor (Trix)</td>
+              <td class="px-3 py-4 text-sm text-slate-700">label, hint</td>
             </tr>
             <tr>
-              <td class="py-4 pl-4 pr-3 text-sm font-mono text-gray-900">select_field</td>
-              <td class="px-3 py-4 text-sm text-gray-700">Dropdown select</td>
-              <td class="px-3 py-4 text-sm text-gray-700">collection, include_blank, label, hint</td>
+              <td class="py-4 pl-4 pr-3 text-sm font-mono text-slate-900">select_field</td>
+              <td class="px-3 py-4 text-sm text-slate-700">Dropdown select</td>
+              <td class="px-3 py-4 text-sm text-slate-700">collection, include_blank, label, hint</td>
             </tr>
             <tr>
-              <td class="py-4 pl-4 pr-3 text-sm font-mono text-gray-900">boolean_field</td>
-              <td class="px-3 py-4 text-sm text-gray-700">Checkbox with label</td>
-              <td class="px-3 py-4 text-sm text-gray-700">label, hint</td>
+              <td class="py-4 pl-4 pr-3 text-sm font-mono text-slate-900">boolean_field</td>
+              <td class="px-3 py-4 text-sm text-slate-700">Checkbox with label</td>
+              <td class="px-3 py-4 text-sm text-slate-700">label, hint</td>
             </tr>
             <tr>
-              <td class="py-4 pl-4 pr-3 text-sm font-mono text-gray-900">date_field</td>
-              <td class="px-3 py-4 text-sm text-gray-700">Date picker</td>
-              <td class="px-3 py-4 text-sm text-gray-700">label, hint</td>
+              <td class="py-4 pl-4 pr-3 text-sm font-mono text-slate-900">date_field</td>
+              <td class="px-3 py-4 text-sm text-slate-700">Date picker</td>
+              <td class="px-3 py-4 text-sm text-slate-700">label, hint</td>
             </tr>
             <tr>
-              <td class="py-4 pl-4 pr-3 text-sm font-mono text-gray-900">datetime_field</td>
-              <td class="px-3 py-4 text-sm text-gray-700">Date and time picker</td>
-              <td class="px-3 py-4 text-sm text-gray-700">label, hint</td>
+              <td class="py-4 pl-4 pr-3 text-sm font-mono text-slate-900">datetime_field</td>
+              <td class="px-3 py-4 text-sm text-slate-700">Date and time picker</td>
+              <td class="px-3 py-4 text-sm text-slate-700">label, hint</td>
             </tr>
             <tr>
-              <td class="py-4 pl-4 pr-3 text-sm font-mono text-gray-900">association_select</td>
-              <td class="px-3 py-4 text-sm text-gray-700">Association dropdown</td>
-              <td class="px-3 py-4 text-sm text-gray-700">collection, label_method, value_method, include_blank</td>
+              <td class="py-4 pl-4 pr-3 text-sm font-mono text-slate-900">association_select</td>
+              <td class="px-3 py-4 text-sm text-slate-700">Association dropdown</td>
+              <td class="px-3 py-4 text-sm text-slate-700">collection, label_method, value_method, include_blank</td>
             </tr>
             <tr>
-              <td class="py-4 pl-4 pr-3 text-sm font-mono text-gray-900">read_only_field</td>
-              <td class="px-3 py-4 text-sm text-gray-700">Display-only field</td>
-              <td class="px-3 py-4 text-sm text-gray-700">label, value, hint</td>
+              <td class="py-4 pl-4 pr-3 text-sm font-mono text-slate-900">read_only_field</td>
+              <td class="px-3 py-4 text-sm text-slate-700">Display-only field</td>
+              <td class="px-3 py-4 text-sm text-slate-700">label, value, hint</td>
             </tr>
             <tr>
-              <td class="py-4 pl-4 pr-3 text-sm font-mono text-gray-900">submit_button</td>
-              <td class="px-3 py-4 text-sm text-gray-700">Submit button (blue)</td>
-              <td class="px-3 py-4 text-sm text-gray-700">text</td>
+              <td class="py-4 pl-4 pr-3 text-sm font-mono text-slate-900">submit_button</td>
+              <td class="px-3 py-4 text-sm text-slate-700">Submit button (blue)</td>
+              <td class="px-3 py-4 text-sm text-slate-700">text</td>
             </tr>
             <tr>
-              <td class="py-4 pl-4 pr-3 text-sm font-mono text-gray-900">cancel_button</td>
-              <td class="px-3 py-4 text-sm text-gray-700">Cancel link (styled as button)</td>
-              <td class="px-3 py-4 text-sm text-gray-700">text, url</td>
+              <td class="py-4 pl-4 pr-3 text-sm font-mono text-slate-900">cancel_button</td>
+              <td class="px-3 py-4 text-sm text-slate-700">Cancel link (styled as button)</td>
+              <td class="px-3 py-4 text-sm text-slate-700">text, url</td>
             </tr>
           </tbody>
         </table>

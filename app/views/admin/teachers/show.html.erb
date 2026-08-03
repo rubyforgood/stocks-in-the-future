@@ -1,11 +1,11 @@
 <div class="max-w-7xl mx-auto">
   <%= admin_breadcrumbs(@breadcrumbs) %>
 
-  <div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg mb-6">
+  <div class="bg-white shadow-sm ring-1 ring-slate-900/5 rounded-lg mb-6">
     <div class="px-6 py-6">
       <div class="flex items-center justify-between mb-6">
         <div class="flex items-center gap-3">
-          <h2 class="text-2xl font-bold text-gray-900"><%= @teacher.username %></h2>
+          <h2 class="text-2xl font-bold text-slate-900"><%= @teacher.username %></h2>
           <% if @teacher.discarded? %>
             <span class="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10">Deactivated</span>
           <% else %>
@@ -14,8 +14,8 @@
         </div>
         <div class="flex gap-3">
           <%= link_to edit_admin_teacher_path(@teacher),
-                      class: "inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" do %>
-            <%= lucide_icon("square-pen", class: "-ml-1 mr-2 h-5 w-5 text-gray-500 shrink-0") %>
+                      class: "inline-flex items-center px-4 py-2 border border-slate-300 shadow-sm text-sm font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50" do %>
+            <%= lucide_icon("square-pen", class: "-ml-1 mr-2 h-5 w-5 text-slate-500 shrink-0") %>
             Edit
           <% end %>
           <% if @teacher.discarded? %>
@@ -49,19 +49,19 @@
 
       <!-- Associated Classrooms -->
       <% if @teacher.classrooms.any? %>
-        <div class="mt-6 pt-6 border-t border-gray-200">
-          <h3 class="text-sm font-medium text-gray-500 mb-3">Classrooms</h3>
+        <div class="mt-6 pt-6 border-t border-slate-200">
+          <h3 class="text-sm font-medium text-slate-500 mb-3">Classrooms</h3>
           <ul class="space-y-2">
             <% @teacher.classrooms.each do |classroom| %>
-              <li class="text-sm text-gray-900">
+              <li class="text-sm text-slate-900">
                 <%= classroom.name %>
               </li>
             <% end %>
           </ul>
         </div>
       <% else %>
-        <div class="mt-6 pt-6 border-t border-gray-200">
-          <p class="text-sm text-gray-500">No classrooms assigned to this teacher yet.</p>
+        <div class="mt-6 pt-6 border-t border-slate-200">
+          <p class="text-sm text-slate-500">No classrooms assigned to this teacher yet.</p>
         </div>
       <% end %>
     </div>
@@ -69,6 +69,6 @@
 
   <div class="flex gap-3">
     <%= link_to "Back to Teachers", admin_teachers_path,
-                class: "inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" %>
+                class: "inline-flex items-center px-4 py-2 border border-slate-300 shadow-sm text-sm font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50" %>
   </div>
 </div>

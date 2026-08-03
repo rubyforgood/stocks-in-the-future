@@ -33,7 +33,7 @@ module ApplicationHelper
           label,
           content_tag(
             :span, icon,
-            class: "ml-2 flex-none rounded text-gray-900 group-hover:text-gray-900"
+            class: "ml-2 flex-none rounded text-slate-900 group-hover:text-slate-900"
           )
         ]
       )

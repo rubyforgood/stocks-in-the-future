@@ -14,7 +14,7 @@ class AdminHelperTest < ActionView::TestCase
     user = build(:student)
     result = format_attribute(user, :admin)
     assert_match(/No/, result)
-    assert_match(/bg-gray-100/, result)
+    assert_match(/bg-slate-100/, result)
   end
 
   test "format_attribute formats date" do
@@ -28,7 +28,7 @@ class AdminHelperTest < ActionView::TestCase
     user = build(:student, name: nil)
     result = format_attribute(user, :name)
     assert_match(/—/, result)
-    assert_match(/text-gray-400/, result)
+    assert_match(/text-slate-500/, result)
   end
 
   test "format_attribute formats string" do
@@ -47,8 +47,8 @@ class AdminHelperTest < ActionView::TestCase
   test "boolean_badge renders no badge" do
     result = boolean_badge(false)
     assert_match(/No/, result)
-    assert_match(/bg-gray-100/, result)
-    assert_match(/text-gray-800/, result)
+    assert_match(/bg-slate-100/, result)
+    assert_match(/text-slate-800/, result)
   end
 
   test "sort_icon returns up arrow for asc sort" do

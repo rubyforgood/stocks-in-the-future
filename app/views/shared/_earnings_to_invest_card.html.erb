@@ -1,12 +1,12 @@
 <div class="bg-white rounded-[22px] border border-black/30 h-[150px] py-5 px-6 overflow-visible relative">
   <div class="h-full flex items-center justify-between gap-2">
     <div class="flex flex-col justify-center">
-      <p class="text-sm text-gray-600">My Earnings to Invest</p>
+      <p class="text-sm text-slate-600">My Earnings to Invest</p>
       <p class="text-2xl font-semibold leading-tight tracking-tight mt-1"><%= number_to_currency(@portfolio.cash_balance) %></p>
       <% if current_user.student? %>
         <%= link_to "Invest Now", stocks_path, class: "mt-2 bg-teal-700 hover:bg-teal-800 text-white font-medium px-6 py-2.5 rounded-full shadow-sm w-fit transition-colors" %>
       <% else %>
-        <span aria-disabled="true" class="mt-2 font-medium px-6 py-2.5 rounded-full shadow-sm w-fit cursor-not-allowed bg-gray-400 text-gray-700">Invest Now</span>
+        <span aria-disabled="true" class="mt-2 font-medium px-6 py-2.5 rounded-full shadow-sm w-fit cursor-not-allowed bg-slate-400 text-slate-700">Invest Now</span>
       <% end %>
     </div>
 

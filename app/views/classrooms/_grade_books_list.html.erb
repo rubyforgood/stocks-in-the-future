@@ -5,9 +5,9 @@
   </h3>
 
   <% if grade_books.any? %>
-    <ul class="divide-y divide-gray-200 bg-white rounded-md shadow">
+    <ul class="divide-y divide-slate-200 bg-white rounded-md shadow">
       <% grade_books.each do |book| %>
-        <li class="px-6 py-4 hover:bg-gray-50">
+        <li class="px-6 py-4 hover:bg-slate-50">
           <%= link_to classroom_grade_book_path(@classroom, book),
                       class: "text-black underline hover:text-sitf-primary-dark font-medium" do %>
             <span class="flex flex-between items-center justify-between w-full">
@@ -19,7 +19,7 @@
       <% end %>
     </ul>
   <% else %>
-    <div class="text-center py-8 text-gray-500">
+    <div class="text-center py-8 text-slate-500">
       No grade books created for this classroom yet.
     </div>
   <% end %>

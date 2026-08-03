@@ -13,7 +13,7 @@
         <div class="min-w-0 flex-1">
           <h1 class="text-xl lg:text-2xl font-bold tracking-wide truncate">
             <%= @stock.ticker %>
-            <span class="font-normal text-gray-600 text-base lg:text-lg">| <%= @stock.company_name %></span>
+            <span class="font-normal text-slate-600 text-base lg:text-lg">| <%= @stock.company_name %></span>
           </h1>
           <% if @stock.archived? %>
             <span class="bg-red-100 text-red-800 text-sm font-medium px-3 py-1 rounded-full mt-2 inline-block">ARCHIVED</span>

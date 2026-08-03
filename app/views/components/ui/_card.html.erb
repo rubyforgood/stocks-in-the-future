@@ -1,0 +1,28 @@
+<%# Card surface - the default container for a block of related content.
+
+    Stripe/Airbnb reading: a card earns its edges from a hairline border and a
+    very low shadow, not a heavy drop shadow. Generous internal padding, with
+    whitespace doing the separating rather than rules.
+
+    Locals:
+      title    - optional heading text
+      subtitle - optional supporting line under the title
+      padded   - false to remove body padding (for flush tables)
+      class    - extra classes on the outer element
+
+    Body content is passed as a block, so render with `layout:`. %>
+<% padded = local_assigns.fetch(:padded, true) %>
+<section class="rounded-xl border border-slate-200 bg-white shadow-xs <%= local_assigns[:class] %>">
+  <% if local_assigns[:title].present? %>
+    <header class="border-b border-slate-200 px-5 py-4">
+      <h2 class="text-base font-semibold text-slate-900"><%= title %></h2>
+      <% if local_assigns[:subtitle].present? %>
+        <p class="mt-1 text-sm text-slate-600"><%= subtitle %></p>
+      <% end %>
+    </header>
+  <% end %>
+
+  <div class="<%= padded ? 'p-5' : '' %>">
+    <%= yield %>
+  </div>
+</section>

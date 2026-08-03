@@ -11,15 +11,15 @@
 }
 
 .tw-btn-primary-disabled {
-    @apply rounded-lg py-3 px-5 bg-gray-300 text-white block font-medium cursor-not-allowed
+    @apply rounded-lg py-3 px-5 bg-slate-300 text-white block font-medium cursor-not-allowed
 }
 
 .tw-btn-secondary {
-  @apply rounded-md bg-[#BOEAE5] px-4 py-2 text-sm font-semibold text-white ring-1 ring-gray-300 ring-inset hover:bg-gray-50
+  @apply rounded-md bg-[#BOEAE5] px-4 py-2 text-sm font-semibold text-white ring-1 ring-slate-300 ring-inset hover:bg-slate-50
 }
 
 .tw-btn-tertiary {
-  @apply ml-2 rounded-lg py-3 px-5 bg-gray-100 inline-block font-medium
+  @apply ml-2 rounded-lg py-3 px-5 bg-slate-100 inline-block font-medium
 }
 
 .tw-btn-danger {

@@ -1,7 +1,7 @@
 <%= form_with model: @stock, url: @stock.persisted? ? admin_stock_path(@stock) : admin_stocks_path, builder: Admin::FormBuilder, class: "space-y-6" do |f| %>
-  <div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg">
+  <div class="bg-white shadow-sm ring-1 ring-slate-900/5 rounded-lg">
     <div class="px-6 py-6">
-      <h3 class="text-lg font-medium text-gray-900 mb-6">Basic Information</h3>
+      <h3 class="text-lg font-medium text-slate-900 mb-6">Basic Information</h3>
 
       <%= f.text_field :ticker,
                        label: "Ticker Symbol",
@@ -28,8 +28,8 @@
                       hint: "Company description and overview",
                       rows: 4 %>
 
-      <div class="mt-6 pt-6 border-t border-gray-200">
-        <h4 class="text-md font-medium text-gray-900 mb-4">Pricing</h4>
+      <div class="mt-6 pt-6 border-t border-slate-200">
+        <h4 class="text-md font-medium text-slate-900 mb-4">Pricing</h4>
 
         <%= f.currency_field :price_cents,
                              label: "Current Price",
@@ -44,8 +44,8 @@
                              decimals: 2 %>
       </div>
 
-      <div class="mt-6 pt-6 border-t border-gray-200">
-        <h4 class="text-md font-medium text-gray-900 mb-4">Company Details</h4>
+      <div class="mt-6 pt-6 border-t border-slate-200">
+        <h4 class="text-md font-medium text-slate-900 mb-4">Company Details</h4>
 
         <%= f.number_field :employees,
                            label: "Number of Employees",
@@ -57,8 +57,8 @@
                          placeholder: "Technology" %>
       </div>
 
-      <div class="mt-6 pt-6 border-t border-gray-200">
-        <h4 class="text-md font-medium text-gray-900 mb-4">Financial Metrics</h4>
+      <div class="mt-6 pt-6 border-t border-slate-200">
+        <h4 class="text-md font-medium text-slate-900 mb-4">Financial Metrics</h4>
 
         <%= f.text_field :cash_flow,
                          label: "Cash Flow",
@@ -81,8 +81,8 @@
                          hint: "Sales growth percentage" %>
       </div>
 
-      <div class="mt-6 pt-6 border-t border-gray-200">
-        <h4 class="text-md font-medium text-gray-900 mb-4">Industry Averages</h4>
+      <div class="mt-6 pt-6 border-t border-slate-200">
+        <h4 class="text-md font-medium text-slate-900 mb-4">Industry Averages</h4>
 
         <%= f.text_field :industry_avg_debt_to_equity,
                          label: "Industry Avg Debt to Equity",
@@ -97,8 +97,8 @@
                          hint: "Industry average sales growth" %>
       </div>
 
-      <div class="mt-6 pt-6 border-t border-gray-200">
-        <h4 class="text-md font-medium text-gray-900 mb-4">Additional Information</h4>
+      <div class="mt-6 pt-6 border-t border-slate-200">
+        <h4 class="text-md font-medium text-slate-900 mb-4">Additional Information</h4>
 
         <%= f.text_area :management,
                         label: "Management",
@@ -111,7 +111,7 @@
                         rows: 3 %>
       </div>
 
-      <div class="mt-6 pt-6 border-t border-gray-200">
+      <div class="mt-6 pt-6 border-t border-slate-200">
         <%= f.boolean_field :archived,
                             label: "Archived",
                             hint: "Mark this stock as archived (hidden from active listings)" %>

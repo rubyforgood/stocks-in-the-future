@@ -1,0 +1,26 @@
+<%# Empty state.
+
+    Airbnb reading: an empty state is friendly and tells you what to do next,
+    rather than apologising. Icon is decorative (aria-hidden via lucide_icon's
+    defaults) because the heading and body carry the meaning.
+
+    Locals:
+      title   - short heading, sentence case
+      body    - optional sentence explaining what will appear here
+      icon    - optional Lucide icon name (default: inbox)
+      action  - optional block for a call to action %>
+<div class="flex flex-col items-center justify-center px-6 py-12 text-center">
+  <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-slate-100">
+    <%= lucide_icon(local_assigns.fetch(:icon, "inbox"), class: "h-6 w-6 text-slate-500") %>
+  </div>
+
+  <p class="text-base font-semibold text-slate-900"><%= title %></p>
+
+  <% if local_assigns[:body].present? %>
+    <p class="mt-1 max-w-md text-sm text-slate-600"><%= body %></p>
+  <% end %>
+
+  <% if block_given? %>
+    <div class="mt-4"><%= yield %></div>
+  <% end %>
+</div>

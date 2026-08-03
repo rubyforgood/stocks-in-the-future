@@ -3,18 +3,18 @@
 <div class="max-w-7xl mx-auto">
   <%= admin_breadcrumbs(@breadcrumbs) %>
 
-  <div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg overflow-hidden">
-    <div class="px-4 py-5 lg:px-6 border-b border-gray-200">
+  <div class="bg-white shadow-sm ring-1 ring-slate-900/5 rounded-lg overflow-hidden">
+    <div class="px-4 py-5 lg:px-6 border-b border-slate-200">
       <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-semibold text-gray-900">Students</h3>
+        <h3 class="text-lg font-semibold text-slate-900">Students</h3>
         <div class="flex gap-2">
           <%= link_to "Template", template_admin_students_path,
-                      class: "inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" %>
+                      class: "inline-flex items-center px-4 py-2 border border-slate-300 shadow-sm text-sm font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50" %>
           <%# A control that opens a dialog is a button, not a link to "#". %>
           <button type="button"
                   data-action="click->dialog#open"
                   aria-haspopup="dialog"
-                  class="inline-flex items-center min-h-11 px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary">
+                  class="inline-flex items-center min-h-11 px-4 py-2 border border-slate-300 shadow-sm text-sm font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary">
             Import Students
           </button>
           <%= link_to "New Student", new_admin_student_path,
@@ -24,33 +24,33 @@
 
       <!-- Filter Tabs -->
       <% current_filter = current_discard_filter %>
-      <div class="flex gap-1 border-b border-gray-200">
+      <div class="flex gap-1 border-b border-slate-200">
         <%= link_to "Active",
                     admin_students_path,
-                    class: "px-4 py-2 text-sm font-medium #{current_filter == :active ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700 hover:border-gray-300'}" %>
+                    class: "px-4 py-2 text-sm font-medium #{current_filter == :active ? 'text-blue-600 border-b-2 border-blue-600' : 'text-slate-500 hover:text-slate-700 hover:border-slate-300'}" %>
         <%= link_to "Archived",
                     admin_students_path(discarded: true),
-                    class: "px-4 py-2 text-sm font-medium #{current_filter == :discarded ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700 hover:border-gray-300'}" %>
+                    class: "px-4 py-2 text-sm font-medium #{current_filter == :discarded ? 'text-blue-600 border-b-2 border-blue-600' : 'text-slate-500 hover:text-slate-700 hover:border-slate-300'}" %>
         <%= link_to "All",
                     admin_students_path(all: true),
-                    class: "px-4 py-2 text-sm font-medium #{current_filter == :all ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700 hover:border-gray-300'}" %>
+                    class: "px-4 py-2 text-sm font-medium #{current_filter == :all ? 'text-blue-600 border-b-2 border-blue-600' : 'text-slate-500 hover:text-slate-700 hover:border-slate-300'}" %>
       </div>
     </div>
 
     <div class="overflow-x-auto">
-      <table class="min-w-full divide-y divide-gray-300">
-        <thead class="bg-gray-50">
+      <table class="min-w-full divide-y divide-slate-300">
+        <thead class="bg-slate-50">
           <tr>
-            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">
               <%= sort_link(:id, "ID") %>
             </th>
-            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">
               <%= sort_link(:username, "Username") %>
             </th>
-            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">
               Classroom
             </th>
-            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">
               <%= sort_link(:created_at, "Created At") %>
             </th>
             <th scope="col" class="relative py-3.5 pl-3 pr-4 lg:pr-6">
@@ -58,30 +58,30 @@
             </th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-gray-200 bg-white">
+        <tbody class="divide-y divide-slate-200 bg-white">
           <% if @students.any? %>
             <% @students.each do |student| %>
-              <tr class="hover:bg-gray-50 transition-colors cursor-pointer"
+              <tr class="hover:bg-slate-50 transition-colors cursor-pointer"
                   data-controller="clickable-row"
                   data-clickable-row-url-value="<%= admin_student_path(student) %>"
                   data-action="click->clickable-row#navigate">
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-900">
                   <%= student.id %>
                 </td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-900">
                   <%= student.username %>
                 </td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-900">
                   <%= student.classroom.name %>
                 </td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-900">
                   <%= student.created_at.strftime("%B %d, %Y") %>
                 </td>
                 <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium lg:pr-6">
                   <div class="flex justify-end gap-2">
                     <%= link_to "View", admin_student_path(student), class: "text-blue-600 hover:text-blue-800" %>
                     <% unless student.discarded? %>
-                      <%= link_to "Edit", edit_admin_student_path(student), class: "text-gray-600 hover:text-gray-800" %>
+                      <%= link_to "Edit", edit_admin_student_path(student), class: "text-slate-600 hover:text-slate-800" %>
                     <% end %>
                     <%= discard_restore_action(student) %>
                   </div>
@@ -90,11 +90,11 @@
             <% end %>
           <% else %>
             <tr>
-              <td colspan="5" class="px-3 py-12 text-center text-sm text-gray-500">
+              <td colspan="5" class="px-3 py-12 text-center text-sm text-slate-500">
                 <div class="flex flex-col items-center">
-                  <%= lucide_icon("inbox", class: "w-9 h-9 text-gray-500 mb-3 shrink-0") %>
+                  <%= lucide_icon("inbox", class: "w-9 h-9 text-slate-500 mb-3 shrink-0") %>
                   <p class="font-medium">No records found</p>
-                  <p class="text-gray-600 mt-1">No students found. Create your first student to get started.</p>
+                  <p class="text-slate-600 mt-1">No students found. Create your first student to get started.</p>
                 </div>
               </td>
             </tr>
@@ -110,19 +110,19 @@
   <%# Scrim. Clicking it dismisses, but that is a convenience only - the close
       and cancel buttons and Escape all work, so it needs no keyboard role.
       aria-hidden keeps it out of the accessibility tree. %>
-  <div class="fixed inset-0 bg-gray-500/75 transition-opacity"
+  <div class="fixed inset-0 bg-slate-500/75 transition-opacity"
        data-action="click->dialog#close"
        aria-hidden="true"></div>
 
   <div class="relative bg-white rounded-lg shadow-xl max-w-lg w-full mx-4 z-50" data-dialog-target="panel" tabindex="-1">
     <div class="px-6 py-4">
       <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-medium text-gray-900" id="modal-title">
+        <h3 class="text-lg font-medium text-slate-900" id="modal-title">
           Import Students from CSV
         </h3>
         <button type="button"
                 data-action="click->dialog#close"
-                class="flex min-w-11 min-h-11 items-center justify-center rounded-full text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary">
+                class="flex min-w-11 min-h-11 items-center justify-center rounded-full text-slate-600 hover:text-slate-900 hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary">
           <span class="sr-only">Close import dialog</span>
           <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -130,7 +130,7 @@
         </button>
       </div>
 
-      <p class="text-sm text-gray-500 mb-4">
+      <p class="text-sm text-slate-500 mb-4">
         Upload a CSV file with columns: <strong>classroom_id, username</strong>
       </p>
 
@@ -138,12 +138,12 @@
         <div class="mb-4">
           <%= form.file_field :csv_file,
                               accept: ".csv",
-                              class: "block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary p-2" %>
+                              class: "block w-full text-sm text-slate-900 border border-slate-300 rounded-lg cursor-pointer bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary p-2" %>
         </div>
         <div class="flex justify-end gap-3">
           <button type="button"
                   data-action="click->dialog#close"
-                  class="inline-flex justify-center items-center min-h-11 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary">
+                  class="inline-flex justify-center items-center min-h-11 px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary">
             Cancel
           </button>
           <%= form.submit "Import Students",

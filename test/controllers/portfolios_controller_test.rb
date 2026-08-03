@@ -46,7 +46,7 @@ class PortfoliosControllerTest < ActionDispatch::IntegrationTest
     get portfolio_path(portfolio)
 
     assert_response :success
-    assert_select ".text-gray-600", text: "Not Enough Data"
+    assert_select ".text-slate-600", text: "Not Enough Data"
   end
 
   test "show displays chart when 2 or more snapshots exist" do

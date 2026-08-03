@@ -1,7 +1,7 @@
 <div class="flex flex-wrap gap-3">
   <% if actions.include?(:edit) %>
-    <%= link_to [:edit, :admin, resource], class: "inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" do %>
-      <%= lucide_icon("square-pen", class: "-ml-1 mr-2 h-5 w-5 text-gray-500 shrink-0") %>
+    <%= link_to [:edit, :admin, resource], class: "inline-flex items-center px-4 py-2 border border-slate-300 shadow-sm text-sm font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" do %>
+      <%= lucide_icon("square-pen", class: "-ml-1 mr-2 h-5 w-5 text-slate-500 shrink-0") %>
       Edit
     <% end %>
   <% end %>
@@ -19,7 +19,7 @@
     <%= link_to action[:path],
                 method: action[:method] || :get,
                 data: action[:data] || {},
-                class: "inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md #{action[:class] || 'text-gray-700 bg-white hover:bg-gray-50'} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" do %>
+                class: "inline-flex items-center px-4 py-2 border border-slate-300 shadow-sm text-sm font-medium rounded-md #{action[:class] || 'text-slate-700 bg-white hover:bg-slate-50'} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" do %>
       <% if action[:icon] %>
         <%= lucide_icon(action[:icon], class: "-ml-1 mr-2 h-5 w-5 shrink-0") %>
       <% end %>

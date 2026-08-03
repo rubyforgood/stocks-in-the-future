@@ -1,0 +1,25 @@
+<%# Status pill.
+
+    design.md: text-xs is chrome, not content - a status pill is exactly the
+    intended use. Stripe reading: colour carries meaning, never decoration, and
+    a pill pairs a light tint with a readable dark foreground rather than a
+    saturated fill with white text.
+
+    Every tone is a dark foreground on a light tint, so all clear AA. Meaning is
+    never colour-alone: the label text always states the status.
+
+    Locals:
+      label - text
+      tone  - :neutral (default) :success :warning :danger :info :brand %>
+<% tone = local_assigns.fetch(:tone, :neutral).to_sym %>
+<% tones = {} %>
+<% tones[:neutral] = "bg-slate-100 text-slate-700 ring-slate-200" %>
+<% tones[:success] = "bg-green-50 text-green-800 ring-green-200" %>
+<% tones[:warning] = "bg-amber-50 text-amber-800 ring-amber-200" %>
+<% tones[:danger] = "bg-red-50 text-red-800 ring-red-200" %>
+<% tones[:info] = "bg-blue-50 text-blue-800 ring-blue-200" %>
+<% tones[:brand] = "bg-teal-50 text-teal-800 ring-teal-200" %>
+
+<span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset <%= tones.fetch(tone, tones[:neutral]) %> <%= local_assigns[:class] %>">
+  <%= label %>
+</span>

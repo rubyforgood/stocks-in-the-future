@@ -1,8 +1,8 @@
 <% content_for :title, "Forgot your password" %>
 
 <%# Mirrors devise/sessions/new so the two auth screens stay consistent. %>
-<% field_class = "block w-full min-h-11 rounded-md bg-white px-3 py-2 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-sitf-primary" %>
-<% label_class = "block text-sm font-medium text-gray-900 mb-1" %>
+<% field_class = "block w-full min-h-11 rounded-md bg-white px-3 py-2 text-base text-slate-900 outline-1 -outline-offset-1 outline-slate-500 focus:outline-2 focus:-outline-offset-2 focus:outline-sitf-primary" %>
+<% label_class = "block text-sm font-medium text-slate-900 mb-1" %>
 <% submit_class = "flex w-full min-h-11 items-center justify-center rounded-md bg-sitf-primary px-3 py-2 text-sm/6 font-semibold text-sitf-on-primary shadow-xs hover:bg-sitf-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary-dark cursor-pointer" %>
 <% link_class = "font-semibold text-sitf-primary underline hover:text-sitf-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary rounded-sm" %>
 
@@ -12,8 +12,8 @@
       <%= image_tag "SITF-caponly-Logo.svg", class: "h-8 w-auto", alt: "Stocks in the Future" %>
     </div>
 
-    <h1 class="text-center text-2xl/9 font-bold tracking-tight text-gray-900 pb-4">Forgot your password?</h1>
-    <p class="text-center text-sm text-gray-600 pb-4">Enter your email and we'll send you reset instructions.</p>
+    <h1 class="text-center text-2xl/9 font-bold tracking-tight text-slate-900 pb-4">Forgot your password?</h1>
+    <p class="text-center text-sm text-slate-600 pb-4">Enter your email and we'll send you reset instructions.</p>
 
     <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post }) do |f| %>
       <%= render "devise/shared/error_messages", resource: resource %>
@@ -28,7 +28,7 @@
       </div>
     <% end %>
 
-    <p class="mt-6 text-center text-sm text-gray-600">
+    <p class="mt-6 text-center text-sm text-slate-600">
       <%= link_to "Back to sign in", new_session_path(resource_name), class: link_class %>
     </p>
   </div>

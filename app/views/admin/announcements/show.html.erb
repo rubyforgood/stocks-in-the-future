@@ -1,14 +1,14 @@
 <div class="max-w-7xl mx-auto">
   <%= admin_breadcrumbs(@breadcrumbs) %>
 
-  <div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg mb-6">
+  <div class="bg-white shadow-sm ring-1 ring-slate-900/5 rounded-lg mb-6">
     <div class="px-6 py-6">
       <div class="flex items-center justify-between mb-6">
-        <h2 class="text-2xl font-bold text-gray-900"><%= @announcement.title %></h2>
+        <h2 class="text-2xl font-bold text-slate-900"><%= @announcement.title %></h2>
         <div class="flex gap-3">
           <%= link_to edit_admin_announcement_path(@announcement),
-                      class: "inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" do %>
-            <%= lucide_icon("square-pen", class: "-ml-1 mr-2 h-5 w-5 text-gray-500 shrink-0") %>
+                      class: "inline-flex items-center px-4 py-2 border border-slate-300 shadow-sm text-sm font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50" do %>
+            <%= lucide_icon("square-pen", class: "-ml-1 mr-2 h-5 w-5 text-slate-500 shrink-0") %>
             Edit
           <% end %>
           <%= link_to admin_announcement_path(@announcement),
@@ -26,8 +26,8 @@
           ) %>
 
       <!-- Rich Text Content Display -->
-      <div class="mt-6 pt-6 border-t border-gray-200">
-        <h3 class="text-sm font-medium text-gray-500 mb-3">Content</h3>
+      <div class="mt-6 pt-6 border-t border-slate-200">
+        <h3 class="text-sm font-medium text-slate-500 mb-3">Content</h3>
         <div class="prose max-w-none">
           <%= @announcement.content %>
         </div>
@@ -37,6 +37,6 @@
 
   <div class="flex gap-3">
     <%= link_to "Back to Announcements", admin_announcements_path,
-                class: "inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" %>
+                class: "inline-flex items-center px-4 py-2 border border-slate-300 shadow-sm text-sm font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50" %>
   </div>
 </div>

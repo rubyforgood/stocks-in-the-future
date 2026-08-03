@@ -22,8 +22,8 @@
             <% end %>
           <% end %>
         </div>
-        <h1 class="text-xl lg:text-2xl font-bold tracking-tight leading-tight mt-1 text-gray-900">WELCOME TO YOUR FINANCIAL JOURNEY!</h1>
-        <p class="text-xs lg:text-sm text-gray-800 mt-1 font-medium">This Is Your Launchpad To Earn, Invest, And Grow.</p>
+        <h1 class="text-xl lg:text-2xl font-bold tracking-tight leading-tight mt-1 text-slate-900">WELCOME TO YOUR FINANCIAL JOURNEY!</h1>
+        <p class="text-xs lg:text-sm text-slate-800 mt-1 font-medium">This Is Your Launchpad To Earn, Invest, And Grow.</p>
       </div>
 
       <%# Decorative illustration, hidden on small screens. %>
@@ -44,18 +44,18 @@
     <div class="flex ml-0 relative z-20">
       <section class="rounded-xl border-2 border-black overflow-hidden bg-white w-full flex flex-col" aria-labelledby="announcements-heading">
         <h2 id="announcements-heading" class="bg-teal-700 text-white py-1.5 px-3 font-semibold text-xs tracking-wide border-b-2 border-black">Announcements</h2>
-        <div class="p-4 text-xs text-gray-600 flex flex-col">
+        <div class="p-4 text-xs text-slate-600 flex flex-col">
           <% if @current_announcement %>
             <% cache @current_announcement do %>
               <div class="space-y-3">
-                <h3 class="font-semibold text-gray-900 text-sm"><%= @current_announcement.title %></h3>
-                <div class="text-gray-700 trix-content max-h-[480px] overflow-y-auto">
+                <h3 class="font-semibold text-slate-900 text-sm"><%= @current_announcement.title %></h3>
+                <div class="text-slate-700 trix-content max-h-[480px] overflow-y-auto">
                   <%= @current_announcement.content %>
                 </div>
               </div>
             <% end %>
           <% else %>
-            <p class="italic text-gray-500">No announcements yet.</p>
+            <p class="italic text-slate-500">No announcements yet.</p>
           <% end %>
         </div>
       </section>
@@ -77,7 +77,7 @@
           <div class="pr-1 flex-none"><%= image_tag "#{s[:num]}_Number.png", alt: "Step #{s[:num]}", class: "h-10 lg:h-16" %></div>
           <div class="space-y-1">
             <h3 class="text-xl font-semibold leading-snug"><%= s[:title] %></h3>
-            <p class="text-[13px] text-gray-700 leading-snug"><%= s[:body] %></p>
+            <p class="text-[13px] text-slate-700 leading-snug"><%= s[:body] %></p>
           </div>
         </li>
       <% end %>

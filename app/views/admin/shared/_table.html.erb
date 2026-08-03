@@ -1,8 +1,8 @@
-<div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg overflow-hidden">
+<div class="bg-white shadow-sm ring-1 ring-slate-900/5 rounded-lg overflow-hidden">
   <% if local_assigns[:title] || local_assigns[:actions] %>
-    <div class="px-4 py-5 lg:px-6 border-b border-gray-200 flex justify-between items-center">
+    <div class="px-4 py-5 lg:px-6 border-b border-slate-200 flex justify-between items-center">
       <% if local_assigns[:title] %>
-        <h3 class="text-lg font-semibold text-gray-900"><%= title %></h3>
+        <h3 class="text-lg font-semibold text-slate-900"><%= title %></h3>
       <% end %>
       <% if local_assigns[:actions] %>
         <div class="flex gap-2">
@@ -13,11 +13,11 @@
   <% end %>
 
   <div class="overflow-x-auto">
-    <table class="min-w-full divide-y divide-gray-300">
-      <thead class="bg-gray-50">
+    <table class="min-w-full divide-y divide-slate-300">
+      <thead class="bg-slate-50">
         <tr>
           <% columns.each do |column| %>
-            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">
               <% if column[:sortable] %>
                 <%= sort_link(column[:attribute], column[:label]) %>
               <% else %>
@@ -32,15 +32,15 @@
           <% end %>
         </tr>
       </thead>
-      <tbody class="divide-y divide-gray-200 bg-white">
+      <tbody class="divide-y divide-slate-200 bg-white">
         <% if collection.any? %>
           <% collection.each do |record| %>
-            <tr id="<%= dom_id(record) %>" class="hover:bg-gray-50 transition-colors cursor-pointer"
+            <tr id="<%= dom_id(record) %>" class="hover:bg-slate-50 transition-colors cursor-pointer"
                 data-controller="clickable-row"
                 data-clickable-row-url-value="<%= url_for([:admin, route_model(record)]) %>"
                 data-action="click->clickable-row#navigate">
               <% columns.each do |column| %>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900" data-testid="<%= column[:attribute] %>">
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-900" data-testid="<%= column[:attribute] %>">
                   <% if column[:link] %>
                     <%= link_to format_attribute(record, column[:attribute]), [:admin, route_model(record)], class: "text-blue-600 hover:text-blue-800 font-medium" %>
                   <% else %>
@@ -52,7 +52,7 @@
                 <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium lg:pr-6">
                   <div class="flex justify-end gap-2">
                     <%= link_to "View", [:admin, route_model(record)], class: "text-blue-600 hover:text-blue-800" %>
-                    <%= link_to "Edit", [:edit, :admin, route_model(record)], class: "text-gray-600 hover:text-gray-800" %>
+                    <%= link_to "Edit", [:edit, :admin, route_model(record)], class: "text-slate-600 hover:text-slate-800" %>
                     <%= link_to "Delete", [:admin, route_model(record)],
                                 data: { turbo_method: :delete, turbo_confirm: "Are you sure?" },
                                 class: "text-red-600 hover:text-red-800" %>
@@ -63,12 +63,12 @@
           <% end %>
         <% else %>
           <tr>
-            <td colspan="<%= columns.length + (options[:show_actions] == false ? 0 : 1) %>" class="px-3 py-12 text-center text-sm text-gray-500">
+            <td colspan="<%= columns.length + (options[:show_actions] == false ? 0 : 1) %>" class="px-3 py-12 text-center text-sm text-slate-500">
               <div class="flex flex-col items-center">
-                <%= lucide_icon("inbox", class: "w-9 h-9 text-gray-500 mb-3 shrink-0") %>
+                <%= lucide_icon("inbox", class: "w-9 h-9 text-slate-500 mb-3 shrink-0") %>
                 <p class="font-medium">No records found</p>
                 <% if options[:empty_message] %>
-                  <p class="text-gray-600 mt-1"><%= options[:empty_message] %></p>
+                  <p class="text-slate-600 mt-1"><%= options[:empty_message] %></p>
                 <% end %>
               </div>
             </td>
@@ -79,7 +79,7 @@
   </div>
 
   <% if collection.respond_to?(:total_pages) && collection.total_pages > 1 %>
-    <div class="px-4 py-3 border-t border-gray-200 lg:px-6">
+    <div class="px-4 py-3 border-t border-slate-200 lg:px-6">
       <%= render "admin/shared/pagination", collection: collection %>
     </div>
   <% end %>

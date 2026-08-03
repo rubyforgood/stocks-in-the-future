@@ -9,21 +9,21 @@
     <%= stylesheet_link_tag "actiontext", 'data-turbo-track': "reload" %>
     <%= javascript_importmap_tags %>
   </head>
-  <body class="min-h-screen bg-gray-50" data-controller="admin-sidebar">
+  <body class="min-h-screen bg-slate-50" data-controller="admin-sidebar">
     <!-- Admin Header -->
-    <div class="fixed top-0 left-0 w-full z-50 bg-white border-b border-gray-200">
+    <div class="fixed top-0 left-0 w-full z-50 bg-white border-b border-slate-200">
       <div class="flex items-center justify-between py-3 px-6 h-16">
         <div class="flex items-center gap-4">
           <button
             type="button"
             data-action="click->admin-sidebar#toggle"
-            class="lg:hidden inline-flex items-center justify-center w-10 h-10 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+            class="lg:hidden inline-flex items-center justify-center w-10 h-10 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
             aria-label="Toggle menu">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
-          <h1 class="text-xl font-semibold text-gray-900">
+          <h1 class="text-xl font-semibold text-slate-900">
             <%= link_to admin_root_path do %>
               <%= lucide_icon("wrench", class: "text-blue-600 mr-2 w-4 h-4 shrink-0") %>
               Admin Dashboard
@@ -31,7 +31,7 @@
           </h1>
         </div>
         <div class="flex items-center gap-4">
-          <span class="hidden lg:inline text-sm text-gray-600">
+          <span class="hidden lg:inline text-sm text-slate-600">
             <%= current_user.email %>
           </span>
           <%= link_to "View Site", root_path, class: "text-sm text-blue-600 hover:text-blue-800" %>
@@ -41,7 +41,7 @@
     </div>
 
     <!-- Admin Sidebar Navigation -->
-    <div class="fixed top-16 left-0 h-[calc(100vh-4rem)] w-64 bg-white border-r border-gray-200 overflow-y-auto lg:block hidden" id="admin-sidebar">
+    <div class="fixed top-16 left-0 h-[calc(100vh-4rem)] w-64 bg-white border-r border-slate-200 overflow-y-auto lg:block hidden" id="admin-sidebar">
       <nav class="p-4">
         <%= render "admin/shared/navigation" %>
       </nav>
@@ -54,7 +54,7 @@
          style="display: none;"></div>
 
     <!-- Mobile Sidebar -->
-    <div class="fixed top-16 left-0 h-[calc(100vh-4rem)] w-64 bg-white border-r border-gray-200 overflow-y-auto z-50 transform -translate-x-full transition-transform duration-300 lg:hidden"
+    <div class="fixed top-16 left-0 h-[calc(100vh-4rem)] w-64 bg-white border-r border-slate-200 overflow-y-auto z-50 transform -translate-x-full transition-transform duration-300 lg:hidden"
          data-admin-sidebar-target="mobileSidebar">
       <nav class="p-4">
         <%= render "admin/shared/navigation" %>

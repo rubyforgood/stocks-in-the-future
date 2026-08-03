@@ -1,7 +1,7 @@
 <%= form_with model: @teacher, url: @teacher.persisted? ? admin_teacher_path(@teacher) : admin_teachers_path, builder: Admin::FormBuilder, class: "space-y-6" do |f| %>
-  <div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg">
+  <div class="bg-white shadow-sm ring-1 ring-slate-900/5 rounded-lg">
     <div class="px-6 py-6">
-      <h3 class="text-lg font-medium text-gray-900 mb-6">Teacher Details</h3>
+      <h3 class="text-lg font-medium text-slate-900 mb-6">Teacher Details</h3>
 
       <%= f.text_field :email,
                        label: "Email",
@@ -31,7 +31,7 @@
                                        wrapper_class: "mb-0" %>
         <% else %>
           <div class="mb-6">
-            <label class="block text-sm font-medium text-gray-700 mb-2">Classrooms</label>
+            <label class="block text-sm font-medium text-slate-700 mb-2">Classrooms</label>
             <div class="bg-yellow-50 border border-yellow-200 rounded-md p-4">
               <div class="flex">
                 <div class="flex-shrink-0">
@@ -54,8 +54,8 @@
       <% end %>
 
       <% if @teacher.new_record? %>
-        <div class="mt-6 pt-6 border-t border-gray-200">
-          <p class="text-sm text-gray-600">
+        <div class="mt-6 pt-6 border-t border-slate-200">
+          <p class="text-sm text-slate-600">
             <%= lucide_icon("info", class: "mr-1 w-4 h-4 shrink-0") %>
             A temporary password will be generated and a password reset email will be sent to the teacher's email address.
           </p>

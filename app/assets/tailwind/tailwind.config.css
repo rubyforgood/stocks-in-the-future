@@ -69,9 +69,11 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
 
-  /* Font family */
+  /* Font family. Figtree per design.md - warm humanist sans, self-hosted.
+     Inter is kept as the first fallback so nothing shifts jarringly if the
+     woff2 fails to load. */
   --font-sans:
-    Inter, ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+    Figtree, Inter, ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
     "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 
   /* Keyframes */

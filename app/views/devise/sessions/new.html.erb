@@ -1,9 +1,9 @@
 <% content_for :title, "Sign in" %>
 
 <%# Shared field styling. 44px minimum target height per docs/responsive-design-guidelines.md.
-    outline-gray-500 gives a 5.0:1 boundary on white, clearing WCAG 1.4.11 (3:1). %>
-<% field_class = "block w-full min-h-11 rounded-md bg-white px-3 py-2 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-sitf-primary" %>
-<% label_class = "block text-sm font-medium text-gray-900 mb-1" %>
+    outline-slate-500 gives a 5.0:1 boundary on white, clearing WCAG 1.4.11 (3:1). %>
+<% field_class = "block w-full min-h-11 rounded-md bg-white px-3 py-2 text-base text-slate-900 outline-1 -outline-offset-1 outline-slate-500 focus:outline-2 focus:-outline-offset-2 focus:outline-sitf-primary" %>
+<% label_class = "block text-sm font-medium text-slate-900 mb-1" %>
 <% link_class = "inline-flex items-center min-h-11 text-sm font-semibold text-sitf-primary underline hover:text-sitf-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary rounded-sm" %>
 <% submit_class = "flex w-full min-h-11 items-center justify-center rounded-md bg-sitf-primary px-3 py-2 text-sm/6 font-semibold text-sitf-on-primary shadow-xs hover:bg-sitf-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary-dark" %>
 
@@ -13,7 +13,7 @@
       <%= image_tag "SITF-caponly-Logo.svg", class: "h-8 w-auto", alt: "Stocks in the Future" %>
     </div>
 
-    <h1 class="text-center text-2xl/9 font-bold tracking-tight text-gray-900 pb-4">Sign in to your account</h1>
+    <h1 class="text-center text-2xl/9 font-bold tracking-tight text-slate-900 pb-4">Sign in to your account</h1>
 
     <%= render_form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
       <div class="space-y-4">
