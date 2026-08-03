@@ -395,6 +395,113 @@ Verified: all 16 admin pages now have exactly one `<h1>` and a distinct title.
 
 ---
 
+## Migration map: admin page headers out of the card — **done**
+
+**The question that started it:** is a page title and its primary action, nested
+inside the table card, industry standard? No. Tailwind UI's page-heading patterns,
+Stripe's dashboard, Shopify Polaris (`Page` with `primaryAction`) and GitHub Primer all
+put the page title and its action at **page level**, on the page background, with the
+card below holding only the data. Nesting them inside the card makes the heading read
+as a section label rather than as the page's title, and makes one surface do two jobs.
+
+### Current structure
+
+Every admin page, index and show alike:
+
+```
+breadcrumbs
+card
+  header strip - title + actions      <- should be at page level
+  table (index) / attributes (show)
+```
+
+On show pages it is worse: the outer card wraps a padded div holding the title, the
+actions, **and** `admin_show_attributes`, which renders `components/ui/_card` itself —
+so a card inside a card. The trailing sections are `mt-6 pt-6 border-t` blocks with
+`text-sm text-slate-500` headings, which is the divider pattern just removed elsewhere.
+
+The visible heading is an `h2` or `h3`; the only `h1` is the layout's `sr-only` one
+derived from breadcrumbs.
+
+### Target structure
+
+```
+breadcrumbs
+page header - h1 + actions, on the page background
+card(s) - data only
+```
+
+### Order of moves, and what each breaks
+
+1. **`components/ui/_page_header` declares `content_for :own_heading`.** Breaks
+   nothing; the application layout does not read it. Without this every admin page
+   would carry two `h1`s — the visible one and the layout's hidden one.
+2. **`admin/shared/_table` loses its title/actions strip, and `admin_table` loses
+   those options.** Breaks the three callers that pass them (stocks, announcements,
+   schools) until step 3.
+3. **Eight index pages gain a page header.** Breaks the seven controller tests that
+   assert `h3`/`h2` for an index title — they become `h1`, which is the point.
+4. **Ten show pages hoist title and actions out, and their trailing sections become
+   cards.** Breaks the show-page title assertions the same way, and the section
+   heading assertions, which move from `h3` to the `h2` a card renders.
+5. **Extend `page_title_divider_test` to the admin pages.** They now have a real
+   visible `h1`, so the existing "exactly one visible h1" assertion can cover them.
+
+**Risk:** low. No controller, model, route or money behaviour changes — this is view
+structure and heading level only. The heading changes are the observable part, and they
+are covered by existing tests that must be updated deliberately rather than mechanically
+(three of the `h3` assertions are section headings that stay put, not page titles).
+
+### What actually shipped
+
+All eight index pages and all ten show pages now render `components/ui/_page_header`
+above the card. `admin/shared/_table` and `admin_table` no longer accept a title or
+actions. `admin/shared/_show_actions` is new and carries the Edit/Delete pair, with
+paths passed explicitly because `Student` and `Teacher` are STI subclasses of `User`, so
+`[:admin, record]` does not reliably name their route. Show-page sections that were
+`mt-6 pt-6 border-t` blocks are now cards, so those rules are gone too.
+
+21 heading assertions moved: page titles to `h1`, section headings to the `h2` a card
+renders, and two sub-headings inside a card body to `h3`. Each was changed by line
+number rather than by pattern — `assert_select "h3", "Classrooms"` appears both as the
+classrooms index title, which became `h1`, and as a section on the teacher show page,
+which became `h2`.
+
+### Found while doing it, and fixed
+
+- **`admin/students/show` had unbalanced `</div>`s.** One stray closing tag meant the
+  portfolio section's later content sat outside the block it appeared to be indented
+  inside. The browser silently repaired it. Rebuilding the page on cards removed it.
+- **The same page hand-rolled a `dl` that duplicated `admin_show_attributes`,** with
+  `slate-500` labels rather than the `slate-700` the shared partial uses. Replaced with
+  the partial.
+- **No admin button had a focus indicator.** The class literals carried no `focus` or
+  `focus-visible` style at all, so keyboard focus was invisible on every admin action —
+  WCAG 2.4.7. They are now `admin_primary_button_class`, `admin_secondary_button_class`
+  and `admin_danger_button_class`, which name the outline colour (Tailwind v4 resolves an
+  unset one to `currentColor`) and add `min-h-11` for the 44px target the literals missed
+  at about 36px.
+- **`admin/shared/_actions` mixed `focus:ring-2` with `focus-visible:ring-*`,** so the
+  ring rendered on plain focus with no colour named. Routed through the helpers.
+- **Two contrast failures** on the student show page: `green-600` on `green-50` at 3.4:1
+  and `red-600` on white at 4.0:1, both under the 4.5:1 gate for text that size. Now
+  `green-700` (4.8:1) and `red-700` (5.9:1).
+- **Delete confirmations named nothing.** "Are you sure you want to delete this stock?"
+  became "Delete stock \"AAPL\"? This cannot be undone.", matching what
+  `admin/shared/_table` already did.
+- **`Portfolio Transaction #3`** was Title Case in a page title. Now sentence case.
+
+### Guarded
+
+`page_title_divider_test.rb` covers the twelve admin pages as well now — it could not
+before, because the assertion is "exactly one *visible* h1" and admin pages had none.
+Verified separately that `content_for :own_heading` really suppresses the layout's hidden
+heading: each admin page renders exactly one `h1` in total, with no `sr-only` one left
+over. Without that check the guard would have passed either way, since it filters
+`sr-only` headings out.
+
+---
+
 ## Open items owned by someone else
 
 - **Merge the CVE fix into `main`.** `main` remains on `activestorage 8.1.3` with

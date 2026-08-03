@@ -16,7 +16,7 @@ module Admin
       ordered_row_ids = rows.pluck("id")
 
       assert_response :success
-      assert_select "h3", "Classrooms"
+      assert_select "h1", "Classrooms"
       assert_equal(
         [dom_id(classroom3), dom_id(classroom1), dom_id(classroom2)],
         ordered_row_ids
@@ -33,7 +33,7 @@ module Admin
       get admin_classroom_path(classroom)
 
       assert_response :success
-      assert_select "h2", classroom.name
+      assert_select "h1", classroom.name
       assert_select "[data-testid='grades_display'] dd", text: "9th-10th"
     end
 

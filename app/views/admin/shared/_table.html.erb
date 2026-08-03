@@ -1,17 +1,10 @@
-<div class="bg-white shadow-sm ring-1 ring-slate-900/5 rounded-lg overflow-hidden">
-  <% if local_assigns[:title] || local_assigns[:actions] %>
-    <div class="px-4 py-5 lg:px-6 flex justify-between items-center">
-      <% if local_assigns[:title] %>
-        <h2 class="text-lg font-semibold text-slate-900"><%= title %></h2>
-      <% end %>
-      <% if local_assigns[:actions] %>
-        <div class="flex gap-2">
-          <%= actions %>
-        </div>
-      <% end %>
-    </div>
-  <% end %>
+<%# The data card. It holds the table and nothing else.
 
+    The page title and its actions used to live in a header strip inside this card.
+    They belong at page level - see components/ui/_page_header, which every admin index
+    page now renders above this. A title nested in the card reads as a section label
+    rather than as the page's title, and left one surface doing two jobs. %>
+<div class="bg-white shadow-sm ring-1 ring-slate-900/5 rounded-lg overflow-hidden">
   <div class="overflow-x-auto">
     <table class="min-w-full divide-y divide-slate-300">
       <thead class="bg-slate-50">

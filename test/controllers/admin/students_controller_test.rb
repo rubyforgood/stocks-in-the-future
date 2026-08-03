@@ -20,7 +20,7 @@ module Admin
       get admin_students_path
 
       assert_response :success
-      assert_select "h3", "Students"
+      assert_select "h1", "Students"
       assert_select "tbody tr", count: 2
     end
 
@@ -61,8 +61,8 @@ module Admin
       get admin_student_path(student)
 
       assert_response :success
-      assert_select "h2", username
-      assert_select "h3", text: "Portfolio details"
+      assert_select "h1", username
+      assert_select "h2", text: "Portfolio details"
       assert_select(
         "[data-testid='cash_balance_label']",
         text: "Cash balance"
@@ -82,7 +82,7 @@ module Admin
       get admin_student_path(student)
 
       assert_response :success
-      assert_select "h3", text: "Attendance"
+      assert_select "h2", text: "Attendance"
       assert_select "tbody tr", minimum: 1
       assert_select "td", text: "Q1"
       assert_select "td", text: "42"
@@ -110,7 +110,7 @@ module Admin
       get admin_student_path(student)
 
       assert_response :success
-      assert_select "h4", text: "Earnings summary"
+      assert_select "h3", text: "Earnings summary"
       assert_select "td", text: "Attendance earnings"
       assert_select "td", text: "Math earnings"
       assert_select "td", text: "Rewards"

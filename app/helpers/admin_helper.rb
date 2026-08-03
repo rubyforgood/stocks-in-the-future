@@ -2,19 +2,43 @@
 
 # rubocop:disable Metrics/ModuleLength
 module AdminHelper
+  # Admin button classes, named once instead of repeated as a long literal on every
+  # page. Hoisting the page headers out of the cards meant rewriting all of these
+  # anyway, and the literals were missing two things design.md requires: a visible
+  # focus indicator (they had none at all, so keyboard focus was invisible) and a 44px
+  # minimum touch target (px-4 py-2 at text-sm renders about 36px). The ring colour is
+  # always named because Tailwind v4 resolves an unset ring/outline colour to
+  # currentColor.
+  ADMIN_BUTTON_BASE = "inline-flex min-h-11 items-center px-4 py-2 shadow-sm text-sm " \
+                      "font-medium rounded-md focus-visible:outline-2 " \
+                      "focus-visible:outline-offset-2"
+
+  def admin_primary_button_class
+    "#{ADMIN_BUTTON_BASE} border border-transparent text-white bg-sitf-primary " \
+      "hover:bg-sitf-primary-dark focus-visible:outline-sitf-primary-dark"
+  end
+
+  def admin_secondary_button_class
+    "#{ADMIN_BUTTON_BASE} border border-slate-300 text-slate-700 bg-white " \
+      "hover:bg-slate-50 focus-visible:outline-sitf-primary"
+  end
+
+  def admin_danger_button_class
+    "#{ADMIN_BUTTON_BASE} border border-red-300 text-red-700 bg-white hover:bg-red-50 " \
+      "focus-visible:outline-red-700"
+  end
+
   # Renders a table for index pages with sortable columns
   # @param collection [ActiveRecord::Relation] The records to display
   # @param columns [Array<Hash>] Column definitions with :attribute, :label, :sortable keys
   # @param options [Hash] Additional options for the table
+  # The table card holds the table only. A page title and its actions belong at page
+  # level, so they are rendered by components/ui/_page_header above this, not passed in.
   def admin_table(collection, columns: [], **options)
-    title = options.delete(:title)
-    actions = options.delete(:actions)
     render "admin/shared/table",
            collection: collection,
            columns: columns,
-           options: options,
-           title: title,
-           actions: actions
+           options: options
   end
 
   # Renders attribute rows for show pages

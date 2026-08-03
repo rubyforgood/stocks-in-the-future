@@ -58,11 +58,11 @@
       Click column headers to sort. (Action buttons disabled in demo - see Action Buttons section below)
     </p>
 
+    <%# No title or actions: the table card holds the table only, and a page title and
+        its actions are rendered by components/ui/_page_header above the card. %>
     <%= admin_table(
           @users,
           columns: @columns,
-          title: "Users",
-          actions: link_to("New User", "#", class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-sitf-primary hover:bg-sitf-primary-dark"),
           empty_message: "No users found. Create your first user to get started.",
           show_actions: false
         ) %>
@@ -179,10 +179,13 @@
   columns: [
     { attribute: :name, label: "Name", sortable: true, link: true },
     { attribute: :status, label: "Status", sortable: true }
-  ],
-  title: "Resources",
-  actions: link_to("New", [:new, :admin, :resource])
-) %&gt;</code></pre>
+  ]
+) %&gt;
+
+&lt;%# The title and actions go above the card, not into it: %&gt;
+&lt;%= render layout: "components/ui/page_header", locals: { title: "Resources" } do %&gt;
+  &lt;%= link_to "New resource", [:new, :admin, :resource], class: admin_primary_button_class %&gt;
+&lt;% end %&gt;</code></pre>
 
       <h3 class="text-sm font-semibold text-slate-900 mb-3 mt-6">Show attributes</h3>
       <pre class="text-xs bg-white p-4 rounded border border-slate-200 overflow-x-auto"><code>&lt;%= admin_show_attributes(

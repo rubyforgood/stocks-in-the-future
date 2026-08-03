@@ -1,6 +1,10 @@
 <div class="max-w-7xl mx-auto">
   <%= admin_breadcrumbs(@breadcrumbs) %>
 
+  <%= render layout: "components/ui/page_header", locals: { title: "Schools" } do %>
+    <%= link_to "New school", new_admin_school_path, class: admin_primary_button_class %>
+  <% end %>
+
   <%= admin_table(
         @schools,
         columns: [
@@ -8,12 +12,6 @@
           { attribute: :name, label: "Name", sortable: true },
           { attribute: :created_at, label: "Created", sortable: true }
         ],
-        title: "Schools",
-        actions: link_to(
-          "New school",
-          new_admin_school_path,
-          class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-sitf-primary hover:bg-sitf-primary-dark"
-        ),
         empty_message: "No schools found. Create your first school to get started."
       ) %>
 </div>

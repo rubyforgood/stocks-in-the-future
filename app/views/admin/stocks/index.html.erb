@@ -1,6 +1,10 @@
 <div class="max-w-7xl mx-auto">
   <%= admin_breadcrumbs(@breadcrumbs) %>
 
+  <%= render layout: "components/ui/page_header", locals: { title: "Stocks" } do %>
+    <%= link_to "New stock", new_admin_stock_path, class: admin_primary_button_class %>
+  <% end %>
+
   <%= admin_table(
         @stocks,
         columns: [
@@ -11,12 +15,6 @@
           { attribute: :current_price, label: "Current price", sortable: false },
           { attribute: :archived, label: "Archived", sortable: true }
         ],
-        title: "Stocks",
-        actions: link_to(
-          "New stock",
-          new_admin_stock_path,
-          class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-sitf-primary hover:bg-sitf-primary-dark"
-        ),
         empty_message: "No stocks found. Create your first stock to get started."
       ) %>
 </div>

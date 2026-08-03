@@ -337,8 +337,13 @@ different. These are the pages not yet **rebuilt onto the primitives**.
       screen, so highest value of what is left.
 - [ ] `stocks/_stock` and `stocks/show` - trading floor, the densest remaining
       page
-- [ ] Admin index pages - partly upgraded already via the shared table, but need
-      `_page_header` and a `_card` wrapper
+- [x] Admin index pages - **done.** All eight render `_page_header` above the card,
+      with the title as the page's real `h1` and the actions beside it. The card holds
+      the table only.
+- [x] Admin show pages - **done.** All ten hoist title and actions to `_page_header`;
+      the old outer card is gone (it used to wrap `admin_show_attributes`, which renders
+      a card of its own), and each trailing section is now its own card instead of a
+      `border-t` block.
 - [ ] `classrooms/*` and `grade_books/*` - teacher-facing
 - [ ] `devise/registrations/*`, `announcements/show`
 

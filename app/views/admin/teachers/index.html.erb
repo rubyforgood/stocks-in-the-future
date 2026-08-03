@@ -1,17 +1,14 @@
 <div class="max-w-7xl mx-auto">
   <%= admin_breadcrumbs(@breadcrumbs) %>
 
-  <div class="bg-white shadow-sm ring-1 ring-slate-900/5 rounded-lg overflow-hidden">
-    <div class="px-4 py-5 lg:px-6">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-semibold text-slate-900">Teachers</h3>
-        <div class="flex gap-2">
-          <%= link_to "New teacher", new_admin_teacher_path,
-                      class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-sitf-primary hover:bg-sitf-primary-dark" %>
-        </div>
-      </div>
+  <%= render layout: "components/ui/page_header", locals: { title: "Teachers" } do %>
+    <%= link_to "New teacher", new_admin_teacher_path, class: admin_primary_button_class %>
+  <% end %>
 
-      <!-- Filter Tabs -->
+  <div class="bg-white shadow-sm ring-1 ring-slate-900/5 rounded-lg overflow-hidden">
+    <%# The filter tabs stay inside the card: they filter the table directly below
+        them, so they belong to it rather than to the page. %>
+    <div class="px-4 py-5 lg:px-6">
       <% current_filter = current_discard_filter %>
       <div class="flex gap-1 border-b border-slate-200">
         <%= link_to "Active",

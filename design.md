@@ -146,6 +146,34 @@ Brand scale lives in `tailwind.css` `@theme` as `--color-brand-*`.
   as too much scroll. Verify these gaps at the pixel level (filter-bottom -> table-top), not
   by reading tokens.
 
+### Page header
+**The page title and its actions sit at page level, on the page background — never
+inside the card.** `components/ui/_page_header` renders them: the single `h1`, an
+optional supporting line, and an actions slot on the same optical line.
+
+This is the standard arrangement rather than a preference. Tailwind UI's page headings,
+Stripe's dashboard, Shopify Polaris (`Page` with `primaryAction`) and GitHub Primer all
+put the title and its primary action above the content surface and leave the card
+holding only data.
+
+Every admin page used to nest both inside the table card. Three things followed from
+that, and all three are fixed:
+
+- The visible heading was an `h2` or `h3`. The only `h1` was the layout's `sr-only` one
+  derived from breadcrumbs, so no admin page announced itself with a real heading.
+- The card did two jobs — chrome and data — so its header strip needed a rule to
+  separate them, which is the divider the next section is about.
+- On show pages the card wrapped `admin_show_attributes`, which renders
+  `components/ui/_card` itself. That is a card inside a card.
+
+`_page_header` declares `content_for :own_heading`, and the admin layout reads it and
+steps its hidden `h1` aside. Render the partial rather than hand-rolling an `h1`, or you
+have to remember that `content_for` yourself — and forgetting it gives the page two
+`h1`s, one of them invisible.
+
+**Heading levels follow from the same structure.** Page title is `h1`, a card's title is
+`h2`, a heading inside a card body is `h3`. Do not skip a level.
+
 ### Dividers
 **A page title never gets a rule under it.** Spacing already separates a title from
 its content. A horizontal line is a second, redundant signal, and it stacks visibly

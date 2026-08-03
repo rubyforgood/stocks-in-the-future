@@ -1,6 +1,10 @@
 <div class="max-w-7xl mx-auto">
   <%= admin_breadcrumbs(@breadcrumbs) %>
 
+  <%= render layout: "components/ui/page_header", locals: { title: "Announcements" } do %>
+    <%= link_to "New announcement", new_admin_announcement_path, class: admin_primary_button_class %>
+  <% end %>
+
   <%= admin_table(
         @announcements,
         columns: [
@@ -9,12 +13,6 @@
           { attribute: :created_at, label: "Created", sortable: true },
           { attribute: :updated_at, label: "Updated", sortable: true }
         ],
-        title: "Announcements",
-        actions: link_to(
-          "New announcement",
-          new_admin_announcement_path,
-          class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-sitf-primary hover:bg-sitf-primary-dark"
-        ),
         empty_message: "No announcements found. Create your first announcement to get started."
       ) %>
 </div>

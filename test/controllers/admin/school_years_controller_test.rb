@@ -13,7 +13,7 @@ module Admin
       get admin_school_years_path
 
       assert_response :success
-      assert_select "h3", "School years"
+      assert_select "h1", "School years"
       assert_select "tbody tr", count: 2
     end
 
@@ -29,8 +29,8 @@ module Admin
       get admin_school_year_path(school_year)
 
       assert_response :success
-      assert_select "h2", "#{school_name} (#{year_name})"
-      assert_select "h3", "Quarters"
+      assert_select "h1", "#{school_name} (#{year_name})"
+      assert_select "h2", "Quarters"
     end
 
     test "new" do

@@ -3,25 +3,22 @@
 <div class="max-w-7xl mx-auto">
   <%= admin_breadcrumbs(@breadcrumbs) %>
 
+  <%# Inside the data-controller="dialog" wrapper above, so the import trigger still
+      reaches the dialog it opens. %>
+  <%= render layout: "components/ui/page_header", locals: { title: "Students" } do %>
+    <%= link_to "Template", template_admin_students_path, class: admin_secondary_button_class %>
+    <%# A control that opens a dialog is a button, not a link to "#". %>
+    <button type="button"
+            data-action="click->dialog#open"
+            aria-haspopup="dialog"
+            class="<%= admin_secondary_button_class %>">
+      Import students
+    </button>
+    <%= link_to "New student", new_admin_student_path, class: admin_primary_button_class %>
+  <% end %>
+
   <div class="bg-white shadow-sm ring-1 ring-slate-900/5 rounded-lg overflow-hidden">
     <div class="px-4 py-5 lg:px-6">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-semibold text-slate-900">Students</h3>
-        <div class="flex gap-2">
-          <%= link_to "Template", template_admin_students_path,
-                      class: "inline-flex items-center px-4 py-2 border border-slate-300 shadow-sm text-sm font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50" %>
-          <%# A control that opens a dialog is a button, not a link to "#". %>
-          <button type="button"
-                  data-action="click->dialog#open"
-                  aria-haspopup="dialog"
-                  class="inline-flex items-center min-h-11 px-4 py-2 border border-slate-300 shadow-sm text-sm font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary">
-            Import students
-          </button>
-          <%= link_to "New student", new_admin_student_path,
-                      class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-sitf-primary hover:bg-sitf-primary-dark" %>
-        </div>
-      </div>
-
       <!-- Filter Tabs -->
       <% current_filter = current_discard_filter %>
       <div class="flex gap-1 border-b border-slate-200">

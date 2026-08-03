@@ -1,15 +1,11 @@
 <div class="max-w-7xl mx-auto">
   <%= admin_breadcrumbs(@breadcrumbs) %>
 
-  <div class="bg-white shadow-sm ring-1 ring-slate-900/5 rounded-lg overflow-hidden">
-    <div class="px-4 py-5 lg:px-6 flex justify-between items-center">
-      <h3 class="text-lg font-semibold text-slate-900">Users</h3>
-      <div class="flex gap-2">
-        <%= link_to "New user", new_admin_user_path,
-                    class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-sitf-primary hover:bg-sitf-primary-dark" %>
-      </div>
-    </div>
+  <%= render layout: "components/ui/page_header", locals: { title: "Users" } do %>
+    <%= link_to "New user", new_admin_user_path, class: admin_primary_button_class %>
+  <% end %>
 
+  <div class="bg-white shadow-sm ring-1 ring-slate-900/5 rounded-lg overflow-hidden">
     <div class="overflow-x-auto">
       <table class="min-w-full divide-y divide-slate-300">
         <thead class="bg-slate-50">

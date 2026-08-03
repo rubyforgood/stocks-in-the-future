@@ -18,7 +18,7 @@ module Admin
       get admin_stocks_path
 
       assert_response :success
-      assert_select "h2", "Stocks"
+      assert_select "h1", "Stocks"
     end
 
     test "index shows all stocks" do
@@ -33,14 +33,14 @@ module Admin
       get admin_stock_path(@stock1)
 
       assert_response :success
-      assert_select "h2", @stock1.ticker
+      assert_select "h1", @stock1.ticker
     end
 
     test "should show stock price information" do
       get admin_stock_path(@stock1)
 
       assert_response :success
-      assert_select "h3", "Price information"
+      assert_select "h2", "Price information"
       assert_select "dt", text: "Current price"
     end
 

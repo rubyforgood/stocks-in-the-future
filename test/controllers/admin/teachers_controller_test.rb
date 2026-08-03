@@ -15,7 +15,7 @@ module Admin
       row_ids = rows.pluck("id")
 
       assert_response :success
-      assert_select "h3", "Teachers"
+      assert_select "h1", "Teachers"
       assert_equal [dom_id(teacher2), dom_id(teacher1)], row_ids
     end
 
@@ -87,7 +87,7 @@ module Admin
       get admin_teacher_path(teacher)
 
       assert_response :success
-      assert_select "h2", teacher.username
+      assert_select "h1", teacher.username
     end
 
     test "should show teacher classrooms" do
@@ -100,8 +100,8 @@ module Admin
       get admin_teacher_path(teacher)
 
       assert_response :success
-      assert_select "h2", teacher.username
-      assert_select "h3", "Classrooms"
+      assert_select "h1", teacher.username
+      assert_select "h2", "Classrooms"
       assert_select "li", text: classroom.name
     end
 
