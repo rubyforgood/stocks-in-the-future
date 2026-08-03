@@ -173,7 +173,7 @@ Counts are indicative, found by pattern matching - confirm by reading the file.
 - [x] Fix invalid `focus-visible:ring-2a` in `input_helper.rb` - it compiled to nothing, leaving inputs app-wide with no designed focus indicator. Now an explicit 2px `sitf-primary` ring at 5.9:1.
 
 - [x] Add SITF brand colours as semantic tokens so pages stop hardcoding hex. **done**: `sitf-surface`, `sitf-primary`, `sitf-primary-dark`, `sitf-on-primary`, `sitf-secondary`, `sitf-accent`, `sitf-warning`, `sitf-danger` in `tailwind.config.css`, sourced from `shadcn.css`.
-- [ ] Replace the Font Awesome CDN link with local SVG icons (78 usages).
+- [x] Replace the Font Awesome CDN link with local SVG icons. **done**: all 76 usages converted to `lucide_icon` (the gem was already a dependency and already the convention in 3 views). CDN `<link>` removed from both layouts. Icons now inherit `currentColor` and carry `aria-hidden` by default.
 - [x] Sweep `sm:`/`md:`/`xl:`/`2xl:` down to `base` + `lg:`. **done**: 122 remapped across 31 view files, 0 remaining. Multi-tier ramps (e.g. `text-sm sm:text-base md:text-lg lg:text-xl`) collapsed by hand. Also removed the off-tier usages in `forms.css` and deleted the dead legacy top-nav block in `navbar.css`.
 - [x] Add `scope` to every `<th>`. **done**: 42 added across 8 files (the original count of 58 was inflated - the audit regex also matched `<thead>`). All were column headers; 0 row headers.
 - [ ] Replace faint text colours with `gray-500` or darker (33 usages).

@@ -7,7 +7,7 @@
       <label for="search" class="sr-only">Search</label>
       <div class="relative">
         <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-5">
-          <i class="fas fa-search h-4 w-4 text-gray-400"></i>
+          <%= lucide_icon("search", class: "h-4 w-4 text-gray-500 shrink-0") %>
         </div>
         <%= form.text_field :search,
                             value: params[:search],

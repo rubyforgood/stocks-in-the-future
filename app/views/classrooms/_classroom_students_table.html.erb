@@ -41,7 +41,7 @@
                               class: "inline-flex items-center justify-center w-8 h-8 text-black hover:text-[var(--sitf-secondary-chart2)] hover:bg-blue-50 rounded-lg transition-all duration-150 group",
                               title: "Edit student",
                               data: { testid: "edit-student" } do %>
-                    <i class="fa fa-pencil fa-lg group-hover:scale-110 transition-transform duration-150"></i>
+                    <%= lucide_icon("pencil", class: " group-hover:scale-110 transition-transform duration-150 w-4 h-4 shrink-0") %>
                   <% end %>
 
                   <%= link_to reset_password_classroom_student_path(@classroom, student),
@@ -63,7 +63,7 @@
                               },
                               class: "inline-flex items-center justify-center w-8 h-8 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-all duration-150 group",
                               title: "Delete student" do %>
-                    <i class="fa fa-trash fa-lg group-hover:scale-110 transition-transform duration-150"></i>
+                    <%= lucide_icon("trash-2", class: " group-hover:scale-110 transition-transform duration-150 w-4 h-4 shrink-0") %>
                   <% end %>
                 </div>
               </td>

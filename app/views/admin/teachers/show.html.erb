@@ -15,27 +15,27 @@
         <div class="flex gap-3">
           <%= link_to edit_admin_teacher_path(@teacher),
                       class: "inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" do %>
-            <i class="fas fa-edit -ml-1 mr-2 h-5 w-5 text-gray-500"></i>
+            <%= lucide_icon("square-pen", class: "-ml-1 mr-2 h-5 w-5 text-gray-500 shrink-0") %>
             Edit
           <% end %>
           <% if @teacher.discarded? %>
             <%= link_to admin_teacher_reactivation_path(@teacher),
                         data: { turbo_method: :post, turbo_confirm: "Are you sure you want to reactivate this teacher?" },
                         class: "inline-flex items-center px-4 py-2 border border-green-300 shadow-sm text-sm font-medium rounded-md text-green-700 bg-white hover:bg-green-50" do %>
-              <i class="fas fa-check-circle -ml-1 mr-2 h-5 w-5 text-green-500"></i>
+              <%= lucide_icon("circle-check", class: "-ml-1 mr-2 h-5 w-5 text-green-500 shrink-0") %>
               Reactivate
             <% end %>
             <%= link_to admin_teacher_path(@teacher),
                         data: { turbo_method: :delete, turbo_confirm: "Are you sure you want to permanently delete this teacher? This action cannot be undone." },
                         class: "inline-flex items-center px-4 py-2 border border-red-300 shadow-sm text-sm font-medium rounded-md text-red-700 bg-white hover:bg-red-50" do %>
-              <i class="fas fa-trash -ml-1 mr-2 h-5 w-5 text-red-500"></i>
+              <%= lucide_icon("trash-2", class: "-ml-1 mr-2 h-5 w-5 text-red-500 shrink-0") %>
               Permanently Delete
             <% end %>
           <% else %>
             <%= link_to admin_teacher_deactivation_path(@teacher),
                         data: { turbo_method: :post, turbo_confirm: "Are you sure you want to deactivate this teacher?" },
                         class: "inline-flex items-center px-4 py-2 border border-red-300 shadow-sm text-sm font-medium rounded-md text-red-700 bg-white hover:bg-red-50" do %>
-              <i class="fas fa-trash -ml-1 mr-2 h-5 w-5 text-red-500"></i>
+              <%= lucide_icon("trash-2", class: "-ml-1 mr-2 h-5 w-5 text-red-500 shrink-0") %>
               Deactivate
             <% end %>
           <% end %>

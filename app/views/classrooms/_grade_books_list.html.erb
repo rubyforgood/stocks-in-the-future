@@ -1,6 +1,6 @@
 <div class="mt-8 w-64 flex-initial">
   <h3 class="bg-amber-300 py-3 px-5 font-medium text-sm tracking-wide rounded-t-xl">
-    <i class="fas fa-book w-4 h-4"></i>
+    <%= lucide_icon("book", class: "w-4 h-4 shrink-0") %>
     Grade Books
   </h3>
 
@@ -12,7 +12,7 @@
                       class: "text-black underline hover:text-[var(--sitf-secondary-chart2)] font-medium" do %>
             <span class="flex flex-between items-center justify-between w-full">
               <%= book.quarter.name %>
-              <i class="fa-solid fa-arrow-right"></i>
+              <%= lucide_icon("arrow-right", class: "w-4 h-4 shrink-0") %>
             </span>
           <% end %>
         </li>

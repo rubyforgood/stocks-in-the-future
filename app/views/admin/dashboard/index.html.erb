@@ -8,23 +8,23 @@
     <!-- Academic Resources -->
     <div class="bg-white rounded-lg shadow p-6 border border-gray-200">
       <div class="flex items-center mb-4">
-        <i class="fas fa-graduation-cap text-blue-600 text-2xl mr-3"></i>
+        <%= lucide_icon("graduation-cap", class: "text-blue-600 w-6 h-6 mr-3 shrink-0") %>
         <h2 class="text-lg font-semibold text-gray-900">Academic</h2>
       </div>
       <ul class="space-y-2 text-sm">
         <li>
           <%= link_to admin_classrooms_path, class: "text-blue-600 hover:text-blue-800 hover:underline" do %>
-            <i class="fas fa-chalkboard w-4 mr-2"></i>Classrooms
+            <%= lucide_icon("presentation", class: "w-4 mr-2 h-4 shrink-0") %>Classrooms
           <% end %>
         </li>
         <li>
           <%= link_to admin_schools_path, class: "text-blue-600 hover:text-blue-800 hover:underline" do %>
-            <i class="fas fa-school w-4 mr-2"></i>Schools
+            <%= lucide_icon("school", class: "w-4 mr-2 h-4 shrink-0") %>Schools
           <% end %>
         </li>
         <li>
           <%= link_to admin_school_years_path, class: "text-blue-600 hover:text-blue-800 hover:underline" do %>
-            <i class="fas fa-calendar-check w-4 mr-2"></i>School Years
+            <%= lucide_icon("calendar-check", class: "w-4 mr-2 h-4 shrink-0") %>School Years
           <% end %>
         </li>
       </ul>
@@ -33,23 +33,23 @@
     <!-- User Management -->
     <div class="bg-white rounded-lg shadow p-6 border border-gray-200">
       <div class="flex items-center mb-4">
-        <i class="fas fa-users text-green-600 text-2xl mr-3"></i>
+        <%= lucide_icon("users", class: "text-green-600 w-6 h-6 mr-3 shrink-0") %>
         <h2 class="text-lg font-semibold text-gray-900">User Management</h2>
       </div>
       <ul class="space-y-2 text-sm">
         <li>
           <%= link_to admin_students_path, class: "text-blue-600 hover:text-blue-800 hover:underline" do %>
-            <i class="fas fa-user-graduate w-4 mr-2"></i>Students
+            <%= lucide_icon("graduation-cap", class: "w-4 mr-2 h-4 shrink-0") %>Students
           <% end %>
         </li>
         <li>
           <%= link_to admin_teachers_path, class: "text-blue-600 hover:text-blue-800 hover:underline" do %>
-            <i class="fas fa-chalkboard-teacher w-4 mr-2"></i>Teachers
+            <%= lucide_icon("presentation", class: "w-4 mr-2 h-4 shrink-0") %>Teachers
           <% end %>
         </li>
         <li>
           <%= link_to admin_users_path, class: "text-blue-600 hover:text-blue-800 hover:underline" do %>
-            <i class="fas fa-users w-4 mr-2"></i>Users
+            <%= lucide_icon("users", class: "w-4 mr-2 h-4 shrink-0") %>Users
           <% end %>
         </li>
       </ul>
@@ -58,29 +58,29 @@
     <!-- Portfolio & Finance -->
     <div class="bg-white rounded-lg shadow p-6 border border-gray-200">
       <div class="flex items-center mb-4">
-        <i class="fas fa-chart-line text-purple-600 text-2xl mr-3"></i>
+        <%= lucide_icon("chart-line", class: "text-purple-600 w-6 h-6 mr-3 shrink-0") %>
         <h2 class="text-lg font-semibold text-gray-900">Portfolio & Finance</h2>
       </div>
       <ul class="space-y-2 text-sm">
         <li>
           <%= link_to admin_stocks_path, class: "text-blue-600 hover:text-blue-800 hover:underline" do %>
-            <i class="fas fa-chart-line w-4 mr-2"></i>Stocks
+            <%= lucide_icon("chart-line", class: "w-4 mr-2 h-4 shrink-0") %>Stocks
           <% end %>
         </li>
-        <li class="text-gray-600"><i class="fas fa-exchange-alt w-4 mr-2"></i>Portfolio Transactions</li>
+        <li class="text-gray-600"><%= lucide_icon("arrow-left-right", class: "w-4 mr-2 h-4 shrink-0") %>Portfolio Transactions</li>
       </ul>
     </div>
 
     <!-- Content -->
     <div class="bg-white rounded-lg shadow p-6 border border-gray-200">
       <div class="flex items-center mb-4">
-        <i class="fas fa-bullhorn text-orange-600 text-2xl mr-3"></i>
+        <%= lucide_icon("megaphone", class: "text-orange-600 w-6 h-6 mr-3 shrink-0") %>
         <h2 class="text-lg font-semibold text-gray-900">Content</h2>
       </div>
       <ul class="space-y-2 text-sm">
         <li>
           <%= link_to admin_announcements_path, class: "text-blue-600 hover:text-blue-800 hover:underline" do %>
-            <i class="fas fa-bullhorn w-4 mr-2"></i>Announcements
+            <%= lucide_icon("megaphone", class: "w-4 mr-2 h-4 shrink-0") %>Announcements
           <% end %>
         </li>
       </ul>
@@ -89,7 +89,7 @@
 
   <div class="mt-8 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
     <div class="flex items-start">
-      <i class="fas fa-exclamation-triangle text-yellow-600 mt-1 mr-3"></i>
+      <%= lucide_icon("triangle-alert", class: "text-yellow-600 mt-1 mr-3 w-4 h-4 shrink-0") %>
       <div>
         <h3 class="font-semibold text-yellow-900 mb-1">Development Status</h3>
         <p class="text-sm text-yellow-800">

@@ -2,7 +2,7 @@
   <!-- Dashboard -->
   <div>
     <%= link_to root_path, class: "flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-lg transition-colors" do %>
-      <i class="fas fa-home w-5 mr-3 text-gray-500"></i>
+      <%= lucide_icon("house", class: "w-5 mr-3 text-gray-500 h-5 shrink-0") %>
       Dashboard
     <% end %>
   </div>
@@ -14,15 +14,15 @@
     </h3>
     <div class="space-y-1">
       <%= link_to admin_classrooms_path, class: "flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-lg transition-colors" do %>
-        <i class="fas fa-chalkboard w-5 mr-3 text-gray-500"></i>
+        <%= lucide_icon("presentation", class: "w-5 mr-3 text-gray-500 h-5 shrink-0") %>
         Classrooms
       <% end %>
       <%= link_to admin_schools_path, class: "flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-lg transition-colors" do %>
-        <i class="fas fa-school w-5 mr-3 text-gray-500"></i>
+        <%= lucide_icon("school", class: "w-5 mr-3 text-gray-500 h-5 shrink-0") %>
         Schools
       <% end %>
       <%= link_to admin_school_years_path, class: "flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-lg transition-colors" do %>
-        <i class="fas fa-calendar-check w-5 mr-3 text-gray-500"></i>
+        <%= lucide_icon("calendar-check", class: "w-5 mr-3 text-gray-500 h-5 shrink-0") %>
         School Years
       <% end %>
     </div>
@@ -35,15 +35,15 @@
     </h3>
     <div class="space-y-1">
       <%= link_to admin_students_path, class: "flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-lg transition-colors" do %>
-        <i class="fas fa-user-graduate w-5 mr-3 text-gray-500"></i>
+        <%= lucide_icon("graduation-cap", class: "w-5 mr-3 text-gray-500 h-5 shrink-0") %>
         Students
       <% end %>
       <%= link_to admin_teachers_path, class: "flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-lg transition-colors" do %>
-        <i class="fas fa-chalkboard-teacher w-5 mr-3 text-gray-500"></i>
+        <%= lucide_icon("presentation", class: "w-5 mr-3 text-gray-500 h-5 shrink-0") %>
         Teachers
       <% end %>
       <%= link_to admin_users_path, class: "flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-lg transition-colors" do %>
-        <i class="fas fa-users w-5 mr-3 text-gray-500"></i>
+        <%= lucide_icon("users", class: "w-5 mr-3 text-gray-500 h-5 shrink-0") %>
         Users
       <% end %>
     </div>
@@ -56,7 +56,7 @@
     </h3>
     <div class="space-y-1">
       <%= link_to admin_stocks_path, class: "flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-lg transition-colors" do %>
-        <i class="fas fa-chart-line w-5 mr-3 text-gray-500"></i>
+        <%= lucide_icon("chart-line", class: "w-5 mr-3 text-gray-500 h-5 shrink-0") %>
         Stocks
       <% end %>
     </div>
@@ -69,7 +69,7 @@
     </h3>
     <div class="space-y-1">
       <%= link_to admin_announcements_path, class: "flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-lg transition-colors" do %>
-        <i class="fas fa-bullhorn w-5 mr-3 text-gray-500"></i>
+        <%= lucide_icon("megaphone", class: "w-5 mr-3 text-gray-500 h-5 shrink-0") %>
         Announcements
       <% end %>
     </div>
@@ -83,7 +83,7 @@
       </h3>
       <div class="space-y-1">
         <%= link_to admin_component_demo_index_path, class: "flex items-center px-3 py-2 text-sm font-medium text-purple-700 hover:bg-purple-50 hover:text-purple-900 rounded-lg transition-colors" do %>
-          <i class="fas fa-flask w-5 mr-3 text-purple-500"></i>
+          <%= lucide_icon("flask-conical", class: "w-5 mr-3 text-purple-500 h-5 shrink-0") %>
           Component Demo
         <% end %>
       </div>

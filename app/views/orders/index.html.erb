@@ -119,11 +119,11 @@
                 <div class="flex justify-center space-x-2">
                   <% if order.pending? %>
                     <%= link_to edit_order_path(order), class: "table-action-link", data: { turbo_frame: "modal_frame", testid: "edit-order-button" } do %>
-                      <i class="fa fa-pencil fa-lg"></i>
+                      <%= lucide_icon("pencil", class: " w-4 h-4 shrink-0") %>
                     <% end %>
                     <%= form_with url: cancel_order_path(order), method: :patch, data: { confirm: t("orders.cancel.confirm"), turbo_confirm: t("orders.cancel.confirm") } do %>
                       <button type="submit" class="table-action-button" title="Cancel" data-testid="cancel-order-button">
-                        <i class="fa fa-ban fa-lg"></i>
+                        <%= lucide_icon("ban", class: " w-4 h-4 shrink-0") %>
                       </button>
                     <% end %>
                   <% end %>

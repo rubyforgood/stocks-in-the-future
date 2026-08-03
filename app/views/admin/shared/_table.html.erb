@@ -65,7 +65,7 @@
           <tr>
             <td colspan="<%= columns.length + (options[:show_actions] == false ? 0 : 1) %>" class="px-3 py-12 text-center text-sm text-gray-500">
               <div class="flex flex-col items-center">
-                <i class="fas fa-inbox text-4xl text-gray-300 mb-3"></i>
+                <%= lucide_icon("inbox", class: "w-9 h-9 text-gray-500 mb-3 shrink-0") %>
                 <p class="font-medium">No records found</p>
                 <% if options[:empty_message] %>
                   <p class="text-gray-400 mt-1"><%= options[:empty_message] %></p>
