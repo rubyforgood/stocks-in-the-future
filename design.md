@@ -198,6 +198,40 @@ Two details in that rail:
   alone, which is unavailable to a screen reader (4.1.2) and to anyone who cannot
   separate the two colours (1.4.1).
 
+### Sidebar navigation
+**One light sidebar, both sides of the app.** `bg-white` with a `border-r border-slate-200`,
+`text-slate-700` idle, `hover:bg-slate-100`. The selected row is a brand tint plus a 3px
+leading indicator: `bg-sitf-primary/10 text-sitf-primary-dark` with
+`border-l-[3px] border-sitf-primary`. Measured **7.78:1**. `NavHelper` holds the treatment -
+`nav_row_class`, `nav_indicator_class`, `nav_icon_class` - so the app nav and the admin nav
+cannot drift apart.
+
+A light sidebar is what current practice means: Stripe, Shopify, GitHub, Notion, Vercel,
+Linear, Material 3's navigation drawer. Dark sidebars survive in full dark themes, as
+deliberate brand statements, and in dated admin templates. **Brand presence lives in the
+logo, the primary buttons and the selected indicator, not in the panel.**
+
+What this replaced: the app sidebar was a saturated `sitf-primary` panel whose selected state
+was a full fill in `sitf-accent` — the lime `#D3DF44` that the token file labels *fill only,
+never text or icons*, because it is 1.46:1 on white. It was readable as a background (8.80:1
+with `#323232`), so this was a judgement about role: the loudest colour in the palette was
+carrying the most repeated state in the app. Meanwhile admin was already white **with no
+selected state at all**, so the two halves of one product looked like two products, and in
+admin you could not tell which section you were in.
+
+- **`aria-current="page"` on the selected row, always.** A tint and a bar are colour alone
+  (1.4.1), and it is what a screen reader announces.
+- **Nav rows are 44px** (`min-h-11`). A nav row is a bare tap target, which is where the 44px
+  figure applies — unlike buttons, which are on the 40px token.
+- **Icons are `lucide_icon`, inheriting `currentColor`.** They used to be external SVG assets
+  tinted by two CSS `filter` chains in `navbar.css`, which existed only to force them white on
+  the dark panel. Both are deleted.
+- **Both sidebars are 256px** (`w-64`). The app one was 200px, so the switch to admin moved the
+  content edge as well as changing the colour.
+- **A section is current when the request is inside it**, so a show or edit page keeps its
+  parent row lit. `nav_section_active?` takes `exact:` for the Dashboard, because `/admin` is a
+  prefix of every admin path and "inside it" is true everywhere.
+
 ### Dividers
 **A page title never gets a rule under it.** Spacing already separates a title from
 its content. A horizontal line is a second, redundant signal, and it stacks visibly

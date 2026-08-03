@@ -47,8 +47,6 @@ Rails.application.routes.draw do
     resources :component_demo, only: %i[index show] do
       collection do
         get :form
-        # Temporary: sidebar surface and selected-state options. Delete once decided.
-        get :nav
       end
     end
 

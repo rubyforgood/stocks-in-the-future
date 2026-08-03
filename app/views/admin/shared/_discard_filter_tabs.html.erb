@@ -18,7 +18,7 @@
     Locals:
       current - the active filter: :active, :discarded or :all
       tabs    - array of [label, filter, path] %>
-<div class="mb-4 flex gap-1 border-b border-slate-200">
+<div class="mb-4 flex gap-1 border-b border-slate-200" data-testid="filter-tabs">
   <% tabs.each do |label, filter, path| %>
     <% selected = current == filter %>
     <% tone = if selected

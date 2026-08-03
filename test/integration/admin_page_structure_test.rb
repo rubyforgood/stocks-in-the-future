@@ -80,10 +80,14 @@ class AdminPageStructureTest < ActionDispatch::IntegrationTest
     [admin_students_path, admin_teachers_path].each do |path|
       get path
 
-      selected = response.parsed_body.css("[aria-current='page']")
+      # Scoped to the rail: the sidebar nav rows carry aria-current too, so counting it
+      # across the whole page measures the nav rather than the tabs.
+      rail = response.parsed_body.at_css("[data-testid='filter-tabs']")
 
-      assert_equal 1, selected.size, "#{path} should mark exactly one selected filter tab"
-      assert_empty table_card.css("[aria-current='page']"),
+      assert_not_nil rail, "#{path} should render a filter tab rail"
+      assert_equal 1, rail.css("[aria-current='page']").size,
+                   "#{path} should mark exactly one selected filter tab"
+      assert_empty table_card.css("[data-testid='filter-tabs']"),
                    "#{path} still renders its filter tabs inside the table card"
     end
   end

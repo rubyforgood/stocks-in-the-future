@@ -13,14 +13,14 @@
 
 <nav aria-label="Main" class="fixed z-50 top-0 bottom-0 left-0 w-64
             transform -translate-x-full peer-checked:translate-x-0
-            lg:translate-x-0 lg:top-16 lg:w-50
+            lg:translate-x-0 lg:top-16 lg:w-64
             transition-transform duration-300 ease-in-out">
-  <div class="flex flex-col h-full overflow-y-auto px-0 pt-16 lg:pt-4 pb-4 bg-sitf-primary">
+  <div class="flex flex-col h-full overflow-y-auto px-0 pt-16 lg:pt-4 pb-4 bg-white border-r border-slate-200">
 
     <%# Close button, mobile only. 44px minimum target. %>
     <label
       for="mobile-menu-toggle"
-      class="lg:hidden absolute top-4 right-4 flex items-center justify-center min-w-11 min-h-11 text-sitf-on-primary hover:bg-white/10 rounded-lg cursor-pointer transition-colors">
+      class="lg:hidden absolute top-4 right-4 flex items-center justify-center min-w-11 min-h-11 text-slate-700 hover:bg-slate-100 rounded-lg cursor-pointer transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary">
       <span class="sr-only">Close navigation menu</span>
       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -32,21 +32,21 @@
         <%# Home %>
         <% active = request.path == root_path %>
         <%= render layout: "layouts/nav_item", locals: { path: root_path, label: "Home", active: active } do %>
-          <%= image_tag "house.svg", class: "w-6 h-6 #{active ? 'nav-icon-active' : 'nav-icon-inactive'}", alt: "" %>
+          <%= lucide_icon("house", class: nav_icon_class(active: active)) %>
         <% end %>
 
         <%# Portfolio %>
         <% if current_user.portfolio && policy(current_user.portfolio).show? %>
           <% active = request.path.include?("portfolios") %>
           <%= render layout: "layouts/nav_item", locals: { path: user_portfolio_path(current_user, current_user.portfolio), label: "My portfolio", active: active } do %>
-            <%= image_tag "id-card.svg", class: "w-6 h-6 #{active ? 'nav-icon-active' : 'nav-icon-inactive'}", alt: "" %>
+            <%= lucide_icon("id-card", class: nav_icon_class(active: active)) %>
           <% end %>
         <% end %>
 
         <%# Transactions %>
         <% active = request.path.include?("orders") %>
         <%= render layout: "layouts/nav_item", locals: { path: orders_path, label: "Transactions", active: active } do %>
-          <%= image_tag "receipt.svg", class: "w-6 h-6 #{active ? 'nav-icon-active' : 'nav-icon-inactive'}", alt: "" %>
+          <%= lucide_icon("receipt", class: nav_icon_class(active: active)) %>
         <% end %>
 
         <%# Classes. Inline SVG, so it inherits the link colour via currentColor. %>
@@ -63,16 +63,17 @@
         <li>
           <% active = request.path.include?("stocks") %>
           <details <%= "open" if active %> data-controller="stock-navbar-toggle">
-            <summary class="flex items-center justify-between min-h-11 px-3 py-3 rounded-lg w-full list-none cursor-pointer <%= active ? "bg-sitf-accent text-sitf-on-accent" : "text-sitf-on-primary" %>">
-              <%= link_to stocks_path, aria: { current: ("page" if active && request.path == stocks_path) }, class: "flex gap-3 items-center flex-1 hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white", data: { action: "click->stock-navbar-toggle#navigateLink" } do %>
-                <span class="flex w-6 h-6 shrink-0 items-center justify-center" aria-hidden="true">
-                  <%= image_tag "chart-no-axes-combined.svg", class: "w-6 h-6 #{active ? 'nav-icon-active' : 'nav-icon-inactive'}", alt: "" %>
+            <summary class="<%= nav_row_class(active: active) %> list-none cursor-pointer justify-between">
+              <%= link_to stocks_path, aria: { current: ("page" if active && request.path == stocks_path) }, class: "flex flex-1 items-center gap-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary", data: { action: "click->stock-navbar-toggle#navigateLink" } do %>
+                <span class="<%= nav_indicator_class(active: active) %>" aria-hidden="true"></span>
+                <span class="flex h-5 w-5 shrink-0 items-center justify-center" aria-hidden="true">
+                  <%= lucide_icon("chart-no-axes-combined", class: nav_icon_class(active: active)) %>
                 </span>
-                <span class="font-medium text-sm">Trading floor</span>
+                <span>Trading floor</span>
               <% end %>
 
               <%# Real button, not a clickable div, so it is keyboard operable. %>
-              <button type="button" class="flex items-center justify-center w-11 h-11 -mr-2 rounded-lg hover:bg-black/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white" data-action="click->stock-navbar-toggle#toggleChevron">
+              <button type="button" class="flex items-center justify-center w-11 h-11 -mr-2 rounded-lg text-slate-500 hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary" data-action="click->stock-navbar-toggle#toggleChevron">
                 <span class="sr-only">Toggle stock list</span>
                 <svg class="icon-down w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
                   <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
@@ -88,7 +89,7 @@
                 <% stock_active = request.path == stock_path(stock) %>
                 <li class="w-full">
                   <label for="mobile-menu-toggle" class="block lg:cursor-default cursor-pointer w-full">
-                    <%= link_to stock_path(stock), aria: { current: ("page" if stock_active) }, class: "flex gap-2 min-h-11 items-center justify-start px-3 py-2 rounded-2xl hover:bg-black/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white w-full text-sm text-sitf-on-primary #{'underline decoration-2 underline-offset-2' if stock_active}" do %>
+                    <%= link_to stock_path(stock), aria: { current: ("page" if stock_active) }, class: "flex gap-2 min-h-11 w-full items-center justify-start rounded-lg px-3 py-2 text-sm hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary #{stock_active ? 'font-semibold text-sitf-primary-dark' : 'text-slate-700'}" do %>
                       <p class="leading-none"><%= stock.ticker %></p>
                     <% end %>
                   </label>
@@ -106,13 +107,14 @@
         separator cannot render above an empty list. %>
     <% if policy(Classroom).new? %>
       <div class="flex flex-col items-center justify-start w-full mt-auto">
-        <div class="h-px w-full bg-sitf-primary-dark"></div>
+        <div class="h-px w-full bg-slate-200"></div>
         <ul class="flex flex-col items-start justify-start w-full py-2">
           <% active = request.path.include?("admin") %>
           <li class="w-full">
             <label for="mobile-menu-toggle" class="block lg:cursor-default cursor-pointer w-full">
-              <%= link_to admin_classrooms_path, aria: { current: ("page" if active) }, class: "flex items-center gap-x-4 min-h-11 px-6 py-3 text-sm font-semibold hover:bg-black/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white w-full #{active ? 'bg-sitf-accent text-sitf-on-accent' : 'text-sitf-on-primary'}" do %>
-                <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+              <%= link_to admin_classrooms_path, aria: { current: ("page" if active) }, class: nav_row_class(active: active) do %>
+                <span class="<%= nav_indicator_class(active: active) %>" aria-hidden="true"></span>
+                <svg class="<%= nav_icon_class(active: active) %>" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a6.759 6.759 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
                   <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                 </svg>

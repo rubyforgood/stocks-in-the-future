@@ -618,6 +618,45 @@ signalled by colour alone, so it now carries `aria-current="page"`.
 the table card on any of the eight index pages, and exactly one `aria-current` tab, above
 the card rather than in it. Verified by moving the tabs back inside and watching it fail.
 
+### One light sidebar across the app and admin
+
+**What.** `NavHelper` holds a single row treatment used by `layouts/_navbar`,
+`layouts/_nav_item` and `admin/shared/_navigation`. Both sidebars are now `bg-white` with a
+`border-r`, `text-slate-700` idle, and a selected row of `bg-sitf-primary/10
+text-sitf-primary-dark` plus a 3px `border-sitf-primary` leading indicator (7.78:1 measured).
+Both are 256px wide; the app one was 200px, so `main` moved from `lg:ml-50` to `lg:ml-64`.
+
+**Why.** The transition between the two halves of the product was jarring because they were
+two different chromes: a saturated teal panel with a lime chart-accent fill on one side, white
+with **no selected state at all** on the other. A light sidebar is also what current practice
+means — Stripe, Shopify, GitHub, Notion, Vercel, Linear, Material 3 — with brand presence in
+the logo, the buttons and the indicator rather than the panel.
+
+**The lime was not a contrast bug.** `#323232` on `#D3DF44` is 8.80:1. The problem was role:
+`sitf-accent` is labelled *fill only, never text or icons* in the token file because it is
+1.46:1 on white, and it was the loudest colour in the palette carrying the most repeated state
+in the app.
+
+**Removals.** The two `nav-icon-active` / `nav-icon-inactive` `filter` chains in `navbar.css`
+are gone. They existed only to force external SVG assets white on a dark panel; the nav uses
+`lucide_icon` now, which inherits `currentColor`. Verified absent from the built CSS.
+
+**Two bugs found on the way:**
+
+- **Admin "Dashboard" linked to `root_path`**, the *app* root, so the first item of the admin
+  nav left admin. It points at `admin_root_path` now.
+- **Dashboard matched every admin page.** `/admin` is a prefix of every admin path, so
+  "request is inside this section" was true everywhere and Dashboard lit up alongside the real
+  section. `nav_section_active?` takes an `exact:` flag for it. **`admin_page_structure_test`
+  caught this** by counting `aria-current` — it found 5 where it expected 1 — which also
+  showed that the test's own selector was too broad once the nav gained `aria-current`. It is
+  scoped to the tab rail by `data-testid` now.
+
+**Tested.** `nav_selected_state_test.rb`: a section page marks only its own section, the
+dashboard marks only Dashboard, a show page keeps its parent marked, the app nav marks its
+destination, both navs carry the same selected class, and the sidebar is no longer a dark
+panel.
+
 ### Buttons back on the 40px height token
 
 **What.** `.tw-btn-*` and the admin button helpers are now `h-10` (40px), `px-4`, `text-sm`,
