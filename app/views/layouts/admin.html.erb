@@ -1,7 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Admin - StocksInTheFuture</title>
+    <%# Per-page title, derived from the last breadcrumb - the one without a path,
+        which every admin controller already sets to the current page's label. Was
+        a single static string on every admin page (WCAG 2.4.2), still using the
+        old un-spaced brand name. %>
+    <% admin_page_title = @breadcrumbs&.last&.dig(:label).presence || "Admin" %>
+    <title><%= admin_page_title %> | Admin | Stocks in the Future</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
@@ -23,12 +28,15 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
-          <h1 class="text-xl font-semibold text-slate-900">
-            <%= link_to admin_root_path do %>
-              <%= lucide_icon("wrench", class: "text-blue-600 mr-2 w-4 h-4 shrink-0") %>
-              Admin dashboard
+<%# Branding and a link home, not a page heading. This was an h1, so every
+    admin page announced the same title regardless of what it showed, and
+    /admin ended up with three. The real heading is in the content area. %>
+<span class="text-xl font-semibold text-slate-900">
+            <%= link_to admin_root_path, class: "inline-flex items-center rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary" do %>
+              <%= lucide_icon("wrench", class: "text-sitf-primary mr-2 w-4 h-4 shrink-0") %>
+              Admin
             <% end %>
-          </h1>
+          </span>
         </div>
         <div class="flex items-center gap-4">
           <span class="hidden lg:inline text-sm text-slate-600">
@@ -67,6 +75,19 @@
         <%# The shared partial, so admin gets the same role=status announcement and
             the icon-plus-text treatment as the rest of the app. %>
         <%= render "layouts/flash" %>
+
+        <%# The page heading, from the same breadcrumb the title uses. Admin pages
+            previously had no heading describing them - their only h1 was the
+            branding in the header bar, identical on every page.
+
+            Index and show pages lead with a section title rather than a page
+            title, so this is visually hidden to avoid saying the same word twice
+            on screen while still naming the page for assistive tech. A page that
+            has its own visible h1 declares `content_for :own_heading` and this
+            steps aside. %>
+        <% unless content_for?(:own_heading) %>
+          <h1 class="sr-only"><%= @breadcrumbs&.last&.dig(:label).presence || "Admin dashboard" %></h1>
+        <% end %>
 
         <%= yield %>
       </div>

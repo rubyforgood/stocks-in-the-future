@@ -173,6 +173,28 @@ it runs `bundler-audit`.
 
 **`main` is still on 8.1.3.** See the open items below.
 
+### Admin pages get a real heading and title from their breadcrumbs
+
+**What.** The admin layout's `<h1>` was the branding link "Admin dashboard",
+identical on every page, and its `<title>` was the static string
+`Admin - StocksInTheFuture`. The branding is now a `<span>`, and both the heading
+and the title are derived from the last breadcrumb — the one without a `path`,
+which every admin controller already sets to the current page's label.
+
+**Why.** Every admin page announced the same title regardless of what it showed:
+a `<title>` failure under WCAG 2.4.2 and a heading failure under 2.4.6. `/admin`
+had three `<h1>` elements. The title also still carried the old un-spaced brand
+name.
+
+**Convention worth knowing.** The layout heading is `sr-only`, because index and
+show pages lead with a section title and a visible page title would say the same
+word twice on screen. **A page that renders its own visible `<h1>` declares
+`content_for :own_heading, true` and the layout steps aside.** Four pages do: the
+dashboard, the component demo index, the component demo form, and the component
+demo show.
+
+Verified: all 16 admin pages now have exactly one `<h1>` and a distinct title.
+
 ---
 
 ## Conventions established

@@ -14,7 +14,12 @@
           <label class="inline-flex items-center cursor-pointer">
             <%= check_box_tag "trading", "1", @classroom.trading_enabled?, class: "sr-only peer", disabled: !policy(@classroom).toggle_trading?, onchange: "this.form.requestSubmit()" %>
             <span class="select-none text-sm font-medium">Trading:</span>
-            <div class="relative ms-1 w-9 h-5 bg-slate-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-buffer after:content-[''] after:absolute after:top-0.5 after:start-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600"></div>
+            <%# peer-checked:after:border-buffer was here and compiled to nothing -
+                there is no "buffer" colour in the theme. Removed rather than
+                guessed at. The track needs 3:1 against the page as a UI boundary:
+                green-700 is 4.79:1 checked, slate-400 is 2.9:1 unchecked, so the
+                unchecked track also carries a border. %>
+            <div class="relative ms-1 h-5 w-9 rounded-full border border-slate-400 bg-slate-300 peer peer-checked:border-green-700 peer-checked:bg-green-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full after:content-[''] after:absolute after:top-0.5 after:start-0.5 after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-all"></div>
           </label>
         <% end %>
       </div>
@@ -23,8 +28,12 @@
         <div class="flex justify-end gap-3">
           <%= link_to "Add student", new_classroom_student_path(@classroom),
                       class: "tw-btn-primary" %>
+          <%# Was tw-btn-secondary with five !important overrides fighting it -
+              rounded, padding, size, text and ring colour all forced. If a shared
+              class needs overriding that hard it is the wrong class, so this uses
+              the tertiary treatment, which is what it was trying to become. %>
           <% if policy(@classroom).edit? %>
-            <%= link_to "Edit class", edit_classroom_path(@classroom), class: "tw-btn-secondary !rounded-lg !py-3 !px-5 !text-base !text-black !ring-black" %>
+            <%= link_to "Edit class", edit_classroom_path(@classroom), class: "tw-btn-tertiary ml-0" %>
           <% end %>
           <!-- TODO: Add bulk functionality in future PR -->
         </div>

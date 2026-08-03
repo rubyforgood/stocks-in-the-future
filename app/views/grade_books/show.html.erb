@@ -1,13 +1,25 @@
-
 <%= turbo_frame_tag @grade_book do %>
-  <div class="mt-8"
-    <% unless @grade_book.completed? %>
-      data-controller="autosave"
-      data-autosave-interval-value="30000"
-    <% end %>>
-    <div class="flex justify-between items-center mb-4">
-      <h3 class="text-lg font-medium text-slate-900">Grade book</h3>
-      <div data-autosave-target="status" class="text-sm text-slate-500"></div>
+  <%# This is a standalone page at /classrooms/:id/grade_books/:id, and it had no
+      h1 at all - its only heading was an h3. Every page needs exactly one h1, and
+      the quarter it belongs to is the thing that identifies it.
+
+      The wrapper's data attributes are conditional, so the opening tag is built in
+      one expression rather than split across an `if`, which previously left an
+      unterminated tag mid-template. %>
+  <% autosave = @grade_book.completed? ? {} : { controller: "autosave", autosave_interval_value: 30_000 } %>
+
+  <%= tag.div data: autosave do %>
+    <div class="mb-6 border-b border-slate-200 pb-5">
+      <h1 class="text-2xl font-bold tracking-tight text-slate-900">Grade book</h1>
+      <p class="mt-1 text-sm text-slate-600">
+        <%= @classroom.name %><% if @grade_book.quarter.present? %> &middot; <%= @grade_book.quarter.name %><% end %>
+      </p>
+    </div>
+
+    <div class="mb-3 flex items-center justify-between">
+      <h2 class="text-base font-semibold text-slate-900">Student grades</h2>
+      <%# Announced politely so a screen reader hears "Saving" without losing focus. %>
+      <div data-autosave-target="status" role="status" aria-live="polite" class="text-sm text-slate-600"></div>
     </div>
 
     <%= form_with model: [@classroom, @grade_book],
@@ -17,9 +29,8 @@
 
       <%= render partial: "table", locals: { grade_book: @grade_book } %>
 
-      <br>
-
-      <div class="flex flex-col items-center">
+      <%# Was a <br>. Spacing belongs in the layout, not in the content. %>
+      <div class="mt-6 flex flex-col items-center">
         <%= render partial: "submit_button" %>
       </div>
     <% end %>
@@ -29,5 +40,5 @@
         <%= render partial: "finalize_button" %>
       </div>
     <% end %>
-  </div>
+  <% end %>
 <% end %>
