@@ -1,5 +1,6 @@
 <div class="mx-auto lg:w-2/3 w-full">
-  <h1 class="text-2xl font-bold tracking-tight text-slate-900">New classroom</h1>
+  <%= render layout: "components/ui/page_header",
+             locals: { title: "New classroom" } do %><% end %>
 
   <%= render "form", classroom: @classroom %>
 

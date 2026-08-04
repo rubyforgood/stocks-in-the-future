@@ -9,12 +9,9 @@
   <% autosave = @grade_book.completed? ? {} : { controller: "autosave", autosave_interval_value: 30_000 } %>
 
   <%= tag.div data: autosave do %>
-    <div class="mb-6">
-      <h1 class="text-2xl font-bold tracking-tight text-slate-900">Grade book</h1>
-      <p class="mt-1 text-sm text-slate-600">
-        <%= @classroom.name %><% if @grade_book.quarter.present? %> &middot; <%= @grade_book.quarter.name %><% end %>
-      </p>
-    </div>
+    <% grade_book_subtitle = [@classroom.name, @grade_book.quarter&.name].compact.join(" · ") %>
+    <%= render layout: "components/ui/page_header",
+               locals: { title: "Grade book", description: grade_book_subtitle } do %><% end %>
 
     <%# A completed grade book has already paid out, so there is nothing to add to it. %>
     <% can_populate = policy(@grade_book).populate? && !@grade_book.completed? %>

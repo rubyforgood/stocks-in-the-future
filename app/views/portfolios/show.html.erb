@@ -13,12 +13,9 @@
       PORTFOLIO in capitals - shouty all-caps, which design.md rules out. It was
       built with .upcase, so no copy sweep could have found it. A username is a
       proper noun, so it now keeps its own capitalisation. %>
-  <div class="mb-6">
-    <h1 class="text-2xl font-bold tracking-tight text-slate-900">
-      <%= @portfolio.username %>'s portfolio
-    </h1>
-    <p class="mt-1 text-sm text-slate-600"><%= @portfolio.school_name %></p>
-  </div>
+  <%= render layout: "components/ui/page_header",
+             locals: { title: "#{@portfolio.username}'s portfolio",
+                       description: @portfolio.school_name } do %><% end %>
 
   <% if @portfolio.student? && !@portfolio.trading_enabled? %>
     <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-lg">

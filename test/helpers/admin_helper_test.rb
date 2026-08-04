@@ -7,7 +7,7 @@ class AdminHelperTest < ActionView::TestCase
     user = build(:admin)
     result = format_attribute(user, :admin)
     assert_match(/Yes/, result)
-    assert_match(/green/, result)
+    assert_match(/rounded-full/, result)
   end
 
   test "format_attribute formats boolean false" do
@@ -37,24 +37,28 @@ class AdminHelperTest < ActionView::TestCase
     assert_equal "test@example.com", result
   end
 
-  # These assert the tone family and the badge scale rather than exact hues. Pinning
-  # bg-green-100 meant the helper could not move onto the shared component - which uses the
-  # lighter bg-green-50 with a ring - without three tests failing for no behavioural reason.
-  test "boolean_badge renders yes badge through the shared component" do
-    result = boolean_badge(true)
+  # Deliberately no hue in these. Pinning bg-green-100 once blocked the move onto the shared
+  # component, and then pinning /green/ blocked the move onto design.md's emerald. What matters
+  # is the label, the badge scale, and that true and false are visually distinct - assert that
+  # rather than the palette of the day.
+  test "boolean_badge renders yes and no through the shared component" do
+    yes = boolean_badge(true)
+    no = boolean_badge(false)
 
-    assert_match(/Yes/, result)
-    assert_match(/green/, result)
-    assert_match(/text-xs/, result)
-    assert_match(/px-2 py-0\.5/, result)
+    assert_match(/Yes/, yes)
+    assert_match(/No/, no)
+
+    [yes, no].each do |badge|
+      assert_match(/rounded-full/, badge)
+      assert_match(/text-xs/, badge)
+    end
   end
 
-  test "boolean_badge renders no badge through the shared component" do
-    result = boolean_badge(false)
+  test "boolean_badge distinguishes true from false by tone" do
+    yes_classes = boolean_badge(true)[/class="([^"]*)"/, 1]
+    no_classes = boolean_badge(false)[/class="([^"]*)"/, 1]
 
-    assert_match(/No/, result)
-    assert_match(/slate/, result)
-    assert_match(/text-xs/, result)
+    assert_not_equal yes_classes, no_classes
   end
 
   test "sort_icon returns up arrow for asc sort" do

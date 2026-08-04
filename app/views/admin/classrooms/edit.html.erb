@@ -1,10 +1,8 @@
 <div class="max-w-7xl mx-auto">
   <%= admin_breadcrumbs(@breadcrumbs) %>
 
-  <div class="mb-6">
-    <h1 class="text-2xl font-bold tracking-tight text-slate-900">Edit classroom</h1>
-    <p class="text-slate-600 mt-2"><%= @classroom.name %></p>
-  </div>
+  <%= render layout: "components/ui/page_header",
+             locals: { title: "Edit classroom", description: @classroom.name } do %><% end %>
 
   <%= render "form" %>
 </div>

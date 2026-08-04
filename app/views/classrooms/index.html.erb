@@ -1,15 +1,16 @@
 <div class="flex flex-col h-full w-full">
 
-  <header class="flex items-center justify-between px-6 py-4">
-    <h1 class="text-2xl font-bold tracking-tight text-slate-900 py-2">Classrooms</h1>
-    <% if policy(Classroom).new? %>
-      <%# Was bg-blue-500 with white bold text: off-brand, and 3.68:1, which fails the
-          4.5:1 gate for label text. tw-btn-primary is the brand teal at 6.18:1. %>
-      <%= link_to "New classroom", new_classroom_path, class: "tw-btn-primary" %>
+  <div class="px-6 pt-6">
+    <%# The button was bg-blue-500 with white bold text: off-brand, and 3.68:1, which fails the
+        4.5:1 gate for label text. tw-btn-primary is the brand teal at 6.18:1. %>
+    <%= render layout: "components/ui/page_header", locals: { title: "Classrooms" } do %>
+      <% if policy(Classroom).new? %>
+        <%= link_to "New classroom", new_classroom_path, class: "tw-btn-primary" %>
+      <% end %>
     <% end %>
-  </header>
+  </div>
 
-  <div class="flex-1 py-6">
+  <div class="flex-1 px-6 pb-6">
     <%= render "shared/table_container" do %>
       <thead>
         <tr class="table-header-row">

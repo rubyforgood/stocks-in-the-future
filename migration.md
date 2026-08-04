@@ -618,6 +618,46 @@ signalled by colour alone, so it now carries `aria-current="page"`.
 the table card on any of the eight index pages, and exactly one `aria-current` tab, above
 the card rather than in it. Verified by moving the tabs back inside and watching it fail.
 
+### The badge component did not match its own spec, and the page-header sweep
+
+**The ring was never in the spec.** `components/ui/_badge` carried `ring-1 ring-inset` with a
+per-tone ring colour. design.md's Status pill specifies
+`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium` with a tint and a
+dark foreground — **no ring, no border** — and `px-2.5 py-1`, not the `px-2 py-0.5` the component
+used.
+
+That matters more than one component, because the previous change swept fourteen hand-rolled
+badges onto it. **Aligning things onto a component is only alignment if the component matches the
+spec**; I took what existed as the baseline without checking it, so the sweep standardised the
+drift instead of removing it. The component now matches, and tones follow design.md's names —
+emerald and rose rather than green and red. Measured: emerald 5.21:1, rose 5.72:1, slate 6.92:1,
+amber 4.84:1, blue 6.16:1, teal 5.25:1. The slate figure matches the one design.md quotes, which
+is a useful check that the right spec is being read.
+
+**The hue-pinning test problem, twice.** Tests had pinned `bg-green-100`; I loosened them to
+`/green/`, which then blocked the move to emerald. They now assert the label, the badge scale, and
+that true and false differ — no palette at all.
+
+**Page headers.** The *scale* was already right: every visible h1 was
+`text-2xl font-bold tracking-tight text-slate-900`. The header **block** was not — 31 pages
+hand-rolled the h1 with spacing bolted on (`mb-6` on ten, `py-2` on two, `mb-2` on two). All but
+the deliberate exceptions now render `components/ui/_page_header`.
+
+**That sweep fixed an invisible defect.** The admin layout renders an `sr-only` h1 unless the page
+declares `:own_heading`, and only `_page_header` declares it — so **nineteen hand-rolled admin
+pages were shipping two h1s**, the visible one and a hidden breadcrumb-derived one that disagreed
+on case ("New Teacher" against "New teacher"). Verified before and after by counting `h1`s in the
+rendered pages.
+
+**Left alone deliberately:** Devise's auth pages (a centred card, genuinely a different layout),
+and `stocks/show`, `stocks/index` and `classrooms/show`, whose titles sit inline with controls
+that would need restructuring rather than swapping — noted rather than forced.
+
+**A scripted conversion mistake worth remembering.** My regex captured a subtitle *including* its
+ERB delimiters and emitted `description: <%= @user.username %>` inside an ERB expression, which is
+invalid. Four pages raised until it was fixed. The admin controller tests caught it immediately;
+`bin/lint` did not.
+
 ### Badges, table alignment, and the oversized primary cell
 
 **Cells are `align-top` now.** `.table-body-cell` was `align-middle`. The transactions table

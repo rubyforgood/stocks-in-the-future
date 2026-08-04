@@ -1,10 +1,10 @@
 <div class="flex flex-col h-full w-full">
 
-  <header class="flex items-center justify-between px-6 py-4">
-    <h1 class="text-2xl font-bold tracking-tight text-slate-900 py-2">Transactions</h1>
-  </header>
+  <div class="px-6 pt-6">
+    <%= render layout: "components/ui/page_header", locals: { title: "Transactions" } do %><% end %>
+  </div>
 
-  <div class="flex-1 py-6">
+  <div class="flex-1 px-6 pb-6">
     <%= render "shared/table_container" do %>
       <thead>
         <tr class="table-header-row min-w-full">

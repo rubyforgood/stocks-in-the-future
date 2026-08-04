@@ -1,5 +1,6 @@
 <div class="max-w-2xl mx-auto px-4 lg:px-8">
-  <h1 class="text-2xl font-bold tracking-tight text-slate-900 mb-6">Edit student</h1>
+  <%= render layout: "components/ui/page_header",
+             locals: { title: "Edit student" } do %><% end %>
 
   <%= form_with model: [@classroom, @student], local: true, class: "space-y-6" do |f| %>
     <% if @student.errors.any? %>

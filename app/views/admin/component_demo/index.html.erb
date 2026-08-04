@@ -1,10 +1,8 @@
 <% content_for :own_heading, true %>
 <div class="max-w-7xl mx-auto">
-  <!-- Page Header -->
-  <div class="mb-8">
-    <h1 class="text-2xl font-bold tracking-tight text-slate-900 mb-2">Admin components demo</h1>
-    <p class="text-slate-600">Showcase of all reusable admin components</p>
-  </div>
+  <%= render layout: "components/ui/page_header",
+             locals: { title: "Admin components demo",
+                       description: "Showcase of all reusable admin components" } do %><% end %>
 
   <!-- Alert Box -->
   <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">

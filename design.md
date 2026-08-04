@@ -147,6 +147,23 @@ Brand scale lives in `tailwind.css` `@theme` as `--color-brand-*`.
   by reading tokens.
 
 ### Page header
+**Every page renders `components/ui/_page_header`.** It is the only place the h1 treatment and
+the header block's spacing live, and it is what declares `content_for :own_heading`.
+
+The *scale* was already consistent - every visible h1 in the app was
+`text-2xl font-bold tracking-tight text-slate-900`, matching Typography. What was not consistent
+was the header **block**: 31 pages hand-rolled the h1 and bolted spacing onto it directly
+(`mb-6` on ten, `py-2` on two, `mb-2` on two), so the gap under a title depended on which page
+you were on.
+
+Hand-rolling it also broke something invisible. **The admin layout renders an `sr-only` h1 unless
+the page declares `:own_heading`**, and only the component declares it, so every hand-rolled
+admin page shipped **two h1s** - the visible one and a hidden one derived from breadcrumbs, which
+disagreed on case (Title Case against sentence case). Nineteen admin pages were in that state.
+
+**Auth pages are the deliberate exception.** Devise's centred card uses
+`text-center text-2xl/9 ... pb-4`, which is a different layout rather than drift.
+
 **The page title and its actions sit at page level, on the page background — never
 inside the card.** `components/ui/_page_header` renders them: the single `h1`, an
 optional supporting line, and an actions slot on the same optical line.
@@ -199,10 +216,20 @@ Two details in that rail:
   separate the two colours (1.4.1).
 
 ### Badges
-**One component: `components/ui/_badge`.** `rounded-full px-2 py-0.5 text-xs font-medium` with a
-`ring-1 ring-inset`, and a tone: `:neutral :success :warning :danger :info :brand`. Every tone is
-a dark foreground on a light tint, so all clear AA, and the label always states the status so
-meaning is never colour-alone.
+**One component: `components/ui/_badge`**, matching the Status pill base above:
+`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium`, with a tone:
+`:neutral :success :warning :danger :info :brand`. Every tone is a dark foreground on a light
+tint, so all clear AA, and the label always states the status so meaning is never colour-alone.
+
+**No ring and no border.** The component carried `ring-1 ring-inset` with a per-tone ring
+colour, which this spec does not specify — and because fourteen hand-rolled badges were swept
+onto it, that unspecified stroke landed on every badge in the app. **Aligning things onto a
+component is only alignment if the component itself matches the spec.** Check the component
+against the written rule before making it the baseline, or the sweep just standardises the drift.
+
+**Tone names follow this document**, so emerald and rose rather than green and red. Measured on
+their own tints: emerald 5.21:1, rose 5.72:1, slate 6.92:1, amber 4.84:1, blue 6.16:1, teal
+5.25:1. Neutral is `slate-600`, not slate-500, for the reason recorded above.
 
 **A badge is chrome, so it is `text-xs` and about 20px tall.** That is where Polaris badges,
 Primer labels, Atlassian lozenges and Tailwind UI badges all sit. The order status pill in the
