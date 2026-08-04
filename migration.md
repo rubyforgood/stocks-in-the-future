@@ -252,6 +252,22 @@ the point of the split.
 
 ## Behaviour changes
 
+### Buy and Sell are secondary buttons; `.tw-btn-buy` / `.tw-btn-sell` deleted
+
+**What.** The trading floor's Buy and Sell are `.tw-btn-secondary`. The order modal's Review order
+and submit are a single `.tw-btn-primary`. Both filled variants are removed from `buttons.css`.
+
+**Why it has blast radius.** Teal-for-buy / amber-for-sell was a documented convention in
+`design.md` with a named exception arguing for it, and both are now reversed - so a future reader
+finding the old prose in git history should know it was overturned deliberately, after looking at
+the rendered page, not lost in a refactor. Two saturated fills in two hues on every row of the
+densest page read as garish; the actions are distinguished by label and arrow instead, which the
+colour rules require anyway. Emphasis moved to the confirm step, where one primary sits alone.
+
+**Nothing depended on the colours.** No test asserted them, and the buy/sell system tests click by
+label. If a chart or legend ever needs a buy/sell hue, take it from the chart tokens rather than
+reviving these button classes.
+
 ### Component stylesheets moved into `@layer components`
 
 **What.** `buttons.css`, `tables.css`, `cards.css`, `forms.css` and `navbar.css` are each wrapped in

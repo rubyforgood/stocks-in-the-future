@@ -828,12 +828,25 @@ sits in the `classrooms#show` toolbar between a bordered Edit and a bordered Del
 among bordered neighbours reads as broken. Restore was `green-600` on white, **3.30:1, a straight
 AA failure**, which is what happens when a state colour is chosen for meaning and never measured.
 
-**The exception, named so it is not "fixed" later: Buy and Sell on the trading floor stay filled**
-(`.tw-btn-buy` teal / `.tw-btn-sell` amber). The ghost rule exists because a filled CTA
-over-emphasises *repeated utility chrome*; Buy/Sell are the product's core transaction, and every
-brokerage table (Robinhood, Fidelity, Schwab) gives the trade control real weight. The order
-modal's own Cancel / Back / Review / submit route through the same named classes rather than four
-bespoke strings.
+**There is no filled-CTA exception on the trading floor. Buy and Sell are `.tw-btn-secondary`.**
+
+I argued for one - that Buy/Sell are the core transaction and every brokerage table gives the trade
+control real weight - and it was wrong in this context. A filled teal Buy beside a filled amber Sell
+puts **two saturated fills, in two different hues, on every row** of the densest page in the app,
+and the report from looking at it was that they were garish and did not work. The brokerage
+comparison holds for a single trade button in a row, not for a permanently doubled one; and the
+argument was made from reading the class names rather than the page.
+
+The two actions are told apart by **label and arrow** (`arrow-up` Buy, `arrow-down` Sell), not by
+colour - which the colour rules require regardless, since colour may not be the only carrier of
+meaning. Measured: white ground, `slate-700` label at 10.35:1, 40px, identical at 375px and 1366px.
+
+**Emphasis belongs to the confirm step, not the list.** The order modal's Review order and submit
+are a single `.tw-btn-primary` in brand teal, with Cancel and Back as secondary beside them - one
+primary button, alone, at the point the money actually moves. That also retired the amber, which
+existed only to pair with the teal.
+
+`.tw-btn-buy` and `.tw-btn-sell` are deleted; nothing references them.
 
 **That exception is about the student view only, and it was written before anyone checked the
 control was on screen.** Two things were wrong at the time:
@@ -906,9 +919,10 @@ Pinning the last column is AG Grid, Polaris `lastColumnSticky` and Material. Pin
 `lg`, so at the width admin is actually used at the cell is ordinary and the row hover tint is
 unbroken. A pinned cell needs an **opaque** background or the scrolling columns show through it.
 
-**Where the primary action is the point of the page, collapse instead of pinning** - that is the
-trading floor above. Pinning keeps a horizontal scroll; collapsing removes it. Use pinning for
-utility row actions in a dense admin table, collapsing for a student-facing primary CTA.
+**Where the action is the point of the page, collapse instead of pinning** - that is the trading
+floor, where Buy and Sell move into the primary cell below `lg`. Pinning keeps a horizontal scroll;
+collapsing removes it. Use pinning for utility row actions in a dense admin table, collapsing where
+the row's action is the reason the page exists.
 
 **2. `<main>` must not scroll sideways at 375px.** `classroom#show` laid the roster beside the
 grade book list with a bare `flex gap-8` at every width - 812px of content in a 328px viewport - so

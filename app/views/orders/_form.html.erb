@@ -195,7 +195,7 @@
     </button>
 
     <button type="button"
-            class="<%= buying ? 'tw-btn-buy' : 'tw-btn-sell' %> min-h-11 flex-1"
+            class="tw-btn-primary min-h-11 flex-1"
             data-order-form-target="reviewButton"
             data-action="click->order-form#showReview">
       Review order
@@ -205,7 +205,7 @@
         could see it as a literal. %>
     <%= form.submit "#{buying ? 'Buy' : 'Sell'} shares",
                     data: { order_form_target: "submitButton" },
-                    class: "#{buying ? 'tw-btn-buy' : 'tw-btn-sell'} min-h-11 flex-1 hidden" %>
+                    class: "tw-btn-primary min-h-11 flex-1 hidden" %>
   </div>
 
 <% end %>

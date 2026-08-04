@@ -34,10 +34,16 @@
    *  - .tw-btn-buy put white text on #80cec8, which measures 1.81:1 - the least readable
    *    button in the app was the Buy control on the trading floor.
    *
-   * .tw-btn-danger is gone: nothing referenced it. An unused class is indistinguishable from
-   * a supported one until someone adopts it.
+   * .tw-btn-danger, .tw-btn-buy and .tw-btn-sell are gone: nothing references them. An unused
+   * class is indistinguishable from a supported one until someone adopts it.
    *
-   * Buy and sell match the order form: teal for buy, amber for sell, both dark enough to
+   * Buy and Sell are .tw-btn-secondary now. A filled teal Buy beside a filled amber Sell put two
+   * saturated fills, in two hues, on every row of the densest page in the app; the report was
+   * that they were garish and did not work. The two actions are distinguished by label and arrow
+   * rather than by colour, which is what the colour rules ask for regardless. Emphasis moved to
+   * the order modal, where one primary button sits alone at the confirm step.
+   *
+   * The old pair read: teal for buy, amber for sell, both dark enough to
    * carry a white label.
    */
 
@@ -59,14 +65,6 @@
      component, so spacing belonged to whatever container it sits in. */
   .tw-btn-tertiary {
     @apply inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-lg bg-slate-100 px-4 text-sm font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary;
-  }
-
-  .tw-btn-buy {
-    @apply inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-lg bg-teal-700 px-4 text-sm font-medium text-white shadow-sm transition-colors hover:bg-teal-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary;
-  }
-
-  .tw-btn-sell {
-    @apply inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-lg bg-amber-700 px-4 text-sm font-medium text-white shadow-sm transition-colors hover:bg-amber-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary;
   }
 
   /* Inline text link.
