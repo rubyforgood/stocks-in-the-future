@@ -35,6 +35,6 @@
 
   <div class="flex items-center justify-end gap-x-4">
     <%= f.cancel_button "Cancel", url: @classroom.persisted? ? admin_classroom_path(@classroom) : admin_classrooms_path %>
-    <%= f.submit_button @classroom.persisted? ? "Update Classroom" : "Create Classroom" %>
+    <%= f.submit_button @classroom.persisted? ? "Update classroom" : "Create classroom" %>
   </div>
 <% end %>

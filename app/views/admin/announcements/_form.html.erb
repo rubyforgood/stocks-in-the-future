@@ -20,6 +20,6 @@
 
   <div class="flex items-center justify-end gap-x-4">
     <%= f.cancel_button "Cancel", url: @announcement.persisted? ? admin_announcement_path(@announcement) : admin_announcements_path %>
-    <%= f.submit_button @announcement.persisted? ? "Update Announcement" : "Create Announcement" %>
+    <%= f.submit_button @announcement.persisted? ? "Update announcement" : "Create announcement" %>
   </div>
 <% end %>

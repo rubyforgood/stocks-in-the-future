@@ -16,7 +16,7 @@
       <div data-controller="form-filter" data-form-filter-frame-id-value="teacher_classroom_selection">
         <%= f.select :school_id,
                      options_from_collection_for_select(@schools, :id, :name, @selected_school_id),
-                     { label: "School filter", hint: "Select a school to filter the classroom list", include_blank: "All Schools" },
+                     { label: "School filter", hint: "Select a school to filter the classroom list", include_blank: "All schools" },
                      { name: "school_id", data: { action: "change->form-filter#change" } } %>
       </div>
 
@@ -67,7 +67,7 @@
   <div class="flex items-center justify-between gap-x-4">
     <div class="flex items-center gap-x-4">
       <%= f.cancel_button "Cancel", url: @teacher.persisted? ? admin_teacher_path(@teacher) : admin_teachers_path %>
-      <%= f.submit_button @teacher.persisted? ? "Update Teacher" : "Create Teacher" %>
+      <%= f.submit_button @teacher.persisted? ? "Update teacher" : "Create teacher" %>
     </div>
     <% if @teacher.discarded? %>
       <%= link_to "Permanently delete",

@@ -42,7 +42,7 @@ module Admin
       @filters = [
         {
           name: :type,
-          label: "User Type",
+          label: "User type",
           options: [["All", ""], ["Admin", "admin"], ["Teacher", "teacher"], ["Student", "student"]]
         },
         {
@@ -58,7 +58,7 @@ module Admin
       @user = User.find(params.expect(:id))
       @breadcrumbs = [
         { label: "Components", path: admin_component_demo_index_path },
-        { label: "User Details" }
+        { label: "User details" }
       ]
     end
 
@@ -73,7 +73,7 @@ module Admin
 
       @breadcrumbs = [
         { label: "Components", path: admin_component_demo_index_path },
-        { label: "Form Builder Demo" }
+        { label: "Form builder demo" }
       ]
     end
   end

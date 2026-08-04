@@ -2,9 +2,9 @@
   <div class="bg-amber-300 py-3 px-5 font-medium text-sm tracking-wide rounded-t-xl">Investment earnings summary</div>
   <div class="divide-y divide-black/40 text-sm">
     <% summary_rows = [
-         ['Attendance Earnings', @earnings_summary.attendance_earnings_cents / 100.0],
-         ['Reading Earnings', @earnings_summary.reading_earnings_cents / 100.0],
-         ['Math Earnings', @earnings_summary.math_earnings_cents / 100.0],
+         ['Attendance earnings', @earnings_summary.attendance_earnings_cents / 100.0],
+         ['Reading earnings', @earnings_summary.reading_earnings_cents / 100.0],
+         ['Math earnings', @earnings_summary.math_earnings_cents / 100.0],
          ['Rewards', @earnings_summary.awards_cents / 100.0]
        ] %>
     <% summary_rows.each do |label, amount| %>

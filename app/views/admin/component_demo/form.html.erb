@@ -101,9 +101,9 @@
                                label: "Last updated" %>
         </div>
 
-        <!-- Read-Only Fields -->
+        <!-- Read-only fields -->
         <div class="border-b border-slate-200 pb-6">
-          <h3 class="text-lg font-medium text-slate-900 mb-4">Read-Only Fields</h3>
+          <h3 class="text-lg font-medium text-slate-900 mb-4">Read-only fields</h3>
 
           <%= f.read_only_field :id,
                                 label: "User ID (Read-Only)" %>
@@ -118,7 +118,7 @@
         <!-- Form Actions -->
         <div class="flex items-center justify-end gap-x-4 pt-4">
           <%= f.cancel_button "Cancel", url: admin_component_demo_index_path %>
-          <%= f.submit_button "Save Changes" %>
+          <%= f.submit_button "Save changes" %>
         </div>
       <% end %>
     </div>
@@ -177,7 +177,7 @@
         </div>
 
         <div>
-          <h3 class="text-sm font-semibold text-slate-900 mb-3">Read-Only Field</h3>
+          <h3 class="text-sm font-semibold text-slate-900 mb-3">Read-only field</h3>
           <pre class="text-xs bg-slate-50 p-4 rounded border border-slate-200 overflow-x-auto"><code>&lt;%= f.read_only_field :created_at,
     label: "Created at",
     value: @resource.created_at.strftime("%B %d, %Y") %></code></pre>

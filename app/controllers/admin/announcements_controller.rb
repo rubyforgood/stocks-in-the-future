@@ -26,7 +26,7 @@ module Admin
       @announcement = Announcement.new
       @breadcrumbs = [
         { label: "Announcements", path: admin_announcements_path },
-        { label: "New Announcement" }
+        { label: "New announcement" }
       ]
     end
 
@@ -46,7 +46,7 @@ module Admin
       else
         @breadcrumbs = [
           { label: "Announcements", path: admin_announcements_path },
-          { label: "New Announcement" }
+          { label: "New announcement" }
         ]
         render :new, status: :unprocessable_content
       end

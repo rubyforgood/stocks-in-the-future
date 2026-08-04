@@ -25,7 +25,7 @@
           <p class="text-sm text-slate-500 mb-4">Leave blank to generate a random password automatically</p>
 
           <%= f.password_field :password,
-                               label: "Password (Optional)",
+                               label: "Password (optional)",
                                hint: "Minimum 6 characters, or leave blank to auto-generate",
                                placeholder: "••••••••" %>
 
@@ -40,7 +40,7 @@
 
   <div class="flex items-center justify-end gap-x-4">
     <%= f.cancel_button "Cancel", url: @student.persisted? ? admin_student_path(@student) : admin_students_path %>
-    <%= f.submit_button @student.persisted? ? "Update Student" : "Create Student" %>
+    <%= f.submit_button @student.persisted? ? "Update student" : "Create student" %>
   </div>
 <% end %>
 
@@ -77,7 +77,7 @@
                      include_blank: "Select a reason" %>
 
         <%= f.text_area :transaction_description,
-                        label: "Description (Optional)",
+                        label: "Description (optional)",
                         hint: "Additional details about this transaction",
                         placeholder: "Enter transaction details...",
                         rows: 3 %>
@@ -85,7 +85,7 @@
     </div>
 
     <div class="flex items-center justify-end gap-x-4">
-      <%= f.submit_button "Add Transaction" %>
+      <%= f.submit_button "Add transaction" %>
     </div>
   <% end %>
 <% end %>

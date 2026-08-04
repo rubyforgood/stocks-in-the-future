@@ -618,6 +618,35 @@ signalled by colour alone, so it now carries `aria-current="page"`.
 the table card on any of the eight index pages, and exactly one `aria-current` tab, above
 the card rather than in it. Verified by moving the tabs back inside and watching it fail.
 
+### Sentence case, pass seven: three categories no view sweep could reach
+
+The classrooms table still read "Student Count" and "Total Earnings" after six passes. Sweeping
+again with a detector rather than by eye found **62 strings** across three categories, none of
+which lives where the previous passes looked:
+
+1. **Breadcrumb labels are in controllers**, not views — `label: "New Teacher"` in every admin
+   controller. Six passes over `app/views` could not see them. They also feed the admin layout's
+   `sr-only` h1, which is why the hidden heading read "New Teacher" while the visible one read
+   "New teacher".
+2. **Strings inside array and hash literals** in a view — `['Attendance Earnings', ...]` in the
+   earnings card — which no `label:` / `link_to` / `<th>` pattern matches.
+3. **Submit labels.** Explicit ones (`f.submit "Update Stock"`) were findable. One was not:
+   `classrooms/_form` called a bare `form.submit`, and **Rails generates "Create Classroom" from
+   the model name**. That string exists nowhere in the source, so no text search of any kind could
+   have found it — the same class of problem as the `username.upcase` heading. Confirmed by
+   asking Rails what it renders. Every submit now carries an explicit label.
+
+Also swept: four `activerecord.attributes` reason strings in `en.yml` ("Earnings from Attendance"),
+the trading floor's "Company (Exchange)", and the component demo's "Read-Only Fields".
+
+**Tests were propagated from the views diff**, not by running the converter over `test/` — six
+`click_on` labels in three system tests. The bare-submit case surfaced precisely because the test
+then failed looking for a label the view never generated.
+
+**Verified in the rendered page**, not the templates: the classrooms table now reads
+`["Name", "Teacher(s)", "Student count", "Total earnings", "Edit"]` and transactions reads
+`["Date", "Username", "Class", "Stock", "Price per share", "Shares", "Status", "Type", "Total cost"]`.
+
 ### The principle, named: measure the rendered box
 
 Three spacing reports on this branch, three times reading the class names and concluding they

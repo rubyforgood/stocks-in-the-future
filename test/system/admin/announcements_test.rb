@@ -25,7 +25,7 @@ module Admin
     #   fill_in "announcement_content", with: "Admin created this announcement"
 
     #   assert_difference("Announcement.count", 1) do
-    #     click_on "Create Announcement"
+    #     click_on "Create announcement"
 
     #     assert_text "Announcement was successfully created"
     #   end
@@ -43,7 +43,7 @@ module Admin
     #   fill_in "announcement_content", with: "Updated content by admin"
 
     #   assert_no_difference("Announcement.count") do
-    #     click_on "Update Announcement"
+    #     click_on "Update announcement"
 
     #     assert_text "Announcement was successfully updated"
     #   end

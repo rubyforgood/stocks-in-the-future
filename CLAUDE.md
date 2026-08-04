@@ -137,6 +137,18 @@ ever have found it — only reading the rendered page did. So:
 - Propagate to tests from the **views diff**, never by running the converter over
   test files — those hold fixture data and real company names.
 
+**Pass seven found three more categories, none reachable from `app/views`:**
+
+7. **Breadcrumb labels live in controllers**, not views — `label: "New Teacher"` in every
+   admin controller. These also feed the admin layout's `sr-only` h1, so the hidden
+   heading read "New Teacher" while the visible one read "New teacher".
+8. **Strings inside array and hash literals** in a view — `['Attendance Earnings', ...]`
+   — which no `label:`/`link_to`/`<th>` pattern matches.
+9. **Submit labels**, both explicit (`f.submit "Update Stock"`) and — the one that cannot
+   be grepped at all — **bare `form.submit`**, where Rails generates "Create Classroom"
+   from the model name. That string exists nowhere in the source. Give every submit an
+   explicit label.
+
 And Title Case is sometimes correct: acronyms, tickers, CamelCase like
 `DateTime`, company names, and people's names. Two were caught mid-sweep and
 reverted: `John Doe` and `DateTime`.

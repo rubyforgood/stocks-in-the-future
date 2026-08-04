@@ -38,7 +38,7 @@
                              decimals: 2 %>
 
         <%= f.currency_field :yesterday_price_cents,
-                             label: "Yesterday's Price",
+                             label: "Yesterday's price",
                              hint: "Previous day's closing price in dollars",
                              multiplier: 0.01,
                              decimals: 2 %>
@@ -121,6 +121,6 @@
 
   <div class="flex items-center justify-end gap-x-4">
     <%= f.cancel_button "Cancel", url: @stock.persisted? ? admin_stock_path(@stock) : admin_stocks_path %>
-    <%= f.submit_button @stock.persisted? ? "Update Stock" : "Create Stock" %>
+    <%= f.submit_button @stock.persisted? ? "Update stock" : "Create stock" %>
   </div>
 <% end %>

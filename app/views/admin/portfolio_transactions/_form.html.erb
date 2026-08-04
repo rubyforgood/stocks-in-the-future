@@ -36,6 +36,6 @@
 
   <div class="flex items-center justify-end gap-x-4">
     <%= f.cancel_button "Cancel", url: portfolio_transaction.persisted? ? admin_portfolio_transaction_path(portfolio_transaction) : admin_root_path %>
-    <%= f.submit_button portfolio_transaction.persisted? ? "Update Portfolio Transaction" : "Create Portfolio Transaction" %>
+    <%= f.submit_button portfolio_transaction.persisted? ? "Update portfolio transaction" : "Create portfolio transaction" %>
   </div>
 <% end %>

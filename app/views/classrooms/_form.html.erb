@@ -127,6 +127,10 @@
   </div>
 
   <div class="inline">
-    <%= form.submit class: "tw-btn-primary" %>
+    <%# The label is explicit because a bare form.submit lets Rails generate one from the model
+        name - "Create Classroom" - which is Title Case and invisible to any copy sweep, since
+        the string exists nowhere in the source. %>
+    <% submit_label = classroom.persisted? ? "Update classroom" : "Create classroom" %>
+    <%= form.submit submit_label, class: "tw-btn-primary" %>
   </div>
 <% end %>

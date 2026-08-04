@@ -40,6 +40,6 @@
 
   <div class="flex items-center justify-end gap-x-4">
     <%= f.cancel_button "Cancel", url: @school_year.persisted? ? admin_school_year_path(@school_year) : admin_school_years_path %>
-    <%= f.submit_button @school_year.persisted? ? "Update School Year" : "Create School Year" %>
+    <%= f.submit_button @school_year.persisted? ? "Update school year" : "Create school year" %>
   </div>
 <% end %>

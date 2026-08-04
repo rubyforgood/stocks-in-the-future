@@ -5,11 +5,11 @@ en:
       portfolio_transaction:
         reasons:
           administrative_adjustments: Administrative adjustment
-          attendance_earnings: Earnings from Attendance
+          attendance_earnings: Earnings from attendance
           awards: Award
-          grade_earnings: Earnings from Grades
-          math_earnings: Earnings from Math
-          reading_earnings: Earnings from Reading
+          grade_earnings: Earnings from grades
+          math_earnings: Earnings from math
+          reading_earnings: Earnings from reading
           transaction_fees: Transaction fees
       user:
         type: Role

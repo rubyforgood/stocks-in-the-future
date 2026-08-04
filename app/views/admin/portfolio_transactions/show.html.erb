@@ -1,7 +1,7 @@
 <div class="max-w-7xl mx-auto">
   <%= admin_breadcrumbs(@breadcrumbs) %>
 
-  <%# "Portfolio Transaction" was Title Case. Sentence case per design.md. %>
+  <%# "Portfolio transaction" was Title Case. Sentence case per design.md. %>
   <%= render layout: "components/ui/page_header",
              locals: { title: "Portfolio transaction ##{@portfolio_transaction.id}" } do %>
     <%= render "admin/shared/show_actions",
