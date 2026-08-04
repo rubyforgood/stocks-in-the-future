@@ -857,6 +857,42 @@ horizontal scroll that caused this.
 
 `stocks/_trade_actions` holds the pair so the two placements cannot drift.
 
+### Narrow-viewport tables: pin the actions, never let the page scroll
+
+Two rules, from sweeping every table in the app at 375px and measuring each clickable against the
+box of the container it scrolls inside.
+
+**1. The trailing actions cell is `.table-actions-pinned`** - `sticky right-0` with an opaque
+background below `lg`, an ordinary cell at `lg`. Every admin index table overflowed at 375px,
+between 212px and 699px of it, with the actions last, so View / Edit / Delete sat past the right
+edge: `admin/users` had Edit at `right=887` against a visible edge of `343`. Column-hiding cannot
+solve it - three labelled ghosts are about 250px, roughly 73% of a 343px viewport, so data and
+actions do not fit side by side at that width whatever you drop. The column has to stop scrolling.
+Pinning the last column is AG Grid, Polaris `lastColumnSticky` and Material. Pinned only below
+`lg`, so at the width admin is actually used at the cell is ordinary and the row hover tint is
+unbroken. A pinned cell needs an **opaque** background or the scrolling columns show through it.
+
+**Where the primary action is the point of the page, collapse instead of pinning** - that is the
+trading floor above. Pinning keeps a horizontal scroll; collapsing removes it. Use pinning for
+utility row actions in a dense admin table, collapsing for a student-facing primary CTA.
+
+**2. `<main>` must not scroll sideways at 375px.** `classroom#show` laid the roster beside the
+grade book list with a bare `flex gap-8` at every width - 812px of content in a 328px viewport - so
+the whole page scrolled horizontally and carried every row action off screen. **Pinning cannot fix
+this**, because a cell pins to its own table's scroll container and that container was the element
+being pushed right. A two-column row is `flex flex-col gap-8 lg:flex-row`, and the flexible pane
+needs `min-w-0` or a wide table will refuse to shrink. Check `main.scrollWidth` against
+`main.clientWidth` before pinning anything.
+
+**A column's sort link is exempt.** It scrolls with the column it sorts, so scrolling brings the
+column and its control into view together; that is inherent to a scrollable data table rather than
+a hidden action. Only the trailing actions cell is asserted.
+
+**A scroll container built from pure data needs `tabindex="0"` and `role="region"`** with a name -
+axe `scrollable-region-focusable`. Every other scrolling table here holds row-action links, which
+give a keyboard user a way to scroll it; `grade_books/_table` holds only grades and had neither, so
+its off-screen columns were unreachable without a mouse.
+
 **"Present" is not "reachable."** `assert_selector` and `click_on` both passed against a control
 sitting outside its scroll container, so `test/system/trading_cta_test.rb` asserts the visible copy's
 box is *within* the wrapper's box at 375px and 1366px, and that the wrapper does not scroll.

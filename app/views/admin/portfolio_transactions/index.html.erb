@@ -25,7 +25,7 @@
             <th scope="col" class="table-header-cell table-header-cell-left"><%= sort_link(:transaction_type, "Type") %></th>
             <th scope="col" class="table-header-cell table-header-cell-left"><%= sort_link(:reason, "Reason") %></th>
             <th scope="col" class="table-header-cell table-header-cell-right"><%= sort_link(:amount_cents, "Amount") %></th>
-            <th scope="col" class="relative py-3 pl-3 pr-4 lg:pr-6"><span class="sr-only">Actions</span></th>
+            <th scope="col" class="relative py-3 pl-3 pr-4 lg:pr-6 table-actions-pinned"><span class="sr-only">Actions</span></th>
           </tr>
         </thead>
         <tbody class="divide-y divide-slate-200 bg-white">
@@ -50,7 +50,7 @@
                 <td class="table-body-cell table-body-cell-right whitespace-nowrap font-medium">
                   <%= number_to_currency(transaction.amount_cents / 100.0) %>
                 </td>
-                <td class="table-body-cell table-body-cell-right whitespace-nowrap">
+                <td class="table-body-cell table-body-cell-right whitespace-nowrap table-actions-pinned">
                   <div class="flex items-center justify-end gap-1">
                     <%= ghost_action_link "View", admin_portfolio_transaction_path(transaction), icon: "eye" %>
                     <%= ghost_action_link "Edit", edit_admin_portfolio_transaction_path(transaction), icon: "pencil" %>

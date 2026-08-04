@@ -7,7 +7,7 @@
           <th scope="col" class="table-header-cell table-header-cell-left">Portfolio value</th>
           <% if @can_manage_students %>
             <th scope="col" class="table-header-cell table-header-cell-left">Available cash</th>
-            <th scope="col" class="table-header-cell table-header-cell-left">Actions</th>
+            <th scope="col" class="table-header-cell table-header-cell-right table-actions-pinned"><span class="sr-only">Actions</span></th>
           <% end %>
         </tr>
       </thead>
@@ -35,8 +35,8 @@
               </td>
             <% end %>
             <% if @can_manage_students %>
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium" data-testid="student-actions">
-                <div class="flex items-center gap-2">
+              <td class="table-body-cell table-body-cell-right whitespace-nowrap table-actions-pinned" data-testid="student-actions">
+                <div class="flex items-center justify-end gap-1">
                   <%# Were three icon-only 32px links whose only accessible name was a title
                       attribute, coloured black / amber-600 / red-600 at rest. Now the same ghost
                       as every other row action, with the label visible. %>

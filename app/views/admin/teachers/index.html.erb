@@ -34,7 +34,7 @@
             <th scope="col" class="table-header-cell table-header-cell-left">
               Status
             </th>
-            <th scope="col" class="table-header-cell table-header-cell-right">
+            <th scope="col" class="table-header-cell table-header-cell-right table-actions-pinned">
               <span class="sr-only">Actions</span>
             </th>
           </tr>
@@ -63,7 +63,7 @@
                              label: teacher.discarded? ? "Deactivated" : "Active",
                              tone: teacher.discarded? ? :danger : :success %>
                 </td>
-                <td class="table-body-cell table-body-cell-right whitespace-nowrap">
+                <td class="table-body-cell table-body-cell-right whitespace-nowrap table-actions-pinned">
                   <div class="flex items-center justify-end gap-1">
                     <%= ghost_action_link "View", admin_teacher_path(teacher), icon: "eye" %>
                     <%= ghost_action_link "Edit", edit_admin_teacher_path(teacher), icon: "pencil" %>

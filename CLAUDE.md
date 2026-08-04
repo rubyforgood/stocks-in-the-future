@@ -241,6 +241,18 @@ view. I then wrote a design.md rule *about* those buttons without ever rendering
 control lives in a table's trailing column, measure its box against the scroll container's box at
 375px, and check `scrollWidth` against `clientWidth`.
 
+**Sweep the whole app when you find one of these, not just the page reported.** The trading floor
+turned out to be one instance of a pattern: every admin index table had its row actions off screen
+at 375px too (212-699px of overflow), and `classroom#show` had a `flex gap-8` that never stacked,
+so `<main>` itself scrolled and carried the actions away. Two different fixes - pin the actions
+cell, stack the row - and only measuring told them apart. A useful audit is a script that walks the
+pages and, for every clickable, compares its box to the box of the nearest ancestor whose
+`scrollWidth > clientWidth`.
+
+**Widening a control can push it off screen.** Converting row actions from icon-only to labelled
+ghosts took the actions column from ~100px to ~250px, which is 73% of a 343px viewport. The change
+looked purely cosmetic and was the reason the actions stopped fitting.
+
 **Check what each role actually sees before describing a screen.** `StockPolicy#show_holdings?`
 hides the holdings and action columns from anyone who is not a student with a persisted portfolio,
 so as `admin` or `teacher` the trading floor is a two-column price list with no buttons at all.

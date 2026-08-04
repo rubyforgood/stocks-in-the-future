@@ -1,4 +1,13 @@
-<div class="overflow-x-auto">
+<%# tabindex and role, because this table is pure data - no links, no inputs, nothing focusable
+    inside it - and it scrolls horizontally. A scroll container whose content cannot be focused
+    cannot be scrolled from the keyboard at all (axe scrollable-region-focusable), so the columns
+    past the right edge were unreachable without a mouse. Every other scrolling table in the app
+    holds row-action links, which give a keyboard user a way in; this one holds grades. Same
+    treatment as components/ui/_data_table. %>
+<div class="overflow-x-auto focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary"
+     tabindex="0"
+     role="region"
+     aria-label="Grades">
   <table class="min-w-full divide-y divide-slate-200">
     <thead class="bg-slate-50">
       <tr>

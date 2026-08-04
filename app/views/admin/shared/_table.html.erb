@@ -21,7 +21,7 @@
             </th>
           <% end %>
           <% if options[:show_actions] != false %>
-            <th scope="col" class="table-header-cell table-header-cell-right">
+            <th scope="col" class="table-header-cell table-header-cell-right table-actions-pinned">
               <span class="sr-only">Actions</span>
             </th>
           <% end %>
@@ -44,7 +44,7 @@
                 </td>
               <% end %>
               <% if options[:show_actions] != false %>
-                <td class="table-body-cell table-body-cell-right whitespace-nowrap">
+                <td class="table-body-cell table-body-cell-right whitespace-nowrap table-actions-pinned">
                   <div class="flex items-center justify-end gap-1">
                     <%= ghost_action_link "View", [:admin, route_model(record)], icon: "eye" %>
                     <%= ghost_action_link "Edit", [:edit, :admin, route_model(record)], icon: "pencil" %>

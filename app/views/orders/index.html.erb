@@ -39,7 +39,7 @@
           </th>
           <%# Not an empty <th />: that is invalid self-closing HTML, and a header cell with no
               text gives the actions column no accessible name. %>
-          <th scope="col" class="table-header-cell table-header-cell-right">
+          <th scope="col" class="table-header-cell table-header-cell-right table-actions-pinned">
             <span class="sr-only">Actions</span>
           </th>
         </tr>
@@ -109,7 +109,7 @@
                   <% end %>
                 </span>
               </td>
-              <td class="table-body-cell table-body-cell-right">
+              <td class="table-body-cell table-body-cell-right table-actions-pinned">
                 <div class="flex items-center justify-end gap-1">
                   <% if order.pending? %>
                     <%# These were icon-only, which left the edit link with no accessible name at

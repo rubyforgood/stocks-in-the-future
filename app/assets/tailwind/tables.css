@@ -95,6 +95,23 @@
   @apply text-slate-500 italic;
 }
 
+/* The trailing actions cell, pinned to the right edge below lg.
+ *
+ * Every admin index table overflowed at 375px - between 212px and 699px of it - and the actions
+ * were the last column, so View / Edit / Delete sat past the right edge of the scroll. Measured on
+ * admin/users: Edit at right=887 against a visible edge of 343. Three labelled ghosts are about
+ * 250px, roughly 73% of a 343px viewport, so no amount of column-hiding fits data and actions side
+ * by side on a phone - the column has to stop scrolling instead. Pinning the last column is what
+ * AG Grid, Polaris (lastColumnSticky) and Material data tables do.
+ *
+ * Only below lg, where the overflow is. At lg it is an ordinary cell, so the row hover tint is
+ * unbroken at the width this is actually used at, and the vertical rule does not become a divider
+ * the Dividers rule would not allow.
+ */
+.table-actions-pinned {
+  @apply sticky right-0 z-10 border-l border-slate-200 bg-white lg:static lg:border-l-0 lg:bg-transparent;
+}
+
 /* .table-action-link and .table-action-button are gone. Row actions are the ghost button from
  * ButtonHelper#ghost_class, so a table action is one treatment across both sides of the product
  * instead of a brand-coloured link plus a red-at-rest button. */

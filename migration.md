@@ -252,6 +252,24 @@ the point of the split.
 
 ## Behaviour changes
 
+### Row actions are pinned to the right edge below `lg`
+
+**What.** `.table-actions-pinned` (`sticky right-0`, opaque, below `lg` only) is on the trailing
+actions cell of all nine tables that have one, on both sides. `classroom#show`'s two-pane row is
+`flex-col ... lg:flex-row`. `grade_books/_table` gained `tabindex="0"` / `role="region"`.
+
+**Why it has blast radius.**
+
+1. **A pinned cell needs an opaque background**, so anything that later sets a row background or a
+   striping rule has to account for the actions cell painting over the scrolled columns. It is
+   deliberately `lg:static lg:bg-transparent` so this only applies below `lg`.
+2. **`<main>` must not scroll sideways at 375px.** `table_actions_reachable_test.rb` asserts it for
+   two pages; a new two-column page that forgets `lg:flex-row` will fail there rather than in a
+   visual review.
+3. **The roster's actions header changed** from a visible "Actions" to `sr-only`, and its cells from
+   `px-6 py-4` to the shared `table-body-cell`, so it matches every other table.
+4. Column sort links are deliberately **not** asserted - they scroll with their own column.
+
 ### The trading floor's Buy/Sell moved into the primary cell below `lg`
 
 **What.** `stocks/_index_row` renders the trade pair (now `stocks/_trade_actions`) inside the

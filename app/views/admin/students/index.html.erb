@@ -40,7 +40,7 @@
             <th scope="col" class="table-header-cell table-header-cell-left">
               <%= sort_link(:created_at, "Created at") %>
             </th>
-            <th scope="col" class="table-header-cell table-header-cell-right">
+            <th scope="col" class="table-header-cell table-header-cell-right table-actions-pinned">
               <span class="sr-only">Actions</span>
             </th>
           </tr>
@@ -64,7 +64,7 @@
                 <td class="table-body-cell whitespace-nowrap">
                   <%= student.created_at.strftime("%B %d, %Y") %>
                 </td>
-                <td class="table-body-cell table-body-cell-right whitespace-nowrap">
+                <td class="table-body-cell table-body-cell-right whitespace-nowrap table-actions-pinned">
                   <div class="flex items-center justify-end gap-1">
                     <%= ghost_action_link "View", admin_student_path(student), icon: "eye" %>
                     <% unless student.discarded? %>
