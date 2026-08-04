@@ -618,6 +618,42 @@ signalled by colour alone, so it now carries `aria-current="page"`.
 the table card on any of the eight index pages, and exactly one `aria-current` tab, above
 the card rather than in it. Verified by moving the tabs back inside and watching it fail.
 
+### The flaky test, found
+
+A single error had appeared twice across the branch, each time passing on rerun. The
+fingerprint was consistent: same run count, **exactly 8 fewer assertions**, one error. That is
+one test aborting before its first assertion.
+
+**It is `ClassroomsControllerTest#test_update`, and the cause is the grade factory.**
+
+```
+ActiveRecord::RecordInvalid: Validation failed: Level has already been taken
+    test/controllers/classrooms_controller_test.rb:96
+```
+
+`Grade#level` is validated unique. The factory used `sequence(:level) { |n| n }` — 1, 2, 3 — and
+the classroom factory builds a grade for every classroom, so the sequence advances constantly.
+Eleven test sites hard-code a level: 5, 6, 7, 9 and 10. When the sequence reached one of those
+in the same worker before the test that hard-codes it, the test failed. Whether it did depended
+on the seed and on how 744 tests were spread across ten workers.
+
+**Proven, not inferred.** With `FactoryBot.rewind_sequences`, six `create(:grade)` calls produce
+levels 1 to 6, and `create(:grade, level: 6)` then raises exactly the error above.
+
+**Fix:** the sequence starts at 1000, outside the range real data or a test would name — real
+grade levels are 1 to 12. One line, and it closes all eleven sites rather than the one that
+happened to fail.
+
+**Verified:** the flake hit at run 7 of a clean loop before the fix; 34 clean runs after it.
+
+**A wrong turn worth recording.** My first attempt reproduced it by running the suite while
+rewriting files, and produced `PG::TRDeadlockDetected` across many unrelated test classes. That
+was self-inflicted: I had left a 60-run hunt going in the background, and **two `bin/rails test`
+invocations share the same ten worker databases**, so they deadlock against each other. It looked
+like a parallelism bug in the suite and was nothing of the kind. Two lessons: check what else is
+running before believing a reproduction, and a stress reproduction that produces a *different*
+signature from the original report is probably a different bug.
+
 ### One page surface, one link colour
 
 **Page background.** The app was `bg-sitf-surface` (`#f7f9f3`) and admin was `slate-50`, so

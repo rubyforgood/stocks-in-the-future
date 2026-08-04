@@ -46,6 +46,18 @@ makes it fail even when the code is clean.
 real Chromium and cover the buy/sell flow — run them for anything touching
 orders, money or the modal.
 
+**Do not run two `bin/rails test` invocations at once.** Parallel workers share ten
+numbered databases (`stocks_in_the_future_test_0` … `_9`), so a second run collides
+with the first and both fill with `PG::TRDeadlockDetected` across unrelated tests. It
+looks exactly like a parallelism bug in the suite and is not one. If you background a
+loop to hunt a flake, do not also run the suite in the foreground.
+
+**A factory sequence must not walk into values tests hard-code.** `Grade#level` is
+unique, the sequence was `{ |n| n }`, and eleven tests hard-code levels 5–10. Roughly
+one run in twenty failed with "Level has already been taken" and passed on rerun. The
+sequence now starts at 1000. Check for this shape when a uniqueness validation meets a
+sequence.
+
 ## Money
 
 **Integer cents are authoritative. Never convert to a Float and back.**
