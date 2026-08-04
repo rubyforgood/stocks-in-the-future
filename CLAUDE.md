@@ -176,6 +176,24 @@ to `min-h-11` citing "44px touch targets" and they ended up visibly taller than 
 other button in the app. Reserve 44px for bare tap targets with no other affordance -
 icon-only controls, sidebar nav rows.
 
+## Measure the rendered box
+
+**Class names describe intent. Only the rendered box describes the result.** When spacing
+or alignment looks wrong, measure `getBoundingClientRect()` in a browser before changing
+anything — reading the markup will usually tell you it is already correct.
+
+This cost three rounds on this branch. A page title reading `mb-6` rendered a 44px gap
+(a `pb-5` left behind when the rule under it went), then a card header reading `py-4`
+over a `p-5` body rendered 37px (two paddings stacking at the seam), then a header
+reading `mb-6` rendered 32px (a 40px action beside a 32px h1 in an `items-start` row,
+leaving 8px of dead space under the title). None was visible in the class list.
+
+Two of the three were caused by **removing something and leaving its spacing behind**.
+When you delete a rule, a border or a divider, delete the padding that existed to hold
+content off it.
+
+`test/system/spacing_test.rb` asserts pixels, not classes, for exactly this reason.
+
 ## Accessibility
 
 Measure contrast, do not guess. Failures found here that are easy to repeat:

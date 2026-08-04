@@ -146,6 +146,28 @@ Brand scale lives in `tailwind.css` `@theme` as `--color-brand-*`.
   as too much scroll. Verify these gaps at the pixel level (filter-bottom -> table-top), not
   by reading tokens.
 
+### Measure the rendered box
+
+**Class names describe intent. Only the rendered box describes the result.** When spacing or
+alignment looks wrong, measure `getBoundingClientRect()` in a browser before changing anything -
+reading the markup will usually tell you it is already correct.
+
+This is not a general caution; it is the specific failure mode that cost three rounds on this
+branch. Each time the classes said the spacing was right, and each time it was not:
+
+| Reported | What the markup said | What it measured | Actual cause |
+|---|---|---|---|
+| Gap under the page title | `mb-6` = 24px | 44px | a `pb-5` left behind when the rule under the title was removed |
+| Gap inside the card | `py-4` header, `p-5` body | 37px | two paddings stacking at the seam; adding a rule marks the boundary but removes no space |
+| Gap under the page header | `mb-6` = 24px | 32px | a 40px action beside a 32px h1 in an `items-start` row, leaving 8px of dead space under the title |
+
+None of the three is visible in the class list. Two of them were *caused* by removing something
+and leaving its spacing behind, which is the shape to watch for: **padding that existed to hold
+content off a thing you just deleted.**
+
+`test/system/spacing_test.rb` asserts pixels rather than classes for this reason, with a 2px
+tolerance and failure messages that name the usual cause.
+
 ### Page header
 **Every page renders `components/ui/_page_header`.** It is the only place the h1 treatment and
 the header block's spacing live, and it is what declares `content_for :own_heading`.
@@ -190,6 +212,17 @@ have to remember that `content_for` yourself — and forgetting it gives the pag
 
 **Heading levels follow from the same structure.** Page title is `h1`, a card's title is
 `h2`, a heading inside a card body is `h3`. Do not skip a level.
+
+**Title and actions are aligned to each other, and which edge depends on the subtitle.**
+Measured on the rendered page: with a title alone the action's **bottom** is flush with the h1's
+bottom (`bottomDelta=0`); with a subtitle the action's **top** is flush with the h1's top
+(`topDelta=0`), so the subtitle cannot push the action down.
+
+Two conventions exist in the field. Tailwind UI's page headings centre the row
+(`md:items-center`); Polaris and Primer align the action to the title. **Centring measures 28px
+to the content below** rather than 24px, because a 32px h1 centred in a 40px row leaves 4px of
+dead space beneath it - a smaller version of the bug in the table above. Edge alignment is the
+one to use here.
 
 **The header block is `mb-6` and nothing else.** No `pb-*`, and **`lg:items-end` unless the
 title carries a subtitle**. A 40px action beside a 32px h1 makes the row 40px tall; with

@@ -618,6 +618,29 @@ signalled by colour alone, so it now carries `aria-current="page"`.
 the table card on any of the eight index pages, and exactly one `aria-current` tab, above
 the card rather than in it. Verified by moving the tabs back inside and watching it fail.
 
+### The principle, named: measure the rendered box
+
+Three spacing reports on this branch, three times reading the class names and concluding they
+were correct, three times wrong. It is now a named principle in design.md and CLAUDE.md, with
+the table of all three instances:
+
+| Reported | Markup said | Measured | Cause |
+|---|---|---|---|
+| Under the page title | `mb-6` = 24px | 44px | a `pb-5` left behind when the rule under the title went |
+| Inside the card | `py-4` + `p-5` | 37px | two paddings stacking at the seam |
+| Under the page header | `mb-6` = 24px | 32px | a 40px action beside a 32px h1 in an `items-start` row |
+
+**Two of the three came from removing something and leaving its spacing behind** - which is the
+shape to watch for, and is why the rule now reads: when a rule, border or divider goes, the
+padding that existed to hold content off it goes with it.
+
+**Title and action alignment, measured rather than asserted.** With a title alone the action's
+bottom is flush with the h1's bottom (`bottomDelta=0`); with a subtitle the action's top is flush
+with the h1's top (`topDelta=0`). Tailwind UI's convention is to centre the row instead;
+**centring measures 28px to the content below rather than 24px**, because a 32px h1 centred in a
+40px row leaves 4px of dead space. That was measured by temporarily setting `items-center`, not
+inferred.
+
 ### Header spacing, measured at last
 
 The gap under a header was reported wrong three times on this branch. Each time I reasoned from
