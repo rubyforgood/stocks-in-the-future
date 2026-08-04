@@ -618,6 +618,35 @@ signalled by colour alone, so it now carries `aria-current="page"`.
 the table card on any of the eight index pages, and exactly one `aria-current` tab, above
 the card rather than in it. Verified by moving the tabs back inside and watching it fail.
 
+### Sentence case, pass eight: the residue, and what is correctly Title Case
+
+A wider sweep after pass seven - text nodes in *any* tag, every quoted string in `app/**/*.rb`,
+all locale values, and the attributes a text scan cannot see (`placeholder`, `alt`, `aria-label`,
+`prompt`, `include_blank`) - surfaced 47 candidates and **four real ones**:
+
+- `Nil Value:` on the component demo.
+- `A School year with this school and year already exists.` in the school years controller.
+- `User ID (Read-Only)` on the demo form.
+- `alt: 'Investment Funds'` on the earnings card - fixed as `alt: ''` rather than lowercased,
+  because the image is decorative and the card already states "Earnings to invest" beside it.
+  The equivalent piggy bank on `home/index` was already `alt: ""`.
+
+**The other 43 are correctly Title Case, and the list is worth keeping** so the next sweep does
+not "fix" them:
+
+- **Company and person names** throughout `db/seeds/partials/stocks.rb` - "Ford Motor Company",
+  "Jim Farley (CEO)", "The Coca-Cola Company", and every competitor list.
+- **Industry classifications** - "Consumer Electronics", "Telecommunications Services",
+  "Exchange Traded Funds". These are sector names, conventionally Title Case.
+- **`'Global Quote'` in `AlphaVantageApiClient`** - an API response key, not copy. Changing it
+  would break the parse.
+- **Class names in prose** - `Admin::FormBuilder`, `DateTime`.
+- **Seed fixture values** - "Teacher Name", "Test School", "Smith's Sixth Grade", "Demo User".
+- **Placeholders that are examples of the thing** - "John Doe", "Apple Inc.".
+
+`John Doe` and `DateTime` were both caught and reverted during the original six passes; they were
+caught again here, which is a reasonable sign the detector is calibrated rather than blunt.
+
 ### Sentence case, pass seven: three categories no view sweep could reach
 
 The classrooms table still read "Student Count" and "Total Earnings" after six passes. Sweeping

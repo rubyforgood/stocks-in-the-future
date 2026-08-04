@@ -105,7 +105,7 @@ module Admin
     def save_error(params)
       @school_year = SchoolYear.new(params)
       @school_year.valid?
-      @school_year.errors.add(:base, "A School year with this school and year already exists.")
+      @school_year.errors.add(:base, "A school year with this school and year already exists.")
     end
   end
 end

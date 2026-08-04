@@ -149,8 +149,13 @@ ever have found it — only reading the rendered page did. So:
    from the model name. That string exists nowhere in the source. Give every submit an
    explicit label.
 
-And Title Case is sometimes correct: acronyms, tickers, CamelCase like
-`DateTime`, company names, and people's names. Two were caught mid-sweep and
+And Title Case is sometimes correct. The full list, from sweeping twice and
+re-catching the same false positives both times: acronyms and tickers, CamelCase class
+names (`DateTime`, `Admin::FormBuilder`), company names and competitor lists, CEO and
+person names, industry classifications ("Consumer Electronics"), seed fixture values,
+placeholders that are examples of the thing ("John Doe", "Apple Inc."), and **API
+response keys** — `'Global Quote'` in `AlphaVantageApiClient` is a JSON key, and
+lowercasing it would break the parse. Two were caught mid-sweep and
 reverted: `John Doe` and `DateTime`.
 
 ## Components

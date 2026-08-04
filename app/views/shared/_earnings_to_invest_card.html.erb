@@ -10,7 +10,11 @@
       <% end %>
     </div>
 
-    <!--  tw h-[170px], -mb-2 does not work... so we use direct style for this overflow effect-->
-    <%= image_tag 'investment-funds.png', class: 'w-auto object-contain select-none pointer-events-none self-end -mr-8', style: 'height: 170px; margin-bottom: -8px;', alt: 'Investment Funds' %>
+    <%# Decorative: the card already states "Earnings to invest" and the figure, so alt is
+        empty rather than a description a screen reader would read out twice. It was
+        "Investment Funds", which was also Title Case. Matches the piggy bank on home/index.
+
+        tw h-[170px] and -mb-2 do not work here, so the overflow effect uses a direct style. %>
+    <%= image_tag 'investment-funds.png', class: 'w-auto object-contain select-none pointer-events-none self-end -mr-8', style: 'height: 170px; margin-bottom: -8px;', alt: '' %>
   </div>
 </div>
