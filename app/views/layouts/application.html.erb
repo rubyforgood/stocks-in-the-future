@@ -54,16 +54,7 @@
             <%= render 'layouts/stock_ticker' %>
           </div>
 
-          <%# Admin stays in the sidebar as navigation; the menu carries account actions. %>
-          <% account_links = [] %>
-          <% if current_user.portfolio && policy(current_user.portfolio).show? %>
-            <%# Named portfolio_target, not portfolio_path: that is a real route helper and
-                shadowing it here would be a trap for the next reader. %>
-            <% portfolio_target = user_portfolio_path(current_user, current_user.portfolio) %>
-            <% account_links << { label: "My portfolio", path: portfolio_target } %>
-          <% end %>
-
-          <%= render 'layouts/account_menu', extra_links: account_links %>
+          <%= render 'layouts/account_menu' %>
         </div>
       </header>
 

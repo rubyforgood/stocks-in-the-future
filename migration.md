@@ -289,6 +289,24 @@ trigger likewise lost its `-mr-2` and is `rounded-lg` rather than `rounded-full`
 4. **The account trigger is no longer a pill.** If a round avatar control is wanted there, that is a
    deliberate exception to the `rounded-lg` control token and belongs in design.md.
 
+### The account menu carries identity only; navigation moved out
+
+**What.** The account menu's trigger is an avatar and a chevron - the name beside it is gone - and
+its `sr-only` text now names the user. The panel gained the email and is `w-64`. The `extra_links`
+local is gone: "View site" is a top-bar control in admin, and "My portfolio" was dropped because the
+app sidebar already has that row. `resources :users` is `only: []`.
+
+**Why it has blast radius.**
+
+1. **The user's name is no longer in the chrome**, only in the panel and in the trigger's accessible
+   name. Anything asserting the name is visible in the header will fail - two integration tests did.
+2. **`_account_menu` takes no locals at all now.** Passing `extra_links:` is silently ignored; if an
+   account *action* is ever added it goes in the partial itself.
+3. **Six routes stopped existing** (`users_path`, `user_path`, `edit_user_path`, `new_user_path` and
+   the write pairs). They all raised before, and nothing referenced them, but a helper call anywhere
+   would now fail at route-generation time instead of at the controller.
+4. **The email line is conditional.** A user with no email renders no line rather than an empty one.
+
 ### One gutter for chrome and content; the app bar trigger is a ghost
 
 **What.** Both app bars are `px-4 lg:px-6`, matching `main`. The navigation trigger takes `-ml-2.5`

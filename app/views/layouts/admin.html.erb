@@ -45,8 +45,24 @@
         <%# Was the email as plain text plus two bare links, one of them "Sign out" in
             red-600 on white - 4.0:1, under the gate. Same account menu as the main app, so
             there is one place to see who is signed in and one way to leave. %>
-        <%= render 'layouts/account_menu',
-                   extra_links: [{ label: "View site", path: root_path }] %>
+        <div class="flex items-center gap-1">
+          <%# The way back to the student-facing app. It was an item inside the account menu, which
+              is wrong twice over: it is a destination rather than an account action, and a
+              destination behind an avatar is not discoverable - which was the report.
+
+              It lives in the top bar because that is where WordPress ("Visit Site") and Django
+              ("VIEW SITE") both put it, and because the sidebar has no room: a footer row there
+              pushed the admin nav 68px past a 1366x768 Chromebook, which spacing_test caught. The
+              label is hidden below lg, where the bar holds a trigger, a wordmark and an avatar
+              already - the icon and its accessible name carry it there. %>
+          <%= link_to root_path, class: ghost_class, title: "View site" do %>
+            <%= lucide_icon("house", class: "size-4 shrink-0") %>
+            <span class="hidden lg:inline">View site</span>
+            <span class="sr-only lg:hidden">View site</span>
+          <% end %>
+
+          <%= render 'layouts/account_menu' %>
+        </div>
       </div>
     </div>
 

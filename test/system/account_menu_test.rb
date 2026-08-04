@@ -43,14 +43,17 @@ class AccountMenuTest < ApplicationSystemTestCase
     assert_equal "summary", page.evaluate_script("document.activeElement.tagName.toLowerCase()")
   end
 
-  test "a student's menu links to their portfolio" do
+  # The menu holds identity and account actions only. "My portfolio" was a second copy of a row
+  # the sidebar already carries, and a destination hidden behind an avatar is not discoverable.
+  test "a student reaches their portfolio from the sidebar, not the account menu" do
     student = create(:student, :with_portfolio)
     sign_in(student)
     visit root_path
 
     find("#{MENU} summary").click
+    within(MENU) { assert_no_link "My portfolio" }
 
-    within(MENU) { click_on "My portfolio" }
+    within("nav[aria-label='Main']") { click_on "My portfolio" }
 
     assert_current_path user_portfolio_path(student, student.portfolio)
   end

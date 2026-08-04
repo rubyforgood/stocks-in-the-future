@@ -13,7 +13,11 @@ Rails.application.routes.draw do
     get "users/sign_up", to: redirect("/")
   end
 
-  resources :users do
+  # only: [] because there is no top-level UsersController. index / show / new / edit / create /
+  # update / destroy were all routed and all raised "uninitialized constant UsersController";
+  # nothing linked to any of them. The nested portfolio route is the only one this block was ever
+  # for, and PortfoliosController serves it.
+  resources :users, only: [] do
     resources :portfolios, only: :show
   end
 

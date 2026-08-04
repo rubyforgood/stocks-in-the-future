@@ -2366,14 +2366,43 @@ hyphen (usernames here are usually one word, so one initial is the common case).
   built CSS — so this generates correctly without an `@source` directive.
 
 ### Header account menu
-**Every layout's top bar carries one**, on the right: initials avatar, the name at `lg` and
-up, a chevron. It is a native `<details>/<summary>` disclosure (see Dropdown / popover) so
-it works without JS, and the `dropdown` controller adds outside-click and Escape with focus
-returning to the summary.
+**Every layout's top bar carries one**, on the right: an initials avatar and a chevron, and
+**nothing else in the trigger**. It is a native `<details>/<summary>` disclosure (see Dropdown /
+popover) so it works without JS, and the `dropdown` controller adds outside-click and Escape with
+focus returning to the summary.
 
-The panel holds a `bg-slate-50` identity block — name and role — then the account links,
-then Sign out. **No rule separates them**: the tint groups the identity block, so the panel
-does not need a divider.
+The name used to sit beside the avatar at `lg` and up. It does not any more: GitHub, Google, Stripe
+and Linear all show initials or an avatar alone, and a name of unpredictable length inside fixed
+chrome is a thing that moves the controls around it. Because the avatar and chevron are both
+`aria-hidden`, the trigger's `sr-only` text is its whole accessible name and it must **name the
+user** - "Account menu for finn", not "Account menu", which would not say whose.
+
+**The panel holds name, email and role** on a `bg-slate-50` identity block, then the account
+actions, then Sign out. **No rule separates them**: the tint groups the identity block, so the panel
+does not need a divider. `w-64`, not `w-56` - an email is longer than a name and truncating it
+defeats the point of showing it. The email is the line that tells you *which* account you are in,
+which is why Google and Stripe both lead with it, and it matters here for the same reason the menu
+does: shared machines. **Students may have no email, so that line is omitted rather than left
+blank.**
+
+**No navigation belongs in this menu.** It held "View site" in admin and "My portfolio" in the app.
+Both are destinations, and a destination behind an avatar is not discoverable - "My portfolio" was
+also a second copy of a row the sidebar already had. The rule is: the sidebar and the top bar carry
+destinations, the account menu carries identity and account actions.
+
+**The way from admin back to the site is a top-bar control**, `ghost_class` with a `house` icon,
+beside the account menu - where WordPress ("Visit Site") and Django ("VIEW SITE") both keep it. The
+label is `hidden lg:inline` with an `sr-only` twin below `lg`, because below `lg` that bar already
+holds a menu trigger, a wordmark and an avatar; measured, the labelled version is 96px at `lg` and
+the icon 32px below it, and the bar does not overflow at 375px. It is **not** in the sidebar: a
+footer row there pushed the admin nav 68px past a 1366x768 Chromebook, which `spacing_test` caught.
+That is the one asymmetry left with the app side, where Admin *is* a sidebar footer row - the app
+sidebar has five rows and room to spare, admin has ten and none.
+
+**There is no "Edit profile" link because there is no profile page.** `resources :users` routed
+`edit` to a `UsersController` that does not exist, and Devise's `registrations#edit` is unstyled
+generator output that also demands the current password. Adding the item would mean building the
+page first - see design-todo.md.
 
 Why it matters more here than convention would suggest: nothing in the chrome used to say
 who was signed in, and these are shared school Chromebooks, so a student can land on a

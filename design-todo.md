@@ -170,6 +170,22 @@ Counts are indicative, found by pattern matching - confirm by reading the file.
 
 ## Cross-cutting work items
 
+### There is no user profile page
+
+The account menu has no "Edit profile" item because the functionality does not exist:
+
+- `resources :users` routed `index / show / new / edit / create / update / destroy` to a top-level
+  `UsersController` that has never existed, so every one of them raised
+  `uninitialized constant UsersController`. Nothing linked to any of them; the block was only ever
+  there for the nested `resources :portfolios, only: :show`. It is now `resources :users, only: []`.
+- Devise's `registrations#edit` (`/users/edit`) *is* routed and reachable, but it is unstyled
+  generator output and requires the current password to save anything. Students sign in with a
+  username and may have no email at all, so it is not a usable profile page for them either.
+
+A real profile page would be: change your own password, and set a display name. Once it exists, the
+account menu's item goes above Sign out - the panel is already built for it (`item_class` and the
+identity block are in place).
+
 ### `Admin::FormBuilder` field styling is still pre-token
 
 The button sweep routed `submit_button` and `cancel_button` through the shared
