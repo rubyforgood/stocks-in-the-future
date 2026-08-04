@@ -26,16 +26,11 @@
                   data-testid="open-navigation"
                   aria-expanded="false"
                   aria-controls="admin-navigation"
-                  class="group lg:hidden -ml-2.5 inline-flex min-h-11 min-w-11 items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary">
+                  class="lg:hidden inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary">
             <span class="sr-only">Open navigation menu</span>
-            <%# Same state-layer geometry as the app side: a 40px visible surface inside a 44px
-                target, so the surface keeps 8px from the viewport edge and the glyph sits on the
-                16px content gutter. %>
-            <span class="flex size-10 items-center justify-center rounded-full text-slate-600 transition-colors group-hover:bg-slate-100 group-hover:text-slate-900">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </span>
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
           </button>
 <%# Branding and a link home, not a page heading. This was an h1, so every
     admin page announced the same title regardless of what it showed, and

@@ -271,15 +271,23 @@ already on the trading floor.
 3. `submit_button`'s signature gained an option rather than changing, so existing calls are
    unaffected.
 
-### The navigation trigger is a target plus a state layer
+### The navigation and account controls align by their own box
 
-**What.** Both navigation triggers are now a 44px `<button>` that paints nothing, wrapping a 40px
-`rounded-full` `<span>` that carries the hover fill via `group-hover:`.
+**What.** Both navigation triggers are a single 44px `<button>` with `rounded-lg` and a `hover:`
+fill, flush with the content gutter - no negative margin, no nested state layer. The account menu's
+trigger likewise lost its `-mr-2` and is `rounded-lg` rather than `rounded-full`.
 
-**Why it has blast radius.** The trigger's markup gained a level, so a selector like
-`[data-testid='open-navigation'] > svg` still works but anything asserting the button's own
-background or matching its direct children will not. The `sr-only` label stays a direct child of the
-button so the accessible name is unchanged.
+**Why it has blast radius.**
+
+1. **There are no negative margins in the chrome any more.** Three earlier attempts added one to put
+   the glyph on the gutter; each put paint past the content edge. If one reappears, the fill goes
+   with it.
+2. **The glyph sits 10px inside its box, by design.** That is centring a 24px icon in a 44px target,
+   and it is not a bug to be corrected.
+3. **The trigger markup lost a level** - the state-layer `<span>` is gone, so the svg is a direct
+   child of the button again.
+4. **The account trigger is no longer a pill.** If a round avatar control is wanted there, that is a
+   deliberate exception to the `rounded-lg` control token and belongs in design.md.
 
 ### One gutter for chrome and content; the app bar trigger is a ghost
 

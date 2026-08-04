@@ -310,40 +310,44 @@ edge. As `px-6` at every width the header sat 24px in against content at 16px on
 because a 44px hit area centres a 24px icon, the hamburger *glyph* landed at 34px. Three numbers for
 one edge.
 
-### Icon controls on a gutter: inset the hit area, never the thing that paints
+### Icon controls on a gutter: the box that paints is the box that aligns
 
-A 44px hit area centring a 24px glyph puts the glyph 10px inside its own box. So an icon button whose
-box is flush with a 16px gutter shows its glyph at 26px, and the chrome reads as further in than the
-content below it. The fix is an **optical inset**: pull the hit area out so the *glyph* lands on the
-gutter - `-ml-2.5` on the menu trigger, `-mr-2` on the account trigger. Tailwind UI's application
-shell does exactly this (`-m-2.5 p-2.5`), and Material and iOS both position the leading nav icon by
-its glyph rather than its target.
+A 44px touch target centring a 24px glyph puts the glyph 10px inside its own box. So an icon button
+sitting on a 16px gutter shows its glyph at 26px, and the chrome looks further in than the content
+below it. **Leave it there.** The control's box is what the eye reads and what paints on hover, so the
+box is what aligns to the gutter - flush with the cards, no negative margin. That is what GitHub
+Primer and Shopify Polaris ship for a leading icon button, and it is the rule here.
 
-**But a negative margin drags whatever paints along with it.** Both of these were got wrong here in
-turn:
+The tempting alternative is an *optical* inset - pull the target out so the glyph lands on the gutter,
+as Tailwind UI's shell does with `-m-2.5 p-2.5`. **It failed here three times, and each failure was
+the same mistake:** a negative margin drags whatever paints along with it.
 
-1. The app's trigger was a **filled** teal button, so pulling it out put a solid fill 6px from the
-   viewport edge.
-2. Making it borderless was not enough, because it still had a **hover** background. At rest it
-   painted nothing and looked right; on hover a 44px fill appeared 6px from the edge, with 6px to the
-   left of the glyph against 16px on the right. "Borderless" has to mean *in every state*.
+1. The trigger was a filled teal button, so pulling it out put a solid fill 6px from the viewport
+   edge.
+2. Making it borderless was not enough: it still had a `hover:` background, so at rest it looked
+   right and on hover a 44px fill appeared 6px from the edge. **"Paints nothing" has to hold in every
+   state.**
+3. Splitting the target from a 40px `rounded-full` state layer put the paint at 8px instead of 6px -
+   still short of the 16px the content uses. Closer is not aligned.
 
-**The resolution is Material 3's state layer, and it is the rule here: the target and the surface are
-different boxes.** The `<button>` is the 44px target and paints nothing at all; a nested `<span>` is a
-**40px circle** that carries the hover fill. Centred in a 44px target pulled out by 10px, that circle
-starts at **8px** - the same inset the account menu's pill has on the right - while the glyph still
-lands exactly on the **16px** gutter. Measured on both sides: target 44×44 at 6px, surface 40×40 at
-8px, glyph at 16px, cards at 16px left and right.
+Tailwind UI's inset works because its trigger has **no hover surface at all**. Ours does. If a control
+paints anything, in any state, align its box.
 
-That is also why the surface is `rounded-full` rather than `rounded-lg`: a circle's visual mass sits
-at its centre, so it reads as clearing the edge, which is how Material's state layers and this app's
-own account pill already behave.
+**The radius is `rounded-lg`.** The token at the top of this document is `controls rounded-lg`, and
+the trigger was already on it. `rounded-full` was introduced with an aesthetic argument - that a
+circle's mass sits at its centre so it reads as clearing the edge - which is an argument for
+overriding an explicit token, made on a turn whose instruction was to follow the token. Where this
+document names a value, that is the value; the field is the tiebreak only where it is silent.
 
-**Do not assert this with a colour.** The first version of the test checked the button's resting
-`backgroundColor`, which is transparent whether or not the bug is present - and Tailwind emits
-`hover:` inside `@media (hover:hover)`, which the headless Chromium never matches, so the rendered
-hover fill is unobservable here. Assert the **geometry** of the surface and the **class contract**
-that the fill lives on the inset surface rather than on the pulled-out target.
+Measured on both sides at 375px: the trigger's box at **16px** with a 44px target and an 8px radius,
+its glyph at 26px, the account control's box **16px** from the right on the same radius, and cards at
+16px left and right. At `lg` the sidebar owns the left and the account control shares the content's
+24px trailing edge. No negative margins anywhere in the chrome.
+
+**Do not assert any of this with a colour.** The first version of the test checked the trigger's
+resting `backgroundColor`, which is transparent whether or not the bug is present - and Tailwind emits
+`hover:` inside `@media (hover:hover)`, which the headless Chromium never matches, so a hover fill is
+unobservable here. Assert the box's **position, radius and margin**.
 
 **`<main>` is not its own scroll container.** It carried `overflow-auto`, which put its scrollbar
 inside the padding box, so the right gutter measured ~15px wider than the left on any page tall

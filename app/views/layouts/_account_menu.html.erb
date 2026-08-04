@@ -20,7 +20,7 @@
 <%# data-testid because the sidebar's Trading floor disclosure is also a <details>/
     <summary>, so "the summary" is ambiguous in a test. %>
 <details class="relative" data-controller="dropdown" data-testid="account-menu">
-  <summary class="-mr-2 flex min-h-11 cursor-pointer list-none items-center gap-2 rounded-full py-1 pl-1 pr-2 hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary [&::-webkit-details-marker]:hidden">
+  <summary class="flex min-h-11 cursor-pointer list-none items-center gap-2 rounded-lg py-1 pl-1 pr-2 hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary [&::-webkit-details-marker]:hidden">
     <%# The name is hidden below lg, so without this the control would have no accessible
         name there at all - the avatar and the chevron are both aria-hidden. %>
     <span class="sr-only">Account menu</span>

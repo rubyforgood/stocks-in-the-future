@@ -241,21 +241,17 @@ view. I then wrote a design.md rule *about* those buttons without ever rendering
 control lives in a table's trailing column, measure its box against the scroll container's box at
 375px, and check `scrollWidth` against `clientWidth`.
 
-**An icon control aligns by its glyph; a negative margin drags whatever paints along with it.** A
-44px hit area centring a 24px icon puts the glyph 10px inside the padding, so pull the *hit area* out
-(`-ml-2.5`) to get the glyph onto the gutter. I got the consequence wrong twice in a row: first with
-a filled teal button, which then hung 6px off the edge, and then - after making it borderless at
-rest - with a `hover:bg-*` that put a 44px fill 6px from the edge the moment the pointer arrived.
-**"Borderless" has to mean in every state.**
+**The box that paints is the box that aligns.** A 44px target centring a 24px icon puts the glyph
+10px inside its box, and the fix is *not* to pull the box out. I tried that three times - a filled
+button, then a borderless one with a `hover:` fill, then a 44px target wrapping a 40px state layer -
+and every version put paint past the content edge, because a negative margin drags whatever paints
+with it. Tailwind UI's `-m-2.5 p-2.5` inset works only because its trigger paints nothing at all, in
+any state. If a control has a hover fill, align its box and let the glyph sit inside.
 
-The answer is Material 3's state layer: **the target and the surface are different boxes.** The
-button is the 44px target and paints nothing; a nested span is a 40px circle that carries the hover
-fill, so it starts 8px from the edge while the glyph still sits on the 16px gutter. When an inset
-looks wrong, ask what paints, not what is positioned.
-
-And do not assert it with a colour: the button's resting background is transparent either way, and
-`@media (hover:hover)` never matches here, so a colour check cannot see the failure. Assert the
-surface's geometry plus the class contract that the fill is on the inset element.
+**Where design.md names a value, that is the value.** The radius token is `controls rounded-lg`. I
+changed the trigger to `rounded-full` and wrote the justification into design.md - an aesthetic
+argument for overriding an explicit spec, on a turn whose instruction was to follow the spec. The
+field is the tiebreak only where the document is silent, and it was not silent.
 
 **Check `overflow-auto` on `<main>` before measuring gutters.** It makes main its own scroll
 container, so the scrollbar sits inside the padding box and the right gutter measures ~15px wider
