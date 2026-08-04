@@ -241,6 +241,20 @@ view. I then wrote a design.md rule *about* those buttons without ever rendering
 control lives in a table's trailing column, measure its box against the scroll container's box at
 375px, and check `scrollWidth` against `clientWidth`.
 
+**An unlayered CSS rule beats every layered one, whatever the specificity.** The `.tw-*` component
+files are imported after `@import "tailwindcss"`; until they were wrapped in `@layer components`,
+`.tw-btn-buy`'s `display: inline-flex` beat `.hidden`, so the order modal showed Cancel, Back,
+Review order and Buy shares simultaneously. `hidden` appeared in the markup and did nothing. If a
+utility "isn't working", check whether the thing beating it is unlayered before touching
+specificity - and assert it: at 375px, any element carrying `.hidden` whose computed `display` is
+not `none` is a cascade failure.
+
+**Measure `main.scrollWidth` against `main.clientWidth` at 375px on every page, not just tables.**
+Three unrelated things pushed the page sideways: a `flex` row with no `lg:flex-row`, an unwrappable
+`inline-flex` breadcrumb trail, and an element that should have been `display: none`. A page-level
+scroll defeats a pinned table cell, because the cell pins to a container that is itself being
+pushed. `flex-1` panes want `min-w-0` or a wide table inside them refuses to shrink.
+
 **Sweep the whole app when you find one of these, not just the page reported.** The trading floor
 turned out to be one instance of a pattern: every admin index table had its row actions off screen
 at 375px too (212-699px of overflow), and `classroom#show` had a `flex gap-8` that never stacked,

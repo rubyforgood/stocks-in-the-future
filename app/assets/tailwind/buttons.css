@@ -1,73 +1,86 @@
-/* Shared button classes.
+/* Wrapped in @layer components so that Tailwind utilities override these.
  *
- * design.md, Buttons: every variant shares a base of
+ * These files are imported after `@import "tailwindcss"`, and an *unlayered* rule beats every
+ * layered one no matter its specificity - so `.tw-btn-buy { display: inline-flex }` was winning
+ * against `.hidden { display: none }`. The order form's Back and submit buttons both carry
+ * `hidden` and both rendered anyway: the buy/sell modal showed Cancel, Back, Review order and
+ * Buy shares all at once. The flow still worked, so no test caught it.
  *
- *   inline-flex h-10 items-center justify-center gap-2 rounded-lg px-4 text-sm shadow-sm
- *
- * plus a focus-visible ring. The fixed h-10 (40px) height token is deliberate: with
- * box-sizing: border-box it absorbs an outlined variant's 1px border or ring, so filled
- * and outlined buttons are the same height by construction. 40px is the mainstream
- * medium-button height - Material 3, Chakra, shadcn.
- *
- * These had drifted off that token: min-h-11 (44px) with px-5 py-3 and, on the primary and
- * tertiary variants, no text-size class at all - so they inherited 16px body text and
- * rendered noticeably taller and wider than everything else. 40px is the documented height
- * and still clears WCAG 2.5.8 (AA), which asks for 24x24; 44px is the AAA / Apple HIG
- * figure, and the design system chose 40.
- *
- * Two other things this file has been caught with, kept here as a warning:
- *
- *  - .tw-btn-secondary set bg-[#BOEAE5], which is not a valid hex. That is the letter O,
- *    not a zero. Tailwind emitted it verbatim, the browser dropped the declaration, and the
- *    button rendered white text on no background.
- *  - .tw-btn-buy put white text on #80cec8, which measures 1.81:1 - the least readable
- *    button in the app was the Buy control on the trading floor.
- *
- * .tw-btn-danger is gone: nothing referenced it. An unused class is indistinguishable from
- * a supported one until someone adopts it.
- *
- * Buy and sell match the order form: teal for buy, amber for sell, both dark enough to
- * carry a white label.
+ * A component class must lose to a utility. That is the whole reason utilities come last.
  */
+@layer components {
+  /* Shared button classes.
+   *
+   * design.md, Buttons: every variant shares a base of
+   *
+   *   inline-flex h-10 items-center justify-center gap-2 rounded-lg px-4 text-sm shadow-sm
+   *
+   * plus a focus-visible ring. The fixed h-10 (40px) height token is deliberate: with
+   * box-sizing: border-box it absorbs an outlined variant's 1px border or ring, so filled
+   * and outlined buttons are the same height by construction. 40px is the mainstream
+   * medium-button height - Material 3, Chakra, shadcn.
+   *
+   * These had drifted off that token: min-h-11 (44px) with px-5 py-3 and, on the primary and
+   * tertiary variants, no text-size class at all - so they inherited 16px body text and
+   * rendered noticeably taller and wider than everything else. 40px is the documented height
+   * and still clears WCAG 2.5.8 (AA), which asks for 24x24; 44px is the AAA / Apple HIG
+   * figure, and the design system chose 40.
+   *
+   * Two other things this file has been caught with, kept here as a warning:
+   *
+   *  - .tw-btn-secondary set bg-[#BOEAE5], which is not a valid hex. That is the letter O,
+   *    not a zero. Tailwind emitted it verbatim, the browser dropped the declaration, and the
+   *    button rendered white text on no background.
+   *  - .tw-btn-buy put white text on #80cec8, which measures 1.81:1 - the least readable
+   *    button in the app was the Buy control on the trading floor.
+   *
+   * .tw-btn-danger is gone: nothing referenced it. An unused class is indistinguishable from
+   * a supported one until someone adopts it.
+   *
+   * Buy and sell match the order form: teal for buy, amber for sell, both dark enough to
+   * carry a white label.
+   */
 
-.tw-btn-primary {
-  @apply inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-lg bg-sitf-primary px-4 text-sm font-medium text-sitf-on-primary shadow-sm transition-colors hover:bg-sitf-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary-dark;
-}
+  .tw-btn-primary {
+    @apply inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-lg bg-sitf-primary px-4 text-sm font-medium text-sitf-on-primary shadow-sm transition-colors hover:bg-sitf-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary-dark;
+  }
 
-/* Disabled controls are exempt from contrast requirements, but slate-600 on slate-200
-   still reads, where white on slate-300 was 1.48:1 and did not. */
-.tw-btn-primary-disabled {
-  @apply inline-flex h-10 cursor-not-allowed items-center justify-center gap-2 rounded-lg bg-slate-200 px-4 text-sm font-medium text-slate-600 shadow-sm;
-}
+  /* Disabled controls are exempt from contrast requirements, but slate-600 on slate-200
+     still reads, where white on slate-300 was 1.48:1 and did not. */
+  .tw-btn-primary-disabled {
+    @apply inline-flex h-10 cursor-not-allowed items-center justify-center gap-2 rounded-lg bg-slate-200 px-4 text-sm font-medium text-slate-600 shadow-sm;
+  }
 
-.tw-btn-secondary {
-  @apply inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-lg bg-white px-4 text-sm font-medium text-slate-700 ring-1 ring-slate-300 ring-inset shadow-sm transition-colors hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary;
-}
+  .tw-btn-secondary {
+    @apply inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-lg bg-white px-4 text-sm font-medium text-slate-700 ring-1 ring-slate-300 ring-inset shadow-sm transition-colors hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary;
+  }
 
-/* No ml-2 here any more. A button carrying its own margin puts layout inside the
-   component, so spacing belonged to whatever container it sits in. */
-.tw-btn-tertiary {
-  @apply inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-lg bg-slate-100 px-4 text-sm font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary;
-}
+  /* No ml-2 here any more. A button carrying its own margin puts layout inside the
+     component, so spacing belonged to whatever container it sits in. */
+  .tw-btn-tertiary {
+    @apply inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-lg bg-slate-100 px-4 text-sm font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary;
+  }
 
-.tw-btn-buy {
-  @apply inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-lg bg-teal-700 px-4 text-sm font-medium text-white shadow-sm transition-colors hover:bg-teal-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary;
-}
+  .tw-btn-buy {
+    @apply inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-lg bg-teal-700 px-4 text-sm font-medium text-white shadow-sm transition-colors hover:bg-teal-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary;
+  }
 
-.tw-btn-sell {
-  @apply inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-lg bg-amber-700 px-4 text-sm font-medium text-white shadow-sm transition-colors hover:bg-amber-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary;
-}
+  .tw-btn-sell {
+    @apply inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-lg bg-amber-700 px-4 text-sm font-medium text-white shadow-sm transition-colors hover:bg-amber-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary;
+  }
 
-/* Inline text link.
- *
- * Named once because 34 links across the app hand-wrote a generic Tailwind blue
- * (text-blue-600 hover:text-blue-800, plus blue-700/800/900 variants) while newer
- * code used the brand teal - two link colours in one product. Contrast was never
- * the problem: blue-600 is 5.17:1 on white. Brand consistency was.
- *
- * sitf-primary-dark is 9.01:1 on white and 8.61:1 on the slate-50 page. Underline
- * on hover rather than always, so a table dense with links is not a field of rules.
- */
-.tw-link {
-  @apply font-medium text-sitf-primary-dark underline-offset-2 transition-colors hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary;
+  /* Inline text link.
+   *
+   * Named once because 34 links across the app hand-wrote a generic Tailwind blue
+   * (text-blue-600 hover:text-blue-800, plus blue-700/800/900 variants) while newer
+   * code used the brand teal - two link colours in one product. Contrast was never
+   * the problem: blue-600 is 5.17:1 on white. Brand consistency was.
+   *
+   * sitf-primary-dark is 9.01:1 on white and 8.61:1 on the slate-50 page. Underline
+   * on hover rather than always, so a table dense with links is not a field of rules.
+   */
+  .tw-link {
+    @apply font-medium text-sitf-primary-dark underline-offset-2 transition-colors hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary;
+  }
+
 }

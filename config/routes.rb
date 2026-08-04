@@ -80,7 +80,11 @@ Rails.application.routes.draw do
     resources :portfolio_transactions
   end
 
-  resources :orders do
+  # No show or destroy: neither action exists on OrdersController, and orders/show.html.erb was
+  # scaffolding that rendered `render @order` with @order never assigned - so GET /orders/:id
+  # raised "'nil' is not an ActiveModel-compatible object" for every order, on a route nothing in
+  # the app linked to. An order is read on orders#index; cancelling is the destructive path.
+  resources :orders, except: %i[show destroy] do
     member do
       patch :cancel
     end

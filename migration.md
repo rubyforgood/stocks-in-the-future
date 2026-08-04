@@ -252,6 +252,42 @@ the point of the split.
 
 ## Behaviour changes
 
+### Component stylesheets moved into `@layer components`
+
+**What.** `buttons.css`, `tables.css`, `cards.css`, `forms.css` and `navbar.css` are each wrapped in
+`@layer components`.
+
+**Why it has blast radius.** It inverts the cascade between these classes and every Tailwind
+utility. Before, an unlayered `.tw-btn-buy` beat `.hidden`; now any utility wins, which is what the
+markup already assumed. If something relied on a `.tw-*` class overriding a utility, that
+expectation is now reversed - nothing in the suite did, but it is the thing to check first if a
+component starts looking wrong.
+
+The bug it fixed: the buy/sell modal rendered Cancel, Back, Review order and Buy shares at the same
+time, because `hidden` on the Back and submit buttons did nothing. Introduced when those buttons
+moved from bespoke class strings (which set no `display`) onto `.tw-btn-*`.
+
+### `GET /orders/:id` removed
+
+**What.** `resources :orders, except: %i[show destroy]`, and `orders/show.html.erb` plus
+`orders/_order.html.erb` deleted.
+
+**Why.** The route raised for every order: `OrdersController` has no `show` action, so the
+scaffolding view's `render @order` was `render nil` -
+`"'nil' is not an ActiveModel-compatible object"`. Nothing in the app linked to it, and `destroy`
+had no action either. `orders/_order.json.jbuilder` is kept - `index.json.jbuilder` renders it.
+
+**If an order detail page is ever wanted**, write the action and a real view; do not restore those
+two files, which were generator output with an inline `style="color: green"`.
+
+### Breadcrumbs wrap
+
+**What.** `admin/shared/_breadcrumbs` is `flex flex-wrap` with `gap-x`/`gap-y` instead of
+`inline-flex ... space-x-1`, and crumb labels `break-words`.
+
+**Why it matters.** A long trail used to push `<main>` sideways on six admin show/edit pages, which
+carried the row actions off screen with it. Any new crumb label is now free to be long.
+
 ### Row actions are pinned to the right edge below `lg`
 
 **What.** `.table-actions-pinned` (`sticky right-0`, opaque, below `lg` only) is on the trailing

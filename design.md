@@ -857,6 +857,40 @@ horizontal scroll that caused this.
 
 `stocks/_trade_actions` holds the pair so the two placements cannot drift.
 
+### A component class must lose to a utility
+
+`buttons.css`, `tables.css`, `cards.css`, `forms.css` and `navbar.css` are wrapped in
+**`@layer components`**. They are imported after `@import "tailwindcss"`, and an **unlayered rule
+beats every layered one regardless of specificity** - so `.tw-btn-buy { display: inline-flex }` was
+winning against `.hidden { display: none }`. The order form's Back and submit buttons both carry
+`hidden` and both rendered anyway: the buy/sell modal showed **Cancel, Back, Review order and Buy
+shares all at once**, in the product's core flow. The flow still worked, so no test failed, and it
+is invisible in a class list - the markup says `hidden` and means it.
+
+Any `.tw-*` or `.table-*` class is a component and belongs in that layer. Utilities come last for a
+reason; a component that outranks them makes every responsive and state utility unreliable on it.
+
+### Page width: nothing may scroll `<main>` sideways at 375px
+
+A page-level horizontal scroll is not the same as a table scrolling inside its own container. It
+moves everything, it defeats a pinned cell (which pins to a container that is itself being pushed),
+and it is invisible at 1366px. Measuring every page in the app at 375px found three causes, all
+different:
+
+- **A flex row that never stacks.** `classroom#show` put the roster beside the grade book list with
+  a bare `flex gap-8`: 812px of content in a 328px viewport. A two-column row is
+  `flex flex-col gap-8 lg:flex-row`, and the flexible pane takes **`min-w-0`** so a wide table
+  cannot refuse to shrink. Measured, either one alone is enough; both are kept because stacking is
+  the right treatment below `lg` and `min-w-0` guards the `lg` case.
+- **An unwrappable breadcrumb trail.** `admin/shared/_breadcrumbs` was `inline-flex ... space-x-1`,
+  and a school year's crumb reads "School name (2024-2025)" - 130px past the viewport, on six pages.
+  Now `flex flex-wrap` with `gap-x`/`gap-y`, and the labels `break-words`.
+- **An element that should have been hidden.** See the layer note above.
+
+`test/system/page_width_test.rb` asserts `main.scrollWidth <= main.clientWidth` across signed-out,
+student, teacher and admin pages, and names the offending element in the failure message. Show and
+edit pages are covered as well as indexes, because the breadcrumb trail is longest there.
+
 ### Narrow-viewport tables: pin the actions, never let the page scroll
 
 Two rules, from sweeping every table in the app at 375px and measuring each clickable against the

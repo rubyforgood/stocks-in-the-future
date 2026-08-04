@@ -1,117 +1,120 @@
-/* Data tables.
+@layer components {
+  /* Data tables.
 
-   Reworked to industry standard (Stripe, Airbnb, Material data tables). The
-   previous treatment drew a heavy black grid - a 2px black outer border, a
-   black rule under every cell, a 20px radius and a saturated teal header band.
-   That fights the data for attention.
+     Reworked to industry standard (Stripe, Airbnb, Material data tables). The
+     previous treatment drew a heavy black grid - a 2px black outer border, a
+     black rule under every cell, a 20px radius and a saturated teal header band.
+     That fights the data for attention.
 
-   Principles applied:
-   - Hairline horizontal dividers only. No vertical rules, no outer heavy
-     border. Columns are separated by alignment and whitespace, not lines.
-   - The header is chrome, not content: text-xs, semibold, muted foreground on a
-     very light fill, and no uppercase transform - design.md says to use size,
-     weight and colour for hierarchy rather than shouting. design.md reserves
-     text-xs for exactly this: short glanceable strings like column headers.
-   - Rows are tall enough to be a comfortable touch target and to let dense
-     text breathe (min-h-14 = 56px, above the 44px floor).
-   - Row hover gives a scanning anchor on wide screens.
-   - Money and counts are right-aligned with tabular-nums so digits line up
-     across rows. This is the single biggest legibility win on a financial
-     table and was previously missing.
-   - Contrast: slate-600 header text on slate-50 is 6.9:1; slate-900 body text
-     on white is 17.9:1. Dividers are non-text boundaries and need no ratio.
-*/
+     Principles applied:
+     - Hairline horizontal dividers only. No vertical rules, no outer heavy
+       border. Columns are separated by alignment and whitespace, not lines.
+     - The header is chrome, not content: text-xs, semibold, muted foreground on a
+       very light fill, and no uppercase transform - design.md says to use size,
+       weight and colour for hierarchy rather than shouting. design.md reserves
+       text-xs for exactly this: short glanceable strings like column headers.
+     - Rows are tall enough to be a comfortable touch target and to let dense
+       text breathe (min-h-14 = 56px, above the 44px floor).
+     - Row hover gives a scanning anchor on wide screens.
+     - Money and counts are right-aligned with tabular-nums so digits line up
+       across rows. This is the single biggest legibility win on a financial
+       table and was previously missing.
+     - Contrast: slate-600 header text on slate-50 is 6.9:1; slate-900 body text
+       on white is 17.9:1. Dividers are non-text boundaries and need no ratio.
+  */
 
-.table-container {
-  @apply mb-6;
+  .table-container {
+    @apply mb-6;
+  }
+
+  /* Card-style surface. Overflow hidden so the header fill respects the radius,
+     and x-scroll so wide tables scroll rather than squashing on small screens. */
+  .table-wrapper {
+    @apply overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xs;
+  }
+
+  .table-base {
+    @apply w-full border-collapse text-left font-sans;
+  }
+
+  .table-header-row {
+    @apply border-b border-slate-200 bg-slate-50;
+  }
+
+  /* No uppercase transform: design.md says to use size, weight and colour for
+     hierarchy rather than shouting. text-xs semibold slate-600 is enough to read
+     as chrome against slate-900 body text. */
+  .table-header-cell {
+    @apply px-4 py-3 text-xs font-semibold text-slate-600 whitespace-nowrap;
+  }
+
+  .table-header-cell-left {
+    @apply text-left;
+  }
+
+  /* Numeric columns: right-aligned so digits align down the column. */
+  .table-header-cell-right {
+    @apply text-right;
+  }
+
+  .table-header-cell-center {
+    @apply text-center;
+  }
+
+  .table-body-row {
+    @apply border-b border-slate-100 transition-colors last:border-0 hover:bg-slate-50;
+  }
+
+  /* align-top, not align-middle - design.md's table tokens say so, and the transactions table
+     shows why. Its Stock cell stacks a company name over a ticker while every other cell is one
+     line, so with middle alignment the single-line cells floated to the vertical centre of a
+     taller row and nothing shared a baseline. Top alignment is what Polaris, Primer, Stripe and
+     Tailwind UI use as soon as any cell can wrap or stack; middle is only safe when every cell in
+     the table is a single line, which is not a property you can rely on staying true. */
+  .table-body-cell {
+    @apply px-4 py-3 align-top text-sm text-slate-900;
+  }
+
+  .table-body-cell-right {
+    @apply text-right tabular-nums;
+  }
+
+  .table-body-cell-center {
+    @apply text-center;
+  }
+
+  .table-cell-content {
+    @apply text-sm text-slate-900;
+  }
+
+  .table-empty-cell {
+    @apply px-4 py-10 text-center text-sm text-slate-600;
+  }
+
+  /* Was slate-400 at 2.6:1, which fails AA. slate-500 is 4.76:1. */
+  .table-no-permission {
+    @apply text-slate-500 italic;
+  }
+
+  /* The trailing actions cell, pinned to the right edge below lg.
+   *
+   * Every admin index table overflowed at 375px - between 212px and 699px of it - and the actions
+   * were the last column, so View / Edit / Delete sat past the right edge of the scroll. Measured on
+   * admin/users: Edit at right=887 against a visible edge of 343. Three labelled ghosts are about
+   * 250px, roughly 73% of a 343px viewport, so no amount of column-hiding fits data and actions side
+   * by side on a phone - the column has to stop scrolling instead. Pinning the last column is what
+   * AG Grid, Polaris (lastColumnSticky) and Material data tables do.
+   *
+   * Only below lg, where the overflow is. At lg it is an ordinary cell, so the row hover tint is
+   * unbroken at the width this is actually used at, and the vertical rule does not become a divider
+   * the Dividers rule would not allow.
+   */
+  .table-actions-pinned {
+    @apply sticky right-0 z-10 border-l border-slate-200 bg-white lg:static lg:border-l-0 lg:bg-transparent;
+  }
+
+  /* .table-action-link and .table-action-button are gone. Row actions are the ghost button from
+   * ButtonHelper#ghost_class, so a table action is one treatment across both sides of the product
+   * instead of a brand-coloured link plus a red-at-rest button. */
+
 }
-
-/* Card-style surface. Overflow hidden so the header fill respects the radius,
-   and x-scroll so wide tables scroll rather than squashing on small screens. */
-.table-wrapper {
-  @apply overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xs;
-}
-
-.table-base {
-  @apply w-full border-collapse text-left font-sans;
-}
-
-.table-header-row {
-  @apply border-b border-slate-200 bg-slate-50;
-}
-
-/* No uppercase transform: design.md says to use size, weight and colour for
-   hierarchy rather than shouting. text-xs semibold slate-600 is enough to read
-   as chrome against slate-900 body text. */
-.table-header-cell {
-  @apply px-4 py-3 text-xs font-semibold text-slate-600 whitespace-nowrap;
-}
-
-.table-header-cell-left {
-  @apply text-left;
-}
-
-/* Numeric columns: right-aligned so digits align down the column. */
-.table-header-cell-right {
-  @apply text-right;
-}
-
-.table-header-cell-center {
-  @apply text-center;
-}
-
-.table-body-row {
-  @apply border-b border-slate-100 transition-colors last:border-0 hover:bg-slate-50;
-}
-
-/* align-top, not align-middle - design.md's table tokens say so, and the transactions table
-   shows why. Its Stock cell stacks a company name over a ticker while every other cell is one
-   line, so with middle alignment the single-line cells floated to the vertical centre of a
-   taller row and nothing shared a baseline. Top alignment is what Polaris, Primer, Stripe and
-   Tailwind UI use as soon as any cell can wrap or stack; middle is only safe when every cell in
-   the table is a single line, which is not a property you can rely on staying true. */
-.table-body-cell {
-  @apply px-4 py-3 align-top text-sm text-slate-900;
-}
-
-.table-body-cell-right {
-  @apply text-right tabular-nums;
-}
-
-.table-body-cell-center {
-  @apply text-center;
-}
-
-.table-cell-content {
-  @apply text-sm text-slate-900;
-}
-
-.table-empty-cell {
-  @apply px-4 py-10 text-center text-sm text-slate-600;
-}
-
-/* Was slate-400 at 2.6:1, which fails AA. slate-500 is 4.76:1. */
-.table-no-permission {
-  @apply text-slate-500 italic;
-}
-
-/* The trailing actions cell, pinned to the right edge below lg.
- *
- * Every admin index table overflowed at 375px - between 212px and 699px of it - and the actions
- * were the last column, so View / Edit / Delete sat past the right edge of the scroll. Measured on
- * admin/users: Edit at right=887 against a visible edge of 343. Three labelled ghosts are about
- * 250px, roughly 73% of a 343px viewport, so no amount of column-hiding fits data and actions side
- * by side on a phone - the column has to stop scrolling instead. Pinning the last column is what
- * AG Grid, Polaris (lastColumnSticky) and Material data tables do.
- *
- * Only below lg, where the overflow is. At lg it is an ordinary cell, so the row hover tint is
- * unbroken at the width this is actually used at, and the vertical rule does not become a divider
- * the Dividers rule would not allow.
- */
-.table-actions-pinned {
-  @apply sticky right-0 z-10 border-l border-slate-200 bg-white lg:static lg:border-l-0 lg:bg-transparent;
-}
-
-/* .table-action-link and .table-action-button are gone. Row actions are the ghost button from
- * ButtonHelper#ghost_class, so a table action is one treatment across both sides of the product
- * instead of a brand-coloured link plus a red-at-rest button. */
