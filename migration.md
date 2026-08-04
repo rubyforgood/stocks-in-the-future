@@ -618,6 +618,32 @@ signalled by colour alone, so it now carries `aria-current="page"`.
 the table card on any of the eight index pages, and exactly one `aria-current` tab, above
 the card rather than in it. Verified by moving the tabs back inside and watching it fail.
 
+### Header spacing, measured at last
+
+The gap under a header was reported wrong three times on this branch. Each time I reasoned from
+class names, and each time the classes looked right. Measuring the rendered geometry found two
+causes, neither visible in the markup:
+
+- **A 40px action beside a 32px h1.** `_page_header` used `lg:items-start` always, so the row
+  was as tall as the button and the title left **8px of dead space beneath it**. A header that
+  reads as `mb-6` rendered a **32px** gap. design.md specifies `items-end` for a title-only
+  header and `items-start` only when there is a subtitle, and records it as a bug it had already
+  measured once. The component now picks per header: 32px -> **24px**.
+- **The card seam.** A `py-4` header above a `p-5` body stacks to 36px, measured at **37px** from
+  the header text to the first line of content. Restoring the rule two changes ago marked the
+  boundary but did not remove the space - I said the rule would absorb it, which it does not.
+  16px either side of the rule, as Stripe's Box and Primer's `Box.Header` use: **33px**, and
+  symmetric.
+
+**`test/system/spacing_test.rb` asserts pixels, not classes**, because class inspection is what
+failed three times. It measures the title-to-content gap and the card seam, with a 2px tolerance,
+and its failure messages name the usual cause. Verified by putting `items-start` back and
+watching it fail with "title to card measured 32px".
+
+Everything else measured correctly at 24px: thirteen of the seventeen pages swept. The pages that
+could not be measured cleanly are the three with custom inline headers, which is a separate piece
+of work already noted.
+
 ### The badge component did not match its own spec, and the page-header sweep
 
 **The ring was never in the spec.** `components/ui/_badge` carried `ring-1 ring-inset` with a

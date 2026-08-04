@@ -16,8 +16,16 @@
 <% content_for :own_heading, true %>
 <%# mb-6 and nothing else. The pb-5 that used to sit here existed to hold content off
     the rule beneath the title; with the rule gone it was surplus, stacking 20px of
-    padding on top of 24px of margin. design.md's page rhythm is a 24px header block. %>
-<div class="mb-6 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+    padding on top of 24px of margin. design.md's page rhythm is a 24px header block.
+
+    items-end when the title stands alone, items-start when it carries a subtitle - design.md
+    is explicit about this and records it as a bug it had already measured once. A 40px CTA in
+    a row with a 32px h1 makes the block 40px tall; with items-start the title sits at the top
+    and leaves 8px of dead space beneath it, so the gap to the content below measured 32px
+    instead of the intended 24px. items-end puts the CTA on the h1's baseline and closes it.
+    With a subtitle the reverse applies: items-end would drop the CTA to the subtitle. %>
+<% align = local_assigns[:description].present? ? "lg:items-start" : "lg:items-end" %>
+<div class="mb-6 flex flex-col gap-3 lg:flex-row <%= align %> lg:justify-between">
   <div class="min-w-0">
     <h1 class="text-2xl font-bold tracking-tight text-slate-900"><%= title %></h1>
     <% if local_assigns[:description].present? %>

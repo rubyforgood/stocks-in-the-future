@@ -191,7 +191,12 @@ have to remember that `content_for` yourself — and forgetting it gives the pag
 **Heading levels follow from the same structure.** Page title is `h1`, a card's title is
 `h2`, a heading inside a card body is `h3`. Do not skip a level.
 
-**The header block is `mb-6` and nothing else.** No `pb-*`. While the title carried a
+**The header block is `mb-6` and nothing else.** No `pb-*`, and **`lg:items-end` unless the
+title carries a subtitle**. A 40px action beside a 32px h1 makes the row 40px tall; with
+`items-start` the title sits at the top and leaves 8px of dead space beneath it, so a header
+that reads as `mb-6` in the markup renders a 32px gap. `items-end` puts the action on the h1's
+baseline. With a subtitle the reverse applies, which is why the rule is conditional - this
+document already recorded that as a measured bug once. While the title carried a
 rule beneath it, the padding held content off that rule; once the rule went, the padding
 was left stacking 20px on top of 24px of margin. If a gap looks too big, check for
 padding left behind by something that was removed.
@@ -1504,6 +1509,11 @@ partial untouched for the Bootstrap pages.
 
 ### Card / panel
 `rounded-2xl border border-slate-200 bg-white shadow-sm` (pad `p-5`).
+
+**Padding either side of the header rule is 16px, not the card's full `p-5`.** A `py-4` header
+above a `p-5` body stacks to 36px, measured at 37px from the header text to the first line of
+content - which reads as a gap rather than a boundary. 16px either side (32px) is what Stripe's
+Box and Primer's `Box.Header` use. A card with no header keeps the full `p-5`.
 
 **Implemented as `.tw-card`** in `app/assets/tailwind/cards.css`. Use it for every card,
 including the ones holding tables; `components/ui/_card` wraps it. Padding is deliberately
