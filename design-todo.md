@@ -211,14 +211,12 @@ Counts are indicative, found by pattern matching - confirm by reading the file.
 Neither of these is a design task, and neither should be closed by whoever is
 doing UI work. Both are recorded here because they were found during it.
 
-- [ ] **Merge the Active Storage CVE fix into `main`.** `main` is still on
-      `activestorage 8.1.3`, which carries **CVE-2026-66066** - arbitrary file
-      read and remote code execution in variant processing. Upstream already has
-      the fix as `dependabot/bundler/rails-8.1.3.1`; it needs a maintainer to
-      merge it. The `stocksdesign` branch merged that same commit so it is not
-      running vulnerable code and so `bin/lint` passes, but that does nothing for
-      `main` or for anything deployed from it. **This is the most urgent item in
-      this file and the only security one.**
+- [x] ~~**Merge the Active Storage CVE fix into `main`.**~~ **Closed - a maintainer merged it.**
+      `main` is on `activestorage 8.1.3.1` via PR #1190 (`6f48931`), so CVE-2026-66066 is fixed
+      on the default branch and on anything deployed from it. `stocksdesign` has merged `main`,
+      and `bundler-audit` finds no vulnerabilities against the merged lockfile. Lesson: this was
+      carried as "the most urgent item" for the whole branch and had been fixed upstream for some
+      of that time. Re-check a standing claim before repeating it.
 
 - [ ] **Three product decisions block Tier 3 Steps 2-4.** The migration map is
       written in `migration.md` and Steps 0 and 1 are done. Each remaining step

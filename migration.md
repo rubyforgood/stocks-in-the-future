@@ -904,9 +904,12 @@ looking at it once.
 
 ## Open items owned by someone else
 
-- **Merge the CVE fix into `main`.** `main` remains on `activestorage 8.1.3` with
-  CVE-2026-66066. Upstream has the fix ready as a dependabot branch; a maintainer
-  needs to merge it. **The most urgent item in any of these documents.**
+- ~~**Merge the CVE fix into `main`.**~~ **Closed — a maintainer merged it.** `main` is on
+  `activestorage 8.1.3.1` as of PR #1190 (`6f48931`), so CVE-2026-66066 is fixed on the default
+  branch and anything deployed from it. `stocksdesign` has since merged `main`, and
+  `bundler-audit` reports no vulnerabilities against the merged lockfile. This sat open in these
+  documents for the whole branch as "the most urgent item"; it is worth checking the claim before
+  repeating it, because it was fixed upstream while the branch carried on saying otherwise.
 - ~~**Decide what the trading fee is.**~~ **Resolved — and the original claim
   here was wrong.** This previously said the fee was never recorded as a
   transaction and that balances were therefore too high. That was incorrect. The
