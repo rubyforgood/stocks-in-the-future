@@ -18,17 +18,27 @@
           hairline bottom edge design.md blesses for fixed chrome. It was a full-width 1px bar
           in sitf-primary-dark (8.5:1, body-text weight for furniture), then briefly shadow-xs
           while the header was the same colour as the page. %>
-      <header class="fixed top-0 left-0 w-full z-50 flex h-16 items-center justify-between border-b border-slate-200 bg-white px-6 py-4">
+      <%# px-4 lg:px-6 matches <main> below. As px-6 at every width the header's contents sat 24px in
+          while the cards sat at 16px on a phone, so the chrome and the content did not share an edge. %>
+      <header class="fixed top-0 left-0 w-full z-50 flex h-16 items-center justify-between border-b border-slate-200 bg-white px-4 py-4 lg:px-6">
         <div class="flex items-center gap-4">
           <%# A button, not a label driving a hidden checkbox: a label is announced as a
-              checkbox rather than as a control that opens navigation. %>
+              checkbox rather than as a control that opens navigation.
+
+              -ml-2.5 pulls the 44px hit area back so the *glyph* lands on the content edge: a
+              44px box centring a 24px icon puts the icon 10px in, so the hamburger read as 34px
+              from the edge against cards at 16px. That optical inset is only correct for a
+              borderless control, which is why this is no longer the filled teal button it was -
+              a visible fill hanging 6px from the viewport edge looks worse than one that is
+              simply 8px too far in. It now matches the admin trigger, which was already a ghost:
+              same product, one treatment. slate-600 on white is 7.58:1. %>
           <button type="button"
                   data-drawer-target="trigger"
                   data-action="drawer#toggle"
                   data-testid="open-navigation"
                   aria-expanded="false"
                   aria-controls="main-navigation"
-                  class="lg:hidden flex min-h-11 min-w-11 items-center justify-center rounded-lg bg-sitf-primary text-sitf-on-primary transition-colors hover:bg-sitf-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary-dark">
+                  class="lg:hidden -ml-2.5 flex min-h-11 min-w-11 items-center justify-center rounded-lg text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary">
             <span class="sr-only">Open navigation menu</span>
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
@@ -57,7 +67,7 @@
       <%= render 'layouts/navbar' %>
 
       <!-- Main: responsive margins and padding -->
-      <main id="main-content" class="min-h-screen overflow-auto px-4 lg:px-6 ml-0 lg:ml-64 mt-16 pb-6 bg-slate-50">
+      <main id="main-content" class="min-h-screen px-4 lg:px-6 ml-0 lg:ml-64 mt-16 pb-6 bg-slate-50">
         <%= render 'layouts/flash' %>
 
         <%= yield %>
@@ -75,7 +85,7 @@
         <% end %>
       </header>
 
-      <main id="main-content" class="min-h-screen overflow-auto p-6 bg-slate-50">
+      <main id="main-content" class="min-h-screen p-4 lg:p-6 bg-slate-50">
         <%= render 'layouts/flash' %>
 
         <%= yield %>

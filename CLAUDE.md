@@ -241,6 +241,17 @@ view. I then wrote a design.md rule *about* those buttons without ever rendering
 control lives in a table's trailing column, measure its box against the scroll container's box at
 375px, and check `scrollWidth` against `clientWidth`.
 
+**An icon-only control aligns by its glyph, not its box - but only if it is borderless.** A 44px hit
+area centring a 24px icon puts the glyph 10px inside the container's padding, so a header trigger on
+the same `px-4` as the content still looks 10px further in. Pull the hit area out (`-ml-2.5`). If the
+control has a *visible* fill or border, do the opposite - align the box - or it ends up hanging off
+the edge. I pulled a filled teal hamburger out and left it 6px from the viewport edge before noticing.
+
+**Check `overflow-auto` on `<main>` before measuring gutters.** It makes main its own scroll
+container, so the scrollbar sits inside the padding box and the right gutter measures ~15px wider
+than the left. Also measure against `document.documentElement.clientWidth`, not `window.innerWidth`:
+the latter includes the scrollbar and will report a phantom asymmetry.
+
 **A style written in two places survives every sweep of one of them.** The grey table header was
 `.table-header-row` on the app side *and* an inline `<thead class="bg-slate-50">` on fourteen admin
 tables; three sweeps fixed one form and left the other. Same shape as the two button bases. When you

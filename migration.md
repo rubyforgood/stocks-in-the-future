@@ -271,6 +271,24 @@ already on the trading floor.
 3. `submit_button`'s signature gained an option rather than changing, so existing calls are
    unaffected.
 
+### One gutter for chrome and content; the app bar trigger is a ghost
+
+**What.** Both app bars are `px-4 lg:px-6`, matching `main`. The navigation trigger takes `-ml-2.5`
+and the account trigger `-mr-2` so their glyphs land on the content edge. The app's trigger lost its
+`bg-sitf-primary` fill and now matches admin's borderless one. `<main>` lost `overflow-auto`, and the
+signed-out `main` is `p-4 lg:p-6` rather than a flat `p-6`.
+
+**Why it has blast radius.**
+
+1. **The negative margins are load-bearing and look like mistakes.** Removing `-ml-2.5` puts the
+   glyph 10px off the gutter again. They are only valid while the controls are borderless - give
+   either one a fill or a border and the inset has to go with it.
+2. **`<main>` is no longer a scroll container.** Anything that assumed it scrolls (a scroll-position
+   script, a sticky offset measured against it) would change behaviour. `page_width_test` still reads
+   `main.scrollWidth`, which reports content overflow regardless of the overflow property, so it is
+   unaffected.
+3. **The app bar trigger is no longer teal**, so a test looking for that fill would fail.
+
 ### One set of table classes; the header fill is gone
 
 **What.** Every table converges on `.table-base` / `.table-header-row` / `.table-header-cell` /

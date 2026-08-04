@@ -304,6 +304,27 @@ prose and it is the reason five app pages double-padded themselves to 48px. It n
 vertical only. **A rule that contradicts the shipped layout will be followed by someone**, so the
 fix is to correct the rule, not to annotate it as a deviation.
 
+**The chrome shares the content's gutter, and an icon control aligns by its glyph.** The app bar
+carries `px-4 lg:px-6`, the same as `main`, so the header's contents and the cards below sit on one
+edge. As `px-6` at every width the header sat 24px in against content at 16px on a phone - and
+because a 44px hit area centres a 24px icon, the hamburger *glyph* landed at 34px. Three numbers for
+one edge.
+
+The menu trigger takes **`-ml-2.5`** and the account trigger **`-mr-2`**, pulling their hit areas out
+so the glyph, not the box, lands on the gutter. That optical inset is standard (GitHub, Material,
+iOS) but it is **only correct for a borderless control**: the app's trigger used to be a filled teal
+button, and pulling a *visible* fill out left it hanging 6px from the viewport edge, which is worse
+than being 8px too far in. It is a ghost now, matching admin's, which already was one - same product,
+one treatment, `slate-600` at 7.58:1.
+
+**`<main>` is not its own scroll container.** It carried `overflow-auto`, which put its scrollbar
+inside the padding box, so the right gutter measured ~15px wider than the left on any page tall
+enough to scroll. Admin never had it. Measured after, below `lg`: hamburger glyph, page title, card
+left and card right all 16px, and the account chevron 16px from the right.
+
+`test/system/chrome_gutter_test.rb` asserts one gutter across both halves, and that both navigation
+triggers have the same fill.
+
 **Content width is `max-w-7xl`.** It is what 35 call sites and this document already use.
 `max-w-[1180px]` was an arbitrary value the token rules rule out, and home's `max-w-5xl` was
 narrow enough that `mx-auto` centred it and changed the gutter on one page only.
