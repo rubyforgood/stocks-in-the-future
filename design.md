@@ -365,6 +365,20 @@ admin you could not tell which section you were in.
   parent row lit. `nav_section_active?` takes `exact:` for the Dashboard, because `/admin` is a
   prefix of every admin path and "inside it" is true everywhere.
 
+**Nav row density: 36px on a desktop sidebar, 44px in the drawer.** `min-h-11 lg:min-h-9`,
+`py-2 lg:py-1.5`. A desktop sidebar row is 32-36px across the field - Notion about 27, Linear 28,
+GitHub and Stripe 32, Tailwind UI and Polaris 36 - while 44px is the touch figure and Material's
+56px drawer is mobile-first. WCAG 2.5.8 (AA) asks for 24x24, so 36px clears it with room, and the
+44px AAA / Apple HIG figure is kept where the finger is.
+
+Holding 44px at every width made the ten admin links **636px against 561px of available height on
+a 1366x768 Chromebook, so the sidebar scrolled**. At 36px, with section groups at `space-y-4` and
+headings at `mb-1`, it measures 561px and fits. Both figures measured, before and after.
+
+`test/system/spacing_test.rb` asserts the admin sidebar does not overflow a Chromebook viewport,
+because the default test window is 1400px tall and no real screen is - a sidebar that outgrows a
+short viewport is invisible at the size tests normally run.
+
 **Keep the nav one level deep.** Every row is a flat link. Do not expand one item into a
 sublist while its siblings stay flat: the nav then has no consistent shape, and the expanding
 row ends up holding several controls at once.

@@ -19,6 +19,7 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
   # had ever exercised the mobile drawer: it only exists below lg (1024px). Resizing per test
   # rather than adding a second driver keeps one browser for the suite.
   PHONE = [375, 812].freeze
+  CHROMEBOOK = [1366, 768].freeze
   DEFAULT_SIZE = [1400, 1400].freeze
 
   # Restores the default size afterwards. Capybara reuses the browser between tests, so a test
@@ -35,6 +36,16 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
   ensure
     resize_window_to(*DEFAULT_SIZE)
     wait_until { desktop_viewport? }
+  end
+
+  # The primary target: students on school Chromebooks. The default 1400x1400 window is taller
+  # than any real screen, so anything that only overflows on a short viewport - a long sidebar,
+  # for one - is invisible without this.
+  def in_chromebook_viewport
+    resize_window_to(*CHROMEBOOK)
+    yield
+  ensure
+    resize_window_to(*DEFAULT_SIZE)
   end
 
   private
@@ -70,10 +81,20 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
     assert offscreen_to_the_left?(selector), message
   end
 
+  # Waits for the panel to be *fully* in, not merely peeking. offscreen_to_the_left? goes false
+  # the instant the panel starts entering, so a test that clicked straight afterwards was
+  # clicking a moving target - which failed about one run in three with "drawer should be off
+  # canvas once closed", because the close click had landed mid-transition.
   def assert_onscreen(selector, message)
-    wait_until { !offscreen_to_the_left?(selector) }
+    wait_until { fully_onscreen?(selector) }
 
-    assert_not offscreen_to_the_left?(selector), message
+    assert fully_onscreen?(selector), message
+  end
+
+  def fully_onscreen?(selector)
+    page.evaluate_script(
+      "document.querySelector(#{selector.to_json}).getBoundingClientRect().left >= -1"
+    )
   end
 
   def wait_until(timeout: Capybara.default_max_wait_time)

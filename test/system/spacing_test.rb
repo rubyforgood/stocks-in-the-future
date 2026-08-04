@@ -62,4 +62,28 @@ class SpacingTest < ApplicationSystemTestCase
                     "card header to content measured #{gap}px; the header's padding stacking " \
                     "on a full p-5 body is the usual cause"
   end
+  # The nav is the thing most likely to grow past a short viewport: someone adds a section and
+  # nobody notices, because the default test window is 1400px tall and no real screen is. Ten
+  # admin links at 44px with 24px section gaps measured 636px against 561px of available height
+  # and scrolled; at 36px they measure 561px and do not.
+  test "the admin sidebar fits a Chromebook without scrolling" do
+    sign_in(create(:admin))
+
+    in_chromebook_viewport do
+      visit admin_root_path
+
+      overflow = page.evaluate_script(<<~JS)
+        (function () {
+          const nav = document.querySelector("#admin-navigation");
+          if (!nav) return null;
+          return nav.scrollHeight - nav.clientHeight;
+        })()
+      JS
+
+      assert_not_nil overflow, "expected the admin sidebar to be present"
+      assert overflow <= 0,
+             "the admin sidebar overflows a 1366x768 Chromebook by #{overflow}px; a nav row is " \
+             "36px at lg, so this usually means rows or sections were added or loosened"
+    end
+  end
 end

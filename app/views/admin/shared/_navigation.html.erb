@@ -26,11 +26,11 @@
        items: [{ label: "Announcements", path: admin_announcements_path, icon: "megaphone" }] }
    ] %>
 
-<div class="space-y-6">
+<div class="space-y-4">
   <% sections.each do |section| %>
     <div>
       <% if section[:heading] %>
-        <h2 class="px-3 mb-2 text-xs font-semibold text-slate-500"><%= section[:heading] %></h2>
+        <h2 class="px-3 mb-1 text-xs font-semibold text-slate-500"><%= section[:heading] %></h2>
       <% end %>
 
       <div class="space-y-1">
@@ -52,7 +52,7 @@
       production destination. %>
   <% if Rails.env.development? %>
     <div>
-      <h2 class="px-3 mb-2 text-xs font-semibold text-slate-500">Development</h2>
+      <h2 class="px-3 mb-1 text-xs font-semibold text-slate-500">Development</h2>
       <div class="space-y-1">
         <% active = nav_section_active?(admin_component_demo_index_path) %>
         <% demo_class = "flex min-h-11 w-full items-center gap-3 rounded-lg py-2 pr-3 text-sm " \

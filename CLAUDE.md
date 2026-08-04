@@ -27,6 +27,27 @@ from now.
 moves** — current structure, target structure, the order of moves, and what each
 step breaks.
 
+## Standing instruction: check both references, and both sides
+
+**Before choosing any value — a size, a colour, a spacing, a pattern — check two things:**
+
+1. **`design.md`**, which is the written spec for this app. It has usually already decided,
+   and more than once it had recorded the exact bug being rediscovered.
+2. **What the field does** — Stripe, Shopify, GitHub, Polaris, Primer, Material, Tailwind
+   UI. Where `design.md` is silent, this is the tiebreak; where it disagrees with all of
+   them, that is worth raising rather than silently following either.
+
+Checking a component that already exists is *not* the same as checking the spec. Sweeping
+fourteen badges onto a component that itself carried an unspecified ring standardised the
+drift instead of removing it.
+
+**Apply every instruction to both the app and the admin side.** They are one product, and a
+fix applied to one half creates exactly the inconsistency the instruction was meant to
+remove. This has bitten repeatedly: a teal sidebar against a white one, a page background
+that changed when you crossed into admin, `slate-50` here and `sitf-surface` there. Shared
+helpers and partials — `NavHelper`, `_page_header`, `_card`, `_badge`, `.tw-btn-*` — are the
+mechanism that makes "both sides" automatic; prefer changing those over changing call sites.
+
 ## Things that will trip you up
 
 **Sign in with a username, not an email.** Devise is configured with

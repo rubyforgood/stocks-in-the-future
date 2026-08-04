@@ -13,8 +13,16 @@
 # replaces was readable at 8.80:1 but is labelled fill-only for charts in the token file, and
 # it was the loudest colour in the palette carrying the most repeated state in the app.
 module NavHelper
-  NAV_ROW_BASE = "flex min-h-11 w-full items-center gap-3 rounded-lg py-2 pr-3 text-sm " \
-                 "font-medium transition-colors focus-visible:outline-2 " \
+  # 44px as a drawer on a phone, 36px as a sidebar on a desktop. A desktop sidebar row is 32-36px
+  # across the field - Notion is about 27, Linear 28, GitHub and Stripe 32, Tailwind UI and
+  # Polaris 36 - while 44px is the touch figure, and Material's 56px drawer is mobile-first.
+  # Holding 44px at every width made ten admin links occupy 652px, which does not fit the 768px
+  # Chromebook this is built for.
+  #
+  # WCAG 2.5.8 (AA) asks for 24x24, so 36px clears it with room; 44px is AAA / Apple HIG and is
+  # kept where the finger is, below lg.
+  NAV_ROW_BASE = "flex min-h-11 lg:min-h-9 w-full items-center gap-3 rounded-lg py-2 lg:py-1.5 " \
+                 "pr-3 text-sm font-medium transition-colors focus-visible:outline-2 " \
                  "focus-visible:outline-offset-2 focus-visible:outline-sitf-primary"
 
   def nav_row_class(active:)

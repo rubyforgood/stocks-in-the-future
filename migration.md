@@ -618,6 +618,36 @@ signalled by colour alone, so it now carries `aria-current="page"`.
 the table card on any of the eight index pages, and exactly one `aria-current` tab, above
 the card rather than in it. Verified by moving the tabs back inside and watching it fail.
 
+### Sidebar density, and a standing instruction about both sides
+
+**The admin sidebar scrolled on the machine it is built for.** Ten links at 44px rows with 24px
+section gaps measured **636px against 561px of available height at 1366x768**. At `lg:min-h-9`
+(36px), `space-y-4` groups and `mb-1` headings it measures **561px and fits**. Both figures were
+measured directly, and the before figure by temporarily reverting the helper rather than by
+arithmetic.
+
+**36px is the desktop figure across the field** - Notion about 27, Linear 28, GitHub and Stripe
+32, Tailwind UI and Polaris 36. 44px is the touch figure, and Material's 56px drawer is
+mobile-first. So the row is `min-h-11 lg:min-h-9`: the phone drawer keeps its 44px target, the
+desktop sidebar gets the density. WCAG 2.5.8 (AA) asks 24x24, which 36px clears comfortably.
+
+Both navs moved together because they share `NavHelper` - which is the point of having it.
+
+**`in_chromebook_viewport` is new**, and `spacing_test` now asserts the admin sidebar does not
+overflow 1366x768. The default test window is 1400px *tall* and no real screen is, so a sidebar
+that outgrows a short viewport is invisible at the size the suite normally runs. That is why this
+reached a person before it reached a test.
+
+**A flake I introduced, found and fixed here.** `assert_onscreen` returned as soon as the drawer
+started entering, so a test that clicked immediately afterwards was clicking a moving target. It
+failed about one run in three with "drawer should be off canvas once closed". It now waits for the
+panel to be *fully* in (`left >= -1`). Four consecutive clean system runs after.
+
+**Standing instruction recorded in CLAUDE.md**, since it generalises past this change: check
+`design.md` *and* what the field does before choosing any value, and apply every instruction to
+both the app and the admin side. Checking an existing component is not the same as checking the
+spec - that is how an unspecified ring reached every badge in the app.
+
 ### Sentence case, pass eight: the residue, and what is correctly Title Case
 
 A wider sweep after pass seven - text nodes in *any* tag, every quoted string in `app/**/*.rb`,
