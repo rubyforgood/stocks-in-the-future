@@ -1,6 +1,6 @@
 <div class="flex flex-col h-full w-full">
 
-  <div class="px-6 pt-6">
+  <div class="pt-6">
     <%# The button was bg-blue-500 with white bold text: off-brand, and 3.68:1, which fails the
         4.5:1 gate for label text. tw-btn-primary is the brand teal at 6.18:1. %>
     <%= render layout: "components/ui/page_header", locals: { title: "Classrooms" } do %>
@@ -10,7 +10,7 @@
     <% end %>
   </div>
 
-  <div class="flex-1 px-6 pb-6">
+  <div class="flex-1 pb-6">
     <%= render "shared/table_container" do %>
       <thead>
         <tr class="table-header-row">

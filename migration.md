@@ -618,6 +618,28 @@ signalled by colour alone, so it now carries `aria-current="page"`.
 the table card on any of the eight index pages, and exactly one `aria-current` tab, above
 the card rather than in it. Verified by moving the tabs back inside and watching it fail.
 
+### The content gutter was double on the app side
+
+**Measured: admin 24px, app 48px, home 53px.** The app's `main` carried `px-4 lg:px-6` and then
+five page wrappers added `px-4 lg:px-6` of their own on top of it - `stocks/index`,
+`portfolios/show`, `students/new`, `students/edit`, and the two `px-6` wrappers I had added to
+`orders/index` and `classrooms/index` myself. Home was worse again because `max-w-5xl` is narrower
+than the space available, so `mx-auto` centred it and added ~29px more.
+
+**The layout owns the gutter now; no page adds its own.** All of them measure 24px. Admin's inner
+wrapper also moved from a flat `p-6` to `p-4 lg:p-6`, so the mobile padding matches the app's 16px
+rather than being 24px on a phone.
+
+**Content width unified on `max-w-7xl`** - already 35 call sites and what design.md references.
+`max-w-[1180px]` was an arbitrary value the token rules exclude, and home's `max-w-5xl` was the
+reason one page had a different gutter from every other.
+
+**A recorded deviation from design.md.** Its page-rhythm entry says `lg:px-8` (32px). I used 24px:
+admin already rendered it, so the app converges on admin rather than both moving; the report was
+that the gap was too large; and 24px is mid-field (Material and Stripe 24, GitHub 24-32, Tailwind
+UI 32, Polaris 16-20). The entry also uses the `sm:` tier this app does not, so it was already
+partly superseded. Stating it so it is a decision rather than drift.
+
 ### Card, table and footer spacing, all measured
 
 **Tables were two systems.** Four student-facing tables used the shared `table-*` classes

@@ -112,4 +112,37 @@ class SpacingTest < ApplicationSystemTestCase
                     "the header is #{offset}px off its column; admin tables writing their own " \
                     "cell padding instead of the shared table-* classes is the usual cause"
   end
+  # The layout owns the gutter between the sidebar and the content. When a page added its own
+  # horizontal padding on top of main's, the app rendered 48px against admin's 24px - and 53px on
+  # home, where a narrower max-width let mx-auto centre the column and widen it further.
+  GUTTER = 24
+
+  test "the gutter between sidebar and content is the same on both sides" do
+    student = create(:student, :with_portfolio, classroom: create(:classroom, :with_trading))
+
+    sign_in(create(:admin))
+    visit admin_users_path
+
+    assert_in_delta GUTTER, sidebar_to_content_gutter(".tw-card"), 2,
+                    "admin content gutter is off"
+
+    sign_out(:user)
+    sign_in(student)
+    visit root_path
+
+    assert_in_delta GUTTER, sidebar_to_content_gutter("section.tw-card"), 2,
+                    "app content gutter is off; a page adding its own px on top of main's, or a " \
+                    "max-width narrow enough for mx-auto to centre it, are the usual causes"
+  end
+
+  def sidebar_to_content_gutter(card_selector)
+    page.evaluate_script(<<~JS)
+      (function () {
+        const nav = document.querySelector("nav[aria-label='Main'], #admin-navigation");
+        const card = document.querySelector(#{card_selector.to_json});
+        if (!nav || !card) return null;
+        return Math.round(card.getBoundingClientRect().left - nav.getBoundingClientRect().right);
+      })()
+    JS
+  end
 end

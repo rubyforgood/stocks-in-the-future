@@ -282,6 +282,28 @@ badge in eight different treatments. It is now used everywhere, including `boole
 helper could not move onto the component — whose success tone is the lighter `bg-green-50` with a
 ring — without failing for no behavioural reason. Assert the tone family and the scale.
 
+### Content gutter and width
+
+**The layout owns the gutter. A page never adds its own horizontal padding.** `main` carries
+`px-4 lg:px-6`, so the gap between the sidebar and the content is **24px** at `lg` and 16px below
+it, on both sides of the product.
+
+Measured before the fix: **admin 24px, app 48px**, because the app's `main` had `lg:px-6` *and*
+five page wrappers added `px-4 lg:px-6` of their own on top. Home was **53px**, where a narrower
+`max-w-5xl` let `mx-auto` centre the column and widen the gap further.
+
+24px sits in the middle of the field - Material and Stripe 24, GitHub 24-32, Tailwind UI's
+dashboard shell 32, Polaris 16-20. **Note the deliberate deviation:** the page-rhythm entry above
+says `lg:px-8` (32px), which is CASA prose that also uses the `sm:` tier this app does not. 24px
+was chosen because admin already rendered it, so the app converges on admin rather than both
+moving, and because the report was that the gap was too large.
+
+**Content width is `max-w-7xl`.** It is what 35 call sites and this document already use.
+`max-w-[1180px]` was an arbitrary value the token rules rule out, and home's `max-w-5xl` was
+narrow enough that `mx-auto` centred it and changed the gutter on one page only.
+
+`spacing_test` asserts the gutter matches on both sides.
+
 ### Sidebar footer
 
 **A footer row is an ordinary nav row, pinned.** Same `px-3` inset, same 4px rhythm, separated
