@@ -241,11 +241,21 @@ view. I then wrote a design.md rule *about* those buttons without ever rendering
 control lives in a table's trailing column, measure its box against the scroll container's box at
 375px, and check `scrollWidth` against `clientWidth`.
 
-**An icon-only control aligns by its glyph, not its box - but only if it is borderless.** A 44px hit
-area centring a 24px icon puts the glyph 10px inside the container's padding, so a header trigger on
-the same `px-4` as the content still looks 10px further in. Pull the hit area out (`-ml-2.5`). If the
-control has a *visible* fill or border, do the opposite - align the box - or it ends up hanging off
-the edge. I pulled a filled teal hamburger out and left it 6px from the viewport edge before noticing.
+**An icon control aligns by its glyph; a negative margin drags whatever paints along with it.** A
+44px hit area centring a 24px icon puts the glyph 10px inside the padding, so pull the *hit area* out
+(`-ml-2.5`) to get the glyph onto the gutter. I got the consequence wrong twice in a row: first with
+a filled teal button, which then hung 6px off the edge, and then - after making it borderless at
+rest - with a `hover:bg-*` that put a 44px fill 6px from the edge the moment the pointer arrived.
+**"Borderless" has to mean in every state.**
+
+The answer is Material 3's state layer: **the target and the surface are different boxes.** The
+button is the 44px target and paints nothing; a nested span is a 40px circle that carries the hover
+fill, so it starts 8px from the edge while the glyph still sits on the 16px gutter. When an inset
+looks wrong, ask what paints, not what is positioned.
+
+And do not assert it with a colour: the button's resting background is transparent either way, and
+`@media (hover:hover)` never matches here, so a colour check cannot see the failure. Assert the
+surface's geometry plus the class contract that the fill is on the inset element.
 
 **Check `overflow-auto` on `<main>` before measuring gutters.** It makes main its own scroll
 container, so the scrollbar sits inside the padding box and the right gutter measures ~15px wider

@@ -271,6 +271,16 @@ already on the trading floor.
 3. `submit_button`'s signature gained an option rather than changing, so existing calls are
    unaffected.
 
+### The navigation trigger is a target plus a state layer
+
+**What.** Both navigation triggers are now a 44px `<button>` that paints nothing, wrapping a 40px
+`rounded-full` `<span>` that carries the hover fill via `group-hover:`.
+
+**Why it has blast radius.** The trigger's markup gained a level, so a selector like
+`[data-testid='open-navigation'] > svg` still works but anything asserting the button's own
+background or matching its direct children will not. The `sr-only` label stays a direct child of the
+button so the accessible name is unchanged.
+
 ### One gutter for chrome and content; the app bar trigger is a ghost
 
 **What.** Both app bars are `px-4 lg:px-6`, matching `main`. The navigation trigger takes `-ml-2.5`
@@ -281,8 +291,10 @@ signed-out `main` is `p-4 lg:p-6` rather than a flat `p-6`.
 **Why it has blast radius.**
 
 1. **The negative margins are load-bearing and look like mistakes.** Removing `-ml-2.5` puts the
-   glyph 10px off the gutter again. They are only valid while the controls are borderless - give
-   either one a fill or a border and the inset has to go with it.
+   glyph 10px off the gutter again. They are only valid while the pulled-out element paints
+   **nothing in any state** - the navigation trigger is a bare 44px target, and its hover fill lives
+   on a nested 40px circle so the paint keeps 8px from the viewport edge. Moving that fill back onto
+   the button, or giving the button a border, reintroduces the overhang.
 2. **`<main>` is no longer a scroll container.** Anything that assumed it scrolls (a scroll-position
    script, a sticky offset measured against it) would change behaviour. `page_width_test` still reads
    `main.scrollWidth`, which reports content overflow regardless of the overflow property, so it is

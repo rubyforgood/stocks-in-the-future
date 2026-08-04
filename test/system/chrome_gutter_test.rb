@@ -103,25 +103,81 @@ class ChromeGutterTest < ApplicationSystemTestCase
     end
   end
 
-  # Both halves of the product use the same trigger treatment.
-  test "the navigation trigger is borderless on both sides" do
+  # Both halves of the product use the same trigger treatment, and the visible surface keeps clear
+  # of the viewport edge.
+  #
+  # The optical inset that puts the glyph on the gutter pulls a 44px hit area to 6px from the edge.
+  # That is fine while nothing paints there - but the trigger has a hover background, so the fill
+  # rendered 6px from the edge with 6px to the left of the glyph against 16px on the right. A
+  # negative margin is only safe on a control that paints *nothing*, at rest or on hover.
+  #
+  # Resolved with Material 3's state layer: the 44px target stays, and the visible surface is a
+  # 40px circle inside it, so it stops 8px short of the edge - the same inset the account menu's
+  # pill has on the right - while the glyph still lands on the 16px gutter.
+  #
+  # Asserted as geometry and as a class contract, because Tailwind emits hover: inside
+  # @media (hover:hover) and the headless Chromium here reports (hover: none): the rendered hover
+  # fill cannot be observed at all, which is why the first version of this test - checking the
+  # button's resting backgroundColor - could not have caught the bug it was written for.
+  test "the navigation trigger's visible surface clears the viewport edge" do
     sign_in(student_with_data)
+
     in_phone_viewport do
       visit stocks_path
-      app_bg = page.evaluate_script(
-        "getComputedStyle(document.querySelector(\"[data-testid='open-navigation']\")).backgroundColor"
-      )
-
-      sign_in(create(:admin))
-      visit admin_users_path
-      admin_bg = page.evaluate_script(
-        "getComputedStyle(document.querySelector(\"[data-testid='open-navigation']\")).backgroundColor"
-      )
-
-      assert_equal admin_bg, app_bg,
-                   "the two navigation triggers have different fills; the optical inset they " \
-                   "both use is only correct for a borderless control"
-      assert_equal "rgba(0, 0, 0, 0)", app_bg, "the trigger should have no fill at rest"
+      assert_trigger_surface("app")
     end
+  end
+
+  test "admin's navigation trigger has the same surface" do
+    sign_in(create(:admin))
+
+    in_phone_viewport do
+      visit admin_users_path
+      assert_trigger_surface("admin")
+    end
+  end
+
+  def assert_trigger_surface(label)
+    # Capybara waits; evaluate_script does not. Measuring straight after a visit raced - one run in
+    # nine read the page before the account menu existed, so its inset came back nil.
+    assert_selector "[data-testid='open-navigation']", visible: :all
+    assert_selector "[data-testid='account-menu']", visible: :all
+
+    m = page.evaluate_script(<<~JS)
+      (function () {
+        const vw = document.documentElement.clientWidth;
+        const btn = document.querySelector("[data-testid='open-navigation']");
+        const surface = btn.querySelector("span:not(.sr-only)");
+        const glyph = btn.querySelector("svg");
+        const summary = document.querySelector("[data-testid='account-menu'] > summary");
+        const b = btn.getBoundingClientRect();
+        const s = surface.getBoundingClientRect();
+        return {
+          target: Math.round(Math.min(b.width, b.height)),
+          surfaceLeft: Math.round(s.left),
+          surfaceSize: Math.round(s.width),
+          glyphLeft: Math.round(glyph.getBoundingClientRect().left),
+          buttonPaints: getComputedStyle(btn).backgroundColor !== "rgba(0, 0, 0, 0)",
+          surfaceHoverClass: /group-hover:bg-/.test(surface.className),
+          accountPillRight: summary
+            ? Math.round(vw - summary.getBoundingClientRect().right)
+            : null
+        };
+      })()
+    JS
+
+    assert_operator m["target"], :>=, 44, "#{label}: the touch target shrank below 44px"
+    assert_equal 16, m["glyphLeft"], "#{label}: the glyph is off the content gutter"
+    assert_operator m["surfaceLeft"], :>=, 8,
+                    "#{label}: the visible surface is #{m['surfaceLeft']}px from the edge - it " \
+                    "hangs off. Put the optical inset on the hit area, not on the thing that paints"
+    assert_equal m["accountPillRight"], m["surfaceLeft"],
+                 "#{label}: the leading and trailing controls sit at different insets"
+    assert_not m["buttonPaints"],
+               "#{label}: the pulled-out button paints its own background, which is what hangs " \
+               "off the edge; the state layer inside it should paint instead"
+    assert m["surfaceHoverClass"],
+           "#{label}: the hover fill is not on the inset surface. It cannot be measured in this " \
+           "browser - @media (hover:hover) never matches - so its placement is asserted as a class"
   end
 end

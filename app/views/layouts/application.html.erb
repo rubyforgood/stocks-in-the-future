@@ -38,11 +38,15 @@
                   data-testid="open-navigation"
                   aria-expanded="false"
                   aria-controls="main-navigation"
-                  class="lg:hidden -ml-2.5 flex min-h-11 min-w-11 items-center justify-center rounded-lg text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary">
+                  class="group lg:hidden -ml-2.5 flex min-h-11 min-w-11 items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary">
             <span class="sr-only">Open navigation menu</span>
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
+            <%# The visible surface is 40px inside a 44px target, so it stops 8px short of the
+                viewport edge while the glyph still lands exactly on the 16px content gutter. %>
+            <span class="flex size-10 items-center justify-center rounded-full text-slate-600 transition-colors group-hover:bg-slate-100 group-hover:text-slate-900">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </span>
           </button>
           <%= image_tag "SITF-Horz-no-tag-logo.svg", class: "h-8 w-auto", alt: "Stocks in The Future" %>
         </div>
