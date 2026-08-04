@@ -36,7 +36,7 @@
         <div>
           <dt class="text-sm font-medium text-slate-700">Transaction type</dt>
           <dd class="mt-1 text-sm text-slate-900">
-            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+            <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium <%= @portfolio_transaction.deposit? ? 'bg-green-100 text-green-800' : 'bg-slate-100 text-slate-700' %>">
               <%= @portfolio_transaction.transaction_type.humanize %>
             </span>
           </dd>

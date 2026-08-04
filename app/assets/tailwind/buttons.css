@@ -57,3 +57,17 @@
 .tw-btn-sell {
   @apply inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-lg bg-amber-700 px-4 text-sm font-medium text-white shadow-sm transition-colors hover:bg-amber-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary;
 }
+
+/* Inline text link.
+ *
+ * Named once because 34 links across the app hand-wrote a generic Tailwind blue
+ * (text-blue-600 hover:text-blue-800, plus blue-700/800/900 variants) while newer
+ * code used the brand teal - two link colours in one product. Contrast was never
+ * the problem: blue-600 is 5.17:1 on white. Brand consistency was.
+ *
+ * sitf-primary-dark is 9.01:1 on white and 8.61:1 on the slate-50 page. Underline
+ * on hover rather than always, so a table dense with links is not a field of rules.
+ */
+.tw-link {
+  @apply font-medium text-sitf-primary-dark underline-offset-2 transition-colors hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary;
+}

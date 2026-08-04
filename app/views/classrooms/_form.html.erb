@@ -63,7 +63,7 @@
         <%= check_box_tag "classroom[grade_ids][]",
                           grade.id,
                           is_checked,
-                          class: "rounded border-slate-300 text-blue-600 focus-visible:ring-sitf-primary" %>
+                          class: "rounded border-slate-300 text-sitf-primary focus-visible:ring-sitf-primary" %>
 
         <div class="flex-1">
           <div class="font-medium text-slate-900">
@@ -81,7 +81,7 @@
 
   <div class="my-5">
     <div class="flex items-center gap-3">
-      <%= form.check_box :trading_enabled, class: "rounded border-slate-300 text-blue-600 focus-visible:ring-sitf-primary" %>
+      <%= form.check_box :trading_enabled, class: "rounded border-slate-300 text-sitf-primary focus-visible:ring-sitf-primary" %>
       <%= form.label :trading_enabled, "Enable trading", class: 'tw-label-primary' %>
     </div>
     <p class="text-sm text-slate-600 mt-1">When enabled, students in this classroom can place buy and sell orders.</p>
@@ -103,7 +103,7 @@
                             teacher.id,
                             is_checked,
                             {
-                              class: "rounded border-slate-300 text-blue-600 focus-visible:ring-sitf-primary mt-0.5",
+                              class: "rounded border-slate-300 text-sitf-primary focus-visible:ring-sitf-primary mt-0.5",
                               id: "classroom_teacher_ids_#{teacher.id}"
                             } %>
 

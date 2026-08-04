@@ -34,7 +34,7 @@
               <tr id="<%= dom_id(transaction) %>" class="hover:bg-slate-50 transition-colors">
                 <td class="whitespace-nowrap px-3 py-4 text-sm">
                   <%= link_to admin_portfolio_transaction_path(transaction),
-                              class: "font-medium text-sitf-primary-dark underline-offset-2 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary" do %>
+                              class: "font-medium tw-link focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary" do %>
                     <%= transaction.created_at.strftime("%b %d, %Y") %>
                   <% end %>
                 </td>

@@ -31,7 +31,7 @@
             <div class="mb-1 text-xs font-medium text-blue-700" data-testid="cash_balance_label">
               Cash balance
             </div>
-            <div class="text-2xl font-bold text-blue-900 tabular-nums">
+            <div class="text-2xl font-bold text-slate-900 tabular-nums">
               <%= number_to_currency(@student.portfolio.cash_balance) %>
             </div>
           </div>
@@ -42,14 +42,14 @@
             <div class="mb-1 text-xs font-medium text-green-700" data-testid="total_portfolio_worth_label">
               Total portfolio worth
             </div>
-            <div class="text-2xl font-bold text-green-900 tabular-nums">
+            <div class="text-2xl font-bold text-slate-900 tabular-nums">
               <%= number_to_currency(@student.portfolio.total_portfolio_worth) %>
             </div>
           </div>
 
           <div class="rounded-lg bg-purple-50 p-4">
             <div class="mb-1 text-xs font-medium text-purple-700">Total stocks</div>
-            <div class="text-2xl font-bold text-purple-900 tabular-nums">
+            <div class="text-2xl font-bold text-slate-900 tabular-nums">
               <%= @student.portfolio.portfolio_stocks.sum(:shares).to_i %>
             </div>
           </div>

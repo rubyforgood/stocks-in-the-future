@@ -37,7 +37,7 @@
               <% columns.each do |column| %>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-900" data-testid="<%= column[:attribute] %>">
                   <% if column[:link] %>
-                    <%= link_to format_attribute(record, column[:attribute]), [:admin, route_model(record)], class: "text-blue-600 hover:text-blue-800 font-medium" %>
+                    <%= link_to format_attribute(record, column[:attribute]), [:admin, route_model(record)], class: "tw-link font-medium" %>
                   <% else %>
                     <%= format_attribute(record, column[:attribute]) %>
                   <% end %>
@@ -46,7 +46,7 @@
               <% if options[:show_actions] != false %>
                 <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium lg:pr-6">
                   <div class="flex justify-end gap-2">
-                    <%= link_to "View", [:admin, route_model(record)], class: "text-blue-600 hover:text-blue-800" %>
+                    <%= link_to "View", [:admin, route_model(record)], class: "tw-link" %>
                     <%= link_to "Edit", [:edit, :admin, route_model(record)], class: "text-slate-600 hover:text-slate-800" %>
                     <%# A vague "Are you sure?" gives no basis for the decision.
                         Name the record so the confirmation is meaningful. %>

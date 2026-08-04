@@ -78,7 +78,7 @@
                 <td class="px-3 py-3 text-sm text-slate-900"><%= order.user.display_name %></td>
                 <td class="px-3 py-3 text-sm text-slate-900">
                   <%= link_to admin_stock_path(order.stock),
-                              class: "font-medium text-sitf-primary-dark underline-offset-2 hover:underline" do %>
+                              class: "font-medium tw-link" do %>
                     <%= order.action.humanize %> <%= order.stock.ticker %>
                   <% end %>
                 </td>
@@ -118,7 +118,7 @@
                 <td class="px-3 py-3 text-sm text-slate-900">
                   <%= link_to transaction.portfolio.username,
                               admin_portfolio_transaction_path(transaction),
-                              class: "font-medium text-sitf-primary-dark underline-offset-2 hover:underline" %>
+                              class: "font-medium tw-link" %>
                 </td>
                 <td class="px-3 py-3 text-sm text-slate-600"><%= transaction.reason&.humanize || transaction.transaction_type.humanize %></td>
                 <td class="whitespace-nowrap px-3 py-3 text-right text-sm font-medium text-slate-900 tabular-nums">
@@ -130,7 +130,7 @@
         </table>
         <div class="border-t border-slate-200 px-5 py-3">
           <%= link_to "All transactions", admin_portfolio_transactions_path,
-                      class: "text-sm font-medium text-sitf-primary-dark underline-offset-2 hover:underline" %>
+                      class: "text-sm font-medium tw-link" %>
         </div>
       <% else %>
         <div class="p-5">

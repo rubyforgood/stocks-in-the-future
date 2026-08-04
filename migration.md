@@ -618,6 +618,36 @@ signalled by colour alone, so it now carries `aria-current="page"`.
 the table card on any of the eight index pages, and exactly one `aria-current` tab, above
 the card rather than in it. Verified by moving the tabs back inside and watching it fail.
 
+### One page surface, one link colour
+
+**Page background.** The app was `bg-sitf-surface` (`#f7f9f3`) and admin was `slate-50`, so
+moving between them changed the paper as well as the furniture. Both are `slate-50` now —
+admin's, as asked. `sitf-surface` has no remaining references; the token stays defined as part
+of the brand palette.
+
+**App bar.** Both layouts are `bg-white border-b border-slate-200`. That also retires the
+`shadow-xs` I put on the app header two changes ago: it existed only because the header was the
+same colour as the page, which is no longer true. The note in this document about "two
+treatments for the same piece of furniture" is settled.
+
+**Links.** 34 links hand-wrote a generic Tailwind blue while newer code used the brand teal —
+two link colours in one product. `.tw-link` names it once: `sitf-primary-dark`, 9.01:1 on white,
+underline on hover. Contrast was never the issue (blue-600 is 5.17:1); consistency was.
+
+**Found while sweeping, and fixed:**
+
+- The **selected filter tab** used generic blue while the nav's selected row used the brand —
+  two treatments for the same idea, on the same page.
+- The **transaction type badge** was blue on the show page and green/slate on the index I had
+  just written. Same data, two treatments; the index's is the one that distinguishes deposits.
+- The **breadcrumb hover** and the **checkbox accent** were both generic blue.
+- The **student show page coloured its stat numerals** (`text-blue-900`, `text-green-900`,
+  `text-purple-900`). design.md's KPI entry is explicit that a numeral is always `slate-900` and
+  never carries state — I had applied that on the new dashboard and missed it one page over.
+
+**Left deliberately:** blue that is categorical rather than interactive — the `:info` badge tone
+and the hue-coded KPI icon tiles, both of which design.md sanctions.
+
 ### Portfolio transactions gained an index, and the dashboard became a dashboard
 
 **Why transactions were visible but not actionable.** `config/routes.rb` had

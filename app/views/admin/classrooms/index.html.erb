@@ -68,12 +68,12 @@
                 </td>
                 <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium lg:pr-6">
                   <div class="flex justify-end gap-2">
-                    <%= link_to "View", admin_classroom_path(classroom), class: "text-blue-600 hover:text-blue-800" %>
+                    <%= link_to "View", admin_classroom_path(classroom), class: "tw-link" %>
                     <%= link_to "Edit", edit_admin_classroom_path(classroom), class: "text-slate-600 hover:text-slate-800" %>
                     <% if classroom.archived? %>
                       <%= link_to "Activate", toggle_archive_admin_classroom_path(classroom),
                                   data: { turbo_method: :patch, turbo_confirm: "Are you sure you want to activate this classroom?" },
-                                  class: "text-blue-600 hover:text-blue-800" %>
+                                  class: "tw-link" %>
                     <% else %>
                       <%= link_to "Archive", toggle_archive_admin_classroom_path(classroom),
                                   data: { turbo_method: :patch, turbo_confirm: "Are you sure you want to archive this classroom? Teachers and students will no longer be able to access it, but all historical data will be preserved." },

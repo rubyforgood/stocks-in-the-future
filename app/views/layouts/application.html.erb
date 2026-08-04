@@ -11,14 +11,14 @@
     <%= stylesheet_link_tag "actiontext", 'data-turbo-track': "reload" %>
     <%= javascript_importmap_tags %>
   </head>
-  <body class="min-h-screen bg-sitf-surface" data-controller="drawer">
+  <body class="min-h-screen bg-slate-50" data-controller="drawer">
     <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-100 focus:rounded-md focus:bg-sitf-primary focus:px-4 focus:py-2 focus:text-sitf-on-primary focus:outline-2 focus:outline-offset-2 focus:outline-sitf-primary-dark">Skip to main content</a>
     <% if user_signed_in? %>
-      <%# shadow-xs, not a rule. The bar is fixed and the same colour as the page, so it
-          needs some cue that content passes beneath it; a very low shadow reads as a layer
-          rather than as a divider. What was here was a full-width 1px bar in
-          sitf-primary-dark - an 8.5:1 dark line across the page, far heavier than chrome. %>
-      <header class="fixed top-0 left-0 w-full z-50 flex items-center justify-between py-4 px-6 h-16 bg-sitf-surface shadow-xs">
+      <%# Same treatment as the admin app bar: white against the slate-50 page, with the
+          hairline bottom edge design.md blesses for fixed chrome. It was a full-width 1px bar
+          in sitf-primary-dark (8.5:1, body-text weight for furniture), then briefly shadow-xs
+          while the header was the same colour as the page. %>
+      <header class="fixed top-0 left-0 w-full z-50 flex h-16 items-center justify-between border-b border-slate-200 bg-white px-6 py-4">
         <div class="flex items-center gap-4">
           <%# A button, not a label driving a hidden checkbox: a label is announced as a
               checkbox rather than as a control that opens navigation. %>
@@ -57,7 +57,7 @@
       <%= render 'layouts/navbar' %>
 
       <!-- Main: responsive margins and padding -->
-      <main id="main-content" class="min-h-screen overflow-auto px-4 lg:px-6 ml-0 lg:ml-64 mt-16 pb-6 bg-sitf-surface">
+      <main id="main-content" class="min-h-screen overflow-auto px-4 lg:px-6 ml-0 lg:ml-64 mt-16 pb-6 bg-slate-50">
         <%= render 'layouts/flash' %>
 
         <%= yield %>
@@ -65,7 +65,7 @@
     <% else %>
       <%# Signed out there was no header at all, so the only route in was whatever page you
           happened to land on. The logo and one Sign in action, matching the signed-in bar. %>
-      <header class="flex h-16 w-full items-center justify-between px-6 py-4 bg-sitf-surface shadow-xs">
+      <header class="flex h-16 w-full items-center justify-between border-b border-slate-200 bg-white px-6 py-4">
         <%= link_to root_path, class: "inline-flex items-center rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary-dark" do %>
           <%= image_tag "SITF-Horz-no-tag-logo.svg", class: "h-8 w-auto", alt: "Stocks in The Future" %>
         <% end %>
@@ -75,7 +75,7 @@
         <% end %>
       </header>
 
-      <main id="main-content" class="min-h-screen overflow-auto p-6 bg-sitf-surface">
+      <main id="main-content" class="min-h-screen overflow-auto p-6 bg-slate-50">
         <%= render 'layouts/flash' %>
 
         <%= yield %>

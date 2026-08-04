@@ -64,7 +64,7 @@
                 </td>
                 <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium lg:pr-6">
                   <div class="flex justify-end gap-2">
-                    <%= link_to "View", user_show_path(user), class: "text-blue-600 hover:text-blue-800" %>
+                    <%= link_to "View", user_show_path(user), class: "tw-link" %>
                     <%= link_to "Edit", edit_admin_user_path(user), class: "text-slate-600 hover:text-slate-800" %>
                     <%= link_to "Delete", admin_user_path(user),
                                 data: { turbo_method: :delete, turbo_confirm: "Are you sure?" },

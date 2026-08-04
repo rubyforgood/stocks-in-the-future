@@ -198,6 +198,42 @@ Two details in that rail:
   alone, which is unavailable to a screen reader (4.1.2) and to anyone who cannot
   separate the two colours (1.4.1).
 
+### Page surface and chrome
+**One page background across the whole product: `bg-slate-50`.** The app used
+`bg-sitf-surface` (`#f7f9f3`, a warm off-white) while admin used `slate-50`, so moving between
+them changed the paper as well as the furniture. Admin's is the one that stayed, because the
+neutral reads as chrome rather than as a brand statement and the cards on it are white.
+
+**The app bar is `bg-white` with `border-b border-slate-200`**, in both layouts. Fixed chrome
+against a scrolling page is the one place a rule is structural — see Dividers. This replaced a
+full-width 1px bar in `sitf-primary-dark` (8.5:1, body-text weight for furniture) and then,
+briefly, a `shadow-xs`, which only existed because the header was the same colour as the page.
+With the header white on a slate-50 page it is not.
+
+**Sidebars are `bg-white border-r border-slate-200`** — see Sidebar navigation.
+
+`--sitf-background` / `sitf-surface` is now unreferenced. It stays defined as part of the brand
+palette but nothing should reach for it as a page background.
+
+### Inline links
+**`.tw-link`.** `sitf-primary-dark`, medium weight, underline on hover rather than always, and a
+named focus outline. 9.01:1 on white, 8.61:1 on the slate-50 page.
+
+Before this, 34 links hand-wrote a generic Tailwind blue — `text-blue-600 hover:text-blue-800`
+plus blue-700, blue-800 and blue-900 variants — while newer code used the brand teal. Two link
+colours in one product. **Contrast was never the problem** (blue-600 is 5.17:1 on white); brand
+consistency was, and a literal repeated 34 times cannot be kept consistent by attention. Same
+reasoning as `.tw-card` and the button classes.
+
+Swept with it: the breadcrumb hover, the selected filter tab (which used generic blue while the
+nav's selected row used the brand), and the checkbox accent colour. **Blue that stays** is
+categorical rather than interactive — the `:info` badge tone, and the hue-coded KPI icon tiles,
+which design.md sanctions.
+
+One rule caught while sweeping: the student show page still coloured its stat **numerals**
+(`text-blue-900`, `text-green-900`, `text-purple-900`). The KPI entry is explicit that a numeral
+is always `slate-900` and never carries state; the tile carries it. Fixed.
+
 ### Sidebar navigation
 **One light sidebar, both sides of the app.** `bg-white` with a `border-r border-slate-200`,
 `text-slate-700` idle, `hover:bg-slate-100`. The selected row is a brand tint plus a 3px
