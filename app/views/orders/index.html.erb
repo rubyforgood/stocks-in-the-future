@@ -62,11 +62,14 @@
                 </td>
               <% end %>
               <td class="table-body-cell">
-                <div class="flex flex-col gap-1">
-                  <span class="font-medium text-base text-black leading-tight">
+                <%# The primary identifier in a table cell is body size with medium weight, not a
+                    larger face - text-base text-black outweighed every other cell and made the
+                    row look like a heading. Same scale as the rest of the table. %>
+                <div class="flex flex-col gap-0.5">
+                  <span class="font-medium text-slate-900">
                     <%= order.stock.company_name %>
                   </span>
-                  <span class="text-sm text-slate-600 leading-tight">
+                  <span class="text-xs text-slate-600">
                     <%= order.stock.ticker %>
                   </span>
                 </div>
@@ -83,21 +86,12 @@
                 </span>
               </td>
               <td class="table-body-cell">
-                <div class="box-border content-stretch flex gap-2 h-9 items-center justify-center px-4 py-2 relative rounded-[16px] shrink-0 inline-flex
-                  <%= case order.status
-                      when 'pending'
-                        'bg-yellow-100 text-yellow-800'
-                      when 'completed'
-                        'bg-green-100 text-green-800'
-                      when 'canceled'
-                        'bg-red-100 text-red-800'
-                      else
-                        'bg-slate-100 text-slate-800'
-                      end %>">
-                  <div class="font-medium leading-[0] relative shrink-0 text-[14px] text-nowrap">
-                    <p class="leading-[20px] whitespace-pre"><%= order.status.capitalize %></p>
-                  </div>
-                </div>
+                <%# Was a 36px-tall pill: h-9, px-4 py-2, 14px text, rounded-[16px], with a
+                    leading-[0] that means nothing - Figma-export markup, button-sized and
+                    bypassing the tokens. A badge is chrome: text-xs, px-2 py-0.5. %>
+                <%= render "components/ui/badge",
+                           label: order.status.capitalize,
+                           tone: order_status_tone(order) %>
               </td>
               <td class="table-body-cell">
                 <%= order.action.capitalize %>

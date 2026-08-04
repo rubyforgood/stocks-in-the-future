@@ -618,6 +618,33 @@ signalled by colour alone, so it now carries `aria-current="page"`.
 the table card on any of the eight index pages, and exactly one `aria-current` tab, above
 the card rather than in it. Verified by moving the tabs back inside and watching it fail.
 
+### Badges, table alignment, and the oversized primary cell
+
+**Cells are `align-top` now.** `.table-body-cell` was `align-middle`. The transactions table
+stacks a company name over a ticker in one column while every other cell is a single line, so
+the single-line cells floated to the vertical centre of a taller row. design.md's table tokens
+already specified `align-top`; the class did not follow them.
+
+**The order status badge was 36px tall.** `h-9 px-4 py-2` with `text-[14px]`, `rounded-[16px]`
+and a meaningless `leading-[0]` — Figma-export markup, button-sized, and made of arbitrary
+values that bypass the tokens. It is `components/ui/_badge` now: `px-2 py-0.5 text-xs`.
+
+**The badge component existed and was used once.** Fourteen other places hand-rolled a badge in
+eight distinct treatments — `px-2.5 py-0.5` and `px-2.5 py-1.5` and `rounded-md px-2 py-1`, with
+`bg-*-100` here and `bg-*-50` with a ring there. All fourteen now render the component, including
+`boolean_badge`. `order_status_tone` in `ApplicationHelper` maps a status to a tone so the two
+views that render an order status agree.
+
+**Three tests had pinned the badge to exact hues** (`bg-green-100`), which meant `boolean_badge`
+could not move onto the component — whose success tone is `bg-green-50` with a ring — without
+failing for no behavioural reason. They assert the tone family and the scale now. A test that
+pins a Tailwind shade blocks the component it is meant to protect.
+
+**Primary cells were oversized.** The trading floor rendered its ticker at `text-lg
+font-semibold` and the transactions table its company name at `text-base text-black`, in tables
+whose other cells are `text-sm`. Each row read as a heading. Both are `font-medium` at body size
+now, with the secondary line `text-xs text-slate-600`.
+
 ### The flaky test, found
 
 A single error had appeared twice across the branch, each time passing on rerun. The

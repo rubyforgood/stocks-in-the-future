@@ -1,6 +1,17 @@
 # frozen_string_literal: true
 
 module ApplicationHelper
+  # Status tone for an order, so the two places that render one agree. Presentation lives in a
+  # helper rather than the model - see design.md on the court-order pill.
+  def order_status_tone(order)
+    case order.status
+    when "pending" then :warning
+    when "completed" then :success
+    when "canceled" then :danger
+    else :neutral
+    end
+  end
+
   # Shown under the name in the account menu, so it is obvious which kind of account is
   # signed in. Admin is checked first because an admin is also a User by type.
   def account_role_label(user)

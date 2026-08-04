@@ -4,10 +4,9 @@
   <%# The status badge moves under the title rather than inside it: it was a sibling of
       the old h2, and putting it inside the h1 would make "Active" part of the page's
       accessible name. %>
-  <% status_text = @teacher.discarded? ? "Deactivated" : "Active" %>
-  <% status_tone = @teacher.discarded? ? "bg-red-50 text-red-700 ring-red-600/10" : "bg-green-50 text-green-700 ring-green-600/20" %>
-  <% status_class = "inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset #{status_tone}" %>
-  <% status_badge = tag.span(status_text, class: status_class) %>
+  <% status_label = @teacher.discarded? ? "Deactivated" : "Active" %>
+  <% status_tone = @teacher.discarded? ? :danger : :success %>
+  <% status_badge = render("components/ui/badge", label: status_label, tone: status_tone) %>
 
   <%= render layout: "components/ui/page_header",
              locals: { title: @teacher.username, description: status_badge } do %>

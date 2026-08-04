@@ -96,15 +96,9 @@ module AdminHelper
   # @return [String] HTML badge
   def boolean_badge(value)
     if value
-      content_tag(
-        :span, "Yes",
-        class: "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800"
-      )
+      render("components/ui/badge", label: "Yes", tone: :success)
     else
-      content_tag(
-        :span, "No",
-        class: "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800"
-      )
+      render("components/ui/badge", label: "No", tone: :neutral)
     end
   end
 

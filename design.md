@@ -198,6 +198,38 @@ Two details in that rail:
   alone, which is unavailable to a screen reader (4.1.2) and to anyone who cannot
   separate the two colours (1.4.1).
 
+### Badges
+**One component: `components/ui/_badge`.** `rounded-full px-2 py-0.5 text-xs font-medium` with a
+`ring-1 ring-inset`, and a tone: `:neutral :success :warning :danger :info :brand`. Every tone is
+a dark foreground on a light tint, so all clear AA, and the label always states the status so
+meaning is never colour-alone.
+
+**A badge is chrome, so it is `text-xs` and about 20px tall.** That is where Polaris badges,
+Primer labels, Atlassian lozenges and Tailwind UI badges all sit. The order status pill in the
+transactions table was `h-9 px-4 py-2` with `text-[14px]` and `rounded-[16px]` — 36px tall,
+button-sized, and made of arbitrary values that bypass the tokens, including a `leading-[0]` that
+means nothing. It was Figma-export markup that had been pasted in and never revisited.
+
+The component existed and was used **once** in the whole app; fourteen other places hand-rolled a
+badge in eight different treatments. It is now used everywhere, including `boolean_badge`.
+
+**Do not assert exact hues in tests.** Three helper tests pinned `bg-green-100`, which meant the
+helper could not move onto the component — whose success tone is the lighter `bg-green-50` with a
+ring — without failing for no behavioural reason. Assert the tone family and the scale.
+
+### Tables: alignment and the primary cell
+**Cells are `align-top`.** As soon as one cell stacks two lines — a company name over a ticker,
+a name over an email — middle alignment floats every single-line cell to the vertical centre of
+a taller row and nothing shares a baseline. Polaris, Primer, Stripe and Tailwind UI all switch
+to top alignment for exactly this. Middle is only safe when every cell is one line, which is not
+a property that stays true as columns are added.
+
+**The primary identifier is body size with medium weight**, not a larger face. The trading floor
+rendered its ticker at `text-lg font-semibold` and the transactions table its company name at
+`text-base text-black`, in cells whose neighbours are `text-sm` — which made each row read as a
+heading and left the table with no single type scale. `font-medium text-slate-900` for the
+primary value, `text-xs text-slate-600` for the secondary line beneath it.
+
 ### Page surface and chrome
 **One page background across the whole product: `bg-slate-50`.** The app used
 `bg-sitf-surface` (`#f7f9f3`, a warm off-white) while admin used `slate-50`, so moving between

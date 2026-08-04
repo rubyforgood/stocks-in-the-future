@@ -42,9 +42,9 @@
                   <%= transaction.portfolio.username %>
                 </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm">
-                  <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium <%= transaction.deposit? ? 'bg-green-100 text-green-800' : 'bg-slate-100 text-slate-700' %>">
-                    <%= transaction.transaction_type.humanize %>
-                  </span>
+                  <%= render "components/ui/badge",
+                             label: transaction.transaction_type.humanize,
+                             tone: transaction.deposit? ? :success : :neutral %>
                 </td>
                 <td class="px-3 py-4 text-sm text-slate-900"><%= transaction.reason&.humanize || "—" %></td>
                 <td class="whitespace-nowrap px-3 py-4 text-right text-sm font-medium text-slate-900 tabular-nums">

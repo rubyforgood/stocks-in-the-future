@@ -43,16 +43,16 @@
                 <div class="flex gap-1 overflow-x-auto py-1" style="max-width: 510px; min-height: 36px;">
                   <% if classroom.teachers.any? %>
                     <% classroom.teachers.each do |teacher| %>
-                      <span class="inline-flex items-center px-2.5 py-1.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200 whitespace-nowrap flex-shrink-0">
-                        <%= lucide_icon("user-round", class: "mr-1 text-blue-600 w-4 h-4 shrink-0") %>
-                        <%= teacher.display_name %>
-                      </span>
+                      <%= render "components/ui/badge",
+                                 label: teacher.display_name,
+                                 tone: :info,
+                                 class: "shrink-0 whitespace-nowrap" %>
                     <% end %>
                   <% else %>
-                    <span class="inline-flex items-center px-2.5 py-1.5 rounded-full text-xs font-medium bg-slate-100 text-slate-500 border border-slate-200 whitespace-nowrap">
-                      <%= lucide_icon("user-x", class: "mr-1 text-slate-500 w-4 h-4 shrink-0") %>
-                      No teacher assigned
-                    </span>
+                    <%= render "components/ui/badge",
+                               label: "No teacher assigned",
+                               tone: :neutral,
+                               class: "whitespace-nowrap" %>
                   <% end %>
                 </div>
               </td>

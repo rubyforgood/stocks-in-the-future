@@ -12,19 +12,9 @@
 
   <div>
     <p class="text-sm text-slate-500 font-medium">Status</p>
-    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-      <%= case order.status
-          when 'pending'
-            'bg-yellow-100 text-yellow-800'
-          when 'completed'
-            'bg-green-100 text-green-800'
-          when 'canceled'
-            'bg-red-100 text-red-800'
-          else
-            'bg-slate-100 text-slate-800'
-          end %>">
-      <%= order.status.capitalize %>
-    </span>
+    <%= render "components/ui/badge",
+               label: order.status.capitalize,
+               tone: order_status_tone(order) %>
   </div>
 
   <div>

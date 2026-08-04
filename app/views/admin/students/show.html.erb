@@ -122,9 +122,9 @@
                       <%= transaction.created_at.strftime("%m/%d/%Y") %>
                     </td>
                     <td class="whitespace-nowrap px-3 py-2 text-sm">
-                      <span class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium <%= transaction.deposit? ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' %>">
-                        <%= transaction.transaction_type.humanize %>
-                      </span>
+                      <%= render "components/ui/badge",
+                                 label: transaction.transaction_type.humanize,
+                                 tone: transaction.deposit? ? :success : :neutral %>
                     </td>
                     <td class="px-3 py-2 text-sm text-slate-900">
                       <%= transaction.reason&.humanize || "—" %>
@@ -168,11 +168,9 @@
                     <%= entry.attendance_days_display %>
                   </td>
                   <td class="whitespace-nowrap px-3 py-2 text-center text-sm">
-                    <% if entry.perfect_attendance? %>
-                      <span class="inline-flex items-center rounded bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800">Yes</span>
-                    <% else %>
-                      <span class="inline-flex items-center rounded bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700">No</span>
-                    <% end %>
+                    <%= render "components/ui/badge",
+                               label: entry.perfect_attendance? ? "Yes" : "No",
+                               tone: entry.perfect_attendance? ? :success : :neutral %>
                   </td>
                 </tr>
               <% end %>

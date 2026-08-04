@@ -64,8 +64,14 @@
   @apply border-b border-slate-100 transition-colors last:border-0 hover:bg-slate-50;
 }
 
+/* align-top, not align-middle - design.md's table tokens say so, and the transactions table
+   shows why. Its Stock cell stacks a company name over a ticker while every other cell is one
+   line, so with middle alignment the single-line cells floated to the vertical centre of a
+   taller row and nothing shared a baseline. Top alignment is what Polaris, Primer, Stripe and
+   Tailwind UI use as soon as any cell can wrap or stack; middle is only safe when every cell in
+   the table is a single line, which is not a property you can rely on staying true. */
 .table-body-cell {
-  @apply px-4 py-3 align-middle text-sm text-slate-900;
+  @apply px-4 py-3 align-top text-sm text-slate-900;
 }
 
 .table-body-cell-right {

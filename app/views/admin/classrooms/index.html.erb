@@ -53,18 +53,14 @@
                   <%= "#{classroom.school_name} - #{classroom.year_name}" %>
                 </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-900">
-                  <% if classroom.archived? %>
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Yes</span>
-                  <% else %>
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800">No</span>
-                  <% end %>
+                  <%= render "components/ui/badge",
+                             label: classroom.archived? ? "Yes" : "No",
+                             tone: classroom.archived? ? :danger : :neutral %>
                 </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-900">
-                  <% if classroom.trading_enabled? %>
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Yes</span>
-                  <% else %>
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800">No</span>
-                  <% end %>
+                  <%= render "components/ui/badge",
+                             label: classroom.trading_enabled? ? "Yes" : "No",
+                             tone: classroom.trading_enabled? ? :success : :neutral %>
                 </td>
                 <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium lg:pr-6">
                   <div class="flex justify-end gap-2">

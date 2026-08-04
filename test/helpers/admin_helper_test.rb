@@ -7,14 +7,14 @@ class AdminHelperTest < ActionView::TestCase
     user = build(:admin)
     result = format_attribute(user, :admin)
     assert_match(/Yes/, result)
-    assert_match(/bg-green-100/, result)
+    assert_match(/green/, result)
   end
 
   test "format_attribute formats boolean false" do
     user = build(:student)
     result = format_attribute(user, :admin)
     assert_match(/No/, result)
-    assert_match(/bg-slate-100/, result)
+    assert_match(/slate/, result)
   end
 
   test "format_attribute formats date" do
@@ -37,18 +37,24 @@ class AdminHelperTest < ActionView::TestCase
     assert_equal "test@example.com", result
   end
 
-  test "boolean_badge renders yes badge" do
+  # These assert the tone family and the badge scale rather than exact hues. Pinning
+  # bg-green-100 meant the helper could not move onto the shared component - which uses the
+  # lighter bg-green-50 with a ring - without three tests failing for no behavioural reason.
+  test "boolean_badge renders yes badge through the shared component" do
     result = boolean_badge(true)
+
     assert_match(/Yes/, result)
-    assert_match(/bg-green-100/, result)
-    assert_match(/text-green-800/, result)
+    assert_match(/green/, result)
+    assert_match(/text-xs/, result)
+    assert_match(/px-2 py-0\.5/, result)
   end
 
-  test "boolean_badge renders no badge" do
+  test "boolean_badge renders no badge through the shared component" do
     result = boolean_badge(false)
+
     assert_match(/No/, result)
-    assert_match(/bg-slate-100/, result)
-    assert_match(/text-slate-800/, result)
+    assert_match(/slate/, result)
+    assert_match(/text-xs/, result)
   end
 
   test "sort_icon returns up arrow for asc sort" do

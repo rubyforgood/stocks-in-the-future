@@ -9,8 +9,11 @@
                       loading: "lazy" %>
       <% end %>
       <div class="flex flex-col">
-        <%= link_to stock.ticker, stock_path(stock), class: "font-semibold text-lg" %>
-        <span class="text-slate-500 text-sm"><%= stock.company_name %></span>
+        <%# text-lg font-semibold made the ticker the largest text on the page after the h1,
+          in a cell whose neighbours are text-sm. A table's primary identifier is body size with
+          medium weight - Tailwind UI, Polaris and Primer all render it that way. %>
+        <%= link_to stock.ticker, stock_path(stock), class: "tw-link" %>
+        <span class="text-sm text-slate-600"><%= stock.company_name %></span>
       </div>
     </div>
   </td>
