@@ -15,28 +15,27 @@ module AdminHelper
   # is AAA / Apple HIG.
   #
   # gap-2 rather than per-icon margins, so a leading icon needs no -ml-1 mr-2 of its own.
-  ADMIN_BUTTON_BASE = "inline-flex h-10 items-center gap-2 px-4 shadow-sm text-sm " \
-                      "font-medium rounded-lg focus-visible:outline-2 " \
-                      "focus-visible:outline-offset-2"
-
+  # Admin uses the same three button classes as the app side. These are thin aliases so the
+  # eleven call sites that ask for a class name keep working.
+  #
+  # They used to build their own strings from an ADMIN_BUTTON_BASE constant - a second base for
+  # the same product, kept in step by hand, which it was not: the base omitted `justify-center`,
+  # the primary carried a `border border-transparent` that design.md rules out by name, the
+  # outlined pair used `border-slate-300` against the spec's `slate-200`, and none of them used
+  # the `font-semibold` the filled variant is supposed to have. Two bases is the drift mechanism,
+  # so there is one now, in buttons.css.
   def admin_primary_button_class
-    "#{ADMIN_BUTTON_BASE} border border-transparent text-white bg-sitf-primary " \
-      "hover:bg-sitf-primary-dark focus-visible:outline-sitf-primary-dark"
+    "tw-btn-primary"
   end
 
   def admin_secondary_button_class
-    "#{ADMIN_BUTTON_BASE} border border-slate-300 text-slate-700 bg-white " \
-      "hover:bg-slate-50 focus-visible:outline-sitf-primary"
+    "tw-btn-secondary"
   end
 
-  # The bordered destructive button. Slate at rest, exactly like :secondary, and rose only on
-  # hover/focus - the same no-red-at-rest rule as the ghost in ButtonHelper. It is bordered rather
-  # than a ghost because it sits in a show-page toolbar next to bordered Edit buttons, and a ghost
-  # among bordered neighbours reads as broken. Measured: slate-700 on white 10.35:1 at rest,
-  # rose-700 on rose-50 5.72:1 on hover.
+  # design.md's :danger_outline - slate at rest like :secondary, rose only on hover, because it
+  # sits among bordered buttons.
   def admin_danger_button_class
-    "#{ADMIN_BUTTON_BASE} border border-slate-300 text-slate-700 bg-white " \
-      "hover:border-rose-300 hover:bg-rose-50 hover:text-rose-700 focus-visible:outline-rose-700"
+    "tw-btn-danger-outline"
   end
 
   # Renders a table for index pages with sortable columns

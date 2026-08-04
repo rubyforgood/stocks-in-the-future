@@ -34,8 +34,11 @@
    *  - .tw-btn-buy put white text on #80cec8, which measures 1.81:1 - the least readable
    *    button in the app was the Buy control on the trading floor.
    *
-   * .tw-btn-danger, .tw-btn-buy and .tw-btn-sell are gone: nothing references them. An unused
-   * class is indistinguishable from a supported one until someone adopts it.
+   * .tw-btn-danger, .tw-btn-buy, .tw-btn-sell and .tw-btn-tertiary are gone: nothing references
+   * them. An unused class is indistinguishable from a supported one until someone adopts it.
+   * .tw-btn-tertiary was a filled slate-100 button that is not one of design.md's variants at
+   * all - the spec's tertiary is the ghost in ButtonHelper - and its six call sites were all
+   * standalone "Back to X" / "Edit class" actions, which the spec calls :secondary.
    *
    * Buy and Sell are .tw-btn-secondary now. A filled teal Buy beside a filled amber Sell put two
    * saturated fills, in two hues, on every row of the densest page in the app; the report was
@@ -47,24 +50,48 @@
    * carry a white label.
    */
 
-  .tw-btn-primary {
-    @apply inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-lg bg-sitf-primary px-4 text-sm font-medium text-sitf-on-primary shadow-sm transition-colors hover:bg-sitf-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary-dark;
-  }
-
-  /* Disabled controls are exempt from contrast requirements, but slate-600 on slate-200
-     still reads, where white on slate-300 was 1.48:1 and did not. */
+  /* The base, written once and shared by selector rather than copy-pasted into each variant.
+   *
+   * It was pasted four times, and that is exactly how the variants drifted apart: the outlined
+   * one ended up on `ring-1 ring-slate-300 ring-inset` while the spec says
+   * `border border-slate-200`, and the filled ones stayed `font-medium` where the spec says
+   * `font-semibold`. A shared base cannot drift from itself. */
+  .tw-btn-primary,
+  .tw-btn-secondary,
+  .tw-btn-danger-outline,
   .tw-btn-primary-disabled {
-    @apply inline-flex h-10 cursor-not-allowed items-center justify-center gap-2 rounded-lg bg-slate-200 px-4 text-sm font-medium text-slate-600 shadow-sm;
+    @apply inline-flex h-10 items-center justify-center gap-2 rounded-lg px-4 text-sm shadow-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2;
   }
 
+  /* Filled variants are font-semibold, outlined are font-medium - the weight carries part of the
+   * emphasis hierarchy, so they are not interchangeable. */
+  .tw-btn-primary {
+    @apply cursor-pointer bg-sitf-primary font-semibold text-sitf-on-primary hover:bg-sitf-primary-dark focus-visible:outline-sitf-primary-dark;
+  }
+
+  /* No `border border-transparent` on the filled variants. design.md rules it out by name: it is
+   * a fragile compensation pinned to the outlined variant's exact border width, and the h-10
+   * token already equalises the heights with box-sizing: border-box. The admin primary carried
+   * it anyway, because it was defined separately in Ruby. */
+
+  /* border border-slate-200, not ring-1 ring-slate-300. Measured on white: slate-200 is 1.23:1
+   * and slate-300 is 1.48:1 - neither is a 3:1 boundary, and the report was that the darker one
+   * read as too heavy. The control is identified by its 10.35:1 label plus shadow-sm; the border
+   * is a refinement, not the affordance. If it ever needs to be a real 3:1 boundary that is a
+   * deliberate change to the spec, made once here, not per call site. */
   .tw-btn-secondary {
-    @apply inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-lg bg-white px-4 text-sm font-medium text-slate-700 ring-1 ring-slate-300 ring-inset shadow-sm transition-colors hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary;
+    @apply cursor-pointer border border-slate-200 bg-white font-medium text-slate-700 hover:bg-slate-50 focus-visible:outline-sitf-primary;
   }
 
-  /* No ml-2 here any more. A button carrying its own margin puts layout inside the
-     component, so spacing belonged to whatever container it sits in. */
-  .tw-btn-tertiary {
-    @apply inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-lg bg-slate-100 px-4 text-sm font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary;
+  /* design.md's :danger_outline. Identical to :secondary at rest - no red anywhere until hover -
+   * for a destructive action sitting among bordered buttons. Use ghost_class(:danger) when the
+   * neighbours are ghosts instead. Measured: rose-700 on rose-50 is 5.72:1. */
+  .tw-btn-danger-outline {
+    @apply cursor-pointer border border-slate-200 bg-white font-medium text-slate-700 hover:border-rose-300 hover:bg-rose-50 hover:text-rose-700 focus-visible:outline-rose-700;
+  }
+
+  .tw-btn-primary-disabled {
+    @apply cursor-not-allowed bg-slate-200 font-semibold text-slate-600;
   }
 
   /* Inline text link.

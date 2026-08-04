@@ -33,7 +33,7 @@
               class needs overriding that hard it is the wrong class, so this uses
               the tertiary treatment, which is what it was trying to become. %>
           <% if policy(@classroom).edit? %>
-            <%= link_to "Edit class", edit_classroom_path(@classroom), class: "tw-btn-tertiary" %>
+            <%= link_to "Edit class", edit_classroom_path(@classroom), class: "tw-btn-secondary" %>
           <% end %>
           <!-- TODO: Add bulk functionality in future PR -->
         </div>

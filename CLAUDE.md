@@ -241,6 +241,15 @@ view. I then wrote a design.md rule *about* those buttons without ever rendering
 control lives in a table's trailing column, measure its box against the scroll container's box at
 375px, and check `scrollWidth` against `clientWidth`.
 
+**"It uses the named class" is not "it matches the spec."** I moved Buy/Sell onto
+`.tw-btn-secondary` and reported it as design-system alignment. The class itself was off spec:
+`ring-1 ring-slate-300 ring-inset` where design.md says `border border-slate-200`. Four other
+variants were off too - `font-medium` on the filled ones, a `border border-transparent` design.md
+forbids by name, `border-slate-300`, and a missing `justify-center` - because the base was written
+**twice**, in `buttons.css` and as `ADMIN_BUTTON_BASE` in Ruby. Two definitions of one thing is the
+drift mechanism; the admin helpers are aliases now. Read the spec's own token list against the
+rendered box before calling a variant correct.
+
 **An unlayered CSS rule beats every layered one, whatever the specificity.** The `.tw-*` component
 files are imported after `@import "tailwindcss"`; until they were wrapped in `@layer components`,
 `.tw-btn-buy`'s `display: inline-flex` beat `.hidden`, so the order modal showed Cancel, Back,

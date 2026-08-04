@@ -802,6 +802,66 @@ dialog whose single solid rose button is the only red at rest anywhere.
 bug; the only non-`button_classes` clickable is the tertiary ghost, which has its own `ghost_class`
 helper (call it -- do not re-derive the string). **This grep is necessary but not sufficient:** a status glyph emitted by a Ruby **model/decorator/helper method** (e.g. a court order's ✅/❌ from an `implementation_status_symbol`) or a **third-party web component / legacy CSS-class widget** (e.g. `<add-to-calendar-button>` / `.cal-btn`) is not a class-string button, so the grep cannot see it -- also scan Ruby methods that emit glyphs and non-`button_classes` interactive widgets, and pixel-check the rendered page.
 
+### Button variants as implemented here
+
+The variants above are CASA prose naming a `button_classes` helper and a `brand-600` token that do
+not exist in this app. Here they are CSS classes, and `brand-600` maps to `sitf-primary` (`#00698c`,
+white on it 6.18:1):
+
+| design.md variant | here | notes |
+|---|---|---|
+| `:primary` | `.tw-btn-primary` | `bg-sitf-primary`, `font-semibold`, white label |
+| `:secondary` | `.tw-btn-secondary` | `border border-slate-200`, `font-medium` |
+| `:danger_outline` | `.tw-btn-danger-outline` | identical to secondary at rest, rose on hover |
+| `:danger` (filled rose) | **not shipped** | no styled confirm dialog here; Turbo uses the native one, so there is no surface for it. Do not add it unused. |
+| `:success` (filled emerald) | **not shipped** | see below |
+| tertiary / ghost | `ghost_class` in `ButtonHelper` | row actions |
+
+**The base is one shared selector group**, not a string pasted per variant. It was pasted, and it
+drifted in five ways at once, none of them visible in a class list:
+
+- `.tw-btn-secondary` used `ring-1 ring-slate-300 ring-inset` where the spec says
+  `border border-slate-200` - a ring, not a border, and a darker token. This is the one that was
+  reported, as the outline looking too heavy.
+- The filled variants were `font-medium`, not `font-semibold`. Weight carries part of the emphasis
+  hierarchy, so filled and outlined are not interchangeable on it.
+- `admin_primary_button_class` carried `border border-transparent`, which the section above rules
+  out **by name**.
+- `admin_secondary_button_class` and the admin danger button used `border-slate-300`.
+- `ADMIN_BUTTON_BASE` omitted `justify-center` entirely.
+
+The cause was structural: **two bases for one product**, one in `buttons.css` and one in Ruby, kept
+in step by attention. The admin helpers are now three-line aliases returning the same class names,
+so there is nothing left to keep in step. `test/system/button_variants_test.rb` asserts the rendered
+box of every variant against the table above - measured, not read.
+
+**Border contrast, stated plainly:** `slate-200` on white is **1.23:1** and `slate-300` is 1.48:1.
+Neither is a 3:1 boundary under WCAG 1.4.11. The control is identified by its label (`slate-700`,
+10.35:1) plus `shadow-sm`; the border is a refinement. Making it a real 3:1 boundary would be a
+deliberate change to this spec, made once here rather than per call site - and it would be visibly
+heavier than the report that prompted the move to `slate-200`.
+
+**`.tw-btn-tertiary` is gone.** It was a filled `slate-100` button that is not one of the variants
+above at all - the spec's tertiary is the ghost - and its six call sites were standalone
+"Back to X" / "Edit class" actions, which the spec calls `:secondary`.
+
+**`:success` is deliberately not shipped**, even though the section above names "reactivating a
+deactivated user" as its example and this app has exactly that action on `admin/teachers#show`. A
+filled emerald would be a third button colour in a product whose reviewed complaint was that the
+buttons were garish, and the same page already carries a primary. Reactivate is `:secondary`; the
+positive meaning is carried by its `circle-check` icon and its label. Revisit this as a design
+decision, not as a drift fix.
+
+**The component demo is a living style guide, so it must show the real components.** It rendered
+seven hand-rolled buttons at `rounded-md px-4 py-2` with a red-at-rest Delete and a blue "Send
+email" - a page teaching the drift that everything else had just been cleaned of. It uses the named
+classes now.
+
+**The shadcn button helper is deleted.** `Components::ButtonHelper#render_button` had no callers
+left once `Shadcn::FormBuilder#submit` stopped delegating to it, and it was a second button system
+with its own tokens - its `--primary` being the near-black navy that made the sign-up button the one
+off-brand primary in the product.
+
 ### Row actions as implemented here
 
 `ButtonHelper#ghost_class(:neutral | :danger)` is this app's `ghost_class`, and

@@ -21,7 +21,7 @@
         </div>
       </div>
       <div class="flex gap-3 flex-shrink-0">
-        <%= link_to "Back to stocks", stocks_path, class: "tw-btn-tertiary" %>
+        <%= link_to "Back to stocks", stocks_path, class: "tw-btn-secondary" %>
         <% if policy(@stock).show_trading_link? %>
           <%= link_to "Trade stock", stocks_path, class: "tw-btn-primary" %>
         <% end %>

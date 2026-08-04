@@ -252,6 +252,33 @@ the point of the split.
 
 ## Behaviour changes
 
+### One button base; admin button helpers are aliases
+
+**What.** `buttons.css` defines the base once as a shared selector group and the variants extend it:
+`.tw-btn-primary`, `.tw-btn-secondary`, `.tw-btn-danger-outline`, `.tw-btn-primary-disabled`.
+`admin_primary_button_class` / `admin_secondary_button_class` / `admin_danger_button_class` return
+those class names. `ADMIN_BUTTON_BASE`, `.tw-btn-tertiary` and
+`app/helpers/components/button_helper.rb` are deleted.
+
+**Why it has blast radius.**
+
+1. **Every button in the product changed slightly.** Filled variants went `font-medium` ->
+   `font-semibold`; outlined went `ring-1 ring-slate-300` / `border-slate-300` ->
+   `border border-slate-200`; the admin primary lost a `border border-transparent`; the admin base
+   gained the `justify-center` it never had. All of it is now asserted in
+   `test/system/button_variants_test.rb` against the rendered box.
+2. **`admin_*_button_class` no longer returns a full class string** - it returns one class name. Any
+   caller that concatenated onto it still works, but anything parsing it will not.
+3. **`.tw-btn-tertiary` no longer exists**; its seven call sites are `.tw-btn-secondary`.
+4. **`render_button` is gone**, so `Shadcn::FormBuilder` must not start calling it again. The rest
+   of the shadcn form builder (inputs, labels) is untouched and still in use.
+
+**Deliberately not done:** design.md's `:danger` (filled rose) and `:success` (filled emerald) are
+not shipped. `:danger` has no surface - Turbo uses the native confirm dialog. `:success` would add a
+third button colour to a product whose reported problem was garish buttons; `admin/teachers#show`
+Reactivate stays `:secondary` with a `circle-check` icon. Both are recorded in design.md as
+decisions rather than omissions.
+
 ### Buy and Sell are secondary buttons; `.tw-btn-buy` / `.tw-btn-sell` deleted
 
 **What.** The trading floor's Buy and Sell are `.tw-btn-secondary`. The order modal's Review order
