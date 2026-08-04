@@ -4,6 +4,14 @@ module Admin
   class PortfolioTransactionsController < BaseController
     before_action :set_portfolio_transaction, only: %i[show edit update destroy]
 
+    def index
+      @portfolio_transactions = apply_sorting(
+        PortfolioTransaction.includes(portfolio: :user),
+        default: "created_at"
+      )
+      @breadcrumbs = [{ label: "Portfolio transactions" }]
+    end
+
     def show
       # TODO: FIX
       # authorize @portfolio_transaction

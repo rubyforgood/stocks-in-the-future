@@ -74,7 +74,10 @@ Rails.application.routes.draw do
       resource :reactivation, only: [:create], controller: "teachers/reactivations"
     end
     resources :users
-    resources :portfolio_transactions, except: [:index]
+    # index was excluded, which left transactions reachable only if you already had an id:
+    # every other CRUD action existed, the sidebar had no entry, and the dashboard listed
+    # "Portfolio transactions" as dead grey text because there was nothing to link to.
+    resources :portfolio_transactions
   end
 
   resources :orders do

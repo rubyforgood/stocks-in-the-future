@@ -618,6 +618,46 @@ signalled by colour alone, so it now carries `aria-current="page"`.
 the table card on any of the eight index pages, and exactly one `aria-current` tab, above
 the card rather than in it. Verified by moving the tabs back inside and watching it fail.
 
+### Portfolio transactions gained an index, and the dashboard became a dashboard
+
+**Why transactions were visible but not actionable.** `config/routes.rb` had
+`resources :portfolio_transactions, except: [:index]`. Every other CRUD action existed, so a
+transaction was reachable **only if you already had its id**. There was no list, the sidebar had
+no entry, and the admin dashboard rendered "Portfolio transactions" as grey text with nothing to
+link to — the money ledger of the whole app had no front door.
+
+`index` is routed now, with a controller action, a sidebar entry, and a page listing date,
+student, type, reason and amount, each row linking to the record with View, Edit and Delete.
+
+**Written by hand rather than through `admin_table`.** That helper renders every cell through
+`format_attribute`, which stringifies — `amount_cents` would print as raw cents. Money goes
+through `number_to_currency`, right-aligned with `tabular-nums`. **A money column is a reason
+not to use the generic table helper.**
+
+**The dashboard was a second sidebar.** Four cards of links to Classrooms, Schools, Students and
+so on, plus a yellow banner explaining that links marked `#` were unimplemented — by which point
+no such links remained. It is now `AdminDashboard` plus KPI stat cards and two worklists, which
+is design.md's dashboard pattern and what Stripe, Shopify, Salesforce and Django's admin do:
+figures first, then the work waiting on you.
+
+- **Work before scale.** The first two figures are orders awaiting execution and grade books
+  verified but not yet paid out — the two things an admin can act on. Student, classroom and
+  stock counts follow as context.
+- **Deposits only** in the distributed figure. Summing every transaction would add withdrawals
+  and fees to money paid out and report something meaningless.
+- **Numerals are always `slate-900`.** design.md is explicit that a numeral never carries state,
+  and records two occasions where a coloured one read as an error rather than a count. The icon
+  tile carries the tone.
+- **Every row links to its record**, and the transactions card ends in an "All transactions"
+  link. A row you can see and cannot act on was the substance of the complaint.
+- **No per-row queries**: `AdminDashboard` eager-loads `portfolio: :user` and `[:stock, :user]`,
+  and every figure is one count or sum.
+
+**Tested.** Four new dashboard tests: the two actionable figures, that the distributed sum
+excludes fees, that each listed transaction links to its own page, and that the dashboard no
+longer duplicates the sidebar. That last one had to be scoped to `main` — the sidebar links to
+Schools legitimately, and my first version failed by catching it.
+
 ### One light sidebar across the app and admin
 
 **What.** `NavHelper` holds a single row treatment used by `layouts/_navbar`,
