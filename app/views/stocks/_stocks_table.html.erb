@@ -6,9 +6,14 @@
     <tr class="table-header-row">
       <th scope="col" class="table-header-cell table-header-cell-left">Company (exchange)</th>
       <th scope="col" class="table-header-cell table-header-cell-right">Last price</th>
-      <% if current_user.student? %>
-        <th scope="col" class="table-header-cell table-header-cell-left">Your holdings</th>
-        <th scope="col" class="table-header-cell table-header-cell-center" colspan="2"></th>
+      <%# policy(Stock).show_holdings?, not current_user.student?, so this agrees with the body
+          row in _index_row. show_holdings? also requires a persisted portfolio. Both columns are
+          hidden below lg, where their contents move into the primary cell. %>
+      <% if policy(Stock).show_holdings? %>
+        <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">Your holdings</th>
+        <th scope="col" class="table-header-cell table-header-cell-right hidden lg:table-cell">
+          <span class="sr-only">Actions</span>
+        </th>
       <% end %>
     </tr>
   </thead>
@@ -19,7 +24,7 @@
       <% end %>
     <% else %>
       <%= render "admin/shared/empty_row",
-                 colspan: current_user.student? ? 5 : 2,
+                 colspan: policy(Stock).show_holdings? ? 4 : 2,
                  icon: "chart-line",
                  title: "No #{title.downcase} to show",
                  body: "Stocks appear here once your teacher adds them." %>

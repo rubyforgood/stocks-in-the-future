@@ -4,7 +4,7 @@
       <% logo_path = "stock_logos/#{stock.ticker}-logo.svg" %>
       <% if File.exist?("app/assets/images/#{logo_path}") %>
         <%= image_tag asset_path(logo_path),
-                      class: "w-16 h-16 rounded-lg flex-shrink-0",
+                      class: "size-10 shrink-0 rounded-lg lg:size-16",
                       alt: "#{stock.ticker} logo",
                       loading: "lazy" %>
       <% end %>
@@ -14,6 +14,20 @@
           medium weight - Tailwind UI, Polaris and Primer all render it that way. %>
         <%= link_to stock.ticker, stock_path(stock), class: "tw-link" %>
         <span class="text-sm text-slate-600"><%= stock.company_name %></span>
+
+        <%# Below lg the holdings count and the trade buttons live here, in the one cell that is
+            always on screen. As their own trailing columns they sat at left=370 in a viewport
+            326px wide - the trading floor's only call to action was off the right edge of a
+            horizontal scroll on a phone, which is the width most students are on. %>
+        <% if policy(stock).show_holdings? %>
+          <span class="mt-1 text-xs text-slate-600 lg:hidden">
+            You own <%= @portfolio&.shares_owned(stock.id) || 0 %>
+          </span>
+
+          <% if policy(stock).show_trading_link? %>
+            <%= render "stocks/trade_actions", stock: stock, class: "mt-2 lg:hidden" %>
+          <% end %>
+        <% end %>
       </div>
     </div>
   </td>
@@ -22,27 +36,18 @@
       <%= number_to_currency(stock.current_price) %>
     </span>
   </td>
+  <%# Same condition as the header in _stocks_table, so the column counts cannot diverge. It used
+      to be current_user.student? there and policy(stock).show_holdings? here - a student with no
+      persisted portfolio got four header cells over two body cells. %>
   <% if policy(stock).show_holdings? %>
-    <td class="table-body-cell">
+    <td class="table-body-cell hidden lg:table-cell">
       <span class="table-cell-content">
         <%= @portfolio&.shares_owned(stock.id) || 0 %>
       </span>
     </td>
-    <td class="table-body-cell table-body-cell-center whitespace-nowrap" colspan="2">
+    <td class="table-body-cell table-body-cell-right hidden whitespace-nowrap lg:table-cell">
       <% if policy(stock).show_trading_link? %>
-        <div class="flex gap-2 justify-center">
-          <%= link_to new_order_path(stock_id: stock.id, transaction_type: :buy),
-                      class: "tw-btn-buy -ml-1",
-                      data: { turbo_frame: "modal_frame", testid: "buy-stock-button" } do %>
-              <%= lucide_icon("arrow-up") %> Buy
-          <% end if !stock.archived? %>
-
-          <%= link_to new_order_path(stock_id: stock.id, transaction_type: :sell),
-                      class: "tw-btn-sell -mr-1",
-                      data: { turbo_frame: "modal_frame", testid: "sell-stock-button" } do %>
-              <%= lucide_icon("arrow-down") %> Sell
-          <% end %>
-        </div>
+        <%= render "stocks/trade_actions", stock: stock, class: "justify-end" %>
       <% end %>
     </td>
   <% end %>

@@ -20,7 +20,11 @@
     <%# design.md page-title scale. Was text-4xl, which outweighed every other
         heading in the app. %>
     <h1 class="text-2xl font-bold tracking-tight text-slate-900">Trading floor</h1>
-    <% if policy(Stock).show_holdings? || (current_user.present? && current_user.student?) %>
+    <%# show_holdings? on its own. The `|| current_user.student?` that used to be here widened
+        this to students with no persisted portfolio, and the card dereferences @portfolio - which
+        stocks#index only sets for a student who has one. A student without a portfolio got a 500
+        on the trading floor, not a degraded page. %>
+    <% if policy(Stock).show_holdings? %>
       <div class="w-full lg:w-auto">
         <%= render 'shared/earnings_to_invest_card' %>
       </div>

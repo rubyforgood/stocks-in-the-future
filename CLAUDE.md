@@ -232,6 +232,21 @@ content off it.
 
 `test/system/spacing_test.rb` asserts pixels, not classes, for exactly this reason.
 
+**"Present in the DOM" is not "on screen."** The trading floor's Buy and Sell buttons - the only
+call to action in the student-facing product - sat at `left=370` inside a scroll wrapper `326px`
+wide at 375px, past the right edge of a horizontal scroll. Every test passed: `assert_selector`
+found them, `click_on "Buy"` clicked them, because Capybara's visibility check is `display` /
+`visibility` / size and knows nothing about whether an ancestor has scrolled the element out of
+view. I then wrote a design.md rule *about* those buttons without ever rendering the page. When a
+control lives in a table's trailing column, measure its box against the scroll container's box at
+375px, and check `scrollWidth` against `clientWidth`.
+
+**Check what each role actually sees before describing a screen.** `StockPolicy#show_holdings?`
+hides the holdings and action columns from anyone who is not a student with a persisted portfolio,
+so as `admin` or `teacher` the trading floor is a two-column price list with no buttons at all.
+Signing in as the role you have been working under and looking is one command:
+`curl` the page with a session cookie and grep for the testid.
+
 ## Accessibility
 
 Measure contrast, do not guess. Failures found here that are easy to repeat:

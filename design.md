@@ -835,6 +835,32 @@ brokerage table (Robinhood, Fidelity, Schwab) gives the trade control real weigh
 modal's own Cancel / Back / Review / submit route through the same named classes rather than four
 bespoke strings.
 
+**That exception is about the student view only, and it was written before anyone checked the
+control was on screen.** Two things were wrong at the time:
+
+- **Only a student with a persisted portfolio sees Buy/Sell at all.** `StockPolicy#show_holdings?`
+  gates the holdings *and* actions columns, so a teacher or an admin gets a two-column read-only
+  price list with no call to action anywhere. That is correct - they hold no portfolio and cannot
+  trade - but it means "the trading floor's CTA" does not exist for the role most of the admin work
+  is done under, which is how it came to be described as invisible.
+- **On a phone the buttons were off screen.** As a trailing column they measured `left=370` inside
+  a wrapper `326px` wide, with `scrollWidth 548 > clientWidth 326`: the only call to action in the
+  student-facing product sat past the right edge of a horizontal scroll at 375px. Nothing failed,
+  because the buttons were present and clickable and every assertion about them passed.
+
+**So below `lg` the holdings figure and the trade buttons render inside the primary cell**, which is
+the one cell always on screen, and the two trailing columns are `hidden lg:table-cell`. Measured
+after: `left=33` inside a `16-344` wrapper and `scrollWidth == clientWidth`, so the table no longer
+scrolls sideways at all. Collapsing secondary columns into the primary cell is the Polaris / Primer
+treatment for a data table on a narrow viewport; the alternative, a sticky actions column, keeps the
+horizontal scroll that caused this.
+
+`stocks/_trade_actions` holds the pair so the two placements cannot drift.
+
+**"Present" is not "reachable."** `assert_selector` and `click_on` both passed against a control
+sitting outside its scroll container, so `test/system/trading_cta_test.rb` asserts the visible copy's
+box is *within* the wrapper's box at 375px and 1366px, and that the wrapper does not scroll.
+
 **A `hover:` state cannot be verified from a system test in this repo.** Tailwind v4 emits hover
 utilities inside `@media (hover:hover)`, and the headless Chromium the system tests drive reports
 `(hover: none)` -- measured: the Delete link stays slate with the pointer over it while

@@ -252,6 +252,32 @@ the point of the split.
 
 ## Behaviour changes
 
+### The trading floor's Buy/Sell moved into the primary cell below `lg`
+
+**What.** `stocks/_index_row` renders the trade pair (now `stocks/_trade_actions`) inside the
+company cell below `lg` and in a trailing column at `lg`, and the holdings + actions columns are
+`hidden lg:table-cell`. The header, the row and the empty-row colspan all use
+`policy(Stock).show_holdings?`.
+
+**Why it has blast radius.**
+
+1. **Both placements are in the DOM at once**, so `[data-testid='buy-stock-button']` matches twice
+   per stock. Capybara only sees the visible one, so `click_on "Buy"` is unaffected, but any
+   `count:` assertion or raw `page.html` count needs `visible: true`.
+2. **A 500 was fixed, not just a layout.** `stocks#index` gated the earnings card on
+   `show_holdings? || current_user.student?` while the card dereferences `@portfolio`, which the
+   controller only assigns to a student who has one. A student with no persisted portfolio got an
+   exception on the trading floor. Reachable in real data: the seeds create students with
+   `User.find_or_initialize_by` and set `type` afterwards, which leaves a `User` instance, so
+   `Student`'s `after_create :ensure_portfolio` never fires.
+3. **The header and the row used different conditions** (`current_user.student?` against
+   `policy(stock).show_holdings?`), so that same student got four header cells over two body cells.
+4. The disabled "Invest now" pill was `bg-slate-400` with `slate-700` ink - **4.04:1**, under the
+   4.5:1 gate - and is now `.tw-btn-primary-disabled`.
+
+**Roles.** Teachers and admins see no trade controls, by design; they hold no portfolio.
+`trading_cta_test.rb` asserts that absence so it is not rediscovered as a bug.
+
 ### Row actions are ghost buttons, and no destructive control is red at rest
 
 **What.** `ButtonHelper` is new and owns `ghost_class(:neutral | :danger)` plus

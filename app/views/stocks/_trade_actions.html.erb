@@ -1,0 +1,20 @@
+<%# The Buy/Sell pair, defined once and rendered in two places: inside the primary cell below
+    lg, and in the trailing actions column at lg. Two call sites, one definition, because these
+    are the product's core transaction and a copy that drifts is worse here than anywhere.
+
+    Buy is withheld for an archived stock - you may only sell out of one. %>
+<div class="flex gap-2 <%= local_assigns[:class] %>">
+  <% unless stock.archived? %>
+    <%= link_to new_order_path(stock_id: stock.id, transaction_type: :buy),
+                class: "tw-btn-buy",
+                data: { turbo_frame: "modal_frame", testid: "buy-stock-button" } do %>
+      <%= lucide_icon("arrow-up", class: "size-4 shrink-0") %> Buy
+    <% end %>
+  <% end %>
+
+  <%= link_to new_order_path(stock_id: stock.id, transaction_type: :sell),
+              class: "tw-btn-sell",
+              data: { turbo_frame: "modal_frame", testid: "sell-stock-button" } do %>
+    <%= lucide_icon("arrow-down", class: "size-4 shrink-0") %> Sell
+  <% end %>
+</div>
