@@ -10,25 +10,25 @@
       <table class="min-w-full divide-y divide-slate-300">
         <thead class="bg-slate-50">
           <tr>
-            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">
+            <th scope="col" class="table-header-cell table-header-cell-left">
               <%= sort_link(:id, "ID") %>
             </th>
-            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">
+            <th scope="col" class="table-header-cell table-header-cell-left">
               <%= sort_link(:username, "Username") %>
             </th>
-            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">
+            <th scope="col" class="table-header-cell table-header-cell-left">
               <%= sort_link(:type, "Type") %>
             </th>
-            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">
+            <th scope="col" class="table-header-cell table-header-cell-left">
               <%= sort_link(:email, "Email") %>
             </th>
-            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">
+            <th scope="col" class="table-header-cell table-header-cell-left">
               Classroom
             </th>
-            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">
+            <th scope="col" class="table-header-cell table-header-cell-left">
               <%= sort_link(:admin, "Admin") %>
             </th>
-            <th scope="col" class="relative py-3.5 pl-3 pr-4 lg:pr-6">
+            <th scope="col" class="table-header-cell table-header-cell-right">
               <span class="sr-only">Actions</span>
             </th>
           </tr>
@@ -40,27 +40,27 @@
                   data-controller="clickable-row"
                   data-clickable-row-url-value="<%= user_show_path(user) %>"
                   data-action="click->clickable-row#navigate">
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-900">
+                <td class="table-body-cell whitespace-nowrap">
                   <%= user.id %>
                 </td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-900">
+                <td class="table-body-cell whitespace-nowrap">
                   <%= user.username %>
                 </td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-900">
+                <td class="table-body-cell whitespace-nowrap">
                   <%= user.type %>
                 </td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-900">
+                <td class="table-body-cell whitespace-nowrap">
                   <%= user.email.presence || content_tag(:span, "—", class: "text-slate-500") %>
                 </td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-900">
+                <td class="table-body-cell whitespace-nowrap">
                   <%= user.classroom&.name || content_tag(:span, "—", class: "text-slate-500") %>
                 </td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-900">
+                <td class="table-body-cell whitespace-nowrap">
                   <%= render "components/ui/badge",
                              label: user.admin? ? "Yes" : "No",
                              tone: user.admin? ? :success : :neutral %>
                 </td>
-                <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium lg:pr-6">
+                <td class="table-body-cell table-body-cell-right whitespace-nowrap">
                   <div class="flex justify-end gap-2">
                     <%= link_to "View", user_show_path(user), class: "tw-link" %>
                     <%= link_to "Edit", edit_admin_user_path(user), class: "text-slate-600 hover:text-slate-800" %>

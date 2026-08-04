@@ -282,12 +282,30 @@ badge in eight different treatments. It is now used everywhere, including `boole
 helper could not move onto the component — whose success tone is the lighter `bg-green-50` with a
 ring — without failing for no behavioural reason. Assert the tone family and the scale.
 
+### Sidebar footer
+
+**A footer row is an ordinary nav row, pinned.** Same `px-3` inset, same 4px rhythm, separated
+from the list by a full-width hairline. That is what Stripe, Linear and GitHub do: a rule, then a
+row that looks like every other row.
+
+The Admin row was in a `py-2` list with **no horizontal padding at all**, so it sat flush to the
+sidebar edge while every other row was inset 12px, with an 8px band above it - double the 4px
+between nav rows. Neither is visible at rest; the hover highlight draws both, which is how it was
+reported.
+
 ### Tables: alignment and the primary cell
 **Cells are `align-top`.** As soon as one cell stacks two lines — a company name over a ticker,
 a name over an email — middle alignment floats every single-line cell to the vertical centre of
 a taller row and nothing shares a baseline. Polaris, Primer, Stripe and Tailwind UI all switch
 to top alignment for exactly this. Middle is only safe when every cell is one line, which is not
 a property that stays true as columns are added.
+
+**One set of cell classes, `table-*`, on both sides.** Eight admin tables hand-wrote
+`px-3 py-4` while their headers used the shared `table-header-cell` at `px-4 py-3` - transposed,
+so **every column's header text sat 4px off its own data** (measured: `thLeft=281`,
+`tdLeft=277`). Admin rows were also 56px against 48px for the student-facing tables. All of them
+use `table-header-cell` / `table-body-cell` now: identical padding, columns aligned, 48px rows -
+between Polaris's 44 and Material's 52. `spacing_test` asserts a header lines up with its column.
 
 **The primary identifier is body size with medium weight**, not a larger face. The trading floor
 rendered its ticker at `text-lg font-semibold` and the transactions table its company name at

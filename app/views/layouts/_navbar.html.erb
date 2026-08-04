@@ -85,9 +85,15 @@
         hamburger on a phone. The whole block sits behind the policy check now, so the
         separator cannot render above an empty list. %>
     <% if policy(Classroom).new? %>
-      <div class="flex flex-col items-center justify-start w-full mt-auto">
+      <%# The footer row is a nav row pinned to the bottom, so it takes the same px-3 inset and
+          the same 4px rhythm as the list above it. It used to sit in a py-2 ul with no px-3 at
+          all: the row was flush to the sidebar edge while every other row was inset 12px, and
+          the 8px band above it - double the 4px used between nav rows - only became visible on
+          hover, when the highlight drew it. That is the standard treatment in Stripe, Linear and
+          GitHub too: a hairline, then an ordinary row. %>
+      <div class="mt-auto w-full">
         <div class="h-px w-full bg-slate-200"></div>
-        <ul class="flex flex-col items-start justify-start w-full py-2">
+        <ul class="flex w-full flex-col gap-y-1 px-3 pt-1">
           <% active = request.path.include?("admin") %>
           <li class="w-full">
               <%= link_to admin_classrooms_path, aria: { current: ("page" if active) }, class: nav_row_class(active: active) do %>

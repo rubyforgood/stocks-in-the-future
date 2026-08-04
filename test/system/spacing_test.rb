@@ -86,4 +86,30 @@ class SpacingTest < ApplicationSystemTestCase
              "36px at lg, so this usually means rows or sections were added or loosened"
     end
   end
+  # Admin tables hand-wrote their cell padding as px-3 py-4 while their headers used the shared
+  # table-header-cell at px-4 py-3, so every column's header text sat 4px off its own data. Both
+  # sides use the shared classes now; this asserts a column actually lines up.
+  test "a table header lines up with its column" do
+    student = create(:student, :with_portfolio, classroom: create(:classroom, :with_trading))
+    student.portfolio.portfolio_transactions.create!(
+      amount_cents: 500, transaction_type: :deposit,
+      reason: :math_earnings
+    )
+    sign_in(create(:admin))
+    visit admin_portfolio_transactions_path
+
+    offset = page.evaluate_script(<<~JS)
+      (function () {
+        const th = document.querySelector("thead th");
+        const td = document.querySelector("tbody td");
+        if (!th || !td) return null;
+        return Math.round(th.getBoundingClientRect().left - td.getBoundingClientRect().left);
+      })()
+    JS
+
+    assert_not_nil offset, "expected a table with a header and a body row"
+    assert_in_delta 0, offset, 1,
+                    "the header is #{offset}px off its column; admin tables writing their own " \
+                    "cell padding instead of the shared table-* classes is the usual cause"
+  end
 end

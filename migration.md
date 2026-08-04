@@ -618,6 +618,28 @@ signalled by colour alone, so it now carries `aria-current="page"`.
 the table card on any of the eight index pages, and exactly one `aria-current` tab, above
 the card rather than in it. Verified by moving the tabs back inside and watching it fail.
 
+### Card, table and footer spacing, all measured
+
+**Tables were two systems.** Four student-facing tables used the shared `table-*` classes
+(`px-4 py-3`); eight admin tables hand-wrote `px-3 py-4`. Transposed, so an admin table's header
+padding and its cell padding disagreed and **every column's header text sat 4px off its own
+data** - measured `thLeft=281` against `tdLeft=277`. Admin rows were 56px, student-facing 48px.
+
+All nine files now use `table-header-cell` / `table-body-cell`: padding identical
+(`12px 16px` both), columns aligned (`281` and `281`), rows 48px - between Polaris's 44 and
+Material's 52. `spacing_test` asserts a header lines up with its column, naming the cause.
+
+**The sidebar footer** was a `py-2` list with **no horizontal padding**, so the Admin row sat
+flush to the sidebar edge while every other row was inset 12px, with an 8px band above it against
+the 4px used between nav rows. Both are invisible at rest and drawn by the hover highlight, which
+is exactly how it was reported. It is now `px-3 pt-1`: measured `mainLeft=12 footerLeft=12
+ruleToRow=4`. Industry standard for a pinned sidebar footer is a hairline and then an ordinary
+row - Stripe, Linear, GitHub.
+
+**Cards needed nothing**, which is worth recording so the next sweep does not fiddle with them:
+24px between stacked cards (design.md's section rhythm), `p-5`-family padding, and the 32px header
+seam fixed earlier. Measured rather than assumed.
+
 ### Sidebar density, and a standing instruction about both sides
 
 **The admin sidebar scrolled on the machine it is built for.** Ten links at 44px rows with 24px

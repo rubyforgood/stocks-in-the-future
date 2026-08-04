@@ -10,25 +10,25 @@
       <table class="min-w-full divide-y divide-slate-300">
         <thead class="bg-slate-50">
           <tr>
-            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">
+            <th scope="col" class="table-header-cell table-header-cell-left">
               <%= sort_link(:id, "ID") %>
             </th>
-            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">
+            <th scope="col" class="table-header-cell table-header-cell-left">
               <%= sort_link(:name, "Name") %>
             </th>
-            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">
+            <th scope="col" class="table-header-cell table-header-cell-left">
               Grade
             </th>
-            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">
+            <th scope="col" class="table-header-cell table-header-cell-left">
               School year
             </th>
-            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">
+            <th scope="col" class="table-header-cell table-header-cell-left">
               <%= sort_link(:archived, "Archived") %>
             </th>
-            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">
+            <th scope="col" class="table-header-cell table-header-cell-left">
               <%= sort_link(:trading_enabled, "Trading enabled") %>
             </th>
-            <th scope="col" class="relative py-3.5 pl-3 pr-4 lg:pr-6">
+            <th scope="col" class="table-header-cell table-header-cell-right">
               <span class="sr-only">Actions</span>
             </th>
           </tr>
@@ -40,29 +40,29 @@
                   data-controller="clickable-row"
                   data-clickable-row-url-value="<%= admin_classroom_path(classroom) %>"
                   data-action="click->clickable-row#navigate">
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-900">
+                <td class="table-body-cell whitespace-nowrap">
                   <%= classroom.id %>
                 </td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-900">
+                <td class="table-body-cell whitespace-nowrap">
                   <%= classroom.name %>
                 </td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-900">
+                <td class="table-body-cell whitespace-nowrap">
                   <%= classroom.grades.pluck(:name).join(', ') %>
                 </td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-900">
+                <td class="table-body-cell whitespace-nowrap">
                   <%= "#{classroom.school_name} - #{classroom.year_name}" %>
                 </td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-900">
+                <td class="table-body-cell whitespace-nowrap">
                   <%= render "components/ui/badge",
                              label: classroom.archived? ? "Yes" : "No",
                              tone: classroom.archived? ? :danger : :neutral %>
                 </td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-900">
+                <td class="table-body-cell whitespace-nowrap">
                   <%= render "components/ui/badge",
                              label: classroom.trading_enabled? ? "Yes" : "No",
                              tone: classroom.trading_enabled? ? :success : :neutral %>
                 </td>
-                <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium lg:pr-6">
+                <td class="table-body-cell table-body-cell-right whitespace-nowrap">
                   <div class="flex justify-end gap-2">
                     <%= link_to "View", admin_classroom_path(classroom), class: "tw-link" %>
                     <%= link_to "Edit", edit_admin_classroom_path(classroom), class: "text-slate-600 hover:text-slate-800" %>

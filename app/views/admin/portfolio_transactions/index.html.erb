@@ -32,25 +32,25 @@
           <% if @portfolio_transactions.any? %>
             <% @portfolio_transactions.each do |transaction| %>
               <tr id="<%= dom_id(transaction) %>" class="hover:bg-slate-50 transition-colors">
-                <td class="whitespace-nowrap px-3 py-4 text-sm">
+                <td class="table-body-cell whitespace-nowrap">
                   <%= link_to admin_portfolio_transaction_path(transaction),
                               class: "font-medium tw-link focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary" do %>
                     <%= transaction.created_at.strftime("%b %d, %Y") %>
                   <% end %>
                 </td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-900">
+                <td class="table-body-cell whitespace-nowrap">
                   <%= transaction.portfolio.username %>
                 </td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm">
+                <td class="table-body-cell whitespace-nowrap">
                   <%= render "components/ui/badge",
                              label: transaction.transaction_type.humanize,
                              tone: transaction.deposit? ? :success : :neutral %>
                 </td>
-                <td class="px-3 py-4 text-sm text-slate-900"><%= transaction.reason&.humanize || "—" %></td>
-                <td class="whitespace-nowrap px-3 py-4 text-right text-sm font-medium text-slate-900 tabular-nums">
+                <td class="table-body-cell"><%= transaction.reason&.humanize || "—" %></td>
+                <td class="table-body-cell table-body-cell-right whitespace-nowrap font-medium">
                   <%= number_to_currency(transaction.amount_cents / 100.0) %>
                 </td>
-                <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium lg:pr-6">
+                <td class="table-body-cell table-body-cell-right whitespace-nowrap">
                   <div class="flex justify-end gap-3">
                     <%= link_to "View", admin_portfolio_transaction_path(transaction), class: "text-sitf-primary-dark hover:underline" %>
                     <%= link_to "Edit", edit_admin_portfolio_transaction_path(transaction), class: "text-slate-700 hover:underline" %>

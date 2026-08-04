@@ -75,14 +75,14 @@
           <tbody class="divide-y divide-slate-100 bg-white">
             <% @dashboard.pending_orders.each do |order| %>
               <tr class="transition-colors hover:bg-slate-50">
-                <td class="px-3 py-3 text-sm text-slate-900"><%= order.user.display_name %></td>
-                <td class="px-3 py-3 text-sm text-slate-900">
+                <td class="table-body-cell"><%= order.user.display_name %></td>
+                <td class="table-body-cell">
                   <%= link_to admin_stock_path(order.stock),
                               class: "font-medium tw-link" do %>
                     <%= order.action.humanize %> <%= order.stock.ticker %>
                   <% end %>
                 </td>
-                <td class="whitespace-nowrap px-3 py-3 text-right text-sm text-slate-600 tabular-nums">
+                <td class="table-body-cell table-body-cell-right whitespace-nowrap text-slate-600">
                   <%= order.created_at.strftime("%b %d") %>
                 </td>
               </tr>
@@ -115,13 +115,13 @@
           <tbody class="divide-y divide-slate-100 bg-white">
             <% @dashboard.recent_transactions.each do |transaction| %>
               <tr class="transition-colors hover:bg-slate-50">
-                <td class="px-3 py-3 text-sm text-slate-900">
+                <td class="table-body-cell">
                   <%= link_to transaction.portfolio.username,
                               admin_portfolio_transaction_path(transaction),
                               class: "font-medium tw-link" %>
                 </td>
-                <td class="px-3 py-3 text-sm text-slate-600"><%= transaction.reason&.humanize || transaction.transaction_type.humanize %></td>
-                <td class="whitespace-nowrap px-3 py-3 text-right text-sm font-medium text-slate-900 tabular-nums">
+                <td class="table-body-cell text-slate-600"><%= transaction.reason&.humanize || transaction.transaction_type.humanize %></td>
+                <td class="table-body-cell table-body-cell-right whitespace-nowrap font-medium">
                   <%= number_to_currency(transaction.amount_cents / 100.0) %>
                 </td>
               </tr>

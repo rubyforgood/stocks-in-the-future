@@ -16,25 +16,25 @@
       <table class="min-w-full divide-y divide-slate-300">
         <thead class="bg-slate-50">
           <tr>
-            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">
+            <th scope="col" class="table-header-cell table-header-cell-left">
               <%= sort_link(:id, "ID") %>
             </th>
-            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">
+            <th scope="col" class="table-header-cell table-header-cell-left">
               <%= sort_link(:username, "Username") %>
             </th>
-            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">
+            <th scope="col" class="table-header-cell table-header-cell-left">
               <%= sort_link(:email, "Email") %>
             </th>
-            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">
+            <th scope="col" class="table-header-cell table-header-cell-left">
               <%= sort_link(:name, "Name") %>
             </th>
-            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">
+            <th scope="col" class="table-header-cell table-header-cell-left">
               <%= sort_link(:created_at, "Created at") %>
             </th>
-            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">
+            <th scope="col" class="table-header-cell table-header-cell-left">
               Status
             </th>
-            <th scope="col" class="relative py-3.5 pl-3 pr-4 lg:pr-6">
+            <th scope="col" class="table-header-cell table-header-cell-right">
               <span class="sr-only">Actions</span>
             </th>
           </tr>
@@ -43,29 +43,29 @@
           <% if @teachers.any? %>
             <% @teachers.each do |teacher| %>
               <tr id="<%= dom_id(teacher) %>" class="hover:bg-slate-50 transition-colors">
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-900">
+                <td class="table-body-cell whitespace-nowrap">
                   <%= teacher.id %>
                 </td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-900">
+                <td class="table-body-cell whitespace-nowrap">
                   <%= teacher.username %>
                 </td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-900">
+                <td class="table-body-cell whitespace-nowrap">
                   <%= teacher.email %>
                 </td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-900">
+                <td class="table-body-cell whitespace-nowrap">
                   <%= teacher.name %>
                 </td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-900">
+                <td class="table-body-cell whitespace-nowrap">
                   <%= teacher.created_at.strftime("%B %d, %Y") %>
                 </td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm">
+                <td class="table-body-cell whitespace-nowrap">
                   <% if teacher.discarded? %>
                     <span class="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10">Deactivated</span>
                   <% else %>
                     <span class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">Active</span>
                   <% end %>
                 </td>
-                <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium lg:pr-6">
+                <td class="table-body-cell table-body-cell-right whitespace-nowrap">
                   <div class="flex justify-end gap-2">
                     <%= link_to "View", admin_teacher_path(teacher), class: "tw-link" %>
                     <%= link_to "Edit", edit_admin_teacher_path(teacher), class: "text-slate-600 hover:text-slate-800" %>

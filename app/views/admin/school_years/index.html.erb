@@ -10,19 +10,19 @@
       <table class="min-w-full divide-y divide-slate-300">
         <thead class="bg-slate-50">
           <tr>
-            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">
+            <th scope="col" class="table-header-cell table-header-cell-left">
               <%= sort_link(:id, "ID") %>
             </th>
-            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">
+            <th scope="col" class="table-header-cell table-header-cell-left">
               School
             </th>
-            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">
+            <th scope="col" class="table-header-cell table-header-cell-left">
               Year
             </th>
-            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">
+            <th scope="col" class="table-header-cell table-header-cell-left">
               <%= sort_link(:created_at, "Created at") %>
             </th>
-            <th scope="col" class="relative py-3.5 pl-3 pr-4 lg:pr-6">
+            <th scope="col" class="table-header-cell table-header-cell-right">
               <span class="sr-only">Actions</span>
             </th>
           </tr>
@@ -34,19 +34,19 @@
                   data-controller="clickable-row"
                   data-clickable-row-url-value="<%= admin_school_year_path(school_year) %>"
                   data-action="click->clickable-row#navigate">
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-900">
+                <td class="table-body-cell whitespace-nowrap">
                   <%= school_year.id %>
                 </td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-900">
+                <td class="table-body-cell whitespace-nowrap">
                   <%= school_year.school_name %>
                 </td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-900">
+                <td class="table-body-cell whitespace-nowrap">
                   <%= school_year.year_name %>
                 </td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-900">
+                <td class="table-body-cell whitespace-nowrap">
                   <%= school_year.created_at.strftime("%B %d, %Y") %>
                 </td>
-                <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium lg:pr-6">
+                <td class="table-body-cell table-body-cell-right whitespace-nowrap">
                   <div class="flex justify-end gap-2">
                     <%= link_to "View", admin_school_year_path(school_year), class: "tw-link" %>
                     <%= link_to "Edit", edit_admin_school_year_path(school_year), class: "text-slate-600 hover:text-slate-800" %>
