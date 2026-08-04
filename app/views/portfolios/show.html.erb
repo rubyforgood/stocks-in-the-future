@@ -1,11 +1,7 @@
 <%# Student portfolio.
 
-    The Trade control appears in every holdings row and in the empty state, so its
-    classes are named once here. sitf-primary on white is 6.18:1 with a white
-    label; the previous sky-800 was fine for contrast but off-brand, and its focus
-    ring was sky-500. %>
-<% trade_class = "tw-btn-primary" %>
-<% trade_disabled_class = "inline-flex min-h-11 cursor-not-allowed items-center justify-center rounded-full bg-slate-300 px-5 py-2 text-sm font-medium text-slate-600 shadow-xs" %>
+    The two trade_class / trade_disabled_class locals are gone: the per-row control is the shared
+    ghost and the empty state's is a named class, so there is no string left to name here. %>
 
 <div class="max-w-7xl mx-auto py-6 space-y-6">
   <!-- Header with badge icons and title -->
@@ -114,12 +110,19 @@
                     <%= total_return_amount >= 0 ? "+" : "" %><%= number_to_currency(total_return_amount) %>
                   </td>
 
-                  <td class="table-body-cell text-right">
-                    <% if current_user.student? %>
-                      <%= link_to "Trade", stocks_path, class: trade_class %>
-                    <% else %>
-                      <span aria-disabled="true" class="<%= trade_disabled_class %>">Trade</span>
-                    <% end %>
+                  <%# A row action, so it is the ghost, like every other row action in the app.
+                      It was a filled primary repeated down every holding - the shape design.md
+                      rules out for a per-row action - and the earlier sweep missed this table.
+                      A viewer who is not a student gets the dash the rest of the app uses for
+                      "not yours to do" rather than a disabled pill. %>
+                  <td class="table-body-cell table-body-cell-right table-actions-pinned">
+                    <div class="flex items-center justify-end gap-1">
+                      <% if current_user.student? %>
+                        <%= ghost_action_link "Trade", stocks_path, icon: "arrow-up-down" %>
+                      <% else %>
+                        <span class="table-no-permission">-</span>
+                      <% end %>
+                    </div>
                   </td>
                 </tr>
               <% end %>
@@ -131,7 +134,9 @@
                                        title: "No holdings yet",
                                        body: "Buy your first shares on the trading floor and they will appear here." } do %>
                     <% if current_user.student? %>
-                      <%= link_to "Go to the trading floor", stocks_path, class: trade_class %>
+                      <%# Secondary: the earnings card above already carries this page's one
+                          filled primary, and it points at the same place. %>
+                      <%= link_to "Go to the trading floor", stocks_path, class: "tw-btn-secondary" %>
                     <% end %>
                   <% end %>
                 </td>

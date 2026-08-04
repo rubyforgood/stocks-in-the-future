@@ -209,8 +209,18 @@ module Admin
     # story in `gray-*`. This file sits in app/form_builders, which is why sweeps over app/views,
     # app/helpers and app/assets/tailwind never saw it - and Tailwind scans .rb, so it all
     # compiled and shipped.
+    # variant: :secondary for a sub-form's submit. design.md, "One primary CTA per page": a view
+    # gets exactly one filled primary - its main action - and an inline sub-form submit inside a
+    # management card is secondary, never primary. admin/students#edit stacked "Update student"
+    # with "Add transaction", which is the shape that rule exists to prevent.
     def submit_button(text = "Save", options = {})
-      options[:class] = "#{@template.admin_primary_button_class} #{options[:class]}".strip
+      variant = options.delete(:variant) || :primary
+      base = if variant.to_sym == :secondary
+               @template.admin_secondary_button_class
+             else
+               @template.admin_primary_button_class
+             end
+      options[:class] = "#{base} #{options[:class]}".strip
 
       submit(text, options)
     end

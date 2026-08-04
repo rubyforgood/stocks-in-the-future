@@ -252,6 +252,25 @@ the point of the split.
 
 ## Behaviour changes
 
+### `submit_button` takes a variant; the holdings row action is a ghost
+
+**What.** `Admin::FormBuilder#submit_button` accepts `variant: :secondary`, used by
+admin/students#edit's "Add transaction". `portfolios#show`'s per-row "Trade" is a
+`ghost_action_link`, its empty-state CTA is `:secondary`, and the `trade_class` /
+`trade_disabled_class` locals are deleted. The earnings card suppresses its "Invest now" CTA when
+already on the trading floor.
+
+**Why it has blast radius.**
+
+1. **`portfolios#show`'s actions column changed shape** - filled 44px pill to a 32/44px ghost with a
+   leading icon, and the non-student branch is now the `table-no-permission` dash rather than a
+   disabled pill. Anything asserting on a "Trade" button's appearance there will need updating; the
+   accessible name is unchanged.
+2. **The trading floor no longer renders an "Invest now" link at all.** It pointed at the page it
+   was on. A test looking for that link on `stocks#index` will fail, correctly.
+3. `submit_button`'s signature gained an option rather than changing, so existing calls are
+   unaffected.
+
 ### One button base; admin button helpers are aliases
 
 **What.** `buttons.css` defines the base once as a shared selector group and the variants extend it:

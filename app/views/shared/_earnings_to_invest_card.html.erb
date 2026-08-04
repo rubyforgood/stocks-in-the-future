@@ -3,12 +3,15 @@
     <div class="flex flex-col justify-center">
       <p class="text-sm text-slate-600">My earnings to invest</p>
       <p class="text-2xl font-semibold leading-tight tracking-tight mt-1 tabular-nums"><%= number_to_currency(@portfolio.cash_balance) %></p>
-      <% if current_user.student? %>
-        <%= link_to "Invest now", stocks_path, class: "tw-btn-primary mt-2 w-fit" %>
-      <% else %>
+      <% if !current_user.student? %>
         <%# Was bg-slate-400 with slate-700 ink: 4.04:1, under the 4.5:1 gate for text, in a
             hand-rolled rounded-full pill. tw-btn-primary-disabled is the named token. %>
         <span aria-disabled="true" class="tw-btn-primary-disabled mt-2 w-fit">Invest now</span>
+      <% elsif !current_page?(stocks_path) %>
+        <%# No CTA when the card is already on the trading floor: it linked to stocks_path from
+            stocks#index, so the page's one filled primary went nowhere. The balance is still
+            worth showing there, which is why the card stays. %>
+        <%= link_to "Invest now", stocks_path, class: "tw-btn-primary mt-2 w-fit" %>
       <% end %>
     </div>
 

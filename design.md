@@ -862,6 +862,33 @@ left once `Shadcn::FormBuilder#submit` stopped delegating to it, and it was a se
 with its own tokens - its `--primary` being the near-black navy that made the sign-up button the one
 off-brand primary in the product.
 
+### One primary per page, audited
+
+Counted the **rendered, visible** `.tw-btn-primary` on 41 pages across all four roles, excluding
+anything inside a dialog or the modal turbo-frame. Two pages broke the rule, both in shapes the
+Buttons section names explicitly:
+
+- **`admin/students#edit`** stacked "Update student" with a second card's "Add transaction". That is
+  the sub-form case: an inline submit inside a management card is `:secondary`, never `:primary`.
+  `Admin::FormBuilder#submit_button` takes `variant: :secondary` for it.
+- **`portfolios#show`** rendered a filled "Trade" in **every holdings row** - a per-row filled CTA,
+  exactly what the row-action rule exists to prevent, in a table the earlier ghost sweep missed. It
+  is `ghost_action_link` with an `arrow-up-down` icon now, and a non-student viewer gets the
+  `table-no-permission` dash the rest of the app uses rather than a bespoke disabled pill. Its empty
+  state also carried "Go to the trading floor" as a primary beside the earnings card's "Invest now",
+  **two primaries pointing at the same path**; the empty state's is secondary.
+
+**A primary whose destination is the current page is worse than a missing one.** The earnings card's
+"Invest now" links to `stocks_path`, and the card renders on `stocks#index` - so the trading floor's
+only filled primary did nothing. The card still shows the balance there; the CTA is suppressed with
+`current_page?`.
+
+`test/system/one_primary_test.rb` asserts at most one page-level primary, that the holdings row
+action is a ghost with an icon, and that the trading floor has no self-linking CTA.
+
+**Both of the pages that broke the rule had two forms or a table.** That is where to look: a page
+with one form and one header CTA is hard to get wrong.
+
 ### Row actions as implemented here
 
 `ButtonHelper#ghost_class(:neutral | :danger)` is this app's `ghost_class`, and
