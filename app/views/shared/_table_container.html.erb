@@ -1,6 +1,8 @@
+<%# table_class: for a caller that needs table-fixed - two tables that have to share one column
+    geometry, for instance. Optional, so every other caller is unchanged. %>
 <div class="table-container">
   <div class="table-wrapper overflow-x-auto">
-    <table class="table-base">
+    <table class="table-base <%= local_assigns[:table_class] %>">
       <%= yield %>
     </table>
   </div>

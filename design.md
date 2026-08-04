@@ -889,6 +889,58 @@ action is a ghost with an icon, and that the trading floor has no self-linking C
 **Both of the pages that broke the rule had two forms or a table.** That is where to look: a page
 with one form and one header CTA is hard to get wrong.
 
+### Tables as implemented here
+
+One set of classes, used by every table on both sides: `.table-base` on the `<table>`,
+`.table-header-row` on the header `<tr>`, `.table-header-cell` / `.table-body-cell` on the cells,
+`.table-body-row` on each body row. Nothing else styles a table.
+
+**The header carries no fill.** A `border-b` on `.table-header-row` is the only separator. The grey
+strip survived three previous sweeps because it was written **two ways at once** - this class on the
+app side and an inline `<thead class="bg-slate-50">` on fourteen admin and teacher tables. Grep one
+form and the other half stays. The border is `slate-200` against body rows at `slate-100`: the spec's
+`slate-100` assumes CASA's `slate-50` row dividers, and what transfers is the relationship - the
+header separator one step stronger than the row lines - not the literal token.
+
+**One border at the seam.** `divide-y divide-slate-300` on the `<table>` (eleven of them) stacked on
+the header row's own `border-b`. Row separators come from `.table-body-row`, never from a `divide-y`
+on the table or tbody - three tokens were in use for that one job (`slate-300`, `slate-200`,
+`slate-100`).
+
+**Headers are `align-top` too**, not just body cells. Every `<th>` in the app computed to the
+browser's `vertical-align: middle` default, so a wrapped header vertically centred its single-line
+neighbours against itself.
+
+**Hand-written cells are the recurring drift.** Four files still wrote `px-6 py-4` or `px-3 py-2`
+under headers using the shared `px-4 py-3`, transposed exactly as the older admin tables were - so
+each column's header text sat off its own data. **Match on the class list, not on an exact string:**
+half of them were missed on the first pass because they read
+`whitespace-nowrap px-3 py-2 text-sm ...`, with the padding in the middle. Sweep for any `<td>`/`<th>`
+whose class contains a `px-`/`py-` and no `table-*-cell`.
+
+**A row partial rendered into someone else's `<tbody>` is invisible to a per-file sweep.**
+`grade_books/_grade_entry` holds a bare `<tr>` whose `<tbody>` lives in `grade_books/_table`, so a
+scan for rows inside a tbody never saw it and it kept its own padding and lost its separator.
+
+**Two tables that sit above one another must share one column geometry.** The trading floor renders
+Active stocks and Archived stocks as separate `<table>` elements from one partial, and under the
+default auto layout each sized its columns from its own content: the Buy/Sell pair widened the
+actions column in the active table and pulled every other column left, so the page stepped sideways
+at the boundary (measured at 1366px: column two at 567px in one table, 699px in the other). Fixed by
+**giving every column but the first an explicit width** (`w-32`, `w-32`, `w-52`), with `table-fixed`
+to make those widths authoritative rather than advisory. Measured after: both tables report
+`281:581 862:128 990:128 1118:208`.
+
+**A row's contents hang off its first line, and an image must not set the row height.** The primary
+cell was `items-center` around a logo that grew to `lg:size-16`, so the ticker sat 13px down while
+the price and holdings text sat at 12px - and the taller the image, the wider the gap. The logo is
+`size-10` at every width, which is exactly the height of the two-line ticker-over-company block, and
+the cell is `items-start`. Measured after: ticker, price and holdings first lines all at 14px, with
+the 40px logo and the 40px trade button sharing a top edge at 13px.
+
+`test/system/table_consistency_test.rb` asserts all of this as computed style and geometry across
+twelve tables on ten pages.
+
 ### Row actions as implemented here
 
 `ButtonHelper#ghost_class(:neutral | :danger)` is this app's `ghost_class`, and

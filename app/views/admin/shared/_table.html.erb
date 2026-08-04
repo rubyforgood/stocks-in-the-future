@@ -6,9 +6,9 @@
     rather than as the page's title, and left one surface doing two jobs. %>
 <div class="tw-card">
   <div class="overflow-x-auto">
-    <table class="min-w-full divide-y divide-slate-300">
-      <thead class="bg-slate-50">
-        <tr>
+    <table class="table-base">
+      <thead>
+        <tr class="table-header-row">
           <% columns.each do |column| %>
             <%# Column headers are chrome, not content: smaller and muted so they
                 do not read at the same weight as the data. Matches tables.css. %>
@@ -27,10 +27,10 @@
           <% end %>
         </tr>
       </thead>
-      <tbody class="divide-y divide-slate-200 bg-white">
+      <tbody class="bg-white">
         <% if collection.any? %>
           <% collection.each do |record| %>
-            <tr id="<%= dom_id(record) %>" class="hover:bg-slate-50 transition-colors cursor-pointer"
+            <tr class="table-body-row" id="<%= dom_id(record) %>" class="hover:bg-slate-50 transition-colors cursor-pointer"
                 data-controller="clickable-row"
                 data-clickable-row-url-value="<%= url_for([:admin, route_model(record)]) %>"
                 data-action="click->clickable-row#navigate">

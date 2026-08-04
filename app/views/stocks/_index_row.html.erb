@@ -1,10 +1,16 @@
 <tr class="table-body-row">
   <td class="table-body-cell">
-    <div class="flex items-center gap-4">
+    <%# items-start, and a 40px logo at every width.
+        design.md: body cells, action buttons and checkboxes all top-align to the row's *first
+        line*. This cell was `items-center` around a logo that grew to 64px at lg, so the ticker
+        sat 13px below the top of its own row while the price and holdings text sat at 12px, and
+        the taller the logo the further they diverged. 40px is exactly the height of the two-line
+        ticker-over-company block, so the logo no longer sets the row height at all. %>
+    <div class="flex items-start gap-3">
       <% logo_path = "stock_logos/#{stock.ticker}-logo.svg" %>
       <% if File.exist?("app/assets/images/#{logo_path}") %>
         <%= image_tag asset_path(logo_path),
-                      class: "size-10 shrink-0 rounded-lg lg:size-16",
+                      class: "size-10 shrink-0 rounded-lg",
                       alt: "#{stock.ticker} logo",
                       loading: "lazy" %>
       <% end %>

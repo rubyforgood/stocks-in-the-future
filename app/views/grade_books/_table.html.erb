@@ -8,9 +8,9 @@
      tabindex="0"
      role="region"
      aria-label="Grades">
-  <table class="min-w-full divide-y divide-slate-200">
-    <thead class="bg-slate-50">
-      <tr>
+  <table class="table-base">
+    <thead>
+      <tr class="table-header-row">
         <th scope="col" class="table-header-cell table-header-cell-left">Student</th>
         <th scope="col" class="table-header-cell table-header-cell-left">Math grade</th>
         <th scope="col" class="table-header-cell table-header-cell-left">Reading grade</th>
@@ -18,7 +18,7 @@
         <th scope="col" class="table-header-cell table-header-cell-left">Perfect attendance</th>
       </tr>
     </thead>
-    <tbody class="bg-white divide-y divide-slate-200">
+    <tbody class="bg-white">
       <%= render partial: "grade_entry", collection: grade_book.grade_entries.sort_by { it.user.username }, as: :entry, locals: { disabled: grade_book.completed? } %>
     </tbody>
   </table>

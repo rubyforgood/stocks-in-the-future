@@ -70,8 +70,11 @@
           portfolio rendered a header with nothing under it. %>
       <div data-testid="holdings-table">
         <%= render layout: "components/ui/data_table", locals: { caption: "Your current holdings" } do %>
-          <thead class="table-header-row">
-            <tr>
+          <%# The class belongs on the row, not the thead - it is the header row's border. Every
+              other table in the app puts it there, and a computed-style sweep found this one
+              carrying its separator one element up. %>
+          <thead>
+            <tr class="table-header-row">
               <th scope="col" class="table-header-cell table-header-cell-left">Company</th>
               <th scope="col" class="table-header-cell table-header-cell-right">Qty.</th>
               <th scope="col" class="table-header-cell table-header-cell-right">Last price</th>
@@ -127,7 +130,7 @@
                 </tr>
               <% end %>
             <% else %>
-              <tr>
+              <tr class="table-body-row">
                 <td colspan="6" class="p-0">
                   <%= render layout: "components/ui/empty_state",
                              locals: { icon: "chart-line",

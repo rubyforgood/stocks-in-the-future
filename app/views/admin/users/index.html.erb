@@ -7,9 +7,9 @@
 
   <div class="tw-card">
     <div class="overflow-x-auto">
-      <table class="min-w-full divide-y divide-slate-300">
-        <thead class="bg-slate-50">
-          <tr>
+      <table class="table-base">
+        <thead>
+          <tr class="table-header-row">
             <th scope="col" class="table-header-cell table-header-cell-left">
               <%= sort_link(:id, "ID") %>
             </th>
@@ -33,10 +33,10 @@
             </th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-slate-200 bg-white">
+        <tbody class="bg-white">
           <% if @users.any? %>
             <% @users.each do |user| %>
-              <tr class="hover:bg-slate-50 transition-colors cursor-pointer"
+              <tr class="table-body-row cursor-pointer"
                   data-controller="clickable-row"
                   data-clickable-row-url-value="<%= user_show_path(user) %>"
                   data-action="click->clickable-row#navigate">

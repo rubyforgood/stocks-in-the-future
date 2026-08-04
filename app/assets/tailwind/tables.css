@@ -33,19 +33,34 @@
     @apply overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xs;
   }
 
+  /* min-w-full, not w-full: inside an overflow-x-auto wrapper the table has to be free to grow
+     past the container so it can scroll, which is what the pinned actions cell depends on. */
   .table-base {
-    @apply w-full border-collapse text-left font-sans;
+    @apply min-w-full border-collapse text-left font-sans;
   }
 
+  /* Unfilled. design.md: "the thead itself is unfilled - a border-b under the header row is the
+     only separator, never a bg-slate-50 fill". The grey strip was written two ways at once, as
+     this class on the app side and as an inline `<thead class="bg-slate-50">` on fourteen admin
+     and teacher tables, so the fill outlived every previous sweep.
+   *
+   * The border stays slate-200 rather than the spec's slate-100 because body rows here are
+   * slate-100 (.table-body-row): matching them would make the header read as one more row. The
+   * spec's pair assumes CASA's slate-50 row dividers; what transfers is the relationship - the
+   * header separator is one step stronger than the row lines - not the literal token. */
   .table-header-row {
-    @apply border-b border-slate-200 bg-slate-50;
+    @apply border-b border-slate-200;
   }
 
   /* No uppercase transform: design.md says to use size, weight and colour for
      hierarchy rather than shouting. text-xs semibold slate-600 is enough to read
      as chrome against slate-900 body text. */
+  /* align-top on the header too. design.md: a column whose header wraps to two lines should anchor
+     every header to one top line, instead of the browser's vertical-align: middle centring the
+     single-line neighbours against it, which reads as stray space. Measured before: every th in
+     the app computed to `middle`. */
   .table-header-cell {
-    @apply px-4 py-3 text-xs font-semibold text-slate-600 whitespace-nowrap;
+    @apply align-top px-4 py-3 text-xs font-semibold text-slate-600 whitespace-nowrap;
   }
 
   .table-header-cell-left {

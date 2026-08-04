@@ -241,6 +241,23 @@ view. I then wrote a design.md rule *about* those buttons without ever rendering
 control lives in a table's trailing column, measure its box against the scroll container's box at
 375px, and check `scrollWidth` against `clientWidth`.
 
+**A style written in two places survives every sweep of one of them.** The grey table header was
+`.table-header-row` on the app side *and* an inline `<thead class="bg-slate-50">` on fourteen admin
+tables; three sweeps fixed one form and left the other. Same shape as the two button bases. When you
+find a token in a shared class, grep for the inline form too - and vice versa.
+
+**Match cells on the class list, not on an exact string.** Half the hand-written `<td>`s were missed
+because they read `whitespace-nowrap px-3 py-2 text-sm ...` with the padding in the middle rather
+than at the front. Search for any `<td>`/`<th>` whose class has a `px-`/`py-` and no `table-*-cell`.
+
+**A row partial is invisible to a scan for rows inside a `<tbody>`.** `grade_books/_grade_entry` is a
+bare `<tr>` whose tbody lives in another file, so it kept its own padding and lost its separator when
+the tbody's `divide-y` went.
+
+**Two stacked tables need one column geometry.** Separate `<table>` elements size their columns
+independently, so a wider actions column in one shifts every column relative to the other and the
+page steps sideways at the boundary. Give every column but the first an explicit width.
+
 **"It uses the named class" is not "it matches the spec."** I moved Buy/Sell onto
 `.tw-btn-secondary` and reported it as design-system alignment. The class itself was off spec:
 `ring-1 ring-slate-300 ring-inset` where design.md says `border border-slate-200`. Four other

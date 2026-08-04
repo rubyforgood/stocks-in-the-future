@@ -192,87 +192,87 @@
       <h2 class="text-xl font-semibold text-slate-900 mb-4">Available field types</h2>
 
       <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-slate-300">
+        <table class="table-base">
           <thead>
-            <tr>
+            <tr class="table-header-row">
               <th scope="col" class="table-header-cell table-header-cell-left">Method</th>
               <th scope="col" class="table-header-cell table-header-cell-left">Description</th>
               <th scope="col" class="table-header-cell table-header-cell-left">Options</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-slate-200">
-            <tr>
-              <td class="py-4 pl-4 pr-3 text-sm font-mono text-slate-900">text_field</td>
+          <tbody>
+            <tr class="table-body-row">
+              <td class="table-body-cell font-mono">text_field</td>
               <td class="table-body-cell text-slate-700">Standard text input</td>
               <td class="table-body-cell text-slate-700">label, hint, placeholder</td>
             </tr>
-            <tr>
-              <td class="py-4 pl-4 pr-3 text-sm font-mono text-slate-900">email_field</td>
+            <tr class="table-body-row">
+              <td class="table-body-cell font-mono">email_field</td>
               <td class="table-body-cell text-slate-700">Email input with validation</td>
               <td class="table-body-cell text-slate-700">label, hint, placeholder</td>
             </tr>
-            <tr>
-              <td class="py-4 pl-4 pr-3 text-sm font-mono text-slate-900">password_field</td>
+            <tr class="table-body-row">
+              <td class="table-body-cell font-mono">password_field</td>
               <td class="table-body-cell text-slate-700">Password input (masked)</td>
               <td class="table-body-cell text-slate-700">label, hint</td>
             </tr>
-            <tr>
-              <td class="py-4 pl-4 pr-3 text-sm font-mono text-slate-900">number_field</td>
+            <tr class="table-body-row">
+              <td class="table-body-cell font-mono">number_field</td>
               <td class="table-body-cell text-slate-700">Numeric input</td>
               <td class="table-body-cell text-slate-700">label, hint, step</td>
             </tr>
-            <tr>
-              <td class="py-4 pl-4 pr-3 text-sm font-mono text-slate-900">currency_field</td>
+            <tr class="table-body-row">
+              <td class="table-body-cell font-mono">currency_field</td>
               <td class="table-body-cell text-slate-700">Currency with $ prefix</td>
               <td class="table-body-cell text-slate-700">multiplier, decimals, label, hint</td>
             </tr>
-            <tr>
-              <td class="py-4 pl-4 pr-3 text-sm font-mono text-slate-900">text_area</td>
+            <tr class="table-body-row">
+              <td class="table-body-cell font-mono">text_area</td>
               <td class="table-body-cell text-slate-700">Multi-line text input</td>
               <td class="table-body-cell text-slate-700">label, hint, rows</td>
             </tr>
-            <tr>
-              <td class="py-4 pl-4 pr-3 text-sm font-mono text-slate-900">rich_text_area</td>
+            <tr class="table-body-row">
+              <td class="table-body-cell font-mono">rich_text_area</td>
               <td class="table-body-cell text-slate-700">Rich text editor (Trix)</td>
               <td class="table-body-cell text-slate-700">label, hint</td>
             </tr>
-            <tr>
-              <td class="py-4 pl-4 pr-3 text-sm font-mono text-slate-900">select_field</td>
+            <tr class="table-body-row">
+              <td class="table-body-cell font-mono">select_field</td>
               <td class="table-body-cell text-slate-700">Dropdown select</td>
               <td class="table-body-cell text-slate-700">collection, include_blank, label, hint</td>
             </tr>
-            <tr>
-              <td class="py-4 pl-4 pr-3 text-sm font-mono text-slate-900">boolean_field</td>
+            <tr class="table-body-row">
+              <td class="table-body-cell font-mono">boolean_field</td>
               <td class="table-body-cell text-slate-700">Checkbox with label</td>
               <td class="table-body-cell text-slate-700">label, hint</td>
             </tr>
-            <tr>
-              <td class="py-4 pl-4 pr-3 text-sm font-mono text-slate-900">date_field</td>
+            <tr class="table-body-row">
+              <td class="table-body-cell font-mono">date_field</td>
               <td class="table-body-cell text-slate-700">Date picker</td>
               <td class="table-body-cell text-slate-700">label, hint</td>
             </tr>
-            <tr>
-              <td class="py-4 pl-4 pr-3 text-sm font-mono text-slate-900">datetime_field</td>
+            <tr class="table-body-row">
+              <td class="table-body-cell font-mono">datetime_field</td>
               <td class="table-body-cell text-slate-700">Date and time picker</td>
               <td class="table-body-cell text-slate-700">label, hint</td>
             </tr>
-            <tr>
-              <td class="py-4 pl-4 pr-3 text-sm font-mono text-slate-900">association_select</td>
+            <tr class="table-body-row">
+              <td class="table-body-cell font-mono">association_select</td>
               <td class="table-body-cell text-slate-700">Association dropdown</td>
               <td class="table-body-cell text-slate-700">collection, label_method, value_method, include_blank</td>
             </tr>
-            <tr>
-              <td class="py-4 pl-4 pr-3 text-sm font-mono text-slate-900">read_only_field</td>
+            <tr class="table-body-row">
+              <td class="table-body-cell font-mono">read_only_field</td>
               <td class="table-body-cell text-slate-700">Display-only field</td>
               <td class="table-body-cell text-slate-700">label, value, hint</td>
             </tr>
-            <tr>
-              <td class="py-4 pl-4 pr-3 text-sm font-mono text-slate-900">submit_button</td>
+            <tr class="table-body-row">
+              <td class="table-body-cell font-mono">submit_button</td>
               <td class="table-body-cell text-slate-700">Submit button (blue)</td>
               <td class="table-body-cell text-slate-700">text</td>
             </tr>
-            <tr>
-              <td class="py-4 pl-4 pr-3 text-sm font-mono text-slate-900">cancel_button</td>
+            <tr class="table-body-row">
+              <td class="table-body-cell font-mono">cancel_button</td>
               <td class="table-body-cell text-slate-700">Cancel link (styled as button)</td>
               <td class="table-body-cell text-slate-700">text, url</td>
             </tr>

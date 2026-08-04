@@ -271,6 +271,29 @@ already on the trading floor.
 3. `submit_button`'s signature gained an option rather than changing, so existing calls are
    unaffected.
 
+### One set of table classes; the header fill is gone
+
+**What.** Every table converges on `.table-base` / `.table-header-row` / `.table-header-cell` /
+`.table-body-row` / `.table-body-cell`. `.table-header-row` no longer carries `bg-slate-50`;
+`.table-header-cell` gained `align-top`; `.table-base` is `min-w-full` rather than `w-full`. Removed:
+`<thead class="bg-slate-50">` (14 occurrences), `divide-y divide-slate-{200,300}` on 16 `<table>`
+elements and 15 `<tbody>` elements, and 38 hand-written cell class strings. The trading floor's two
+tables share explicit column widths under `table-fixed`, and its logo is `size-10` at every width.
+
+**Why it has blast radius.**
+
+1. **Every table in the product changed** - no header fill, one border at the seam, `align-top`
+   headers, and admin row dividers from `slate-200` to `.table-body-row`'s `slate-100`. Anything
+   asserting on those classes breaks; `table_consistency_test.rb` asserts the computed result across
+   twelve tables instead.
+2. **`.table-base` is `min-w-full`.** `w-full` would have stopped wide tables from growing inside
+   `overflow-x-auto`, which is what the pinned actions cell depends on.
+3. **`shared/_table_container` takes an optional `table_class:`** local. Existing callers are
+   unaffected.
+4. **Row separators now come from the row, not the container.** A new `<tr>` in a `<tbody>` needs
+   `table-body-row` or it will have no border - including a row partial defined in another file,
+   which is how `grade_books/_grade_entry` was missed.
+
 ### One button base; admin button helpers are aliases
 
 **What.** `buttons.css` defines the base once as a shared selector group and the variants extend it:

@@ -1,8 +1,8 @@
 <div class="mt-8">
   <div class="overflow-x-auto">
-    <table class="min-w-full divide-y divide-slate-200">
-      <thead class="bg-slate-50">
-        <tr>
+    <table class="table-base">
+      <thead>
+        <tr class="table-header-row">
           <th scope="col" class="table-header-cell table-header-cell-left">Student</th>
           <th scope="col" class="table-header-cell table-header-cell-left">Portfolio value</th>
           <% if @can_manage_students %>
@@ -11,11 +11,11 @@
           <% end %>
         </tr>
       </thead>
-      <tbody class="bg-white divide-y divide-slate-200">
+      <tbody class="bg-white">
         <% @students.each do |student| %>
-          <tr class="group hover:bg-slate-50 transition-colors duration-150"
+          <tr class="table-body-row group"
               id="<%= dom_id(student) %>">
-            <td class="px-6 py-4 whitespace-nowrap" data-testid="student-username">
+            <td class="table-body-cell whitespace-nowrap" data-testid="student-username">
               <% if student.username.present? %>
                 <% if student.portfolio %>
                   <%= link_to student.username, user_portfolio_path(student, student.portfolio), class: "tw-link font-medium" %>
@@ -26,11 +26,11 @@
                 <span class="text-slate-600 italic">No username set</span>
               <% end %>
             </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900 font-medium">
+            <td class="table-body-cell whitespace-nowrap font-medium">
               <%= number_to_currency(student.portfolio&.holdings_value || 0) %>
             </td>
             <% if @can_manage_students %>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900 font-medium">
+              <td class="table-body-cell whitespace-nowrap font-medium">
                 <%= number_to_currency(student.portfolio&.cash_balance || 0) %>
               </td>
             <% end %>

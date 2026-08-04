@@ -63,18 +63,18 @@
     <%= render layout: "components/ui/card",
                locals: { title: "Orders awaiting execution", padded: false } do %>
       <% if @dashboard.pending_orders.any? %>
-        <table class="min-w-full divide-y divide-slate-200">
+        <table class="table-base">
           <caption class="sr-only">Orders placed but not yet executed</caption>
-          <thead class="bg-slate-50">
-            <tr>
+          <thead>
+            <tr class="table-header-row">
               <th scope="col" class="table-header-cell table-header-cell-left">Student</th>
               <th scope="col" class="table-header-cell table-header-cell-left">Order</th>
               <th scope="col" class="table-header-cell table-header-cell-right">Placed</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-slate-100 bg-white">
+          <tbody class="bg-white">
             <% @dashboard.pending_orders.each do |order| %>
-              <tr class="transition-colors hover:bg-slate-50">
+              <tr class="table-body-row">
                 <td class="table-body-cell"><%= order.user.display_name %></td>
                 <td class="table-body-cell">
                   <%= link_to admin_stock_path(order.stock),
@@ -103,18 +103,18 @@
     <%= render layout: "components/ui/card",
                locals: { title: "Recent transactions", padded: false } do %>
       <% if @dashboard.recent_transactions.any? %>
-        <table class="min-w-full divide-y divide-slate-200">
+        <table class="table-base">
           <caption class="sr-only">The most recent portfolio transactions</caption>
-          <thead class="bg-slate-50">
-            <tr>
+          <thead>
+            <tr class="table-header-row">
               <th scope="col" class="table-header-cell table-header-cell-left">Student</th>
               <th scope="col" class="table-header-cell table-header-cell-left">Reason</th>
               <th scope="col" class="table-header-cell table-header-cell-right">Amount</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-slate-100 bg-white">
+          <tbody class="bg-white">
             <% @dashboard.recent_transactions.each do |transaction| %>
-              <tr class="transition-colors hover:bg-slate-50">
+              <tr class="table-body-row">
                 <td class="table-body-cell">
                   <%= link_to transaction.portfolio.username,
                               admin_portfolio_transaction_path(transaction),

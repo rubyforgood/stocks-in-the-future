@@ -1,17 +1,26 @@
 <%# design.md section-title scale: text-base font-semibold. Was text-2xl, the same
     size as the page h1. %>
 <h2 class="mb-3 text-base font-semibold text-slate-900"><%= title %></h2>
-<%= render "shared/table_container" do %>
+<%# table-fixed, with a width on every column but the first.
+    Active stocks and Archived stocks are two separate <table> elements rendered from this one
+    partial, and with the default auto layout each sized its columns from its own content: the
+    Buy/Sell pair widened the actions column in the active table and pulled every other column
+    left, so the two tables' columns landed in different places (measured at 1366px: column two
+    started at 567px in one and 699px in the other). Reading down the page, everything shifted
+    sideways at the boundary. table-fixed makes the widths here authoritative, so both instances
+    are identical whatever they contain - including an archived table whose rows have one button
+    instead of two. %>
+<%= render "shared/table_container", table_class: "table-fixed" do %>
   <thead>
     <tr class="table-header-row">
       <th scope="col" class="table-header-cell table-header-cell-left">Company (exchange)</th>
-      <th scope="col" class="table-header-cell table-header-cell-right">Last price</th>
+      <th scope="col" class="table-header-cell table-header-cell-right w-32">Last price</th>
       <%# policy(Stock).show_holdings?, not current_user.student?, so this agrees with the body
           row in _index_row. show_holdings? also requires a persisted portfolio. Both columns are
           hidden below lg, where their contents move into the primary cell. %>
       <% if policy(Stock).show_holdings? %>
-        <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">Your holdings</th>
-        <th scope="col" class="table-header-cell table-header-cell-right hidden lg:table-cell">
+        <th scope="col" class="table-header-cell table-header-cell-left hidden w-32 lg:table-cell">Your holdings</th>
+        <th scope="col" class="table-header-cell table-header-cell-right hidden w-52 lg:table-cell">
           <span class="sr-only">Actions</span>
         </th>
       <% end %>
