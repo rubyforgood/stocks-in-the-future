@@ -41,8 +41,13 @@ module Shadcn
       )
     end
 
+    # Renders the app's own primary button rather than delegating to render_button, whose shadcn
+    # --primary is a near-black navy. Any form using render_form_for got that navy for its submit,
+    # which is why the sign-up button was the one off-brand primary in the product.
     def submit(value = nil, options = {})
-      @template.render_button(value, **options)
+      options[:class] = "tw-btn-primary #{options[:class]}".strip
+
+      super
     end
 
     private

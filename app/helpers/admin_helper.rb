@@ -29,9 +29,14 @@ module AdminHelper
       "hover:bg-slate-50 focus-visible:outline-sitf-primary"
   end
 
+  # The bordered destructive button. Slate at rest, exactly like :secondary, and rose only on
+  # hover/focus - the same no-red-at-rest rule as the ghost in ButtonHelper. It is bordered rather
+  # than a ghost because it sits in a show-page toolbar next to bordered Edit buttons, and a ghost
+  # among bordered neighbours reads as broken. Measured: slate-700 on white 10.35:1 at rest,
+  # rose-700 on rose-50 5.72:1 on hover.
   def admin_danger_button_class
-    "#{ADMIN_BUTTON_BASE} border border-red-300 text-red-700 bg-white hover:bg-red-50 " \
-      "focus-visible:outline-red-700"
+    "#{ADMIN_BUTTON_BASE} border border-slate-300 text-slate-700 bg-white " \
+      "hover:border-rose-300 hover:bg-rose-50 hover:text-rose-700 focus-visible:outline-rose-700"
   end
 
   # Renders a table for index pages with sortable columns
@@ -223,35 +228,45 @@ module AdminHelper
     end
   end
 
+  # Both of these are row actions, so they are ghosts like every other row action. Restore was
+  # green-600 on white, which measures 3.30:1 and failed AA outright.
   def restore_button(resource)
     resource_name = resource.class.name.underscore
     restore_path = send("restore_admin_#{resource_name}_path", resource)
 
-    button_to "Restore", restore_path,
-              method: :patch,
-              data: { turbo_confirm: "Are you sure you want to restore this #{resource_name.humanize.downcase}?" },
-              class: "text-green-600 hover:text-green-800",
-              form: { style: "display: inline;" }
+    ghost_action_button "Restore", restore_path,
+                        icon: "rotate-ccw",
+                        method: :patch,
+                        data: { turbo_confirm: "Restore this #{resource_name.humanize.downcase}?" },
+                        form: { class: "inline-flex" }
   end
 
   def discard_link(resource)
     resource_name = resource.class.name.underscore
     resource_path = send("admin_#{resource_name}_path", resource)
 
-    link_to "Archive", resource_path,
-            data: { turbo_method: :delete, turbo_confirm: "Are you sure you want to archive this #{resource_name.humanize.downcase}?" }, # rubocop:disable Layout/LineLength
-            class: "text-red-600 hover:text-red-800"
+    ghost_action_link "Archive", resource_path,
+                      icon: "archive", variant: :danger,
+                      data: { turbo_method: :delete,
+                              turbo_confirm: "Archive this #{resource_name.humanize.downcase}? " \
+                                             "They will lose access, but their data is preserved." }
   end
 
+  # This and archive_button sit in the classrooms#show toolbar between a bordered Edit and a
+  # bordered Delete, so they are bordered too rather than ghosts.
+  #
+  # Both used to draw their icon with `content_tag(:i, class: "fas fa-*")`. The font-awesome
+  # stylesheet is not linked in either layout, so those two elements rendered an empty <i> with no
+  # glyph - an icon that was never once visible. They were also the only Font Awesome references
+  # left in the app, and off-palette besides (green-300/yellow-300 borders, rounded-md at py-2
+  # rather than the 40px h-10 token).
   def activate_button(classroom)
-    button_class = "inline-flex items-center px-4 py-2 border border-green-300 shadow-sm " \
-                   "text-sm font-medium rounded-md text-green-700 bg-white hover:bg-green-50"
     link_to toggle_archive_admin_classroom_path(classroom),
-            data: { turbo_method: :patch, turbo_confirm: "Are you sure you want to activate this classroom?" },
-            class: button_class do
+            data: { turbo_method: :patch, turbo_confirm: "Activate #{classroom.name}?" },
+            class: admin_secondary_button_class do
       safe_join(
         [
-          content_tag(:i, "", class: "fas fa-check-circle -ml-1 mr-2 h-5 w-5 text-green-500"),
+          lucide_icon("circle-check", class: "h-5 w-5 shrink-0 text-slate-500"),
           "Activate"
         ]
       )
@@ -259,14 +274,14 @@ module AdminHelper
   end
 
   def archive_button(classroom)
-    button_class = "inline-flex items-center px-4 py-2 border border-yellow-300 shadow-sm " \
-                   "text-sm font-medium rounded-md text-yellow-700 bg-white hover:bg-yellow-50"
     link_to toggle_archive_admin_classroom_path(classroom),
-            data: { turbo_method: :patch, turbo_confirm: "Are you sure you want to archive this classroom?" },
-            class: button_class do
+            data: { turbo_method: :patch,
+                    turbo_confirm: "Archive #{classroom.name}? Teachers and students will no " \
+                                   "longer be able to access it, but all historical data is preserved." },
+            class: admin_danger_button_class do
       safe_join(
         [
-          content_tag(:i, "", class: "fas fa-archive -ml-1 mr-2 h-5 w-5 text-yellow-500"),
+          lucide_icon("archive", class: "h-5 w-5 shrink-0"),
           "Archive"
         ]
       )

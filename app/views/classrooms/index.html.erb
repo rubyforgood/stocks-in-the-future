@@ -26,8 +26,10 @@
           <th scope="col" class="table-header-cell table-header-cell-right">
             <%= sort_link(:total_earnings, "Total earnings") %>
           </th>
-          <th scope="col" class="table-header-cell table-header-cell-center">
-            Edit
+          <%# The trailing actions column is unlabelled, like every other table in the app - a
+              header naming one action stops being true as soon as a second one is added. %>
+          <th scope="col" class="table-header-cell table-header-cell-right">
+            <span class="sr-only">Actions</span>
           </th>
         </tr>
       </thead>
@@ -37,7 +39,7 @@
             <tr class="table-body-row">
               <td class="table-body-cell">
                 <span class="table-cell-content">
-                  <%= link_to classroom.name, classroom_path(classroom), class: "text-black underline hover:text-sitf-primary-dark" %>
+                  <%= link_to classroom.name, classroom_path(classroom), class: "tw-link font-medium" %>
                 </span>
               </td>
               <td class="table-body-cell py-4">
@@ -69,21 +71,14 @@
                   <%= number_to_currency(classroom.students.sum { |s| s.portfolio&.calculate_total_value_cents || 0 } / 100.0) %>
                 </span>
               </td>
-              <td class="table-body-cell table-body-cell-center">
-                <% if policy(classroom).edit? %>
-                  <%= render partial: "components/action_icon_button",
-                             locals: {
-                               options: {
-                                 path: edit_classroom_path(classroom),
-                                 icon: "pencil",
-                                 title: "Edit classroom",
-                                 aria_label: "Edit classroom",
-                                 text_class: "text-black"
-                               }
-                             } %>
-                <% else %>
-                  <span class="table-no-permission">-</span>
-                <% end %>
+              <td class="table-body-cell table-body-cell-right">
+                <div class="flex items-center justify-end gap-1">
+                  <% if policy(classroom).edit? %>
+                    <%= ghost_action_link "Edit", edit_classroom_path(classroom), icon: "pencil" %>
+                  <% else %>
+                    <span class="table-no-permission">-</span>
+                  <% end %>
+                </div>
               </td>
             </tr>
           <% end %>

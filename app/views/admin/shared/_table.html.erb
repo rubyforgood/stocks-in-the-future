@@ -45,15 +45,15 @@
               <% end %>
               <% if options[:show_actions] != false %>
                 <td class="table-body-cell table-body-cell-right whitespace-nowrap">
-                  <div class="flex justify-end gap-2">
-                    <%= link_to "View", [:admin, route_model(record)], class: "tw-link" %>
-                    <%= link_to "Edit", [:edit, :admin, route_model(record)], class: "text-slate-600 hover:text-slate-800" %>
+                  <div class="flex items-center justify-end gap-1">
+                    <%= ghost_action_link "View", [:admin, route_model(record)], icon: "eye" %>
+                    <%= ghost_action_link "Edit", [:edit, :admin, route_model(record)], icon: "pencil" %>
                     <%# A vague "Are you sure?" gives no basis for the decision.
                         Name the record so the confirmation is meaningful. %>
-                    <%= link_to "Delete", [:admin, route_model(record)],
-                                data: { turbo_method: :delete,
-                                        turbo_confirm: "Delete #{record.class.model_name.human.downcase} \"#{record.try(:name) || record.try(:username) || record.try(:title) || record.id}\"? This cannot be undone." },
-                                class: "font-medium text-red-700 hover:text-red-800" %>
+                    <%= ghost_action_link "Delete", [:admin, route_model(record)],
+                                          icon: "trash-2", variant: :danger,
+                                          data: { turbo_method: :delete,
+                                                  turbo_confirm: "Delete #{record.class.model_name.human.downcase} \"#{record.try(:name) || record.try(:username) || record.try(:title) || record.id}\"? This cannot be undone." } %>
                   </div>
                 </td>
               <% end %>

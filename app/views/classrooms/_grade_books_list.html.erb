@@ -9,7 +9,7 @@
       <% grade_books.each do |book| %>
         <li class="px-6 py-4 hover:bg-slate-50">
           <%= link_to classroom_grade_book_path(@classroom, book),
-                      class: "text-black underline hover:text-sitf-primary-dark font-medium" do %>
+                      class: "tw-link font-medium" do %>
             <span class="flex flex-between items-center justify-between w-full">
               <%= book.quarter.name %>
               <%= lucide_icon("arrow-right", class: "w-4 h-4 shrink-0") %>

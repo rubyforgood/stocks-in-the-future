@@ -24,6 +24,25 @@ Related documents:
 
 ## Removals
 
+### `_action_icon_button`, `.table-action-*`, and two unreachable Devise views deleted
+
+**What.** Removed `app/views/components/_action_icon_button.html.erb`, the
+`.table-action-link` / `.table-action-button` classes from `tables.css`, and
+`app/views/devise/unlocks/new.html.erb` plus
+`app/views/devise/confirmations/new.html.erb`.
+
+**Why.** The partial and the two CSS classes were the old row-action treatments and
+have no callers left now that row actions go through `ButtonHelper` — an unused
+class is indistinguishable from a supported one until someone adopts it. The two
+Devise views had **no routes at all**: `User` enables
+`:database_authenticatable, :registerable, :recoverable, :rememberable, :validatable`,
+not `:confirmable` or `:lockable`, and `devise/shared/_links` guards on
+`devise_mapping.confirmable?` / `lockable?` so their links never rendered either.
+
+**If confirmable or lockable is ever enabled**, run `rails generate devise:views`
+to get fresh templates rather than reviving these — they were unstyled scaffolding
+with `<br>` tags and bare `f.submit`.
+
 ### `SchoolsController` and `app/views/schools/` deleted
 
 **What.** Removed `app/controllers/schools_controller.rb`, nine templates under
@@ -232,6 +251,35 @@ the point of the split.
 ---
 
 ## Behaviour changes
+
+### Row actions are ghost buttons, and no destructive control is red at rest
+
+**What.** `ButtonHelper` is new and owns `ghost_class(:neutral | :danger)` plus
+`ghost_action_link` / `ghost_action_button`. Every table row action across both
+sides — View, Edit, Delete, Archive, Restore, Activate, Reactivate, Deactivate,
+Cancel order — is now that ghost with a leading Lucide icon. `admin_danger_button_class`
+also changed from `border-red-300 text-red-700` to slate at rest with a rose hover.
+
+**Why it has blast radius.** Three things a future reader could be surprised by:
+
+1. **Confirm dialogs changed wording.** Several were a bare "Are you sure?" and now
+   name the record ("Delete school-name (2024–2025)? This cannot be undone."). Any
+   test or script matching the old string breaks. Three controller tests were already
+   coupled to the *old badge classes* (`span.bg-green-50`) and were rewritten to assert
+   the label instead.
+2. **"Buy Shares" became "Buy shares".** Sentence case, and the label is interpolated
+   (`"#{buying ? 'Buy' : 'Sell'} Shares"`), so no literal-based sweep could ever have
+   found it. Nine system-test `click_button` calls were updated with it.
+3. **Two icons were never visible.** `activate_button` / `archive_button` drew
+   `content_tag(:i, class: "fas fa-*")` and the Font Awesome stylesheet is not linked
+   in either layout, so they rendered an empty `<i>`. Same for two
+   `fa-exclamation-circle` glyphs in `Admin::FormBuilder`'s error output. All four are
+   Lucide now. **`font-awesome-rails` is still in the Gemfile and is now referenced by
+   nothing** — a candidate removal, left alone here because dropping a gem touches
+   `Gemfile.lock` and `bundler-audit`.
+
+**Not changed:** Buy and Sell on the trading floor stay filled CTAs. See design.md,
+"Row actions as implemented here", for why, so it does not get "corrected" later.
 
 ### Money: integer cents are authoritative
 
@@ -490,6 +538,10 @@ Verified: all 16 admin pages now have exactly one `<h1>` and a distinct title.
 | Dividers | No extra dividers. A rule stays only where nothing else separates: tab rail baseline, app bar edge, table rows, form groups. Delete it under a page title and on a card header strip above a table. |
 | Landmarks | Exactly one `<main>` per page — the layout provides it. |
 | Flash | Only the layout renders it, via `layouts/_flash`. |
+| Row actions | The ghost from `ButtonHelper`, with a leading Lucide icon and a visible label. Never a filled CTA per row. Trailing column right-aligned, header `sr-only` "Actions". |
+| Destructive controls | No red at rest, ever — slate at rest, rose on hover, in both the ghost and the bordered variant. Danger is carried by icon, label and confirm dialog as well as colour. |
+| Button definitions | Buttons are defined in Ruby as often as in templates. Sweeps must include `app/form_builders` and `app/components`, not just `app/views` / `app/helpers` / `app/assets/tailwind`. |
+| Hover states | Unverifiable in system tests — Tailwind wraps `hover:` in `@media (hover:hover)` and headless Chromium reports `(hover: none)`. Assert hover as a class contract; assert rest state as pixels. |
 
 ---
 

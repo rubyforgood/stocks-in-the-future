@@ -1,6 +1,6 @@
 <%= form_with(model: classroom, class: "contents") do |form| %>
   <% if classroom.errors.any? %>
-    <div id="error_explanation" class="bg-red-50 text-red-500 px-3 py-2 font-medium rounded-lg mt-3">
+    <div id="error_explanation" class="bg-red-50 text-red-700 px-3 py-2 font-medium rounded-lg mt-3">
       <h2>
         <%= pluralize(classroom.errors.count, "error") %> prohibited this classroom from being saved:
       </h2>
@@ -75,7 +75,7 @@
   </div>
 
   <p class="text-sm text-slate-600 mt-2">
-    <span class="text-red-500 font-medium">* Required:</span> Select at least one grade that applies to this classroom.
+    <span class="text-red-700 font-medium">* Required:</span> Select at least one grade that applies to this classroom.
   </p>
   </div>
 

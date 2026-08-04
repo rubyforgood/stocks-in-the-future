@@ -200,21 +200,24 @@ module Admin
       end
     end
 
-    # Submit button with Tailwind styling
+    # Both of these delegate to the shared button classes rather than hand-rolling a shape.
+    #
+    # submit_button backs eleven admin forms and was `bg-blue-600` - a generic Tailwind blue, not
+    # the brand teal, at `rounded-md px-4 py-2` instead of the 40px `h-10 rounded-lg` token. So
+    # every primary button on every admin form was off-brand and a different size from the primary
+    # buttons in the page headers directly above them. cancel_button (ten forms) was the same
+    # story in `gray-*`. This file sits in app/form_builders, which is why sweeps over app/views,
+    # app/helpers and app/assets/tailwind never saw it - and Tailwind scans .rb, so it all
+    # compiled and shipped.
     def submit_button(text = "Save", options = {})
-      options[:class] = "inline-flex justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold " \
-                        "text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 " \
-                        "focus-visible:outline-offset-2 focus-visible:outline-blue-600 " \
-                        "#{options[:class]}"
+      options[:class] = "#{@template.admin_primary_button_class} #{options[:class]}".strip
 
       submit(text, options)
     end
 
     # Cancel button (link styled as button)
     def cancel_button(text = "Cancel", url:, options: {})
-      options[:class] = "inline-flex justify-center rounded-md bg-white px-4 py-2 text-sm font-semibold " \
-                        "text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 " \
-                        "#{options[:class]}"
+      options[:class] = "#{@template.admin_secondary_button_class} #{options[:class]}".strip
 
       @template.link_to(text, url, options)
     end
@@ -225,7 +228,7 @@ module Admin
 
       @template.content_tag(:div, class: "mb-6 p-4 bg-red-50 border border-red-200 rounded-lg") do
         @template.content_tag(:p, class: "text-sm text-red-600") do
-          @template.content_tag(:i, "", class: "fas fa-exclamation-circle mr-1") +
+          @template.lucide_icon("circle-alert", class: "mr-1 inline size-4 shrink-0") +
             object.errors[:base].join(", ")
         end
       end
@@ -382,7 +385,7 @@ module Admin
       return "".html_safe unless object&.errors && object.errors[attribute].any?
 
       @template.content_tag(:p, class: ERROR_CLASSES, id: "#{attribute}-error") do
-        @template.content_tag(:i, "", class: "fas fa-exclamation-circle mr-1") +
+        @template.lucide_icon("circle-alert", class: "mr-1 inline size-4 shrink-0") +
           object.errors[attribute].first
       end
     end

@@ -18,8 +18,12 @@
           <%= f.label :password_confirmation %>
           <%= f.password_field :password_confirmation, autocomplete: "new-password" %>
         </div>
-        <%= render_button "Sign up", class: "w-full", type: "submit" %>
-        <%= render_button "Sign in", href: new_session_path(resource_name), variant: :ghost, class: "inline-block w-full text-sm text-center underline", as: :link %>
+        <%# These were the shadcn render_button, whose --primary is a near-black navy, so the only
+            off-brand primary button in the app was the one on the sign-up page. %>
+        <%= f.submit "Sign up", class: "w-full" %>
+        <div class="text-center">
+          <%= link_to "Sign in", new_session_path(resource_name), class: "tw-link text-sm" %>
+        </div>
       </div>
     <% end %>
   </div>

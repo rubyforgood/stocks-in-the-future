@@ -181,29 +181,31 @@
 
   <div class="flex gap-3">
     <button type="button"
-            class="flex-1 min-h-11 px-4 py-3 border border-slate-400 text-slate-600 font-medium rounded-lg hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary transition-colors cursor-pointer"
+            class="tw-btn-secondary min-h-11 flex-1"
             data-order-form-target="cancelButton"
             data-action="click->modal#close">
       Cancel
     </button>
 
     <button type="button"
-            class="flex-1 min-h-11 px-4 py-3 border border-slate-400 text-slate-600 font-medium rounded-lg hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary transition-colors cursor-pointer hidden"
+            class="tw-btn-secondary min-h-11 flex-1 hidden"
             data-order-form-target="backButton"
             data-action="click->order-form#backToEdit">
       Back
     </button>
 
     <button type="button"
-            class="flex-1 min-h-11 px-4 py-3 <%= buying ? 'bg-teal-700 hover:bg-teal-800' : 'bg-amber-700 hover:bg-amber-800' %> text-white font-medium rounded-lg transition-colors shadow-sm cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary"
+            class="<%= buying ? 'tw-btn-buy' : 'tw-btn-sell' %> min-h-11 flex-1"
             data-order-form-target="reviewButton"
             data-action="click->order-form#showReview">
       Review order
     </button>
 
-    <%= form.submit "#{buying ? 'Buy' : 'Sell'} Shares",
+    <%# "Buy Shares" was Title Case. It is interpolated, so no earlier sentence-case pass
+        could see it as a literal. %>
+    <%= form.submit "#{buying ? 'Buy' : 'Sell'} shares",
                     data: { order_form_target: "submitButton" },
-                    class: "flex-1 px-4 py-3 #{buying ? 'bg-teal-700 hover:bg-teal-800' : 'bg-amber-700 hover:bg-amber-800'} text-white font-medium rounded-lg min-h-11 transition-colors shadow-sm cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary hidden" %>
+                    class: "#{buying ? 'tw-btn-buy' : 'tw-btn-sell'} min-h-11 flex-1 hidden" %>
   </div>
 
 <% end %>

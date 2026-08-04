@@ -47,12 +47,13 @@
                   <%= school_year.created_at.strftime("%B %d, %Y") %>
                 </td>
                 <td class="table-body-cell table-body-cell-right whitespace-nowrap">
-                  <div class="flex justify-end gap-2">
-                    <%= link_to "View", admin_school_year_path(school_year), class: "tw-link" %>
-                    <%= link_to "Edit", edit_admin_school_year_path(school_year), class: "text-slate-600 hover:text-slate-800" %>
-                    <%= link_to "Delete", admin_school_year_path(school_year),
-                                data: { turbo_method: :delete, turbo_confirm: "Are you sure?" },
-                                class: "text-red-600 hover:text-red-800" %>
+                  <div class="flex items-center justify-end gap-1">
+                    <%= ghost_action_link "View", admin_school_year_path(school_year), icon: "eye" %>
+                    <%= ghost_action_link "Edit", edit_admin_school_year_path(school_year), icon: "pencil" %>
+                    <%= ghost_action_link "Delete", admin_school_year_path(school_year),
+                                          icon: "trash-2", variant: :danger,
+                                          data: { turbo_method: :delete,
+                                                  turbo_confirm: "Delete #{school_year.name}? This cannot be undone." } %>
                   </div>
                 </td>
               </tr>

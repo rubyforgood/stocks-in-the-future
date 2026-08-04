@@ -95,10 +95,6 @@
   @apply text-slate-500 italic;
 }
 
-.table-action-link {
-  @apply rounded-sm font-medium text-sitf-primary underline-offset-2 hover:text-sitf-primary-dark hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary;
-}
-
-.table-action-button {
-  @apply cursor-pointer rounded-sm font-medium text-red-700 underline-offset-2 hover:text-red-800 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-700;
-}
+/* .table-action-link and .table-action-button are gone. Row actions are the ghost button from
+ * ButtonHelper#ghost_class, so a table action is one treatment across both sides of the product
+ * instead of a brand-coloured link plus a red-at-rest button. */

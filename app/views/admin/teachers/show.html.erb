@@ -19,9 +19,8 @@
       <%= link_to admin_teacher_reactivation_path(@teacher),
                   data: { turbo_method: :post,
                           turbo_confirm: "Reactivate #{@teacher.username}?" },
-                  class: "#{AdminHelper::ADMIN_BUTTON_BASE} border border-green-300 text-green-700 " \
-                         "bg-white hover:bg-green-50 focus-visible:outline-green-700" do %>
-        <%= lucide_icon("circle-check", class: "h-5 w-5 shrink-0 text-green-600") %>
+                  class: admin_secondary_button_class do %>
+        <%= lucide_icon("circle-check", class: "h-5 w-5 shrink-0 text-slate-500") %>
         Reactivate
       <% end %>
 
@@ -29,7 +28,7 @@
                   data: { turbo_method: :delete,
                           turbo_confirm: "Permanently delete #{@teacher.username}? This cannot be undone." },
                   class: admin_danger_button_class do %>
-        <%= lucide_icon("trash-2", class: "h-5 w-5 shrink-0 text-red-500") %>
+        <%= lucide_icon("trash-2", class: "h-5 w-5 shrink-0") %>
         Permanently delete
       <% end %>
     <% else %>
@@ -37,7 +36,7 @@
                   data: { turbo_method: :post,
                           turbo_confirm: "Deactivate #{@teacher.username}? They will no longer be able to sign in." },
                   class: admin_danger_button_class do %>
-        <%= lucide_icon("trash-2", class: "h-5 w-5 shrink-0 text-red-500") %>
+        <%= lucide_icon("trash-2", class: "h-5 w-5 shrink-0") %>
         Deactivate
       <% end %>
     <% end %>

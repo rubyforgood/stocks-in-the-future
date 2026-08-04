@@ -263,13 +263,43 @@ Twice on this branch a sweep looked complete because it only covered
 
 `@apply` classes are Tailwind, so they look migrated and get skipped. They are
 not exempt from the token rules or from contrast. Any audit should cover
-`app/views`, `app/helpers`, `app/assets/tailwind` and `app/components`.
+`app/views`, `app/helpers`, `app/assets/tailwind`, `app/components` **and
+`app/form_builders`**.
+
+That last one was missing and it hid the biggest colour divergence in the app:
+`Admin::FormBuilder#submit_button` backs eleven admin forms and was `bg-blue-600`
+at `rounded-md px-4 py-2`, so every admin form's primary button was generic blue
+and a different size from the primary button in the page header above it.
+`Shadcn::FormBuilder#submit` delegated to the shadcn `render_button`, whose
+`--primary` is a near-black navy - the sign-up button was the only off-brand
+primary in the product. **Tailwind scans `.rb`, so a button defined in Ruby
+compiles and ships exactly like one in a template.**
 
 Also: delete unused CSS rather than leaving it. An unused class is
 indistinguishable from a supported one until someone adopts it. `admin.css` held
 five unreferenced classes with eight `!important` declarations and pre-token hex,
 and I spent effort "fixing" a focus indicator on one of them before noticing
 nothing rendered it.
+
+## Hover states are invisible to the tests
+
+**You cannot verify a `hover:` style from a system test here.** Tailwind v4 emits
+hover utilities inside `@media (hover:hover)`, and the headless Chromium Capybara
+drives reports `(hover: none)`. Measured: with the pointer over a Delete link,
+`el.matches(":hover")` is `true`, the class list contains `hover:text-rose-700`,
+the rule and the `--color-rose-700` token both exist in the compiled CSS - and the
+computed colour is still slate. Nothing is broken; the declaration simply never
+applies in that browser.
+
+So assert hover as a **class contract** in a helper test, and assert the resting
+colour, icon and geometry as rendered pixels in a system test. I spent four rounds
+chasing a bug that was not there.
+
+Related trap: **the compiled stylesheet is minified.** Grepping
+`app/assets/builds/tailwind.css` for `@media (hover: hover)` returns nothing while
+`@media (hover:hover)` returns nine hits, which is what sent me looking for a
+specificity problem instead. When a grep of that file comes back empty, try it
+without the spaces before concluding anything.
 
 ## Comments are not inert
 

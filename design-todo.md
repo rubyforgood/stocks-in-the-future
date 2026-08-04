@@ -170,6 +170,35 @@ Counts are indicative, found by pattern matching - confirm by reading the file.
 
 ## Cross-cutting work items
 
+### `Admin::FormBuilder` field styling is still pre-token
+
+The button sweep routed `submit_button` and `cancel_button` through the shared
+button classes, but **only the buttons**. The rest of
+`app/form_builders/admin/form_builder.rb` is still on the pre-migration palette:
+roughly 35 references to `gray-*` rather than `slate-*`, `blue-600` focus rings
+instead of the brand teal, `ring-red-300` / `text-red-300` error affordances, and
+an `sm:` responsive tier this app does not use (`sm:text-sm sm:leading-6` on every
+input). Eleven admin forms render through it.
+
+Two measured AA failures in there, both `text-gray-400` at **2.54:1** on white:
+`placeholder:text-gray-400` in `INPUT_CLASSES`, and the `—` rendered for an absent
+value in `format_value`. That second one is the *same* failure `admin_helper.rb`
+had for absent values, which a test caught rather than an audit.
+
+Not done here because it is a form-field migration, not a button one, and it wants
+its own pass with contrast measured per state. `app/components/shadcn/` has the same
+problem with its own token set (`--primary` is a near-black navy) and only three
+call sites left.
+
+### Devise pages that are still raw scaffolding
+
+`devise/passwords/edit` and `devise/registrations/edit` are reachable and are
+unstyled generator output — `<h2>`, `div.field`, `<br>`, no layout treatment. Their
+submit buttons now carry `.tw-btn-primary`, so the button is right and the page
+around it is not. `devise/unlocks/new` and `devise/confirmations/new` were deleted
+instead (no routes — see migration.md).
+
+
 - [x] Fix invalid `focus-visible:ring-2a` in `input_helper.rb` - it compiled to nothing, leaving inputs app-wide with no designed focus indicator. Now an explicit 2px `sitf-primary` ring at 5.9:1.
 
 - [x] Add SITF brand colours as semantic tokens so pages stop hardcoding hex. **done**: `sitf-surface`, `sitf-primary`, `sitf-primary-dark`, `sitf-on-primary`, `sitf-secondary`, `sitf-accent`, `sitf-warning`, `sitf-danger` in `tailwind.config.css`, sourced from `shadcn.css`.

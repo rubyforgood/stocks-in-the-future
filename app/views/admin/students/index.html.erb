@@ -65,10 +65,10 @@
                   <%= student.created_at.strftime("%B %d, %Y") %>
                 </td>
                 <td class="table-body-cell table-body-cell-right whitespace-nowrap">
-                  <div class="flex justify-end gap-2">
-                    <%= link_to "View", admin_student_path(student), class: "tw-link" %>
+                  <div class="flex items-center justify-end gap-1">
+                    <%= ghost_action_link "View", admin_student_path(student), icon: "eye" %>
                     <% unless student.discarded? %>
-                      <%= link_to "Edit", edit_admin_student_path(student), class: "text-slate-600 hover:text-slate-800" %>
+                      <%= ghost_action_link "Edit", edit_admin_student_path(student), icon: "pencil" %>
                     <% end %>
                     <%= discard_restore_action(student) %>
                   </div>
@@ -127,11 +127,11 @@
         <div class="flex justify-end gap-3">
           <button type="button"
                   data-action="click->dialog#close"
-                  class="inline-flex justify-center items-center min-h-11 px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary">
+                  class="<%= admin_secondary_button_class %>">
             Cancel
           </button>
           <%= form.submit "Import students",
-                          class: "inline-flex justify-center px-4 py-2 text-sm font-medium text-sitf-on-primary bg-sitf-primary border border-transparent rounded-md hover:bg-sitf-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary" %>
+                          class: admin_primary_button_class %>
         </div>
       <% end %>
     </div>

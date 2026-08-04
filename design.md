@@ -127,7 +127,9 @@ Brand scale lives in `tailwind.css` `@theme` as `--color-brand-*`.
 - Radius: controls `rounded-lg`; cards/panels `rounded-2xl`; icon tiles `rounded-xl`.
 - Surfaces: white, `border border-slate-200`, `shadow-sm`.
 - Page background: `bg-slate-50`.
-- **Page vertical rhythm** (index / list pages): content wrapper `px-4 py-6 sm:px-6 lg:px-8`;
+- **Page vertical rhythm** (index / list pages): the content wrapper carries **vertical** rhythm
+  only (`py-6`) -- the layout owns the horizontal gutter, so a page never adds `px-*` of its own
+  (see "Content gutter and width" below);
   header block `mb-6` (24px); the header **row** is `flex flex-wrap items-{end|start} justify-between gap-3`: **`items-end`** for an **h1-only** header (the 40px CTA aligns to the h1 baseline) and **`items-start`** when the h1 carries a **subtitle** (CTA top-aligns to the title so the subtitle can't push it down -- measured, `items-end`+subtitle drops the 40px CTA ~16px too low to the subtitle baseline, which was the dashboards' bug: `ctaTop==h1Top` after the fix, matching reimbursements). h1-only volunteers/supervisors/cases use `items-end`; subtitle pages reimbursements/placements/banners/dashboards use `items-start`. a plain (borderless) filter bar gets `mb-4` so it sits **16px**
   above the table — every roster filter converges on this (cases / volunteers / supervisors /
   reimbursements all measure 16px; `mb-5` or `mb-6` on a *plain* filter is drift). A filter
@@ -293,10 +295,14 @@ five page wrappers added `px-4 lg:px-6` of their own on top. Home was **53px**, 
 `max-w-5xl` let `mx-auto` centre the column and widen the gap further.
 
 24px sits in the middle of the field - Material and Stripe 24, GitHub 24-32, Tailwind UI's
-dashboard shell 32, Polaris 16-20. **Note the deliberate deviation:** the page-rhythm entry above
-says `lg:px-8` (32px), which is CASA prose that also uses the `sm:` tier this app does not. 24px
-was chosen because admin already rendered it, so the app converges on admin rather than both
-moving, and because the report was that the gap was too large.
+dashboard shell 32, Polaris 16-20. It was chosen because admin already rendered it, so the app
+converges on admin rather than both moving, and because the report was that the gap was too large.
+
+The page-rhythm entry above used to prescribe `px-4 py-6 sm:px-6 lg:px-8` -- 32px, via an `sm:`
+tier this app does not use, applied *on the page* rather than the layout. That is inherited CASA
+prose and it is the reason five app pages double-padded themselves to 48px. It now reads `py-6`,
+vertical only. **A rule that contradicts the shipped layout will be followed by someone**, so the
+fix is to correct the rule, not to annotate it as a deviation.
 
 **Content width is `max-w-7xl`.** It is what 35 call sites and this document already use.
 `max-w-[1180px]` was an arbitrary value the token rules rule out, and home's `max-w-5xl` was
@@ -795,6 +801,63 @@ dialog whose single solid rose button is the only red at rest anywhere.
 `button_classes`. A bespoke string at `py-1.5` next to a 40px token is the recurring drift
 bug; the only non-`button_classes` clickable is the tertiary ghost, which has its own `ghost_class`
 helper (call it -- do not re-derive the string). **This grep is necessary but not sufficient:** a status glyph emitted by a Ruby **model/decorator/helper method** (e.g. a court order's ✅/❌ from an `implementation_status_symbol`) or a **third-party web component / legacy CSS-class widget** (e.g. `<add-to-calendar-button>` / `.cal-btn`) is not a class-string button, so the grep cannot see it -- also scan Ruby methods that emit glyphs and non-`button_classes` interactive widgets, and pixel-check the rendered page.
+
+### Row actions as implemented here
+
+`ButtonHelper#ghost_class(:neutral | :danger)` is this app's `ghost_class`, and
+**`ghost_action_link` / `ghost_action_button` are what views call** -- they render the leading icon
+themselves, so an action cannot ship without one. Both sides of the product use them.
+
+**Every table row action is a ghost with a leading icon and a visible label.** The icon vocabulary
+is Lucide, not `bi-*`: `eye` View, `pencil` Edit, `trash-2` Delete, `archive` Archive,
+`rotate-ccw` Restore, `circle-check` Activate/Reactivate, `ban` Deactivate/Cancel.
+
+**Height is `min-h-11 lg:min-h-8`** -- 44px where the finger is, 32px as a desktop row action, the
+same two-tier shape `NavHelper` uses. 28-32px is where row actions sit in current practice (Primer's
+small control 28 and medium 32, Linear and Stripe about 28, Polaris slim 28); holding 44px on the
+desktop would make the ghost *taller* than the 40px primary button it is supposed to recede from.
+Measured: 32px at 1366px, 44px at 375px.
+
+**The trailing column is right-aligned and its header is unlabelled** (`sr-only` "Actions"). A
+header naming one action stops being true the moment a second one is added, which is what
+`classrooms#index` had ("Edit"), and an empty `<th />` gives the column no accessible name at all.
+
+**No red at rest, anywhere, including the bordered destructive button.** `admin_danger_button_class`
+was `border-red-300 text-red-700` and is now slate at rest like `:secondary`, rose on hover -- it
+sits in the `classrooms#show` toolbar between a bordered Edit and a bordered Delete, and a ghost
+among bordered neighbours reads as broken. Restore was `green-600` on white, **3.30:1, a straight
+AA failure**, which is what happens when a state colour is chosen for meaning and never measured.
+
+**The exception, named so it is not "fixed" later: Buy and Sell on the trading floor stay filled**
+(`.tw-btn-buy` teal / `.tw-btn-sell` amber). The ghost rule exists because a filled CTA
+over-emphasises *repeated utility chrome*; Buy/Sell are the product's core transaction, and every
+brokerage table (Robinhood, Fidelity, Schwab) gives the trade control real weight. The order
+modal's own Cancel / Back / Review / submit route through the same named classes rather than four
+bespoke strings.
+
+**A `hover:` state cannot be verified from a system test in this repo.** Tailwind v4 emits hover
+utilities inside `@media (hover:hover)`, and the headless Chromium the system tests drive reports
+`(hover: none)` -- measured: the Delete link stays slate with the pointer over it while
+`el.matches(":hover")` is `true`. So hover is asserted as a class contract in
+`test/helpers/button_helper_test.rb`, and the resting colour, icon count and height are asserted as
+rendered pixels in `test/system/row_actions_test.rb`. Note also that the compiled stylesheet is
+**minified**, so grepping it for `@media (hover: hover)` finds nothing while
+`@media (hover:hover)` finds nine.
+
+What this replaced: the same three actions written six ways across nine tables -- View as `tw-link`
+in five and `text-sitf-primary-dark hover:underline` in a sixth, Edit as `text-slate-600` or
+`text-slate-700`, Delete as `text-red-600` in four and `font-medium text-red-700` in another, plus
+an icon-only `_action_icon_button` partial with no visible label.
+
+**Buttons live outside `app/views` too.** `app/form_builders/admin/form_builder.rb` backs eleven
+admin forms and its `submit_button` was `bg-blue-600` at `rounded-md px-4 py-2` -- so every admin
+form's primary button was off-brand *and* a different size from the primary button in the page
+header directly above it, for as long as the audit paths were `app/views`, `app/helpers`,
+`app/assets/tailwind` and `app/components`. Tailwind scans `.rb`, so it compiled and shipped.
+`app/components/shadcn/form_builder.rb` was worse: its `submit` delegated to the shadcn
+`render_button`, whose `--primary` is a near-black navy, which is why the sign-up page had the only
+off-brand primary button in the product. **Add `app/form_builders` and `app/components` to every
+sweep.**
 
 ### Inputs
 `block w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-slate-900 shadow-sm placeholder:text-slate-500 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 focus:outline-none`
@@ -2597,8 +2660,8 @@ Repeatable steps for moving one screen off Bootstrap:
    live data source; don't carry blank legacy columns forward (see Tables, above).
 2. **Opt the action into a Tailwind layout** — `render ..., layout: "stocks_in_the_future_app"` (or
    `layout "stocks_in_the_future_auth"`), and set `@active_nav` when it maps to a sidebar item.
-3. **Rebuild the view with the components above.** Wrap page content in
-   `px-4 py-6 sm:px-6 lg:px-8`; use the h1/section-title scale; reuse the card, button,
+3. **Rebuild the view with the components above.** Wrap page content in `py-6` and let the
+   layout supply the horizontal gutter; use the h1/section-title scale; reuse the card, button,
    input, pill, KPI, and empty-state patterns instead of inventing new ones.
 4. **Names:** `display_person` / `formatted_name` / `avatar_initials` — never raw
    `display_name`. **Icons:** `bi-*` only. **Status vs people:** icon tile vs avatar.

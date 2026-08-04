@@ -1,0 +1,76 @@
+# frozen_string_literal: true
+
+# The tertiary (ghost) control, and the row actions built on it. One definition, shared by the
+# app and admin tables, because copy-pasted inline strings drift: before this existed the same
+# three actions were written six different ways across nine tables - View as `tw-link` in five
+# of them and `text-sitf-primary-dark hover:underline` in a sixth, Edit as `text-slate-600` or
+# `text-slate-700`, Delete as `text-red-600` in four and `font-medium text-red-700` in another.
+#
+# Ghost is the lowest-emphasis button: no border, fill or shadow. A filled CTA repeated down
+# every row of a table over-emphasises a per-row action and breaks table-to-table consistency,
+# so a row action is never `.tw-btn-primary` / `.tw-btn-secondary`.
+module ButtonHelper
+  # 44px where the finger is, 32px as a desktop row action - the same two-tier shape
+  # NavHelper uses, for the same reason. 28-32px is where table row actions sit in current
+  # practice (GitHub Primer's small control is 28, its medium 32; Linear and Stripe about 28;
+  # Polaris slim 28), and holding 44px on the desktop would make a ghost taller than the 40px
+  # primary button it is supposed to recede from.
+  GHOST_BASE = "inline-flex min-h-11 lg:min-h-8 items-center gap-1.5 rounded-lg px-2 py-1 " \
+               "text-sm font-medium transition-colors focus-visible:outline-2 " \
+               "focus-visible:outline-offset-2"
+
+  # Both variants are slate at rest and differ only on hover. A column of red "Delete" links is
+  # an always-on alarm, and it makes the destructive action the most eye-catching thing in the
+  # table; slate-at-rest plus rose-on-hover reveals the danger at the point of action instead,
+  # which is what GitHub, Gmail and Linear do. The danger is also carried by the trash icon, the
+  # label and the confirm dialog - never by colour alone (WCAG 1.4.1).
+  #
+  # Measured on white: slate-600 7.58:1, and 7.24:1 on the slate-50 row hover it sits over.
+  # Hover states: slate-900 on slate-100 16.30:1, rose-700 on rose-50 5.72:1.
+  def ghost_class(variant = :neutral)
+    state = case variant.to_sym
+            when :danger
+              "text-slate-600 hover:bg-rose-50 hover:text-rose-700 focus-visible:outline-rose-700"
+            else
+              "text-slate-600 hover:bg-slate-100 hover:text-slate-900 " \
+              "focus-visible:outline-sitf-primary"
+            end
+
+    "#{GHOST_BASE} #{state}"
+  end
+
+  # A table row action: ghost shape, leading icon, visible label.
+  #
+  # The icon is not decoration that can be forgotten - it is what makes a dense column of
+  # actions scannable, and for Delete it is half of the redundant coding that keeps the meaning
+  # off colour. Rendering it here rather than at each call site is what stops it going missing.
+  #
+  # lucide_icon is aria-hidden, so the label carries the accessible name.
+  def ghost_action_link(label, path, icon:, variant: :neutral, **options)
+    link_to path, **ghost_options(options, variant) do
+      safe_join([ghost_icon(icon), label])
+    end
+  end
+
+  # The same control where the action needs a real form submit rather than a link - a
+  # `button_to`. Note this renders a whole <form>, so it must never sit inside another one.
+  def ghost_action_button(label, path, icon:, variant: :neutral, **options)
+    form_options = options.delete(:form) || {}
+
+    button_to path, **ghost_options(options, variant), form: form_options do
+      safe_join([ghost_icon(icon), label])
+    end
+  end
+
+  private
+
+  def ghost_icon(icon)
+    lucide_icon(icon, class: "size-4 shrink-0")
+  end
+
+  # Merges rather than overwrites, so a call site can add its own classes without losing the
+  # ghost, and cannot accidentally drop the variant by passing class:.
+  def ghost_options(options, variant)
+    options.merge(class: [ghost_class(variant), options[:class]].compact.join(" "))
+  end
+end

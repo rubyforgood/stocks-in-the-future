@@ -4,7 +4,7 @@
       <p class="text-sm text-slate-600">My earnings to invest</p>
       <p class="text-2xl font-semibold leading-tight tracking-tight mt-1 tabular-nums"><%= number_to_currency(@portfolio.cash_balance) %></p>
       <% if current_user.student? %>
-        <%= link_to "Invest now", stocks_path, class: "mt-2 bg-teal-700 hover:bg-teal-800 text-white font-medium px-6 py-2.5 rounded-full shadow-sm w-fit transition-colors" %>
+        <%= link_to "Invest now", stocks_path, class: "tw-btn-primary mt-2 w-fit" %>
       <% else %>
         <span aria-disabled="true" class="mt-2 font-medium px-6 py-2.5 rounded-full shadow-sm w-fit cursor-not-allowed bg-slate-400 text-slate-700">Invest now</span>
       <% end %>

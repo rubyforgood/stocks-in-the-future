@@ -45,7 +45,10 @@ module Admin
 
       assert_response :success
       assert_select "tbody tr", count: 1
-      assert_select "span.bg-green-50", text: "Active"
+      # Asserted on the label, not the badge's fill class. These used to name bg-green-50 /
+      # bg-red-50, so replacing a hand-rolled badge with the shared component broke three tests
+      # that were not testing anything about filtering.
+      assert_select "tbody span", text: "Active"
     end
 
     test "index shows both active and deactivated teachers with all filter" do
@@ -60,8 +63,8 @@ module Admin
 
       assert_response :success
       assert_select "tbody tr", count: 2
-      assert_select "span.bg-red-50", text: "Deactivated"
-      assert_select "span.bg-green-50", text: "Active"
+      assert_select "tbody span", text: "Deactivated"
+      assert_select "tbody span", text: "Active"
     end
 
     test "index shows only deactivated teachers with discarded filter" do
@@ -75,7 +78,7 @@ module Admin
 
       assert_response :success
       assert_select "tbody tr", count: 1
-      assert_select "span.bg-red-50", text: "Deactivated"
+      assert_select "tbody span", text: "Deactivated"
     end
 
     # Show tests

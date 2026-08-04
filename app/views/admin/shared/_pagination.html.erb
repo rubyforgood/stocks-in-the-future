@@ -13,7 +13,7 @@
     </div>
     <div class="flex flex-1 justify-between lg:justify-end">
       <% if collection.prev_page %>
-        <%= link_to "Previous", request.params.merge(page: collection.prev_page), class: "relative inline-flex items-center px-4 py-2 border border-slate-300 text-sm font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50" %>
+        <%= link_to "Previous", request.params.merge(page: collection.prev_page), class: admin_secondary_button_class %>
       <% else %>
         <span class="relative inline-flex items-center px-4 py-2 border border-slate-300 text-sm font-medium rounded-md text-slate-400 bg-slate-100 cursor-not-allowed" aria-disabled="true">
           Previous
@@ -21,7 +21,7 @@
       <% end %>
 
       <% if collection.next_page %>
-        <%= link_to "Next", request.params.merge(page: collection.next_page), class: "ml-3 relative inline-flex items-center px-4 py-2 border border-slate-300 text-sm font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50" %>
+        <%= link_to "Next", request.params.merge(page: collection.next_page), class: "#{admin_secondary_button_class} ml-3" %>
       <% else %>
         <span class="ml-3 relative inline-flex items-center px-4 py-2 border border-slate-300 text-sm font-medium rounded-md text-slate-400 bg-slate-100 cursor-not-allowed" aria-disabled="true">
           Next

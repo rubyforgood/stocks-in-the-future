@@ -18,7 +18,7 @@
             <td class="px-6 py-4 whitespace-nowrap" data-testid="student-username">
               <% if student.username.present? %>
                 <% if student.portfolio %>
-                  <%= link_to student.username, user_portfolio_path(student, student.portfolio), class: "text-black underline hover:text-sitf-primary-dark font-medium" %>
+                  <%= link_to student.username, user_portfolio_path(student, student.portfolio), class: "tw-link font-medium" %>
                 <% else %>
                   <span class="text-slate-600 italic"><%= student.username %></span>
                 <% end %>
@@ -37,34 +37,29 @@
             <% if @can_manage_students %>
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium" data-testid="student-actions">
                 <div class="flex items-center gap-2">
-                  <%= link_to edit_classroom_student_path(@classroom, student),
-                              class: "inline-flex items-center justify-center w-8 h-8 text-black hover:text-sitf-primary-dark hover:bg-blue-50 rounded-lg transition-all duration-150 group",
-                              title: "Edit student",
-                              data: { testid: "edit-student" } do %>
-                    <%= lucide_icon("pencil", class: " group-hover:scale-110 transition-transform duration-150 w-4 h-4 shrink-0") %>
-                  <% end %>
+                  <%# Were three icon-only 32px links whose only accessible name was a title
+                      attribute, coloured black / amber-600 / red-600 at rest. Now the same ghost
+                      as every other row action, with the label visible. %>
+                  <%= ghost_action_link "Edit", edit_classroom_student_path(@classroom, student),
+                                        icon: "pencil",
+                                        data: { testid: "edit-student" } %>
 
-                  <%= link_to reset_password_classroom_student_path(@classroom, student),
-                              data: {
-                                turbo_method: :patch,
-                                turbo_confirm: "Are you sure you want to reset #{student.username}'s password?",
-                                testid: "reset-password"
-                              },
-                              class: "inline-flex items-center justify-center w-8 h-8 text-amber-600 hover:text-amber-800 hover:bg-amber-50 rounded-lg transition-all duration-150 group",
-                              title: "Reset password" do %>
-                    <%= lucide_icon("refresh-cw") %>
-                  <% end %>
+                  <%= ghost_action_link "Reset password",
+                                        reset_password_classroom_student_path(@classroom, student),
+                                        icon: "key-round",
+                                        data: {
+                                          turbo_method: :patch,
+                                          turbo_confirm: "Reset #{student.username}'s password?",
+                                          testid: "reset-password"
+                                        } %>
 
-                  <%= link_to classroom_student_path(@classroom, student),
-                              data: {
-                                turbo_method: :delete,
-                                turbo_confirm: "Are you sure you want to delete #{student.username}?",
-                                testid: "delete-student"
-                              },
-                              class: "inline-flex items-center justify-center w-8 h-8 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-all duration-150 group",
-                              title: "Delete student" do %>
-                    <%= lucide_icon("trash-2", class: " group-hover:scale-110 transition-transform duration-150 w-4 h-4 shrink-0") %>
-                  <% end %>
+                  <%= ghost_action_link "Delete", classroom_student_path(@classroom, student),
+                                        icon: "trash-2", variant: :danger,
+                                        data: {
+                                          turbo_method: :delete,
+                                          turbo_confirm: "Delete #{student.username}? This cannot be undone.",
+                                          testid: "delete-student"
+                                        } %>
                 </div>
               </td>
             <% end %>

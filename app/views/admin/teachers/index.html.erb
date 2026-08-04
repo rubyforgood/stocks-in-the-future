@@ -59,24 +59,22 @@
                   <%= teacher.created_at.strftime("%B %d, %Y") %>
                 </td>
                 <td class="table-body-cell whitespace-nowrap">
-                  <% if teacher.discarded? %>
-                    <span class="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10">Deactivated</span>
-                  <% else %>
-                    <span class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">Active</span>
-                  <% end %>
+                  <%= render "components/ui/badge",
+                             label: teacher.discarded? ? "Deactivated" : "Active",
+                             tone: teacher.discarded? ? :danger : :success %>
                 </td>
                 <td class="table-body-cell table-body-cell-right whitespace-nowrap">
-                  <div class="flex justify-end gap-2">
-                    <%= link_to "View", admin_teacher_path(teacher), class: "tw-link" %>
-                    <%= link_to "Edit", edit_admin_teacher_path(teacher), class: "text-slate-600 hover:text-slate-800" %>
+                  <div class="flex items-center justify-end gap-1">
+                    <%= ghost_action_link "View", admin_teacher_path(teacher), icon: "eye" %>
+                    <%= ghost_action_link "Edit", edit_admin_teacher_path(teacher), icon: "pencil" %>
                     <% if teacher.discarded? %>
-                      <%= link_to "Reactivate", admin_teacher_reactivation_path(teacher),
-                                  data: { turbo_method: :post, turbo_confirm: "Are you sure you want to reactivate this teacher?" },
-                                  class: "text-green-600 hover:text-green-800" %>
+                      <%= ghost_action_link "Reactivate", admin_teacher_reactivation_path(teacher),
+                                            icon: "circle-check",
+                                            data: { turbo_method: :post, turbo_confirm: "Reactivate #{teacher.display_name}?" } %>
                     <% else %>
-                      <%= link_to "Deactivate", admin_teacher_deactivation_path(teacher),
-                                  data: { turbo_method: :post, turbo_confirm: "Are you sure you want to deactivate this teacher?" },
-                                  class: "text-red-600 hover:text-red-800" %>
+                      <%= ghost_action_link "Deactivate", admin_teacher_deactivation_path(teacher),
+                                            icon: "ban", variant: :danger,
+                                            data: { turbo_method: :post, turbo_confirm: "Deactivate #{teacher.display_name}? They will lose access, but their data is preserved." } %>
                     <% end %>
                   </div>
                 </td>

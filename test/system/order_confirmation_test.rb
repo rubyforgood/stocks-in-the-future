@@ -65,7 +65,7 @@ class OrderConfirmationTest < ApplicationSystemTestCase
     end
 
     assert_difference("Order.buy.pending.count", +1) do
-      click_button "Buy Shares"
+      click_button "Buy shares"
       assert_text "Order was successfully created"
     end
 
@@ -114,7 +114,7 @@ class OrderConfirmationTest < ApplicationSystemTestCase
 
     # The warning is a nudge, not a gate: the server remains authoritative.
     assert_no_difference("Order.buy.pending.count") do
-      click_button "Buy Shares"
+      click_button "Buy shares"
       assert_text "Insufficient funds"
     end
 

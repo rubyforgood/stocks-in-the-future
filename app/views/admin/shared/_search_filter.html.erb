@@ -29,9 +29,9 @@
 
     <!-- Action Buttons -->
     <div class="flex gap-2">
-      <%= form.submit "Filter", class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-sitf-primary hover:bg-sitf-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus-visible:ring-sitf-primary" %>
+      <%= form.submit "Filter", class: admin_primary_button_class %>
       <% if params[:search].present? || filters.any? { |f| params[f[:name]].present? } %>
-        <%= link_to "Clear", request.path, class: "inline-flex items-center px-4 py-2 border border-slate-300 text-sm font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus-visible:ring-sitf-primary" %>
+        <%= link_to "Clear", request.path, class: admin_secondary_button_class %>
       <% end %>
     </div>
   <% end %>

@@ -30,7 +30,7 @@ class StudentTradingFlowTest < ApplicationSystemTestCase
 
     assert_difference("Order.buy.pending.count", +1) do
       click_button "Review order"
-      click_button "Buy Shares"
+      click_button "Buy shares"
 
       assert_text "Order was successfully created"
     end
@@ -76,7 +76,7 @@ class StudentTradingFlowTest < ApplicationSystemTestCase
 
     assert_difference("Order.sell.pending.count", +1) do
       click_button "Review order"
-      click_button "Sell Shares"
+      click_button "Sell shares"
 
       assert_text "Order was successfully created"
     end
@@ -115,7 +115,7 @@ class StudentTradingFlowTest < ApplicationSystemTestCase
 
     assert_no_difference("Order.buy.pending.count") do
       click_button "Review order"
-      click_button "Buy Shares"
+      click_button "Buy shares"
 
       assert_text "Order was successfully updated"
     end
@@ -185,7 +185,7 @@ class StudentTradingFlowTest < ApplicationSystemTestCase
 
     assert_no_difference("Order.buy.pending.count") do
       click_button "Review order"
-      click_button "Buy Shares"
+      click_button "Buy shares"
 
       assert_text "Insufficient funds"
     end
@@ -221,7 +221,7 @@ class StudentTradingFlowTest < ApplicationSystemTestCase
 
     assert_no_difference("Order.sell.pending.count") do
       click_button "Review order"
-      click_button "Sell Shares"
+      click_button "Sell shares"
 
       assert_text "Cannot sell more shares than you own"
     end

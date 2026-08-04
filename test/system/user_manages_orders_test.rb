@@ -25,7 +25,7 @@ class UserManagesOrdersTest < ApplicationSystemTestCase
     fill_in "Number of shares", with: shares_to_buy
     assert_difference("Order.buy.pending.count", +1) do
       click_button "Review order"
-      click_button "Buy Shares"
+      click_button "Buy shares"
       assert_text "Order was successfully created"
     end
 
@@ -61,7 +61,7 @@ class UserManagesOrdersTest < ApplicationSystemTestCase
 
     assert_no_difference("Order.buy.pending.count") do
       click_button "Review order"
-      click_button "Buy Shares"
+      click_button "Buy shares"
 
       assert_text "Order was successfully updated"
     end

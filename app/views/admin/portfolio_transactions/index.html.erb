@@ -51,13 +51,13 @@
                   <%= number_to_currency(transaction.amount_cents / 100.0) %>
                 </td>
                 <td class="table-body-cell table-body-cell-right whitespace-nowrap">
-                  <div class="flex justify-end gap-3">
-                    <%= link_to "View", admin_portfolio_transaction_path(transaction), class: "text-sitf-primary-dark hover:underline" %>
-                    <%= link_to "Edit", edit_admin_portfolio_transaction_path(transaction), class: "text-slate-700 hover:underline" %>
-                    <%= link_to "Delete", admin_portfolio_transaction_path(transaction),
-                                data: { turbo_method: :delete,
-                                        turbo_confirm: "Delete this #{transaction.transaction_type} of #{number_to_currency(transaction.amount_cents / 100.0)} for #{transaction.portfolio.username}? This cannot be undone." },
-                                class: "font-medium text-red-700 hover:underline" %>
+                  <div class="flex items-center justify-end gap-1">
+                    <%= ghost_action_link "View", admin_portfolio_transaction_path(transaction), icon: "eye" %>
+                    <%= ghost_action_link "Edit", edit_admin_portfolio_transaction_path(transaction), icon: "pencil" %>
+                    <%= ghost_action_link "Delete", admin_portfolio_transaction_path(transaction),
+                                          icon: "trash-2", variant: :danger,
+                                          data: { turbo_method: :delete,
+                                                  turbo_confirm: "Delete this #{transaction.transaction_type} of #{number_to_currency(transaction.amount_cents / 100.0)} for #{transaction.portfolio.username}? This cannot be undone." } %>
                   </div>
                 </td>
               </tr>

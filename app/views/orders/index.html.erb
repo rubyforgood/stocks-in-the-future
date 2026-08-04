@@ -37,7 +37,11 @@
           <th scope="col" class="table-header-cell table-header-cell-right">
             <%= sort_link(:total_cost, "Total cost") %>
           </th>
-          <th scope="col" class="table-header-cell table-header-cell-right" />
+          <%# Not an empty <th />: that is invalid self-closing HTML, and a header cell with no
+              text gives the actions column no accessible name. %>
+          <th scope="col" class="table-header-cell table-header-cell-right">
+            <span class="sr-only">Actions</span>
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -105,24 +109,23 @@
                   <% end %>
                 </span>
               </td>
-              <td class="table-body-cell table-body-cell-center">
-                <div class="flex justify-center space-x-2">
+              <td class="table-body-cell table-body-cell-right">
+                <div class="flex items-center justify-end gap-1">
                   <% if order.pending? %>
-                    <%# lucide_icon is aria-hidden, so an icon-only control needs
-                        its own text. The edit link previously had no accessible
-                        name at all (WCAG 4.1.2) and cancel relied on title,
-                        which is not reliably announced. Naming the stock too, so
-                        the action is unambiguous out of row context. %>
-                    <%= link_to edit_order_path(order), class: "table-action-link inline-flex min-h-11 min-w-11 items-center justify-center", data: { turbo_frame: "modal_frame", testid: "edit-order-button" } do %>
-                      <%= lucide_icon("pencil", class: "w-4 h-4 shrink-0") %>
-                      <span class="sr-only">Edit order for <%= order.stock.ticker %></span>
-                    <% end %>
-                    <%= form_with url: cancel_order_path(order), method: :patch, data: { confirm: t("orders.cancel.confirm"), turbo_confirm: t("orders.cancel.confirm") } do %>
-                      <button type="submit" class="table-action-button inline-flex min-h-11 min-w-11 items-center justify-center" data-testid="cancel-order-button">
-                        <%= lucide_icon("ban", class: "w-4 h-4 shrink-0") %>
-                        <span class="sr-only">Cancel order for <%= order.stock.ticker %></span>
-                      </button>
-                    <% end %>
+                    <%# These were icon-only, which left the edit link with no accessible name at
+                        all (WCAG 4.1.2) because lucide_icon is aria-hidden. They now carry a
+                        visible label like every other row action, and the sr-only remainder names
+                        the stock so the action is still unambiguous out of row context. %>
+                    <%= ghost_action_link safe_join(["Edit", tag.span(" order for #{order.stock.ticker}", class: "sr-only")]),
+                                          edit_order_path(order),
+                                          icon: "pencil",
+                                          data: { turbo_frame: "modal_frame", testid: "edit-order-button" } %>
+                    <%= ghost_action_button safe_join(["Cancel", tag.span(" order for #{order.stock.ticker}", class: "sr-only")]),
+                                            cancel_order_path(order),
+                                            icon: "ban", variant: :danger,
+                                            method: :patch,
+                                            data: { turbo_confirm: t("orders.cancel.confirm"), testid: "cancel-order-button" },
+                                            form: { class: "inline-flex" } %>
                   <% end %>
                 </div>
               </td>

@@ -61,12 +61,13 @@
                              tone: user.admin? ? :success : :neutral %>
                 </td>
                 <td class="table-body-cell table-body-cell-right whitespace-nowrap">
-                  <div class="flex justify-end gap-2">
-                    <%= link_to "View", user_show_path(user), class: "tw-link" %>
-                    <%= link_to "Edit", edit_admin_user_path(user), class: "text-slate-600 hover:text-slate-800" %>
-                    <%= link_to "Delete", admin_user_path(user),
-                                data: { turbo_method: :delete, turbo_confirm: "Are you sure?" },
-                                class: "text-red-600 hover:text-red-800" %>
+                  <div class="flex items-center justify-end gap-1">
+                    <%= ghost_action_link "View", user_show_path(user), icon: "eye" %>
+                    <%= ghost_action_link "Edit", edit_admin_user_path(user), icon: "pencil" %>
+                    <%= ghost_action_link "Delete", admin_user_path(user),
+                                          icon: "trash-2", variant: :danger,
+                                          data: { turbo_method: :delete,
+                                                  turbo_confirm: "Delete #{user.username}? This cannot be undone." } %>
                   </div>
                 </td>
               </tr>
