@@ -15,7 +15,10 @@
       title - the headline, required
       body  - optional supporting line
       tone  - :warning (default) or :info
-      icon  - optional lucide name, defaults per tone %>
+      icon   - optional lucide name, defaults per tone
+      testid - optional data-testid
+
+    An optional trailing control (a dismiss) can be passed as a block; render with `layout:`. %>
 <% tone = local_assigns.fetch(:tone, :warning).to_sym %>
 <% tones = {
      warning: { surface: "border-amber-200 bg-amber-50", title: "text-amber-900",
@@ -25,14 +28,28 @@
    } %>
 <% t = tones.fetch(tone, tones[:warning]) %>
 
-<div class="rounded-2xl border <%= t[:surface] %> p-4 <%= local_assigns[:class] %>" role="status">
+<%# A bare tone-coloured glyph, never an icon tile. design.md: the tile pattern is for contexts
+    where the icon is the subject - a KPI card, a section header - and it assumes a white surface.
+    A banner is text with a marker beside it, which is what Polaris Banner, Material, Carbon,
+    Primer flash and Atlassian SectionMessage all ship. %>
+<%# tag.div, so an absent testid is omitted entirely: interpolating an optional attribute yields
+    an *unquoted* one, which CSS and Capybara selectors will not match. %>
+<%= tag.div class: "rounded-2xl border #{t[:surface]} p-4 #{local_assigns[:class]}",
+            role: "status",
+            data: { testid: local_assigns[:testid] } do %>
   <div class="flex items-start gap-3">
     <%= lucide_icon local_assigns.fetch(:icon, t[:glyph]), class: "mt-0.5 size-5 shrink-0 #{t[:icon]}" %>
-    <div>
+    <div class="flex-1">
       <p class="text-sm font-medium <%= t[:title] %>"><%= title %></p>
       <% if local_assigns[:body].present? %>
         <p class="mt-1 text-sm <%= t[:body] %>"><%= body %></p>
       <% end %>
     </div>
+
+    <%# An optional trailing control - a dismiss, usually. Passed as a block, so a caller that has
+        one does not have to rebuild the whole panel to get it. %>
+    <% if block_given? && (action = capture { yield }).present? %>
+      <div class="shrink-0"><%= action %></div>
+    <% end %>
   </div>
-</div>
+<% end %>

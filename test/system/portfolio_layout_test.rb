@@ -73,6 +73,12 @@ class PortfolioLayoutTest < ApplicationSystemTestCase
     student = create(:student, :with_portfolio, classroom:)
     student.reload
     create(:portfolio_transaction, :deposit, portfolio: student.portfolio, amount_cents: 100_000)
+    # A reason-tagged deposit, so the summary and the personal best are not withheld: they render
+    # only when a student has actually earned something.
+    create(
+      :portfolio_transaction, portfolio: student.portfolio, transaction_type: :deposit,
+                              reason: :attendance_earnings, amount_cents: 1_500
+    )
     stock = create(:stock, ticker: "KO", company_name: "Coca-Cola Company", price_cents: 15_000)
     create(:portfolio_stock, portfolio: student.portfolio, stock:, shares: 3)
     create(
@@ -144,6 +150,79 @@ class PortfolioLayoutTest < ApplicationSystemTestCase
                       "the holdings table is narrower than the chart; it has six columns and was " \
                       "the reason the page was hard to parse"
     end
+  end
+
+  # Every card sharing a row shares a height, including the summary row. This is what stops a card
+  # with more content padding out the bottom of its neighbours - a third card there, a wrapping
+  # strip of company logos, was doing exactly that.
+  test "the summary row shares a height too" do
+    sign_in(student_portfolio)
+
+    in_chromebook_viewport do
+      visit user_portfolio_path(student_portfolio, student_portfolio.portfolio)
+
+      summary = region("[data-testid='best-month']")
+      sentence = page.evaluate_script(<<~JS)
+        (function () {
+          const c = Array.from(document.querySelectorAll("main .tw-card"))
+            .find(function (x) { return x.textContent.includes("Your money at work"); });
+          if (!c) return null;
+          const b = c.getBoundingClientRect();
+          return { height: Math.round(b.height), width: Math.round(b.width) };
+        })()
+      JS
+
+      assert_equal sentence["height"], summary["height"],
+                   "the summary row's cards are different heights"
+      assert_operator sentence["width"], :>, summary["width"],
+                      "the sentence wants the width and the stat does not"
+    end
+  end
+
+  # design.md's icon tile token: grid place-items-center h-9 w-9 rounded-xl bg-{semantic}-50.
+  test "icon tiles are all on the 36px token" do
+    sign_in(student_portfolio)
+
+    in_chromebook_viewport do
+      visit user_portfolio_path(student_portfolio, student_portfolio.portfolio)
+
+      sizes = page.evaluate_script(<<~JS)
+        Array.from(document.querySelectorAll("main .tw-card span.rounded-xl")).map(function (t) {
+          const b = t.getBoundingClientRect();
+          return Math.round(b.width) + "x" + Math.round(b.height);
+        })
+      JS
+
+      assert_not_empty sizes, "expected at least one icon tile"
+      assert_equal ["36x36"], sizes.uniq,
+                   "an icon tile is h-9 w-9; #{sizes.uniq.join(', ')} means one was eyeballed"
+    end
+  end
+
+  # A banner is text with a marker beside it, not a card whose subject is an icon.
+  test "the first-share banner uses a plain glyph and the brand-safe info tint" do
+    sign_in(student_portfolio)
+    visit user_portfolio_path(student_portfolio, student_portfolio.portfolio)
+
+    banner = page.evaluate_script(<<~JS)
+      (function () {
+        const el = document.querySelector("[data-testid='first-share']");
+        if (!el) return null;
+        return {
+          tile: !!el.querySelector("span.rounded-xl"),
+          bg: getComputedStyle(el).backgroundColor
+        };
+      })()
+    JS
+
+    assert_not_nil banner, "expected the first-share banner"
+    assert_not banner["tile"],
+               "a message bar gets a plain glyph, never an icon tile - the tile pattern assumes " \
+               "a white surface and a subject, and a banner is neither"
+    # blue-50. Tailwind's teal-50 is a mint green and is not this product's brand, which is
+    # sitf-primary #00698c.
+    assert_equal "oklch(0.97 0.014 254.604)", banner["bg"],
+                 "the banner is not on the callout's info tint"
   end
 
   # The figures decompose the total rather than repeating it.

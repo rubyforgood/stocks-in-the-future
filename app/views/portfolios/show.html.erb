@@ -84,12 +84,19 @@
     </div>
   </div>
 
-  <%# The reading row: what the money did, which companies it bought, and the student's own best
-      month. Three equal cells on the same gutter as everything else. %>
+  <%# Two thirds and one third, the same rhythm as the chart row above: the summary is a sentence
+      and wants width, the personal best is a stat and does not.
+
+      This was three equal thirds, with a "Companies you own" card in the middle. That card is gone.
+      It was a second list of the companies the holdings table below already lists, with the same
+      logos - the duplication this page was rebuilt to remove - and it was a wall of unlabelled
+      logos, which only works if you already recognise the brands. The logos are still there, in
+      the table, now beside the company's name. Removing it also removed the reported dead space:
+      grid children stretch to the tallest in the row, so its wrapping logo strip was padding out
+      the bottom of its neighbours. %>
   <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
-    <%= render "portfolios/money_at_work" %>
-    <%= render "portfolios/companies_owned" %>
-    <%= render "portfolios/best_month" %>
+    <div class="lg:col-span-2"><%= render "portfolios/money_at_work" %></div>
+    <div class="lg:col-span-1"><%= render "portfolios/best_month" %></div>
   </div>
 
   <%# Holdings, on the shared table system.
@@ -126,12 +133,23 @@
               <td class="table-body-cell">
                 <div class="flex items-center gap-3">
                   <% if File.exist?("app/assets/images/#{logo_path}") %>
+                    <%# alt="" is correct: the company name sits beside it, so a description
+                        here would be read out twice. size-9 matches the icon tile token. %>
                     <%= image_tag asset_path(logo_path),
-                                  class: "w-9 h-9 rounded-lg shrink-0",
+                                  class: "size-9 shrink-0 rounded-lg",
                                   alt: "",
                                   loading: "lazy" %>
                   <% end %>
-                  <span class="font-medium text-slate-900"><%= position.stock_ticker %></span>
+                  <%# The standard three-part identity: logo, company name, ticker. It was the
+                      ticker alone, so a student read "KO" with no way to know that is Coca-Cola -
+                      the same clarity problem the logo-only collection card had. Every brokerage
+                      list (Robinhood, Fidelity, Schwab) leads with the name and keeps the ticker
+                      as the secondary line. design.md's primary-cell rule: body size, medium
+                      weight, with a text-xs slate-600 line beneath. %>
+                  <div class="flex flex-col">
+                    <span class="font-medium text-slate-900"><%= position.stock.company_name %></span>
+                    <span class="text-xs text-slate-600"><%= position.stock_ticker %></span>
+                  </div>
                 </div>
               </td>
               <td class="table-body-cell table-body-cell-right"><%= position.shares %></td>

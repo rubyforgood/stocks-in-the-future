@@ -4,45 +4,29 @@
     past, and this is the one message worth not missing. It also cannot cover the page it is
     explaining.
 
-    It explains *owning*, not buying - "you own part of a company" is the concept shift, and it says
-    nothing about whether the purchase was clever.
+    It explains *owning*, not buying - "you own part of a company" is the concept shift, and it
+    says nothing about whether the purchase was clever. The copy says "you hold", never "you just
+    bought", so it is accurate for any holder, which matters because nothing was backfilled.
 
-    chart-pie, not party-popper. The copy says "you hold", never "you just bought", so the message is
-    accurate for anyone holding shares - which matters, because every existing student sees it once
-    when this ships and nothing was backfilled. A party popper implied recency the words never
-    claimed. A pie slice is what the sentence is about: a part of a whole. It also cannot be a
-    lightbulb, which "Your money at work" already uses on this same page. %>
+    On components/ui/_callout with the :info tone rather than a hand-rolled panel. It was
+    bg-teal-50 / border-teal-200 / text-teal-900 - Tailwind's teal, which is a mint green and not
+    this product's brand: sitf-primary is #00698c, a blue-teal. An informational panel is blue in
+    every system that ships one, and the callout's blue is measured. A bespoke panel was also how
+    the mint got in: the component was built two commits earlier and then not used here. %>
 <% return unless current_user.student? && @portfolio.celebrate_first_share? %>
-<% first_company = @insights.companies.first %>
-<% logo = "stock_logos/#{first_company}-logo.svg" %>
 
-<div class="rounded-2xl border border-teal-200 bg-teal-50 p-5" data-testid="first-share">
-  <div class="flex items-start gap-4">
-    <% if File.exist?("app/assets/images/#{logo}") %>
-      <span class="grid size-12 shrink-0 place-items-center rounded-xl bg-white shadow-sm">
-        <%= image_tag asset_path(logo), class: "size-8", alt: "" %>
-      </span>
-    <% end %>
-
-    <div class="flex-1">
-      <p class="inline-flex items-center gap-2 text-base font-semibold text-teal-900">
-        <%= lucide_icon "chart-pie", class: "size-5 shrink-0 text-teal-700" %>
-        You own part of a company
-      </p>
-      <p class="mt-1 text-sm text-teal-800">
-        You hold <%= pluralize(@insights.company_count, "company") %>. That makes you one of its
-        owners - when the company is worth more, your shares are worth more too.
-      </p>
-    </div>
-
-    <%# button_to renders its own form, which is fine here: this sits between cards, never inside
-        another form. %>
-    <%= button_to acknowledge_first_share_portfolio_path(@portfolio),
-                  method: :patch,
-                  class: ghost_class,
-                  form: { class: "shrink-0" } do %>
-      <%= lucide_icon "x", class: "size-4 shrink-0" %>
-      Dismiss
-    <% end %>
-  </div>
-</div>
+<%= render layout: "components/ui/callout",
+           locals: { tone: :info,
+                     icon: "chart-pie",
+                     title: "You own part of a company",
+                     body: "You hold #{pluralize(@insights.company_count, 'company')}. That makes you one of its owners - when the company is worth more, your shares are worth more too.",
+                     testid: "first-share" } do %>
+  <%# button_to renders its own form, which is fine here: this sits between cards, never inside
+      another form. %>
+  <%= button_to acknowledge_first_share_portfolio_path(@portfolio),
+                method: :patch,
+                class: ghost_class do %>
+    <%= lucide_icon "x", class: "size-4 shrink-0" %>
+    Dismiss
+  <% end %>
+<% end %>

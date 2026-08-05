@@ -6,12 +6,18 @@
     state above says the useful thing instead. %>
 <% return if @insights.earned_cents.zero? %>
 
-<div class="tw-card p-5">
-  <p class="inline-flex items-center gap-2 text-sm font-semibold text-slate-900">
-    <%= lucide_icon "lightbulb", class: "size-4 shrink-0 text-amber-600" %>
-    Your money at work
-  </p>
-  <p class="mt-2 text-sm text-slate-700">
+<div class="tw-card h-full p-5">
+  <%# An icon tile, not a bare glyph. design.md's icon tile pattern is
+      `grid place-items-center h-9 w-9 rounded-xl bg-{semantic}-50 text-{semantic}-600` for KPI
+      cards, section headers and list-item leading icons, and it says in as many words: do not use
+      bare floating icons. A banner is the exception - see _callout, which keeps a plain glyph. %>
+  <div class="flex items-center gap-3">
+    <span class="grid size-9 shrink-0 place-items-center rounded-xl bg-amber-50">
+      <%= lucide_icon "lightbulb", class: "size-5 text-amber-600" %>
+    </span>
+    <p class="text-sm font-semibold text-slate-900">Your money at work</p>
+  </div>
+  <p class="mt-3 text-sm text-slate-700">
     You have earned
     <span class="font-semibold tabular-nums"><%= number_to_currency(@insights.earned_cents / 100.0) %></span>.
     <% if @insights.holdings? %>

@@ -301,6 +301,19 @@ card, and a student in their first month should not be shown an achievement they
    in `portfolios.first_share_acknowledged_at` - a timestamp, so the record says *when* as well as
    whether. It explains **owning**, not buying.
 
+   **It is `components/ui/_callout` with the `:info` tone, and a plain glyph.** It was a bespoke
+   `bg-teal-50` / `border-teal-200` panel - Tailwind's teal, which is a **mint green and not this
+   product's brand**: `sitf-primary` is `#00698c`, a blue-teal. An informational panel is blue in
+   every system that ships one. The bespoke panel is also *how* the mint got in: the callout
+   component was built two commits earlier and then not used here, so there was nowhere for the
+   token to be checked. **A banner gets a plain tone-coloured glyph, never an icon tile** - the tile
+   pattern is for contexts where the icon is the subject and it assumes a white surface.
+
+   Note `teal-*` is not the brand anywhere. The badge component's `:brand` tone is
+   `bg-teal-50 text-teal-700` for the same reason and has the same problem; it is used for
+   categorical labels rather than brand emphasis, so nothing depends on it being the brand hue, but
+   do not reach for `teal-*` expecting `sitf-primary`.
+
    **The icon is `chart-pie`, not `party-popper`, and the distinction is the whole point.** The copy
    says "you hold", never "you just bought", so the message is accurate for any holder - which
    matters, because nothing was backfilled and every existing student sees it once. A party popper
@@ -314,9 +327,19 @@ card, and a student in their first month should not be shown an achievement they
 3. **A plain-English summary.** It restates figures already on the page, which is the point: reading
    "$4.00 is still waiting to be invested" makes an idle balance a decision rather than a number.
    `pluralize`, so nobody reads "1 companies".
-4. **Companies you own.** The ten logos already in the repo, as a collection. **No greyed-out slots
-   and no "3 of 10" count** - those read as "collect them all", a nudge to buy for completeness
-   rather than for a reason, which is the opposite of the lesson.
+4. **The companies a student owns are the holdings table, and there is one of them.** A separate
+   "Companies you own" card was built and then removed: it was a second list of the same companies
+   with the same logos - exactly the duplication this page had just been rebuilt to remove - and a
+   wall of **unlabelled logos**, which only works if you already recognise the brands. A logo with
+   `alt=""` and an `sr-only` ticker is worse than it looks: the screen reader gets a name and the
+   sighted student gets nothing. It was also the cause of the reported dead space, because grid
+   children stretch to the tallest in the row and its wrapping logo strip padded out its neighbours.
+
+   What the table lacked was the thing that actually made it unclear: **the company name.** A
+   student read "KO" with no way to know that is Coca-Cola. The holdings cell is now the standard
+   three-part identity - decorative logo, company name at body size and medium weight, ticker as a
+   `text-xs slate-600` second line - which is what Robinhood, Fidelity and Schwab all ship, and what
+   this document's primary-cell rule already said.
 5. **A warmer empty state**, leading with the student's own balance. Someone else viewing their
    portfolio gets the plain version: it is not their balance to be invited to spend.
 6. **A personal best, never a comparison with another student.** Earnings come from grades and

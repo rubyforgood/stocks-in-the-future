@@ -90,15 +90,23 @@ class PortfolioDelightTest < ApplicationSystemTestCase
     assert_text(/You put \$[\d,.]+ into 1 company,/)
   end
 
-  test "companies owned lists what is held and nothing else" do
+  # The companies a student owns are the holdings table, and there is exactly one of them. A
+  # separate card of logos was a second list of the same companies - the duplication this page was
+  # rebuilt to remove - and a wall of unlabelled logos only works if you recognise the brands.
+  test "a holding is identified by its name as well as its ticker" do
     student = student_with_history
     sign_in(student)
 
     visit user_portfolio_path(student, student.portfolio)
 
-    assert_text "Companies you own"
-    # No "collect them all" slots: the count and the empty placeholders are deliberately absent.
-    assert_no_text(/\d+ of \d+ companies/)
+    within "[data-testid='holdings-table']" do
+      assert_text "Coca-Cola Company"
+      assert_text "KO"
+      # The logo is decorative, because the name is beside it.
+      assert_selector "img[alt='']"
+    end
+
+    assert_no_text "Companies you own"
   end
 
   test "the personal best is the student's own, and withheld until they have earned" do
@@ -114,7 +122,6 @@ class PortfolioDelightTest < ApplicationSystemTestCase
 
     assert_no_selector "[data-testid='best-month']"
     assert_no_text "Your money at work"
-    assert_no_text "Companies you own"
   end
 
   test "the empty state leads with the student's own balance" do

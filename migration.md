@@ -327,6 +327,24 @@ signed-out `main` is `p-4 lg:p-6` rather than a flat `p-6`.
    unaffected.
 3. **The app bar trigger is no longer teal**, so a test looking for that fill would fail.
 
+### The delight cards moved onto the design system
+
+**What.** `_first_share` is `components/ui/_callout` with `:info` rather than a bespoke `teal-50`
+panel; `_callout` gained an optional trailing-action block and a `testid`. `_money_at_work`'s bare
+icon is an icon tile, and `_best_month`'s tile went from `size-10` to the `size-9` token.
+`_companies_owned` is **deleted**, and the holdings cell shows company name + ticker.
+
+**Why it has blast radius.**
+
+1. **`teal-*` is not the brand.** `sitf-primary` is `#00698c`, a blue-teal; Tailwind's `teal-50` is
+   mint. Anything reaching for `teal-*` to mean "brand" is wrong, including the badge component's
+   `:brand` tone - left alone because it is used categorically, but noted.
+2. **`_callout` renders through `tag.div` now**, so an absent `testid` is omitted rather than
+   emitted unquoted. It also takes a block; existing callers pass none and are unaffected.
+3. **`_companies_owned` is gone.** Anything referencing "Companies you own" will fail - one test did.
+4. **The holdings cell markup changed shape** from one span to a two-line stack, so a selector
+   matching the ticker as the cell's only text will not match.
+
 ### Six delight features, one new column and one new route
 
 **What.** `PortfolioInsights` (new, pure) holds the derived figures. `portfolios.first_share_acknowledged_at`
