@@ -327,6 +327,27 @@ signed-out `main` is `p-4 lg:p-6` rather than a flat `p-6`.
    unaffected.
 3. **The app bar trigger is no longer teal**, so a test looking for that fill would fail.
 
+### Both modals share one shell
+
+**What.** `bg-black/50` scrim, `rounded-2xl shadow-2xl` panel, `h2` title at `text-base
+font-semibold`, `rounded-lg` 44px close control with `lucide_icon("x")` - applied to `shared/_modal`
+and the CSV import dialog. The order form's field uses `tw-input-primary` / `tw-label-primary`, its
+error panel uses the red tokens, and `.tw-input-primary` itself moved from `rounded-md` to
+`rounded-lg`.
+
+**Why it has blast radius.**
+
+1. **The buy modal's title shrank** from `text-2xl font-bold` centred to `text-base font-semibold`
+   left-aligned. That is the biggest visible change and the one to look at first if it reads too
+   quiet; it is one token in two files.
+2. **The import dialog's title changed level**, `h3` to `h2`. Its `id="modal-title"` and the
+   `aria-labelledby` pointing at it are unchanged.
+3. **`.tw-input-primary` changed radius app-wide**, though only `classrooms/_form` used it before.
+   Every form other than these two still hand-rolls its inputs - a sweep for later, noted in
+   design-todo.
+4. **The order form's number field lost `text-lg`**, so it renders at the same size as every other
+   input rather than two steps up.
+
 ### Buy and Sell lost their arrows; Trade's went horizontal
 
 **What.** `stocks/_trade_actions` renders "Buy" and "Sell" with no icon. The portfolio's Trade row

@@ -94,27 +94,29 @@
   <%# Scrim. Clicking it dismisses, but that is a convenience only - the close
       and cancel buttons and Escape all work, so it needs no keyboard role.
       aria-hidden keeps it out of the accessibility tree. %>
-  <div class="fixed inset-0 bg-slate-500/75 transition-opacity"
+  <div class="fixed inset-0 bg-black/50 transition-opacity"
        data-action="click->dialog#close"
        aria-hidden="true"></div>
 
-  <div class="relative bg-white rounded-lg shadow-xl max-w-lg w-full mx-4 z-50" data-dialog-target="panel" tabindex="-1">
+  <%# rounded-2xl and shadow-2xl, matching the trading modal and the `cards/panels rounded-2xl`
+      token. This was rounded-lg with shadow-xl - two modals, two surfaces. %>
+  <div class="relative z-50 mx-4 w-full max-w-lg rounded-2xl bg-white shadow-2xl" data-dialog-target="panel" tabindex="-1">
     <div class="px-6 py-4">
       <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-medium text-slate-900" id="modal-title">
+        <%# h2 at text-base font-semibold, the same token as the trading modal and every card
+            title. It was an h3 at text-lg font-medium. %>
+        <h2 class="text-base font-semibold text-slate-900" id="modal-title">
           Import students from CSV
-        </h3>
+        </h2>
         <button type="button"
                 data-action="click->dialog#close"
-                class="flex min-w-11 min-h-11 items-center justify-center rounded-full text-slate-600 hover:text-slate-900 hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary">
+                class="flex min-w-11 min-h-11 items-center justify-center rounded-lg text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary">
           <span class="sr-only">Close import dialog</span>
-          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-          </svg>
+          <%= lucide_icon "x", class: "size-5 shrink-0" %>
         </button>
       </div>
 
-      <p class="text-sm text-slate-500 mb-4">
+      <p class="mb-4 text-sm text-slate-600">
         Upload a CSV file with columns: <strong>classroom_id, username</strong>
       </p>
 

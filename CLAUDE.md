@@ -241,6 +241,12 @@ view. I then wrote a design.md rule *about* those buttons without ever rendering
 control lives in a table's trailing column, measure its box against the scroll container's box at
 375px, and check `scrollWidth` against `clientWidth`.
 
+**Contrast maths on `oklch()` needs a real conversion.** `getComputedStyle().color` returns
+`oklch(0.446 0.043 257.281)` in this browser, and pulling the three numbers out as if they were RGB
+reports slate-600 on slate-50 as **1.05:1**. I wrote an audit that way and reported five contrast
+failures that did not exist. Canvas `fillStyle` returns `oklch()` unchanged too, so normalising
+through it does not help - **paint one pixel and read it with `getImageData`**, which cannot be fooled.
+
 **A conditional affordance needs a condition.** The pinned actions cell's separator was
 unconditional below `lg`, so it drew a rule with nothing behind it on any table that fitted or had
 not yet been scrolled. Scroll state, not a breakpoint: `data-table-scrolled` from a capturing

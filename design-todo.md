@@ -205,6 +205,13 @@ A real profile page would be: change your own password, and set a display name. 
 account menu's item goes above Sign out - the panel is already built for it (`item_class` and the
 identity block are in place).
 
+### Most forms still hand-roll their inputs
+
+`tw-input-primary` and `tw-label-primary` exist and are now used by `classrooms/_form`, the order
+modal and (for its labels) nothing else. Every other form writes its own field classes - the two
+student forms, the devise pages, the admin forms via `Admin::FormBuilder`. The modal sweep only
+covered the two modals, so this is the same drift one layer out.
+
 ### `Admin::FormBuilder` field styling is still pre-token
 
 The button sweep routed `submit_button` and `cancel_button` through the shared

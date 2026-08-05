@@ -5,6 +5,9 @@
     this shell is ever reused for something other than orders, point
     aria-labelledby at the loaded heading instead.
 
+    The scrim is bg-black/50, the same as the import dialog's. They were black/70 and
+    slate-500/75 - two modals, two scrims.
+
     Focus management (move in on open, trap while open, restore on close) lives
     in modal_controller.js. tabindex="-1" makes the panel itself focusable as a
     fallback when it contains no focusable children yet. %>
@@ -12,7 +15,7 @@
      data-controller="modal"
      data-modal-target="overlay"
      data-action="click->modal#backdropClick"
-     class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 hidden">
+     class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 hidden">
 
   <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 p-6 relative"
        data-modal-target="content"
@@ -23,11 +26,11 @@
 
     <button type="button"
             data-action="modal#close"
-            class="absolute top-2 right-2 flex min-w-11 min-h-11 items-center justify-center rounded-full text-slate-600 hover:text-slate-900 hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary transition-colors cursor-pointer">
+            class="absolute top-2 right-2 flex min-w-11 min-h-11 cursor-pointer items-center justify-center rounded-lg text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary">
       <span class="sr-only">Close order form</span>
-      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-      </svg>
+      <%# lucide, and rounded-lg: the radius token is `controls rounded-lg`, and this was the last
+          inline close SVG in a modal. %>
+      <%= lucide_icon "x", class: "size-5 shrink-0" %>
     </button>
 
     <%# The form is loaded here %>

@@ -418,6 +418,43 @@ screen.
 `--sitf-secondary-teal: #00b8b0`), neither used anywhere. Pick one deliberately and delete the other
 rather than grepping for whichever appears first.
 
+### Modals: one shell, two of them
+
+Both modals - the trading modal shell (`shared/_modal`, streamed into `#modal_frame`) and the CSV
+import dialog - now agree on every part of the shell. They agreed on almost none of it:
+
+| | Trading modal | Import dialog |
+|---|---|---|
+| Scrim | `bg-black/70` | `bg-slate-500/75` |
+| Panel | `rounded-2xl shadow-2xl` | `rounded-lg shadow-xl` |
+| Title | `h2 text-2xl font-bold`, centred | `h3 text-lg font-medium` |
+| Close | `rounded-full`, inline SVG | `rounded-full`, inline SVG |
+
+The shell is now: **`bg-black/50` scrim, a `rounded-2xl shadow-2xl` white panel, an `h2` title at
+`text-base font-semibold` with an optional `text-sm slate-600` subtitle beneath, and a `rounded-lg`
+44px close control carrying `lucide_icon("x")` and an `sr-only` name.** The title is the same token as
+a card's, because a dialog is a titled surface like any other, and the title-plus-subtitle shape is
+the one `_card` already uses. The close control keeps 44px: it is icon-only, which is the case the
+44px figure is reserved for.
+
+**Inputs inside a modal use the named classes.** The order form's field was `border-2
+border-slate-500` at `text-lg` - a 2px border in a darker slate than the `slate-300` token, two steps
+up the type scale from every other field - and its label was `text-black`. Both are
+`tw-input-primary` / `tw-label-primary` now. `.tw-input-primary` was itself `rounded-md`, against the
+`controls rounded-lg` token; only one view used it, which is how it drifted unnoticed.
+
+**An error panel inside a modal is a panel, not an opacity tint.** The order form's was
+`bg-sitf-danger/10` with a `sitf-danger/20` border - red-500 tinted by transparency, landing somewhere
+off the scale - and its heading was an `h4` with no `h3` above it. It is `bg-red-50` /
+`border-red-200` / `text-red-700` with a `<p>`, matching every other alert in the app.
+
+**Measure modal contrast by painting a pixel.** `getComputedStyle` returns `oklch()` in this browser,
+and reading its three numbers as RGB reports slate-600 on slate-50 as **1.05:1** - an audit written
+that way invented five failures that did not exist. Set the colour as a canvas `fillStyle`, fill one
+pixel, read it back. Canvas `fillStyle` also returns `oklch()` unchanged, so reading the property is
+not enough. `test/system/modal_standards_test.rb` does this across the buy modal, its review step -
+a second screen inside the same modal, easy to miss - and the import dialog.
+
 ### Badges
 **One component: `components/ui/_badge`**, matching the Status pill base above:
 `inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium`, with a tone:
