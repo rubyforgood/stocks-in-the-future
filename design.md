@@ -515,6 +515,36 @@ it is the **zero-balance state**, which is a real empty state - not the card tha
 `1_Number` through `4_Number`). Removing them is a call for whoever owns the brand assets, not a
 cleanup to do quietly - see design-todo.
 
+### No gradients, and arbitrary values only where the scale has no answer
+
+**There are no gradients.** The one that existed - the home hero's `from-sitf-hero-from
+to-sitf-hero-to` - was the app's only one, and those two tokens had a single caller between them. A
+gradient is a surface that belongs to no system while every other surface is white, `slate-50`, or a
+named tint.
+
+**Arbitrary values are these four and no others**, because the scale has no answer for them:
+
+| Value | Why |
+|---|---|
+| `[&::-webkit-details-marker]:hidden` | No utility addresses a vendor pseudo-element |
+| `after:content-['']` | An `::after` needs content to exist; this is the toggle knob |
+| `border-l-[3px]` | Tailwind's border widths are 0/1/2/4/8; the nav indicator is 3px by design |
+| `h-[calc(100vh-4rem)]` | The sidebar fills the viewport under the 64px header |
+
+Everything else had a scale value waiting: **300px is `h-75`, 400px is `w-100`, 480px is `max-h-120`,
+80px is `min-h-20`, 36px is `min-h-9`.** Tailwind v4 generates any multiple of the 4px spacing scale,
+so a round pixel figure almost never needs brackets - verified each one appears in the compiled CSS.
+
+**An inline `style` attribute is the same problem wearing a different hat**, and worse, because a
+sweep for arbitrary *classes* will not find it. Four of the five conversions above were inline styles.
+The one that was hardest to see was a partial local **named `style`** that actually held a button
+class - it matched every grep for an inline style and was none of them. It is `button_class` now.
+
+`test/design_system/no_arbitrary_values_test.rb` checks all three against the source, since none of
+this is a rendering bug and no browser test would notice. It strips whole comment blocks, not
+comment-leading lines: these comments quote the code they replaced, and a line-based filter reports
+the documentation as the offence.
+
 ### Badges
 **One component: `components/ui/_badge`**, matching the Status pill base above:
 `inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium`, with a tone:

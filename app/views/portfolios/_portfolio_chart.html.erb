@@ -7,8 +7,9 @@
     a heading unlike every other card. And the empty state was hand-built with a slate-400 icon
     (2.5:1) instead of the shared component.
 
-    The 300px canvas height stays an inline style: Chart.js measures its container, and a Tailwind
-    height class on the wrapper is what the arbitrary-value rule would otherwise force here. %>
+    The canvas wrapper is h-75 - 300px on the 4px scale, so no arbitrary value and no inline style.
+    Chart.js only needs a sized container; it does not care whether the size came from an attribute
+    or a class, which the previous comment here got wrong. %>
 <% chart_data = @portfolio.chart_data %>
 
 <%= render layout: "components/ui/card",
@@ -22,7 +23,7 @@
                          body: "Your chart appears once two months of value have been recorded." } do %>
     <% end %>
   <% else %>
-    <div class="relative" style="height: 300px;">
+    <div class="relative h-75">
       <canvas
         data-controller="portfolio-chart"
         data-portfolio-chart-data-value="<%= chart_data.to_json %>"></canvas>

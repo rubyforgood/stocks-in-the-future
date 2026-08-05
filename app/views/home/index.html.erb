@@ -71,7 +71,7 @@
       <% if @current_announcement %>
         <% cache @current_announcement do %>
           <h3 class="text-sm font-semibold text-slate-900"><%= @current_announcement.title %></h3>
-          <div class="trix-content mt-2 max-h-[480px] overflow-y-auto text-sm text-slate-700">
+          <div class="trix-content mt-2 max-h-120 overflow-y-auto text-sm text-slate-700">
             <%= @current_announcement.content %>
           </div>
         <% end %>

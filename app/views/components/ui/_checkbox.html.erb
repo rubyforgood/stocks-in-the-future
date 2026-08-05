@@ -1,31 +1,27 @@
-<div>
-  <div class="flex items-center space-x-2">
-    <input
-      type="checkbox"
-      role="checkbox"
-      aria-checked="false"
-      data-state="unchecked"
-      value="on"
-      class="peer h-4 w-4 shrink-0 rounded-xs border border-primary ring-offset-background focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-sitf-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
-      name="<%= name %>"
-      id="<%= options[:id] || sanitize_to_id(name) %>">
-      <span
-        class="flex items-center justify-center text-current hidden"
-        style="pointer-events: none">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          class="h-4 w-4">
-          <polyline points="20 6 9 17 4 12"></polyline>
-        </svg>
-      </span>
-    <%= render_label name: name, label: label %>
-  </div>
+<%# A native checkbox on the app's tokens.
+
+    It used to carry role="checkbox" and a hard-coded aria-checked="false" on an <input
+    type="checkbox">. The role is redundant - a native checkbox already has it - and the static
+    aria-checked is worse than redundant: nothing updates it, so once a user ticks the box the
+    accessibility tree still says unchecked. Removing both leaves the browser to report the real
+    state, which it does correctly.
+
+    It also had data-state="unchecked" with data-[state=checked]:bg-primary styling. data-state is a
+    Radix convention and nothing in this app sets it, so those rules never applied - and `primary`
+    there is the shadcn near-black navy, not sitf-primary. Under them sat a hidden <span> holding a
+    tick SVG and an inline style="pointer-events: none", which nothing ever unhid.
+
+    accent-sitf-primary lets the browser draw the checked state in the brand colour, which is how a
+    native checkbox is meant to be tinted. rounded-sm rather than the rounded-lg control token: at
+    16px an 8px radius is nearly a circle, and a checkbox reads as a square.
+
+    The 16px box is under WCAG 2.5.8's 24x24 on its own; the associated label is part of the target,
+    which is what makes it reachable. Keep the label. %>
+<div class="flex items-center gap-2">
+  <%= check_box_tag name, "on", false,
+                    id: options[:id] || sanitize_to_id(name),
+                    class: "size-4 shrink-0 rounded-sm border-slate-300 accent-sitf-primary " \
+                           "focus-visible:outline-2 focus-visible:outline-offset-2 " \
+                           "focus-visible:outline-sitf-primary" %>
+  <%= render_label name: name, label: label %>
 </div>

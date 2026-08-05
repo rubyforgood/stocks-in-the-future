@@ -6,8 +6,8 @@
 
     Locals:
       label - button text, sentence case
-      style - button class to use %>
+      button_class - the button class to use %>
 <%= button_to label,
               populate_classroom_grade_book_path(@classroom, @grade_book),
-              class: style,
+              class: button_class,
               data: { turbo_frame: "_top" } %>

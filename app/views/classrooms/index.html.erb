@@ -43,7 +43,10 @@
                 </span>
               </td>
               <td class="table-body-cell py-4">
-                <div class="flex gap-1 overflow-x-auto py-1" style="max-width: 510px; min-height: 36px;">
+                <%# max-w-128 is 512px and min-h-9 is 36px, both on the scale. This was an inline
+                    style="max-width: 510px; min-height: 36px" - the 2px difference is not visible
+                    and the scale value is checkable. %>
+                <div class="flex max-w-128 min-h-9 gap-1 overflow-x-auto py-1">
                   <% if classroom.teachers.any? %>
                     <% classroom.teachers.each do |teacher| %>
                       <%= render "components/ui/badge",

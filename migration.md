@@ -327,6 +327,29 @@ signed-out `main` is `p-4 lg:p-6` rather than a flat `p-6`.
    unaffected.
 3. **The app bar trigger is no longer teal**, so a test looking for that fill would fail.
 
+### Arbitrary values converted, and the shadcn checkbox rebuilt
+
+**What.** `style="height: 300px"` to `h-75`, `style="width: 400px"` to `w-100`,
+`style="max-width: 510px; min-height: 36px"` to `max-w-128 min-h-9`, `max-h-[480px]` to `max-h-120`.
+`components/ui/_checkbox` renders a native input on the app's tokens. `_input`, `_textarea` and their
+helpers are deleted. A partial local named `style` is now `button_class`.
+
+**Why it has blast radius.**
+
+1. **The badge scroller is 512px, not 510px.** The scale has no 510; the 2px is not visible.
+2. **The checkbox lost `role="checkbox"`, `aria-checked="false"` and `data-state`.** The role was
+   redundant on a native checkbox and the static `aria-checked` actively lied once ticked, because
+   nothing updated it. Anything asserting those attributes will fail, correctly. It is on
+   `accent-sitf-primary` now rather than the shadcn navy `border-primary`, and the dead hidden tick
+   SVG is gone.
+3. **`render_input` and `render_textarea` no longer exist.** Nothing called them once
+   `Shadcn::FormBuilder` stopped delegating. `render_label` and `render_form_for` remain - the
+   checkbox and the two devise auth pages use them.
+4. **A source-level test now guards this.** Adding a gradient, an inline `style`, or an arbitrary
+   value outside the four-item allowlist fails
+   `test/design_system/no_arbitrary_values_test.rb`. Extend the allowlist deliberately, with the
+   reason, rather than to make it pass.
+
 ### The earnings surfaces lost their gradient and their illustrations
 
 **What.** The home page's "Earnings to invest" hero and `shared/_earnings_to_invest_card` are both
