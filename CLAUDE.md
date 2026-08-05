@@ -241,6 +241,18 @@ view. I then wrote a design.md rule *about* those buttons without ever rendering
 control lives in a table's trailing column, measure its box against the scroll container's box at
 375px, and check `scrollWidth` against `clientWidth`.
 
+**A class you pass can be silently overridden by the thing you pass it to.** `Shadcn::FormBuilder`
+prepends its own base to whatever `class:` it is given, so a field handed `tw-input-primary` carried
+both strings - and since utilities beat component classes, the shadcn ones won. Sign in and sign up
+kept a 40px `rounded-md` field while every other form moved to 44px `rounded-lg`, and the markup read
+as if it were fixed. Check the rendered element, not the argument.
+
+**A named class with one caller drifts as surely as no class at all.** `tw-input-primary` existed for
+months with a comment describing the exact placeholder failure it fixed, while `Admin::FormBuilder`
+rendered nine forms with `placeholder:text-gray-400` at 2.54:1. Same for `.tw-btn-*` before the
+button sweep. When you write a shared class, convert every caller in the same change, or it becomes
+documentation of a fix nobody got.
+
 **Contrast maths on `oklch()` needs a real conversion.** `getComputedStyle().color` returns
 `oklch(0.446 0.043 257.281)` in this browser, and pulling the three numbers out as if they were RGB
 reports slate-600 on slate-50 as **1.05:1**. I wrote an audit that way and reported five contrast

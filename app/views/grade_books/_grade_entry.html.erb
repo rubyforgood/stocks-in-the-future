@@ -8,7 +8,7 @@
                    options_for_select(GradeEntry::GRADE_OPTIONS, entry.math_grade),
                    { include_blank: true },
                    disabled:,
-                   class: "block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus-visible:ring-sitf-primary lg:text-sm",
+                   class: "tw-input-primary",
                    data: { testid: "math-grade-select" } %>
     </td>
 
@@ -17,12 +17,12 @@
                    options_for_select(GradeEntry::GRADE_OPTIONS, entry.reading_grade),
                    { include_blank: true },
                    disabled:,
-                   class: "block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus-visible:ring-sitf-primary lg:text-sm",
+                   class: "tw-input-primary",
                    data: { testid: "reading-grade-select" } %>
     </td>
     <td class="table-body-cell whitespace-nowrap">
       <%= f.number_field :attendance_days,
-                         class: "block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus-visible:ring-sitf-primary lg:text-sm",
+                         class: "tw-input-primary",
                          disabled:,
                          min: 0,
                          data: { testid: "attendance-days-input" } %>
@@ -30,7 +30,7 @@
     <td class="table-body-cell whitespace-nowrap">
       <%= f.checkbox :is_perfect_attendance,
                      disabled:,
-                     class: "block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus-visible:ring-sitf-primary lg:text-sm",
+                     class: "tw-input-primary",
                      data: { testid: "perfect-attendance-checkbox" } %>
     </td>
 

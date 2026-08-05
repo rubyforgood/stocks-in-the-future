@@ -1,8 +1,6 @@
 <% content_for :title, "Forgot your password" %>
 
 <%# Mirrors devise/sessions/new so the two auth screens stay consistent. %>
-<% field_class = "block w-full min-h-11 rounded-md bg-white px-3 py-2 text-base text-slate-900 outline-1 -outline-offset-1 outline-slate-500 focus:outline-2 focus:-outline-offset-2 focus:outline-sitf-primary" %>
-<% label_class = "block text-sm font-medium text-slate-900 mb-1" %>
 <% link_class = "font-semibold text-sitf-primary underline hover:text-sitf-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary rounded-sm" %>
 
 <div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
@@ -19,8 +17,8 @@
 
       <div class="space-y-4">
         <div>
-          <%= f.label :email, "Email address", class: label_class %>
-          <%= f.email_field :email, autofocus: true, autocomplete: "email", required: true, class: field_class %>
+          <%= f.label :email, "Email address", class: "tw-label-primary mb-1" %>
+          <%= f.email_field :email, autofocus: true, autocomplete: "email", required: true, class: "tw-input-primary" %>
         </div>
 
         <%= f.submit "Send me reset password instructions", class: "tw-btn-primary w-full" %>

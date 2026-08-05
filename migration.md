@@ -327,6 +327,30 @@ signed-out `main` is `p-4 lg:p-6` rather than a flat `p-6`.
    unaffected.
 3. **The app bar trigger is no longer teal**, so a test looking for that fill would fail.
 
+### Every form field is on one named class
+
+**What.** `Admin::FormBuilder`'s five class constants now point at `tw-input-primary`,
+`tw-input-error`, `tw-label-primary`, `tw-field-error` and `tw-field-hint`. `Shadcn::FormBuilder`'s
+`label` / `text_field` / `password_field` / `email_field` render plain Rails fields on the same
+classes rather than delegating to `render_input`. Ten hand-rolled field strings across the grade
+book, the two student forms, the admin search filter and the devise pages are gone.
+`devise/passwords/edit` and `devise/registrations/edit` were rebuilt from raw generator output.
+`forms.css` gained `tw-input-error`, `tw-field-error` and `tw-field-hint`.
+
+**Why it has blast radius.**
+
+1. **Every field in the app changed size**, from 40px or an unset height to 44px, and from
+   `rounded-md` to `rounded-lg`. Nine admin forms also lose a `placeholder:text-gray-400` that
+   measured 2.54:1.
+2. **`Shadcn::FormBuilder` no longer calls `render_input`.** That helper is now unused;
+   `render_label` is still used by `components/ui/_checkbox`. Do not reintroduce the delegation - it
+   silently overrode the class it was passed.
+3. **The two devise auth views no longer pass `class:`** to their fields; the builder supplies it.
+   Passing one again would append, not replace.
+4. **`devise/registrations/edit` is a real page now** - two cards, a proper heading, and its
+   "Cancel my account" on the bordered danger button rather than an unstyled `button_to`. It is still
+   not a profile page; see design-todo.
+
 ### Both modals share one shell
 
 **What.** `bg-black/50` scrim, `rounded-2xl shadow-2xl` panel, `h2` title at `text-base

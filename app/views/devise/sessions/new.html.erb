@@ -2,8 +2,6 @@
 
 <%# Shared field styling. 44px minimum target height per docs/responsive-design-guidelines.md.
     outline-slate-500 gives a 5.0:1 boundary on white, clearing WCAG 1.4.11 (3:1). %>
-<% field_class = "block w-full min-h-11 rounded-md bg-white px-3 py-2 text-base text-slate-900 outline-1 -outline-offset-1 outline-slate-500 focus:outline-2 focus:-outline-offset-2 focus:outline-sitf-primary" %>
-<% label_class = "block text-sm font-medium text-slate-900 mb-1" %>
 <% link_class = "inline-flex items-center min-h-11 text-sm font-semibold text-sitf-primary underline hover:text-sitf-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary rounded-sm" %>
 
 <div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
@@ -17,13 +15,13 @@
     <%= render_form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
       <div class="space-y-4">
         <div>
-          <%= f.label :username, class: label_class %>
-          <%= f.text_field :username, autocomplete: "username", required: true, class: field_class %>
+          <%= f.label :username, class: "mb-1" %>
+          <%= f.text_field :username, autocomplete: "username", required: true %>
         </div>
 
         <div>
-          <%= f.label :password, class: label_class %>
-          <%= f.password_field :password, autocomplete: "current-password", required: true, class: field_class %>
+          <%= f.label :password, class: "mb-1" %>
+          <%= f.password_field :password, autocomplete: "current-password", required: true %>
         </div>
 
         <div class="flex flex-wrap items-center justify-between gap-2">

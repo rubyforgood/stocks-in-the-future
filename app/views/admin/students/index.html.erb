@@ -122,9 +122,12 @@
 
       <%= form_with url: import_admin_students_path, multipart: true, local: true do |form| %>
         <div class="mb-4">
+          <%# The same named class as every other field. A file input renders its own native button
+              inside itself, so it keeps cursor-pointer; everything else - border, radius, focus
+              outline - comes from the token rather than a seventh hand-rolled string. %>
           <%= form.file_field :csv_file,
                               accept: ".csv",
-                              class: "block w-full text-sm text-slate-900 border border-slate-300 rounded-lg cursor-pointer bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary p-2" %>
+                              class: "tw-input-primary cursor-pointer" %>
         </div>
         <div class="flex justify-end gap-3">
           <button type="button"

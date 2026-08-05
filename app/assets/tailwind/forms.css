@@ -16,4 +16,21 @@
     @apply block w-full min-h-11 rounded-lg bg-white px-3 py-2 text-base text-slate-900 border border-slate-300 placeholder:text-slate-500 focus:outline-2 focus:-outline-offset-2 focus:outline-sitf-primary lg:text-sm/6
   }
 
+  /* The same field, in an error state. Red is on the border and the focus outline, never on the
+     ink: the value a user typed stays slate-900 so it is still the most legible thing in the
+     field, and the message beneath says what is wrong. Measured: red-600 border on white 4.83:1,
+     which clears the 3:1 UI gate with room. */
+  .tw-input-error {
+    @apply block w-full min-h-11 rounded-lg bg-white px-3 py-2 text-base text-slate-900 border border-red-600 placeholder:text-slate-500 focus:outline-2 focus:-outline-offset-2 focus:outline-red-700 lg:text-sm/6
+  }
+
+  /* The message under a field, and the hint above it. Both were slate-500/red-600 written inline in
+     four different places. */
+  .tw-field-error {
+    @apply mt-2 text-sm text-red-700
+  }
+
+  .tw-field-hint {
+    @apply mt-1 text-sm text-slate-600
+  }
 }

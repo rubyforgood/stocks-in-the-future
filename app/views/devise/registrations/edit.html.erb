@@ -1,43 +1,71 @@
-<h2>Edit <%= resource_name.to_s.humanize %></h2>
+<%# Was raw generator output: an <h2> heading with no page header, div.field wrappers, <br> tags for
+    layout, <i>/<em> for hints, unstyled fields, and a "Cancel my account" button_to with no classes
+    at all - the only unstyled destructive control in the app.
 
-<%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put }) do |f| %>
-  <%= render "devise/shared/error_messages", resource: resource %>
+    This is the closest thing to a profile page the app has. design-todo records that it is not a
+    real one: it demands the current password to change anything, and students sign in with a
+    username and may have no email. Bringing it onto the tokens does not make it that page. %>
+<% content_for :title, "Your account" %>
 
-  <div class="field">
-    <%= f.label :email %><br>
-    <%= f.email_field :email, autofocus: true, autocomplete: "email" %>
-  </div>
+<div class="mx-auto w-full max-w-md space-y-6 py-6">
+  <%= render layout: "components/ui/page_header",
+             locals: { title: "Your account" } do %><% end %>
 
-  <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
-    <div>Currently waiting confirmation for: <%= resource.unconfirmed_email %></div>
+  <%= render layout: "components/ui/card", locals: { title: "Account details" } do %>
+    <%= form_for(
+          resource,
+          as: resource_name,
+          url: registration_path(resource_name),
+          html: { method: :put },
+          class: "space-y-5"
+        ) do |f| %>
+      <%= render "devise/shared/error_messages", resource: resource %>
+
+      <div>
+        <%= f.label :email, "Email address", class: "tw-label-primary mb-1" %>
+        <%= f.email_field :email,
+                          autofocus: true,
+                          autocomplete: "email",
+                          class: "tw-input-primary" %>
+      </div>
+
+      <div>
+        <%= f.label :password, "New password", class: "tw-label-primary mb-1" %>
+        <%= f.password_field :password, autocomplete: "new-password", class: "tw-input-primary" %>
+        <p class="tw-field-hint">
+          Leave blank to keep your current one<% if @minimum_password_length %>.
+            <%= @minimum_password_length %> characters minimum<% end %>.
+        </p>
+      </div>
+
+      <div>
+        <%= f.label :password_confirmation, "Confirm new password", class: "tw-label-primary mb-1" %>
+        <%= f.password_field :password_confirmation,
+                             autocomplete: "new-password",
+                             class: "tw-input-primary" %>
+      </div>
+
+      <div>
+        <%= f.label :current_password, "Current password", class: "tw-label-primary mb-1" %>
+        <%= f.password_field :current_password,
+                             autocomplete: "current-password",
+                             class: "tw-input-primary" %>
+        <p class="tw-field-hint">We need this to confirm the changes above.</p>
+      </div>
+
+      <%= f.submit "Save changes", class: "tw-btn-primary w-full" %>
+    <% end %>
   <% end %>
 
-  <div class="field">
-    <%= f.label :password %> <i>(leave blank if you don't want to change it)</i><br>
-    <%= f.password_field :password, autocomplete: "new-password" %>
-    <% if @minimum_password_length %>
-      <br>
-      <em><%= @minimum_password_length %> characters minimum</em>
-    <% end %>
-  </div>
-
-  <div class="field">
-    <%= f.label :password_confirmation %><br>
-    <%= f.password_field :password_confirmation, autocomplete: "new-password" %>
-  </div>
-
-  <div class="field">
-    <%= f.label :current_password %> <i>(we need your current password to confirm your changes)</i><br>
-    <%= f.password_field :current_password, autocomplete: "current-password" %>
-  </div>
-
-  <div class="actions">
-    <%= f.submit "Update", class: "tw-btn-primary" %>
-  </div>
-<% end %>
-
-<h3>Cancel my account</h3>
-
-<div>Unhappy? <%= button_to "Cancel my account", registration_path(resource_name), data: { confirm: "Are you sure?", turbo_confirm: "Are you sure?" }, method: :delete %></div>
-
-<%= link_to "Back", :back %>
+  <%# The destructive action gets its own section and the bordered danger button - slate at rest,
+      rose on hover - rather than an unstyled button_to in a sentence. %>
+  <%= render layout: "components/ui/card", locals: { title: "Cancel your account" } do %>
+    <p class="mb-4 text-sm text-slate-700">
+      This removes your account and everything in it. It cannot be undone.
+    </p>
+    <%= button_to "Cancel my account", registration_path(resource_name),
+                  method: :delete,
+                  class: admin_danger_button_class,
+                  data: { turbo_confirm: "Cancel your account? This cannot be undone." } %>
+  <% end %>
+</div>

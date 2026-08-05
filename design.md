@@ -455,6 +455,37 @@ pixel, read it back. Canvas `fillStyle` also returns `oklch()` unchanged, so rea
 not enough. `test/system/modal_standards_test.rb` does this across the buy modal, its review step -
 a second screen inside the same modal, easy to miss - and the import dialog.
 
+### Form fields: one shape, one class
+
+Every field in the app is `tw-input-primary` with a `tw-label-primary` label, `tw-input-error` when
+invalid, and `tw-field-error` / `tw-field-hint` for the messages around it. Measured across the auth
+pages, four admin forms, the grade book and the teacher forms: **1px border, 8px radius, 14px text,
+44px tall, slate-300** - the only variation being a textarea's height, which is rows.
+
+There were **seven** treatments before, for one control:
+
+| Where | What |
+|---|---|
+| `Admin::FormBuilder` (9 forms) | `rounded-md`, border faked with `ring-1 ring-inset ring-gray-300`, `focus:ring-blue-600`, an `sm:` tier, **`placeholder:text-gray-400` at 2.54:1** |
+| `grade_books/_grade_entry` | `rounded-md shadow-sm focus:border-indigo-500` |
+| `students/new`, `students/edit` | `mt-1 shadow-xs border-slate-300 rounded-md` |
+| `admin/shared/_search_filter` | two variants of `rounded-md border-0 ring-1 ring-inset` |
+| `devise/sessions/new`, `passwords/new` | a duplicated `field_class` local |
+| `devise/passwords/edit`, `registrations/edit` | no classes at all - the browser's default input |
+| `tw-input-primary` | the token, used by one view |
+
+**A named class with one caller drifts as surely as no class at all.** That is how the placeholder
+failure survived: the class that fixed it existed, and its own comment said so, and the builder that
+rendered nine forms never adopted it.
+
+**Passing a class to a builder that prepends its own does nothing, and looks like it worked.**
+`Shadcn::FormBuilder` prepends a shadcn base (`h-10 rounded-md border-input`, ring focus). Given
+`tw-input-primary` too, the field carried both - and **utilities beat component classes**, so the
+shadcn ones won. Sign in and sign up, the two pages every user meets first, kept a 40px `rounded-md`
+field while every other form moved. Its field methods render plain Rails fields on the token now,
+which is the same fix its `submit` needed for the same reason. **Check the rendered element, not the
+argument you passed.**
+
 ### Badges
 **One component: `components/ui/_badge`**, matching the Status pill base above:
 `inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium`, with a tone:

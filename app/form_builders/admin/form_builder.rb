@@ -3,20 +3,17 @@
 module Admin
   # rubocop:disable Metrics/ClassLength
   class FormBuilder < ActionView::Helpers::FormBuilder
-    # Tailwind CSS classes for form elements
-    INPUT_CLASSES = "block w-full rounded-md border-0 py-2 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 " \
-                    "placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 " \
-                    "sm:text-sm sm:leading-6"
-
-    INPUT_ERROR_CLASSES = "block w-full rounded-md border-0 py-2 px-3 text-red-900 ring-1 ring-inset " \
-                          "ring-red-300 placeholder:text-red-300 focus:ring-2 focus:ring-inset " \
-                          "focus:ring-red-500 sm:text-sm sm:leading-6"
-
-    LABEL_CLASSES = "block text-sm font-medium leading-6 text-gray-900"
-
-    ERROR_CLASSES = "mt-2 text-sm text-red-600"
-
-    HINT_CLASSES = "mt-1 text-sm text-gray-500"
+    # The named classes from forms.css, not a second set of strings. These were the app's
+    # longest-standing field drift: rounded-md where the token is rounded-lg, a border faked with
+    # ring-1 ring-inset, gray-* rather than slate-*, an off-brand blue-600 focus ring, an `sm:`
+    # tier this app does not use, and `placeholder:text-gray-400` at **2.54:1** - a straight AA
+    # failure on every placeholder in nine admin forms. tw-input-primary was written specifically
+    # to fix all of that and this builder never adopted it.
+    INPUT_CLASSES = "tw-input-primary"
+    INPUT_ERROR_CLASSES = "tw-input-error"
+    LABEL_CLASSES = "tw-label-primary"
+    ERROR_CLASSES = "tw-field-error"
+    HINT_CLASSES = "tw-field-hint"
 
     # Override text_field to include Tailwind styling and error handling
     def text_field(attribute, options = {})
