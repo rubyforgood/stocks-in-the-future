@@ -49,7 +49,13 @@
       <% if current_user.email.present? %>
         <p class="truncate text-xs text-slate-600"><%= current_user.email %></p>
       <% end %>
-      <p class="mt-1 text-xs text-slate-600"><%= account_role_label(current_user) %></p>
+      <%# The role is a badge, not a line of muted text. design.md: "blue that stays is
+          categorical rather than interactive - the :info badge tone", and a role is categorical,
+          not a status. The classrooms index already badges teacher names the same way. blue-700
+          on blue-50 is 6.16:1, and the label states the role so nothing rests on the hue. %>
+      <div class="mt-2">
+        <%= render "components/ui/badge", label: account_role_label(current_user), tone: :info %>
+      </div>
     </div>
 
     <%= link_to "Sign out", destroy_user_session_path,

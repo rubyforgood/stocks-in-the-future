@@ -2377,8 +2377,14 @@ chrome is a thing that moves the controls around it. Because the avatar and chev
 `aria-hidden`, the trigger's `sr-only` text is its whole accessible name and it must **name the
 user** - "Account menu for finn", not "Account menu", which would not say whose.
 
-**The panel holds name, email and role** on a `bg-slate-50` identity block, then the account
-actions, then Sign out. **No rule separates them**: the tint groups the identity block, so the panel
+**The panel holds name, email and a role badge** on a `bg-slate-50` identity block, then the account
+actions, then Sign out. The role is `components/ui/_badge` with the **`:info`** tone, not a line of
+muted text: a role is **categorical**, which is what this document reserves blue for ("blue that
+stays is categorical rather than interactive"), and the classrooms index already badges teacher names
+the same way. Measured: blue-700 on blue-50 6.16:1, 24px tall, `rounded-full`, no border and no ring.
+The label states the role, so nothing rests on the hue. **Assert it on the component's shape, not its
+hue** - and exclude `[aria-hidden]`, because the initials avatar is also a `rounded-full text-xs`
+span. **No rule separates them**: the tint groups the identity block, so the panel
 does not need a divider. `w-64`, not `w-56` - an email is longer than a name and truncating it
 defeats the point of showing it. The email is the line that tells you *which* account you are in,
 which is why Google and Stripe both lead with it, and it matters here for the same reason the menu

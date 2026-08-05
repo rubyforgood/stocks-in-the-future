@@ -47,7 +47,20 @@ class AccountHeaderTest < ActionDispatch::IntegrationTest
 
     assert_select MENU, text: /finn/
     assert_select MENU, text: /finn@example.com/
-    assert_select MENU, text: /Student/
+    # The role is a badge, not muted text. Asserted on the component's shape rather than its hue -
+    # design.md: "do not assert exact hues in tests". :not([aria-hidden]) excludes the initials
+    # avatar, which is also a rounded-full text-xs span.
+    assert_select "#{MENU} span.rounded-full.text-xs:not([aria-hidden])", text: "Student"
+  end
+
+  test "every role renders as a badge" do
+    { create(:teacher, username: "mrs_smith") => "Teacher",
+      create(:admin) => "Admin" }.each do |user, role|
+      sign_in(user)
+      get user.admin? ? admin_classrooms_path : root_path
+
+      assert_select "#{MENU} span.rounded-full.text-xs:not([aria-hidden])", text: role
+    end
   end
 
   test "a user with no email gets no blank line" do
