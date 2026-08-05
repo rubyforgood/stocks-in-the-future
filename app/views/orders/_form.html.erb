@@ -190,23 +190,26 @@
     </p>
   </div>
 
+  <%# No min-h-11 here. It overrode .tw-btn-*'s h-10, so these four were the only 44px buttons in
+      the app that are not bare tap targets - design.md reserves 44px for controls with no other
+      affordance, and a labelled dialog button is not one. %>
   <div class="flex gap-3">
     <button type="button"
-            class="tw-btn-secondary min-h-11 flex-1"
+            class="tw-btn-secondary flex-1"
             data-order-form-target="cancelButton"
             data-action="click->modal#close">
       Cancel
     </button>
 
     <button type="button"
-            class="tw-btn-secondary min-h-11 flex-1 hidden"
+            class="tw-btn-secondary flex-1 hidden"
             data-order-form-target="backButton"
             data-action="click->order-form#backToEdit">
       Back
     </button>
 
     <button type="button"
-            class="tw-btn-primary min-h-11 flex-1"
+            class="tw-btn-primary flex-1"
             data-order-form-target="reviewButton"
             data-action="click->order-form#showReview">
       Review order
@@ -216,7 +219,7 @@
         could see it as a literal. %>
     <%= form.submit "#{buying ? 'Buy' : 'Sell'} shares",
                     data: { order_form_target: "submitButton" },
-                    class: "tw-btn-primary min-h-11 flex-1 hidden" %>
+                    class: "tw-btn-primary flex-1 hidden" %>
   </div>
 
 <% end %>

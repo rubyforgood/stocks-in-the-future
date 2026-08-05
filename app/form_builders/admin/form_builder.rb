@@ -10,6 +10,12 @@ module Admin
     # failure on every placeholder in nine admin forms. tw-input-primary was written specifically
     # to fix all of that and this builder never adopted it.
     INPUT_CLASSES = "tw-input-primary"
+    # The same native control components/ui/_checkbox renders: accent-sitf-primary rather than an
+    # off-brand blue tick, a slate border, and a named focus ring.
+    CHECKBOX_CLASSES = "size-4 shrink-0 rounded-sm border-slate-300 accent-sitf-primary " \
+                       "focus-visible:outline-2 focus-visible:outline-offset-2 " \
+                       "focus-visible:outline-sitf-primary"
+
     INPUT_ERROR_CLASSES = "tw-input-error"
     LABEL_CLASSES = "tw-label-primary"
     ERROR_CLASSES = "tw-field-error"
@@ -118,12 +124,12 @@ module Admin
         @template.content_tag(:div, class: "flex h-6 items-center") do
           check_box(
             attribute,
-            class: "h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-600"
+            class: CHECKBOX_CLASSES
           )
         end +
           @template.content_tag(:div, class: "ml-3 text-sm leading-6") do
-            label(attribute, label_text, class: "font-medium text-gray-900") +
-              (hint ? @template.content_tag(:p, hint, class: "text-gray-500") : "".html_safe)
+            label(attribute, label_text, class: "font-medium text-slate-900") +
+              (hint ? @template.content_tag(:p, hint, class: HINT_CLASSES) : "".html_safe)
           end
       end
     end
@@ -189,8 +195,8 @@ module Admin
       hint = options.delete(:hint)
 
       @template.content_tag(:div, class: "py-4") do
-        @template.content_tag(:dt, label_text, class: "text-sm font-medium text-gray-500") +
-          @template.content_tag(:dd, class: "mt-1 text-sm text-gray-900") do
+        @template.content_tag(:dt, label_text, class: "text-sm font-medium text-slate-600") +
+          @template.content_tag(:dd, class: "mt-1 text-sm text-slate-900") do
             value.to_s.html_safe # rubocop:disable Rails/OutputSafety
           end +
           (hint ? @template.content_tag(:p, hint, class: HINT_CLASSES) : "".html_safe)
@@ -295,7 +301,7 @@ module Admin
           value,
           checked,
           id: checkbox_id,
-          class: "h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-600"
+          class: CHECKBOX_CLASSES
         )
       end
     end
@@ -303,7 +309,7 @@ module Admin
     # Build checkbox label element
     def build_checkbox_label(checkbox_id, text)
       @template.content_tag(:div, class: "ml-3 text-sm leading-6") do
-        @template.label_tag(checkbox_id, text, class: "font-medium text-gray-900")
+        @template.label_tag(checkbox_id, text, class: "font-medium text-slate-900")
       end
     end
 
@@ -397,19 +403,24 @@ module Admin
       end
     end
 
+    # Yes/No were two hand-rolled pills, one of them the only bg-green-100 in the app.
+    def badge(label, tone)
+      @template.render("components/ui/badge", label: label, tone: tone)
+    end
+
     # Formats a value for display in read-only fields
     def format_value(value)
       case value
       when TrueClass
-        '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ' \
-        'bg-green-100 text-green-800">Yes</span>'
+        badge("Yes", :success)
       when FalseClass
-        '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ' \
-        'bg-gray-100 text-gray-800">No</span>'
+        badge("No", :neutral)
       when Time, DateTime, Date
         value.strftime("%B %d, %Y")
       when nil
-        '<span class="text-gray-400">—</span>'
+        # text-gray-400 measured 2.54:1, a straight AA failure, and the same one admin_helper.rb
+        # had for absent values - which a test caught rather than an audit.
+        @template.content_tag(:span, "—", class: "text-slate-500")
       else
         value.to_s
       end

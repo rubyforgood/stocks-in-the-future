@@ -50,17 +50,17 @@
      is how a mint banner, a mint card band, a mint panel in the order modal and an unused mint
      badge tone all got shipped as if they were brand-coloured.
 
-     Note the legacy block below also defines --sitf-secondary-teal (#00b8b0). Two different mints
-     for one role, neither used. Whoever needs a secondary should pick one deliberately and delete
-     the other rather than grepping for whichever appears first. */
+     It had a legacy twin, --sitf-secondary-teal (#00b8b0): two different mints for one role, with
+     neither used anywhere. The twin is deleted and so is the --color-sitf-secondary utility - a
+     named "secondary" utility holding mint is how mint kept arriving on brand surfaces. This value
+     stays as what it actually is, chart series 2. If a secondary brand colour is ever wanted,
+     choose it against #00698c rather than inheriting a chart colour. */
   --sitf-secondary-chart2: #1db8a6;
   --sitf-accent1-chart3: #D3DF44;
   --sitf-accent2-chart5: #F59E0B;
   --sitf-chart4: #EB4A97;
   --sitf-primary-dark: #004f6b;
   --sitf-on-accent: #323232;
-  --sitf-hero-from: #f4d18d;
-  --sitf-hero-to: #f8dba8;
   /* Pale accent used for summary total rows. Near-identical to the legacy
      --sitf-10 (#eeefbe); worth consolidating the two when the legacy block
      is cleaned up. Kept at the exact original value so nothing shifts. */
@@ -68,11 +68,9 @@
   --sitf-muted: #f0f0f0;
   --sitf-status-destructive: #ef4444;
   --sitf-input: #737373;
-  --sitf-ring: #a5b4fc;
 
   /* TODO: Legacy variables for backward compatibility - update to use standardized naming above */
   --sitf-primary-blue: #00698c;
-  --sitf-secondary-teal: #00b8b0;
   --sitf-6: #161616;
   --sitf-7: #5c636a;
   --sitf-8: #a7adaf;
