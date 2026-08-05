@@ -327,6 +327,33 @@ signed-out `main` is `p-4 lg:p-6` rather than a flat `p-6`.
    unaffected.
 3. **The app bar trigger is no longer teal**, so a test looking for that fill would fail.
 
+### The icon tile is a component, and card headers can lead with one
+
+**What.** New `components/ui/_icon_tile` (icon or numeral, five tones, two sizes). All six
+longhand tiles converted. `_card` gains optional `icon:` / `icon_tone:`. Both earnings cards
+restructured so the figure is flush rather than indented behind the tile. The home page's steps
+are four columns with tile numerals, and its CTA is `.tw-btn-primary`.
+
+**Why it has blast radius.**
+
+1. **The admin dashboard's three `sky` tiles are now `:info` blue.** `bg-sky-50 text-sky-700` was
+   not in the tone vocabulary — a second blue beside `:info`'s — so those three stat tiles change
+   hue. Arguably they should be `:neutral`, since this document hue-codes *state* and a count of
+   classrooms has none; that is a bigger aesthetic call than putting them on the vocabulary, so it
+   is `:info` for now and noted in `design-todo.md`.
+2. **`design.md`'s tile spec said `text-{semantic}-600` while every tile shipped `-700`.** The
+   component uses the badge's tones, so tiles and badges for one state cannot diverge; the document
+   now names `-700`. Anything written against the `-600` line will read as changed.
+3. **The home page's primary CTA was 44px** — the third instance of the longhand
+   `min-h-11 … px-4 py-2 … shadow-xs` primary, after `_empty_row` and the roster. It is 40px now.
+   The remaining `min-h-11`s are legitimate bare tap targets, except **`orders/_form`'s four modal
+   buttons**, which override the token's `h-10` and render 44px. Left alone here because the modal
+   was not in scope; recorded in `design-todo.md`.
+4. **`_card`'s header markup changed shape** — the title now sits inside a flex row. A test
+   matching the header's direct children rather than the `h2` itself would break.
+5. `icon_tile_test.rb` asserts the flush balance, the numeral geometry and 3:1 on every tile, so
+   an icon gutter reintroduced anywhere on those two pages fails there.
+
 ### Spacing brought onto the 24px rhythm, and the in-table empty state fixed
 
 **What.** Twenty-two off-rhythm values to 24px (`mb-8`/`my-8` across the component gallery, `gap-8`

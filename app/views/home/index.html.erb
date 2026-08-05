@@ -12,9 +12,8 @@
   <%= render layout: "components/ui/page_header",
              locals: { title: "Welcome to your financial journey",
                        description: "This is your launchpad to earn, invest, and grow." } do %>
-    <% cta_class = "inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-sitf-primary px-4 py-2 text-sm font-semibold text-sitf-on-primary shadow-xs transition-colors hover:bg-sitf-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary-dark" %>
     <% if current_user&.student? && current_user.portfolio %>
-      <%= link_to "Go to the trading floor", stocks_path, class: cta_class %>
+      <%= link_to "Go to the trading floor", stocks_path, class: "tw-btn-primary" %>
     <% end %>
   <% end %>
 
@@ -36,26 +35,28 @@
           where it competes with the figure and reads as marketing. The tile also fixes something the
           raster could not: the image was `hidden lg:block`, so on the phones most of these students
           use there was nothing there at all. %>
+      <%# The tile sits on the label's line, not in a column beside the whole card. It used to be
+          an items-start gutter, which indented the label, the figure and the supporting line
+          alike - the balance, the one number a student is here to read, measured 77px from the
+          card edge instead of 0. design.md had already ruled on this and measured it once, on the
+          case-contact card. %>
       <section class="tw-card" aria-labelledby="funds-heading">
-        <div class="flex flex-col gap-4 p-6 lg:flex-row lg:items-center lg:justify-between">
-          <div class="flex min-w-0 items-start gap-4">
-            <span class="grid size-9 shrink-0 place-items-center rounded-xl bg-emerald-50">
-              <%= lucide_icon "piggy-bank", class: "size-5 text-emerald-700" %>
-            </span>
-            <div class="min-w-0">
-              <h2 id="funds-heading" class="text-sm font-medium text-slate-600">Earnings to invest</h2>
-              <p class="mt-1 text-3xl font-bold tracking-tight text-slate-900 tabular-nums">
-                <%= number_to_currency(balance) %>
-              </p>
-              <p class="mt-1 text-sm text-slate-600">
-                <% if balance > 0 %>
-                  Ready when you are. Pick a company and buy your first shares.
-                <% else %>
-                  You have no earnings to invest yet. Attendance and grades earn funds.
-                <% end %>
-              </p>
-            </div>
+        <div class="p-5">
+          <div class="flex items-center gap-2">
+            <%= render "components/ui/icon_tile", icon: "piggy-bank", tone: :success, sm: true %>
+            <h2 id="funds-heading" class="text-sm font-medium text-slate-600">Earnings to invest</h2>
           </div>
+
+          <p class="mt-2 text-3xl font-bold tracking-tight text-slate-900 tabular-nums">
+            <%= number_to_currency(balance) %>
+          </p>
+          <p class="mt-1 text-sm text-slate-600">
+            <% if balance > 0 %>
+              Ready when you are. Pick a company and buy your first shares.
+            <% else %>
+              You have no earnings to invest yet. Attendance and grades earn funds.
+            <% end %>
+          </p>
         </div>
       </section>
     <% end %>
@@ -67,7 +68,7 @@
         inside a card that already says "Announcements" and has three siblings. That is the
         page-level treatment, and it made a card with nothing to say the tallest thing on
         the screen. %>
-    <%= render layout: "components/ui/card", locals: { title: "Announcements" } do %>
+    <%= render layout: "components/ui/card", locals: { title: "Announcements", icon: "megaphone", icon_tone: :info } do %>
       <% if @current_announcement %>
         <% cache @current_announcement do %>
           <h3 class="text-sm font-semibold text-slate-900"><%= @current_announcement.title %></h3>
@@ -86,19 +87,29 @@
     <% end %>
 
     <%# Getting started %>
-    <%= render layout: "components/ui/card", locals: { title: "Getting started", subtitle: "Four steps from earning to tracking your progress." } do %>
+    <%= render layout: "components/ui/card",
+               locals: { title: "Getting started",
+                         icon: "compass",
+                         subtitle: "Four steps from earning to tracking your progress." } do %>
       <% steps = [
            { title: "Earn funds", body: "Show up, stay engaged, and earn investment funds based on your attendance, participation, and performance." },
            { title: "Go to the trading floor", body: "Once you have funds, explore the trading floor and the companies you can buy shares in." },
            { title: "Buy and sell", body: "Choose your companies wisely. You can buy and sell as your portfolio grows, and watch your earnings change with the market." },
            { title: "Track your progress", body: "Your portfolio shows how your investments are performing over time, plus summaries of your grades and attendance." }
          ] %>
-      <ol class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <%# Four across at lg, one column below it. A 2x2 grid makes a numbered sequence ambiguous -
+          1,2 reads across and 1,3 reads down, and nothing in the layout says which - so four
+          short columns read left to right the way the numbers claim. This is the shape Stripe and
+          Shopify use for "how it works"; neither draws connectors, which also avoids a decoration
+          that only makes sense at one width.
+
+          The numeral is a tile, not a filled circle. It was white on bg-sitf-primary at
+          rounded-full: four saturated brand discs shouting over the copy they label, against
+          design.md's rule that a tile carries the hue and a numeral is always slate-900. %>
+      <ol class="grid grid-cols-1 gap-6 lg:grid-cols-4">
         <% steps.each_with_index do |step, i| %>
-          <li class="flex gap-4">
-            <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-sitf-primary text-sm font-semibold text-sitf-on-primary tabular-nums" aria-hidden="true">
-              <%= i + 1 %>
-            </span>
+          <li class="flex gap-3 lg:flex-col lg:gap-2">
+            <%= render "components/ui/icon_tile", label: i + 1, sm: true %>
             <div class="min-w-0">
               <h3 class="text-sm font-semibold text-slate-900"><%= step[:title] %></h3>
               <p class="mt-1 text-sm text-slate-600"><%= step[:body] %></p>

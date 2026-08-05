@@ -25,27 +25,27 @@
       can act on; the rest is context. %>
   <% stats = [
        { label: "Orders awaiting execution", value: @dashboard.pending_orders_count,
-         icon: "clock", tone: "bg-amber-50 text-amber-700", testid: "pending-orders",
+         icon: "clock", tone: :warning, testid: "pending-orders",
          hint: "Executed by the daily job" },
        { label: "Grade books ready to pay out", value: @dashboard.grade_books_awaiting_payout_count,
-         icon: "book-check", tone: "bg-amber-50 text-amber-700", testid: "grade-books-awaiting",
+         icon: "book-check", tone: :warning, testid: "grade-books-awaiting",
          hint: "Verified, not yet distributed" },
        { label: "Distributed to students", value: number_to_currency(@dashboard.total_distributed_cents / 100.0),
-         icon: "hand-coins", tone: "bg-emerald-50 text-emerald-700", testid: "total-distributed",
+         icon: "hand-coins", tone: :success, testid: "total-distributed",
          hint: "All deposits, all time" },
        { label: "Active students", value: @dashboard.students_count,
-         icon: "graduation-cap", tone: "bg-sky-50 text-sky-700", testid: "students" },
+         icon: "graduation-cap", tone: :info, testid: "students" },
        { label: "Classrooms", value: @dashboard.classrooms_count,
-         icon: "presentation", tone: "bg-sky-50 text-sky-700", testid: "classrooms" },
+         icon: "presentation", tone: :info, testid: "classrooms" },
        { label: "Stocks on the trading floor", value: @dashboard.stocks_count,
-         icon: "chart-line", tone: "bg-sky-50 text-sky-700", testid: "stocks" }
+         icon: "chart-line", tone: :info, testid: "stocks" }
      ] %>
 
   <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
     <% stats.each do |stat| %>
       <%= tag.div class: "tw-card p-5", data: { testid: stat[:testid] } do %>
-        <div class="mb-3 grid h-9 w-9 place-items-center rounded-xl <%= stat[:tone] %>">
-          <%= lucide_icon(stat[:icon], class: "h-5 w-5") %>
+        <div class="mb-3">
+          <%= render "components/ui/icon_tile", icon: stat[:icon], tone: stat[:tone] %>
         </div>
         <p class="text-3xl font-bold tracking-tight text-slate-900 tabular-nums"><%= stat[:value] %></p>
         <p class="mt-1 text-sm text-slate-600"><%= stat[:label] %></p>

@@ -1,0 +1,54 @@
+<%# Icon tile - a glyph on a soft tinted rounded square.
+
+    design.md: `grid place-items-center rounded-xl bg-{semantic}-50 text-{semantic}-600`, for
+    contexts where the icon is the *subject* - a KPI figure, a section header, a list-item
+    leading icon. Not for a message bar or alert, which gets a plain tone-coloured glyph:
+    a -50 tile on a -50 surface measured 1.07:1 and had to shout to be seen.
+
+    This existed longhand in six places with the tone spelled inline, which is the shape
+    design.md warns about - a style written in more than one place survives every sweep of
+    one of them. The tones are the badge's tones, so a tile and a badge for the same state
+    cannot drift apart.
+
+    Two sizes, and the distinction is what the glyph sits next to:
+
+      default - 36px, a 20px glyph. The tile is the subject: a KPI card, an empty state.
+      sm      - 32px, a 16px glyph. The tile sits on a title's line in a card header, where
+                a 36px block would out-height the 16px title it labels.
+
+    A numeral may take the icon's place (`label:`), which is what the getting-started steps use:
+    design.md hue-codes the tile and keeps a numeral slate-900, so a step number is this pattern
+    with a digit in it rather than a saturated brand disc with white text.
+
+    Locals:
+      icon  - Lucide icon name
+      label - a short string (a numeral) instead of an icon
+      tone  - :neutral (default) :success :warning :danger :info
+      sm    - true for the 32px header-row size %>
+<% tone = local_assigns.fetch(:tone, :neutral).to_sym %>
+<% tones = {} %>
+<% tones[:neutral] = "bg-slate-100 text-slate-600" %>
+<% tones[:success] = "bg-emerald-50 text-emerald-700" %>
+<% tones[:warning] = "bg-amber-50 text-amber-700" %>
+<% tones[:danger] = "bg-rose-50 text-rose-700" %>
+<% tones[:info] = "bg-blue-50 text-blue-700" %>
+
+<% box = local_assigns[:sm] ? "size-8" : "size-9" %>
+<% glyph = local_assigns[:sm] ? "size-4" : "size-5" %>
+
+<%# A numeral is content, not decoration, but the ordered list it sits in already conveys the
+    order, so it is hidden from assistive tech the way the icons are.
+
+    tag.span, not an interpolated attribute: interpolating an optional attribute yields an
+    *unquoted* one, which CSS and Capybara selectors will not match. tag omits nil entirely. %>
+<% numeral = local_assigns[:label].present? %>
+<%= tag.span class: ["grid", box, "shrink-0 place-items-center rounded-xl",
+                     tones.fetch(tone, tones[:neutral]),
+                     ("text-sm font-semibold text-slate-900 tabular-nums" if numeral)],
+             aria: { hidden: (true if numeral) } do %>
+  <% if numeral %>
+    <%= label %>
+  <% else %>
+    <%= lucide_icon icon, class: glyph %>
+  <% end %>
+<% end %>

@@ -8,6 +8,8 @@
     Locals:
       title    - optional heading text
       subtitle - optional supporting line under the title
+      icon     - optional Lucide name, rendered as a 32px tile on the title's line
+      icon_tone- tone for that tile (:neutral default, see components/ui/_icon_tile)
       padded   - false to remove body padding (for flush tables)
       class    - extra classes on the outer element
 
@@ -23,7 +25,17 @@
         neither, so removing the rule left them with no boundary at all and the header
         floating 36px above its content. %>
     <header class="border-b border-slate-200 px-5 py-4">
-      <h2 class="text-base font-semibold text-slate-900"><%= title %></h2>
+      <%# A leading icon goes on the title's line, never in a full-height column beside the
+          whole card. design.md measured that mistake once already: an items-start icon gutter
+          indents every body line behind it, so the body hangs off the icon instead of the
+          card edge. The subtitle stays flush for the same reason. %>
+      <div class="flex items-center gap-2">
+        <% if local_assigns[:icon].present? %>
+          <%= render "components/ui/icon_tile",
+                     icon: icon, tone: local_assigns.fetch(:icon_tone, :neutral), sm: true %>
+        <% end %>
+        <h2 class="text-base font-semibold text-slate-900"><%= title %></h2>
+      </div>
       <% if local_assigns[:subtitle].present? %>
         <p class="mt-1 text-sm text-slate-600"><%= subtitle %></p>
       <% end %>

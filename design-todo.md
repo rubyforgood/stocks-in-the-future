@@ -438,3 +438,18 @@ different. These are the pages not yet **rebuilt onto the primitives**.
 - [ ] `classrooms/*` and `grade_books/*` - teacher-facing
 - [ ] `devise/registrations/*`, `announcements/show`
 
+
+## Found while putting the icon tile on a component (2026-08)
+
+- **`orders/_form`'s four modal buttons carry `min-h-11` on top of `.tw-btn-*`**, so they render
+  44px against the 40px `h-10` token. `min-h-11` wins over `h-10`, so the modal's Cancel / Back /
+  Review / Buy are the only 44px buttons left that are not bare tap targets. One-line fix, but the
+  modal was not in scope for the home page work.
+- **The admin dashboard's three context stats are `:info` blue.** They were `sky`, which was off
+  the vocabulary. Counts of students, classrooms and stocks carry no *state*, and design.md
+  hue-codes state, so `:neutral` is arguably right — that flattens three tiles to grey, which is a
+  visual call worth making deliberately rather than as part of a sweep.
+- **Getting started never goes away.** It is permanent onboarding copy on a dashboard a student
+  sees every day. Shopify and Stripe both make setup guidance stateful and self-dismissing. The
+  app has the data to do it (funds, orders, holdings), so this is a real feature rather than a
+  styling fix — see the note in the home page discussion.

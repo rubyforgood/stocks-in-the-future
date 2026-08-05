@@ -162,18 +162,24 @@ class SpacingTest < ApplicationSystemTestCase
   # is - and both of them set px-6 lg:px-8 on top of main's p-4 lg:p-6, which put the sign-in
   # card 40px from the edge of a 375px phone while every other page sat at 16px.
   test "the sign-in card sits on the same edge as every other page" do
-    page.driver.browser.manage.window.resize_to(375, 812)
-    visit new_user_session_path
+    # in_phone_viewport, not a bare resize_to: Capybara reuses one browser for the suite, so a
+    # test that resizes and does not restore hands a 375px window to whatever runs next. This
+    # test did exactly that for one commit, and the page-header test above it failed about one
+    # run in three - at 375px the header stacks, so its 40px action sits below the h1 and the
+    # gap to the card measures 76px instead of 24px. It looked like a spacing regression.
+    in_phone_viewport do
+      visit new_user_session_path
 
-    left, right = page.evaluate_script(<<~JS)
-      (function () {
-        const b = document.querySelector("main form, main > div > div").getBoundingClientRect();
-        return [Math.round(b.left), Math.round(document.documentElement.clientWidth - b.right)];
-      })()
-    JS
+      left, right = page.evaluate_script(<<~JS)
+        (function () {
+          const b = document.querySelector("main form, main > div > div").getBoundingClientRect();
+          return [Math.round(b.left), Math.round(document.documentElement.clientWidth - b.right)];
+        })()
+      JS
 
-    assert_in_delta 16, left, TOLERANCE, "sign-in is not on the standard 16px edge"
-    assert_in_delta 16, right, TOLERANCE, "sign-in is not on the standard 16px edge"
+      assert_in_delta 16, left, TOLERANCE, "sign-in is not on the standard 16px edge"
+      assert_in_delta 16, right, TOLERANCE, "sign-in is not on the standard 16px edge"
+    end
   end
 
   def section_gaps

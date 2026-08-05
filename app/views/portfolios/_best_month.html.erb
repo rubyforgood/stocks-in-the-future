@@ -19,8 +19,6 @@
     </div>
     <%# size-9, which is design.md's icon tile token. This was size-10 - close enough to look
         right and still a different size from every other tile in the app. %>
-    <span class="grid size-9 shrink-0 place-items-center rounded-xl bg-amber-50">
-      <%= lucide_icon "trophy", class: "size-5 text-amber-700" %>
-    </span>
+    <%= render "components/ui/icon_tile", icon: "trophy", tone: :warning %>
   </div>
 </div>

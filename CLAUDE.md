@@ -73,6 +73,14 @@ with the first and both fill with `PG::TRDeadlockDetected` across unrelated test
 looks exactly like a parallelism bug in the suite and is not one. If you background a
 loop to hunt a flake, do not also run the suite in the foreground.
 
+**Resize the viewport through `in_phone_viewport` / `in_chromebook_viewport`, never
+`resize_to` directly.** Capybara reuses one browser for the whole suite, so a test that resizes
+and does not restore hands a 375px window to whatever runs next. I bypassed the helpers for one
+commit and the *page-header* spacing test started failing about one run in three at 76px instead
+of 24px — at 375px that header stacks, so its 40px action sits below the h1. It reads as a
+spacing regression in an unrelated file, and it passes on rerun. A varying assertion *count*
+between full-suite runs is the tell that state is leaking between tests.
+
 **A factory sequence must not walk into values tests hard-code.** `Grade#level` is
 unique, the sequence was `{ |n| n }`, and eleven tests hard-code levels 5–10. Roughly
 one run in twenty failed with "Level has already been taken" and passed on rerun. The

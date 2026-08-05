@@ -9,28 +9,26 @@
 
     Illustration belongs in empty states and onboarding, not beside a live balance, which is where
     every finance app puts it. %>
+<%# Same shape as the home page's, including the icon on the label's line rather than in a
+    full-height gutter that indents the figure behind it. %>
 <div class="tw-card p-5">
-  <div class="flex items-start gap-4">
-    <span class="grid size-9 shrink-0 place-items-center rounded-xl bg-emerald-50">
-      <%= lucide_icon "piggy-bank", class: "size-5 text-emerald-700" %>
-    </span>
-
-    <div class="min-w-0">
-      <p class="text-sm font-medium text-slate-600">My earnings to invest</p>
-      <p class="mt-1 text-2xl font-semibold tracking-tight text-slate-900 tabular-nums">
-        <%= number_to_currency(@portfolio.cash_balance) %>
-      </p>
-
-      <% if !current_user.student? %>
-        <%# Was bg-slate-400 with slate-700 ink: 4.04:1, under the 4.5:1 gate for text, in a
-            hand-rolled rounded-full pill. tw-btn-primary-disabled is the named token. %>
-        <span aria-disabled="true" class="tw-btn-primary-disabled mt-3 w-fit">Invest now</span>
-      <% elsif !current_page?(stocks_path) %>
-        <%# No CTA when the card is already on the trading floor: it linked to stocks_path from
-            stocks#index, so the page's one filled primary went nowhere. The balance is still worth
-            showing there, which is why the card stays. %>
-        <%= link_to "Invest now", stocks_path, class: "tw-btn-primary mt-3 w-fit" %>
-      <% end %>
-    </div>
+  <div class="flex items-center gap-2">
+    <%= render "components/ui/icon_tile", icon: "piggy-bank", tone: :success, sm: true %>
+    <p class="text-sm font-medium text-slate-600">My earnings to invest</p>
   </div>
+
+  <p class="mt-2 text-2xl font-semibold tracking-tight text-slate-900 tabular-nums">
+    <%= number_to_currency(@portfolio.cash_balance) %>
+  </p>
+
+  <% if !current_user.student? %>
+    <%# Was bg-slate-400 with slate-700 ink: 4.04:1, under the 4.5:1 gate for text, in a
+        hand-rolled rounded-full pill. tw-btn-primary-disabled is the named token. %>
+    <span aria-disabled="true" class="tw-btn-primary-disabled mt-3 w-fit">Invest now</span>
+  <% elsif !current_page?(stocks_path) %>
+    <%# No CTA when the card is already on the trading floor: it linked to stocks_path from
+        stocks#index, so the page's one filled primary went nowhere. The balance is still worth
+        showing there, which is why the card stays. %>
+    <%= link_to "Invest now", stocks_path, class: "tw-btn-primary mt-3 w-fit" %>
+  <% end %>
 </div>

@@ -515,6 +515,40 @@ it is the **zero-balance state**, which is a real empty state - not the card tha
 `1_Number` through `4_Number`). Removing them is a call for whoever owns the brand assets, not a
 cleanup to do quietly - see design-todo.
 
+### A card's leading icon goes on the title's line, and a numeral is a tile
+
+This document had already ruled on both of these, and both were rediscovered on the home page.
+
+**The icon belongs on the title's line, never in a column beside the whole card.** `_card` takes
+`icon:` and `icon_tone:` and renders a 32px tile in the header row. An `items-start` icon column
+indents *every* body line behind it, so the content hangs off the icon instead of the card edge:
+
+| Card | Body indent before | After |
+|---|---|---|
+| Earnings to invest (home) | **77px** | flush |
+| My earnings to invest (trading floor) | 61px | flush |
+| case-contact card (recorded earlier) | ~48px | 0 |
+
+The home figure is the worst case, because the indented line was the cash balance — the one number
+a student opens the app to read. `icon_tile_test.rb` asserts the balance sits at the card's padding
+edge on both pages.
+
+**A numeral is a tile, not a filled disc.** The getting-started steps were white numerals on
+`bg-sitf-primary` at `rounded-full` — four saturated brand discs shouting over the copy they label,
+against this document's own rule that the tile carries the hue and **a numeral is always
+`slate-900`**. `_icon_tile` takes `label:` for this, so a step number is the tile pattern with a
+digit in it, at `rounded-xl` and 16.28:1.
+
+**A numbered sequence needs an unambiguous reading order.** The four steps were a 2x2 grid, where
+1,2 reads across and 1,3 reads down and nothing in the layout says which. Four short columns at
+`lg` read left to right the way the numerals claim, and stack to one column at 375px. This is the
+shape Stripe and Shopify use for "how it works", and neither draws connectors between them —
+which also avoids a decoration that only makes sense at one width.
+
+**A card header may lead with a tile where the card is one of several sibling sections** and the
+icon helps a reader find the one they want — the home page's three sections do. It is not for every
+card; a card whose title is already unambiguous in context does not need one.
+
 ### Spacing rhythm: 24px, and the container owns it
 
 **Sections and cards separate by 24px** — `space-y-6`, `gap-6`, `mb-6`. Nothing in the app was
@@ -899,8 +933,26 @@ the only thing stating a real boundary, which is what a card header is.
   `tailwind.css` (no CDN). Vendored from the `bootstrap-icons` (icons) + `@fontsource/figtree`
   (font) npm packages via `npm i --no-save`, with `url()` rewritten to the `public/vendor/` paths.
 - **Icon tile pattern** — icons representing a *stat or status* sit on a soft
-  colored rounded background:
-  `grid place-items-center h-9 w-9 rounded-xl bg-{semantic}-50 text-{semantic}-600`.
+  colored rounded background. It is a component: **`components/ui/_icon_tile`**, with
+  `icon`, `tone` and `sm`. Do not write it longhand; it existed longhand in six places
+  with the tone spelled inline, which is the shape this document warns about elsewhere —
+  a style written in more than one place survives every sweep of one of them.
+
+  Two sizes, and what decides is what the glyph sits next to:
+
+  | | Box | Glyph | For |
+  |---|---|---|---|
+  | default | 36px | 20px | the tile is the subject — a KPI card, an empty state |
+  | `sm` | 32px | 16px | on a title's line in a card header, where 36px would out-height the 16px title |
+
+  **The tones are the badge's tones** (`:neutral` `:success` `:warning` `:danger` `:info`),
+  so a tile and a badge for the same state cannot drift apart. That fixes a discrepancy this
+  document carried: the line here read `text-{semantic}-600` while the badge and all six
+  hand-written tiles used `-700`. `-700` wins — it is what shipped, and it has more contrast
+  headroom (measured 6.28:1 and 6.92:1 for the blue and slate tiles against their own tints,
+  against a 3:1 bar). There is no `sky` tone; the admin dashboard had three tiles on
+  `bg-sky-50 text-sky-700`, a second blue beside `:info`'s.
+
   Use for KPI cards, section headers, and list-item leading icons.
   **Do not** use bare floating icons or ringed white "avatar" circles for status
   contexts — reserve initial-avatars for representing *people* only.
