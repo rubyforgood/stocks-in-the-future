@@ -4,7 +4,10 @@
 
   <%= form_with model: [@classroom, @student], local: true, class: "space-y-6" do |f| %>
     <% if @student.errors.any? %>
-      <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-smrelative" role="alert">
+      <%# "rounded-smrelative" - rounded-sm and relative fused into one token, so the browser
+          applied neither. Tokens: red-50 tint with a red-200 hairline and red-700 ink, matching
+          the callout's alert shape, at the rounded-2xl panel radius. %>
+      <div class="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-red-700" role="alert">
         <strong class="font-bold">Error:</strong>
         <ul>
           <% @student.errors.full_messages.each do |message| %>

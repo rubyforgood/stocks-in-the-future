@@ -327,6 +327,28 @@ signed-out `main` is `p-4 lg:p-6` rather than a flat `p-6`.
    unaffected.
 3. **The app bar trigger is no longer teal**, so a test looking for that fill would fail.
 
+### Coloured bands and hue-coded panels removed
+
+**What.** The grade books list's `bg-amber-300` band is a card title. `admin/students#show`'s four
+figure panels are neutral. `stocks#show` no longer renders the flash a second time.
+`admin/teachers/_form`'s notice is `components/ui/_callout`. The `rounded-smrelative` class in both
+student forms is fixed.
+
+**Why it has blast radius.**
+
+1. **`rounded-smrelative` was two fused tokens** - `rounded-sm` and `relative` - so the browser
+   applied neither. Anything that looked correct because of "relative" on those error panels was
+   never actually positioned.
+2. **`stocks#show` showed a duplicate notice.** Removing it means one flash, from the layout. A test
+   asserting two would now fail, correctly.
+3. **The teachers-form notice changed shape**: its title is a `<p>` inside `[role=status]` rather
+   than an `<h3>`, its copy changed, and the link is a trailing action labelled "Update classrooms"
+   rather than "update classrooms" mid-sentence. One controller test asserted all three.
+4. **`admin/students#show`'s figure labels are `slate-600`** rather than blue/green/purple-700. The
+   `data-testid` hooks are unchanged.
+5. **The grade books list is a card**, so its markup gained a wrapper and its empty case is the
+   shared empty state rather than centred `slate-500` text.
+
 ### Off-brand mint swept out of the app
 
 **What.** `sitf-primary` is `#00698c`, a blue-teal; Tailwind's `teal-*` is a mint. Five places

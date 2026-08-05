@@ -27,8 +27,12 @@
     <% if @student.portfolio.present? %>
       <%= render layout: "components/ui/card", locals: { title: "Portfolio details" } do %>
         <div class="grid grid-cols-1 gap-4 lg:grid-cols-4">
-          <div class="rounded-lg bg-blue-50 p-4">
-            <div class="mb-1 text-xs font-medium text-blue-700" data-testid="cash_balance_label">
+          <%# Neutral, not hue-coded. These were blue-50 / green-50 / purple-50 panels beside a
+              slate-50 one - four figures, three arbitrary hues and no icon to carry them.
+              design.md hue-codes a KPI's *icon tile*, never the panel fill, and says a numeral is
+              always slate-900 and never carries state. Same fix as the order modal's pair. %>
+          <div class="rounded-lg bg-slate-50 p-4">
+            <div class="mb-1 text-xs font-medium text-slate-600" data-testid="cash_balance_label">
               Cash balance
             </div>
             <div class="text-2xl font-bold text-slate-900 tabular-nums">
@@ -36,10 +40,8 @@
             </div>
           </div>
 
-          <%# green-600 on green-50 measured 3.4:1, below the 4.5:1 gate for text this
-              size. green-700 is 4.8:1. %>
-          <div class="rounded-lg bg-green-50 p-4">
-            <div class="mb-1 text-xs font-medium text-green-700" data-testid="total_portfolio_worth_label">
+          <div class="rounded-lg bg-slate-50 p-4">
+            <div class="mb-1 text-xs font-medium text-slate-600" data-testid="total_portfolio_worth_label">
               Total portfolio worth
             </div>
             <div class="text-2xl font-bold text-slate-900 tabular-nums">
@@ -47,8 +49,8 @@
             </div>
           </div>
 
-          <div class="rounded-lg bg-purple-50 p-4">
-            <div class="mb-1 text-xs font-medium text-purple-700">Total stocks</div>
+          <div class="rounded-lg bg-slate-50 p-4">
+            <div class="mb-1 text-xs font-medium text-slate-600">Total stocks</div>
             <div class="text-2xl font-bold text-slate-900 tabular-nums">
               <%= @student.portfolio.portfolio_stocks.sum(:shares).to_i %>
             </div>

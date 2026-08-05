@@ -1,10 +1,8 @@
 <div class="min-h-full">
   <div class="max-w-7xl mx-auto py-6 space-y-6">
-    <% if notice.present? %>
-      <div class="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg mb-6">
-        <p class="font-medium"><%= notice %></p>
-      </div>
-    <% end %>
+    <%# The flash used to be rendered again here, in a hand-rolled green panel, so a notice showed
+        twice: once from layouts/_flash and once inside the page. design.md: only the layout renders
+        the flash. %>
 
     <!-- Header with stock symbol and company name -->
     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">

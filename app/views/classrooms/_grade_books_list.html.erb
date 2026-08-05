@@ -1,26 +1,30 @@
-<div class="mt-8 w-64 flex-initial">
-  <h2 class="bg-amber-300 py-3 px-5 font-medium text-sm tracking-wide rounded-t-xl">
-    <%= lucide_icon("book", class: "w-4 h-4 shrink-0") %>
-    Grade books
-  </h2>
+<%# The title was a saturated bg-amber-300 band at tracking-wide with rounded-t-xl, sitting above a
+    separate rounded-md list - so the band's square bottom corners met a rounded box, two radii and
+    a colour none of which are in the token set. The twin of the band the earnings breakdown card
+    had. A card title is text-base font-semibold behind a hairline, which is what the component
+    does; the list is the card's flush body.
 
-  <% if grade_books.any? %>
-    <ul class="divide-y divide-slate-200 bg-white rounded-md shadow">
-      <% grade_books.each do |book| %>
-        <li class="px-6 py-4 hover:bg-slate-50">
-          <%= link_to classroom_grade_book_path(@classroom, book),
-                      class: "tw-link font-medium" do %>
-            <span class="flex flex-between items-center justify-between w-full">
+    The empty case is the shared empty state rather than centre-aligned slate-500 text. %>
+<div class="mt-8 w-64 flex-initial">
+  <%= render layout: "components/ui/card", locals: { title: "Grade books", padded: false } do %>
+    <% if grade_books.any? %>
+      <ul class="divide-y divide-slate-100">
+        <% grade_books.each do |book| %>
+          <li>
+            <%= link_to classroom_grade_book_path(@classroom, book),
+                        class: "flex items-center justify-between gap-2 px-5 py-3 text-sm font-medium text-slate-900 transition-colors hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary" do %>
               <%= book.quarter.name %>
-              <%= lucide_icon("arrow-right", class: "w-4 h-4 shrink-0") %>
-            </span>
-          <% end %>
-        </li>
+              <%= lucide_icon("arrow-right", class: "size-4 shrink-0 text-slate-500") %>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <%= render layout: "components/ui/empty_state",
+                 locals: { icon: "book", compact: true,
+                           title: "No grade books yet",
+                           body: "They appear here once the school year's quarters have them." } do %>
       <% end %>
-    </ul>
-  <% else %>
-    <div class="text-center py-8 text-slate-500">
-      No grade books created for this classroom yet.
-    </div>
+    <% end %>
   <% end %>
 </div>

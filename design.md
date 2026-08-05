@@ -353,6 +353,38 @@ implies a student did something wrong when the market moved.
 *purchase* (celebrating buying is the opposite lesson, and a streak makes not trading feel like
 failure when doing nothing is usually right), and a classroom leaderboard.
 
+### A card header is never a coloured band
+
+A card's title is `text-base font-semibold` behind a hairline - the `_card` component. It is **never a
+filled strip**, and the app had three of them, each in a different hue, each with its own radius and
+its own off-scale type:
+
+| Where | Was |
+|---|---|
+| The earnings breakdown | `bg-amber-300` at `tracking-wide`, `rounded-t-xl` inside a `rounded-2xl` card |
+| `announcements#show` | `bg-teal-700` white-on-mint at `text-lg tracking-wide` |
+| The grade books list | `bg-amber-300`, `rounded-t-xl`, sitting on a separate `rounded-md shadow` list |
+
+The third is the clearest case of why this matters: the band's square bottom corners met a rounded
+box below it, so the "card" was two boxes with three radii between them. **`rounded-t-*` on anything
+is the tell** - a top-only radius exists to fuse a band to something, which the component already
+does properly.
+
+**Related, same root:** a tint is for a *message*, not a *figure*. `admin/students#show` had four
+portfolio figures on `blue-50` / `green-50` / `purple-50` / `slate-50` panels - three arbitrary hues
+and no icon to carry them - and the order modal had a mint panel beside an indigo one. All neutral
+now. This document hue-codes a KPI's **icon tile**, never its panel fill, and a numeral is always
+`slate-900`.
+
+**Only the layout renders the flash.** `stocks#show` rendered `notice` a second time in its own green
+panel, so a notice appeared twice on that page.
+
+**Notices go through `components/ui/_callout`**, which is why it exists. `admin/teachers/_form` had a
+hand-rolled `yellow-50` panel with an inline SVG and a link buried mid-sentence; the link is the
+callout's trailing action now - a message plus the thing to do about it. `layouts/_flash` deliberately
+stays hand-rolled: it carries `id`s that tests target, `aria-live`, and `role="alert"` for errors,
+which is an interrupting semantic a passive callout should not have. Its tokens already match.
+
 ### The brand is a blue-teal. Tailwind's `teal-*` is a mint, and is not it
 
 `sitf-primary` is **`#00698c`**, a blue-teal. Tailwind's `teal-50` / `teal-700` are the **mint green**

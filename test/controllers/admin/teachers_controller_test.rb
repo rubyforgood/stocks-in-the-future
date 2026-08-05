@@ -138,9 +138,12 @@ module Admin
       assert_response :success
       assert_select "h1", "New teacher"
 
-      assert_select "h3", text: "No classrooms available"
-      assert_select "p", text: /No Classrooms associated with this school and active year/
-      assert_select "a[href='#{admin_classrooms_path}']", text: "update classrooms"
+      # The notice is components/ui/_callout now, so its title is a <p> rather than an <h3> - it is
+      # a message in a form, not a section heading - and the link is the callout's trailing action
+      # rather than a link buried mid-sentence.
+      assert_select "[role='status']", text: /No classrooms available/
+      assert_select "[role='status']", text: /No classrooms are associated with this school/
+      assert_select "a[href='#{admin_classrooms_path}']", text: /Update classrooms/
     end
 
     test "new shows classrooms when available" do
