@@ -21,6 +21,18 @@ Rails.application.routes.draw do
     resources :portfolios, only: :show
   end
 
+  # Your own account. design-todo recorded that there was no profile page: a top-level
+  # UsersController was routed for seven actions and had never existed, and Devise's
+  # registrations#edit demanded the current password before you could change anything - so a
+  # student, who signs in with a username and may have no email, had no way to set a display name.
+  #
+  # Password lives on its own action because changing a display name should not require the
+  # current password, and changing a password must. One form each, the way GitHub and Stripe
+  # split them.
+  resource :profile, only: %i[edit update] do
+    patch :password
+  end
+
   resources :classrooms, except: [:destroy] do
     member do
       patch :toggle_trading

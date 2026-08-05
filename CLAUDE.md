@@ -99,6 +99,18 @@ there should be no `dark:`.
 regex cannot see an attribute on the following line, so "images without alt" counts every
 multi-line `image_tag`. Read the hits before recording a count.
 
+**`form_with` takes `scope:`, not `as:`** — and `as:` is accepted silently into `**options`, so the
+fix looks applied and changes nothing. This matters here because **`User` is an STI base**:
+`form_with model: current_user` derives the param key from the record's class, so a Student posts
+`student[name]` and a Teacher `teacher[name]`. A controller expecting `user` gets
+`ActionController::ParameterMissing` and returns **400** for every submit. The rendered input names
+are the only proof either way.
+
+**A controller test that hand-writes its params cannot catch that.** `patch profile_path, params: { user: { … } }`
+passes against a form that posts `student[…]`, because it agrees with the controller rather than with
+the browser. Eight controller tests passed while every real submit 400'd. Assert the *rendered*
+field names, or click the button.
+
 ## Money
 
 **Integer cents are authoritative. Never convert to a Float and back.**

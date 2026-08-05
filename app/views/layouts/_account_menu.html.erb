@@ -18,10 +18,12 @@
     the same reason the menu does: shared machines. Students may have no email, so that line is
     omitted rather than rendered blank.
 
-    **No navigation lives in here.** It held "View site" in admin and "My portfolio" in the app;
-    both are destinations, both are now in the sidebar where the app's Admin row already was.
+    **No product navigation lives in here.** It held "View site" in admin and "My portfolio" in the
+    app; both are destinations, both are now in the sidebar where the app's Admin row already was.
     A destination hidden behind an avatar is not discoverable, and "My portfolio" was a second
-    copy of a row the sidebar already had.
+    copy of a row the sidebar already had. "Edit profile" is the exception every reference makes -
+    it is an account action, about the identity this panel exists to show, and nowhere else in the
+    chrome would carry it.
 
     No rule separates the identity block from the actions - it sits on a slate-50 tint
     instead, so the panel groups without drawing a divider. %>
@@ -57,6 +59,10 @@
         <%= render "components/ui/badge", label: account_role_label(current_user), tone: :info %>
       </div>
     </div>
+
+    <%# Edit profile above Sign out, which is the order GitHub, Google, Stripe and Linear all use -
+        the destructive-ish action last. The item was absent because the page did not exist. %>
+    <%= link_to "Edit profile", edit_profile_path, class: item_class %>
 
     <%= link_to "Sign out", destroy_user_session_path,
                 data: { turbo_method: :delete },

@@ -515,6 +515,32 @@ it is the **zero-balance state**, which is a real empty state - not the card tha
 `1_Number` through `4_Number`). Removing them is a call for whoever owns the brand assets, not a
 cleanup to do quietly - see design-todo.
 
+### The profile page, and where account actions live
+
+There was no profile page: `resources :users` routed seven actions to a controller that had never
+existed, and the only reachable substitute was Devise's `registrations#edit`, which demands the
+current password before it will save anything.
+
+**Two forms, because the two changes cost different things.** Setting a display name must not
+require proving your password; changing a password must. GitHub, Stripe and Linear all split them,
+and the merged version is the specific reason `registrations#edit` was unusable here — a student
+who wanted a display name had to prove a password they may have just been given.
+
+**The page's primary is "Save details"; the password submit is secondary.** One filled primary per
+page, and a second card's submit is the sub-form case this document already names.
+
+**Username is shown, not edited.** It is what a student signs in with and a teacher assigns it, so
+it renders `readonly` rather than `disabled` — a disabled field is skipped by keyboard navigation,
+which puts the value a student needs to remember out of reach.
+
+**"Edit profile" sits above "Sign out" in the account menu**, which is the order GitHub, Google,
+Stripe and Linear use: the destructive-ish action last. It is the one exception to that panel
+holding no navigation — an account action about the identity the panel exists to show, and nowhere
+else in the chrome would carry it.
+
+**A display name changes the avatar.** Initials and tone both derive from `display_name`, which now
+prefers the `name` column — a column that had existed all along with nothing ever reading it.
+
 ### `dark:` is not inert, and there is no dark mode here
 
 `.dark` is declared in `shadcn.css` and **nothing applies it** — no class toggle, no `data-theme`,

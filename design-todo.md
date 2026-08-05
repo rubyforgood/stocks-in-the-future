@@ -85,33 +85,43 @@ hardest on the student who had a bad term - the last person to discourage. If th
 wanted, the shape that survives all three is a **cumulative count** ("earned reading money in 3
 quarters"), which is monotonic and cannot be taken away. Rated below the six that shipped.
 
-### Eight unused images
+### ~~Eight unused images~~ - done (thirteen files, and the count was nine)
 
-`app/assets/images` holds `piggy_bank.png`, `investment-funds.png`, `party_popper.png`,
-`boy_using_computer.png`, `girl_skateboarding_holding_laptop.png` and `1_Number.png` through
-`4_Number.png`. **None is referenced by any view.** The last two in use were the piggy bank and the
-investment-funds illustration, both replaced by icon tiles when the earnings surfaces moved onto
-`.tw-card` - see design.md, "A balance is a numeral on a plain surface".
+Deleted: `piggy_bank.png`, `investment-funds.png`, `party_popper.png`, `boy_using_computer.png`,
+`girl_skateboarding_holding_laptop.png` and `1_Number.png` through `4_Number.png` - **nine**, not
+eight; the heading undercounted its own list.
 
-Deleting brand assets is a decision for whoever owns them rather than a sweep, so they are listed
-rather than removed. If illustration comes back, the place for it is an empty state or onboarding,
-which is where the field puts it.
+Four more went with them, and they are the ones worth remembering: `house.svg`, `id-card.svg`,
+`receipt.svg` and `chart-no-axes-combined.svg`. **Their filenames match Lucide icon names**, so a
+grep for `house` finds `lucide_icon("house")` and reports the file as used. It is not - `lucide_icon`
+renders from the gem, and nothing `image_tag`s any of them. All four exist in
+`lucide-rails/icons/stripped/`.
 
-### There is no user profile page
+**`SITF-Horz-logo.svg` is kept.** It is unreferenced, but it is the only logo variant carrying the
+tagline, and deleting the sole tagline logo is a brand decision rather than a sweep.
 
-The account menu has no "Edit profile" item because the functionality does not exist:
+### ~~There is no user profile page~~ - done
 
-- `resources :users` routed `index / show / new / edit / create / update / destroy` to a top-level
-  `UsersController` that has never existed, so every one of them raised
-  `uninitialized constant UsersController`. Nothing linked to any of them; the block was only ever
-  there for the nested `resources :portfolios, only: :show`. It is now `resources :users, only: []`.
-- Devise's `registrations#edit` (`/users/edit`) *is* routed and reachable, but it is unstyled
-  generator output and requires the current password to save anything. Students sign in with a
-  username and may have no email at all, so it is not a usable profile page for them either.
+`/profile/edit`, via a new `ProfilesController`. Two forms, because the two changes cost different
+things: a display name should not require proving your password, and a password change must. That
+merge is exactly why Devise's `registrations#edit` was never usable here.
 
-A real profile page would be: change your own password, and set a display name. Once it exists, the
-account menu's item goes above Sign out - the panel is already built for it (`item_class` and the
-identity block are in place).
+The display name writes the `users.name` column, which **had existed all along with nothing reading
+it** - `display_name` was `username.presence || …`, so a user had no name they could set. It prefers
+`name` now, which also means the avatar initials and tone follow it.
+
+Username is shown `readonly` rather than edited: it is the sign-in key and a teacher assigns it. And
+"Edit profile" now sits above "Sign out" in the account menu, which the panel was already built for.
+
+**The bug it shipped with is the lesson.** `User` is an STI base, so `form_with model: current_user`
+scoped its fields to `student[…]` / `teacher[…]` while the controller expected `user`, and every
+submit was a 400. Ten controller tests passed throughout, because a test that hand-writes
+`params: { user: … }` agrees with the controller rather than with the browser. Two further traps in
+one fix: `form_with` takes `scope:`, not `as:` - and it swallows `as:` silently, so the first fix
+looked applied and changed nothing.
+
+**Still open, and now a duplicate:** Devise's `registrations#edit` is routed and reachable, and
+overlaps this page. Decide whether `/users/edit` should redirect here.
 
 ### `Admin::FormBuilder` field styling is still pre-token
 
@@ -416,3 +426,11 @@ pass itself are worth keeping:
 **Left with whoever owns the decision**, each with what it needs written above: the eight unused
 images, the three product decisions blocking Tier 3, a real profile page, making "Getting started"
 stateful, and the 20 unreferenced palette values.
+
+## Profile page follow-ups (2026-08)
+
+- **`devise/registrations#edit` now duplicates `/profile/edit`.** Both let you change email and
+  password; only the profile page lets you set a display name, and only Devise's demands the current
+  password to change anything. Point `/users/edit` at the profile page, or delete the Devise view
+  and narrow the route.
+- **`SITF-Horz-logo.svg` is unreferenced** - the only tagline logo, kept deliberately.

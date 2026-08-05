@@ -54,8 +54,10 @@ class User < ApplicationRecord
     teacher? || admin?
   end
 
+  # `name` first: the column has existed all along and nothing ever showed it, so a user had no
+  # display name they could set. Falls back to the username, which is what a student signs in with.
   def display_name
-    username.presence || email&.split("@")&.first || "User"
+    name.presence || username.presence || email&.split("@")&.first || "User"
   end
 
   def email_required?

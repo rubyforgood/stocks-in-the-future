@@ -327,6 +327,34 @@ signed-out `main` is `p-4 lg:p-6` rather than a flat `p-6`.
    unaffected.
 3. **The app bar trigger is no longer teal**, so a test looking for that fill would fail.
 
+### A real profile page, and thirteen image files deleted
+
+**What.** New `ProfilesController` (`edit` / `update` / `password`), `resource :profile`,
+`profiles/edit` with two forms, an "Edit profile" item in the account menu, `User#display_name`
+preferring the `name` column, and thirteen unused files removed from `app/assets/images`.
+
+**Why it has blast radius.**
+
+1. **`User#display_name` now prefers `name` over `username`.** The column existed and nothing read
+   it. Avatar initials *and* avatar tone derive from `display_name`, so the first user to set a name
+   changes their initials and their colour everywhere. That is the intent, but any test pinning an
+   avatar letter for a user with a `name` will break.
+2. **Thirteen image files are gone**: nine illustrations (`piggy_bank`, `investment-funds`,
+   `party_popper`, `boy_using_computer`, `girl_skateboarding_holding_laptop`, `1_Number`–`4_Number`)
+   and four SVGs (`house`, `id-card`, `receipt`, `chart-no-axes-combined`). The SVGs are the
+   dangerous ones to reason about: their names match Lucide icon names, so a grep for `house` finds
+   `lucide_icon("house")` and reports the *file* as used. It is not — `lucide_icon` renders from the
+   gem. **`SITF-Horz-logo.svg` is kept**: it is the only version with the tagline, and deleting the
+   sole tagline logo is a brand call rather than a sweep. The backlog called this "eight unused
+   images" and listed nine.
+3. **The account menu has a second item**, so a test counting `a[href*='edit']` unscoped now finds
+   one more link. `admin/students_controller_test` did exactly that.
+4. **`profiles/edit` scopes both forms with `scope: :user`.** Without it, STI makes a Student post
+   `student[name]` and the controller 400s. `scope:` is the keyword; `as:` is silently ignored by
+   `form_with`.
+5. Devise's `registrations#edit` is still routed and still reachable. This does not replace it, and
+   the two now overlap - deciding whether to route `/users/edit` at the profile page is a follow-up.
+
 ### The backlog closed out: form builder, tokens, Devise, classrooms#show
 
 **What.** `Admin::FormBuilder`'s remaining pre-token styling; the order modal's four 44px buttons;

@@ -178,6 +178,11 @@ en:
       notice: Order was successfully destroyed.
     update:
       notice: Order was successfully updated.
+  profiles:
+    password:
+      success: Your password was changed.
+    update:
+      success: Your profile was updated.
   students:
     add_transaction:
       errors:

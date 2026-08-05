@@ -49,7 +49,9 @@ module Admin
 
       assert_response :success
       assert_select "tbody tr", count: 3
-      assert_select "a[href*='edit']", count: 2
+      # Scoped to the table body. As `a[href*='edit']` this also counted the account menu's
+      # "Edit profile" link, so adding a profile page broke a test about student rows.
+      assert_select "tbody a[href*='/edit']", count: 2
     end
 
     test "show" do
