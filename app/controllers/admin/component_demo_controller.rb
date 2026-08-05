@@ -62,18 +62,6 @@ module Admin
       ]
     end
 
-    # Design previews of delight proposals, none of which are built. Development only: these are
-    # mock-ups of things to decide on, not components anyone should be adopting yet, and a live
-    # page of hypothetical UI is worse than no page.
-    def delight
-      raise ActionController::RoutingError, "Not Found" unless Rails.env.development?
-
-      @breadcrumbs = [
-        { label: "Components", path: admin_component_demo_index_path },
-        { label: "Delight previews" }
-      ]
-    end
-
     def form
       @user = User.first || User.new(email: "", name: "", admin: false)
 

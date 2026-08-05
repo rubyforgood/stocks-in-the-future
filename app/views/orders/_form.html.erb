@@ -39,20 +39,23 @@
 
   <!-- Account Info -->
   <div class="grid grid-cols-2 gap-4 mb-6">
-    <div class="bg-teal-700/10 border border-teal-700/20 p-4 rounded-lg text-center">
-      <p class="text-sm text-teal-700 font-medium mb-1">
+    <%# Neutral, not hue-coded. This was bg-teal-700/10 with teal-700 ink and its neighbour was
+        sitf-ring/10 with violet-700 - a mint panel beside an indigo one, colouring two account
+        figures for no reason either colour carries. design.md hue-codes a KPI's *icon tile*, never
+        the panel fill, and says a numeral is always slate-900 and never carries state. %>
+    <div class="rounded-lg border border-slate-200 bg-slate-50 p-4 text-center">
+      <p class="mb-1 text-sm font-medium text-slate-600">
         Available cash
       </p>
-      <p class="font-semibold text-black">
+      <p class="font-semibold text-slate-900">
         <%= number_to_currency(current_user&.portfolio&.cash_balance) %>
       </p>
     </div>
-    <div class="bg-sitf-ring/10 border border-sitf-ring/20 p-4 rounded-lg text-center">
-      <%# violet-500 measured 4.23:1 on this near-white panel and failed AA; violet-700 is 7.10:1. %>
-      <p class="text-sm text-violet-700 font-medium mb-1">
+    <div class="rounded-lg border border-slate-200 bg-slate-50 p-4 text-center">
+      <p class="mb-1 text-sm font-medium text-slate-600">
         Shares owned
       </p>
-      <p class="font-semibold text-black" data-testid="shares-owned-value">
+      <p class="font-semibold text-slate-900" data-testid="shares-owned-value">
         <%= shares_owned %>
       </p>
     </div>

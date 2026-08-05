@@ -22,6 +22,12 @@ module AvatarHelper
     "bg-teal-100 text-teal-800"
   ].freeze
 
+  # The teal above survived a sweep for off-brand mint on purpose. Tailwind's teal is a mint and
+  # the brand is #00698c, a blue-teal - but an avatar tone does not represent the brand, it tells
+  # two people apart, and design.md sanctions hue rotation for exactly that. Swapping it would also
+  # change the colour of every person who hashes to it, which breaks the promise three lines up
+  # that a person keeps the same colour on every screen.
+
   # One letter for a single-word name, two for a name that separates into parts. Usernames
   # here are usually one word, so a single initial is the common case.
   def avatar_initials(user)

@@ -353,6 +353,39 @@ implies a student did something wrong when the market moved.
 *purchase* (celebrating buying is the opposite lesson, and a streak makes not trading feel like
 failure when doing nothing is usually right), and a classroom leaderboard.
 
+### The brand is a blue-teal. Tailwind's `teal-*` is a mint, and is not it
+
+`sitf-primary` is **`#00698c`**, a blue-teal. Tailwind's `teal-50` / `teal-700` are the **mint green**
+family, and so is the brand's own unused secondary (`--sitf-secondary-chart2: #1db8a6`, a *chart*
+colour by its own name). Reaching for `teal-*` to mean "the brand" gets you a different hue, and it
+happened five times:
+
+| Where | Was | Now |
+|---|---|---|
+| The first-share banner | a bespoke `bg-teal-50` panel | `_callout` `:info` |
+| `announcements#show` | a saturated `bg-teal-700` title band | the page's `h1` on `_page_header` |
+| The order modal | `bg-teal-700/10` beside an indigo panel | both neutral `bg-slate-50` |
+| `_badge` `:brand` tone | `bg-teal-50 text-teal-700`, **used nowhere** | deleted |
+| The delight preview | a teal mock of a shipped feature | deleted |
+
+**Two of these were saturated bands on a card**, which is the same drift the earnings breakdown had
+in amber: a coloured strip where the card component's header belongs. A card title is
+`text-base font-semibold` behind a hairline, never a filled band.
+
+**An unused off-brand tone is the worst case**, and the badge's `:brand` was exactly that: whoever
+adopted it would have been reaching for the brand and would not have got it. Delete rather than
+correct, when nothing uses it.
+
+**What legitimately stays mint:** the avatar tone rotation in `AvatarHelper` includes
+`bg-teal-100 text-teal-800`. An avatar tone does not represent the brand - it tells two people apart,
+which is the categorical use this document already sanctions - and changing the palette would change
+the colour of everyone who hashes to it, breaking the promise that a person looks the same on every
+screen.
+
+**The token file has two different mints for one role** (`--sitf-secondary-chart2` and the legacy
+`--sitf-secondary-teal: #00b8b0`), neither used anywhere. Pick one deliberately and delete the other
+rather than grepping for whichever appears first.
+
 ### Badges
 **One component: `components/ui/_badge`**, matching the Status pill base above:
 `inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium`, with a tone:

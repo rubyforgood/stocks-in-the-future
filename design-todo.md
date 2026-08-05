@@ -170,11 +170,16 @@ Counts are indicative, found by pattern matching - confirm by reading the file.
 
 ## Cross-cutting work items
 
-### Delight: built, with one thing still open
+### Delight: built
 
 The six recommended features are implemented on `portfolios#show` - see design.md, "Delight on the
-student side". The previews at `/admin/component_demo/delight` are still there, development only, and
-can be deleted.
+student side". **The preview page is deleted**: its proposals shipped, so it had become a stale copy
+showing a teal panel and a party-popper the built version does not use - an off-brand mock of a
+brand-corrected feature, which is worse than no page.
+
+**One token decision left open:** `--sitf-secondary-chart2` (#1db8a6) and the legacy
+`--sitf-secondary-teal` (#00b8b0) are two different mints for one role, neither used anywhere. Pick
+one deliberately and delete the other.
 
 **The reading streak is closed, not open: decided against.** Earnings are distributed when an adult
 clicks Finalize on a grade book (`grade_books_controller#finalize`), and a school year has four

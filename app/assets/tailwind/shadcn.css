@@ -44,6 +44,15 @@
   --sitf-foreground: #000000;
   --sitf-primary-chart1: #00698c;
   --sitf-primary-secondary-foreground-card: #ffffff;
+  /* The brand's secondary is a mint, and it is a chart colour - the "chart2" in its own name.
+     Nothing in the app uses it, and nothing should reach for it expecting the brand: the brand is
+     --sitf-primary-chart1 (#00698c), a blue-teal. Tailwind's teal-* is this mint family too, which
+     is how a mint banner, a mint card band, a mint panel in the order modal and an unused mint
+     badge tone all got shipped as if they were brand-coloured.
+
+     Note the legacy block below also defines --sitf-secondary-teal (#00b8b0). Two different mints
+     for one role, neither used. Whoever needs a secondary should pick one deliberately and delete
+     the other rather than grepping for whichever appears first. */
   --sitf-secondary-chart2: #1db8a6;
   --sitf-accent1-chart3: #D3DF44;
   --sitf-accent2-chart5: #F59E0B;

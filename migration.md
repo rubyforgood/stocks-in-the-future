@@ -327,6 +327,25 @@ signed-out `main` is `p-4 lg:p-6` rather than a flat `p-6`.
    unaffected.
 3. **The app bar trigger is no longer teal**, so a test looking for that fill would fail.
 
+### Off-brand mint swept out of the app
+
+**What.** `sitf-primary` is `#00698c`, a blue-teal; Tailwind's `teal-*` is a mint. Five places
+treated the mint as the brand and are corrected: the first-share banner, `announcements#show`'s
+title band, the order modal's two hue-coded panels, the `_badge` `:brand` tone (deleted, unused),
+and the delight preview page (deleted).
+
+**Why it has blast radius.**
+
+1. **`_badge` no longer has a `:brand` tone.** Passing `tone: :brand` now silently falls back to
+   `:neutral` rather than raising. Nothing used it.
+2. **`announcements#show` gained an `h1`** and lost its coloured band. The page had no heading at
+   all before, so anything asserting the title's position or its old classes will need updating.
+3. **`/admin/component_demo/delight` is gone** - route, action, view and its guard test.
+4. **The order modal's panels are neutral**, which also removed the only use of `--sitf-ring` as a
+   surface. That token (`#a5b4fc`) is now unreferenced outside its definition.
+5. **`AvatarHelper` keeps its teal deliberately** - a categorical tone for a person, not a brand
+   colour, and swapping it would change the colour of everyone who hashes to it.
+
 ### The delight cards moved onto the design system
 
 **What.** `_first_share` is `components/ui/_callout` with `:info` rather than a bespoke `teal-50`
