@@ -4,8 +4,18 @@
     Optional, because the archived disclosure's <summary> is already the heading for the table
     inside it - a second one under it would announce the same section twice. %>
 <% if local_assigns[:title].present? %>
-  <h2 class="mb-3 text-base font-semibold text-slate-900"><%= title %></h2>
+  <h2 class="text-base font-semibold text-slate-900"><%= title %></h2>
 <% end %>
+
+<%# One line saying what this table is for. Neither table said anything: a reader had "Active
+    stocks" and "Archived stocks" and no way to know that one is buyable and the other is not, or
+    why a company they remember has moved. design.md's empty states already work this way - say what
+    appears here and what to do about it - and a populated table deserves the same courtesy. %>
+<% if local_assigns[:description].present? %>
+  <p class="mt-1 text-sm text-slate-600"><%= description %></p>
+<% end %>
+
+<div class="mt-3">
 <%# table-fixed, with a width on every column but the first.
     Active stocks and Archived stocks are two separate <table> elements rendered from this one
     partial, and with the default auto layout each sized its columns from its own content: the
@@ -45,3 +55,4 @@
     <% end %>
   </tbody>
 <% end %>
+</div>

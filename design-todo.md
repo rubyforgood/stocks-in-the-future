@@ -447,20 +447,50 @@ stateful, and the 20 unreferenced palette values.
   `discard`, and someone has to decide whether a child may lock themselves out of their coursework.
   Admin Deactivate / Reactivate covers the adult-administered case today.
 
-## Archived stocks: retention needs a column first (2026-08)
+## Decide whether the archived stocks table should exist at all
 
-The trading floor's archived list now surfaces only what a viewer can act on and puts the rest behind
-a disclosure, with each row saying "No longer trading" and, where known, when it was last priced.
-Three things it cannot say, and why:
+**Status: open. Needs a product decision, not a design one.**
 
-- **There is no `archived_at`.** `stocks.archived` is a bare boolean, so nothing records *when* a
-  stock was archived. `last_trading_day` is the nearest date and is what the rows show, but the price
-  job only sets it for stocks it has seen, so it is nil for anything archived before the job ran or
-  never fetched.
-- **Nothing purges them.** No job deletes or ages archived stocks - the list only grows. A retention
-  policy needs `archived_at` to age against, so the column comes first.
-- **Whether they should be purged at all is a product question.** A student's `portfolio_stocks` and
-  `orders` reference stocks by id, so deleting an archived stock would orphan or cascade real
-  financial history. The likely answer is that stocks are never deleted and the *list* is what needs
-  ageing - e.g. hide anything last priced over a year ago from the disclosure, with an admin filter
-  that still shows everything.
+`stocks.archived_at` and `Stock::LIST_RETENTION` are in place, so the archived list now has a date, a
+12-month window, and an exemption for anything you hold. That makes it defensible. It does not make it
+*justified*, and this item exists because the question was never asked.
+
+**Why it is on the list:**
+
+- **Its only action is selling a position you already hold**, and that case is now surfaced separately
+  as "Archived stocks you hold". Once that table exists, the remaining disclosure is a list of
+  companies nobody on the page can buy or sell. Everything it tells a student is history.
+- **It is the second thing on the app's busiest screen.** The trading floor is where the product
+  actually happens, and measured on a 1366x768 Chromebook the usable height is 625px. Anything below
+  the active table competes for that scroll.
+- **The audiences do not overlap.** A student needs the held case, which no longer lives here. An
+  admin already has `admin/stocks`, with archived as a sortable column. A **teacher** is the only
+  reader left without another route - and a teacher cannot trade, so the value to them is oversight of
+  a catalogue they do not administer.
+- **It was noise for most of its life.** Until this pass it listed every archived stock, at any age,
+  with no date, no explanation and an empty actions column, directly under the list of things a
+  student *can* buy.
+- **The cheap alternatives are real.** Give teachers read access to the admin stocks index; or fold
+  archived companies into the active table as a disabled row with a badge, which is what a brokerage
+  does with a delisted holding; or drop it and let `stocks#show` carry the history for anyone with a
+  link.
+
+**What would settle it:** whether a teacher ever needs to see archived companies while looking at the
+trading floor, rather than in an admin list. If not, the disclosure goes and the held table stays.
+
+**Do not close this by deleting the table without checking the teacher case** - the held-stock table
+and the policy that withholds Buy on an archived stock are load-bearing and must survive whatever
+replaces it.
+
+## Archived stocks: retention, answered (2026-08)
+
+- ~~There is no `archived_at`.~~ Added, nullable, and **not backfilled**: `updated_at` is not the
+  archive date, and inventing one in a trading record is worse than admitting it is unknown.
+  `Stock.archived_recently` treats NULL as in-window so nothing silently disappears.
+- ~~Nothing purges them.~~ Nothing ever will. `orders.stock_id` and `portfolio_stocks.stock_id` are
+  `NOT NULL` with foreign keys and both associations are `dependent: :restrict_with_error`, so a
+  traded stock cannot be deleted without destroying a student's history. `Stock::LIST_RETENTION`
+  (12 months) ages the **list**, not the rows, and a stock you hold is exempt.
+- **Still open:** whether `archived_at` should become the source of truth and the boolean go. The
+  migration map is in `migration.md`; steps 4 and 6 (the admin checkbox, and ~30 tests setting
+  `archived: true`) are the work.

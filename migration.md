@@ -327,6 +327,46 @@ signed-out `main` is `p-4 lg:p-6` rather than a flat `p-6`.
    unaffected.
 3. **The app bar trigger is no longer teal**, so a test looking for that fill would fail.
 
+### `stocks.archived_at`, and a retention rule for the archived list
+
+**What.** New nullable `stocks.archived_at`, a `before_save` keeping it true to the `archived` flag,
+`Stock::LIST_RETENTION` (12 months) with a `Stock.archived_recently` scope, and a `description:` on
+`_stocks_table` used by all three tables.
+
+**Migration map, and why the smaller shape was chosen.** The tidier model is Discard's: drop the
+boolean and let `archived_at`'s presence be the fact. That would touch, in order:
+
+1. `Stock.active` / `Stock.archived` scopes -> `where(archived_at: nil)` / `where.not(...)`
+2. `Stock#archived?` -> `archived_at.present?` (currently ActiveRecord's boolean reader)
+3. `StockPolicy#show_trading_link?`, which calls `record.archived?`
+4. `admin/stocks/_form`'s `boolean_field :archived` -> a control that writes a timestamp
+5. `admin/stocks` index and show, which display the flag
+6. seeds and roughly 30 test references that set `archived: true`
+7. finally, `remove_column :stocks, :archived`
+
+Each step is safe alone, but 4 and 6 are where it breaks: an admin checkbox has to translate to a
+timestamp, and every `create(:stock, archived: true)` has to change. **Not done**, because the
+user-visible need was a date and a retention rule, and both work with the flag intact. The invariant
+is enforced in one `before_save` so the two columns cannot disagree.
+
+**Why it has blast radius.**
+
+1. **Every save of an archived stock now writes `archived_at`.** The price job saves these rows on a
+   weekday schedule; `||=` means it will not drag the date forward, and a test pins that.
+2. **Un-archiving clears the date.** A stock archived, restored, then archived again reports the
+   second date. That is deliberate - the alternative reports a date that was true of a different
+   listing.
+3. **Existing archived stocks have `archived_at = NULL` and were not backfilled.** They stay listed
+   indefinitely, because `archived_recently` treats NULL as in-window. If a backfill is ever wanted
+   it needs a real source for the date, not `updated_at`.
+4. **The archived list is now filtered.** A stock archived more than 12 months ago disappears from
+   the trading floor unless the viewer holds it. Nothing is deleted, and `admin/stocks` still shows
+   everything, but a test asserting a specific archived stock appears on `stocks#index` will fail once
+   that stock ages out.
+5. **No index on `archived_at`.** `strong_migrations` wants `algorithm: :concurrently`, which is the
+   right rule for a table big enough to lock; this one holds the companies a classroom can trade,
+   where a sequential scan wins. Add one if the catalogue reaches the thousands.
+
 ### The trading floor header, and the archived list
 
 **What.** `stocks/index` renders `components/ui/_page_header` with a compact cash figure;

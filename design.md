@@ -670,6 +670,61 @@ first row 296px -> 206px.
 misalign because of a class; it misaligns because it is three times the height of the thing the row
 was built to hold.
 
+### Retention here is a display rule, and it has to be
+
+`stocks.archived_at` records when a company was archived; nothing did before, so the trading floor
+could say a company had closed but never since when.
+
+**Nothing deletes an archived stock and nothing should.** `orders.stock_id` and
+`portfolio_stocks.stock_id` are both `NOT NULL` with foreign keys, and both associations are
+`dependent: :restrict_with_error`. A stock a student has ever traded cannot be removed without
+destroying that student's trade history — which in this product is a child's record of what they
+learned. So there is no purge, and the rule is about the **list**:
+
+- `Stock::LIST_RETENTION` is **12 months**, and `Stock.archived_recently` is what the trading floor
+  lists. A school year is the unit this app already thinks in — a classroom belongs to one, grade
+  books hang off its quarters — so "last year's companies" is a boundary a teacher recognises.
+- **A stock you hold is exempt.** It stays listed however long ago it closed, because the only action
+  the data supports on an archived stock is selling one you own, and a retention rule that hides a
+  position would strand it.
+- **A missing `archived_at` counts as in-window.** Rows from before the column existed were
+  deliberately not backfilled: `updated_at` is not the archive date (the price job touches it), and
+  inventing a date in a trading record is worse than admitting it is unknown. Treating NULL as old
+  would silently hide rows the app shows today.
+
+**The window is interpolated into the copy, not written out.** The sentence reads "they stay listed
+for `#{Stock::LIST_RETENTION.inspect}`", so it cannot end up claiming one period while the scope
+enforces another — the same two-places failure as a token defined twice.
+
+**`archived` stays the flag and `archived_at` is derived from it**, maintained by one `before_save`.
+Making the timestamp authoritative (Discard-style) is the tidier single source of truth and is noted
+in `migration.md` as the shape to move to; it would touch both scopes, the policy, the admin form,
+the seeds and every test that sets `archived:`. Two columns for one fact is a drift risk either way,
+so the invariant lives in one method and is pinned by `stock_archiving_test.rb`: stamped on archive,
+cleared on un-archive, and **not moved by a resave** — the price job writes these rows constantly and
+must not drag the archive date forward.
+
+### A table says what it is for
+
+Neither table on the trading floor explained itself. A reader had "Active stocks" and "Archived
+stocks" and no way to know that one is buyable and the other is not, or why a company they remember
+had moved. `_stocks_table` takes a `description:` and both use it:
+
+| Table | Says |
+|---|---|
+| Active stocks | Companies you can buy shares in right now. Prices update every school day. |
+| Archived stocks you hold | You still own shares in these. They cannot be bought any more, but you can sell whenever you like. |
+| Archived stocks (N) | These companies have stopped trading here, so they cannot be bought. They stay listed for 12 months after they close, and a company you own shares in stays until you sell it. |
+
+The empty states already worked this way — say what appears here and what to do about it — and a
+*populated* table deserves the same courtesy. "Prices update every school day" is accurate rather
+than reassuring: `config/recurring.yml` runs `StockPricesUpdateJob` Monday to Friday.
+
+**Explanatory copy costs vertical space, and that is a trade to state rather than hide.** Taking the
+earnings card out of the header moved the first table row from 296px to 206px on a 625px viewport;
+these two description lines give 56px of that back, to 262px. Worth it — the previous 296px bought
+nothing but a duplicated balance.
+
 ### An archived list earns its place only where it is actionable
 
 The archived stocks table was every archived stock, in a table identical to the active one, with no

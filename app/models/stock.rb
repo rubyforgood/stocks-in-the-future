@@ -13,8 +13,36 @@ class Stock < ApplicationRecord
     }
   )
 
+  # `archived` stays the flag and `archived_at` is derived from it, maintained in one place below.
+  # The alternative - making archived_at's presence authoritative, Discard-style - is the cleaner
+  # single source of truth, but it would touch these scopes, the policy, the admin form, the seeds
+  # and every test that sets `archived:`. Noted in migration.md as the tidier shape if the model is
+  # ever reworked.
   scope :active, -> { where(archived: false) }
   scope :archived, -> { where(archived: true) }
+
+  # How long an archived company stays on the student-facing list.
+  #
+  # This is a *display* retention rule, not a purge, and it cannot be anything else: orders.stock_id
+  # and portfolio_stocks.stock_id are both NOT NULL with foreign keys, and both associations are
+  # `dependent: :restrict_with_error`, so a stock a student has ever traded cannot be deleted without
+  # destroying that student's trade history. The rows stay forever; the *list* is what ages.
+  #
+  # A school year, because that is the unit this app already thinks in - a classroom belongs to one,
+  # grade books hang off its quarters - so "last year's companies" is a boundary a teacher recognises.
+  LIST_RETENTION = 12.months
+
+  # NULL counts as in-window on purpose: the column was added after the fact and existing rows were
+  # not backfilled, and a missing date is not evidence of age. Hiding them would silently drop rows
+  # the app shows today.
+  scope :archived_recently, lambda {
+    archived.where("archived_at IS NULL OR archived_at > ?", LIST_RETENTION.ago)
+  }
+
+  # One place keeps archived_at true to the flag. `||=` so re-saving an archived stock does not keep
+  # moving the date forward, and clearing it on un-archive so a stock archived twice reports the
+  # second date rather than the first.
+  before_save :stamp_archived_at
 
   # Dollars, for display and for the decimal purchase_price column. price_cents
   # is the authoritative value - never convert this back into cents for
@@ -42,5 +70,15 @@ class Stock < ApplicationRecord
 
     formatted = format("%.2f%%", percentage_change.abs)
     percentage_change.positive? ? "+#{formatted}" : "-#{formatted}"
+  end
+
+  private
+
+  def stamp_archived_at
+    if archived?
+      self.archived_at ||= Time.current
+    else
+      self.archived_at = nil
+    end
   end
 end

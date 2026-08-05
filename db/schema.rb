@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_05_132124) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_05_215252) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -335,6 +335,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_05_132124) do
 
   create_table "stocks", force: :cascade do |t|
     t.boolean "archived", default: false, null: false
+    t.datetime "archived_at"
     t.decimal "cash_flow", precision: 15, scale: 2
     t.string "company_name"
     t.string "company_website"

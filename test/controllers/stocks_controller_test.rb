@@ -70,6 +70,45 @@ class StocksControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[href=?]", stock_path(archived), text: archived.ticker
   end
 
+  test "each table says what it is for" do
+    create(:stock, archived: false, ticker: "AAPL")
+    create(:stock, archived: true, ticker: "DEAD")
+    sign_in create(:admin)
+
+    get stocks_url
+
+    assert_select "p", text: /Companies you can buy shares in right now/
+    assert_select "details[data-testid=?]", "archived-stocks" do
+      assert_select "p", text: /stopped trading here, so they cannot be bought/
+      assert_select "p", text: /stay listed for #{Stock::LIST_RETENTION.inspect}/
+    end
+  end
+
+  # Stock::LIST_RETENTION is a display rule, not a purge - orders and portfolio_stocks reference
+  # stocks by id and restrict deletion, so the rows stay forever and the list is what ages.
+  test "an archived stock past the retention window drops off the list" do
+    old = create(:stock, archived: true, ticker: "GONE")
+    old.update!(archived_at: (Stock::LIST_RETENTION + 1.day).ago)
+    sign_in create(:admin)
+
+    get stocks_url
+
+    assert_select "a[href=?]", stock_path(old), count: 0
+  end
+
+  test "a stock you hold stays listed however long ago it was archived" do
+    student = create(:student, :with_portfolio, classroom: create(:classroom, :with_trading))
+    old = create(:stock, archived: true, ticker: "GONE")
+    old.update!(archived_at: (Stock::LIST_RETENTION + 1.day).ago)
+    create(:portfolio_stock, portfolio: student.portfolio, stock: old, shares: 2)
+    sign_in student
+
+    get stocks_url
+
+    assert_select "h2", text: "Archived stocks you hold"
+    assert_select "a[href=?]", stock_path(old)
+  end
+
   test "an archived row says why it is there" do
     create(:stock, archived: true, ticker: "DEAD", last_trading_day: Date.new(2026, 3, 12))
     sign_in create(:admin)
