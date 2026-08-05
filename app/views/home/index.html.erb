@@ -24,24 +24,38 @@
         to be read at a glance rather than buried in a pill. %>
     <% if current_user&.student? && current_user.portfolio %>
       <% balance = current_user.portfolio.cash_balance %>
-      <section class="overflow-hidden rounded-xl border border-slate-200 bg-gradient-to-r from-sitf-hero-from to-sitf-hero-to shadow-xs"
-               aria-labelledby="funds-heading">
-        <div class="flex flex-col gap-4 p-6 lg:flex-row lg:items-center lg:justify-between">
-          <div class="min-w-0">
-            <h2 id="funds-heading" class="text-sm font-medium text-slate-800">Earnings to invest</h2>
-            <p class="mt-1 text-3xl font-bold tracking-tight text-slate-900 tabular-nums">
-              <%= number_to_currency(balance) %>
-            </p>
-            <p class="mt-1 text-sm text-slate-800">
-              <% if balance > 0 %>
-                Ready when you are. Pick a company and buy your first shares.
-              <% else %>
-                You have no earnings to invest yet. Attendance and grades earn funds.
-              <% end %>
-            </p>
-          </div>
+      <%# .tw-card, not a gradient. This was bg-gradient-to-r from-sitf-hero-from to-sitf-hero-to -
+          #f4d18d to #f8dba8, a tan-gold - and it was the only gradient in the app and the only use
+          of those two tokens. Contrast was never the problem (slate-800 on it is 10:1); it was the
+          one surface that belonged to no system. It also carried rounded-xl and shadow-xs where the
+          panel tokens are rounded-2xl and shadow-sm.
 
-          <%= image_tag "piggy_bank.png", class: "hidden h-28 w-auto shrink-0 object-contain lg:block", alt: "" %>
+          The piggy bank PNG is replaced by design.md's icon tile. Every finance app makes the
+          numeral the hero on a plain surface - Robinhood, Monzo, Revolut, Fidelity, Vanguard, Cash
+          App - and puts illustration in empty states and onboarding, not beside a live balance,
+          where it competes with the figure and reads as marketing. The tile also fixes something the
+          raster could not: the image was `hidden lg:block`, so on the phones most of these students
+          use there was nothing there at all. %>
+      <section class="tw-card" aria-labelledby="funds-heading">
+        <div class="flex flex-col gap-4 p-6 lg:flex-row lg:items-center lg:justify-between">
+          <div class="flex min-w-0 items-start gap-4">
+            <span class="grid size-9 shrink-0 place-items-center rounded-xl bg-emerald-50">
+              <%= lucide_icon "piggy-bank", class: "size-5 text-emerald-700" %>
+            </span>
+            <div class="min-w-0">
+              <h2 id="funds-heading" class="text-sm font-medium text-slate-600">Earnings to invest</h2>
+              <p class="mt-1 text-3xl font-bold tracking-tight text-slate-900 tabular-nums">
+                <%= number_to_currency(balance) %>
+              </p>
+              <p class="mt-1 text-sm text-slate-600">
+                <% if balance > 0 %>
+                  Ready when you are. Pick a company and buy your first shares.
+                <% else %>
+                  You have no earnings to invest yet. Attendance and grades earn funds.
+                <% end %>
+              </p>
+            </div>
+          </div>
         </div>
       </section>
     <% end %>

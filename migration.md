@@ -327,6 +327,22 @@ signed-out `main` is `p-4 lg:p-6` rather than a flat `p-6`.
    unaffected.
 3. **The app bar trigger is no longer teal**, so a test looking for that fill would fail.
 
+### The earnings surfaces lost their gradient and their illustrations
+
+**What.** The home page's "Earnings to invest" hero and `shared/_earnings_to_invest_card` are both
+`.tw-card` with a `size-9 rounded-xl bg-emerald-50` icon tile and a `piggy-bank` glyph.
+
+**Why it has blast radius.**
+
+1. **`--sitf-hero-from` and `--sitf-hero-to` are now unreferenced.** They were the app's only
+   gradient and had exactly one caller.
+2. **`piggy_bank.png` and `investment-funds.png` are unreferenced**, which leaves all eight images in
+   `app/assets/images` unused. Listed in design-todo rather than deleted.
+3. **The trading floor card lost its fixed `h-[150px]`**, so it now sizes to its content. It sits in
+   the page header row on `stocks#index`, which is where to look if that row's alignment shifts.
+4. The home hero's label went from `slate-800` (chosen for the gold) to `slate-600`, the muted token
+   on white.
+
 ### Every form field is on one named class
 
 **What.** `Admin::FormBuilder`'s five class constants now point at `tw-input-primary`,

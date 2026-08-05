@@ -486,6 +486,35 @@ field while every other form moved. Its field methods render plain Rails fields 
 which is the same fix its `submit` needed for the same reason. **Check the rendered element, not the
 argument you passed.**
 
+### A balance is a numeral on a plain surface, not a tinted panel with an illustration
+
+The home page's "Earnings to invest" hero was `bg-gradient-to-r from-sitf-hero-from to-sitf-hero-to`
+- `#f4d18d` to `#f8dba8`, a tan-gold - with a `piggy_bank.png` beside it. The trading floor showed the
+same figure in a white card with `investment-funds.png`, at `h-[150px]` with the image pushed out of
+the box by `style="height: 170px; margin-bottom: -8px"`. One number, two surfaces, two illustrations,
+three arbitrary values.
+
+Both are `.tw-card` now, with the figure carrying the emphasis and **design.md's icon tile** where the
+illustration was: `size-9 rounded-xl bg-emerald-50` with a `piggy-bank` glyph at `emerald-700`.
+
+**Why a plain surface.** Contrast was never the problem - slate-800 on that gold measures 10:1. It was
+that the gradient was the only one in the app and the only use of those two tokens, so it belonged to
+no system, and a page background that changes under one card is exactly the drift the single
+`bg-slate-50` rule exists to prevent. Robinhood, Monzo, Revolut, Fidelity, Vanguard and Cash App all
+show a balance as a large numeral on a plain surface. The money is the hero; the panel is not.
+
+**Why an icon tile rather than a different illustration.** Finance apps put illustration in **empty
+states and onboarding**, not next to a live figure, where it competes with the number and reads as
+marketing. The tile is already this app's sanctioned pattern, is resolution-independent, and fixes
+something no raster here could: `piggy_bank.png` was `hidden lg:block`, so on the 375px phones most of
+these students use, the decoration did not exist at all. If an illustration is wanted, the place for
+it is the **zero-balance state**, which is a real empty state - not the card that shows a number.
+
+**Eight PNGs ship in `app/assets/images` and none is now referenced** (`piggy_bank`,
+`investment-funds`, `party_popper`, `boy_using_computer`, `girl_skateboarding_holding_laptop`, and
+`1_Number` through `4_Number`). Removing them is a call for whoever owns the brand assets, not a
+cleanup to do quietly - see design-todo.
+
 ### Badges
 **One component: `components/ui/_badge`**, matching the Status pill base above:
 `inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium`, with a tone:

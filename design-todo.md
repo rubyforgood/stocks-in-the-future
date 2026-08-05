@@ -189,6 +189,18 @@ hardest on the student who had a bad term - the last person to discourage. If th
 wanted, the shape that survives all three is a **cumulative count** ("earned reading money in 3
 quarters"), which is monotonic and cannot be taken away. Rated below the six that shipped.
 
+### Eight unused images
+
+`app/assets/images` holds `piggy_bank.png`, `investment-funds.png`, `party_popper.png`,
+`boy_using_computer.png`, `girl_skateboarding_holding_laptop.png` and `1_Number.png` through
+`4_Number.png`. **None is referenced by any view.** The last two in use were the piggy bank and the
+investment-funds illustration, both replaced by icon tiles when the earnings surfaces moved onto
+`.tw-card` - see design.md, "A balance is a numeral on a plain surface".
+
+Deleting brand assets is a decision for whoever owns them rather than a sweep, so they are listed
+rather than removed. If illustration comes back, the place for it is an empty state or onboarding,
+which is where the field puts it.
+
 ### There is no user profile page
 
 The account menu has no "Edit profile" item because the functionality does not exist:

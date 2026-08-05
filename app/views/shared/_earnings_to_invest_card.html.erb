@@ -1,25 +1,36 @@
-<div class="bg-white rounded-xl border border-slate-200 h-[150px] py-5 px-6 overflow-visible relative">
-  <div class="h-full flex items-center justify-between gap-2">
-    <div class="flex flex-col justify-center">
-      <p class="text-sm text-slate-600">My earnings to invest</p>
-      <p class="text-2xl font-semibold leading-tight tracking-tight mt-1 tabular-nums"><%= number_to_currency(@portfolio.cash_balance) %></p>
+<%# The same figure as the home page's hero, so the same treatment: .tw-card, the numeral doing the
+    work, and design.md's icon tile rather than an illustration.
+
+    It was bg-white with its own rounded-xl border and an h-[150px] fixed height, holding a 170px
+    investment-funds.png pushed out of the box with inline `style="height: 170px; margin-bottom:
+    -8px"`. Three arbitrary values to make a raster overflow a card whose height only existed to
+    contain it. And it was the second illustration for one concept - the home page used a piggy bank
+    for the same number.
+
+    Illustration belongs in empty states and onboarding, not beside a live balance, which is where
+    every finance app puts it. %>
+<div class="tw-card p-5">
+  <div class="flex items-start gap-4">
+    <span class="grid size-9 shrink-0 place-items-center rounded-xl bg-emerald-50">
+      <%= lucide_icon "piggy-bank", class: "size-5 text-emerald-700" %>
+    </span>
+
+    <div class="min-w-0">
+      <p class="text-sm font-medium text-slate-600">My earnings to invest</p>
+      <p class="mt-1 text-2xl font-semibold tracking-tight text-slate-900 tabular-nums">
+        <%= number_to_currency(@portfolio.cash_balance) %>
+      </p>
+
       <% if !current_user.student? %>
         <%# Was bg-slate-400 with slate-700 ink: 4.04:1, under the 4.5:1 gate for text, in a
             hand-rolled rounded-full pill. tw-btn-primary-disabled is the named token. %>
-        <span aria-disabled="true" class="tw-btn-primary-disabled mt-2 w-fit">Invest now</span>
+        <span aria-disabled="true" class="tw-btn-primary-disabled mt-3 w-fit">Invest now</span>
       <% elsif !current_page?(stocks_path) %>
         <%# No CTA when the card is already on the trading floor: it linked to stocks_path from
-            stocks#index, so the page's one filled primary went nowhere. The balance is still
-            worth showing there, which is why the card stays. %>
-        <%= link_to "Invest now", stocks_path, class: "tw-btn-primary mt-2 w-fit" %>
+            stocks#index, so the page's one filled primary went nowhere. The balance is still worth
+            showing there, which is why the card stays. %>
+        <%= link_to "Invest now", stocks_path, class: "tw-btn-primary mt-3 w-fit" %>
       <% end %>
     </div>
-
-    <%# Decorative: the card already states "Earnings to invest" and the figure, so alt is
-        empty rather than a description a screen reader would read out twice. It was
-        "Investment Funds", which was also Title Case. Matches the piggy bank on home/index.
-
-        tw h-[170px] and -mb-2 do not work here, so the overflow effect uses a direct style. %>
-    <%= image_tag 'investment-funds.png', class: 'w-auto object-contain select-none pointer-events-none self-end -mr-8', style: 'height: 170px; margin-bottom: -8px;', alt: '' %>
   </div>
 </div>
