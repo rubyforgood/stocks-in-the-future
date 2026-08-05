@@ -1,84 +1,83 @@
-<div>
-  <div class="overflow-x-auto">
-    <table class="table-base">
-      <thead>
-        <tr class="table-header-row">
-          <th scope="col" class="table-header-cell table-header-cell-left">Student</th>
-          <th scope="col" class="table-header-cell table-header-cell-left">Portfolio value</th>
-          <% if @can_manage_students %>
-            <th scope="col" class="table-header-cell table-header-cell-left">Available cash</th>
-            <th scope="col" class="table-header-cell table-header-cell-right table-actions-pinned"><span class="sr-only">Actions</span></th>
+<%# On shared/_table_container, like every other table in the app. This was a bare div wrapping a
+    bare overflow-x-auto, so the roster sat on no surface at all - while the grade book list beside
+    it on the same screen is a card. Two panes, one of them floating. %>
+<%= render "shared/table_container" do %>
+  <thead>
+    <tr class="table-header-row">
+      <th scope="col" class="table-header-cell table-header-cell-left">Student</th>
+      <th scope="col" class="table-header-cell table-header-cell-left">Portfolio value</th>
+      <% if @can_manage_students %>
+        <th scope="col" class="table-header-cell table-header-cell-left">Available cash</th>
+        <th scope="col" class="table-header-cell table-header-cell-right table-actions-pinned"><span class="sr-only">Actions</span></th>
+      <% end %>
+    </tr>
+  </thead>
+  <tbody class="bg-white">
+    <% @students.each do |student| %>
+      <tr class="table-body-row group"
+          id="<%= dom_id(student) %>">
+        <td class="table-body-cell whitespace-nowrap" data-testid="student-username">
+          <% if student.username.present? %>
+            <% if student.portfolio %>
+              <%= link_to student.username, user_portfolio_path(student, student.portfolio), class: "tw-link font-medium" %>
+            <% else %>
+              <span class="text-slate-600 italic"><%= student.username %></span>
+            <% end %>
+          <% else %>
+            <span class="text-slate-600 italic">No username set</span>
           <% end %>
-        </tr>
-      </thead>
-      <tbody class="bg-white">
-        <% @students.each do |student| %>
-          <tr class="table-body-row group"
-              id="<%= dom_id(student) %>">
-            <td class="table-body-cell whitespace-nowrap" data-testid="student-username">
-              <% if student.username.present? %>
-                <% if student.portfolio %>
-                  <%= link_to student.username, user_portfolio_path(student, student.portfolio), class: "tw-link font-medium" %>
-                <% else %>
-                  <span class="text-slate-600 italic"><%= student.username %></span>
-                <% end %>
-              <% else %>
-                <span class="text-slate-600 italic">No username set</span>
-              <% end %>
-            </td>
-            <td class="table-body-cell whitespace-nowrap font-medium">
-              <%= number_to_currency(student.portfolio&.holdings_value || 0) %>
-            </td>
-            <% if @can_manage_students %>
-              <td class="table-body-cell whitespace-nowrap font-medium">
-                <%= number_to_currency(student.portfolio&.cash_balance || 0) %>
-              </td>
-            <% end %>
-            <% if @can_manage_students %>
-              <td class="table-body-cell table-body-cell-right whitespace-nowrap table-actions-pinned" data-testid="student-actions">
-                <div class="flex items-center justify-end gap-1">
-                  <%# Were three icon-only 32px links whose only accessible name was a title
-                      attribute, coloured black / amber-600 / red-600 at rest. Now the same ghost
-                      as every other row action, with the label visible. %>
-                  <%= ghost_action_link "Edit", edit_classroom_student_path(@classroom, student),
-                                        icon: "pencil",
-                                        data: { testid: "edit-student" } %>
-
-                  <%= ghost_action_link "Reset password",
-                                        reset_password_classroom_student_path(@classroom, student),
-                                        icon: "key-round",
-                                        data: {
-                                          turbo_method: :patch,
-                                          turbo_confirm: "Reset #{student.username}'s password?",
-                                          testid: "reset-password"
-                                        } %>
-
-                  <%= ghost_action_link "Delete", classroom_student_path(@classroom, student),
-                                        icon: "trash-2", variant: :danger,
-                                        data: {
-                                          turbo_method: :delete,
-                                          turbo_confirm: "Delete #{student.username}? This cannot be undone.",
-                                          testid: "delete-student"
-                                        } %>
-                </div>
-              </td>
-            <% end %>
-          </tr>
+        </td>
+        <td class="table-body-cell whitespace-nowrap font-medium">
+          <%= number_to_currency(student.portfolio&.holdings_value || 0) %>
+        </td>
+        <% if @can_manage_students %>
+          <td class="table-body-cell whitespace-nowrap font-medium">
+            <%= number_to_currency(student.portfolio&.cash_balance || 0) %>
+          </td>
         <% end %>
+        <% if @can_manage_students %>
+          <td class="table-body-cell table-body-cell-right whitespace-nowrap table-actions-pinned" data-testid="student-actions">
+            <div class="flex items-center justify-end gap-1">
+              <%# Were three icon-only 32px links whose only accessible name was a title
+                  attribute, coloured black / amber-600 / red-600 at rest. Now the same ghost
+                  as every other row action, with the label visible. %>
+              <%= ghost_action_link "Edit", edit_classroom_student_path(@classroom, student),
+                                    icon: "pencil",
+                                    data: { testid: "edit-student" } %>
 
-        <%# In the table body, like every other table here. It used to sit below the table as a
-            hand-rolled `text-center py-8` block, so an empty roster rendered bare column headers
-            with a sentence stranded underneath, and its CTA was a longhand rounded-md button. %>
-        <% if @students.empty? %>
-          <%= render "admin/shared/empty_row",
-                     colspan: @can_manage_students ? 4 : 2,
-                     icon: "graduation-cap",
-                     title: "No students yet",
-                     body: "Students you add appear here with their portfolio value.",
-                     action_label: (@can_manage_students ? "Add the first student" : nil),
-                     action_path: (@can_manage_students ? new_classroom_student_path(@classroom) : nil) %>
+              <%= ghost_action_link "Reset password",
+                                    reset_password_classroom_student_path(@classroom, student),
+                                    icon: "key-round",
+                                    data: {
+                                      turbo_method: :patch,
+                                      turbo_confirm: "Reset #{student.username}'s password?",
+                                      testid: "reset-password"
+                                    } %>
+
+              <%= ghost_action_link "Delete", classroom_student_path(@classroom, student),
+                                    icon: "trash-2", variant: :danger,
+                                    data: {
+                                      turbo_method: :delete,
+                                      turbo_confirm: "Delete #{student.username}? This cannot be undone.",
+                                      testid: "delete-student"
+                                    } %>
+            </div>
+          </td>
         <% end %>
-      </tbody>
-    </table>
-  </div>
-</div>
+      </tr>
+    <% end %>
+
+    <%# In the table body, like every other table here. It used to sit below the table as a
+        hand-rolled `text-center py-8` block, so an empty roster rendered bare column headers
+        with a sentence stranded underneath, and its CTA was a longhand rounded-md button. %>
+    <% if @students.empty? %>
+      <%= render "admin/shared/empty_row",
+                 colspan: @can_manage_students ? 4 : 2,
+                 icon: "graduation-cap",
+                 title: "No students yet",
+                 body: "Students you add appear here with their portfolio value.",
+                 action_label: (@can_manage_students ? "Add the first student" : nil),
+                 action_path: (@can_manage_students ? new_classroom_student_path(@classroom) : nil) %>
+    <% end %>
+  </tbody>
+<% end %>

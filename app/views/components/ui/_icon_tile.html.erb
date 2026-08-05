@@ -13,7 +13,7 @@
     Two sizes, and the distinction is what the glyph sits next to:
 
       default - 36px, a 20px glyph. The tile is the subject: a KPI card, an empty state.
-      sm      - 32px, a 16px glyph. The tile sits on a title's line in a card header, where
+      compact - 32px, a 16px glyph. The tile sits on a title's line in a card header, where
                 a 36px block would out-height the 16px title it labels.
 
     A numeral may take the icon's place (`label:`), which is what the getting-started steps use:
@@ -24,7 +24,7 @@
       icon  - Lucide icon name
       label - a short string (a numeral) instead of an icon
       tone  - :neutral (default) :success :warning :danger :info
-      sm    - true for the 32px header-row size %>
+      compact - true for the 32px header-row size %>
 <% tone = local_assigns.fetch(:tone, :neutral).to_sym %>
 <% tones = {} %>
 <% tones[:neutral] = "bg-slate-100 text-slate-600" %>
@@ -33,8 +33,8 @@
 <% tones[:danger] = "bg-rose-50 text-rose-700" %>
 <% tones[:info] = "bg-blue-50 text-blue-700" %>
 
-<% box = local_assigns[:sm] ? "size-8" : "size-9" %>
-<% glyph = local_assigns[:sm] ? "size-4" : "size-5" %>
+<% box = local_assigns[:compact] ? "size-8" : "size-9" %>
+<% glyph = local_assigns[:compact] ? "size-4" : "size-5" %>
 
 <%# A numeral is content, not decoration, but the ordered list it sits in already conveys the
     order, so it is hidden from assistive tech the way the icons are.

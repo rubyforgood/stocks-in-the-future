@@ -1,9 +1,5 @@
 <% content_for :title, "Sign in" %>
 
-<%# Shared field styling. 44px minimum target height per docs/responsive-design-guidelines.md.
-    outline-slate-500 gives a 5.0:1 boundary on white, clearing WCAG 1.4.11 (3:1). %>
-<% link_class = "inline-flex items-center min-h-11 text-sm font-semibold text-sitf-primary underline hover:text-sitf-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary rounded-sm" %>
-
 <div class="flex min-h-full flex-col justify-center py-12">
   <div class="mx-auto w-full max-w-sm">
     <div class="flex w-full justify-center">
@@ -29,7 +25,7 @@
             <%= render_checkbox name: "user[remember_me]", label: "Remember me" %>
           <% end %>
 
-          <%= link_to "Forgot your password?", new_password_path(resource_name), class: link_class %>
+          <%= link_to "Forgot your password?", new_password_path(resource_name), class: "tw-link-tap" %>
         </div>
 
         <%= f.submit "Sign in", class: "w-full" %>

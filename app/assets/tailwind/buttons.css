@@ -108,4 +108,16 @@
     @apply font-medium text-sitf-primary-dark underline-offset-2 transition-colors hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary;
   }
 
+  /* A standalone text link that is the only tap target where it sits - the two auth forms. It
+     carries the 44px height design.md reserves for bare targets, and it is underlined at rest
+     rather than on hover: .tw-link drops the rest-state underline so a table dense with links is
+     not a field of rules, and a lone link in a form is the opposite case.
+
+     sitf-primary is 5.9:1 on the page and sitf-primary-dark 8.61:1, so the hover darkens.
+     sessions/new built this inline as `min-h-11 text-sm font-semibold text-sitf-primary underline
+     hover:text-sitf-primary-dark ...`; the only change is font-medium, matching .tw-link. */
+  .tw-link-tap {
+    @apply inline-flex min-h-11 items-center rounded-sm text-sm font-medium text-sitf-primary underline underline-offset-2 transition-colors hover:text-sitf-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary;
+  }
+
 }

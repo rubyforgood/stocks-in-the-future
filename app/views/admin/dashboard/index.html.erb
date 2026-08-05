@@ -23,6 +23,10 @@
 
   <%# Work first, then scale. Pending orders and unpaid grade books are the two figures an admin
       can act on; the rest is context. %>
+  <%# Hue carries state, not decoration: amber for the two queues that need someone to act,
+      emerald for money moved. The three plain counts are :neutral - they were bg-sky-50, a hue the
+      tone vocabulary does not have, then :info in the tile sweep, which still read as though a
+      count of classrooms were telling you something. %>
   <% stats = [
        { label: "Orders awaiting execution", value: @dashboard.pending_orders_count,
          icon: "clock", tone: :warning, testid: "pending-orders",
@@ -34,11 +38,11 @@
          icon: "hand-coins", tone: :success, testid: "total-distributed",
          hint: "All deposits, all time" },
        { label: "Active students", value: @dashboard.students_count,
-         icon: "graduation-cap", tone: :info, testid: "students" },
+         icon: "graduation-cap", tone: :neutral, testid: "students" },
        { label: "Classrooms", value: @dashboard.classrooms_count,
-         icon: "presentation", tone: :info, testid: "classrooms" },
+         icon: "presentation", tone: :neutral, testid: "classrooms" },
        { label: "Stocks on the trading floor", value: @dashboard.stocks_count,
-         icon: "chart-line", tone: :info, testid: "stocks" }
+         icon: "chart-line", tone: :neutral, testid: "stocks" }
      ] %>
 
   <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">

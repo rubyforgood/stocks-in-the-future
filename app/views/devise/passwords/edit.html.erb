@@ -3,11 +3,11 @@
     default input beside the app's own. On the shared page header and the named field classes now. %>
 <% content_for :title, "Change your password" %>
 
-<div class="mx-auto w-full max-w-md py-6">
+<div class="mx-auto w-full max-w-md">
   <%= render layout: "components/ui/page_header",
              locals: { title: "Change your password" } do %><% end %>
 
-  <div class="tw-card p-6">
+  <div class="tw-card p-5">
     <%= form_for(
           resource,
           as: resource_name,

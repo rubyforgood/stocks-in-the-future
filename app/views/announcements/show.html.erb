@@ -18,7 +18,10 @@
       </div>
 
       <div class="mt-6 pt-5 border-t border-slate-200">
-        <%= link_to "Back", :back, class: "tw-btn-secondary" %>
+        <%# There is no announcements index - the route is show-only - so this cannot go "back to
+            announcements". Home is where the announcement is surfaced, and a named destination
+            beats link_to :back, which cannot say where it goes. %>
+        <%= link_to "Back to home", root_path, class: "tw-btn-secondary" %>
       </div>
     </div>
   </div>

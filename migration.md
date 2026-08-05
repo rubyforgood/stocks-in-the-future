@@ -327,6 +327,35 @@ signed-out `main` is `p-4 lg:p-6` rather than a flat `p-6`.
    unaffected.
 3. **The app bar trigger is no longer teal**, so a test looking for that fill would fail.
 
+### The backlog closed out: form builder, tokens, Devise, classrooms#show
+
+**What.** `Admin::FormBuilder`'s remaining pre-token styling; the order modal's four 44px buttons;
+four dead brand tokens; `devise/shared/_links` rebuilt; `classrooms/show` and
+`devise/registrations/new` onto the primitives; the classroom roster onto `shared/_table_container`;
+a new `submit_on_change` Stimulus controller and a new `.tw-link-tap` class.
+
+**Why it has blast radius.**
+
+1. **`--color-sitf-secondary`, `--color-sitf-hero-from`, `--color-sitf-hero-to` and
+   `--color-sitf-ring` no longer exist**, so `bg-sitf-secondary` and friends now compile to nothing
+   rather than to a colour. Nothing used them; anything added against them will silently render
+   unstyled.
+2. **The classroom h1 changed shape.** It joined name, grade and year with commas; the name is the
+   title and the rest is the description. Two system tests asserted the year inside the h1.
+3. **The trading switch submits through Stimulus, not an inline `onchange`.** It was the last inline
+   handler in the app - and the thing a CSP without `unsafe-inline` blocks. Nothing covered it, so
+   `trading_toggle_test.rb` is new. Its `disabled:` branch turns out to be unreachable
+   (`check_classroom_eligibility` admits only admins and the classroom's own teachers, and both may
+   toggle); it stays as an authorization guard.
+4. **`devise/shared/_links` lost four of its six branches** - the two "Didn't receive … instructions?"
+   links and the omniauth buttons. The model does not enable `:confirmable`, `:lockable` or
+   `:omniauthable`, so none could render. If those modules are ever switched on, Devise's generator
+   has to put the markup back.
+5. **The sign-up page's description changed** from "Enter your email below…" to naming the username,
+   and its h1 from "Sign up" to "Create your account".
+6. **Every `dark:` variant is gone**, and with it a live 2.45:1 failure for dark-OS users. `.dark` in
+   `shadcn.css` is still declared and still unused.
+
 ### stocks#show rebuilt on the shared header, and given a real trade action
 
 **What.** The page now renders `components/ui/_page_header` (ticker as title, company name as

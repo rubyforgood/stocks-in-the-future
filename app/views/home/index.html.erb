@@ -46,7 +46,7 @@
       <section class="tw-card" aria-labelledby="funds-heading">
         <div class="p-5">
           <div class="flex items-center gap-2">
-            <%= render "components/ui/icon_tile", icon: "piggy-bank", tone: :success, sm: true %>
+            <%= render "components/ui/icon_tile", icon: "piggy-bank", tone: :success, compact: true %>
             <h2 id="funds-heading" class="text-sm font-medium text-slate-600">Earnings to invest</h2>
           </div>
 
@@ -112,7 +112,7 @@
       <ol class="grid grid-cols-1 gap-6 lg:grid-cols-4">
         <% steps.each_with_index do |step, i| %>
           <li class="flex gap-3 lg:flex-col lg:gap-2">
-            <%= render "components/ui/icon_tile", label: i + 1, sm: true %>
+            <%= render "components/ui/icon_tile", label: i + 1, compact: true %>
             <div class="min-w-0">
               <h3 class="text-sm font-semibold text-slate-900"><%= step[:title] %></h3>
               <p class="mt-1 text-sm text-slate-600"><%= step[:body] %></p>

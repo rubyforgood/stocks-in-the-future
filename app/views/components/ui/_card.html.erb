@@ -32,7 +32,7 @@
       <div class="flex items-center gap-2">
         <% if local_assigns[:icon].present? %>
           <%= render "components/ui/icon_tile",
-                     icon: icon, tone: local_assigns.fetch(:icon_tone, :neutral), sm: true %>
+                     icon: icon, tone: local_assigns.fetch(:icon_tone, :neutral), compact: true %>
         <% end %>
         <h2 class="text-base font-semibold text-slate-900"><%= title %></h2>
       </div>

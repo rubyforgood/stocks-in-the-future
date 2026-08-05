@@ -38,135 +38,29 @@ Counts are indicative, found by pattern matching - confirm by reading the file.
 - [x] `layouts/_nav_item.html.erb` - **new** shared sidebar link partial
 - [x] `layouts/_flash.html.erb` - **new** accessible flash partial
 
-- [ ] `components/_action_icon_button.html.erb` - 6 off-tier bp, 2 FA icon
-- [ ] `components/ui/_button.html.erb` - clean
-- [ ] `components/ui/_checkbox.html.erb` - clean
-- [ ] `components/ui/_input.html.erb` - clean
-- [ ] `components/ui/_label.html.erb` - clean
-- [ ] `components/ui/_textarea.html.erb` - clean
-- [x] `layouts/_navbar.html.erb` - **done**: 170->138 lines, extracted `_nav_item` partial, 5 hex + ~20 inline styles -> tokens, `aria-current="page"` on all active links, decorative icons `alt=""`, chevron div -> real `<button>`, FA chevrons -> inline SVG, un-nested the duplicate `<nav>`, 44px targets, dropped phantom `Geist` font
-- [ ] `layouts/_stock_item.html.erb` - clean
-- [ ] `layouts/_stock_ticker.html.erb` - clean
-- [ ] `layouts/admin.html.erb` - 1 off-tier bp, 1 div-as-button, 1 FA icon (partially done: `lang="en"` added)
-- [x] `layouts/application.html.erb` - **done**: tokens, `lang="en"`, per-page `<title>`, skip link, semantic `<header>`/`<main id="main-content">`, 44px menu target, extracted `_flash`
-- [ ] `shared/_earnings_to_invest_card.html.erb` - clean
-- [x] `shared/_modal.html.erb` - **done**: `role="dialog"` + `aria-modal`, focus moved in on open, focus trapped while open, focus restored on close, close button 32px->44px and `text-gray-400` (2.54:1) -> `text-gray-600` (7.56:1), `x` glyph -> inline SVG with `sr-only` name
-- [ ] `shared/_table_container.html.erb` - clean
+**This per-file survey is superseded.** It was the *pre-work* inventory: 128 rows counting Font
+Awesome icons, off-tier breakpoints, `<th>` without `scope`, arbitrary hex, images without `alt`,
+`outline-none` and faint text. Every one of those categories has since been swept, so the rows
+described the codebase as it was, not as it is - and leaving 128 unchecked boxes made finished work
+look outstanding.
 
-## Auth (Devise)
+Re-measured rather than assumed, across `app/views`, `app/helpers`, `app/form_builders` and
+`app/assets/tailwind`:
 
-- [ ] `devise/confirmations/new.html.erb` - clean
-- [ ] `devise/passwords/edit.html.erb` - clean
-- [ ] `devise/passwords/new.html.erb` - 1 hex, 4 off-tier bp, 1 faint text
-- [ ] `devise/registrations/edit.html.erb` - clean
-- [ ] `devise/registrations/new.html.erb` - 1 faint text
-- [x] `devise/sessions/new.html.erb` - **done**: visible labels (was placeholder-only), tokens, single `h1`, 44px targets, base+lg only, brand focus rings, 2 faint text
-- [ ] `devise/shared/_error_messages.html.erb` - clean
-- [ ] `devise/shared/_links.html.erb` - clean
-- [ ] `devise/unlocks/new.html.erb` - clean
+| Category | Now | Note |
+|---|---|---|
+| Font Awesome | **0** | one grep hit, a comment recording the removal |
+| `sm:` / `md:` / `xl:` / `2xl:` | **0** | hits were `compact:`-style locals and prose, not utilities |
+| `<th>` without `scope` | **0** | all 20 hits are `<thead>`, matched by the `<th` prefix - the same inflation this file already recorded for the original count of 58 |
+| Arbitrary hex | **0** | |
+| `image_tag` without `alt` | **0** | all hits carry `alt:` on the following line - the line-based-regex miscount recorded above |
+| `outline-none` with no paired colour | **0** | |
+| Faint text | **3** | all justified: two `aria-disabled` pagination spans and one `dark:` variant at 6.99:1 |
 
-## Student-facing
+Two greps in that list produce false positives *by construction*, and both had already fooled an
+earlier pass: `<th` matches `<thead`, and a line-based regex cannot see an attribute on the next
+line. A count from either is worthless without reading the hits.
 
-- [ ] `announcements/show.html.erb` - clean
-- [ ] `fields/portfolio_link/_index.html.erb` - clean
-- [x] `home/index.html.erb` - **done**: 25 off-tier breakpoints -> base+lg only, 3 hex + 2 inline styles -> tokens, `bg-teal-500` (2.49:1) -> `teal-700` (5.47:1), `text-gray-400` (2.54:1) -> `gray-500`, heading order fixed h1->h2->h3 (styled divs were acting as headings), steps -> `<ol>`, decorative images `alt=""`, dropped dead `hero-banner`/`funds-pill`/`flex-cols-2` classes
-- [ ] `orders/_form.html.erb` - 1 hex, 1 outline-none
-- [ ] `orders/_order.html.erb` - 1 off-tier bp, 2 faint text
-- [ ] `orders/edit.html.erb` - clean
-- [ ] `orders/index.html.erb` - 11 th no scope, 2 FA icon
-- [ ] `orders/new.html.erb` - clean
-- [ ] `orders/new.turbo_stream.erb` - clean
-- [ ] `orders/show.html.erb` - clean
-- [ ] `portfolios/_earnings_summary_card.html.erb` - 1 hex
-- [ ] `portfolios/_portfolio_chart.html.erb` - 1 faint text
-- [ ] `portfolios/show.html.erb` - 13 off-tier bp, 1 img no alt, 1 outline-none, 2 th no scope
-- [ ] `stocks/_index_row.html.erb` - 1 img no alt
-- [ ] `stocks/_stock.html.erb` - 2 off-tier bp
-- [ ] `stocks/_stocks_table.html.erb` - 5 th no scope
-- [ ] `stocks/index.html.erb` - clean
-- [ ] `stocks/show.html.erb` - 1 outline-none
-- [ ] `students/edit.html.erb` - 6 off-tier bp
-- [ ] `students/new.html.erb` - 6 off-tier bp
-
-## Teacher-facing
-
-- [ ] `classrooms/_classroom_students_table.html.erb` - 2 faint text, 5 th no scope, 2 FA icon
-- [ ] `classrooms/_form.html.erb` - 2 off-tier bp
-- [ ] `classrooms/_grade_books_list.html.erb` - 2 FA icon
-- [ ] `classrooms/edit.html.erb` - 1 off-tier bp
-- [ ] `classrooms/index.html.erb` - 1 faint text, 6 th no scope, 2 FA icon
-- [ ] `classrooms/new.html.erb` - 1 off-tier bp
-- [ ] `classrooms/show.html.erb` - clean
-- [ ] `grade_books/_finalize_button.html.erb` - clean
-- [ ] `grade_books/_grade_entry.html.erb` - 4 off-tier bp, 1 faint text
-- [ ] `grade_books/_submit_button.html.erb` - clean
-- [ ] `grade_books/_table.html.erb` - 6 th no scope
-- [ ] `grade_books/show.html.erb` - clean
-- [ ] `grade_books/update.turbo_stream.erb` - clean
-- [ ] `schools/_form.html.erb` - clean
-- [ ] `schools/_school.html.erb` - clean
-- [ ] `schools/edit.html.erb` - 1 off-tier bp
-- [ ] `schools/index.html.erb` - clean
-- [ ] `schools/new.html.erb` - 1 off-tier bp
-- [ ] `schools/show.html.erb` - 1 off-tier bp
-
-## Admin
-
-- [ ] `admin/announcements/_form.html.erb` - clean
-- [ ] `admin/announcements/edit.html.erb` - clean
-- [ ] `admin/announcements/index.html.erb` - clean
-- [ ] `admin/announcements/new.html.erb` - clean
-- [ ] `admin/announcements/show.html.erb` - 2 FA icon
-- [ ] `admin/classrooms/_form.html.erb` - clean
-- [ ] `admin/classrooms/edit.html.erb` - clean
-- [ ] `admin/classrooms/index.html.erb` - 3 off-tier bp, 2 faint text, 1 th no scope, 1 FA icon
-- [ ] `admin/classrooms/new.html.erb` - clean
-- [ ] `admin/classrooms/show.html.erb` - 2 FA icon
-- [ ] `admin/component_demo/form.html.erb` - 4 th no scope, 1 FA icon
-- [ ] `admin/component_demo/index.html.erb` - 5 outline-none, 7 FA icon
-- [ ] `admin/component_demo/show.html.erb` - clean
-- [ ] `admin/dashboard/index.html.erb` - 1 off-tier bp, 14 FA icon
-- [ ] `admin/portfolio_transactions/_form.html.erb` - clean
-- [ ] `admin/portfolio_transactions/edit.html.erb` - clean
-- [ ] `admin/portfolio_transactions/new.html.erb` - clean
-- [ ] `admin/portfolio_transactions/show.html.erb` - 1 off-tier bp, 2 FA icon
-- [ ] `admin/school_years/_form.html.erb` - 1 FA icon
-- [ ] `admin/school_years/edit.html.erb` - clean
-- [ ] `admin/school_years/index.html.erb` - 3 off-tier bp, 2 faint text, 1 th no scope, 1 FA icon
-- [ ] `admin/school_years/new.html.erb` - clean
-- [ ] `admin/school_years/show.html.erb` - 2 FA icon
-- [ ] `admin/schools/_form.html.erb` - clean
-- [ ] `admin/schools/edit.html.erb` - clean
-- [ ] `admin/schools/index.html.erb` - clean
-- [ ] `admin/schools/new.html.erb` - clean
-- [ ] `admin/schools/show.html.erb` - 2 FA icon
-- [ ] `admin/shared/_actions.html.erb` - 3 outline-none, 2 FA icon
-- [ ] `admin/shared/_breadcrumbs.html.erb` - 3 off-tier bp, 1 faint text, 2 FA icon
-- [ ] `admin/shared/_navigation.html.erb` - 10 FA icon
-- [ ] `admin/shared/_pagination.html.erb` - 2 off-tier bp, 2 faint text
-- [ ] `admin/shared/_search_filter.html.erb` - 9 off-tier bp, 2 faint text, 2 outline-none, 1 FA icon
-- [ ] `admin/shared/_show_attributes.html.erb` - 6 off-tier bp
-- [ ] `admin/shared/_table.html.erb` - 4 off-tier bp, 2 faint text, 1 th no scope, 1 FA icon
-- [ ] `admin/stocks/_form.html.erb` - clean
-- [ ] `admin/stocks/edit.html.erb` - clean
-- [ ] `admin/stocks/index.html.erb` - clean
-- [ ] `admin/stocks/new.html.erb` - clean
-- [ ] `admin/stocks/show.html.erb` - 4 off-tier bp, 2 FA icon
-- [ ] `admin/students/_form.html.erb` - clean
-- [ ] `admin/students/edit.html.erb` - clean
-- [ ] `admin/students/index.html.erb` - 3 off-tier bp, 3 faint text, 3 outline-none, 1 div-as-button, 1 th no scope, 1 FA icon
-- [ ] `admin/students/new.html.erb` - clean
-- [ ] `admin/students/show.html.erb` - 27 off-tier bp, 13 th no scope, 2 FA icon
-- [ ] `admin/teachers/_form.html.erb` - 1 outline-none, 1 FA icon
-- [ ] `admin/teachers/edit.html.erb` - clean
-- [ ] `admin/teachers/index.html.erb` - 3 off-tier bp, 2 faint text, 1 th no scope, 1 FA icon
-- [ ] `admin/teachers/new.html.erb` - clean
-- [ ] `admin/teachers/show.html.erb` - 4 FA icon
-- [ ] `admin/users/_form.html.erb` - clean
-- [ ] `admin/users/edit.html.erb` - clean
-- [ ] `admin/users/index.html.erb` - 3 off-tier bp, 4 faint text, 1 th no scope, 1 FA icon
-- [ ] `admin/users/new.html.erb` - clean
-- [ ] `admin/users/show.html.erb` - 2 FA icon
 
 ## Cross-cutting work items
 
@@ -177,9 +71,11 @@ student side". **The preview page is deleted**: its proposals shipped, so it had
 showing a teal panel and a party-popper the built version does not use - an off-brand mock of a
 brand-corrected feature, which is worse than no page.
 
-**One token decision left open:** `--sitf-secondary-chart2` (#1db8a6) and the legacy
-`--sitf-secondary-teal` (#00b8b0) are two different mints for one role, neither used anywhere. Pick
-one deliberately and delete the other.
+**The token decision is made.** `--sitf-secondary-teal` (#00b8b0) is deleted and so is the
+`--color-sitf-secondary` utility. `--sitf-secondary-chart2` (#1db8a6) survives as what it actually
+is - chart series 2 - because mint is not this product's brand, and a named "secondary" utility
+holding mint is how mint kept arriving on brand surfaces. If a secondary brand colour is wanted,
+choose it against #00698c rather than inheriting a chart colour.
 
 **The reading streak is closed, not open: decided against.** Earnings are distributed when an adult
 clicks Finalize on a grade book (`grade_books_controller#finalize`), and a school year has four
@@ -238,14 +134,21 @@ its own pass with contrast measured per state. `app/components/shadcn/` has the 
 problem with its own token set (`--primary` is a near-black navy) and only three
 call sites left.
 
-### Devise pages that are still raw scaffolding
+### ~~Devise pages that are still raw scaffolding~~ - done
 
-`devise/passwords/edit` and `devise/registrations/edit` are reachable and are
-unstyled generator output — `<h2>`, `div.field`, `<br>`, no layout treatment. Their
-submit buttons now carry `.tw-btn-primary`, so the button is right and the page
-around it is not. `devise/unlocks/new` and `devise/confirmations/new` were deleted
-instead (no routes — see migration.md).
+`devise/passwords/edit` and `devise/registrations/edit` are on the shared page header, the named
+field classes and the card primitive. Finished in this pass: both dropped a `py-6` that stacked on
+`main`'s own padding, the password card came off `p-6` onto the `p-5` token, the account page's
+delete section said "Cancel your account" while its button said "Delete account" (Cancel means
+*dismiss* on eleven form buttons and the order modal), and it reached into `admin_danger_button_class`
+from a user-facing page - an alias for `tw-btn-danger-outline`, but it reads as though the two sides
+have different buttons.
 
+`devise/shared/_links` was the last stock generator markup: bare unstyled `<a>`s separated by `<br>`,
+with "Log in" against ten "Sign in"s. **Four of its six branches were dead** - the model enables
+`database_authenticatable, registerable, recoverable, rememberable, validatable`, so the two
+"Didn't receive … instructions?" branches and the omniauth branch could never render.
+`devise/unlocks/new` and `devise/confirmations/new` had already been deleted for the same reason.
 
 - [x] Fix invalid `focus-visible:ring-2a` in `input_helper.rb` - it compiled to nothing, leaving inputs app-wide with no designed focus indicator. Now an explicit 2px `sitf-primary` ring at 5.9:1.
 
@@ -253,18 +156,18 @@ instead (no routes — see migration.md).
 - [x] Replace the Font Awesome CDN link with local SVG icons. **done**: all 76 usages converted to `lucide_icon` (the gem was already a dependency and already the convention in 3 views). CDN `<link>` removed from both layouts. Icons now inherit `currentColor` and carry `aria-hidden` by default.
 - [x] Sweep `sm:`/`md:`/`xl:`/`2xl:` down to `base` + `lg:`. **done**: 122 remapped across 31 view files, 0 remaining. Multi-tier ramps (e.g. `text-sm sm:text-base md:text-lg lg:text-xl`) collapsed by hand. Also removed the off-tier usages in `forms.css` and deleted the dead legacy top-nav block in `navbar.css`.
 - [x] Add `scope` to every `<th>`. **done**: 42 added across 8 files (the original count of 58 was inflated - the audit regex also matched `<thead>`). All were column headers; 0 row headers.
-- [ ] Replace faint text colours with `gray-500` or darker (33 usages).
+- [x] **Faint text** - **done**, see the measured entry below. Three justified cases remain: two disabled pagination spans (`aria-disabled`, and WCAG 1.4.3 exempts inactive components) and one `dark:` variant at 6.99:1 on dark. The fourth, the `—` for an absent value in `Admin::FormBuilder#format_value` at 2.54:1, is now `slate-500`.
 - [x] Give every `outline-none` a visible focus replacement. **done**: most already paired with a visible `focus:ring`. Real failures fixed: button/textarea/checkbox rings had no colour so fell back to `currentColor` (white ring on white offset on white page = invisible); borderless input used `ring-transparent`; a file input and a school name field removed the outline with no replacement; `.filter-tab:focus` relied on a background tint alone.
-- [ ] Convert clickable divs to real buttons (4 usages).
+- [x] **Clickable divs** - **done**. Zero `onclick` handlers and zero `<div data-action="click...">` remain in `app/views`.
 - [x] Audit the trading modal (`shared/_modal`) for focus trap, restore, and Esc. **done**: Esc already worked; trap and restore were both absent and are now implemented in `modal_controller.js`.
-- [ ] Add a card / badge / empty-state primitive to `components/ui/`.
+- [x] **Primitives** - **done**. `components/ui/` holds eleven: `_card`, `_page_header`, `_badge`, `_empty_state`, `_data_table`, `_stat`, `_callout`, `_icon_tile`, `_button`, `_input`, `_label`, `_checkbox`, `_textarea`.
 - [ ] Reconcile `design.md` with this codebase (see blockers in design-instructions.md).
-- [ ] Untrack `app/.DS_Store` and `app/assets/.DS_Store`.
+- [x] **Untrack the `.DS_Store` files** - **done**; `git ls-files` finds none.
 
 ## Deferred / noted
 
-- 21 unused custom CSS classes remain in `admin.css` (`.filter-tab`, `.filter-tabs`, `.form-select`, `.header-controls`, `.action-buttons`) and `shadcn.css` (`.dark`). `.dark` is applied at runtime so it is a false positive; the `admin.css` ones look like scaffolding for unfinished admin work, so they were left in place rather than deleted. Note the `.filter-tab:focus-visible` fix is therefore currently inert.
-- Font Awesome sweep (76 icons) is the last large cross-cutting item.
+- ~~21 unused custom CSS classes in `admin.css`/`shadcn.css`~~ - moot, `admin.css` is deleted.
+- ~~Font Awesome sweep (76 icons)~~ - done; all 76 are `lucide_icon` and the CDN link is gone from both layouts.
 
 ## Checklist pass (one at a time)
 
@@ -277,9 +180,9 @@ instead (no routes — see migration.md).
 
 - [x] **Faint text (19 -> 4, all justified)** - 15 fixed. Empty-state guidance and content (usernames, tickers, no-username labels, price fallback) raised to gray-600 (7.56:1); em-dash no-value markers and a search placeholder to gray-500 (4.83:1). The 4 remaining are deliberate: 2 disabled pagination spans (WCAG 1.4.3 exempts inactive components; added aria-disabled so the state is conveyed programmatically), 1 dark-mode-only variant (6.99:1 on dark), and 1 decorative empty-state icon whose meaning comes from adjacent text (gray-300 -> gray-400 for visibility).
 - [x] **outline-none (21 checked)** - confirmed rather than assumed: 20 pair the removal with an explicit ring colour and are genuinely fine. 1 real failure on the order form shares field, where the border measured 1.14:1 and the focus ring 1.99:1, both under the 3:1 WCAG 1.4.11 requires. Now a gray-500 border with a sitf-primary ring.
-- [ ] Off-brand focus rings (`ring-blue-500`/`ring-indigo-500`) - compliant but inconsistent with the brand.
+- [x] **Off-brand focus rings** - **done**. The last three lived in `Admin::FormBuilder`'s two checkboxes (`text-blue-600 focus:ring-blue-600`), which is why sweeps over `app/views` never saw them. Zero remain app-wide.
 - [x] **Arbitrary `[var(--sitf-*)]` values (25)** - all replaced with token or palette utilities; 0 remain. Uncovered several real contrast failures, the worst being the Buy/Sell submit button (white label on #1db8a6 at 2.48:1 and on #f59e0b at 2.15:1), now teal-700/amber-700 at 5.47:1 and 5.02:1. Also found `--sitf-muted-foreground` referenced but never defined, so that text rendered with no colour of its own.
-- [ ] 21 unused custom CSS classes in `admin.css`/`shadcn.css`.
+- [x] **21 unused custom CSS classes** - **moot**: `admin.css` was deleted, so `.filter-tab`, `.filter-tabs`, `.form-select`, `.header-controls` and `.action-buttons` no longer exist anywhere. The only remaining reference to any of those names is `data-testid="filter-tabs"`, which is a test hook rather than a class. `.dark` in `shadcn.css` is applied at runtime and was always a false positive.
 
 ---
 
@@ -364,17 +267,19 @@ assembled at runtime.
 
 So the standing checks are:
 
-- [ ] Before claiming sentence case is complete, **look at the rendered page**,
+**Guidance, not tasks** - these are the checks a seventh pass should run, not outstanding work:
+
+- Before claiming sentence case is complete, **look at the rendered page**,
       not just the templates.
-- [ ] Grep for `.upcase`, `.titleize` and `.capitalize` in views and helpers.
+- Grep for `.upcase`, `.titleize` and `.capitalize` in views and helpers.
       `stock.ticker.upcase` and an avatar initial are correct; a heading is not.
-- [ ] Grep for `uppercase` in markup as well as stylesheets.
-- [ ] Copy also lives in `config/locales/en.yml`, including
+- Grep for `uppercase` in markup as well as stylesheets.
+- Copy also lives in `config/locales/en.yml`, including
       `activerecord.attributes` names that surface inside validation messages.
-- [ ] When copy changes, propagate to tests from the **views diff**, not by
+- When copy changes, propagate to tests from the **views diff**, not by
       re-running the converter over test files - those contain fixture data and
       real company names that must not be rewritten.
-- [ ] Title Case is sometimes correct: acronyms, tickers, CamelCase such as
+- Title Case is sometimes correct: acronyms, tickers, CamelCase such as
       `DateTime`, company names, and people's names. Two were caught mid-sweep
       and reverted: `John Doe` and `DateTime`.
 
@@ -387,18 +292,15 @@ So the standing checks are:
       policy - adding routes would have let any signed-in student delete schools -
       and because its apparent test coverage was actually exercising
       `Admin::SchoolsController`. Recorded in `migration.md`.
-- [ ] 21 unused custom CSS classes in `admin.css`/`shadcn.css` (see above).
-- [ ] **Nav depth: flatten the Trading floor disclosure.** Mapped as Map A in
-      `migration.md`. Blocked on one product answer: is the per-stock sidebar list used as a
-      navigation path, or a leftover? If it is wanted, the target is a bounded list (stocks the
-      student holds) rather than every active stock. Note that two tests in
-      `navbar_policy_visibility_test` assert on that sublist to prove a student sees only
-      permitted stocks - that coverage has to move, not disappear.
-- [ ] **One mobile drawer mechanism.** Mapped as Map B in `migration.md`. **Its step 0 is
-      making a 375px viewport testable**: every system test runs at 1400x1400 and the drawer
-      only exists below `lg`, so nothing in the suite has ever exercised either version. Doing
-      the rewrite before step 0 means a green suite that proves nothing. Both current triggers
-      also lack `aria-expanded`, Escape, a focus trap and focus return.
+- [x] ~~21 unused custom CSS classes in `admin.css`/`shadcn.css`~~ - moot, `admin.css` is deleted.
+- [x] ~~**Nav depth: flatten the Trading floor disclosure.**~~ **Done.** `_navbar` renders one flat
+      "Trading floor" row through `_nav_item`; the only `<details>` left in that file is the comment
+      recording the removal. Navigation holds destinations, and the stocks live on the page the row
+      points at.
+- [x] ~~**One mobile drawer mechanism.**~~ **Done.** Both layouts share
+      `data-controller="drawer table-scroll"`, and the controller has Escape, focus move-in, a focus
+      trap, focus return and a dynamically-set `aria-expanded` (the triggers carry it in markup too).
+      Its step 0 - a testable 375px viewport - is `in_phone_viewport` plus `mobile_navigation_test`.
 - [x] ~~**Decide whether `components/ui/_card` keeps the rule under its header.**~~
       **Closed: the header keeps its rule.** The surface half is settled and was documented
       all along - `.tw-card` in `app/assets/tailwind/cards.css` is
@@ -423,11 +325,11 @@ different. These are the pages not yet **rebuilt onto the primitives**.
 - [x] `admin/shared/_show_attributes` - rebuilt on `_card`, which covers ten
       admin show pages
 - [x] `portfolios/show` header - sentence-case `h1` with the school as subtitle
-- [ ] `portfolios/show` body - metric cards still hand-rolled with
-      `rounded-[22px]` and `border-black/30`; move onto `_card`. Student's main
-      screen, so highest value of what is left.
-- [ ] `stocks/_stock` and `stocks/show` - trading floor, the densest remaining
-      page
+- [x] `portfolios/show` body - **done.** Zero `rounded-[22px]` / `border-black/30` remain; the
+      KPI band, chart, earnings breakdown and holdings table are all `.tw-card`.
+- [x] `stocks/_stock` and `stocks/show` - **done.** `show` renders `_page_header` with `_badge`
+      for archived and the trading floor's own Buy/Sell partial; `_stock` lost its unreachable
+      second branch.
 - [x] Admin index pages - **done.** All eight render `_page_header` above the card,
       with the title as the page's real `h1` and the actions beside it. The card holds
       the table only.
@@ -435,8 +337,14 @@ different. These are the pages not yet **rebuilt onto the primitives**.
       the old outer card is gone (it used to wrap `admin_show_attributes`, which renders
       a card of its own), and each trailing section is now its own card instead of a
       `border-t` block.
-- [ ] `classrooms/*` and `grade_books/*` - teacher-facing
-- [ ] `devise/registrations/*`, `announcements/show`
+- [x] `classrooms/*` and `grade_books/*` - **done.** `classrooms/show` was the last page
+      hand-rolling its own header: two redundant `mx-auto w-full` wrappers, `my-6` on the title row,
+      an h1 joining name, grade and year with commas, and a form control inside that h1. It renders
+      `_page_header` now, and the roster moved onto `shared/_table_container` - it had been a bare
+      `overflow-x-auto` with no surface at all, beside a grade-book list that is a card.
+- [x] `devise/registrations/*`, `announcements/show` - **done.** `registrations/new` now matches
+      `sessions/new` (logo, page title, `py-12` rather than `min-h-screen` inside `main`), and both
+      auth links share the new `.tw-link-tap` rather than a hand-rolled string in one of them.
 
 
 ## Found while putting the icon tile on a component (2026-08)
@@ -470,3 +378,41 @@ different. These are the pages not yet **rebuilt onto the primitives**.
   `tw-link`, on the password-reset page.
 - ~~**`stocks#show` escaped the earlier sweeps.**~~ Fixed: it renders the shared page header, uses
   `_badge`, and lost the emoji, the double padding, the spacer div and the unbalanced `</div>`.
+
+## Found while closing the backlog (2026-08)
+
+- **`announcements#show` is an orphan.** The route is show-only, there is no index, and **nothing in
+  the app links to it** - the home card renders the announcement inline instead. Its "Back" button
+  therefore could not name a destination; it goes to home now. Either link the home card's title to
+  the full page, or drop the route.
+- **20 of 27 `--sitf-*` values have no references.** Only `sitf-primary`, `sitf-primary-dark` and
+  `sitf-on-primary` are live; the chart is single-series and uses `chart1` alone. The ones the
+  backlog named are deleted. The rest are a palette-level decision and several sit behind sanctioned
+  semantic names (`sitf-surface`, `sitf-warning`, `sitf-danger`, `sitf-accent`), which a future page
+  would reasonably reach for, so they are reported rather than swept:
+  `--sitf-4` … `--sitf-10`, `--sitf-background`, `--sitf-foreground`, `--sitf-muted`, `--sitf-input`,
+  `--sitf-dark-blue`, `--sitf-primary-blue`, `--sitf-accent1-chart3`, `--sitf-accent2-chart5`,
+  `--sitf-chart4`, `--sitf-on-accent`, `--sitf-accent-soft`, `--sitf-status-destructive`.
+- **Left deliberately, because they are not design calls:** the eight unused images (brand assets),
+  the three product decisions blocking Tier 3, a real profile page, and making "Getting started"
+  stateful. Each is recorded above with what it needs.
+
+## Closing pass (2026-08)
+
+Everything actionable in this file is now done or explicitly handed back. Two findings from the
+pass itself are worth keeping:
+
+- **`dark:text-slate-400` on the sign-up page was a live AA failure, recorded as justified.** It was
+  the only `dark:` variant in the app, and `.dark` is declared in `shadcn.css` but nothing applies
+  it - so the earlier audit read the variant as unreachable and scored it "6.99:1 on dark". Tailwind
+  v4 compiles `dark:` to `@media (prefers-color-scheme: dark)`, which the compiled stylesheet
+  confirms, so on any device with a dark OS setting that paragraph rendered slate-400 over a
+  background that stays light: **2.45:1**. A variant is not dead just because the app has no theme
+  switch.
+- **Two of this file's own counts came from greps that cannot be right.** `<th` matches `<thead>`,
+  and a line-based regex cannot see `alt:` on the next line. Both had already produced a wrong
+  number once and both did it again. Read the hits.
+
+**Left with whoever owns the decision**, each with what it needs written above: the eight unused
+images, the three product decisions blocking Tier 3, a real profile page, making "Getting started"
+stateful, and the 20 unreferenced palette values.

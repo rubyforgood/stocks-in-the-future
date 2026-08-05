@@ -87,6 +87,18 @@ one run in twenty failed with "Level has already been taken" and passed on rerun
 sequence now starts at 1000. Check for this shape when a uniqueness validation meets a
 sequence.
 
+**A `dark:` variant is live even with no dark mode.** Tailwind v4 compiles it to
+`@media (prefers-color-scheme: dark)`, so a `dark:text-slate-400` applies on any dark-OS device
+regardless of whether the app has a theme switch. `.dark` is declared in `shadcn.css` and nothing
+applies it, which made one look unreachable — and an audit scored it "justified, 6.99:1 on dark"
+while it rendered **2.45:1** over a background that stays light. There is no dark mode here, so
+there should be no `dark:`.
+
+**Two greps in this repo's audits cannot be right, and both have produced a wrong number twice.**
+`<th` matches `<thead>`, so "N `<th>` without scope" is inflated by every table. And a line-based
+regex cannot see an attribute on the following line, so "images without alt" counts every
+multi-line `image_tag`. Read the hits before recording a count.
+
 ## Money
 
 **Integer cents are authoritative. Never convert to a Float and back.**

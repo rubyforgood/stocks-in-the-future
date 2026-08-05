@@ -515,6 +515,38 @@ it is the **zero-balance state**, which is a real empty state - not the card tha
 `1_Number` through `4_Number`). Removing them is a call for whoever owns the brand assets, not a
 cleanup to do quietly - see design-todo.
 
+### `dark:` is not inert, and there is no dark mode here
+
+`.dark` is declared in `shadcn.css` and **nothing applies it** — no class toggle, no `data-theme`,
+no `@custom-variant`. That made a `dark:text-slate-400` on the sign-up page look unreachable, and an
+earlier contrast audit scored it as justified at "6.99:1 on dark".
+
+**Tailwind v4 compiles `dark:` to `@media (prefers-color-scheme: dark)`**, which the compiled
+stylesheet confirms:
+
+```css
+@media (prefers-color-scheme:dark){.dark\:text-slate-400{color:var(--color-slate-400)}
+```
+
+So on any device whose OS is set to dark, that paragraph rendered slate-400 over a background that
+stays light — **2.45:1**, a straight AA failure, for a group nobody had looked at. A variant is not
+dead because the app has no theme switch; it is dead when no media query or class can trigger it.
+Until dark mode is actually built, `dark:` does not belong in this app, and there are now none.
+
+### Auth pages are one pair
+
+Sign in and sign up drift because they are built separately. Sign up had no logo, no page title, a
+`min-h-screen` wrapper inside a `<main>` that already sits below a 64px header, its own field
+spacing, and a description reading "Enter your email below to create an account" — for a form that
+asks for a **username**, on an app whose `authentication_keys` is `[:username]` and whose students
+may have no email at all.
+
+**A standalone link in an auth form is `.tw-link-tap`.** It carries the 44px height design.md
+reserves for bare tap targets and is underlined at rest — `.tw-link` drops the rest-state underline
+so a table dense with links is not a field of rules, and a lone link in a form is the opposite case.
+Sign in had built that inline as a five-utility local while sign up used `tw-link text-sm`, so the
+one link the two pages share looked different on each.
+
 ### One destination, one button — and the empty state wins
 
 Two buttons pointing at one path is the same fault as two labels for one path, from the other side.

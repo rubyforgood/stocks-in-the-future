@@ -21,7 +21,7 @@ class UserManagesClassroomsTest < ApplicationSystemTestCase
 
     assert_selector "#notice", text: "Classroom was successfully created"
     assert_selector "h1", text: "Test Classroom"
-    assert_selector "h1", text: "2023-2024"
+    assert_selector "p", text: "2023-2024"
   end
 
   test "admin can update a classroom" do
@@ -43,7 +43,7 @@ class UserManagesClassroomsTest < ApplicationSystemTestCase
 
     assert_selector "#notice", text: "Classroom was successfully updated"
     assert_selector "h1", text: "Updated Classroom"
-    assert_selector "h1", text: "2024-2025"
+    assert_selector "p", text: "2024-2025"
   end
 
   test "admin can update trading for a classroom" do
