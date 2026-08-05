@@ -327,6 +327,30 @@ signed-out `main` is `p-4 lg:p-6` rather than a flat `p-6`.
    unaffected.
 3. **The app bar trigger is no longer teal**, so a test looking for that fill would fail.
 
+### Spacing brought onto the 24px rhythm, and the in-table empty state fixed
+
+**What.** Twenty-two off-rhythm values to 24px (`mb-8`/`my-8` across the component gallery, `gap-8`
+×2, `space-y-8`, `p-8`, `mt-8` ×3), `pb-16` off two pages, `px-6 lg:px-8` off both auth pages, a
+`gap-0.5` off a table stack, and the search field's icon geometry onto `.tw-input-primary`'s `px-3`.
+
+**Why it has blast radius.**
+
+1. **`admin/shared/_empty_row` was shipping an off-token button.** Its CTA was written longhand at
+   `min-h-11 … px-4 py-2 … shadow-xs` — 44px tall against the 40px `h-10` token, with the wrong
+   shadow — and that partial backs the empty state on five admin index pages. It is `.tw-btn-primary`
+   now, so those five CTAs changed height. This is the same 44px mistake `CLAUDE.md` already records
+   for the admin buttons; it survived in a partial nobody re-read.
+2. **The classroom roster's empty state moved into the table body.** It was a hand-rolled
+   `text-center py-8` block *below* the table, so an empty roster rendered bare column headers with a
+   sentence stranded underneath, and its CTA was an eighth button shape (`rounded-md px-4 py-2`,
+   `border-transparent`). It now renders through `_empty_row` with an icon, a title and a body, so
+   the copy changed: "No students in this classroom yet." became "No students yet" plus a sentence.
+   Anything asserting the old string breaks.
+3. **Both auth pages lost 24px of horizontal padding at base and 32px at `lg`**, and two pages lost
+   64px of bottom padding. They were adding it on top of `main`'s.
+4. `spacing_test.rb` now asserts the 24px section rhythm and the 16px auth edge as **pixels**, so
+   reintroducing a page's own padding fails there rather than in review.
+
 ### Arbitrary values converted, and the shadcn checkbox rebuilt
 
 **What.** `style="height: 300px"` to `h-75`, `style="width: 400px"` to `w-100`,

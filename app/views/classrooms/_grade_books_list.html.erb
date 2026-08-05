@@ -5,7 +5,7 @@
     does; the list is the card's flush body.
 
     The empty case is the shared empty state rather than centre-aligned slate-500 text. %>
-<div class="mt-8 w-64 flex-initial">
+<div class="w-64 flex-initial">
   <%= render layout: "components/ui/card", locals: { title: "Grade books", padded: false } do %>
     <% if grade_books.any? %>
       <ul class="divide-y divide-slate-100">

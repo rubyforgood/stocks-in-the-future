@@ -15,13 +15,12 @@
       action_path  - optional call to action target %>
 <tr>
   <td colspan="<%= colspan %>" class="p-0">
-    <% action_class = "inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-sitf-primary px-4 py-2 text-sm font-semibold text-sitf-on-primary shadow-xs transition-colors hover:bg-sitf-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary-dark" %>
     <%= render layout: "components/ui/empty_state",
                locals: { title: title,
                          body: local_assigns[:body],
                          icon: local_assigns.fetch(:icon, "inbox") } do %>
       <% if local_assigns[:action_label].present? && local_assigns[:action_path].present? %>
-        <%= link_to action_label, action_path, class: action_class %>
+        <%= link_to action_label, action_path, class: "tw-btn-primary" %>
       <% end %>
     <% end %>
   </td>

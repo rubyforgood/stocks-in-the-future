@@ -135,6 +135,61 @@ class SpacingTest < ApplicationSystemTestCase
                     "max-width narrow enough for mx-auto to centre it, are the usual causes"
   end
 
+  # The section rhythm. Nine places used 32px or 64px instead - gap-8 between panes, space-y-8
+  # between sections, mt-8 on children that a flex row already spaced, and pb-16 or px-6 lg:px-8
+  # on top of the padding main already provides. Asserting the gap between top-level sections
+  # catches a page reintroducing its own.
+  RHYTHM = 24
+
+  test "sections on a page are 24px apart" do
+    classroom = create(:classroom, :with_trading)
+    student = create(:student, :with_portfolio, classroom:)
+    create(:portfolio_transaction, :deposit, portfolio: student.portfolio, amount_cents: 100_000)
+
+    sign_in(student)
+
+    [root_path, stocks_path].each do |path|
+      visit path
+
+      section_gaps.each do |gap|
+        assert_in_delta RHYTHM, gap, TOLERANCE,
+                        "#{path} has a #{gap}px gap between sections; the rhythm is #{RHYTHM}px"
+      end
+    end
+  end
+
+  # An auth page is not inside the sidebar layout, so its own padding is the only gutter there
+  # is - and both of them set px-6 lg:px-8 on top of main's p-4 lg:p-6, which put the sign-in
+  # card 40px from the edge of a 375px phone while every other page sat at 16px.
+  test "the sign-in card sits on the same edge as every other page" do
+    page.driver.browser.manage.window.resize_to(375, 812)
+    visit new_user_session_path
+
+    left, right = page.evaluate_script(<<~JS)
+      (function () {
+        const b = document.querySelector("main form, main > div > div").getBoundingClientRect();
+        return [Math.round(b.left), Math.round(document.documentElement.clientWidth - b.right)];
+      })()
+    JS
+
+    assert_in_delta 16, left, TOLERANCE, "sign-in is not on the standard 16px edge"
+    assert_in_delta 16, right, TOLERANCE, "sign-in is not on the standard 16px edge"
+  end
+
+  def section_gaps
+    page.evaluate_script(<<~JS)
+      (function () {
+        const kids = Array.from(document.querySelectorAll("main > div > *"));
+        const out = [];
+        for (let i = 0; i < kids.length - 1; i++) {
+          const a = kids[i].getBoundingClientRect(), b = kids[i + 1].getBoundingClientRect();
+          if (a.height > 0 && b.height > 0) out.push(Math.round(b.top - a.bottom));
+        }
+        return out;
+      })()
+    JS
+  end
+
   def sidebar_to_content_gutter(card_selector)
     page.evaluate_script(<<~JS)
       (function () {

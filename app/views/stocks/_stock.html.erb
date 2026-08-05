@@ -63,7 +63,7 @@
       <%= render layout: "components/ui/card",
                  locals: { title: "Financial metrics",
                            subtitle: "This company against the average for its industry." } do %>
-        <div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <% { "Company performance" => company_metrics, "Industry averages" => industry_metrics }.each do |heading, metrics| %>
             <% next if metrics.empty? %>
             <div>

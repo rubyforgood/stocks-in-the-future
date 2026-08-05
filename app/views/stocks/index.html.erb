@@ -25,7 +25,7 @@
   <%# Was a second <main>. The layout already provides one, and a document may only
       have a single main landmark. Titles were Title Case - another hiding place
       the copy sweeps could not see, since they are keyword arguments to render. %>
-  <div class="space-y-8 pb-6">
+  <div class="space-y-6">
     <%= render "stocks/stocks_table", title: "Active stocks", stocks: @stocks.active %>
     <%= render "stocks/stocks_table", title: "Archived stocks", stocks: @stocks.archived %>
   </div>

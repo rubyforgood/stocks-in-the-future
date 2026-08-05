@@ -515,6 +515,42 @@ it is the **zero-balance state**, which is a real empty state - not the card tha
 `1_Number` through `4_Number`). Removing them is a call for whoever owns the brand assets, not a
 cleanup to do quietly - see design-todo.
 
+### Spacing rhythm: 24px, and the container owns it
+
+**Sections and cards separate by 24px** — `space-y-6`, `gap-6`, `mb-6`. Nothing in the app was
+literally off Tailwind's 4px scale; what was wrong is that twenty-two places used 32px or 64px
+instead, which is not a second rhythm so much as no rhythm:
+
+| Was | Where |
+|---|---|
+| `mb-8`, `my-8` ×20 | the component gallery — the one page that is supposed to *demonstrate* the system |
+| `gap-8` | `classrooms#show`'s two panes, `stocks#show`'s detail grid |
+| `space-y-8` | the trading floor's sections |
+| `mt-8` | the roster and the grade book list, each carrying its own top margin |
+| `p-8` | the announcement body, the only 32px card body in the app |
+| `pb-16` | home and `announcements#show`, on top of `main`'s `pb-6` |
+| `px-6 lg:px-8` | both auth pages, on top of `main`'s `p-4 lg:p-6` |
+
+**The container owns spacing, not the child.** The roster and the grade book list each set `mt-8`,
+so they agreed with each other and with nothing else — the flex row they sit in already spaces them.
+`pb-16` and `px-6 lg:px-8` are the same mistake as the 48px content gutter: a page adding padding the
+layout already provides. Measured after, sign-in sits **16px** from each edge at 375px rather than
+40px, and the gap between top-level sections is **24px** on every page.
+
+**Half-steps are fine where a token names them.** `px-2.5 py-1` is the badge, `gap-1.5` the ghost
+and the badge, `mt-0.5` the checkbox nudge, `lg:py-1.5` the nav row. What is not fine is a half-step
+nobody named: a `gap-0.5` on a two-line table stack that two other tables render with no gap.
+
+**32px and up is a measurement of something else on screen, or it is nothing.** What survives:
+`mt-16` / `pt-16` clearing the 64px fixed header, `lg:ml-64` / `lg:pl-64` clearing the 256px sidebar,
+`py-12` on the page-level empty state and the vertically centred auth pages, `py-10` in
+`.table-empty-cell`, and two `pr-10`s reserving room for a modal close button and a select's arrow.
+
+**An icon inside an input sits on the input's own padding.** `.tw-input-primary` is `px-3`, so a
+leading icon goes at `left-3` with the field at `pl-10` — 12px, a 16px glyph, 12px. The search field
+had the icon at `pl-5` and the field at `pl-14`, so its glyph and its text both sat on a margin no
+other input used. Stripe, Primer and Tailwind UI all draw it at 12/16/12.
+
 ### No gradients, and arbitrary values only where the scale has no answer
 
 **There are no gradients.** The one that existed - the home hero's `from-sitf-hero-from

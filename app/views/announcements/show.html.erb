@@ -1,6 +1,6 @@
 <% content_for :title, @announcement.title %>
 
-<div class="max-w-7xl mx-auto space-y-6 pb-16">
+<div class="max-w-7xl mx-auto space-y-6">
 
   <%# The title was a saturated bg-teal-700 band inside the card, at text-lg with tracking-wide -
       Tailwind's teal, which is a mint green and not the brand (sitf-primary is #00698c), and two
@@ -12,12 +12,12 @@
              locals: { title: @announcement.title } do %><% end %>
 
   <div class="tw-card">
-    <div class="p-8">
+    <div class="p-5">
       <div class="trix-content text-slate-700 leading-relaxed">
         <%= @announcement.content %>
       </div>
 
-      <div class="mt-8 pt-6 border-t border-slate-200">
+      <div class="mt-6 pt-5 border-t border-slate-200">
         <%= link_to "Back", :back, class: "tw-btn-secondary" %>
       </div>
     </div>

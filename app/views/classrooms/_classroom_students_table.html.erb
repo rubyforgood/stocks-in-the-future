@@ -1,4 +1,4 @@
-<div class="mt-8">
+<div>
   <div class="overflow-x-auto">
     <table class="table-base">
       <thead>
@@ -65,17 +65,20 @@
             <% end %>
           </tr>
         <% end %>
+
+        <%# In the table body, like every other table here. It used to sit below the table as a
+            hand-rolled `text-center py-8` block, so an empty roster rendered bare column headers
+            with a sentence stranded underneath, and its CTA was a longhand rounded-md button. %>
+        <% if @students.empty? %>
+          <%= render "admin/shared/empty_row",
+                     colspan: @can_manage_students ? 4 : 2,
+                     icon: "graduation-cap",
+                     title: "No students yet",
+                     body: "Students you add appear here with their portfolio value.",
+                     action_label: (@can_manage_students ? "Add the first student" : nil),
+                     action_path: (@can_manage_students ? new_classroom_student_path(@classroom) : nil) %>
+        <% end %>
       </tbody>
     </table>
   </div>
-
-  <% if @students.empty? %>
-    <div class="text-center py-8">
-      <p class="text-slate-500">No students in this classroom yet.</p>
-      <% if @can_manage_students %>
-        <%= link_to "Add the first student", new_classroom_student_path(@classroom),
-                    class: "mt-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-sitf-primary hover:bg-sitf-primary-dark" %>
-      <% end %>
-    </div>
-  <% end %>
 </div>
