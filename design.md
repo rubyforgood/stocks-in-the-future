@@ -299,7 +299,18 @@ card, and a student in their first month should not be shown an achievement they
 2. **The first-share moment.** Inline, not a modal: on a shared Chromebook a modal is dismissed by
    whoever walks past, and it cannot cover the page it is explaining. Once per student, remembered
    in `portfolios.first_share_acknowledged_at` - a timestamp, so the record says *when* as well as
-   whether. It celebrates **owning**, not buying.
+   whether. It explains **owning**, not buying.
+
+   **The icon is `chart-pie`, not `party-popper`, and the distinction is the whole point.** The copy
+   says "you hold", never "you just bought", so the message is accurate for any holder - which
+   matters, because nothing was backfilled and every existing student sees it once. A party popper
+   implied a recency the words never claimed. A pie slice is what the sentence is about: a part of a
+   whole. It also cannot be a `lightbulb`, which "Your money at work" already uses on the same page.
+
+   **Nothing is backfilled, deliberately.** Not backfilling costs current holders one
+   out-of-context, one-click-dismissible message. Backfilling would permanently deny the explanation
+   to every student who has already bought - and in an app for teaching financial literacy the
+   explanation is the product. A permanent cost to avoid a transient one.
 3. **A plain-English summary.** It restates figures already on the page, which is the point: reading
    "$4.00 is still waiting to be invested" makes an idle balance a decision rather than a number.
    `pluralize`, so nobody reads "1 companies".

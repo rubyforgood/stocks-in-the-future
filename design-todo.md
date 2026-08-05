@@ -176,11 +176,13 @@ The six recommended features are implemented on `portfolios#show` - see design.m
 student side". The previews at `/admin/component_demo/delight` are still there, development only, and
 can be deleted.
 
-**Still open:** the preview showed a second personal best, a *reading streak*. It is not built,
-because a streak needs to know what it counts. Earnings arrive per quarter from
-`DistributeEarnings`, not monthly, so a monthly streak would be wrong; and a transaction's quarter
-is not derivable from its `created_at` alone without joining through grade books. Rather than ship a
-plausible-looking number about money, it needs a decision on what a streak means here.
+**The reading streak is closed, not open: decided against.** Earnings are distributed when an adult
+clicks Finalize on a grade book (`grade_books_controller#finalize`), and a school year has four
+quarters. So a student's streak breaks when a *teacher* is late; four data points a year gives none of
+the feedback that makes a streak work at all; and one break is unrecoverable within the year, landing
+hardest on the student who had a bad term - the last person to discourage. If that recognition is
+wanted, the shape that survives all three is a **cumulative count** ("earned reading money in 3
+quarters"), which is monotonic and cannot be taken away. Rated below the six that shipped.
 
 ### There is no user profile page
 

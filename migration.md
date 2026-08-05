@@ -336,11 +336,13 @@ under `portfolios/`.
 
 **Why it has blast radius.**
 
-1. **A migration.** `first_share_acknowledged_at` is null for every existing portfolio, so every
-   student who already holds shares will see the first-share message once. That is the intended
-   behaviour for a new feature, but it does mean a message appears for people who bought months ago.
-   Backfilling it to `Time.current` for existing holders would suppress that - a product call, not a
-   technical one.
+1. **A migration, deliberately not backfilled.** `first_share_acknowledged_at` is null for every
+   existing portfolio, so every student who already holds shares sees the first-share message once.
+   That was a product call and it was made: **do not backfill.** The copy says "you hold", never
+   "you just bought", so the message is accurate for any holder; not backfilling costs a transient,
+   one-click-dismissible oddity, while backfilling would permanently deny the explanation to the
+   students who already bought. The icon was softened from `party-popper` to `chart-pie` instead,
+   because it was the celebratory framing rather than the message that implied recency.
 2. **`_stat` gained two locals.** Existing calls are unaffected; the line only renders when `change`
    is present.
 3. **Every figure is integer cents.** `PortfolioInsights` returns cents and `nil`, never a Float and
