@@ -170,6 +170,35 @@ Counts are indicative, found by pattern matching - confirm by reading the file.
 
 ## Cross-cutting work items
 
+### Delight proposals, awaiting a decision
+
+Six previews live at `/admin/component_demo/delight`, **development only** - the controller raises
+outside development, because a live page of hypothetical UI reads as shipped product and its
+hard-coded figures read as real money. Every number in it is a literal.
+
+In the order I would build them:
+
+1. **Change since last month** on the portfolio value card. Smallest change, most teaching value.
+   Needs a decision on the comparison period. Both directions must render, and a loss must not read
+   as failure.
+2. **The first-share moment** - inline, once, above the holdings table. Needs a per-student flag, so
+   a migration.
+3. **Your money at work** - one plain-English sentence restating figures already on the page. No new
+   data.
+4. **Companies you own** - the ten logos already in the repo, as a collection. No new data. The
+   greyed-out "not owned" slots nudge collecting for completeness; drop them if that is a concern.
+5. **Warmer empty state** - copy plus the balance. Nearly free.
+6. **Personal bests** - only ever against the student's own history. Needs earnings grouped by
+   month.
+
+**Not recommended, decided rather than omitted:** confetti or streaks on a *purchase* (celebrating
+buying is the opposite lesson, and a streak makes not trading feel like failure), and a classroom
+leaderboard (earnings come from grades, so ranking publishes a student's school record to their
+classmates).
+
+Applies to all of them: `prefers-reduced-motion`, 375px, never colour alone, integer cents, and a
+loss is not a mistake.
+
 ### There is no user profile page
 
 The account menu has no "Edit profile" item because the functionality does not exist:

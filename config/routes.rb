@@ -51,6 +51,9 @@ Rails.application.routes.draw do
     resources :component_demo, only: %i[index show] do
       collection do
         get :form
+        # Design previews of proposals that have not been built. Development only - see the
+        # controller, which refuses it elsewhere.
+        get :delight
       end
     end
 
