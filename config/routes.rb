@@ -7,10 +7,34 @@ Rails.application.routes.draw do
 
   root "home#index"
 
-  devise_for :users
+  # Registrations, minus the account-edit half. /profile/edit is the account page: it sets a display
+  # name, which Devise's registrations#edit cannot, and it does not demand the current password
+  # before it will save one. Keeping both left two pages doing the same job, one of them worse.
+  #
+  # What is deliberately not routed any more:
+  #
+  #   PATCH/PUT /users (registrations#update) - nothing renders a form posting to it now that
+  #     registrations/edit is gone, and leaving it routed would make a validation failure render a
+  #     template that no longer exists.
+  #   DELETE /users (registrations#destroy) - the "Delete account" button. It never worked: User
+  #     raises "Hard delete attempted ... Use #discard instead", so the button returned a 500, and it
+  #     had no test at all. Had it worked it would have been worse - portfolio and orders are
+  #     `dependent: :destroy`, so a student could have deleted their own money history. Account
+  #     removal here is an adult's action and already exists as admin Deactivate / Reactivate, which
+  #     discards rather than destroys.
+  #   /users/cancel (registrations#cancel) - part of the same self-service delete flow.
+  #
+  # A previous `devise_scope` block redirected users/sign_up to root, but it was declared *after*
+  # devise_for, and the first matching route wins - so it never fired and sign-up rendered anyway.
+  # Removed rather than moved: whether public sign-up should be open at all is a product question,
+  # recorded in design-todo, and a dead route that reads as though it closed sign-up is worse than
+  # no route.
+  devise_for :users, skip: %i[registrations]
 
   devise_scope :user do
-    get "users/sign_up", to: redirect("/")
+    get "users/sign_up", to: "devise/registrations#new", as: :new_user_registration
+    post "users", to: "devise/registrations#create", as: :user_registration
+    get "users/edit", to: redirect("/profile/edit"), as: :edit_user_registration
   end
 
   # only: [] because there is no top-level UsersController. index / show / new / edit / create /

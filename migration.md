@@ -327,6 +327,32 @@ signed-out `main` is `p-4 lg:p-6` rather than a flat `p-6`.
    unaffected.
 3. **The app bar trigger is no longer teal**, so a test looking for that fill would fail.
 
+### One account page: registrations#edit removed, and self-service deletion with it
+
+**What.** `devise/registrations/edit.html.erb` is deleted. `devise_for :users, skip: %i[registrations]`
+with `new`, `create` and a redirect re-added by hand, so `GET /users/edit` now 301s to
+`/profile/edit`. `PATCH/PUT /users`, `DELETE /users` and `/users/cancel` are no longer routed.
+
+**Why it has blast radius.**
+
+1. **Self-service account deletion is gone, and it never worked.** The "Delete account" button posted
+   `DELETE /users` to `registrations#destroy`, which calls `resource.destroy` - and `User` raises
+   *"Hard delete attempted … Use #discard instead"*. So it returned a **500**, every time, with no
+   test covering it. Had it worked it would have been worse: `portfolio` and `orders` are
+   `dependent: :destroy`, so a student could have deleted their own money history. Account removal
+   here is an adult's action and already exists as admin **Deactivate / Reactivate**, which discards.
+   **If self-service closure is ever wanted it has to be built as a discard**, and someone has to
+   decide whether a student may lock themselves out of their coursework.
+2. **`PATCH /users` is unrouted**, so anything posting to Devise's account-update action now 404s.
+   Nothing in the app did once its only form went; the route had to go with the view, because a
+   validation failure there renders `registrations/edit`, which no longer exists.
+3. **`GET /users/edit` is a 301**, not a page. Any bookmark or external link lands on `/profile/edit`.
+4. **A dead route was removed.** `devise_scope :user { get "users/sign_up", to: redirect("/") }` was
+   declared *after* `devise_for`, and the first matching route wins - so it never fired and sign-up
+   rendered anyway. Behaviour is unchanged by deleting it; whether public sign-up should be open at
+   all is a product question, now in `design-todo`.
+5. `cancel_user_registration_path` and `destroy_user_registration_path` no longer exist as helpers.
+
 ### A real profile page, and thirteen image files deleted
 
 **What.** New `ProfilesController` (`edit` / `update` / `password`), `resource :profile`,

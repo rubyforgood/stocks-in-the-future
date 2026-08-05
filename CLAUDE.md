@@ -111,6 +111,16 @@ passes against a form that posts `student[…]`, because it agrees with the cont
 the browser. Eight controller tests passed while every real submit 400'd. Assert the *rendered*
 field names, or click the button.
 
+**Route order decides, so a route declared after `devise_for` never fires.** A
+`devise_scope :user { get "users/sign_up", to: redirect("/") }` sat below `devise_for :users` and
+looked like it closed public sign-up. It did not - `/users/sign_up` rendered the form with a 200.
+To override a Devise path, declare yours *first*, or `skip:` the module and re-add what you want.
+
+**A destructive control with no test may never have worked.** "Delete account" posted to Devise's
+`registrations#destroy`, which calls `resource.destroy`, and `User` raises *"Hard delete attempted …
+Use #discard instead"*. It returned a 500 every time, for as long as it had existed. Before moving
+or restyling a destructive control, run it.
+
 ## Money
 
 **Integer cents are authoritative. Never convert to a Float and back.**

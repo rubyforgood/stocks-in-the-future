@@ -429,8 +429,20 @@ stateful, and the 20 unreferenced palette values.
 
 ## Profile page follow-ups (2026-08)
 
-- **`devise/registrations#edit` now duplicates `/profile/edit`.** Both let you change email and
-  password; only the profile page lets you set a display name, and only Devise's demands the current
-  password to change anything. Point `/users/edit` at the profile page, or delete the Devise view
-  and narrow the route.
+- ~~**`devise/registrations#edit` now duplicates `/profile/edit`.**~~ **Done**: the view is deleted,
+  `/users/edit` 301s to `/profile/edit`, and `PATCH /users`, `DELETE /users` and `/users/cancel` are
+  unrouted. Two product questions came out of it, below.
 - **`SITF-Horz-logo.svg` is unreferenced** - the only tagline logo, kept deliberately.
+
+## Product questions from the account work (2026-08)
+
+- **Should public sign-up be open?** `/users/sign_up` renders and creates accounts. Someone had tried
+  to close it with a redirect declared after `devise_for`, which never fired, so it has been open the
+  whole time. Students and teachers are otherwise created by an admin or a teacher, which suggests it
+  should not be - but closing it is a behaviour change with tests attached, so it is a decision, not
+  a sweep.
+- **Should anyone be able to close their own account?** The button that claimed to had never worked -
+  `User` refuses a hard delete - and a working version would have destroyed the student's portfolio
+  and orders, which are `dependent: :destroy`. If self-service closure is wanted it has to be a
+  `discard`, and someone has to decide whether a child may lock themselves out of their coursework.
+  Admin Deactivate / Reactivate covers the adult-administered case today.

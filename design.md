@@ -538,6 +538,16 @@ Stripe and Linear use: the destructive-ish action last. It is the one exception 
 holding no navigation — an account action about the identity the panel exists to show, and nowhere
 else in the chrome would carry it.
 
+**There is one account page, not two.** Devise's `registrations#edit` was the other, and it lost:
+it cannot set a display name, and it demands the current password before saving one. `GET /users/edit`
+redirects here.
+
+**No self-service account deletion.** The button that offered it had never worked - `User` refuses a
+hard delete - and a working version would have taken the student's portfolio and orders with it.
+Deactivation is an adult's action, and admin already has it. This is the general shape: a destructive
+control in a product where the data is a child's financial record belongs to the adult administering
+it.
+
 **A display name changes the avatar.** Initials and tone both derive from `display_name`, which now
 prefers the `name` column — a column that had existed all along with nothing ever reading it.
 
