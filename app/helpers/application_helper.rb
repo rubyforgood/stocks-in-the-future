@@ -41,6 +41,14 @@ module ApplicationHelper
     "Account"
   end
 
+  # portfolio_stocks.shares is decimal(15,2), so a sum comes back as a BigDecimal and rendered
+  # straight it reads "3.0" - which it did on every trading-floor row and in the portfolio holdings
+  # table. Truncating to an integer would be wrong, because the column really can hold a fraction;
+  # stripping insignificant zeros gives "3" for 3.0 and keeps "1.5" as 1.5.
+  def share_count(shares)
+    number_with_precision(shares.to_d, precision: 2, strip_insignificant_zeros: true)
+  end
+
   def ticker_stocks
     Stock.active.order(:ticker)
   end

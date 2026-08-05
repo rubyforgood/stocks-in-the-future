@@ -446,3 +446,21 @@ stateful, and the 20 unreferenced palette values.
   and orders, which are `dependent: :destroy`. If self-service closure is wanted it has to be a
   `discard`, and someone has to decide whether a child may lock themselves out of their coursework.
   Admin Deactivate / Reactivate covers the adult-administered case today.
+
+## Archived stocks: retention needs a column first (2026-08)
+
+The trading floor's archived list now surfaces only what a viewer can act on and puts the rest behind
+a disclosure, with each row saying "No longer trading" and, where known, when it was last priced.
+Three things it cannot say, and why:
+
+- **There is no `archived_at`.** `stocks.archived` is a bare boolean, so nothing records *when* a
+  stock was archived. `last_trading_day` is the nearest date and is what the rows show, but the price
+  job only sets it for stocks it has seen, so it is nil for anything archived before the job ran or
+  never fetched.
+- **Nothing purges them.** No job deletes or ages archived stocks - the list only grows. A retention
+  policy needs `archived_at` to age against, so the column comes first.
+- **Whether they should be purged at all is a product question.** A student's `portfolio_stocks` and
+  `orders` reference stocks by id, so deleting an archived stock would orphan or cascade real
+  financial history. The likely answer is that stocks are never deleted and the *list* is what needs
+  ageing - e.g. hide anything last priced over a year ago from the disclosure, with an admin filter
+  that still shows everything.

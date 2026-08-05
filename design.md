@@ -644,6 +644,54 @@ all" (its card is already titled "Recent transactions", so the noun was said twi
 other label is a bare imperative. Worst was **"Cancel my account"**, which permanently deletes it,
 while "Cancel" on every other button in this app means *dismiss* — it is "Delete account".
 
+### Buying power is a figure, not a card — and it belongs in the order ticket
+
+The trading floor put the whole "My earnings to invest" card, a **217x114** bordered `.tw-card`, in
+the header row beside the h1. Measured:
+
+| | Header row | First table row | Rows visible |
+|---|---|---|---|
+| 1366x768 (625px usable) | 130px | 296px | 5 of 7 |
+| 375x812 (669px usable) | 178px | 344px | **2 of 7** |
+
+A page whose whole purpose is a list of things to buy opened with the list half off screen.
+
+**No brokerage puts buying power in a card above the instrument list.** Fidelity, Schwab, E*Trade and
+Vanguard all render "cash available to trade" as a compact labelled figure in a summary strip;
+Robinhood keeps it off the list entirely, because it belongs where the decision is made — the order
+ticket. This app already does that: the order modal shows the fee, the total and the balance
+afterwards. So the figure stays, since a student choosing what to buy wants their budget in view
+while scanning, but as **a two-line figure on the header's baseline**: `text-xs` label over a
+`text-base font-semibold tabular-nums` value, in `_page_header`'s actions slot. Header 130px -> 40px,
+first row 296px -> 206px.
+
+**Whatever goes in a page header's action slot has to be action-sized.** That slot is
+`flex items-center gap-2` and every other page puts 40px controls in it. A card there does not
+misalign because of a class; it misaligns because it is three times the height of the thing the row
+was built to hold.
+
+### An archived list earns its place only where it is actionable
+
+The archived stocks table was every archived stock, in a table identical to the active one, with no
+date, no explanation, and an **empty actions column** — because `StockPolicy#show_trading_link?`
+withholds trading on an archived stock unless the viewer holds it. For almost every reader it was a
+price list of things they cannot buy, under the list of things they can.
+
+**The one thing the data supports is selling a position you already hold.** So:
+
+- **Archived stocks you hold** render as a normal titled table, with Sell (and Buy withheld, which
+  the policy already did).
+- **Everything else** goes behind a native `<details>` — "Archived stocks (N)" — so it costs no
+  vertical space until asked for. A teacher is not an admin and has no other view of archived
+  stocks, so hiding it outright would remove their only access.
+- **Every archived row says why it is there**: "No longer trading", plus "last priced <date>" when
+  `last_trading_day` is set. There is no `archived_at` column — `archived` is a bare boolean — and
+  `last_trading_day` is the more useful figure anyway, because it says when the price was last real.
+
+**Nothing purges them and nothing can, yet.** No job deletes or ages archived stocks, and with no
+`archived_at` there is no date to age them against, so the list only grows. That needs a column
+before it can need a policy — recorded in `design-todo`.
+
 ### A figure card with an icon is `_stat`, not a second copy of it
 
 `portfolios#show` put two cards side by side in one grid row with their tiles on **opposite sides** —

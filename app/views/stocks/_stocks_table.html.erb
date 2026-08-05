@@ -1,6 +1,11 @@
 <%# design.md section-title scale: text-base font-semibold. Was text-2xl, the same
-    size as the page h1. %>
-<h2 class="mb-3 text-base font-semibold text-slate-900"><%= title %></h2>
+    size as the page h1.
+
+    Optional, because the archived disclosure's <summary> is already the heading for the table
+    inside it - a second one under it would announce the same section twice. %>
+<% if local_assigns[:title].present? %>
+  <h2 class="mb-3 text-base font-semibold text-slate-900"><%= title %></h2>
+<% end %>
 <%# table-fixed, with a width on every column but the first.
     Active stocks and Archived stocks are two separate <table> elements rendered from this one
     partial, and with the default auto layout each sized its columns from its own content: the
@@ -35,7 +40,7 @@
       <%= render "admin/shared/empty_row",
                  colspan: policy(Stock).show_holdings? ? 4 : 2,
                  icon: "chart-line",
-                 title: "No #{title.downcase} to show",
+                 title: local_assigns[:title].present? ? "No #{title.downcase} to show" : "Nothing to show",
                  body: "Stocks appear here once your teacher adds them." %>
     <% end %>
   </tbody>

@@ -28,10 +28,16 @@ class IconTileTest < ApplicationSystemTestCase
                     "the home balance is indented behind its icon tile; the tile belongs on the " \
                     "label's line, not in a column beside the whole card"
 
+    # The trading floor had a second copy of this card, with the same indent bug. It has no card at
+    # all now: the figure is a compact line in the page header, because a 217x114 card in the header
+    # row pushed the list of things to buy 296px down a 625px viewport. So the assertion there is
+    # that no card is carrying a balance, and the figure is in the header.
     visit stocks_path
 
-    assert_in_delta FLUSH, body_indent(".tw-card"), TOLERANCE,
-                    "the trading floor balance is indented behind its icon tile"
+    assert_no_selector "main .tw-card .tabular-nums:not(td *)",
+                       text: /^\$/, wait: 0
+
+    assert_selector "main h1 + p, main div p.tabular-nums", text: /\$/
   end
 
   test "a step numeral is a tile, not a saturated disc" do

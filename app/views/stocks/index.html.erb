@@ -1,5 +1,19 @@
-<div class="w-full">
+<%# Trading floor.
 
+    The header used to be hand-rolled, and it carried the whole "My earnings to invest" card - a
+    217x114 bordered .tw-card - in the row beside the h1. Measured at 1366x768 that made the header
+    row 130px and pushed the first table row to 296px, half the usable height; at 375px the header
+    was 178px, the first row started at 344px and **two of seven rows** were visible. The page is a
+    list of things to buy, and the list was below the fold.
+
+    No brokerage puts buying power in a card above the instrument list. Fidelity, Schwab, E*Trade and
+    Vanguard all render "cash available to trade" as a compact labelled figure in a summary strip, and
+    Robinhood keeps it off the list entirely - it belongs where the decision is made, which is the
+    order ticket. This app already does that: the order modal shows the fee, the total and the
+    balance afterwards. So the figure stays, because a student choosing what to buy wants to see their
+    budget while scanning, but as a figure on the header's baseline rather than a card - and the page
+    is on components/ui/_page_header like every other page, which it also was not. %>
+<div class="w-full">
   <% if current_user.student? && !current_user.classroom&.trading_enabled? %>
     <%= render "components/ui/callout",
                title: "Trading is turned off for your classroom",
@@ -7,26 +21,22 @@
                class: "mb-5" %>
   <% end %>
 
-  <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 pt-4 mb-6">
-    <%# design.md page-title scale. Was text-4xl, which outweighed every other
-        heading in the app. %>
-    <h1 class="text-2xl font-bold tracking-tight text-slate-900">Trading floor</h1>
-    <%# show_holdings? on its own. The `|| current_user.student?` that used to be here widened
-        this to students with no persisted portfolio, and the card dereferences @portfolio - which
-        stocks#index only sets for a student who has one. A student without a portfolio got a 500
-        on the trading floor, not a degraded page. %>
+  <%= render layout: "components/ui/page_header", locals: { title: "Trading floor" } do %>
+    <%# show_holdings? on its own. The `|| current_user.student?` that used to be here widened this
+        to students with no persisted portfolio, and stocks#index only sets @portfolio for a student
+        who has one - so a student without a portfolio got a 500, not a degraded page. %>
     <% if policy(Stock).show_holdings? %>
-      <div class="w-full lg:w-auto">
-        <%= render 'shared/earnings_to_invest_card' %>
+      <div class="text-left lg:text-right">
+        <p class="text-xs font-medium text-slate-600">Cash to invest</p>
+        <p class="text-base font-semibold text-slate-900 tabular-nums">
+          <%= number_to_currency(@portfolio.cash_balance) %>
+        </p>
       </div>
     <% end %>
-  </div>
+  <% end %>
 
-  <%# Was a second <main>. The layout already provides one, and a document may only
-      have a single main landmark. Titles were Title Case - another hiding place
-      the copy sweeps could not see, since they are keyword arguments to render. %>
   <div class="space-y-6">
     <%= render "stocks/stocks_table", title: "Active stocks", stocks: @stocks.active %>
-    <%= render "stocks/stocks_table", title: "Archived stocks", stocks: @stocks.archived %>
+    <%= render "stocks/archived_stocks", stocks: @stocks.archived %>
   </div>
 </div>

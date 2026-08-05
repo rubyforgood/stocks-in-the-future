@@ -327,6 +327,30 @@ signed-out `main` is `p-4 lg:p-6` rather than a flat `p-6`.
    unaffected.
 3. **The app bar trigger is no longer teal**, so a test looking for that fill would fail.
 
+### The trading floor header, and the archived list
+
+**What.** `stocks/index` renders `components/ui/_page_header` with a compact cash figure;
+`shared/_earnings_to_invest_card` is **deleted**. New `stocks/_archived_stocks` splits held from
+unheld and puts the unheld behind a `<details>`. `_index_row` gains an "archived" line.
+`_stocks_table`'s title is optional. New `share_count` helper.
+
+**Why it has blast radius.**
+
+1. **`shared/_earnings_to_invest_card.html.erb` is gone**, and it was the only place a non-student
+   saw a `tw-btn-primary-disabled` "Invest now". That branch was already dead on this page -
+   `show_holdings?` is false for a non-student, so the card never rendered for them - but the partial
+   is no longer available to anything.
+2. **The archived list is no longer a titled `<h2>` table.** It is a `<details>` whose `<summary>`
+   reads "Archived stocks (N)", except for rows the viewer holds, which get their own titled table.
+   `stocks_controller_test` asserted the old `<h2>`.
+3. **`icon_tile_test` asserted the trading floor's balance card was flush.** There is no card there
+   now, so the assertion is inverted: no card carries a balance, and the figure is in the header.
+4. **Shares render through `share_count` in four places.** `portfolio_stocks.shares` is
+   `decimal(15,2)`, so `sum(:shares)` returns a BigDecimal and every trading-floor row, the portfolio
+   holdings table and the order modal read "3.0". Now "3", while a genuine fraction still shows as
+   "1.5" - truncating would have been wrong, because the column really can hold one.
+5. **`_stocks_table` accepts a nil title.** Its empty-state copy used `title.downcase`.
+
 ### `_stat` takes an icon, and the portfolio's two delight cards align
 
 **What.** `components/ui/_stat` gains `icon:` / `icon_tone:`, rendered as a 32px tile on the label's

@@ -21,13 +21,24 @@
         <%= link_to stock.ticker, stock_path(stock), class: "tw-link" %>
         <span class="text-sm text-slate-600"><%= stock.company_name %></span>
 
+        <%# What "archived" means, for the one table where it is not obvious. There is no
+            archived_at column - `archived` is a bare boolean - so the date shown is
+            last_trading_day, which the price job maintains and which is the more useful figure
+            anyway: it says when this price was last real. Omitted when the job has never seen the
+            stock, rather than printing a blank. %>
+        <% if stock.archived? %>
+          <span class="mt-1 text-xs text-slate-600">
+            No longer trading<% if stock.last_trading_day.present? %> &middot; last priced <%= stock.last_trading_day.strftime("%-d %b %Y") %><% end %>
+          </span>
+        <% end %>
+
         <%# Below lg the holdings count and the trade buttons live here, in the one cell that is
             always on screen. As their own trailing columns they sat at left=370 in a viewport
             326px wide - the trading floor's only call to action was off the right edge of a
             horizontal scroll on a phone, which is the width most students are on. %>
         <% if policy(stock).show_holdings? %>
           <span class="mt-1 text-xs text-slate-600 lg:hidden">
-            You own <%= @portfolio&.shares_owned(stock.id) || 0 %>
+            You own <%= share_count(@portfolio&.shares_owned(stock.id) || 0) %>
           </span>
 
           <% if policy(stock).show_trading_link? %>
@@ -48,7 +59,7 @@
   <% if policy(stock).show_holdings? %>
     <td class="table-body-cell hidden lg:table-cell">
       <span class="table-cell-content">
-        <%= @portfolio&.shares_owned(stock.id) || 0 %>
+        <%= share_count(@portfolio&.shares_owned(stock.id) || 0) %>
       </span>
     </td>
     <td class="table-body-cell table-body-cell-right hidden whitespace-nowrap lg:table-cell">
