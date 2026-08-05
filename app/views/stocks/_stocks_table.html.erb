@@ -3,20 +3,27 @@
 
     Optional, because the archived disclosure's <summary> is already the heading for the table
     inside it - a second one under it would announce the same section twice. %>
-<% if local_assigns[:title].present? %>
-  <h2 class="text-base font-semibold text-slate-900"><%= title %></h2>
-<% end %>
+<%# One root element, deliberately. This partial used to emit the heading, the helper line and the
+    table as three siblings, and it is rendered into a `space-y-6` container - whose
+    `> :not([hidden]) ~ :not([hidden])` rule outspecifies a plain mt-1 or mt-3. So the heading, the
+    line under it and the table each sat 24px apart while the markup said 4px and 12px. A partial
+    rendered inside a space-y-* container has to have a single root or the container spaces its
+    insides. %>
+<section>
+  <% if local_assigns[:title].present? %>
+    <h2 class="text-base font-semibold text-slate-900"><%= title %></h2>
+  <% end %>
 
-<%# One line saying what this table is for. Neither table said anything: a reader had "Active
+  <%# One line saying what this table is for. Neither table said anything: a reader had "Active
     stocks" and "Archived stocks" and no way to know that one is buyable and the other is not, or
     why a company they remember has moved. design.md's empty states already work this way - say what
     appears here and what to do about it - and a populated table deserves the same courtesy. %>
-<% if local_assigns[:description].present? %>
+  <% if local_assigns[:description].present? %>
   <p class="mt-1 text-sm text-slate-600"><%= description %></p>
-<% end %>
+  <% end %>
 
-<div class="mt-3">
-<%# table-fixed, with a width on every column but the first.
+  <div class="mt-3">
+  <%# table-fixed, with a width on every column but the first.
     Active stocks and Archived stocks are two separate <table> elements rendered from this one
     partial, and with the default auto layout each sized its columns from its own content: the
     Buy/Sell pair widened the actions column in the active table and pulled every other column
@@ -25,7 +32,7 @@
     sideways at the boundary. table-fixed makes the widths here authoritative, so both instances
     are identical whatever they contain - including an archived table whose rows have one button
     instead of two. %>
-<%= render "shared/table_container", table_class: "table-fixed" do %>
+  <%= render "shared/table_container", table_class: "table-fixed" do %>
   <thead>
     <tr class="table-header-row">
       <th scope="col" class="table-header-cell table-header-cell-left">Company (exchange)</th>
@@ -54,5 +61,6 @@
                  body: "Stocks appear here once your teacher adds them." %>
     <% end %>
   </tbody>
-<% end %>
-</div>
+  <% end %>
+  </div>
+</section>

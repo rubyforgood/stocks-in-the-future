@@ -182,6 +182,86 @@ class SpacingTest < ApplicationSystemTestCase
     end
   end
 
+  # The gutter above the page title, which was **zero** on every signed-in page. <main> there was
+  # `px-4 lg:px-6 ... mt-16 pb-6`: sides and bottom, and no padding-top. mt-16 clears the fixed 64px
+  # nav and is not padding, which is what made it easy to miss - and an earlier sweep removed the
+  # per-page `py-6` / `pt-4` that had been supplying the gap, citing "main's p-4 lg:p-6", which was
+  # only ever the *signed-out* branch's class. Measured before: home 0px, portfolio 0px, trading
+  # floor 8px (its own header's items-end), orders 24px (it still had pt-6).
+  test "every page leaves the same gutter above its title" do
+    classroom = create(:classroom, :with_trading)
+    student = create(:student, :with_portfolio, classroom:)
+    student.reload
+    admin = create(:admin)
+
+    sign_in student
+    [root_path, stocks_path, orders_path].each do |path|
+      assert_title_gutter(path, 24)
+    end
+
+    sign_out(:user)
+    sign_in admin
+
+    # Admin index and show pages put breadcrumbs above the header, so the title sits lower - the
+    # gutter measured here is the one above the whole content block either way.
+    assert_title_gutter(admin_root_path, 24)
+  end
+
+  test "the title gutter is 16px on a phone" do
+    student = create(:student, :with_portfolio, classroom: create(:classroom, :with_trading))
+    student.reload
+    sign_in student
+
+    in_phone_viewport do
+      assert_title_gutter(root_path, 16)
+    end
+  end
+
+  # A section heading, the line explaining it, and the thing it labels. _stocks_table emitted these
+  # as three top-level elements into a `space-y-6` container, and
+  # `space-y-6 > :not([hidden]) ~ :not([hidden])` outspecifies a plain mt-1 or mt-3 - so all three
+  # sat 24px apart while the markup said 4px and 12px. A partial rendered into a space-y-* container
+  # needs a single root element.
+  test "a section heading sits 4px above its helper line and 12px above its table" do
+    classroom = create(:classroom, :with_trading)
+    student = create(:student, :with_portfolio, classroom:)
+    student.reload
+    create(:stock, ticker: "AAA", company_name: "Alpha", price_cents: 1000)
+    sign_in student
+
+    visit stocks_path
+
+    gaps = page.evaluate_script(<<~JS)
+      (function () {
+        const h2 = document.querySelector("main h2");
+        const helper = h2.nextElementSibling;
+        const table = helper.nextElementSibling;
+        return [Math.round(helper.getBoundingClientRect().top - h2.getBoundingClientRect().bottom),
+                Math.round(table.getBoundingClientRect().top - helper.getBoundingClientRect().bottom)];
+      })()
+    JS
+
+    assert_in_delta 4, gaps[0], TOLERANCE, "heading to helper line"
+    assert_in_delta 12, gaps[1], TOLERANCE, "helper line to table"
+  end
+
+  def assert_title_gutter(path, expected)
+    visit path
+
+    gutter = page.evaluate_script(<<~JS)
+      (function () {
+        const main = document.querySelector("main");
+        const inner = main.querySelector(":scope > div[class*='p-4'], :scope > div[class*='p-6']") || main;
+        const first = inner.firstElementChild;
+        return Math.round(first.getBoundingClientRect().top - inner.getBoundingClientRect().top);
+      })()
+    JS
+
+    assert_in_delta expected, gutter, TOLERANCE,
+                    "#{path} leaves #{gutter}px above its content, not #{expected}px; <main> has " \
+                    "no padding-top of its own on the signed-in side"
+  end
+
   def section_gaps
     page.evaluate_script(<<~JS)
       (function () {

@@ -704,6 +704,48 @@ so the invariant lives in one method and is pinned by `stock_archiving_test.rb`:
 cleared on un-archive, and **not moved by a resave** — the price job writes these rows constantly and
 must not drag the archive date forward.
 
+### `<main>` owns the gutter — and one branch of it did not
+
+**Correction to the rhythm section above.** It said pages were adding padding "on top of `main`'s
+`p-4 lg:p-6`". That was true of the signed-out branch and of admin's inner wrapper, and **false of the
+signed-in branch**, which was:
+
+```erb
+<main class="min-h-screen px-4 lg:px-6 ml-0 lg:ml-64 mt-16 pb-6">
+```
+
+Sides and bottom, and **no `padding-top`**. `mt-16` clears the fixed 64px nav; it is not padding, and
+reading the class list quickly it looks like the top is handled. So when the sweep removed the
+per-page `py-6` / `pt-4`, every signed-in page's title ended up flush against the nav bar. Measured:
+home **0px**, portfolio **0px**, trading floor 8px (its own header's `items-end`), orders 24px because
+it still had its own `pt-6`.
+
+`main` is `p-4 lg:p-6` on all four sides now, in all three places, and two pages lost the `pt-6` that
+would have doubled it. `spacing_test.rb` asserts the gutter above the content block on several pages
+at both widths, so a layout that stops providing it fails there.
+
+**Three copies of one element is the same fault as two copies of one class.** The signed-in `<main>`,
+the signed-out `<main>` and admin's `<main> > div` all set the page gutter, and they disagreed. If
+they ever need to differ, the difference should be a documented reason rather than a divergence.
+
+### A partial rendered into `space-y-*` needs a single root
+
+`space-y-6` compiles to `> :not([hidden]) ~ :not([hidden]) { margin-top: 1.5rem }`, which is more
+specific than a plain `mt-1` or `mt-3`. So **every top-level element a partial emits becomes a spaced
+sibling of the others.**
+
+`_stocks_table` emitted three — the `<h2>`, the line explaining it, and the table — into the trading
+floor's `space-y-6`. The markup said 4px and 12px; all three rendered **24px** apart, and the section
+read as three unrelated things. Wrapping the partial in one `<section>` fixed it without touching a
+single spacing class.
+
+This is the class-names-lie rule in its purest form: nothing in `_stocks_table` was wrong, and nothing
+in `stocks/index` was wrong. The bug only existed in the relationship, and only the rendered box shows
+it. `spacing_test.rb` pins the two gaps.
+
+**Where two roots are correct, keep them.** `_archived_stocks` deliberately emits the held-stock table
+and the disclosure as siblings, because 24px between them *is* the section rhythm.
+
 ### A table says what it is for
 
 Neither table on the trading floor explained itself. A reader had "Active stocks" and "Archived
@@ -821,7 +863,7 @@ instead, which is not a second rhythm so much as no rhythm:
 | `mt-8` | the roster and the grade book list, each carrying its own top margin |
 | `p-8` | the announcement body, the only 32px card body in the app |
 | `pb-16` | home and `announcements#show`, on top of `main`'s `pb-6` |
-| `px-6 lg:px-8` | both auth pages, on top of `main`'s `p-4 lg:p-6` |
+| `px-6 lg:px-8` | both auth pages, on top of `main`'s own padding (see the correction below) |
 
 **The container owns spacing, not the child.** The roster and the grade book list each set `mt-8`,
 so they agreed with each other and with nothing else — the flex row they sit in already spaces them.

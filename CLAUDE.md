@@ -121,6 +121,19 @@ To override a Devise path, declare yours *first*, or `skip:` the module and re-a
 Use #discard instead"*. It returned a 500 every time, for as long as it had existed. Before moving
 or restyling a destructive control, run it.
 
+**`mt-16` is not padding, and one `<main>` had no `padding-top` at all.** The signed-in layout was
+`px-4 lg:px-6 ... mt-16 pb-6` — sides and bottom only — while the signed-out branch and admin's inner
+wrapper both had `p-4 lg:p-6`. I removed per-page `py-6` / `pt-4` citing "main's `p-4 lg:p-6`", which
+was two of the three cases, and every signed-in page's title went flush against the fixed nav.
+**Before removing a page's padding, read the actual `<main>` that renders it** — there are three, and
+they disagreed.
+
+**A partial rendered into a `space-y-*` container must have a single root element.** `space-y-6`
+compiles to `> :not([hidden]) ~ :not([hidden])`, which outspecifies `mt-1` / `mt-3`, so every
+top-level element the partial emits becomes a spaced sibling. `_stocks_table` emitted three — heading,
+helper line, table — and all three rendered 24px apart while the markup said 4px and 12px. Nothing in
+either file was wrong on its own; the bug lived in the relationship.
+
 ## Money
 
 **Integer cents are authoritative. Never convert to a Float and back.**

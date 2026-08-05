@@ -327,6 +327,26 @@ signed-out `main` is `p-4 lg:p-6` rather than a flat `p-6`.
    unaffected.
 3. **The app bar trigger is no longer teal**, so a test looking for that fill would fail.
 
+### The signed-in `<main>` gets a top gutter, and `_stocks_table` gets a root
+
+**What.** `application.html.erb`'s signed-in `<main>` goes from `px-4 lg:px-6 … mt-16 pb-6` to
+`p-4 lg:p-6 … mt-16`. `classrooms/index` and `orders/index` lose their own `pt-6`.
+`_stocks_table` is wrapped in a single `<section>`.
+
+**Why it has blast radius.**
+
+1. **Every signed-in page gains 16/24px above its title, and 16px instead of 24px below at base.**
+   The top gutter was **0px** on most of them - `mt-16` clears the fixed nav but is not padding, and
+   the sweep that removed the per-page `py-6` / `pt-4` cited a `p-4 lg:p-6` that only the signed-out
+   branch had. Any test measuring absolute positions on a signed-in page shifts by 16-24px.
+2. **Two pages lost `pt-6`**, which would otherwise have doubled to 40/48px.
+3. **`_stocks_table` now emits one element instead of three.** A caller relying on its heading being a
+   direct child of their own container - to space it, or to select it - is affected. This is what fixed
+   the 24px gaps: the partial was being spaced *internally* by the page's `space-y-6`, because
+   `space-y-6 > :not([hidden]) ~ :not([hidden])` outspecifies `mt-1` and `mt-3`.
+4. `spacing_test.rb` gains three assertions - the title gutter at both widths, and the
+   heading/helper/table gaps - and I checked each fails against the markup it was written for.
+
 ### `stocks.archived_at`, and a retention rule for the archived list
 
 **What.** New nullable `stocks.archived_at`, a `before_save` keeping it true to the `archived` flag,

@@ -60,8 +60,13 @@
 
       <%= render 'layouts/navbar' %>
 
-      <!-- Main: responsive margins and padding -->
-      <main id="main-content" class="min-h-screen px-4 lg:px-6 ml-0 lg:ml-64 mt-16 pb-6 bg-slate-50">
+      <%# p-4 lg:p-6 on all four sides, the same gutter the signed-out branch below uses and the
+          same one admin's inner wrapper uses. This was `px-4 lg:px-6 ... pb-6`: horizontal padding
+          and bottom padding, with **no padding-top**, so the page title sat hard against the bottom
+          edge of the fixed 64px nav on every signed-in page. mt-16 clears that nav and is not
+          padding, which is what made the gap easy to miss - and design.md asserted this element was
+          `p-4 lg:p-6` while only the signed-out branch was. %>
+      <main id="main-content" class="min-h-screen p-4 lg:p-6 ml-0 lg:ml-64 mt-16 bg-slate-50">
         <%= render 'layouts/flash' %>
 
         <%= yield %>
