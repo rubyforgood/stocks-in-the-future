@@ -19,9 +19,12 @@
         </div>
       </div>
       <div class="flex gap-3 flex-shrink-0">
-        <%= link_to "Back to stocks", stocks_path, class: "tw-btn-secondary" %>
+        <%# The destination's own h1 is "Trading floor", and so is its nav label. This said "stocks". %>
+        <%= link_to "Back to trading floor", stocks_path, class: "tw-btn-secondary" %>
         <% if policy(@stock).show_trading_link? %>
-          <%= link_to "Trade stock", stocks_path, class: "tw-btn-primary" %>
+          <%# "Trade", matching the portfolio table's row action, which goes to the same place. Note
+              this and the back link above it share a destination - see design-todo. %>
+          <%= link_to "Trade", stocks_path, class: "tw-btn-primary" %>
         <% end %>
       </div>
     </div>

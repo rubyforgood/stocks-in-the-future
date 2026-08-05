@@ -1,28 +1,26 @@
-<%# Stock detail and index card.
+<%# Stock detail.
 
-    Rebuilt on the shared card primitive. The three sections previously carried
-    saturated amber, blue and green header bands - decorative colour-coding that
-    said nothing and matched no other surface in the app.
+  Rebuilt on the shared card primitive. The three sections previously carried
+  saturated amber, blue and green header bands - decorative colour-coding that
+  said nothing and matched no other surface in the app.
 
-    Two substantive fixes:
+  Two substantive fixes:
 
-    - The price was text-green-600, which measures 3.30:1 on white and 3.15:1 on
-      slate-50, so the single most important number on the page failed AA. Green
-      also implies a gain, and this is a static price rather than a movement, so
-      colour was carrying a meaning that was not there. Now slate-900 at 17:1.
-    - Four <label> elements wrapped text with no associated form control. These are
-      term/description pairs, so they are now a <dl>. %>
+  - The price was text-green-600, which measures 3.30:1 on white and 3.15:1 on
+    slate-50, so the single most important number on the page failed AA. Green
+    also implies a gain, and this is a static price rather than a movement, so
+    colour was carrying a meaning that was not there. Now slate-900 at 17:1.
+  - Four <label> elements wrapped text with no associated form control. These are
+    term/description pairs, so they are now a <dl>. %>
 <div id="<%= dom_id stock %>" class="space-y-6">
-  <% if action_name == "show" %>
-
-    <%= render layout: "components/ui/card", locals: { title: "Current price and key metrics" } do %>
-      <div class="grid grid-cols-1 gap-4 lg:grid-cols-4">
-        <%= render "components/ui/stat", label: "Current price", value: number_to_currency(stock.current_price) %>
-        <%= render "components/ui/stat", label: "Stock exchange", value: stock.stock_exchange.presence || "—" %>
-        <%= render "components/ui/stat", label: "Industry", value: stock.industry.presence || "—" %>
-        <%= render "components/ui/stat", label: "Employees", value: stock.employees.present? ? number_with_delimiter(stock.employees) : "—" %>
-      </div>
-    <% end %>
+  <%= render layout: "components/ui/card", locals: { title: "Current price and key metrics" } do %>
+    <div class="grid grid-cols-1 gap-4 lg:grid-cols-4">
+      <%= render "components/ui/stat", label: "Current price", value: number_to_currency(stock.current_price) %>
+      <%= render "components/ui/stat", label: "Stock exchange", value: stock.stock_exchange.presence || "—" %>
+      <%= render "components/ui/stat", label: "Industry", value: stock.industry.presence || "—" %>
+      <%= render "components/ui/stat", label: "Employees", value: stock.employees.present? ? number_with_delimiter(stock.employees) : "—" %>
+    </div>
+  <% end %>
 
 <% website_class = "text-sitf-primary underline underline-offset-2 hover:text-sitf-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary rounded-sm" %>
 <% website_link = stock.company_website.presence && link_to(stock.company_website, safe_url(stock.company_website), target: "_blank", rel: "noopener", class: website_class) %>
@@ -32,75 +30,53 @@
 <% company_facts["Management"] = stock.management if stock.management.present? %>
 <% company_facts["Key competitors"] = stock.competitor_names if stock.competitor_names.present? %>
 
-    <% if company_facts.any? %>
-      <%= render layout: "components/ui/card", locals: { title: "Company information" } do %>
-        <dl class="space-y-4">
-          <% company_facts.each do |term, value| %>
-            <div>
-              <dt class="text-sm font-medium text-slate-700"><%= term %></dt>
-              <dd class="mt-1 text-sm leading-relaxed text-slate-900"><%= value %></dd>
-            </div>
-          <% end %>
-        </dl>
-      <% end %>
+  <% if company_facts.any? %>
+    <%= render layout: "components/ui/card", locals: { title: "Company information" } do %>
+      <dl class="space-y-4">
+        <% company_facts.each do |term, value| %>
+          <div>
+            <dt class="text-sm font-medium text-slate-700"><%= term %></dt>
+            <dd class="mt-1 text-sm leading-relaxed text-slate-900"><%= value %></dd>
+          </div>
+        <% end %>
+      </dl>
     <% end %>
+  <% end %>
 
-    <% company_metrics = {
-         "Sales growth" => (stock.sales_growth.present? ? "#{stock.sales_growth}%" : nil),
-         "Profit margin" => (stock.profit_margin.present? ? "#{stock.profit_margin}%" : nil),
-         "Debt to equity" => stock.debt_to_equity.presence,
-         "Cash flow" => (stock.cash_flow.present? ? number_to_currency(stock.cash_flow) : nil),
-         "Total debt" => (stock.debt.present? ? number_to_currency(stock.debt) : nil)
-       }.compact %>
+  <% company_metrics = {
+       "Sales growth" => (stock.sales_growth.present? ? "#{stock.sales_growth}%" : nil),
+       "Profit margin" => (stock.profit_margin.present? ? "#{stock.profit_margin}%" : nil),
+       "Debt to equity" => stock.debt_to_equity.presence,
+       "Cash flow" => (stock.cash_flow.present? ? number_to_currency(stock.cash_flow) : nil),
+       "Total debt" => (stock.debt.present? ? number_to_currency(stock.debt) : nil)
+     }.compact %>
 
-    <% industry_metrics = {
-         "Sales growth" => (stock.industry_avg_sales_growth.present? ? "#{stock.industry_avg_sales_growth}%" : nil),
-         "Profit margin" => (stock.industry_avg_profit_margin.present? ? "#{stock.industry_avg_profit_margin}%" : nil),
-         "Debt to equity" => stock.industry_avg_debt_to_equity.presence
-       }.compact %>
+  <% industry_metrics = {
+       "Sales growth" => (stock.industry_avg_sales_growth.present? ? "#{stock.industry_avg_sales_growth}%" : nil),
+       "Profit margin" => (stock.industry_avg_profit_margin.present? ? "#{stock.industry_avg_profit_margin}%" : nil),
+       "Debt to equity" => stock.industry_avg_debt_to_equity.presence
+     }.compact %>
 
-    <% if company_metrics.any? || industry_metrics.any? %>
-      <%= render layout: "components/ui/card",
-                 locals: { title: "Financial metrics",
-                           subtitle: "This company against the average for its industry." } do %>
-        <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <% { "Company performance" => company_metrics, "Industry averages" => industry_metrics }.each do |heading, metrics| %>
-            <% next if metrics.empty? %>
-            <div>
-              <h3 class="pb-2 text-sm font-semibold text-slate-900"><%= heading %></h3>
-              <dl class="mt-2 divide-y divide-slate-100">
-                <% metrics.each do |term, value| %>
-                  <div class="flex items-center justify-between py-2">
-                    <dt class="text-sm text-slate-600"><%= term %></dt>
-                    <dd class="text-sm font-semibold text-slate-900 tabular-nums"><%= value %></dd>
-                  </div>
-                <% end %>
-              </dl>
-            </div>
-          <% end %>
-        </div>
-      <% end %>
-    <% end %>
-
-  <% else %>
-    <%# Compact card, used on index pages. %>
-    <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-xs">
-      <div class="flex items-start justify-between gap-4">
-        <div class="min-w-0">
-          <h3 class="flex items-center gap-2 text-base font-semibold text-slate-900">
-            <%= stock.ticker %>
-            <% if stock.archived? %>
-              <%= render "components/ui/badge", label: "Archived", tone: :danger %>
-            <% end %>
-          </h3>
-          <p class="mt-1 text-sm text-slate-700"><%= stock.company_name %></p>
-          <p class="mt-1 text-xs text-slate-500"><%= stock.stock_exchange %> &bull; <%= stock.industry %></p>
-        </div>
-        <div class="shrink-0 text-right">
-          <div class="text-lg font-bold text-slate-900 tabular-nums"><%= number_to_currency(stock.current_price) %></div>
-          <%= link_to "View details", stock, class: "tw-btn-secondary mt-2" %>
-        </div>
+  <% if company_metrics.any? || industry_metrics.any? %>
+    <%= render layout: "components/ui/card",
+               locals: { title: "Financial metrics",
+                         subtitle: "This company against the average for its industry." } do %>
+      <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <% { "Company performance" => company_metrics, "Industry averages" => industry_metrics }.each do |heading, metrics| %>
+          <% next if metrics.empty? %>
+          <div>
+            <h3 class="pb-2 text-sm font-semibold text-slate-900"><%= heading %></h3>
+            <dl class="mt-2 divide-y divide-slate-100">
+              <% metrics.each do |term, value| %>
+                <div class="flex items-center justify-between py-2">
+                  <dt class="text-sm text-slate-600"><%= term %></dt>
+                  <dd class="text-sm font-semibold text-slate-900 tabular-nums"><%= value %></dd>
+                </div>
+              <% end %>
+            </dl>
+          </div>
+        <% end %>
       </div>
-    </div>
+    <% end %>
   <% end %>
 </div>

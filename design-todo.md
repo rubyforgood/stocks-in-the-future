@@ -453,3 +453,24 @@ different. These are the pages not yet **rebuilt onto the primitives**.
   sees every day. Shopify and Stripe both make setup guidance stateful and self-dismissing. The
   app has the data to do it (funds, orders, holdings), so this is a real feature rather than a
   styling fix — see the note in the home page discussion.
+
+## Found in the button copy sweep (2026-08)
+
+- **`stocks#show` has two buttons to one destination.** "Back to trading floor" and the primary
+  "Trade" both go to `stocks_path`. The page has no per-stock trade action, so its primary can only
+  navigate to the list where the Buy/Sell buttons live. The fix is a real action - open the order
+  modal for this stock from its own page - which is a feature, not copy.
+- **Two "Back" buttons use `link_to :back`** (`announcements#show`, `admin/portfolio_transactions#show`),
+  so their labels cannot name a destination the way the other nine do. Polaris and Primer both
+  advise a known path over history. Behaviour change, so not done here.
+- **Devise's confirmable and lockable views are dead.** The model enables only
+  `database_authenticatable, registerable, recoverable, rememberable, validatable`, so
+  `devise/shared/_links`'s confirmation and unlock branches never render and
+  `devise/mailer/confirmation_instructions` / `unlock_instructions` never send. Their copy was left
+  alone rather than polished.
+- **`devise/shared/_links` renders bare unstyled links with `<br>`** - stock Devise markup, no
+  `tw-link`, on the password-reset page.
+- **`stocks#show` escaped the earlier sweeps.** It still has a `📈📊` emoji beside its h1, a
+  hand-rolled `bg-red-100 … rounded-full` archived pill instead of `components/ui/_badge`, a
+  `py-6` that double-pads on top of main, a `<div class="h-8">` spacer, `flex-shrink-0` instead of
+  `shrink-0`, and HTML comments where the rest of the app uses ERB comments.

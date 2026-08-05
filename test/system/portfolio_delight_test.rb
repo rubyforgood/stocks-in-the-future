@@ -131,7 +131,7 @@ class PortfolioDelightTest < ApplicationSystemTestCase
     visit user_portfolio_path(student, student.portfolio)
 
     assert_text "You have $24.00 ready to invest"
-    assert_link "See the companies"
+    assert_link "Browse companies"
   end
 
   # Someone else's portfolio is not theirs to be invited to spend from.

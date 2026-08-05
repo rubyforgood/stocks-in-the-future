@@ -515,6 +515,45 @@ it is the **zero-balance state**, which is a real empty state - not the card tha
 `1_Number` through `4_Number`). Removing them is a call for whoever owns the brand assets, not a
 cleanup to do quietly - see design-todo.
 
+### Button copy: three words, verb first, one label per destination
+
+**A button label is a verb-first phrase of at most three words.** `button_copy_test.rb` asserts it
+on the rendered page, exempting `Back to …` (a back link naming its destination is worth the fourth
+word) and `Add the first …` (an empty state's first-run CTA).
+
+**One destination gets one label.** `stocks_path` was reached by six:
+
+| Label | Where | Now |
+|---|---|---|
+| "Go to the trading floor" | home header | **"Invest now"** |
+| "Invest now" | portfolio header, trading-floor card | unchanged — this is the label |
+| "See the companies" | portfolio empty state | **"Browse companies"** |
+| "Trade" | holdings row action | unchanged |
+| "Trade stock" | stock detail | **"Trade"** |
+| "Back to stocks" | stock detail | **"Back to trading floor"** |
+
+Two distinct intents survive on purpose, which is what Fidelity and Schwab also ship: **"Invest
+now"** is *put money to work* (from a balance), **"Trade"** is *act on this holding* (from a row or
+a stock). What is not allowed is a third phrasing for either.
+
+**Name a place the way the place names itself.** The destination's own h1 and its nav item both say
+"Trading floor"; a back link calling it "stocks" and a CTA calling it "the trading floor" made one
+page three places.
+
+**Verbs are fixed: View, Edit, Delete, Add, New.** `View` (not `Show`) — "Show this classroom"
+became "View classroom", losing a demonstrative no other label has. **`New X` creates a record in
+a collection; `Add X` attaches one to the parent you are looking at** ("Add student" on a
+classroom, "Add transaction" on a portfolio). That distinction is Polaris's and it already held
+here; it is written down now so it survives.
+
+**A noun is not a label.** "Template" became "Download template", "All transactions" became "View
+all" (its card is already titled "Recent transactions", so the noun was said twice).
+
+**Devise ships its own dialect and it has to be translated.** "Log in" against ten "Sign in"s,
+"Send me reset password instructions" (five words), and "my" in "Change my password" where every
+other label is a bare imperative. Worst was **"Cancel my account"**, which permanently deletes it,
+while "Cancel" on every other button in this app means *dismiss* — it is "Delete account".
+
 ### A card's leading icon goes on the title's line, and a numeral is a tile
 
 This document had already ruled on both of these, and both were rediscovered on the home page.

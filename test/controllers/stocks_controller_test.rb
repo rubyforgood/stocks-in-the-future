@@ -30,7 +30,7 @@ class StocksControllerTest < ActionDispatch::IntegrationTest
 
     get stock_url(stock)
 
-    assert_select "a[href='#{stocks_path}']", text: "Trade stock"
+    assert_select "a[href='#{stocks_path}']", text: "Trade"
   end
   # Moved here from navbar_policy_visibility_test, which asserted these against the per-stock
   # sidebar list. The nav no longer carries a catalogue (migration.md, Map A), and this page is

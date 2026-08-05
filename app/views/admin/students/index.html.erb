@@ -6,7 +6,7 @@
   <%# Inside the data-controller="dialog" wrapper above, so the import trigger still
       reaches the dialog it opens. %>
   <%= render layout: "components/ui/page_header", locals: { title: "Students" } do %>
-    <%= link_to "Template", template_admin_students_path, class: admin_secondary_button_class %>
+    <%= link_to "Download template", template_admin_students_path, class: admin_secondary_button_class %>
     <%# A control that opens a dialog is a button, not a link to "#". %>
     <button type="button"
             data-action="click->dialog#open"

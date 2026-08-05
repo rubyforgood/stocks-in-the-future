@@ -327,6 +327,28 @@ signed-out `main` is `p-4 lg:p-6` rather than a flat `p-6`.
    unaffected.
 3. **The app bar trigger is no longer teal**, so a test looking for that fill would fail.
 
+### Button copy normalised, and a dead branch of stocks/_stock removed
+
+**What.** Fourteen labels changed (see design.md's table). Four tests updated that pinned the old
+strings. `stocks/_stock.html.erb` lost its unreachable second branch.
+
+**Why it has blast radius.**
+
+1. **`stocks/_stock.html.erb` had two branches behind `if action_name == "show"`, and the else was
+   dead.** It held a compact "index card" with its own hand-rolled surface
+   (`rounded-xl border … shadow-xs` rather than `.tw-card`) and a "View details" button pointing at
+   `stocks#show`. Nothing rendered it — the partial is reached only from `stocks#show`, and the
+   trading floor's tables use `stocks/_index_row`. Removed with the conditional. **If anything ever
+   wants a compact stock card, it has to be written again** — deliberately, on the card primitive.
+2. **The reset-password email's link text changed** from "Change my password" to "Reset password".
+   `teachers_controller_test` asserted the old string against the mail body.
+3. **"Cancel my account" is now "Delete account".** Same action, but the label no longer collides
+   with the dismiss meaning "Cancel" carries on eleven form buttons and a modal.
+4. **Four tests asserted removed copy** — "See the companies", "Trade stock", "All transactions",
+   and the mail body above.
+5. `button_copy_test.rb` asserts the three-word limit and that no button links to the page it is
+   on, so both classes of drift fail there rather than in review.
+
 ### The icon tile is a component, and card headers can lead with one
 
 **What.** New `components/ui/_icon_tile` (icon or numeral, five tones, two sizes). All six

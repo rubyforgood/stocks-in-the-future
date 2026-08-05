@@ -81,7 +81,7 @@ module Admin
       get admin_root_path
 
       assert_select "a[href=?]", admin_portfolio_transaction_path(transaction), text: "finn"
-      assert_select "a[href=?]", admin_portfolio_transactions_path, text: "All transactions"
+      assert_select "a[href=?]", admin_portfolio_transactions_path, text: "View all"
     end
 
     test "no longer duplicates the sidebar as a link directory" do

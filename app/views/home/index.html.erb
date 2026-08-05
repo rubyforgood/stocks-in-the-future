@@ -13,7 +13,10 @@
              locals: { title: "Welcome to your financial journey",
                        description: "This is your launchpad to earn, invest, and grow." } do %>
     <% if current_user&.student? && current_user.portfolio %>
-      <%= link_to "Go to the trading floor", stocks_path, class: "tw-btn-primary" %>
+      <%# "Invest now", not "Go to the trading floor". Five words for a button, and it was the
+          third label pointing at stocks_path - "Invest now" already existed twice for the same
+          destination, and "invest" is the verb this page's own copy uses ("Earnings to invest"). %>
+      <%= link_to "Invest now", stocks_path, class: "tw-btn-primary" %>
     <% end %>
   <% end %>
 
