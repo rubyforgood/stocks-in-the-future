@@ -39,8 +39,12 @@ class ButtonHelperTest < ActionView::TestCase
     assert_match(/focus-visible:outline-\S+/, ghost_class(:danger))
   end
 
-  test "the ghost is 44px on touch and shorter on a desktop" do
-    assert_includes ghost_class, "min-h-11"
-    assert_includes ghost_class, "lg:min-h-8"
+  # 32px at every width, not 44px below lg. 44px is reserved for *bare* tap targets - an icon-only
+  # control, a sidebar nav row - and this has a visible label and about 80px of width. It also read
+  # as a slab beside 17px lines of text in a table row.
+  test "the ghost is 32px at every width" do
+    assert_includes ghost_class, "min-h-8"
+    assert_not_includes ghost_class, "min-h-11"
+    assert_not_includes ghost_class, "lg:min-h"
   end
 end

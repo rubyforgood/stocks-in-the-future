@@ -327,6 +327,25 @@ signed-out `main` is `p-4 lg:p-6` rather than a flat `p-6`.
    unaffected.
 3. **The app bar trigger is no longer teal**, so a test looking for that fill would fail.
 
+### The pinned separator is scroll-conditional, and row actions are 32px
+
+**What.** `.table-actions-pinned` is `sticky right-0 z-10` only; its border and opaque background
+come from `[data-table-scrolled="true"]`, set by a new `table-scroll` controller on `body`.
+`ghost_class` is `min-h-8` at every width rather than `min-h-11 lg:min-h-8`. The portfolio holdings
+table's figure columns are `whitespace-nowrap`.
+
+**Why it has blast radius.**
+
+1. **Every row action in the app is 4px shorter below `lg`** (44px to 32px). That is a deliberate
+   reversal: 44px contradicted the rule that reserves it for bare tap targets, and it read as a slab
+   beside 17px text. Three tests asserted the old height.
+2. **The separator now depends on JavaScript.** Without it the cell still pins and simply has no
+   separator - degradation in the right direction, but worth knowing it is not pure CSS.
+3. **`data-table-scrolled` is written to any element with `overflow-x: auto|scroll`** that the user
+   scrolls, anywhere in the document. Nothing else reads it today.
+4. **The controller listens in the capture phase** because scroll does not bubble. Moving it off
+   `body` to a per-table attribute would need eleven call sites.
+
 ### Coloured bands and hue-coded panels removed
 
 **What.** The grade books list's `bg-amber-300` band is a card title. `admin/students#show`'s four

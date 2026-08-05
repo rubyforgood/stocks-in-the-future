@@ -1167,11 +1167,17 @@ themselves, so an action cannot ship without one. Both sides of the product use 
 is Lucide, not `bi-*`: `eye` View, `pencil` Edit, `trash-2` Delete, `archive` Archive,
 `rotate-ccw` Restore, `circle-check` Activate/Reactivate, `ban` Deactivate/Cancel.
 
-**Height is `min-h-11 lg:min-h-8`** -- 44px where the finger is, 32px as a desktop row action, the
-same two-tier shape `NavHelper` uses. 28-32px is where row actions sit in current practice (Primer's
-small control 28 and medium 32, Linear and Stripe about 28, Polaris slim 28); holding 44px on the
-desktop would make the ghost *taller* than the 40px primary button it is supposed to recede from.
-Measured: 32px at 1366px, 44px at 375px.
+**Height is `min-h-8` - 32px at every width.** 28-32px is where row actions sit in current practice
+(Primer's small control 28 and medium 32, Linear and Stripe about 28, Polaris slim 28), and 44px
+anywhere would make the ghost *taller* than the 40px primary button it recedes from.
+
+It was `min-h-11 lg:min-h-8`, on a "44px where the finger is" argument that **contradicted this
+document's own rule**: 44px is reserved for *bare* tap targets with no other affordance - an
+icon-only control, a sidebar nav row - and a row action has a visible label and about 80px of width.
+Fitts's law cares about both dimensions, and WCAG 2.5.8 (AA) asks for 24x24. It also read wrong: in a
+cell whose neighbours are 17px lines, a 44px box top-aligned to the row's first line extends 27px
+past it and looks like a slab floating mid-row, which is what was reported. Measured now: the
+button's top is 12px and the adjacent text's is 13px, at every width.
 
 **The trailing column is right-aligned and its header is unlabelled** (`sr-only` "Actions"). A
 header naming one action stops being true the moment a second one is added, which is what
@@ -1264,8 +1270,17 @@ edit pages are covered as well as indexes, because the breadcrumb trail is longe
 Two rules, from sweeping every table in the app at 375px and measuring each clickable against the
 box of the container it scrolls inside.
 
-**1. The trailing actions cell is `.table-actions-pinned`** - `sticky right-0` with an opaque
-background below `lg`, an ordinary cell at `lg`. Every admin index table overflowed at 375px,
+**1. The trailing actions cell is `.table-actions-pinned`** - `sticky right-0`, with its separator
+and opaque ground appearing **only once the table has actually been scrolled**, which the
+`table-scroll` controller records as `data-table-scrolled` on the wrapper.
+
+That condition matters, and getting it wrong was reported. The separator used to be unconditional
+below `lg`, so on the student portfolio's holdings table - scrollable at 375px but not yet scrolled -
+it drew a **stray vertical rule beside the Trade button**, and the opaque ground swallowed the row's
+hover tint. **Scroll state, not a breakpoint, decides**: a table that fits needs no separator at any
+width, and a table that has been scrolled needs one at every width. One capturing listener on `body`
+covers all eleven scroll wrappers, because scroll does not bubble but does capture. Without
+JavaScript the cell still pins and simply has no separator, which is the right way round. Every admin index table overflowed at 375px,
 between 212px and 699px of it, with the actions last, so View / Edit / Delete sat past the right
 edge: `admin/users` had Edit at `right=887` against a visible edge of `343`. Column-hiding cannot
 solve it - three labelled ghosts are about 250px, roughly 73% of a 343px viewport, so data and

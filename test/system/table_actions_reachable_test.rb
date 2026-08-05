@@ -84,15 +84,22 @@ class TableActionsReachableTest < ApplicationSystemTestCase
     in_phone_viewport do
       visit admin_school_years_path
 
+      page.execute_script(<<~JS)
+        const wrap = document.querySelector("td.table-actions-pinned").closest("[class*='overflow-x']");
+        wrap.scrollLeft = wrap.scrollWidth;
+      JS
+
+      # The scroll event fires asynchronously, so the state the separator depends on is not set in
+      # the same tick that sets scrollLeft. Wait for it before reading any style - an earlier
+      # version of this test read the background synchronously and saw the unscrolled value.
+      assert_selector "[data-table-scrolled='true']", visible: :all
+
       result = page.evaluate_script(<<~JS)
         (function () {
           const cell = document.querySelector("td.table-actions-pinned");
-          let wrap = cell.parentElement;
-          while (wrap && getComputedStyle(wrap).overflowX !== "auto") wrap = wrap.parentElement;
-          const edge = Math.round(wrap.getBoundingClientRect().right);
-          wrap.scrollLeft = wrap.scrollWidth;
+          const wrap = cell.closest("[class*='overflow-x']");
           return {
-            edge: edge,
+            edge: Math.round(wrap.getBoundingClientRect().right),
             right: Math.round(cell.getBoundingClientRect().right),
             position: getComputedStyle(cell).position,
             opaque: getComputedStyle(cell).backgroundColor
@@ -100,12 +107,54 @@ class TableActionsReachableTest < ApplicationSystemTestCase
         })()
       JS
 
-      assert_equal "sticky", result["position"], "the actions cell is not pinned below lg"
+      assert_equal "sticky", result["position"], "the actions cell is not pinned"
       assert_operator result["right"], :<=, result["edge"] + 1,
                       "the actions cell left the visible area once the table was scrolled"
       assert_not_equal "rgba(0, 0, 0, 0)", result["opaque"],
-                       "a pinned cell needs an opaque background or the scrolling columns show " \
-                       "through it"
+                       "a pinned cell needs an opaque background once the table is scrolled, or " \
+                       "the columns sliding under it show through"
+    end
+  end
+
+  # And the separator is absent when there is nothing behind it. It used to be unconditional below
+  # lg, which drew a stray rule on the student portfolio's holdings table - measured, that table
+  # never scrolls at any width, because it adapts by wrapping the company name.
+  test "an unscrolled table shows no separator" do
+    classroom = create(:classroom, :with_trading)
+    student = create(:student, :with_portfolio, classroom:)
+    student.reload
+    create(:portfolio_transaction, :deposit, portfolio: student.portfolio, amount_cents: 100_000)
+    stock = create(:stock, ticker: "KO", company_name: "Coca-Cola Company", price_cents: 15_000)
+    create(:portfolio_stock, portfolio: student.portfolio, stock:, shares: 2)
+    sign_in(student)
+
+    in_phone_viewport do
+      visit user_portfolio_path(student, student.portfolio)
+
+      pinned = page.evaluate_script(<<~JS)
+        (function () {
+          const cell = document.querySelector("td.table-actions-pinned");
+          if (!cell) return null;
+          const wrap = cell.closest("[class*='overflow-x']");
+          const s = getComputedStyle(cell);
+          return {
+            border: s.borderLeftWidth,
+            bg: s.backgroundColor,
+            scrollLeft: wrap.scrollLeft,
+            scrollable: wrap.scrollWidth > wrap.clientWidth + 1
+          };
+        })()
+      JS
+
+      assert_not_nil pinned
+      # The point is not whether it *can* scroll - it is that nothing is behind the cell until it
+      # *has* been scrolled. An earlier version asserted the table does not scroll at all, which was
+      # measured against .table-wrapper - an overflow-hidden element that can never report scrolling.
+      assert_equal 0, pinned["scrollLeft"]
+      assert_equal "0px", pinned["border"],
+                   "a separator with nothing behind it is a stray rule beside the button"
+      assert_equal "rgba(0, 0, 0, 0)", pinned["bg"],
+                   "an opaque cell on an unscrolled row swallows the row's hover tint"
     end
   end
 

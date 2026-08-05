@@ -241,6 +241,18 @@ view. I then wrote a design.md rule *about* those buttons without ever rendering
 control lives in a table's trailing column, measure its box against the scroll container's box at
 375px, and check `scrollWidth` against `clientWidth`.
 
+**A conditional affordance needs a condition.** The pinned actions cell's separator was
+unconditional below `lg`, so it drew a rule with nothing behind it on any table that fitted or had
+not yet been scrolled. Scroll state, not a breakpoint: `data-table-scrolled` from a capturing
+listener on `body`. Same class of error as the hover fill hanging off the edge - a decoration that
+only makes sense in one state, applied in all of them.
+
+**Measure the element that actually scrolls.** I concluded a table "never scrolls at any width" while
+measuring `.table-wrapper`, which is `overflow-hidden` and can therefore never report scrolling. The
+scroll container was the `overflow-x-auto` div inside it. `closest("[class*='overflow-x']")` from the
+cell finds the right one. A `scrollWidth == clientWidth` result should prompt "is this the scroller?"
+before it prompts a conclusion.
+
 **The box that paints is the box that aligns.** A 44px target centring a 24px icon puts the glyph
 10px inside its box, and the fix is *not* to pull the box out. I tried that three times - a filled
 button, then a borderless one with a `hover:` fill, then a 44px target wrapping a 40px state layer -

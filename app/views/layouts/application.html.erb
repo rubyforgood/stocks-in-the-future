@@ -11,7 +11,7 @@
     <%= stylesheet_link_tag "actiontext", 'data-turbo-track': "reload" %>
     <%= javascript_importmap_tags %>
   </head>
-  <body class="min-h-screen bg-slate-50" data-controller="drawer">
+  <body class="min-h-screen bg-slate-50" data-controller="drawer table-scroll">
     <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-100 focus:rounded-md focus:bg-sitf-primary focus:px-4 focus:py-2 focus:text-sitf-on-primary focus:outline-2 focus:outline-offset-2 focus:outline-sitf-primary-dark">Skip to main content</a>
     <% if user_signed_in? %>
       <%# Same treatment as the admin app bar: white against the slate-50 page, with the

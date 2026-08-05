@@ -9,9 +9,9 @@ require "application_system_test_case"
 # across nine tables, and Delete was red at rest in five of them, so these assert the properties
 # that made it inconsistent: the resting colour, the icon, and the height.
 class RowActionsTest < ApplicationSystemTestCase
-  # 32px at lg, 44px where the finger is. GHOST_BASE is min-h-11 lg:min-h-8.
-  DESKTOP_HEIGHT = 32
-  TOUCH_HEIGHT = 44
+  # 32px at every width. GHOST_BASE is min-h-8: 44px is for bare tap targets, and a row action has
+  # a visible label and about 80px of width.
+  ROW_ACTION_HEIGHT = 32
 
   # Read the reference off the page rather than hard-coding a colour string. Tailwind v4 emits
   # oklch(), so slate-600 is "oklch(0.446 0.043 257.281)" and not the rgb() an earlier version of
@@ -66,30 +66,21 @@ class RowActionsTest < ApplicationSystemTestCase
     end
   end
 
-  test "a row action is 32px on a desktop and 44px on a phone" do
+  test "a row action is 32px at every width" do
     sign_in(create(:admin))
     create(:school_year)
 
-    in_chromebook_viewport do
-      visit admin_school_years_path
-      heights = row_action_boxes.pluck("height")
+    [method(:in_chromebook_viewport), method(:in_phone_viewport)].each do |viewport|
+      viewport.call do
+        visit admin_school_years_path
+        heights = row_action_boxes.pluck("height")
 
-      assert_not_empty heights
-      heights.each do |height|
-        assert_in_delta DESKTOP_HEIGHT, height, 2,
-                        "a desktop row action measured #{height}px; the ghost recedes from the " \
-                        "40px primary button rather than matching or exceeding it"
-      end
-    end
-
-    in_phone_viewport do
-      visit admin_school_years_path
-      heights = row_action_boxes.pluck("height")
-
-      assert_not_empty heights
-      heights.each do |height|
-        assert_operator height, :>=, TOUCH_HEIGHT - 2,
-                        "a row action measured #{height}px on a phone; 44px is the touch figure"
+        assert_not_empty heights
+        heights.each do |height|
+          assert_in_delta ROW_ACTION_HEIGHT, height, 2,
+                          "a row action measured #{height}px; it recedes from the 40px primary " \
+                          "button, and beside a 17px line of text a taller box reads as a slab"
+        end
       end
     end
   end

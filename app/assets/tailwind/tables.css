@@ -129,7 +129,19 @@
    * the Dividers rule would not allow.
    */
   .table-actions-pinned {
-    @apply sticky right-0 z-10 border-l border-slate-200 bg-white lg:static lg:border-l-0 lg:bg-transparent;
+    @apply sticky right-0 z-10;
+  }
+
+  /* The separator and the opaque ground appear only once the table has actually been scrolled,
+   * which the table-scroll controller records on the wrapper.
+   *
+   * They used to be unconditional below lg. Measured, the student portfolio's holdings table never
+   * scrolls at any width - it adapts by wrapping the company name - so that drew a stray rule
+   * beside the Trade button and put an opaque cell over the row's hover tint, for no scroll. The
+   * admin tables do scroll (885px of content in a 341px wrapper at 375px), and there the separator
+   * is doing its job. Scroll state, not a breakpoint, is what decides. */
+  [data-table-scrolled="true"] .table-actions-pinned {
+    @apply border-l border-slate-200 bg-white;
   }
 
   /* .table-action-link and .table-action-button are gone. Row actions are the ghost button from

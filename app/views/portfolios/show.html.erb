@@ -152,15 +152,15 @@
                   </div>
                 </div>
               </td>
-              <td class="table-body-cell table-body-cell-right"><%= position.shares %></td>
-              <td class="table-body-cell table-body-cell-right"><%= number_to_currency(position.stock_current_price) %></td>
+              <td class="table-body-cell table-body-cell-right whitespace-nowrap"><%= position.shares %></td>
+              <td class="table-body-cell table-body-cell-right whitespace-nowrap"><%= number_to_currency(position.stock_current_price) %></td>
 
               <%# A sign as well as a colour, so the direction is not carried by
                   colour alone. green-700/red-700 clear AA where 600 does not. %>
-              <td class="table-body-cell table-body-cell-right <%= change_amount >= 0 ? 'text-green-700' : 'text-red-700' %>">
+              <td class="table-body-cell table-body-cell-right whitespace-nowrap <%= change_amount >= 0 ? 'text-green-700' : 'text-red-700' %>">
                 <%= change_amount >= 0 ? "+" : "" %><%= number_to_currency(change_amount) %>
               </td>
-              <td class="table-body-cell table-body-cell-right <%= total_return_amount >= 0 ? 'text-green-700' : 'text-red-700' %>">
+              <td class="table-body-cell table-body-cell-right whitespace-nowrap <%= total_return_amount >= 0 ? 'text-green-700' : 'text-red-700' %>">
                 <%= total_return_amount >= 0 ? "+" : "" %><%= number_to_currency(total_return_amount) %>
               </td>
 

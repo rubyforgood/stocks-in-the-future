@@ -10,12 +10,21 @@
 # every row of a table over-emphasises a per-row action and breaks table-to-table consistency,
 # so a row action is never `.tw-btn-primary` / `.tw-btn-secondary`.
 module ButtonHelper
-  # 44px where the finger is, 32px as a desktop row action - the same two-tier shape
-  # NavHelper uses, for the same reason. 28-32px is where table row actions sit in current
-  # practice (GitHub Primer's small control is 28, its medium 32; Linear and Stripe about 28;
-  # Polaris slim 28), and holding 44px on the desktop would make a ghost taller than the 40px
-  # primary button it is supposed to recede from.
-  GHOST_BASE = "inline-flex min-h-11 lg:min-h-8 items-center gap-1.5 rounded-lg px-2 py-1 " \
+  # 32px at every width. 28-32px is where table row actions sit in current practice (GitHub
+  # Primer's small control is 28, its medium 32; Linear and Stripe about 28; Polaris slim 28), and
+  # holding 44px anywhere would make a ghost taller than the 40px primary button it is supposed to
+  # recede from.
+  #
+  # This was min-h-11 below lg, on a "44px where the finger is" argument that contradicted the
+  # app's own rule: 44px is reserved for *bare* tap targets with no other affordance - an icon-only
+  # control, a sidebar nav row - and this has a visible label and about 80px of width. Fitts's law
+  # cares about both dimensions. WCAG 2.5.8 (AA) asks 24x24, which 32px clears.
+  #
+  # It also read wrong. In a cell whose neighbours are 17px lines of text, a 44px box top-aligned to
+  # the row's first line extends 27px past it and looks like a slab floating mid-row - reported on
+  # the portfolio holdings table, whose rows reach 100px at 375px because the company name wraps. At
+  # 32px the button's top sits within a pixel of the text's.
+  GHOST_BASE = "inline-flex min-h-8 items-center gap-1.5 rounded-lg px-2 py-1 " \
                "text-sm font-medium transition-colors focus-visible:outline-2 " \
                "focus-visible:outline-offset-2"
 
