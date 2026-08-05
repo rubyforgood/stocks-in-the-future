@@ -7,15 +7,18 @@
 <% return if @insights.earned_cents.zero? %>
 
 <div class="tw-card h-full p-5">
-  <%# An icon tile, not a bare glyph. design.md's icon tile pattern is
-      `grid place-items-center h-9 w-9 rounded-xl bg-{semantic}-50 text-{semantic}-600` for KPI
-      cards, section headers and list-item leading icons, and it says in as many words: do not use
-      bare floating icons. A banner is the exception - see _callout, which keeps a plain glyph. %>
-  <div class="flex items-center gap-3">
-    <%= render "components/ui/icon_tile", icon: "lightbulb", tone: :warning %>
-    <p class="text-sm font-semibold text-slate-900">Your money at work</p>
+  <%# An icon tile, not a bare glyph - design.md says so in as many words for KPI cards, section
+      headers and list-item leading icons. A banner is the exception; see _callout, which keeps a
+      plain glyph.
+
+      compact and gap-2 and a slate-600 label, matching _stat beside it and _card's header. This was
+      a 36px tile at gap-3 with a `font-semibold text-slate-900` label, so the card next to it in the
+      same row had a smaller tile and a quieter label. %>
+  <div class="flex items-center gap-2">
+    <%= render "components/ui/icon_tile", icon: "lightbulb", tone: :warning, compact: true %>
+    <p class="text-sm font-medium text-slate-600">Your money at work</p>
   </div>
-  <p class="mt-3 text-sm text-slate-700">
+  <p class="mt-2 text-sm text-slate-700">
     You have earned
     <span class="font-semibold tabular-nums"><%= number_to_currency(@insights.earned_cents / 100.0) %></span>.
     <% if @insights.holdings? %>

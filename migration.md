@@ -327,6 +327,28 @@ signed-out `main` is `p-4 lg:p-6` rather than a flat `p-6`.
    unaffected.
 3. **The app bar trigger is no longer teal**, so a test looking for that fill would fail.
 
+### `_stat` takes an icon, and the portfolio's two delight cards align
+
+**What.** `components/ui/_stat` gains `icon:` / `icon_tone:`, rendered as a 32px tile on the label's
+line. `portfolios/_best_month` now renders `_stat` instead of hand-writing the same card.
+`portfolios/_money_at_work` moves to a 32px tile, `gap-2`, and the `_stat` label token.
+`portfolios/show` loses a `py-6` that stacked on `main`'s padding.
+
+**Why it has blast radius.**
+
+1. **A test asserted the opposite size.** `portfolio_layout_test` pinned *36px* for every tile on
+   that page ("32x32 means one was eyeballed"). The rule that holds across the app is about what the
+   tile stands beside, not which page it is on — beside a 14px label it is 32px, on its own line
+   above a figure it is 36px — so the test now asserts 32px. design.md's own table said
+   "in a card header", which under-described it and is what allowed the divergence.
+2. **`_best_month`'s markup changed shape.** It was a `div.tw-card` with three `<p>`s; it is now
+   whatever `_stat` renders. Its `data-testid="best-month"` is preserved. Anything matching its
+   internal structure rather than the testid breaks.
+3. **`_money_at_work`'s label is quieter** — `font-medium text-slate-600` where it was
+   `font-semibold text-slate-900`.
+4. **Any `_stat` caller passing `icon:`** gets an 8px gap under the label instead of 4px; callers
+   without an icon are unchanged.
+
 ### One account page: registrations#edit removed, and self-service deletion with it
 
 **What.** `devise/registrations/edit.html.erb` is deleted. `devise_for :users, skip: %i[registrations]`

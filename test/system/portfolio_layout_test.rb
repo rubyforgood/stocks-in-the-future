@@ -180,7 +180,12 @@ class PortfolioLayoutTest < ApplicationSystemTestCase
   end
 
   # design.md's icon tile token: grid place-items-center h-9 w-9 rounded-xl bg-{semantic}-50.
-  test "icon tiles are all on the 36px token" do
+  # Was "all on the 36px token", asserting 36px. The rule that actually holds across the app is
+  # about what the tile stands next to, not which page it is on: a tile *beside* a line of 14px text
+  # is 32px, because 36px out-heights the text it labels, and a tile on its *own* line above a
+  # figure is 36px, which is what the admin dashboard does. These two cards sit beside their labels,
+  # like the home page's balance card and every _card header, so they are 32px.
+  test "icon tiles beside a label are all on the 32px token" do
     sign_in(student_portfolio)
 
     in_chromebook_viewport do
@@ -194,8 +199,8 @@ class PortfolioLayoutTest < ApplicationSystemTestCase
       JS
 
       assert_not_empty sizes, "expected at least one icon tile"
-      assert_equal ["36x36"], sizes.uniq,
-                   "an icon tile is h-9 w-9; #{sizes.uniq.join(', ')} means one was eyeballed"
+      assert_equal ["32x32"], sizes.uniq,
+                   "a tile beside a label is size-8; #{sizes.uniq.join(', ')} means one was eyeballed"
     end
   end
 

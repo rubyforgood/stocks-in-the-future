@@ -76,6 +76,44 @@ class IconTileTest < ApplicationSystemTestCase
     end
   end
 
+  # Two cards side by side in one grid row had their tiles on opposite sides: money_at_work on the
+  # left, best_month hung off the right in an `items-start justify-between` row. They also disagreed
+  # on tile size (36px vs the home page's 32px), label weight and the gap under the label.
+  #
+  # design.md: a card's leading icon goes on the title's line. That means the left padding edge.
+  test "a card's icon tile sits at its left padding edge, never on the right" do
+    create(
+      :portfolio_transaction, :deposit,
+      portfolio: @student.portfolio, amount_cents: 40_000, reason: "math_earnings"
+    )
+
+    [root_path, user_portfolio_path(@student, @student.portfolio)].each do |path|
+      visit path
+
+      tiles = page.evaluate_script(<<~JS)
+        Array.from(document.querySelectorAll("main .tw-card")).flatMap(function (card) {
+          const tile = card.querySelector("span.grid");
+          if (!tile) return [];
+          const cb = card.getBoundingClientRect(), tb = tile.getBoundingClientRect();
+          return [{ offset: Math.round(tb.left - cb.left),
+                    size: Math.round(tb.width),
+                    half: Math.round(cb.width / 2) }];
+        })
+      JS
+
+      assert_operator tiles.length, :>=, 1, "#{path}: expected a card with an icon tile"
+
+      tiles.each do |tile|
+        assert_operator tile["offset"], :<, tile["half"],
+                        "#{path}: an icon tile is in the right half of its card"
+        assert_in_delta FLUSH, tile["offset"], TOLERANCE,
+                        "#{path}: an icon tile is not on the card's padding edge"
+        assert_equal 32, tile["size"],
+                     "#{path}: a tile beside a label is 32px - 36px is for a tile on its own line"
+      end
+    end
+  end
+
   def body_indent(card_selector)
     page.evaluate_script(<<~JS)
       (function () {

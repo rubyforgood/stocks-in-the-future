@@ -644,6 +644,32 @@ all" (its card is already titled "Recent transactions", so the noun was said twi
 other label is a bare imperative. Worst was **"Cancel my account"**, which permanently deletes it,
 while "Cancel" on every other button in this app means *dismiss* — it is "Delete account".
 
+### A figure card with an icon is `_stat`, not a second copy of it
+
+`portfolios#show` put two cards side by side in one grid row with their tiles on **opposite sides** —
+`money_at_work` on the left, `best_month` hung off the right in an `items-start justify-between` row.
+That is the mirror-image version of the icon-gutter mistake, and it read as two unrelated components.
+
+`best_month` was a `_stat` written out again: its label, figure and hint carried the *same tokens*
+as the four KPI cards above it, plus a tile. `_stat` takes `icon:` / `icon_tone:` now and
+`best_month` renders it, so the tile is on the label's line by construction and the card cannot
+drift from its four neighbours.
+
+**Measured, three seams for one gap.** The space under a label carrying a tile was 4px in `_stat`,
+8px on the home page's balance card and 12px in `money_at_work`. The rule is what sits above it: a
+32px tile row gets **8px**, a bare 20px label line gets **4px**. Class names would not have shown
+this — all three read as "a margin under the label".
+
+| | Before | After |
+|---|---|---|
+| tile side | left / **right** | left, both |
+| tile size | 36px / 36px, vs 32px on home | 32px everywhere beside a label |
+| label | `font-semibold text-slate-900` / `font-medium text-slate-600` | `font-medium text-slate-600` |
+| gap under the label | 12px / 4px, vs 8px on home | 8px |
+
+`icon_tile_test.rb` asserts every card tile sits at the left padding edge at 32px, so a tile on the
+right fails rather than shipping.
+
 ### A card's leading icon goes on the title's line, and a numeral is a tile
 
 This document had already ruled on both of these, and both were rediscovered on the home page.
@@ -1071,8 +1097,13 @@ the only thing stating a real boundary, which is what a card header is.
 
   | | Box | Glyph | For |
   |---|---|---|---|
-  | default | 36px | 20px | the tile is the subject — a KPI card, an empty state |
-  | `sm` | 32px | 16px | on a title's line in a card header, where 36px would out-height the 16px title |
+  | default | 36px | 20px | the tile is on a line of its own — above a figure, or in an empty state |
+  | `compact` | 32px | 16px | the tile is **beside a line of text**, where 36px out-heights the 14–16px label it labels |
+
+  **What decides is what the tile stands next to, not which page it is on.** The first wording here
+  said "in a card header", which under-describes it — and that gap let the portfolio's two delight
+  cards carry 36px tiles beside 14px labels while the home page's balance card carried 32px beside
+  the same label, with a test pinning each. Beside text: 32px. On its own line: 36px.
 
   **The tones are the badge's tones** (`:neutral` `:success` `:warning` `:danger` `:info`),
   so a tile and a badge for the same state cannot drift apart. That fixes a discrepancy this
