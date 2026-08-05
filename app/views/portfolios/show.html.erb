@@ -172,7 +172,13 @@
               <td class="table-body-cell table-body-cell-right table-actions-pinned">
                 <div class="flex items-center justify-end gap-1">
                   <% if current_user.student? %>
-                    <%= ghost_action_link "Trade", stocks_path, icon: "arrow-up-down" %>
+                    <%# arrow-right-left, not arrow-up-down. A vertical two-arrow glyph is the
+                        *sort* icon - Material's swap_vert, and this app's own sort_icon renders
+                        exactly that as an unsorted column's caret - so a vertical pair as a row
+                        action means "sort" in the one context where sorting is a thing you do to
+                        rows. Horizontal is the exchange glyph: Material's swap_horiz, and what TD,
+                        Chase, Monzo and Revolut all use for a transfer. %>
+                    <%= ghost_action_link "Trade", stocks_path, icon: "arrow-right-left" %>
                   <% else %>
                     <span class="table-no-permission">-</span>
                   <% end %>

@@ -1157,6 +1157,31 @@ the 40px logo and the 40px trade button sharing a top edge at 13px.
 `test/system/table_consistency_test.rb` asserts all of this as computed style and geometry across
 twelve tables on ten pages.
 
+### Arrows mean value direction, so actions do not use them
+
+Three different meanings were competing for the same glyph:
+
+- **`↑` / `↓` mean the value moved.** The holdings table's Change and Total return columns use them
+  with a sign and `green-700` / `red-700`. In any finance interface this is what a vertical arrow
+  says, and it is the meaning users arrive with.
+- **`⇅` means sort.** `sort_icon` renders it as an unsorted column's caret, and `↑` / `↓` once a
+  column is sorted. Material calls the same glyph `swap_vert`.
+- **Actions therefore get neither.** A vertical two-arrow glyph as a row action means "sort" in the
+  one context where sorting is something you do to rows, and a `↑` on a Buy button means "the price
+  went up" a few pixels from a column that says exactly that.
+
+**Buy and Sell carry no icon.** They had `arrow-up` and `arrow-down`. Fidelity, Vanguard, Schwab,
+Robinhood, E*Trade, Webull and Coinbase all label them as text and leave the arrows to the numbers.
+The label is the affordance; the leading-icon rule is about **row actions** - the ghosts - not about
+a CTA.
+
+**An exchange action uses the horizontal glyph.** The portfolio's Trade row action was
+`arrow-up-down` and is `arrow-right-left`: Material's `swap_horiz`, and what TD, Chase, Monzo and
+Revolut use for a transfer. Worth knowing that the brokerages mostly do not icon this action at all -
+"Trade" is a text control at Fidelity, Vanguard and Schwab - so the icon here exists to satisfy this
+document's row-action rule rather than to follow theirs. If that rule ever relaxes, this is the first
+icon to drop.
+
 ### Row actions as implemented here
 
 `ButtonHelper#ghost_class(:neutral | :danger)` is this app's `ghost_class`, and

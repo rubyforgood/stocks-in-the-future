@@ -327,6 +327,17 @@ signed-out `main` is `p-4 lg:p-6` rather than a flat `p-6`.
    unaffected.
 3. **The app bar trigger is no longer teal**, so a test looking for that fill would fail.
 
+### Buy and Sell lost their arrows; Trade's went horizontal
+
+**What.** `stocks/_trade_actions` renders "Buy" and "Sell" with no icon. The portfolio's Trade row
+action is `arrow-right-left` rather than `arrow-up-down`.
+
+**Why it has blast radius.** A vertical arrow already had two meanings in the product - value
+direction in the Change and Total return columns, and sort in `sort_icon`'s `⇅` caret - so the
+actions were the third claimant on one glyph. Anything that adds an arrow to an action reintroduces
+the ambiguity. Nothing asserted these glyphs, but `one_primary_test` does assert the Trade action
+carries exactly one icon, so it cannot simply be dropped without changing that rule too.
+
 ### The pinned separator is scroll-conditional, and row actions are 32px
 
 **What.** `.table-actions-pinned` is `sticky right-0 z-10` only; its border and opaque background
