@@ -515,6 +515,28 @@ it is the **zero-balance state**, which is a real empty state - not the card tha
 `1_Number` through `4_Number`). Removing them is a call for whoever owns the brand assets, not a
 cleanup to do quietly - see design-todo.
 
+### One destination, one button — and the empty state wins
+
+Two buttons pointing at one path is the same fault as two labels for one path, from the other side.
+`button_copy_test.rb` asserts it, and it found two cases:
+
+- **`stocks#show` had "Back to trading floor" beside a primary "Trade"**, both going to
+  `stocks_path`, because a stock's own page had no way to act on that stock. The page renders the
+  trading floor's own `stocks/_trade_actions` now, behind the same `show_trading_link?` gate, so
+  Buy and Sell open the order modal for *this* stock and the back link is the only navigation.
+  One definition of the product's core transaction, rendered in three places.
+- **`portfolios#show` offered `stocks_path` from the header *and* from the holdings empty state.**
+  This document had already recorded that pair as a bug and the fix had only demoted the second one
+  to secondary, leaving both.
+
+**When an empty state carries the action, the page header does not.** Polaris and Stripe both
+suppress the header action while an empty state owns it, because the reader is looking at the empty
+state, not back up at the header. So the portfolio's "Invest now" renders only once there are
+holdings, and while the table is empty the empty state's own CTA is the page's primary.
+
+**A detail page's primary action acts on the thing it is showing.** A primary that navigates to the
+list is not an action, and it is a strong signal that the page is missing one.
+
 ### Button copy: three words, verb first, one label per destination
 
 **A button label is a verb-first phrase of at most three words.** `button_copy_test.rb` asserts it

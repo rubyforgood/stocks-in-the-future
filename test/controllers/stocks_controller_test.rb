@@ -22,15 +22,31 @@ class StocksControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "trade stock button links to trading floor for students" do
+  # This asserted a "Trade" link pointing at stocks_path, which was the whole problem: a stock's
+  # own page could not act on that stock, and the link went to the same place as the "Back to
+  # trading floor" button beside it. The page renders the trading floor's own Buy/Sell partial now,
+  # so the action opens the order modal for this stock.
+  test "a student who can trade gets Buy and Sell for this stock" do
     stock = create(:stock)
-    student = create(:student)
+    student = create(:student, classroom: create(:classroom, :with_trading))
     create(:portfolio, user: student)
     sign_in student
 
     get stock_url(stock)
 
-    assert_select "a[href='#{stocks_path}']", text: "Trade"
+    assert_select "a[href=?]", new_order_path(stock_id: stock.id, transaction_type: :buy), text: "Buy"
+    assert_select "a[href=?]", new_order_path(stock_id: stock.id, transaction_type: :sell), text: "Sell"
+    assert_select "a[href='#{stocks_path}']", text: "Back to trading floor"
+  end
+
+  test "a teacher gets no trade action on a stock" do
+    stock = create(:stock)
+    sign_in create(:teacher)
+
+    get stock_url(stock)
+
+    assert_select "a", text: "Buy", count: 0
+    assert_select "a", text: "Sell", count: 0
   end
   # Moved here from navbar_policy_visibility_test, which asserted these against the per-stock
   # sidebar list. The nav no longer carries a catalogue (migration.md, Map A), and this page is

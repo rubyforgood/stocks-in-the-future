@@ -72,6 +72,20 @@ class ButtonCopyTest < ApplicationSystemTestCase
     end
   end
 
+  # Two buttons to one destination is the same fault as two labels for one destination, seen from
+  # the other side. stocks#show had "Back to trading floor" beside a primary "Trade", both going to
+  # stocks_path, because the page had no way to act on the stock it was showing. design.md records
+  # the same shape on the portfolio - an empty state's CTA beside the header's, one path.
+  test "no two buttons on a page share a destination" do
+    student_pages.each do |label, path|
+      hrefs = buttons_on(path).map { |b| b["href"] }.compact_blank.reject { |h| h.start_with?("#") }
+      duplicated = hrefs.tally.select { |_, count| count > 1 }.keys
+
+      assert_empty duplicated,
+                   "#{label}: #{duplicated.join(', ')} is the destination of more than one button"
+    end
+  end
+
   test "no button navigates to the page it is on" do
     student_pages.each do |label, path|
       buttons_on(path).each do |button|

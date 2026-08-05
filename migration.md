@@ -327,6 +327,30 @@ signed-out `main` is `p-4 lg:p-6` rather than a flat `p-6`.
    unaffected.
 3. **The app bar trigger is no longer teal**, so a test looking for that fill would fail.
 
+### stocks#show rebuilt on the shared header, and given a real trade action
+
+**What.** The page now renders `components/ui/_page_header` (ticker as title, company name as
+description, `_badge` for archived) and `stocks/_trade_actions` in place of a "Trade" link. Dropped:
+a `📈📊` emoji, a hand-rolled `bg-red-100 … rounded-full` pill, `py-6` stacked on `main`'s padding,
+an `h-8` spacer div, `flex-shrink-0`, HTML comments, and one unbalanced `</div>`.
+
+**Why it has blast radius.**
+
+1. **The stock page can now place an order.** It renders the same Buy/Sell partial as the trading
+   floor rows, behind the same `StockPolicy#show_trading_link?` gate, targeting `modal_frame` in the
+   application layout. Behaviour that did not exist before: a student can trade from a stock's own
+   page. Buy is withheld on an archived stock and the whole pair is withheld unless the student
+   holds it, which is the policy's existing rule, not a new one.
+2. **`stocks_controller_test` asserted the old "Trade" link.** Replaced with assertions on the Buy
+   and Sell hrefs plus a teacher case.
+3. **The h1 changed shape.** It was one heading reading `AAPL | Apple Inc.` with the company name in
+   a nested span; it is now `AAPL` with the company name in the header's description. Anything
+   matching the h1's full text breaks. The page also declares `:own_heading` for the first time,
+   via the shared header.
+4. **`portfolios#show`'s header CTA is now conditional on having holdings**, and the empty state's
+   CTA is the primary while the table is empty. A test asserting "Invest now" on a fresh portfolio
+   will not find it.
+
 ### Button copy normalised, and a dead branch of stocks/_stock removed
 
 **What.** Fourteen labels changed (see design.md's table). Four tests updated that pinned the old
