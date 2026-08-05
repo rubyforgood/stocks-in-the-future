@@ -39,12 +39,18 @@
                body: "You cannot buy or sell right now. Your teacher can turn it back on." %>
   <% end %>
 
+  <%= render "portfolios/first_share" %>
+
   <%# Four equal cards, so the row reads as one band. Value, then the two things it is made of,
       then the count. %>
   <div class="grid grid-cols-1 gap-6 lg:grid-cols-4">
+    <%# The comparison is withheld in a student's first month, when there is no snapshot before
+        this one to compare against - an honest absence rather than a change of zero. %>
     <%= render "components/ui/stat",
                label: "Portfolio value",
                value: number_to_currency(@portfolio.calculate_total_value),
+               change: portfolio_change_label(@insights),
+               change_up: @insights.change_up?,
                hint: "Your cash plus your shares",
                testid: "portfolio-value" %>
 
@@ -76,6 +82,14 @@
     <div class="lg:col-span-1">
       <%= render "portfolios/earnings_summary_card" %>
     </div>
+  </div>
+
+  <%# The reading row: what the money did, which companies it bought, and the student's own best
+      month. Three equal cells on the same gutter as everything else. %>
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+    <%= render "portfolios/money_at_work" %>
+    <%= render "portfolios/companies_owned" %>
+    <%= render "portfolios/best_month" %>
   </div>
 
   <%# Holdings, on the shared table system.
@@ -151,14 +165,25 @@
         <% else %>
           <tr class="table-body-row">
             <td colspan="6" class="p-0">
-              <%= render layout: "components/ui/empty_state",
-                         locals: { icon: "chart-line",
-                                   title: "No holdings yet",
-                                   body: "Buy your first shares on the trading floor and they will appear here." } do %>
-                <% if current_user.student? %>
-                  <%# Secondary: the earnings card above already carries this page's one
-                      filled primary, and it points at the same place. %>
-                  <%= link_to "Go to the trading floor", stocks_path, class: "tw-btn-secondary" %>
+              <%# Leads with the student's own balance: this is the first screen every student
+                  sees, and "you have $24.00 ready" is about them in a way "no holdings yet" is
+                  not. "You can buy a single share" removes the thing that stops people starting.
+                  Someone viewing another student's portfolio gets the plain version - it is not
+                  their balance to be invited to spend. %>
+              <% if current_user.student? %>
+                <%= render layout: "components/ui/empty_state",
+                           locals: { icon: "sparkles",
+                                     title: "You have #{number_to_currency(@portfolio.cash_balance)} ready to invest",
+                                     body: "Pick a company you know. You can buy a single share - there is no minimum, and you can sell whenever you like." } do %>
+                  <%# Secondary: the page header already carries this page's one filled primary,
+                      and it points at the same place. %>
+                  <%= link_to "See the companies", stocks_path, class: "tw-btn-secondary" %>
+                <% end %>
+              <% else %>
+                <%= render layout: "components/ui/empty_state",
+                           locals: { icon: "chart-line",
+                                     title: "No holdings yet",
+                                     body: "Shares bought on the trading floor appear here." } do %>
                 <% end %>
               <% end %>
             </td>

@@ -96,7 +96,13 @@ Rails.application.routes.draw do
       patch :cancel
     end
   end
-  resources :portfolios, only: :show
+  resources :portfolios, only: :show do
+    member do
+      # Dismisses the first-share message. A PATCH because it changes a record, and its own action
+      # rather than a portfolio update so nothing else about a portfolio becomes writable here.
+      patch :acknowledge_first_share
+    end
+  end
   resources :stocks, only: %i[show index]
   resources :announcements, only: :show
 end

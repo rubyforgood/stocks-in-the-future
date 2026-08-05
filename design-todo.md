@@ -170,34 +170,17 @@ Counts are indicative, found by pattern matching - confirm by reading the file.
 
 ## Cross-cutting work items
 
-### Delight proposals, awaiting a decision
+### Delight: built, with one thing still open
 
-Six previews live at `/admin/component_demo/delight`, **development only** - the controller raises
-outside development, because a live page of hypothetical UI reads as shipped product and its
-hard-coded figures read as real money. Every number in it is a literal.
+The six recommended features are implemented on `portfolios#show` - see design.md, "Delight on the
+student side". The previews at `/admin/component_demo/delight` are still there, development only, and
+can be deleted.
 
-In the order I would build them:
-
-1. **Change since last month** on the portfolio value card. Smallest change, most teaching value.
-   Needs a decision on the comparison period. Both directions must render, and a loss must not read
-   as failure.
-2. **The first-share moment** - inline, once, above the holdings table. Needs a per-student flag, so
-   a migration.
-3. **Your money at work** - one plain-English sentence restating figures already on the page. No new
-   data.
-4. **Companies you own** - the ten logos already in the repo, as a collection. No new data. The
-   greyed-out "not owned" slots nudge collecting for completeness; drop them if that is a concern.
-5. **Warmer empty state** - copy plus the balance. Nearly free.
-6. **Personal bests** - only ever against the student's own history. Needs earnings grouped by
-   month.
-
-**Not recommended, decided rather than omitted:** confetti or streaks on a *purchase* (celebrating
-buying is the opposite lesson, and a streak makes not trading feel like failure), and a classroom
-leaderboard (earnings come from grades, so ranking publishes a student's school record to their
-classmates).
-
-Applies to all of them: `prefers-reduced-motion`, 375px, never colour alone, integer cents, and a
-loss is not a mistake.
+**Still open:** the preview showed a second personal best, a *reading streak*. It is not built,
+because a streak needs to know what it counts. Earnings arrive per quarter from
+`DistributeEarnings`, not monthly, so a monthly streak would be wrong; and a transaction's quarter
+is not derivable from its `created_at` alone without joining through grade books. Rather than ship a
+plausible-looking number about money, it needs a decision on what a streak means here.
 
 ### There is no user profile page
 

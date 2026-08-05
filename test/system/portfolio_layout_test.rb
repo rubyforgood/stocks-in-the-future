@@ -19,17 +19,47 @@ require "application_system_test_case"
 class PortfolioLayoutTest < ApplicationSystemTestCase
   GUTTER = 24
 
-  def surfaces
+  # Selected by role, never by position: this test used positional indices and broke the moment a
+  # row was inserted between the chart and the table, silently measuring the wrong cards.
+  def region(selector)
     page.evaluate_script(<<~JS)
-      Array.from(document.querySelectorAll("main .tw-card, main .table-wrapper")).map(function (c) {
-        const b = c.getBoundingClientRect();
+      (function () {
+        const el = document.querySelector(#{selector.to_json});
+        if (!el) return null;
+        const card = el.closest(".tw-card, .table-wrapper") || el;
+        const b = card.getBoundingClientRect();
         return {
           left: Math.round(b.left),
           right: Math.round(b.right),
           width: Math.round(b.width),
           height: Math.round(b.height),
-          radius: getComputedStyle(c).borderTopLeftRadius
+          radius: getComputedStyle(card).borderTopLeftRadius
         };
+      })()
+    JS
+  end
+
+  def kpis
+    %w[portfolio-value cash-balance holdings-value total-stocks]
+      .map { |id| region("[data-testid='#{id}']") }
+  end
+
+  def chart
+    region("[data-controller='portfolio-chart'], canvas")
+  end
+
+  def breakdown
+    region("dl")
+  end
+
+  def holdings
+    region("[data-testid='holdings-table'] table")
+  end
+
+  def all_surfaces
+    page.evaluate_script(<<~JS)
+      Array.from(document.querySelectorAll("main .tw-card, main .table-wrapper")).map(function (c) {
+        return getComputedStyle(c).borderTopLeftRadius;
       })
     JS
   end
@@ -61,7 +91,7 @@ class PortfolioLayoutTest < ApplicationSystemTestCase
 
     in_chromebook_viewport do
       visit user_portfolio_path(student_portfolio, student_portfolio.portfolio)
-      radii = surfaces.pluck("radius").uniq
+      radii = all_surfaces.uniq
 
       assert_equal 1, radii.size,
                    "the page mixes #{radii.size} corner radii (#{radii.join(', ')}); a card and a " \
@@ -74,12 +104,12 @@ class PortfolioLayoutTest < ApplicationSystemTestCase
 
     in_chromebook_viewport do
       visit user_portfolio_path(student_portfolio, student_portfolio.portfolio)
-      kpis = surfaces.first(4)
+      band = kpis
 
-      assert_equal 1, kpis.pluck("width").uniq.size, "the KPI cards are different widths"
-      assert_equal 1, kpis.pluck("height").uniq.size, "the KPI cards are different heights"
+      assert_equal 1, band.pluck("width").uniq.size, "the KPI cards are different widths"
+      assert_equal 1, band.pluck("height").uniq.size, "the KPI cards are different heights"
 
-      kpis.each_cons(2) do |left, right|
+      band.each_cons(2) do |left, right|
         assert_equal GUTTER, right["left"] - left["right"], "the KPI gutter is not 24px"
       end
     end
@@ -90,21 +120,17 @@ class PortfolioLayoutTest < ApplicationSystemTestCase
 
     in_chromebook_viewport do
       visit user_portfolio_path(student_portfolio, student_portfolio.portfolio)
-      all = surfaces
-      chart = all[4]
-      breakdown = all[5]
-      table = all[6]
 
       assert_equal chart["height"], breakdown["height"],
                    "the chart and the breakdown are different heights in the same row; a grid " \
                    "cell stretches but the card inside it needs h-full"
       assert_equal GUTTER, breakdown["left"] - chart["right"], "the row 2 gutter is not 24px"
 
-      # Every row starts and ends on the same two edges.
-      assert_equal [all[0]["left"], chart["left"], table["left"]].uniq.size, 1,
-                   "the rows do not share a left edge"
-      assert_equal [all[3]["right"], breakdown["right"], table["right"]].uniq.size, 1,
-                   "the rows do not share a right edge"
+      lefts = [kpis.first["left"], chart["left"], holdings["left"]].uniq
+      rights = [kpis.last["right"], breakdown["right"], holdings["right"]].uniq
+
+      assert_equal 1, lefts.size, "the rows do not share a left edge: #{lefts.join(', ')}"
+      assert_equal 1, rights.size, "the rows do not share a right edge: #{rights.join(', ')}"
     end
   end
 
@@ -113,9 +139,8 @@ class PortfolioLayoutTest < ApplicationSystemTestCase
 
     in_chromebook_viewport do
       visit user_portfolio_path(student_portfolio, student_portfolio.portfolio)
-      all = surfaces
 
-      assert_operator all[6]["width"], :>, all[4]["width"],
+      assert_operator holdings["width"], :>, chart["width"],
                       "the holdings table is narrower than the chart; it has six columns and was " \
                       "the reason the page was hard to parse"
     end

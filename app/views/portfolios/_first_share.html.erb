@@ -1,0 +1,42 @@
+<%# The first-share moment. Shows once, when a student holds something and has not dismissed it.
+
+    Inline rather than a modal: on a shared Chromebook a modal gets dismissed by whoever walks
+    past, and this is the one message worth not missing. It also cannot cover the page it is
+    explaining.
+
+    It celebrates *owning*, not buying - "you own part of a company" is the concept shift, and it
+    says nothing about whether the purchase was clever. %>
+<% return unless current_user.student? && @portfolio.celebrate_first_share? %>
+<% first_company = @insights.companies.first %>
+<% logo = "stock_logos/#{first_company}-logo.svg" %>
+
+<div class="rounded-2xl border border-teal-200 bg-teal-50 p-5" data-testid="first-share">
+  <div class="flex items-start gap-4">
+    <% if File.exist?("app/assets/images/#{logo}") %>
+      <span class="grid size-12 shrink-0 place-items-center rounded-xl bg-white shadow-sm">
+        <%= image_tag asset_path(logo), class: "size-8", alt: "" %>
+      </span>
+    <% end %>
+
+    <div class="flex-1">
+      <p class="inline-flex items-center gap-2 text-base font-semibold text-teal-900">
+        <%= lucide_icon "party-popper", class: "size-5 shrink-0 text-teal-700" %>
+        You own part of a company
+      </p>
+      <p class="mt-1 text-sm text-teal-800">
+        You hold <%= pluralize(@insights.company_count, "company") %>. That makes you one of its
+        owners - when the company is worth more, your shares are worth more too.
+      </p>
+    </div>
+
+    <%# button_to renders its own form, which is fine here: this sits between cards, never inside
+        another form. %>
+    <%= button_to acknowledge_first_share_portfolio_path(@portfolio),
+                  method: :patch,
+                  class: ghost_class,
+                  form: { class: "shrink-0" } do %>
+      <%= lucide_icon "x", class: "size-4 shrink-0" %>
+      Dismiss
+    <% end %>
+  </div>
+</div>

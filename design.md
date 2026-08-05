@@ -285,6 +285,40 @@ an `h-[150px]` panel, `.table-wrapper`'s `rounded-xl`/`shadow-xs`, and a hand-ro
 a 12px-cornered table directly under 16px-cornered cards is visible even when nothing else is wrong.
 `test/system/portfolio_layout_test.rb` asserts one radius across the page.
 
+### Delight on the student side
+
+Six features on `portfolios#show`, all built on one rule: **every one is withheld when it has nothing
+true to say.** A card reading "Best month yet: $0.00" or a comparison of "+$0.00" is worse than no
+card, and a student in their first month should not be shown an achievement they have not had.
+`PortfolioInsights` returns `nil` rather than zero for exactly this, and each partial returns early.
+
+1. **A comparison line on the headline figure.** The baseline is the most recent snapshot dated
+   *before this month*, so it means "since last month" rather than "since some point mid-month". No
+   such snapshot means no line. A zero baseline means an amount but **no percentage** - a portfolio
+   that was empty has not grown by a percentage.
+2. **The first-share moment.** Inline, not a modal: on a shared Chromebook a modal is dismissed by
+   whoever walks past, and it cannot cover the page it is explaining. Once per student, remembered
+   in `portfolios.first_share_acknowledged_at` - a timestamp, so the record says *when* as well as
+   whether. It celebrates **owning**, not buying.
+3. **A plain-English summary.** It restates figures already on the page, which is the point: reading
+   "$4.00 is still waiting to be invested" makes an idle balance a decision rather than a number.
+   `pluralize`, so nobody reads "1 companies".
+4. **Companies you own.** The ten logos already in the repo, as a collection. **No greyed-out slots
+   and no "3 of 10" count** - those read as "collect them all", a nudge to buy for completeness
+   rather than for a reason, which is the opposite of the lesson.
+5. **A warmer empty state**, leading with the student's own balance. Someone else viewing their
+   portfolio gets the plain version: it is not their balance to be invited to spend.
+6. **A personal best, never a comparison with another student.** Earnings come from grades and
+   attendance, so a classroom ranking would publish a student's school record to their classmates.
+
+**Direction never rests on colour.** A gain or a loss carries its sign and its arrow as well as
+`green-700`/`red-700`. **A loss is not a mistake** - prices come from a real API, and nothing here
+implies a student did something wrong when the market moved.
+
+**Deliberately not built**, so it is a decision rather than an omission: confetti or a streak on a
+*purchase* (celebrating buying is the opposite lesson, and a streak makes not trading feel like
+failure when doing nothing is usually right), and a classroom leaderboard.
+
 ### Badges
 **One component: `components/ui/_badge`**, matching the Status pill base above:
 `inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium`, with a tone:

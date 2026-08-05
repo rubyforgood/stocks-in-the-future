@@ -11,7 +11,9 @@
     Locals:
       label  - what the figure is
       value  - the figure, already formatted
-      hint   - optional supporting line
+      hint      - optional supporting line
+      change    - optional comparison line, already formatted
+      change_up - true for a gain, false for a loss; sets the arrow and the colour
       testid - optional data-testid, for tests targeting a specific stat %>
 <%# .tw-card, not its own rounded-xl / shadow-xs surface. This was a fourth card treatment: the
     portfolio page put three of these beside a .tw-card chart, a .tw-card summary and a
@@ -20,6 +22,16 @@
             data: { testid: local_assigns[:testid] } do %>
   <p class="text-sm font-medium text-slate-600"><%= label %></p>
   <p class="mt-1 text-2xl font-bold tracking-tight text-slate-900 tabular-nums"><%= value %></p>
+  <%# A comparison line, when the figure has something to compare against. The sign and the arrow
+      carry the direction as well as the colour, so a loss does not depend on being able to tell
+      green from red. green-700/red-700 clear AA where 600 does not. %>
+  <% if local_assigns[:change].present? %>
+    <p class="mt-1 inline-flex items-center gap-1 text-xs font-medium <%= local_assigns[:change_up] ? 'text-green-700' : 'text-red-700' %>">
+      <%= lucide_icon(local_assigns[:change_up] ? "trending-up" : "trending-down", class: "size-3.5 shrink-0") %>
+      <%= change %>
+    </p>
+  <% end %>
+
   <% if local_assigns[:hint].present? %>
     <p class="mt-1 text-xs text-slate-500"><%= hint %></p>
   <% end %>

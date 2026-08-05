@@ -29,6 +29,16 @@ class Portfolio < ApplicationRecord
     portfolio_path(self)
   end
 
+  # The first-share moment shows once: when a student holds something and has not dismissed it.
+  # A timestamp rather than a flag, so the record says when as well as whether.
+  def celebrate_first_share?
+    first_share_acknowledged_at.nil? && portfolio_stocks.exists?(shares: 1..)
+  end
+
+  def acknowledge_first_share!
+    update!(first_share_acknowledged_at: Time.current)
+  end
+
   def shares_owned(stock_id)
     portfolio_stocks.where(stock_id: stock_id).sum(:shares)
   end

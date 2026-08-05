@@ -327,6 +327,28 @@ signed-out `main` is `p-4 lg:p-6` rather than a flat `p-6`.
    unaffected.
 3. **The app bar trigger is no longer teal**, so a test looking for that fill would fail.
 
+### Six delight features, one new column and one new route
+
+**What.** `PortfolioInsights` (new, pure) holds the derived figures. `portfolios.first_share_acknowledged_at`
+is a new nullable datetime. `PATCH /portfolios/:id/acknowledge_first_share` dismisses the
+first-share message. `components/ui/_stat` takes optional `change` / `change_up`. Four new partials
+under `portfolios/`.
+
+**Why it has blast radius.**
+
+1. **A migration.** `first_share_acknowledged_at` is null for every existing portfolio, so every
+   student who already holds shares will see the first-share message once. That is the intended
+   behaviour for a new feature, but it does mean a message appears for people who bought months ago.
+   Backfilling it to `Time.current` for existing holders would suppress that - a product call, not a
+   technical one.
+2. **`_stat` gained two locals.** Existing calls are unaffected; the line only renders when `change`
+   is present.
+3. **Every figure is integer cents.** `PortfolioInsights` returns cents and `nil`, never a Float and
+   never zero-as-absent. `change_percent` is the one Float, guarded against a zero baseline, and it
+   is display-only.
+4. **The comparison depends on snapshots existing.** No snapshot before the current month means no
+   comparison line at all - which is why the seeded `Student` shows none while `mike` shows one.
+
 ### The portfolio page is rebuilt, and two shared surfaces moved with it
 
 **What.** `portfolios#show` is a KPI band, then chart + breakdown, then holdings full width, on a

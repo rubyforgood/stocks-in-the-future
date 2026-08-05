@@ -14,6 +14,25 @@ module ApplicationHelper
 
   # Shown under the name in the account menu, so it is obvious which kind of account is
   # signed in. Admin is checked first because an admin is also a User by type.
+  # The portfolio's comparison line, or nil when there is nothing to compare against.
+  #
+  # Three cases: no baseline at all (a student's first month), a baseline of zero (started from
+  # nothing, so a percentage would divide by zero), and a normal comparison. The sign is explicit
+  # because the direction must not rest on the colour.
+  def portfolio_change_label(insights)
+    return nil unless insights.comparison?
+
+    amount = number_to_currency(insights.change_cents.abs / 100.0)
+    sign = insights.change_up? ? "+" : "-"
+    percent = insights.change_percent
+
+    if percent.nil?
+      "#{sign}#{amount} since last month"
+    else
+      "#{sign}#{amount} (#{number_with_precision(percent.abs, precision: 1)}%) since last month"
+    end
+  end
+
   def account_role_label(user)
     return "Admin" if user.admin?
     return "Teacher" if user.teacher?

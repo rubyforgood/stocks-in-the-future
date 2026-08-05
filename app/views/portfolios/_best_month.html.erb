@@ -1,0 +1,24 @@
+<%# A personal best, never a comparison with anyone else.
+
+    Earnings here come from grades and attendance, so ranking students would publish their school
+    record to their classmates. Against their own history it is encouragement.
+
+    Withheld until a student has earned something, so it never reads "best month: $0.00". %>
+<% return if @insights.best_month_cents.nil? %>
+
+<div class="tw-card p-5" data-testid="best-month">
+  <div class="flex items-start justify-between gap-3">
+    <div>
+      <p class="text-sm font-medium text-slate-600">Best month yet</p>
+      <p class="mt-1 text-2xl font-bold tracking-tight text-slate-900 tabular-nums">
+        <%= number_to_currency(@insights.best_month_cents / 100.0) %>
+      </p>
+      <p class="mt-1 text-xs text-slate-500">
+        <%= @insights.best_month_date.strftime("%B %Y") %> - your biggest month of earnings
+      </p>
+    </div>
+    <span class="grid size-10 shrink-0 place-items-center rounded-xl bg-amber-50">
+      <%= lucide_icon "trophy", class: "size-5 text-amber-700" %>
+    </span>
+  </div>
+</div>
