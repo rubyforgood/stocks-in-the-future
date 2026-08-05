@@ -1,0 +1,38 @@
+<%# Inline notice inside a page - not a flash, which the layout owns.
+
+    design.md's alert shape: a tint, a matching border, and matching ink, so the panel reads as a
+    message rather than as a card. Same rounded-2xl as the cards it sits among, so a page of them
+    lines up on one corner radius.
+
+    It was hand-rolled twice, on portfolios#show and stocks#index, with an inline SVG, a
+    `border-l-4` bar and yellow-700/800 ink. Two copies of a notice is how the two pages ended up
+    saying the same thing at different sizes.
+
+    Measured on their own tints: amber-900 on amber-50 is 8.75:1, amber-800 6.84:1,
+    blue-900 9.52:1, blue-800 8.01:1, and the amber-700 icon 4.84:1.
+
+    Locals:
+      title - the headline, required
+      body  - optional supporting line
+      tone  - :warning (default) or :info
+      icon  - optional lucide name, defaults per tone %>
+<% tone = local_assigns.fetch(:tone, :warning).to_sym %>
+<% tones = {
+     warning: { surface: "border-amber-200 bg-amber-50", title: "text-amber-900",
+                body: "text-amber-800", icon: "text-amber-700", glyph: "triangle-alert" },
+     info: { surface: "border-blue-200 bg-blue-50", title: "text-blue-900",
+             body: "text-blue-800", icon: "text-blue-700", glyph: "info" }
+   } %>
+<% t = tones.fetch(tone, tones[:warning]) %>
+
+<div class="rounded-2xl border <%= t[:surface] %> p-4 <%= local_assigns[:class] %>" role="status">
+  <div class="flex items-start gap-3">
+    <%= lucide_icon local_assigns.fetch(:icon, t[:glyph]), class: "mt-0.5 size-5 shrink-0 #{t[:icon]}" %>
+    <div>
+      <p class="text-sm font-medium <%= t[:title] %>"><%= title %></p>
+      <% if local_assigns[:body].present? %>
+        <p class="mt-1 text-sm <%= t[:body] %>"><%= body %></p>
+      <% end %>
+    </div>
+  </div>
+</div>

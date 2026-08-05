@@ -327,6 +327,30 @@ signed-out `main` is `p-4 lg:p-6` rather than a flat `p-6`.
    unaffected.
 3. **The app bar trigger is no longer teal**, so a test looking for that fill would fail.
 
+### The portfolio page is rebuilt, and two shared surfaces moved with it
+
+**What.** `portfolios#show` is a KPI band, then chart + breakdown, then holdings full width, on a
+single `gap-6`. `components/ui/_stat` and `.table-wrapper` now use `.tw-card`'s tokens
+(`rounded-2xl`, `shadow-sm`). New `components/ui/_callout` replaces the hand-rolled amber banner on
+`portfolios#show` and `stocks#index`. `_portfolio_chart` and `_earnings_summary_card` are rebuilt on
+`components/ui/_card`.
+
+**Why it has blast radius.**
+
+1. **`.table-wrapper` changed on every table in the app** - 12px to 16px radius, `shadow-xs` to
+   `shadow-sm`. Nothing asserted those, but it is a visible change everywhere, not just here.
+2. **`_stat` changed everywhere it is used**, same reason.
+3. **The page no longer renders `shared/_earnings_to_invest_card`.** Cash is a KPI now, and the card
+   stays on the trading floor. A test looking for it on the portfolio page will fail.
+4. **The stat testids changed**: `holdings-value` and `portfolio-value` are new, `cash-balance` and
+   `total-stocks` kept their names but their labels changed ("Total cash value" to "Cash to invest",
+   "Total stocks" to "Shares held"). "Total earnings" is gone from the stats and lives only in the
+   breakdown card.
+5. **`_earnings_summary_card` lost its amber band**, `divide-black/40` and `bg-sitf-accent-soft`.
+   `sitf-accent-soft` may now be unreferenced - check before deleting the token.
+6. The chart card's `h2` carried **two `class` attributes**; the browser silently kept the first.
+   Worth knowing that ERB will not warn about that.
+
 ### One set of table classes; the header fill is gone
 
 **What.** Every table converges on `.table-base` / `.table-header-row` / `.table-header-cell` /

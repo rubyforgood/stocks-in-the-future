@@ -46,7 +46,9 @@ class PortfoliosControllerTest < ActionDispatch::IntegrationTest
     get portfolio_path(portfolio)
 
     assert_response :success
-    assert_select ".text-slate-600", text: "Not enough data"
+    # Asserted on the text, not on a .text-slate-600 hook: the chart's hand-built empty state moved
+    # onto components/ui/_empty_state, and a class name is not what this test is about.
+    assert_select "p", text: "Not enough data yet"
   end
 
   test "show displays chart when 2 or more snapshots exist" do

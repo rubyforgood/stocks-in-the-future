@@ -29,8 +29,12 @@
 
   /* Card-style surface. Overflow hidden so the header fill respects the radius,
      and x-scroll so wide tables scroll rather than squashing on small screens. */
+  /* The same surface as .tw-card - rounded-2xl and shadow-sm, not rounded-xl and shadow-xs. A
+     table card is a panel, and design.md's radius token is `cards/panels rounded-2xl`. This was a
+     near-duplicate of .tw-card that differed only in radius and shadow, so on the portfolio page a
+     12px-cornered table sat directly under four 16px-cornered cards. */
   .table-wrapper {
-    @apply overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xs;
+    @apply overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm;
   }
 
   /* min-w-full, not w-full: inside an overflow-x-auto wrapper the table has to be free to grow

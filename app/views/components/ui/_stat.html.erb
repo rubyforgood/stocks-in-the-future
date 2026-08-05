@@ -13,7 +13,10 @@
       value  - the figure, already formatted
       hint   - optional supporting line
       testid - optional data-testid, for tests targeting a specific stat %>
-<%= tag.div class: "rounded-xl border border-slate-200 bg-white p-5 shadow-xs",
+<%# .tw-card, not its own rounded-xl / shadow-xs surface. This was a fourth card treatment: the
+    portfolio page put three of these beside a .tw-card chart, a .tw-card summary and a
+    hand-rolled h-[150px] panel, so four radii and three shadows shared one screen. %>
+<%= tag.div class: "tw-card p-5",
             data: { testid: local_assigns[:testid] } do %>
   <p class="text-sm font-medium text-slate-600"><%= label %></p>
   <p class="mt-1 text-2xl font-bold tracking-tight text-slate-900 tabular-nums"><%= value %></p>

@@ -255,6 +255,36 @@ Two details in that rail:
   alone, which is unavailable to a screen reader (4.1.2) and to anyone who cannot
   separate the two colours (1.4.1).
 
+### Dashboard pages: the standard shape
+
+`portfolios#show` is the reference. Read top-down: **a KPI band, then the trend beside a
+breakdown, then the detail table full width.** Robinhood, Fidelity, Wealthfront, Stripe and Shopify
+analytics all order it this way, and it is the fix for a page reported as busy and hard to parse.
+
+**One gutter: 24px, `gap-6`, everywhere.** The portfolio page had `gap-8` between its columns,
+`gap-6` inside them and `gap-4` between its stats - three rhythms on one screen, which is most of
+what "nothing lines up" means. Every row then starts and ends on the same two edges, which is what
+makes a grid read as a grid.
+
+**Cards sharing a row share a height.** A grid cell stretches; the card inside it does not, so it
+needs `h-full`. Measured before: a 419px chart beside a 352px breakdown in the same row.
+
+**The widest content gets the width.** A six-column holdings table was in a two-thirds column while
+a narrow label/value list took the other third. A trend chart and a table want width; a list of
+terms and values does not.
+
+**KPI figures decompose the total, they do not repeat it.** `value = cash + invested` is worth
+showing a student learning what a portfolio is. The old row showed cash in a stat *and* in the
+earnings-to-invest card, and earnings in a stat *and* in the breakdown card - the duplication is
+what made the page feel crowded, more than the layout did.
+
+**One surface. There were five on that page**: `.tw-card`, `_stat`'s own `rounded-xl`/`shadow-xs`,
+an `h-[150px]` panel, `.table-wrapper`'s `rounded-xl`/`shadow-xs`, and a hand-rolled amber alert.
+`_stat` and `.table-wrapper` are `.tw-card`'s tokens now, and the alert is
+`components/ui/_callout`. **A table card is a panel, so it is `rounded-2xl` like every other card** -
+a 12px-cornered table directly under 16px-cornered cards is visible even when nothing else is wrong.
+`test/system/portfolio_layout_test.rb` asserts one radius across the page.
+
 ### Badges
 **One component: `components/ui/_badge`**, matching the Status pill base above:
 `inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium`, with a tone:
