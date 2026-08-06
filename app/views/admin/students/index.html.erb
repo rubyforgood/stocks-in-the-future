@@ -116,9 +116,23 @@
         </button>
       </div>
 
-      <p class="mb-4 text-sm text-slate-600">
-        Upload a CSV file with columns: <strong>classroom_id, username</strong>
-      </p>
+      <%# All three columns, because all three are required. This said "classroom_id, username" and stayed
+          saying it when name became required - so the dialog told an admin to build a file the importer
+          would then reject on every row. Helper text that lists a format is part of that format. %>
+      <div class="mb-4 space-y-2 text-sm text-slate-600">
+        <p>
+          Upload a CSV with a header row and these columns:
+          <strong class="text-slate-900">classroom_id, username, name</strong>. All three are required.
+        </p>
+        <p>
+          A student&rsquo;s name is what appears throughout the app - a roster of usernames alone is hard to
+          read - so a row without one is reported rather than imported.
+        </p>
+        <p>
+          <%= link_to "Download a template", template_admin_students_path, class: "tw-link" %>
+          to start from an example.
+        </p>
+      </div>
 
       <%= form_with url: import_admin_students_path, multipart: true, local: true do |form| %>
         <div class="mb-4">

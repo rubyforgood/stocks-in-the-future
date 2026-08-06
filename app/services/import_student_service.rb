@@ -24,15 +24,17 @@ class ImportStudentService
   # otherwise create - but that just moves the problem: a bulk-imported class is exactly where a roster of
   # lowercased usernames is least navigable, and it is the path that creates twenty-five of them at once.
   #
-  # Refused as a skip_result rather than left to the model, so the import report names the row and says
-  # what is missing, the same as a blank username or a duplicate.
+  # Refused before the record is built, so the import report names the row and says what is missing.
   def call(username:, classroom_id:, name: nil)
     username = sanitize_input(username)
     classroom_id = sanitize_input(classroom_id)
     name = sanitize_input(name).presence
-    return skip_result("Username is required") if username.blank?
+    # A missing required field is a failure, not a skip - the same call the name required. A skip means
+    # "this row was fine and there was nothing to do", which is a duplicate; a row with no username is
+    # something the operator has to go and fix, and the per-row failure list is what tells them where.
+    return failure_result("Username is required") if username.blank?
     return skip_result("Student with username '#{username}' already exists") if Student.exists?(username: username)
-    return skip_result("Classroom ID is required") if classroom_id.blank?
+    return failure_result("Classroom ID is required") if classroom_id.blank?
     # A *failure*, not a skip. The two buckets are reported differently: the controller describes skips
     # as "Skipped N existing usernames", which is true of a duplicate and a lie about a row that simply
     # has no name, while failures are reported per row as "Row N: <message>" - which is what someone

@@ -5,6 +5,9 @@ module Admin
   class StudentsController < BaseController
     include SoftDeletableFiltering
 
+    # How many distinct skip reasons the import flash names before it summarises the rest.
+    SKIP_REASONS_SHOWN = 3
+
     before_action :set_student, only: %i[show edit update destroy add_transaction]
     before_action :set_discarded_student, only: %i[restore]
 
@@ -218,8 +221,17 @@ module Admin
       "Successfully created #{created.count} students: #{usernames.join(', ')}"
     end
 
+    # Derived from the reasons the rows were actually skipped, not from an assumption about what a skip
+    # means. It said "Skipped N existing usernames", which was true while a duplicate was the only thing
+    # that produced a skip and became a lie the moment anything else did - a nameless row briefly landed
+    # here and was reported as a duplicate. Now the wording cannot drift from the cause: a new skip reason
+    # describes itself, and the bucket carries no meaning of its own.
     def build_skipped_message(skipped)
-      "Skipped #{skipped.count} existing usernames"
+      reasons = skipped.map { |item| item.result.error_message }.uniq
+      shown = reasons.first(SKIP_REASONS_SHOWN)
+      shown << "and #{reasons.size - SKIP_REASONS_SHOWN} more" if reasons.size > SKIP_REASONS_SHOWN
+
+      "Skipped #{skipped.count} #{'row'.pluralize(skipped.count)}: #{shown.to_sentence}"
     end
 
     def redirect_with_mixed_results(success_messages, failed)

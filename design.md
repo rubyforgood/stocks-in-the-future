@@ -1265,9 +1265,19 @@ checks it itself.
 would be saved and *then* reported, wiping the name it was complaining about.
 
 **The import refuses a nameless row as a failure, not a skip**, and the distinction matters because the
-buckets read differently: the controller describes skips as "Skipped N existing usernames" - true of a
-duplicate, a lie about a row with no name - while failures are listed per row as "Row N: <message>", which
-is what somebody fixing a spreadsheet needs. The CSV template carries the column on every example row.
+buckets read differently: a skip means the row was fine and there was nothing to do, while a failure is
+listed per row as "Row N: <message>" - what somebody fixing a spreadsheet needs. The blank-username and
+blank-classroom guards were moved to failures for the same reason.
+
+And the skip summary is **derived from the reasons** rather than assuming one. It read "Skipped N existing
+usernames", which was true while a duplicate was the only thing that could produce a skip; it now reads
+"Skipped N rows: <reasons>", capped at three before it summarises. That makes the mislabelling impossible
+rather than corrected once.
+
+**The import dialog states all three columns**, because helper text that lists a format is part of that
+format. It said "classroom_id, username" and kept saying it after `name` became required, so it told an
+admin to build a file the importer would then reject on every row. It now also links the template, which
+existed and was only linked from the page behind it.
 
 `User` normalizes the name (`strip.presence`), so an empty submission is nil rather than `""` - two
 representations of "unset" in one column is how `name.nil?` ends up wrong half the time.

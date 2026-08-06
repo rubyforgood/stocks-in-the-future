@@ -64,8 +64,8 @@ class ImportStudentServiceTest < ActiveSupport::TestCase
         name: "Test Student"
       )
 
-      assert result.success?
-      assert_equal :skipped, result.action
+      assert_not result.success?
+      assert_predicate result, :failed?
       assert_nil result.student
       assert_equal "Username is required", result.error_message
     end
@@ -79,8 +79,8 @@ class ImportStudentServiceTest < ActiveSupport::TestCase
         name: "Test Student"
       )
 
-      assert result.success?
-      assert_equal :skipped, result.action
+      assert_not result.success?
+      assert_predicate result, :failed?
       assert_nil result.student
       assert_equal "Username is required", result.error_message
     end

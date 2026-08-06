@@ -365,7 +365,7 @@ module Admin
 
       assert_redirected_to admin_students_path
       assert_match(/Successfully created 1 students/, flash[:notice])
-      assert_match(/Skipped 1 existing usernames/, flash[:notice])
+      assert_match(/Skipped 1 row: Student with username .student1. already exists/, flash[:notice])
     end
 
     test "import should handle errors and show line numbers" do
@@ -454,6 +454,50 @@ module Admin
       assert_redirected_to admin_students_path
       assert_match(/Successfully created 2 students/, flash[:notice])
       assert_match(/1 errors occurred/, flash[:alert])
+    end
+
+    # The report describes a skip by its actual reason rather than assuming one.
+    #
+    # It said "Skipped N existing usernames", which was true only while a duplicate was the sole thing
+    # that could produce a skip. A nameless row briefly landed in that bucket and was reported to the
+    # admin as a duplicate. Two mitigations, and this covers both: a missing required field is a failure
+    # now, and the skip wording is derived from the messages so it cannot drift from the cause again.
+    test "import describes a skipped row by its reason" do
+      create(:student, username: "already_here", classroom: @classroom1, name: "Already Here")
+      csv_content = "classroom_id,username,name\n" \
+                    "#{@classroom1.id},already_here,Duplicate Row\n" \
+                    "#{@classroom1.id},brand_new,Brand New"
+
+      post_csv(csv_content)
+
+      assert_match(/Skipped 1 row/, flash[:notice])
+      assert_match(/already exists/, flash[:notice])
+      assert_no_match(/existing usernames/, flash[:notice])
+    end
+
+    # A row missing a required field is reported per row, in the failure list, where an operator fixing a
+    # spreadsheet can see which line to edit - not counted as a skip.
+    test "import reports a row missing a required field as a failure" do
+      csv_content = "classroom_id,username,name\n" \
+                    "#{@classroom1.id},no_name_here,\n" \
+                    "#{@classroom1.id},fine_row,Fine Row"
+
+      post_csv(csv_content)
+
+      assert_match(/1 errors occurred/, flash[:alert])
+      assert_match(/Name is required/, flash[:alert])
+      assert_nil Student.find_by(username: "no_name_here")
+      assert_not_nil Student.find_by(username: "fine_row")
+    end
+
+    def post_csv(content)
+      file = Tempfile.new(["test_import", ".csv"])
+      file.write(content)
+      file.rewind
+      post import_admin_students_path, params: { csv_file: fixture_file_upload(file.path, "text/csv") }
+    ensure
+      file.close
+      file.unlink
     end
 
     test "non-admin cannot access template" do

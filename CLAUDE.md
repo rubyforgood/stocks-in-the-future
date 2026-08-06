@@ -200,10 +200,19 @@ without one. The requirement is a `:student_form` context the forms opt into, pl
 can. **And `update` runs before a context validation**, so it writes the blank value and then reports it;
 assign-then-`save(context:)` is the shape.
 
-**A rejected import row is a failure, not a skip, unless "skip" is what the report says.** The importer
-describes its skip bucket as "Skipped N existing usernames" and its failures as "Row N: <message>". Putting
-a nameless row in the first bucket labels it a duplicate. **Read how the buckets are reported before
-choosing one** - the words are the contract, not the enum name.
+**A rejected import row is a failure, not a skip.** A skip means "this row was fine and there was nothing
+to do", which is a duplicate; a row missing a required field is something an operator has to go and fix,
+and the per-row failure list is what tells them which line. **Read how a bucket is *reported* before
+putting anything in it** - the words the user sees are the contract, not the enum name.
+
+**A message that summarises a bucket must derive from its contents.** "Skipped N existing usernames" was
+true while a duplicate was the only thing that produced a skip, and became a lie the moment anything else
+did. Deriving the wording from the actual reasons makes that class of bug impossible rather than fixing one
+instance of it - the same reasoning as interpolating a rate from its constant instead of writing it out.
+
+**Helper text that lists a format is part of that format.** The import dialog said "columns: classroom_id,
+username" and kept saying it after `name` became required, so it told an admin to build a file the importer
+would reject on every row. When a required field changes, grep the copy as well as the code.
 
 **A control that can only report that it did nothing is not a control.** "Add new students" was offered on
 a fully populated grade book - the normal state - where it added nobody and flashed "Every student already
