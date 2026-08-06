@@ -75,8 +75,19 @@ class ClassroomsController < ApplicationController
     authorize @classroom
   end
 
+  # The permitted list comes from the policy, not from here, because it differs by role: an admin may
+  # move a classroom between school years and change who teaches it, a teacher may not. Keeping it in
+  # ClassroomPolicy puts "may they?" and "what of it?" in one file - a teacher's crafted request
+  # carrying school_id or teacher_ids is dropped here rather than relying on the form not to show them.
+  #
+  # Pundit's `permitted_attributes` does the permitting itself - it returns filtered params, not the
+  # list - so this replaces the whole `params.expect(...)` rather than being handed to it. Passing its
+  # return value into `expect` raises ParameterMissing and every update 400s.
+  #
+  # Classroom.new for create: only an admin can reach it, and permitted_attributes needs a record to be
+  # asked about even though this policy's answer depends on the user alone.
   def classroom_params
-    params.expect(classroom: [:name, :trading_enabled, :school_id, :year_id, { grade_ids: [] }, { teacher_ids: [] }])
+    permitted_attributes(@classroom || Classroom.new)
   end
 
   def dropdown_data

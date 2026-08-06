@@ -22,6 +22,13 @@
     </div>
   </div>
 
+<%# School, year and the teacher assignment are admin-only, matching ClassroomPolicy's permitted
+    attributes. A teacher who saw these would be filling in fields whose values are dropped on submit,
+    which is worse than not offering them: the page would look like it saved and quietly would not.
+    The check is the same policy the parameter filter uses, so the two cannot drift apart. %>
+<% admin_fields = policy(classroom).permitted_attributes.include?(:school_id) %>
+
+<% if admin_fields %>
   <div class="my-5">
     <%= form.label :school_id, "School name", class: 'tw-label-primary' %>
     <div class="mt-2">
@@ -45,6 +52,7 @@
                       { class: "tw-input-primary" } %>
     </div>
   </div>
+<% end %>
 
   <div class="my-5">
   <%= form.label :grade_ids, class: 'tw-label-primary flex items-center gap-2' do %>
@@ -87,6 +95,7 @@
     <p class="text-sm text-slate-600 mt-1">When enabled, students in this classroom can place buy and sell orders.</p>
   </div>
 
+  <% if admin_fields %>
   <div class="my-5">
     <%= label_tag :teacher_ids, "Teachers", class: 'tw-label-primary flex items-center gap-2' %>
 
@@ -125,6 +134,7 @@
       <% end %>
     </div>
   </div>
+  <% end %>
 
   <div class="inline">
     <%# The label is explicit because a bare form.submit lets Rails generate one from the model

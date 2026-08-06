@@ -161,8 +161,12 @@ class TableConsistencyTest < ApplicationSystemTestCase
   # `@layer components`, so a `py-4` utility on the element beats the layered `py-3` and the class
   # list reads as though it is using the shared padding.
   #
-  # The badge's own `py-1` still puts its text ~4px below bare text, which is what a pill does and
-  # what every other table in the app measures - the tolerance covers that and not 14px.
+  # The tolerance covers a control's own padding and not the defect. Measured norm, identical on
+  # admin/classrooms and admin/users: bare text at 14px from the row top, a badge at 18 because a pill
+  # carries `py-1`, a ghost row action at 20 because it is a 32px control around a 20px label. The bug
+  # here was 28 against 14. So 8px passes every control in the app and fails a cell with its own
+  # padding.
+  LINE_SPREAD = 8
   test "a classrooms row shares one line, at the standard row height" do
     classroom = create(:classroom, :with_trading, name: "Aligned Class")
     teacher = create(:teacher, name: "Terry Teacher")
@@ -203,17 +207,21 @@ class TableConsistencyTest < ApplicationSystemTestCase
 
     tops = report["tops"].compact
 
-    assert_in_delta tops.min, tops.max, 5,
+    assert_in_delta tops.min, tops.max, LINE_SPREAD,
                     "the row's cells start on different lines: #{report['tops'].inspect}"
-    assert_in_delta 48, report["height"], 2,
-                    "the row is #{report['height']}px; design.md sets 48px"
+    # 57, not the 48 design.md names, and both are right: 48 is the padding-only row, and a row
+    # carrying a 32px ghost action is 32 + 24 padding + the hairline. admin/classrooms and admin/users
+    # measure exactly 57 for the same reason, so this asserts the app's own figure rather than the one
+    # for a row without controls. It was 69.
+    assert_in_delta 57, report["height"], 2,
+                    "the row is #{report['height']}px; a row with a ghost action measures 57 " \
+                    "across the app, and one without measures 48"
   end
 
-  # An unlabelled trailing column whose every cell is the no-permission dash tells a reader nothing.
-  # ClassroomPolicy#edit? is admin-only, so that is exactly what a teacher saw. The dash stays where a
-  # column holds actions for some rows and not others - portfolios#show - so this asserts the column
-  # is absent for a teacher and present for an admin rather than removing the convention.
-  test "the classrooms actions column is absent when the viewer has no action" do
+  # A teacher edits the classrooms they teach, so the column carries Edit for them and the dash is gone
+  # because there is a real action rather than because the column was hidden. The dash convention itself
+  # stays where a column holds actions for some rows and not others - portfolios#show.
+  test "a teacher gets Edit on the classroom they teach" do
     classroom = create(:classroom, :with_trading)
     teacher = create(:teacher)
     create(:teacher_classroom, teacher:, classroom:)
@@ -221,11 +229,10 @@ class TableConsistencyTest < ApplicationSystemTestCase
 
     visit classrooms_path
 
-    assert_selector "tbody tr.table-body-row"
+    assert_selector "tbody tr.table-body-row a", text: "Edit"
     assert_not has_selector?(".table-no-permission", wait: 0),
-               "a teacher sees a column of dashes where no action is ever available"
-    assert_equal 4, page.evaluate_script('document.querySelectorAll("thead th").length'),
-                 "the actions column is still being rendered for a viewer who has none"
+               "a row with an available action should not also show the no-permission dash"
+    assert_equal 5, page.evaluate_script('document.querySelectorAll("thead th").length')
   end
 
   test "the classrooms actions column is present for an admin" do
@@ -236,6 +243,19 @@ class TableConsistencyTest < ApplicationSystemTestCase
 
     assert_equal 5, page.evaluate_script('document.querySelectorAll("thead th").length')
     assert_selector "tbody tr.table-body-row a", text: "Edit"
+  end
+
+  # The guard against a column of dashes still has one reachable case now that teachers can edit: a
+  # teacher with no classrooms at all. The header must lose its fifth cell and the empty state's
+  # colspan must follow it, or the row spans the wrong width.
+  test "a teacher with no classrooms gets neither the column nor a wrong colspan" do
+    sign_in(create(:teacher))
+
+    visit classrooms_path
+
+    assert_text "No classrooms found"
+    assert_equal 4, page.evaluate_script('document.querySelectorAll("thead th").length')
+    assert_equal "4", find(".table-empty-cell")[:colspan]
   end
 
   # Everything in a row hangs off the row's first line.

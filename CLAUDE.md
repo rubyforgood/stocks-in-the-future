@@ -140,11 +140,24 @@ put one classrooms cell's text 14px below every other column and made the row 69
 48px. **A cell that carries its own `py-*` is a bug, not a tweak** - and the same applies to any
 wrapper inside it, since `py-1` and `min-h-9` on the badge strip were doing half the damage.
 
+**Pundit's `permitted_attributes` returns filtered params, not the attribute list.** Passing its return
+value into `params.expect` raises `ParameterMissing`, so every write 400s. Worse, the negative tests
+("a teacher cannot change X") all **passed** while it did, because a 400 changes nothing either. When
+asserting that a request cannot do something, assert in the same file that a permitted request can -
+otherwise a broken endpoint reads as a secure one.
+
+**When a role gains edit rights, the permitted attributes are the real decision.** A teacher may edit
+their classroom's name, grades and trading flag; `school_id` / `year_id` move it between school years
+and `teacher_ids` is *who may see and edit it*, so those stay admin-only in
+`ClassroomPolicy#permitted_attributes`. The form hides what the filter drops - a field whose value is
+silently discarded looks like a save that worked.
+
 **A column of dashes is not a column.** The `table-no-permission` dash means "no action on this row",
-which only says something when other rows have one. `ClassroomPolicy#edit?` is admin-only, so a
+which only says something when other rows have one. `ClassroomPolicy#edit?` **was** admin-only, so a
 teacher's classrooms table was an unlabelled trailing column of italic hyphens, every row. Ask whether
 **any** row has a permitted action; if none does, drop the header, the cells, and one from the empty
-state's `colspan`.
+state's `colspan`. Teachers can edit their own classrooms now, so that guard fires only for a viewer
+with no rows - the rule outlives the case that found it.
 
 **A callout's dismiss is a round trip, never a Stimulus controller.** A client-side close on page state
 brings the banner straight back on the next load, because "trading is turned off for your classroom" is

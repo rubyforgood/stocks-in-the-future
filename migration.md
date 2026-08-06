@@ -347,6 +347,37 @@ signed-out `main` is `p-4 lg:p-6` rather than a flat `p-6`.
 4. `spacing_test.rb` gains three assertions - the title gutter at both widths, and the
    heading/helper/table gaps - and I checked each fails against the markup it was written for.
 
+### Teachers can edit the classroom they teach
+
+**What.** `ClassroomPolicy#update?` (and `edit?`, now delegating to it) allows a teacher who teaches
+the record. New `ClassroomPolicy#permitted_attributes`, and `ClassroomsController#classroom_params`
+takes its list from the policy. `classrooms/_form` hides the admin-only fields.
+
+**Why it has blast radius.**
+
+1. **A teacher can now change a classroom's name, grades and trading flag.** They could already open
+   and close trading, which was the inconsistency, but the name and grades are new.
+2. **The permitted list is per role, and that is the security boundary.** `school_id` / `year_id` move
+   a classroom between school years, and `teacher_ids` is *who may see and edit it* - a teacher who
+   could set it could grant another teacher access, or remove themselves and lose the classroom. Those
+   three stay admin-only, filtered in `classroom_params`, so a crafted request drops them rather than
+   relying on the form. `classrooms_update_permission_test.rb` sends exactly those requests; I widened
+   the teacher list to the admin one and watched them fail.
+3. **Pundit's `permitted_attributes` returns filtered params, not a list.** Handing its return value
+   to `params.expect` raises `ParameterMissing` and every update 400s - which is how this was first
+   written, and the "cannot change X" tests all passed while it did, because a 400 changes nothing
+   either. **A negative test that passes on a broken request proves nothing**; check the positive path
+   in the same file.
+4. **The classrooms table's actions column reappears for teachers**, so the guard added a commit
+   earlier now only fires for a teacher with no classrooms at all. That case is still asserted -
+   header and `colspan` both - because it is the one that remains reachable.
+5. **A classrooms row is 57px for a teacher now, not 49px**, because the row carries a 32px ghost
+   action. That is what admin/classrooms and admin/users have always measured; `design.md`'s 48px is
+   the padding-only row.
+6. **An existing test asserted the old rule.** `"teachers cannot edit classrooms"` checked a redirect
+   from the teacher's *own* classroom - the same one the test above it toggles trading on - and is now
+   two tests, own and someone else's.
+
 ### Dismissals become one table
 
 **What.** New `dismissals` (`user_id`, `key`, `dismissed_at`, unique on user+key), backfilled from the

@@ -46,6 +46,52 @@ class UserManagesClassroomsTest < ApplicationSystemTestCase
     assert_selector "p", text: "2024-2025"
   end
 
+  # A teacher edits the classroom they teach, end to end from the list.
+  test "teacher can rename the classroom they teach" do
+    classroom = create(:classroom, name: "Original Name", grades: [create(:grade, level: 5, name: "5th Grade")])
+    teacher = create(:teacher)
+    create(:teacher_classroom, teacher:, classroom:)
+    sign_in(teacher)
+
+    visit classrooms_path
+    click_on "Edit"
+
+    fill_in "Name", with: "Renamed By Teacher"
+    click_on "Update classroom"
+
+    assert_selector "#notice", text: "Classroom was successfully updated"
+    assert_selector "h1", text: "Renamed By Teacher"
+  end
+
+  # The fields a teacher may not change are not on their form at all. Rendering them would invite a
+  # teacher to fill in a school or a teacher list whose values the parameter filter then drops - the
+  # page would look like it saved and quietly would not.
+  test "a teacher's edit form offers only what a teacher may change" do
+    classroom = create(:classroom, grades: [create(:grade, level: 5, name: "5th Grade")])
+    teacher = create(:teacher)
+    create(:teacher_classroom, teacher:, classroom:)
+    sign_in(teacher)
+
+    visit edit_classroom_path(classroom)
+
+    assert_selector "input#classroom_name"
+    assert_selector "input[name='classroom[grade_ids][]']", visible: :all
+    assert_no_selector "select#classroom_school_id"
+    assert_no_selector "select#classroom_year_id"
+    assert_no_selector "input[name='classroom[teacher_ids][]']", visible: :all
+  end
+
+  test "an admin's edit form still offers all of them" do
+    classroom = create(:classroom, grades: [create(:grade, level: 5, name: "5th Grade")])
+    sign_in(create(:admin))
+
+    visit edit_classroom_path(classroom)
+
+    assert_selector "select#classroom_school_id"
+    assert_selector "select#classroom_year_id"
+    assert_selector "input[name='classroom[teacher_ids][]']", visible: :all
+  end
+
   test "admin can update trading for a classroom" do
     classroom = create(:classroom, trading_enabled: false)
     admin = create(:admin)

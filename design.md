@@ -1166,15 +1166,22 @@ admin tables do, with no wrapper padding.
 
 **An unlabelled actions column is not rendered when the viewer can never use it.** The
 `table-no-permission` dash is right when a column holds actions for *some* rows - `portfolios#show`
-gives a non-student viewer the dash where a student gets Trade - but `ClassroomPolicy#edit?` is
+gives a non-student viewer the dash where a student gets Trade - but `ClassroomPolicy#edit?` **was**
 admin-only, so a teacher's classrooms table was a trailing column containing nothing but italic
-hyphens, on every row. A column of dashes communicates only that there is a column. classrooms#index
+hyphens, on every row, and a column of dashes communicates only that there is a column. classrooms#index
 computes whether **any** row has a permitted action and drops the header, the cells and one from the
-empty state's `colspan` when none does. Asked per record, not per class, so it stays correct if the
-policy ever starts reading the record.
+empty state's `colspan` when none does. (Teachers edit their own classrooms now, so that column carries
+Edit for them and the guard fires only for a viewer with no rows at all - the rule outlived the case
+that found it.) Asked per record rather than per class, so it stays correct if the policy ever starts
+reading the record.
 
-`table_consistency_test.rb` measures both: one line and 48px for a classrooms row, and the column
-absent for a teacher while present for an admin.
+`table_consistency_test.rb` measures all of it: one line across a classrooms row, the row height, Edit
+present for a teacher and an admin, and the column plus the empty state's `colspan` both dropping for a
+viewer with no rows.
+
+**A row's height depends on whether it holds a control.** 48px is the padding-only row; a row carrying a
+32px ghost action measures **57px** - 32 plus 24 of padding plus the hairline - which is what
+admin/classrooms and admin/users have always measured. Do not "fix" one to match the other.
 
 **One set of cell classes, `table-*`, on both sides.** Eight admin tables hand-wrote
 `px-3 py-4` while their headers used the shared `table-header-cell` at `px-4 py-3` - transposed,

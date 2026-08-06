@@ -246,9 +246,19 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
     assert @classroom.reload.trading_enabled
   end
 
-  test "teachers cannot edit classrooms" do
+  # Was "teachers cannot edit classrooms", asserting a redirect from their *own* classroom - the same
+  # one the test above lets them open and close trading on. A teacher trusted with the trading switch
+  # but not with the classroom's name was the inconsistency; editing is per classroom now, so this
+  # splits into the two cases.
+  test "teachers can edit the classrooms they teach" do
     sign_in @teacher
     get edit_classroom_path(@classroom)
+    assert_response :success
+  end
+
+  test "teachers cannot edit other teachers' classrooms" do
+    sign_in @teacher
+    get edit_classroom_path(create(:classroom, name: "Not Mine"))
     assert_redirected_to root_path
   end
 
