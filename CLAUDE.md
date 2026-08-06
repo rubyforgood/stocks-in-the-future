@@ -225,6 +225,13 @@ ever do anything for this viewer, in this state.
 for a *native* dialog - took longer. **Before swapping a primitive, grep for what tests it**, not just
 what uses it. `accept_confirmation` / `dismiss_confirmation` drive the app's dialog now.
 
+**Proving that nothing happened needs a bounded wait.** `click`/`send_keys` do not block, so reading the
+database straight after asserts against a request still in flight - and a "the action did *not* happen"
+test then passes whichever way the action went. Mine passed with focus on the accept button, which is the
+exact opposite of what it claimed. There is no positive state to wait on when the correct outcome is
+nothing, so a short documented `sleep` is the honest instrument. **Verify such a test by making the thing
+happen** and watching it fail.
+
 **A native `<dialog>` needs `m-auto` and `w-auto` under Tailwind.** Preflight resets
 `dialog { margin: 0 }`, killing the UA's centring, and the UA sets `width: fit-content`, so a panel is
 sized by its own text. Both are invisible until measured - mine sat against the left edge at 301px wide.

@@ -120,6 +120,49 @@ class ConfirmDialogTest < ApplicationSystemTestCase
     assert_selector "#confirm-dialog[open]"
   end
 
+  # The two accidental dismissals, which were the ones missing when this was first written - and they are
+  # the likeliest: a stray Enter, and a click at the edge of the screen. Both must decline.
+  test "enter declines, because focus starts on the safe option" do
+    classroom, student = a_classroom_with_a_student
+
+    visit classroom_path(classroom)
+    click_on "Delete", match: :first
+
+    assert_selector "#confirm-dialog[open]"
+
+    page.driver.browser.action.send_keys(:enter).perform
+
+    assert_no_selector "#confirm-dialog[open]"
+
+    # A bounded wait, and it is load-bearing. Proving that *nothing* happened has no positive state to
+    # wait on: without it this read the database before the DELETE had finished and passed whichever
+    # button Enter had pressed. Checked by moving `autofocus` onto the accept button - the test failed
+    # then and passes now.
+    sleep 0.5
+
+    assert_not student.reload.discarded?, "Enter confirmed a destructive action"
+    assert_no_selector "#notice"
+  end
+
+  # A native <dialog> does not close on a backdrop click, so this is ours: a click whose target is the
+  # dialog element itself landed outside the panel.
+  test "a backdrop click declines" do
+    classroom, student = a_classroom_with_a_student
+
+    visit classroom_path(classroom)
+    click_on "Delete", match: :first
+
+    assert_selector "#confirm-dialog[open]"
+
+    top = page.evaluate_script(
+      "Math.round(document.querySelector('#confirm-dialog').getBoundingClientRect().top)"
+    )
+    page.driver.browser.action.move_to_location(5, top + 5).click.perform
+
+    assert_no_selector "#confirm-dialog[open]"
+    assert_not student.reload.discarded?, "a backdrop click confirmed a destructive action"
+  end
+
   # Cancel takes focus, so a stray Enter declines rather than confirms a destructive action.
   test "focus starts on cancel" do
     classroom, = a_classroom_with_a_student
