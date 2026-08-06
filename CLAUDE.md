@@ -134,6 +134,18 @@ top-level element the partial emits becomes a spaced sibling. `_stocks_table` em
 helper line, table — and all three rendered 24px apart while the markup said 4px and 12px. Nothing in
 either file was wrong on its own; the bug lived in the relationship.
 
+**A message that removes itself must be an outcome, not a state.** The success flash auto-hides after
+6s; `#alert` never does, and neither do callouts or form error summaries. "Trading is turned off" is
+true until a teacher changes it, so a callout that deleted itself would be lying about the page, and
+an error is often the only record of what went wrong. Before giving anything `auto-dismiss`, ask
+whether the sentence is still true in a minute. `flash_dismiss_test.rb` asserts this on the attribute,
+so a wrong one fails by name.
+
+**Two ways an auto-hiding element gets stuck on screen.** Fade with an **inline style**, because
+Tailwind only emits classes it can see in the templates and an `opacity-0` added from JS may not be in
+the build. Remove on **its own timer**, not `transitionend`, because a transition that never fires -
+skipped under reduced motion, interrupted by a display change - leaves the message up forever.
+
 **A banner is only as wide as the container it is in, and the flash was in `<main>`.** The content
 column was per-page (`mx-auto max-w-7xl` in the view) while `layouts/_flash` was a bare child of
 `<main>`, so at 1920px the sign-in notice measured 1601px over cards of 1280px. **Anything the layout

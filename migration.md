@@ -347,6 +347,31 @@ signed-out `main` is `p-4 lg:p-6` rather than a flat `p-6`.
 4. `spacing_test.rb` gains three assertions - the title gutter at both widths, and the
    heading/helper/table gaps - and I checked each fails against the markup it was written for.
 
+### The success flash auto-dismisses after 6s
+
+**What.** New `auto_dismiss_controller.js`. `layouts/_flash`'s `#notice` gains
+`data-controller="auto-dismiss"` and hold/restart actions; `#alert` does not. New
+`test/system/flash_dismiss_test.rb`.
+
+**Why it has blast radius.**
+
+1. **A message on screen now disappears on its own**, which any test that signs in and then asserts
+   on the notice can lose. Nothing in the suite hit this - the assertions all run well inside 6s -
+   but a test that signs in, does slow setup and *then* looks for the notice will fail, and it will
+   look intermittent rather than causal. `#alert` is unaffected by design.
+2. **It establishes a convention**: transient outcomes dismiss, page state and errors do not.
+   `components/ui/_callout` and the `students#new` / `students#edit` / `profiles` error summaries are
+   explicitly excluded, and `flash_dismiss_test.rb` asserts on the attribute so a new banner that
+   copies the wrong half fails with the banner named. A future dismissible callout should get a
+   *button*, not this controller - a control the reader operates is a different thing from a timer.
+3. **The timing is real in the tests**, so `flash_dismiss_test.rb` costs about 30s of wall time on
+   its own. That is deliberate: the number is the decision, and a shortened delay would assert only
+   that some timer exists. If the suite ever needs to be fast, shorten the delay via
+   `data-auto-dismiss-after-value` rather than deleting the coverage.
+4. **`prefers-reduced-motion` is honoured here and nowhere else.** The controller removes the element
+   without fading under that query; `drawer_controller`'s 300ms slide still animates regardless. That
+   inconsistency is pre-existing and was not touched.
+
 ### The content column moves into both layouts
 
 **What.** `application.html.erb` (signed-in) and `admin.html.erb` each gain one

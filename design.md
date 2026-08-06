@@ -379,6 +379,40 @@ now. This document hue-codes a KPI's **icon tile**, never its panel fill, and a 
 **Only the layout renders the flash.** `stocks#show` rendered `notice` a second time in its own green
 panel, so a notice appeared twice on that page.
 
+**Success auto-hides after 6s. Errors stay. Nothing else dismisses itself.**
+
+`layouts/_flash`'s `#notice` carries `data-controller="auto-dismiss"`; `#alert` never does. The split
+is a property of what a message *is*, not of how it looks - a notice reports that something you just
+did worked and is worthless a minute later, while an alert is often the only record of what went
+wrong, which is why it is `role="alert"` in the first place.
+
+6s is the number because the field runs 3-10s and clusters at 4-6: Polaris, Bootstrap 5 and Chakra
+default to 5s, Material to 4s (4-10s in its M3 guidance), Ant to 3s. The long end of the band suits
+readers who are eleven. Hovering or focusing the message holds it and leaving restarts the full
+delay, so it cannot vanish mid-read - that, plus a delay well above a couple of seconds, is what
+keeps an auto-hiding status message clear of WCAG 2.2.1. Removal is silent by design: `role="status"`
+announces the message when it appears, and taking it away later is not announced.
+
+Two implementation traps, both real:
+
+- **The fade is an inline style, not a utility class.** Tailwind only emits the classes it can see in
+  the templates, so an `opacity-0` added from JS is not guaranteed to be in the build.
+- **Removal runs on its own timer, not on `transitionend`.** A transition that never fires - a
+  display change mid-fade, a browser skipping it under reduced motion - would leave the message on
+  screen forever. Under `prefers-reduced-motion` the element is removed without fading at all.
+
+**What must not auto-dismiss**, checked by `flash_dismiss_test.rb` rather than left to habit:
+`components/ui/_callout` (page state - "trading is turned off" is true until a teacher changes it, and
+state that deletes itself is a lie about the page), and the form error summaries on `students#new`,
+`students#edit` and `profiles/_errors`, which are the same shape as the alert. The test asserts on the
+attribute rather than by waiting, so a failure names the banner.
+
+Note the flash section further down this document, under Accessibility, describes a `shared/_flashes`
+partial with an `auto-dismiss` controller and a `notice_action` link. **That partial does not exist in
+this app** - its neighbours reference `StocksInTheFutureCasesController`, `CourtDatesController` and
+`case_contacts`, so that block came from another codebase. Its ~6s figure is where this 6s comes from,
+but this entry is the one describing code that is here.
+
 **Notices go through `components/ui/_callout`**, which is why it exists. `admin/teachers/_form` had a
 hand-rolled `yellow-50` panel with an inline SVG and a link buried mid-sentence; the link is the
 callout's trailing action now - a message plus the thing to do about it. `layouts/_flash` deliberately
