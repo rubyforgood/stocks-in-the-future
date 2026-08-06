@@ -1,3 +1,12 @@
-web: env RUBY_DEBUG_OPEN=true bin/rails server
-css: bin/rails tailwindcss:watch
+# -b 0.0.0.0 because a bare `bin/rails server` binds 127.0.0.1, and Docker's published port cannot
+# reach a process listening on loopback inside the container - the browser gets nothing while curl
+# from inside the container still answers, so the bind looks fine from every check made in there.
+# docker-compose.yml passes the same flag for the same reason. On a bare host this does widen the
+# listener from loopback to every interface, which is the accepted cost of bin/dev working in Docker.
+web: env RUBY_DEBUG_OPEN=true bin/rails server -b 0.0.0.0
+# [always] is -w always. Plain -w makes the tailwind CLI exit as soon as stdin closes, which is
+# every case where bin/dev is not attached to a terminal - Docker, or any backgrounded run. And
+# foreman kills the whole formation when any one process exits, so css quitting took web and job
+# with it: bin/dev booted Puma, printed "Done in 929ms", and then terminated itself.
+css: bin/rails "tailwindcss:watch[always]"
 job: bin/rake solid_queue:start

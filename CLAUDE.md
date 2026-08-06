@@ -134,6 +134,35 @@ top-level element the partial emits becomes a spaced sibling. `_stocks_table` em
 helper line, table — and all three rendered 24px apart while the markup said 4px and 12px. Nothing in
 either file was wrong on its own; the bug lived in the relationship.
 
+**`bin/dev` needs `tailwindcss:watch[always]`, or it kills itself with no TTY.** Plain `-w` makes the
+tailwind CLI exit the moment stdin closes — Docker, or any backgrounded run — and foreman terminates
+the whole formation when any one process exits. So `bin/dev` booted Puma, printed `Done in 929ms`,
+SIGTERM'd itself, and left **no error**: the failure reads like a clean shutdown. If a dev process
+disappears without complaint, check whether a sibling exited first.
+
+**And `-b 0.0.0.0`, or nothing reaches the browser.** A bare `bin/rails server` binds `127.0.0.1`,
+and Docker's published port cannot forward to loopback inside the container. `docker-compose.yml`
+always passed the flag; `Procfile.dev` did not, so swapping a hand-run `bin/rails server -b 0.0.0.0`
+for `bin/dev` silently took the app off the browser while every check still passed.
+
+**A container cannot check its own reachability over loopback.** `curl 127.0.0.1:3000` from inside
+succeeds whether the bind is loopback-only or not, so it cannot distinguish the working case from the
+broken one — I called the server verified on exactly that evidence. Use the container's own address,
+`hostname -i` (172.17.0.2 here), or read `Listening on` in the log. The same trap applies to any
+"is it up" check run from the same side as the thing being tested.
+
+**Two more shapes that lie about being dead or alive.** `pkill -f "bin/rails server"` does not match
+Puma, which renames itself to `puma 8.0.2 (tcp://0.0.0.0:3000)`; it survives, keeps the port and
+`tmp/pids/server.pid`, and the next boot fails with *"A server is already running"* while curl still
+answers 302 from the corpse. Solid Queue likewise renames to `solid-queue-fork-supervisor`, so
+grepping for `solid_queue` finds nothing and it looks dead when it is fine — `SolidQueue::Process`
+is the honest check. And a `-w always` watcher can outlive foreman's SIGTERM, leaving two watchers
+on one output file.
+
+**Tailwind v4 in watch mode only grows.** Deleting a class does not shrink `tailwind.css` until the
+watcher restarts, and tailwind skips the write entirely when output bytes are unchanged — so a
+stale mtime is not evidence that a rebuild did not happen.
+
 ## Money
 
 **Integer cents are authoritative. Never convert to a Float and back.**
