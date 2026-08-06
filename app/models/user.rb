@@ -3,6 +3,11 @@
 class User < ApplicationRecord
   include Discard::Model
 
+  # `dismissals`, plus dismissed?/dismiss!. A dismissal is a fact about a person rather than about a
+  # portfolio, which is why it hangs here and not there - the two columns this replaced were on
+  # portfolios only because both readers happened to be students.
+  include Dismissible
+
   def destroy(*)
     soft_delete_guard
     discard

@@ -160,8 +160,8 @@ class FlashDismissTest < ApplicationSystemTestCase
 
   # Page state and error summaries stick *and* have no close control: a dismissal that is not
   # remembered comes back on the next page load, which reads as broken. Where a callout genuinely is
-  # dismissible the dismissal is persisted - portfolios/_first_share posts to acknowledge_first_share -
-  # so it is a button_to, and asserting on the `dismiss` controller distinguishes the two.
+  # dismissible the dismissal is persisted - a button_to posting to `dismissals` - so asserting on the
+  # `dismiss` controller rather than on the presence of a button is what distinguishes the two.
   test "a callout has no client-side close, and its persisted one is a real form" do
     classroom = create(:classroom, trading_enabled: false)
     student = create(:student, :with_portfolio, classroom:)
@@ -171,7 +171,7 @@ class FlashDismissTest < ApplicationSystemTestCase
     visit stocks_path
     assert_text "Trading is turned off"
     assert_no_selector "[data-controller~='dismiss']"
-    assert_selector "form[action*='dismiss_trading_off']"
+    assert_selector "form[action*='dismissals']"
   end
 
   # The whole point of persisting it: a reload is the test a client-side hide fails.

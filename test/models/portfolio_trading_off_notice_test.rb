@@ -12,7 +12,7 @@ class PortfolioTradingOffNoticeTest < ActiveSupport::TestCase
   test "no notice while trading is on" do
     student = student_in(create(:classroom, :with_trading))
 
-    assert_not student.portfolio.trading_off_notice?
+    assert_not student.portfolio.reload.trading_off_notice?
   end
 
   test "a notice while trading is off and undismissed" do
@@ -23,9 +23,9 @@ class PortfolioTradingOffNoticeTest < ActiveSupport::TestCase
 
   test "dismissing hides it" do
     student = student_in(create(:classroom, trading_enabled: false))
-    student.portfolio.dismiss_trading_off!
+    student.dismiss!(Dismissal::TRADING_OFF)
 
-    assert_not student.portfolio.trading_off_notice?
+    assert_not student.portfolio.reload.trading_off_notice?
   end
 
   # The case a boolean cannot express, and the reason this column is a timestamp: a student who
@@ -33,9 +33,9 @@ class PortfolioTradingOffNoticeTest < ActiveSupport::TestCase
   test "it returns when trading is switched off again" do
     classroom = create(:classroom, trading_enabled: false)
     student = student_in(classroom)
-    student.portfolio.dismiss_trading_off!
+    student.dismiss!(Dismissal::TRADING_OFF)
 
-    assert_not student.portfolio.trading_off_notice?
+    assert_not student.portfolio.reload.trading_off_notice?
 
     classroom.update!(trading_enabled: true)
 
@@ -59,9 +59,9 @@ class PortfolioTradingOffNoticeTest < ActiveSupport::TestCase
     # the value straight back. A row with no onset is precisely what not backfilling leaves behind, and
     # there is no other way to construct one.
     classroom.update_column(:trading_disabled_at, nil) # rubocop:disable Rails/SkipsModelValidations
-    student.portfolio.dismiss_trading_off!
+    student.dismiss!(Dismissal::TRADING_OFF)
 
-    assert_not student.portfolio.trading_off_notice?
+    assert_not student.portfolio.reload.trading_off_notice?
   end
 
   test "the onset is stamped once and not dragged forward by a resave" do

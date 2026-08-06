@@ -134,19 +134,20 @@ top-level element the partial emits becomes a spaced sibling. `_stocks_table` em
 helper line, table — and all three rendered 24px apart while the markup said 4px and 12px. Nothing in
 either file was wrong on its own; the bug lived in the relationship.
 
-**A callout's dismiss is a column, never a controller.** A client-side close on page state brings the
-banner straight back on the next load, because "trading is turned off for your classroom" is still
-true - so both dismissible callouts post: `_first_share` to `acknowledge_first_share`, the trading-off
-callout to `dismiss_trading_off`. A form error summary gets no close at all: it describes the form as
-it stands and is rebuilt on submit, so hiding it hides the list of what is still wrong.
+**A callout's dismiss is a round trip, never a Stimulus controller.** A client-side close on page state
+brings the banner straight back on the next load, because "trading is turned off for your classroom" is
+still true. Dismissals go in the **`dismissals` table** - one row per user per key - via
+`POST /dismissals`, and `Dismissible` on `User` gives you `dismissed?(key, since:)` and `dismiss!(key)`.
+**Adding a dismissible banner is a key in `Dismissal::KEYS` and a `button_to`**: no migration, no
+route, no controller action. A form error summary gets no close at all - it describes the form as it
+stands and is rebuilt on submit, so hiding it hides the list of what is still wrong.
 
-**And that column is a timestamp compared against the condition's onset, or it is a mute button.** A
-boolean `dismissed` would hide "trading is turned off" for good - including next term, when a teacher
-switches it off again for a different reason, which is hiding something true and newly relevant. So
-`classrooms.trading_disabled_at` records when the condition began, `Classroom` **clears it when trading
-comes back on** so the next switch-off stamps its own date, and the callout shows when the onset is
-newer than the dismissal. Whenever you make a recurring condition dismissible, ask what the dismissal
-is dismissing - the message, or every future instance of it.
+**Pass `since:` or the dismissal is a mute button.** It defaults to nil, which means permanent, and a
+caller who forgets it fails *silently* - the banner simply never comes back. Correct for something that
+happens once (`celebrate_first_share?` omits it on purpose); wrong for any condition a teacher can turn
+off, on and off again. That is why `classrooms.trading_disabled_at` exists and why `Classroom` **clears
+it when trading comes back on**: each switch-off carries its own date and outranks an earlier
+dismissal. Ask what the dismissal dismisses - this message, or every future instance of it.
 
 **A `button_to` dismiss cannot live in the component.** `button_to` renders a whole `<form>`, and the
 callout in `admin/teachers/_form` sits inside the teacher form, where the parser drops the nested form

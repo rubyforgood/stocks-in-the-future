@@ -4,7 +4,7 @@
     A `button_to`, not `data-controller="dismiss"`. The flash close is client-side because a flash is
     an event that has already been read; this is page state that is still true, so hiding it in the
     browser would bring it straight back on the next page load and read as broken. The round trip
-    writes portfolios.trading_off_dismissed_at, which is compared against the classroom's
+    writes a `dismissals` row, which Portfolio#trading_off_notice? compares against the classroom's
     trading_disabled_at - so the dismissal covers this switch-off and not the next one.
 
     button_to renders its own <form>, which is safe on both of these pages: the callout sits between
@@ -12,8 +12,8 @@
     admin/teachers/_form is inside the teacher form, where a nested form would be dropped by the
     parser and the button would silently submit the outer one - which is why this is passed per call
     site rather than built into the component. %>
-<%= button_to dismiss_trading_off_portfolio_path(portfolio),
-              method: :patch,
+<%= button_to dismissals_path,
+              params: { key: Dismissal::TRADING_OFF },
               class: ghost_class do %>
   <%= lucide_icon "x", class: "size-4 shrink-0" %>
   Dismiss

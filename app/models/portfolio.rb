@@ -30,37 +30,26 @@ class Portfolio < ApplicationRecord
   end
 
   # The first-share moment shows once: when a student holds something and has not dismissed it.
-  # A timestamp rather than a flag, so the record says when as well as whether.
+  #
+  # No `since:`, because this cannot recur - a student's first share happens once, and the celebration
+  # is over whether or not they later sell it. That is the difference between this and the notice
+  # below, and it is the only reason one passes an onset and the other does not.
   def celebrate_first_share?
-    first_share_acknowledged_at.nil? && portfolio_stocks.exists?(shares: 1..)
-  end
-
-  def acknowledge_first_share!
-    update!(first_share_acknowledged_at: Time.current)
+    !user.dismissed?(Dismissal::FIRST_SHARE) && portfolio_stocks.exists?(shares: 1..)
   end
 
   # Whether to show the "trading is turned off" callout: trading is off, and this student has not
   # dismissed *this* switch-off.
   #
-  # The comparison against `classrooms.trading_disabled_at` is the whole design. A boolean "dismissed"
-  # would be a mute button - a student who closed the message once would never see it again, including
-  # next term when their teacher switches trading off for a different reason - and hiding a condition
-  # that is still true and newly relevant is worse than not offering the dismissal at all.
-  #
-  # A NULL onset means the column predates the switch-off, since it was deliberately not backfilled.
-  # A dismissal is honoured in that case: the student has acknowledged the state they can see, and the
-  # next real toggle stamps the column and makes the comparison exact, so this heals rather than
-  # needing a backfill.
+  # `since:` is what keeps the dismissal from being a mute button. A student who closed the message
+  # once would otherwise never see it again, including next term when their teacher switches trading
+  # off for a different reason - and hiding a condition that is still true and newly relevant is worse
+  # than not offering the dismissal at all. Classroom clears `trading_disabled_at` when trading comes
+  # back on, so each switch-off carries its own date and outranks any earlier dismissal.
   def trading_off_notice?
     return false if trading_enabled?
-    return true if trading_off_dismissed_at.nil?
 
-    onset = user.classroom&.trading_disabled_at
-    onset.present? && onset > trading_off_dismissed_at
-  end
-
-  def dismiss_trading_off!
-    update!(trading_off_dismissed_at: Time.current)
+    !user.dismissed?(Dismissal::TRADING_OFF, since: user.classroom&.trading_disabled_at)
   end
 
   def shares_owned(stock_id)

@@ -420,23 +420,34 @@ The reasoning per row, since the table alone will not stop the next person guess
   close: Primer flash, Polaris `Banner` with `onDismiss`, Carbon inline notification.
 - **A callout is dismissible only when the dismissal is remembered.** A client-side close on page state
   is worse than no close at all: "trading is turned off for your classroom" is still true on the next
-  page load, so the banner returns and the button reads as broken. So both dismissible callouts post:
-  `portfolios/_first_share` to `acknowledge_first_share` (writing
-  `portfolios.first_share_acknowledged_at`), and the trading-off callout to `dismiss_trading_off`
-  (writing `portfolios.trading_off_dismissed_at`). **A callout's close is a column, never a
-  controller.**
+  page load, so the banner returns and the button reads as broken. **A callout's close is a round trip,
+  never a Stimulus controller.**
 
-  **And the column is a timestamp, compared against the condition's onset.** A boolean would be a mute
-  button: a student who closed "trading is turned off" once would never see it again, including next
-  term when their teacher switches trading off for a different reason - which is hiding something true
-  and newly relevant, the exact harm the no-dismiss rule was protecting against. So
-  `classrooms.trading_disabled_at` records *when* trading went off, `Classroom` clears it when trading
-  comes back on, and `Portfolio#trading_off_notice?` shows the callout when the onset is newer than the
-  dismissal. A dismissal covers the switch-off it was made against and nothing later.
+  **Dismissals live in one table.** `dismissals` is a row per user per key - `user_id`, `key`,
+  `dismissed_at`, unique on the pair - and every dismissible banner posts to `POST /dismissals` with
+  its key. `Dismissible` (included into `User`) provides `dismissed?(key, since:)` and `dismiss!(key)`;
+  `Dismissal::KEYS` is the allowlist the controller checks a request against, so a client cannot write
+  arbitrary rows. **Adding a dismissible banner is a key and a `button_to`** - no migration, no route,
+  no controller action.
 
-  A NULL onset means the row predates the column, which was deliberately not backfilled; a dismissal is
-  honoured in that case, and the next real toggle makes the comparison exact, so it heals rather than
-  needing a backfill.
+  This replaced a column per banner (`portfolios.first_share_acknowledged_at` and
+  `portfolios.trading_off_dismissed_at`), which cost a migration, a predicate and a member action each.
+  It hangs off `User` rather than `Portfolio` because a dismissal is a fact about a person - those two
+  lived on portfolios only because both readers happened to be students, and a teacher-facing banner
+  would have needed a third home.
+
+  **`dismissed_at` is a timestamp compared against the condition's onset, and `since:` is how.** A
+  boolean would be a mute button: a student who closed "trading is turned off" once would never see it
+  again, including next term when their teacher switches trading off for a different reason - which is
+  hiding something true and newly relevant, the exact harm the no-dismiss rule was protecting against.
+  So `classrooms.trading_disabled_at` records *when* trading went off, `Classroom` clears it when
+  trading comes back on, and `Portfolio#trading_off_notice?` passes it as `since:`.
+
+  **Pass `since:` for anything that can recur, and leave it off only for something that genuinely
+  cannot.** `celebrate_first_share?` omits it deliberately - a first share happens once and the
+  celebration is over either way. A `nil` onset also covers "we do not know when this began", which is
+  what a deliberately un-backfilled onset column leaves behind; the dismissal is honoured, and the
+  first real onset makes the comparison exact, so it heals rather than needing a data migration.
 
   **The block is passed per call site, not built into the component**, because `button_to` renders a
   `<form>` and the callout in `admin/teachers/_form` sits *inside* the teacher form - where the parser

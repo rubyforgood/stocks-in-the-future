@@ -23,8 +23,8 @@
                      testid: "first-share" } do %>
   <%# button_to renders its own form, which is fine here: this sits between cards, never inside
       another form. %>
-  <%= button_to acknowledge_first_share_portfolio_path(@portfolio),
-                method: :patch,
+  <%= button_to dismissals_path,
+                params: { key: Dismissal::FIRST_SHARE },
                 class: ghost_class do %>
     <%= lucide_icon "x", class: "size-4 shrink-0" %>
     Dismiss

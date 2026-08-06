@@ -129,18 +129,12 @@ Rails.application.routes.draw do
       patch :cancel
     end
   end
-  resources :portfolios, only: :show do
-    member do
-      # Dismisses the first-share message. A PATCH because it changes a record, and its own action
-      # rather than a portfolio update so nothing else about a portfolio becomes writable here.
-      patch :acknowledge_first_share
+  resources :portfolios, only: :show
 
-      # Dismisses the "trading is turned off" callout. Same shape and the same reasoning: a PATCH
-      # because it writes a timestamp, and its own action so nothing else about a portfolio becomes
-      # writable through it.
-      patch :dismiss_trading_off
-    end
-  end
+  # One endpoint for every dismissible banner. This was two member actions on portfolios - one per
+  # banner - which is a route, a controller action and a column for each new thing a reader can close.
+  # The key identifies what was dismissed and is checked against Dismissal::KEYS.
+  resources :dismissals, only: :create
   resources :stocks, only: %i[show index]
   resources :announcements, only: :show
 end

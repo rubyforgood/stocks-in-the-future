@@ -347,6 +347,33 @@ signed-out `main` is `p-4 lg:p-6` rather than a flat `p-6`.
 4. `spacing_test.rb` gains three assertions - the title gutter at both widths, and the
    heading/helper/table gaps - and I checked each fails against the markup it was written for.
 
+### Dismissals become one table
+
+**What.** New `dismissals` (`user_id`, `key`, `dismissed_at`, unique on user+key), backfilled from the
+two per-banner columns, which are then dropped. New `Dismissal`, `Dismissible` (into `User`) and
+`DismissalsController`. `POST /dismissals` replaces two member actions on portfolios.
+
+**Why it has blast radius.**
+
+1. **Two columns are gone**: `portfolios.first_share_acknowledged_at` and
+   `portfolios.trading_off_dismissed_at`. Anything reading them breaks loudly. `CreateDismissals`
+   copies every non-NULL value across first, and its `down` copies them back before dropping the
+   table, so the pair rolls both ways without losing a date - I ran the round trip and confirmed a
+   dismissal survives forward, back and forward again.
+2. **`remove_column` is `safety_assured`, with a caveat.** strong_migrations blocks it because
+   ActiveRecord caches columns at boot: on a **rolling** deploy an old process would `SELECT` a column
+   that no longer exists. This app deploys as a single unit and both readers are removed in the same
+   commit, so there is no such window. **If this ever becomes a rolling deploy, that migration is the
+   wrong shape** and the `ignored_columns`-then-drop sequence is the correct one.
+3. **Two routes are gone**: `acknowledge_first_share` and `dismiss_trading_off`. Anything linking to
+   them 404s.
+4. **The key allowlist is now a security boundary.** `DismissalsController` writes whatever key it is
+   given, for `current_user`, so `Dismissal::KEYS` is what stops it being an arbitrary-string write.
+   A new banner **must** add its key there; `dismissals_controller_test.rb` covers the refusal path.
+5. **`dismissed?` takes `since:` and defaults to nil**, which means a caller who forgets it gets a
+   permanent dismissal. That is correct for a one-off and wrong for a recurring condition, and the
+   failure is silent - the banner simply never returns. `dismissible_test.rb` pins both directions.
+
 ### The trading-off callout becomes dismissible, and records why it may come back
 
 **What.** Two nullable columns: `classrooms.trading_disabled_at` and

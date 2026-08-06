@@ -7,11 +7,9 @@ import { Controller } from "@hotwired/stimulus"
 //   flash notice   both - it auto-hides after 6s, and can be closed sooner
 //   flash alert    this only - it never times out, because an error is often the only record of
 //                  what went wrong, but the reader may still clear it once read
-//   callout        neither. It is page state, and a dismissal that is not remembered comes back on
-//                 the next page load, which reads as broken. Where a callout is genuinely
-//                 dismissible the dismissal is *persisted* - portfolios/_first_share posts to
-//                 acknowledge_first_share and writes portfolios.first_share_acknowledged_at - so
-//                 that is a button_to, not this.
+//   callout        never this one, even when dismissible. It is page state, and a dismissal that is
+//                 not remembered comes back on the next page load, which reads as broken. A
+//                 dismissible callout posts to `dismissals` instead - a button_to, not a controller.
 //   error summary  neither. It describes the current state of the form and is rebuilt on submit;
 //                 hiding it would hide the list of what still needs fixing.
 //
