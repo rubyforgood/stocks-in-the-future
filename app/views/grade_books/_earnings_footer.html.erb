@@ -1,0 +1,40 @@
+<%# The table's own totals: the three reasons the money is written under, then the sum.
+
+    This was a separate "What this quarter pays" card sitting **below the Save grades button** and above
+    the finalize block, which made the flow unreadable - a card after a save button reads as something
+    the save produced, and nothing on it said whether it counted what you had just typed. Reported as
+    exactly that.
+
+    In the <tfoot> it cannot be ambiguous: it totals the column it sits under, and it is the element a
+    screen reader expects a column summary in. That is also the invoice shape - line items, subtotals,
+    total - which is what someone reading a spreadsheet expects, and it removes a card from a page that
+    had too many.
+
+    One element with an id, replaced whole on save, because every row of it is derived from the entries.
+    Replacing the footer never touches the inputs, so it cannot take the cursor or a half-typed value
+    with it.
+
+    No rule above it: `divide-y` already separates rows and design.md's Dividers section forbids adding
+    one where something else is already separating. The total row carries the weight instead. %>
+<%= tag.tfoot id: "earnings-footer" do %>
+  <% { attendance: "Attendance, including bonuses", math: "Math", reading: "Reading" }.each do |reason, label| %>
+    <tr class="table-body-row">
+      <th scope="row" class="table-body-cell text-left font-normal text-slate-600" colspan="5">
+        <%= label %>
+      </th>
+      <td class="table-body-cell table-body-cell-right text-slate-600">
+        <%= number_to_currency(earnings.totals_by_reason[reason] / 100.0) %>
+      </td>
+    </tr>
+  <% end %>
+
+  <tr class="table-body-row">
+    <th scope="row" class="table-body-cell text-left font-medium text-slate-900" colspan="5">
+      Total for <%= pluralize(earnings.student_count, "student") %>
+    </th>
+    <td class="table-body-cell table-body-cell-right font-semibold text-slate-900"
+        data-testid="earnings-total">
+      <%= number_to_currency(earnings.total_cents / 100.0) %>
+    </td>
+  </tr>
+<% end %>

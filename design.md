@@ -188,6 +188,14 @@ disagreed on case (Title Case against sentence case). Nineteen admin pages were 
 **Auth pages are the deliberate exception.** Devise's centred card uses
 `text-center text-2xl/9 ... pb-4`, which is a different layout rather than drift.
 
+**A status pill goes in `badge:`, never in the block.** The block is the *actions* slot and it is
+right-aligned, so anything passed there lands in the top-right corner - the place `Add student` and
+`Edit classroom` occupy on every other page. The grade book passed its Draft pill that way and it read
+as a control floating alone in the corner. `badge:` renders it on the title's line instead, which is
+where Linear, Stripe and GitHub all put entity state: beside the name it describes. This is the same
+fault as the trading switch in a page header one page over - **a non-action does not go in the action
+area**, and the header now has a slot for the one non-action that keeps being asked for.
+
 **The page title and its actions sit at page level, on the page background — never
 inside the card.** `components/ui/_page_header` renders them: the single `h1`, an
 optional supporting line, and an actions slot on the same optical line.
@@ -2056,6 +2064,17 @@ each column's header text sat off its own data. **Match on the class list, not o
 half of them were missed on the first pass because they read
 `whitespace-nowrap px-3 py-2 text-sm ...`, with the padding in the middle. Sweep for any `<td>`/`<th>`
 whose class contains a `px-`/`py-` and no `table-*-cell`.
+
+**A column's totals belong in its `<tfoot>`, not in a card.** The grade book had a "What this quarter
+pays" card holding the same figures the Earns column adds up, and it sat **below the Save grades
+button** - so it read as output of the save, and nothing on it said whether it counted what had just
+been typed. Reported as exactly that ambiguity. In a `<tfoot>` the figures total the column they sit
+under and cannot be misread; it is also the element a screen reader expects a column summary in, and
+the invoice shape (line items, subtotals, total) that anyone reading a spreadsheet already knows. It
+removed a surface from a page that had too many. Label rows are `<th scope="row">`, so each label names
+the figure beside it. **Anything derived from the rows goes below them, and anything derived from the
+rows is refreshed with them** - the footer is one element with an id, replaced whole on save, which
+also means the swap never touches an input and so cannot take the cursor or a half-typed value with it.
 
 **A row partial rendered into someone else's `<tbody>` is invisible to a per-file sweep.**
 `grade_books/_grade_entry` holds a bare `<tr>` whose `<tbody>` lives in `grade_books/_table`, so a

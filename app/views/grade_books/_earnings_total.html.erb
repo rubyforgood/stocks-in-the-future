@@ -1,6 +1,0 @@
-<%# The column total, as its own element for the same reason as the row figures. %>
-<%= tag.td id: "earnings-total",
-           class: "table-body-cell table-body-cell-right font-semibold text-slate-900",
-           data: { testid: "earnings-total" } do %>
-  <%= number_to_currency(earnings.total_cents / 100.0) %>
-<% end %>

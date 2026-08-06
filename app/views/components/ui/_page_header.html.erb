@@ -12,7 +12,13 @@
     Locals:
       title       - page title (renders the single h1)
       description - optional supporting sentence
-      actions     - optional block of buttons/links, passed as a block %>
+      badge       - optional status pill, rendered on the title's line
+      actions     - optional block of buttons/links, passed as a block
+
+    `badge` exists because the block is the *actions* slot and a status is not an action. The grade
+    book put its Draft pill there and it floated in the top-right corner among where "Add student"
+    and "Edit classroom" live - the same fault as the trading switch in a page header, one page over.
+    An entity's state belongs beside its name: Linear, Stripe and GitHub all put it there. %>
 <% content_for :own_heading, true %>
 <%# mb-6 and nothing else. The pb-5 that used to sit here existed to hold content off
     the rule beneath the title; with the rule gone it was surplus, stacking 20px of
@@ -27,7 +33,10 @@
 <% align = local_assigns[:description].present? ? "lg:items-start" : "lg:items-end" %>
 <div class="mb-6 flex flex-col gap-3 lg:flex-row <%= align %> lg:justify-between">
   <div class="min-w-0">
-    <h1 class="text-2xl font-bold tracking-tight text-slate-900"><%= title %></h1>
+    <div class="flex flex-wrap items-center gap-3">
+      <h1 class="text-2xl font-bold tracking-tight text-slate-900"><%= title %></h1>
+      <%= local_assigns[:badge] %>
+    </div>
     <% if local_assigns[:description].present? %>
       <p class="mt-1 text-sm text-slate-600"><%= description %></p>
     <% end %>

@@ -10,12 +10,9 @@
     container.
 
     The Earns column is the trailing one, so it right-aligns with tabular-nums and the figures line up
-    down the column - which is also why nothing else goes in those cells. The footer carries one total:
-    the column's sum, invoice-style, in a <tfoot> because that is the element for a column summary and
-    what a screen reader expects to find it in. No rule above it - `divide-y` already separates rows and
-    design.md's Dividers section forbids adding one where something else is already separating. The
-    three-way split by reason is on the finalize block instead, because it matters once rather than on
-    every keystroke. %>
+    down the column - which is also why nothing else goes in those cells. The <tfoot> carries the
+    subtotals and the total: see _earnings_footer for why they belong to the table rather than to a card
+    of their own. %>
 <% earnings = grade_book_earnings %>
 
 <%= render "shared/table_container", region_label: "Grades" do %>
@@ -37,12 +34,5 @@
                locals: { disabled: grade_book.completed?, grade_book_earnings: earnings } %>
   </tbody>
 
-  <tfoot>
-    <tr class="table-body-row">
-      <th scope="row" class="table-body-cell text-left font-medium text-slate-900" colspan="5">
-        Total for <%= pluralize(earnings.student_count, "student") %>
-      </th>
-      <%= render "earnings_total", earnings: earnings %>
-    </tr>
-  </tfoot>
+  <%= render "earnings_footer", earnings: earnings %>
 <% end %>

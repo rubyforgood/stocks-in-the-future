@@ -345,10 +345,15 @@ class GradeBookPageTest < ApplicationSystemTestCase
     assert_text "set to be paid a bonus with no attendance recorded"
   end
 
-  # The summary lived inside the finalize block, which is admin-only - so the person entering the grades
-  # could not see what they add up to, while the person who only presses the button could. The gate
-  # belongs on the action, not on the information.
-  test "a teacher sees the summary of what the quarter pays" do
+  # The breakdown is the table's own <tfoot>, not a card. It was a "What this quarter pays" card sitting
+  # **below the Save grades button**, which made the flow unreadable: a card after a save button reads as
+  # something the save produced, and nothing on it said whether it counted what had just been typed. In
+  # the footer it totals the column it sits under and cannot be misread.
+  #
+  # It is also visible to a teacher. Before that it was inside the admin-only finalize block, so the
+  # person entering the grades could not see what they added up to while the person who only presses the
+  # button could - the gate belongs on the action, not on the information.
+  test "a teacher sees the breakdown and total in the table, without the admin action" do
     classroom, book = a_grade_book_with_entries
     book.grade_entries.each { |e| e.update!(attendance_days: 5, math_grade: "A") }
     sign_in teacher_for(classroom)
@@ -357,16 +362,35 @@ class GradeBookPageTest < ApplicationSystemTestCase
 
     expected = GradeBookEarnings.new(book.reload)
 
-    assert_selector "#earnings-summary"
-    assert_text "What this quarter pays"
-    assert_selector "[data-testid='summary-total']",
-                    text: ActiveSupport::NumberHelper.number_to_currency(expected.total_cents / 100.0)
+    assert_no_selector "#earnings-summary", visible: :all
+
+    within("#earnings-footer") do
+      assert_text "Attendance"
+      assert_text "Math"
+      assert_text "Reading"
+      assert_selector "[data-testid='earnings-total']",
+                      text: ActiveSupport::NumberHelper.number_to_currency(expected.total_cents / 100.0)
+    end
 
     # The action stays administrative.
     assert_no_selector "#finalize-button"
   end
 
-  test "the summary refreshes when a grade changes" do
+  # The footer is in the table proper, so a screen reader finds the totals as part of the grid rather
+  # than as loose text after it.
+  test "the totals are the table's own footer" do
+    classroom, book = a_grade_book_with_entries
+    sign_in teacher_for(classroom)
+
+    visit classroom_grade_book_path(classroom, book)
+
+    assert_selector "main table tfoot#earnings-footer"
+    # Row headers, not data cells: each label names the figure beside it.
+    assert_selector "#earnings-footer th[scope='row']", count: 4
+  end
+
+  # Replaced whole on save, because every row of it is derived from the entries.
+  test "the totals refresh when a grade changes" do
     classroom, book = a_grade_book_with_entries
     book.grade_entries.each { |e| e.update!(attendance_days: nil, math_grade: nil, reading_grade: nil) }
     entry = book.grade_entries.first
@@ -374,7 +398,7 @@ class GradeBookPageTest < ApplicationSystemTestCase
 
     visit classroom_grade_book_path(classroom, book)
 
-    assert_selector "[data-testid='summary-total']", text: "$0.00"
+    assert_selector "[data-testid='earnings-total']", text: "$0.00"
 
     within("##{dom_id(entry)}") { find("[data-testid='attendance-days-input']").set(10) }
     click_on "Save grades"
@@ -383,7 +407,81 @@ class GradeBookPageTest < ApplicationSystemTestCase
       (10 * GradeEntry::EARNINGS_PER_DAY_ATTENDANCE) / 100.0
     )
 
-    assert_selector "[data-testid='summary-total']", text: expected
+    # The subtotal moves too, not only the total - the attendance row is where the money came from.
+    within("#earnings-footer") do
+      assert_selector "[data-testid='earnings-total']", text: expected
+      assert_selector "tr", text: /Attendance.*#{Regexp.escape(expected)}/
+    end
+  end
+
+  # The reported bug, as an ordering: the figures come *before* the button that saves them, so nothing on
+  # the page can be read as output of the save. When they were a card below "Save grades" - and above the
+  # finalize block - it was unclear whether they counted what had just been typed.
+  test "the totals come before the save button, with nothing between it and finalizing" do
+    classroom, book = a_grade_book_with_entries
+    sign_in create(:admin)
+
+    visit classroom_grade_book_path(classroom, book)
+
+    order = page.evaluate_script(<<~JS)
+      (function () {
+        const y = (sel) => {
+          const el = document.querySelector(sel);
+          return el ? Math.round(el.getBoundingClientRect().top + window.scrollY) : null;
+        };
+        return { totals: y("#earnings-footer"),
+                 save: y("#submit-button"),
+                 finalize: y("[aria-labelledby='finalize-heading']") };
+      })()
+    JS
+
+    assert_operator order["totals"], :<, order["save"],
+                    "the totals are below the save button, which is what made the flow ambiguous"
+    assert_operator order["save"], :<, order["finalize"]
+
+    # And no surface in the gap: a card there is what was reported.
+    between = page.evaluate_script(<<~JS)
+      (function () {
+        const save = document.querySelector("#submit-button").getBoundingClientRect();
+        const fin = document.querySelector("[aria-labelledby='finalize-heading']").getBoundingClientRect();
+        return Array.from(document.querySelectorAll("main section, main .tw-card"))
+          .filter(function (el) {
+            const r = el.getBoundingClientRect();
+            return r.top >= save.bottom && r.bottom <= fin.top;
+          }).length;
+      })()
+    JS
+
+    assert_equal 0, between, "there is still a surface between Save grades and the finalize block"
+  end
+
+  # A status is not an action, so it does not belong in the header's action slot - where it floated in
+  # the top-right corner, in the place "Add student" and "Edit classroom" occupy on other pages. It goes
+  # beside the name it describes.
+  test "the status sits beside the title, not in the action corner" do
+    classroom, book = a_grade_book_with_entries
+    sign_in teacher_for(classroom)
+
+    visit classroom_grade_book_path(classroom, book)
+
+    assert_text "Draft"
+
+    beside = page.evaluate_script(<<~JS)
+      (function () {
+        const h1 = document.querySelector("main h1");
+        const pill = Array.from(document.querySelectorAll("main span"))
+          .find(function (s) { return s.textContent.trim() === "Draft"; });
+        if (!pill) return null;
+        const a = h1.getBoundingClientRect(), b = pill.getBoundingClientRect();
+        // On the title's line, and immediately after it rather than pushed to the far edge.
+        return { sameLine: Math.abs(b.top - a.top) < 24, gap: Math.round(b.left - a.right) };
+      })()
+    JS
+
+    assert_not_nil beside, "no Draft pill on the page"
+    assert beside["sameLine"], "the status pill is not on the title's line"
+    assert_operator beside["gap"], :<, 40,
+                    "the status pill sits #{beside['gap']}px after the title - it is still in the corner"
   end
 
   # The description was a sibling of the heading *row*, so it spanned the full width and ran underneath

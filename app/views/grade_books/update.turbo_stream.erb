@@ -25,8 +25,7 @@
                          partial: "grade_books/unattended_bonus_callout",
                          locals: { earnings: earnings } %>
 
-<%= turbo_stream.replace "earnings-total", partial: "grade_books/earnings_total",
-                         locals: { earnings: earnings } %>
-
-<%= turbo_stream.replace "earnings-summary", partial: "grade_books/earnings_summary",
+<%# The whole footer, because every row of it - the three subtotals and the total - is derived from the
+    entries that just changed. %>
+<%= turbo_stream.replace "earnings-footer", partial: "grade_books/earnings_footer",
                          locals: { earnings: earnings } %>

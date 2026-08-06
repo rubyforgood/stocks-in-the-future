@@ -16,16 +16,24 @@
         The status is on the page for the first time. It is a real enum the classroom list now shows on
         every row, and the page it links to did not say which state it was in - so a teacher could see
         "Completed" in the list and find no confirmation of it here. A pill against the title is where
-        every system puts entity state. %>
+        every system puts entity state.
+
+        `badge:`, not the block: the block is the header's *actions* slot, which right-aligns its
+        contents, so the pill floated alone in the top-right corner where "Add student" and "Edit
+        classroom" sit on other pages - reported as exactly that. A status is not an action. Extracted
+        to a local because a nested render inside the locals hash trips erb_lint's
+        Layout/FirstMethodArgumentLineBreak. %>
     <% grade_book_subtitle = [@classroom.name, "grade book"].compact.join(" ") %>
     <% status_tones = { "draft" => :neutral, "verified" => :info, "completed" => :success } %>
+    <% status_badge = render(
+         "components/ui/badge",
+         label: @grade_book.status.capitalize,
+         tone: status_tones.fetch(@grade_book.status, :neutral)
+       ) %>
     <%= render layout: "components/ui/page_header",
                locals: { title: @grade_book.quarter&.name || "Grade book",
-                         description: grade_book_subtitle } do %>
-      <%= render "components/ui/badge",
-                 label: @grade_book.status.capitalize,
-                 tone: status_tones.fetch(@grade_book.status, :neutral) %>
-    <% end %>
+                         description: grade_book_subtitle,
+                         badge: status_badge } do %><% end %>
 
     <%# A completed grade book has already paid out, so there is nothing to add to it. %>
     <%# A control that can only report that it did nothing is not a control. "Add new students" was
@@ -124,15 +132,12 @@
         `:secondary`, because design.md allows one filled primary per page and "Save grades" is it.
         Irreversibility is carried by the sentence and by the existing turbo_confirm, not by making the
         button red - a red button at rest is an always-on alarm. %>
-    <% if entries %>
-      <%= render "earnings_summary", earnings: earnings %>
-    <% end %>
-
     <% if current_user.admin? && entries && !@grade_book.completed? %>
-      <%# The action, and only the action. The summary that used to live in here is above, visible to
-          anyone who can open the page - see _earnings_summary. This block restates no figure: the
-          summary card has it, and the confirmation carries it to the point of commitment, which is
-          where it does the most work. A fourth copy would just be four places to disagree. %>
+      <%# The action, and only the action. The figures are in the table's own footer - see
+          _earnings_footer for why they are there and not in a card between this block and the Save
+          button. This block restates none of them: the footer has them, and the confirmation carries
+          the total to the point of commitment, which is where it does the most work. A third copy
+          would just be three places to disagree. %>
       <section class="tw-card mt-6 p-5" aria-labelledby="finalize-heading">
         <p id="finalize-heading" class="text-sm font-medium text-slate-900">Finalize this quarter</p>
         <p class="mt-1 max-w-2xl text-sm text-slate-600">
