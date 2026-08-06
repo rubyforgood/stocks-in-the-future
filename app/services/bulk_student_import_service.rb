@@ -11,12 +11,16 @@ class BulkStudentImportService
     CSV.foreach(csv_file_path, headers: true).with_index(2) do |row, csv_line_number|
       classroom_id = row["classroom_id"]&.strip
       username = row["username"]&.strip
+      # Optional column. A CSV without it still imports, and one with it gives every student a readable
+      # name from the start instead of a lowercased identifier.
+      name = row["name"]&.strip
 
       next if classroom_id.blank? || username.blank?
 
       result = ImportStudentService.call(
         username: username,
-        classroom_id: classroom_id
+        classroom_id: classroom_id,
+        name: name
       )
 
       results << ResultWithLineNumber.new(result: result, line_number: csv_line_number)
@@ -27,8 +31,8 @@ class BulkStudentImportService
 
   def self.generate_csv_template
     [
-      "classroom_id,username",
-      "1,student001",
+      "classroom_id,username,name",
+      "1,student001,Jordan Smith",
       "1,student002",
       "2,student003"
     ].join("\n")

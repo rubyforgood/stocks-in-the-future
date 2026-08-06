@@ -15,18 +15,22 @@ class ImportStudentService
     end
   end
 
-  def self.call(username:, classroom_id:)
-    new.call(username: username, classroom_id: classroom_id)
+  def self.call(username:, classroom_id:, name: nil)
+    new.call(username: username, classroom_id: classroom_id, name: name)
   end
 
-  def call(username:, classroom_id:)
+  # name is optional here and required on the forms, deliberately. A student typed in by hand must have
+  # one - a roster of lowercased usernames is guesswork - but an import that cannot supply a name should
+  # still create the student rather than dropping the row, so the CSV column is offered and not demanded.
+  def call(username:, classroom_id:, name: nil)
     username = sanitize_input(username)
     classroom_id = sanitize_input(classroom_id)
+    name = sanitize_input(name).presence
     return skip_result("Username is required") if username.blank?
     return skip_result("Student with username '#{username}' already exists") if Student.exists?(username: username)
     return skip_result("Classroom ID is required") if classroom_id.blank?
 
-    import_student(username: username, classroom_id: classroom_id)
+    import_student(username: username, classroom_id: classroom_id, name: name)
   end
 
   private
@@ -35,8 +39,9 @@ class ImportStudentService
     input&.to_s&.strip
   end
 
-  def import_student(username:, classroom_id:)
+  def import_student(username:, classroom_id:, name: nil)
     student = Student.new(
+      name: name,
       username: username,
       classroom_id: classroom_id,
       password: MemorablePasswordGenerator.generate

@@ -391,6 +391,9 @@ class GradeBookPageTest < ApplicationSystemTestCase
   # actions sit beside that block.
   test "the section description does not run under the action" do
     classroom, book = a_grade_book_with_entries
+    # A student missing an entry, so "Add new students" renders - it is only offered when it can act, and
+    # without one this test would measure against an absent button and skip silently.
+    create(:student, classroom:, name: "Late Joiner")
     sign_in teacher_for(classroom)
 
     visit classroom_grade_book_path(classroom, book)
@@ -407,8 +410,37 @@ class GradeBookPageTest < ApplicationSystemTestCase
       })()
     JS
 
-    skip "no populate button on this fixture" if overlap.nil?
+    assert_not_nil overlap, "the populate button is not rendered, so this measured nothing"
     assert_not overlap, "the description runs under the action instead of beside it"
+  end
+
+  # "Add new students" was offered in a fully populated grade book - the normal state - where it added
+  # nobody and flashed "Every student in this class already has a row". That notice auto-dismisses after
+  # 6s, so the only feedback the button could produce disappeared and it looked broken. A control that can
+  # only report that it did nothing is not a control.
+  test "add students is not offered when there is nobody to add" do
+    classroom, book = a_grade_book_with_entries
+    sign_in teacher_for(classroom)
+
+    visit classroom_grade_book_path(classroom, book)
+
+    assert_empty book.students_missing_entries
+    assert_no_button "Add new students"
+  end
+
+  test "add students is offered, and works, when someone is missing" do
+    classroom, book = a_grade_book_with_entries
+    joiner = create(:student, classroom:, name: "Late Joiner")
+    sign_in teacher_for(classroom)
+
+    visit classroom_grade_book_path(classroom, book)
+
+    assert_selector "tbody tr", count: 2
+    click_on "Add new students"
+
+    assert_selector "#notice", text: "Added 1 student"
+    assert_selector "tbody tr", count: 3
+    assert_text joiner.display_name
   end
 
   test "the page says which state the grade book is in" do

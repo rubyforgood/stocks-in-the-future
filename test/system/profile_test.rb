@@ -7,7 +7,12 @@ require "application_system_test_case"
 class ProfileTest < ApplicationSystemTestCase
   setup do
     classroom = create(:classroom, :with_trading)
-    @student = create(:student, :with_portfolio, classroom:, username: "mike", password: "password")
+    # :nameless, because this test is about a user with no display name set - it types one in and checks
+    # the initials change from the username's to the name's.
+    @student = create(
+      :student, :nameless, :with_portfolio, classroom:, username: "mike",
+                                            password: "password"
+    )
     @student.reload
     sign_in @student
   end

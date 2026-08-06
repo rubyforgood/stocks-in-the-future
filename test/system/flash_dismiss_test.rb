@@ -106,6 +106,7 @@ class FlashDismissTest < ApplicationSystemTestCase
     create(:student, classroom:, username: "taken")
 
     visit new_classroom_student_path(classroom)
+    fill_in "Full name", with: "Jordan Smith"
     fill_in "Username", with: "taken"
     click_on "Create student"
 

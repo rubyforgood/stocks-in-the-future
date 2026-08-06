@@ -12,6 +12,7 @@ class TeacherCreatesStudentTest < ApplicationSystemTestCase
     visit classroom_path(classroom)
 
     click_on "Add student"
+    fill_in "Full name", with: "Jordan Smith"
     fill_in "Username", with: username
     click_button "Create student"
 
@@ -63,6 +64,7 @@ class TeacherCreatesStudentTest < ApplicationSystemTestCase
     sign_out(teacher)
     visit new_user_session_path
 
+    fill_in "Full name", with: "Jordan Smith"
     fill_in "Username", with: username
     fill_in "Password", with: new_password
     click_button "Sign in"
@@ -118,6 +120,7 @@ class TeacherCreatesStudentTest < ApplicationSystemTestCase
     visit classroom_path(classroom)
 
     click_on "Add student"
+    fill_in "Full name", with: "Jordan Smith"
     fill_in "Username", with: username
     click_button "Create student"
 

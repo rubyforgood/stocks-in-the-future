@@ -8,7 +8,8 @@ class AccountMenuTest < ApplicationSystemTestCase
   MENU = "[data-testid='account-menu']"
 
   test "a signed-in user can see who they are and sign out from the header" do
-    student = create(:student, :with_portfolio, username: "finn")
+    # :nameless, because this asserts the username is what identifies a user with no name set.
+    student = create(:student, :nameless, :with_portfolio, username: "finn")
     sign_in(student)
     visit root_path
 

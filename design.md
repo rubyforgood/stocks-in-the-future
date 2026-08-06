@@ -1255,12 +1255,25 @@ but nothing collected it, so every screen fell back to the lowercased identifier
 the names being lowercase. They were not names, and capitalising them would have been wrong - usernames
 are downcased because sign-in is case-insensitive, so `jsmith2` would have rendered as `Jsmith2`.
 
-The name is **optional**, because every existing student has none and requiring it would block editing
-any of them, and `User` normalizes it (`strip.presence`) so an empty submission is nil rather than `""` -
-two representations of "unset" in one column is how `name.nil?` ends up wrong half the time.
+**The name is required where a human is typing, and optional on import** - a `:student_form` validation
+context rather than `on: :create`. The obvious version breaks bulk import: `ImportStudentService` takes a
+username and a classroom id from a CSV, so a model-wide requirement would fail every row of a class being
+onboarded, and it would make the students who already exist without a name unsaveable - a password reset
+would start failing on a field nobody touched. So `students#create/#update` and the admin form save with
+`context: :student_form`, the import does not, and the CSV template offers a `name` column it does not
+demand. `update` had to become assign-then-save: `update` writes before a context validation runs, so a
+blank name would be saved and *then* reported.
+
+`User` normalizes the name (`strip.presence`), so an empty submission is nil rather than `""` - two
+representations of "unset" in one column is how `name.nil?` ends up wrong half the time.
 
 `admin/users`, `admin/teachers` and the transaction screens keep showing the username, deliberately:
 there the account is the subject rather than the person.
+
+**A column header names the column, not one of the things in it.** The roster's header is "Student" and
+its cells hold a name over a username. "Student name" would be wrong for a student who has none and
+"Student username" would be wrong for the line above it - GitHub, Linear and Stripe all label such a
+column with the entity ("User", "Person") rather than with one of the fields in the cell.
 
 **A `<th>` does not name a form control.** A column header names a data cell; an input in a table cell
 takes nothing from it. The grade book had **eight unnamed controls** on a two-student roster - four per

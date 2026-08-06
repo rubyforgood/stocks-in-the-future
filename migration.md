@@ -397,6 +397,32 @@ applies only to grade books finalized after the change, or historical entries ke
 forever. That is not a design call; it needs whoever is accountable for the money. Until it is answered,
 the checkbox stays and the column at least explains what it pays.
 
+### A name is required on the student form, and the populate button hides when it cannot act
+
+**What.** `Student` validates `:name` presence on a `:student_form` context, which
+`students#create/#update` and `admin/students` opt into. `ImportStudentService` accepts an optional
+`name:` and the CSV template offers the column. `GradeBook#students_missing_entries` is extracted from
+`PopulateGradeBook` and gates the "Add new students" button. The `:student` factory sets a name and gains
+a `:nameless` trait.
+
+**Why it has blast radius.**
+
+1. **Every student created through a form now needs a name**, and `update` became assign-then-save
+   because `update` writes before a context validation and would have persisted the blank it was about to
+   reject. Anything creating a student through those controllers without a name gets 422.
+2. **The import deliberately does not require it.** A CSV with no `name` column still works, so bulk
+   onboarding is unaffected - and the template now offers the column. **The remaining decision is whether
+   the CSV should demand it**; that is a change to an input format other people may already generate.
+3. **The `:student` factory now sets a name**, so `display_name` returns it rather than the username
+   across the whole suite. Seven tests asserted the username on screen or in initials; they use the new
+   `:nameless` trait, which is also a real case - a student imported without a name, or created before
+   this rule.
+4. **"Add new students" is absent when nobody is missing an entry**, which is the normal state of a
+   populated grade book. A test asserting that button unconditionally fails - and one of mine started
+   *skipping* silently because it measured against it, which is worse.
+5. `PopulateGradeBook`'s `missing_students` moved to `GradeBook#students_missing_entries`; the service
+   reads it rather than owning it, so the view can ask the same question.
+
 ### Students get a name
 
 **What.** `students#new` / `#edit` and `admin/students/_form` gain an optional full name; `:name` is

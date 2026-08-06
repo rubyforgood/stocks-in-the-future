@@ -17,7 +17,7 @@ class StudentsController < ApplicationController
     @student.classroom = @classroom
     @student.password = generate_memorable_password
 
-    if @student.save
+    if @student.save(context: :student_form)
       redirect_to classroom_path(@classroom),
                   notice: t(".notice", username: @student.username, password: @student.password)
     else
@@ -25,8 +25,13 @@ class StudentsController < ApplicationController
     end
   end
 
+  # assign-then-save, not `update`: the name requirement is a `:student_form` context validation, and
+  # `update` would write the attributes before checking it - so a blank name would be saved and *then*
+  # reported as invalid, wiping the name it was complaining about.
   def update
-    if @student.update(student_params)
+    @student.assign_attributes(student_params)
+
+    if @student.save(context: :student_form)
       redirect_to classroom_path(@classroom), notice: t(".notice")
     else
       render :edit, status: :unprocessable_content

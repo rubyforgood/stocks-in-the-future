@@ -28,7 +28,12 @@
     <% end %>
 
     <%# A completed grade book has already paid out, so there is nothing to add to it. %>
-    <% can_populate = policy(@grade_book).populate? && !@grade_book.completed? %>
+    <%# A control that can only report that it did nothing is not a control. "Add new students" was
+        offered in a fully populated grade book - the normal state - where it added nobody and flashed
+        "Every student in this class already has a row", which auto-dismissed after 6s and left the
+        button looking broken. It is offered only when somebody is actually missing an entry now. %>
+    <% can_populate = policy(@grade_book).populate? && !@grade_book.completed? &&
+                      @grade_book.students_missing_entries.exists? %>
     <% entries = @grade_book.grade_entries.any? %>
     <%# One instance for the page: the rows, the footer total and the finalize block all read from it,
         and it fetches the previous quarter's entries once rather than per student. %>
@@ -68,7 +73,7 @@
         <%# Announced politely so a screen reader hears "Saving" without losing focus. %>
         <div data-autosave-target="status" role="status" aria-live="polite" class="text-sm text-slate-600"></div>
 
-        <% if entries && can_populate %>
+        <% if can_populate %>
           <%= render partial: "populate_button", locals: { label: "Add new students", button_class: "tw-btn-secondary" } %>
         <% end %>
       </div>

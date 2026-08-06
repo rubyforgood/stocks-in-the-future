@@ -37,6 +37,7 @@ class StudentsControllerTest < ActionDispatch::IntegrationTest
       assert_difference("Student.count") do
         post classroom_students_path(@classroom), params: {
           student: {
+            name: "Test Student",
             username: "newstudent",
             email: "newstudent@example.com"
           }
@@ -57,6 +58,7 @@ class StudentsControllerTest < ActionDispatch::IntegrationTest
     assert_difference("Portfolio.count") do
       post classroom_students_path(@classroom), params: {
         student: {
+          name: "Test Student",
           username: "newstudent",
           email: "newstudent@example.com"
         }
@@ -73,6 +75,7 @@ class StudentsControllerTest < ActionDispatch::IntegrationTest
 
     post classroom_students_path(@classroom), params: {
       student: {
+        name: "Test Student",
         username: "newstudent",
         email: "newstudent@example.com"
       }
@@ -86,6 +89,7 @@ class StudentsControllerTest < ActionDispatch::IntegrationTest
 
     patch classroom_student_path(@classroom, @student), params: {
       student: {
+        name: "Test Student",
         username: "updatedname",
         email: "updated@example.com"
       }

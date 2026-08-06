@@ -135,6 +135,7 @@ module Admin
       classroom = create(:classroom, name: "Ice Kingdom")
       params = {
         student: {
+          name: "Test Student",
           username:,
           classroom_id: classroom.id,
           password: "password123",

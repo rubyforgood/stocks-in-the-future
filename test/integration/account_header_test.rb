@@ -25,7 +25,10 @@ class AccountHeaderTest < ActionDispatch::IntegrationTest
   end
 
   test "the trigger is initials and a chevron, and names the user for assistive tech" do
-    student = create(:student, :with_portfolio, username: "finn")
+    # :nameless, because this scenario is a user whose display name is their username - which is
+    # still a real case: a student imported from a CSV with no name column, or one created before the
+    # form required a name.
+    student = create(:student, :nameless, :with_portfolio, username: "finn")
     sign_in(student)
 
     get root_path
@@ -40,7 +43,7 @@ class AccountHeaderTest < ActionDispatch::IntegrationTest
   end
 
   test "the panel carries name, email and role" do
-    student = create(:student, :with_portfolio, username: "finn", email: "finn@example.com")
+    student = create(:student, :nameless, :with_portfolio, username: "finn", email: "finn@example.com")
     sign_in(student)
 
     get root_path
@@ -64,7 +67,7 @@ class AccountHeaderTest < ActionDispatch::IntegrationTest
   end
 
   test "a user with no email gets no blank line" do
-    student = create(:student, :with_portfolio, username: "finn", email: nil)
+    student = create(:student, :nameless, :with_portfolio, username: "finn", email: nil)
     sign_in(student)
 
     get root_path

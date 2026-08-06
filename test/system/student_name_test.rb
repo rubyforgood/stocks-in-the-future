@@ -33,25 +33,50 @@ class StudentNameTest < ApplicationSystemTestCase
     assert_equal "Jordan Smith", student.display_name
   end
 
-  # Optional, because every existing student has none and requiring it would block editing them.
-  test "the name is optional" do
+  # Required where a human is typing. A roster of lowercased usernames is guesswork - `jsmith2` and
+  # `jsmith3` are indistinguishable - so the form will not create a student without a name.
+  test "the form will not create a student without a name" do
     classroom = create(:classroom, :with_trading)
     sign_in teacher_in(classroom)
 
     visit new_classroom_student_path(classroom)
-    fill_in "Username", with: "nameless"
+
+    assert_selector "input#student_name[required]"
+
+    # Past the browser's own check, to prove the server refuses it too - a required attribute is not a
+    # validation.
+    page.execute_script("document.querySelector('#student_name').removeAttribute('required')")
+    fill_in "Username", with: "noname"
     click_on "Create student"
-    assert_selector "#notice"
 
-    student = Student.find_by(username: "nameless")
-
-    assert_nil student.name
-    assert_equal "nameless", student.display_name, "display_name must fall back to the username"
+    assert_nil Student.find_by(username: "noname"), "the server accepted a student with no name"
+    assert_text "Name can't be blank"
   end
 
-  test "a teacher can add a name to an existing student" do
+  # And *not* required on import, which is the other half of the same decision: ImportStudentService takes
+  # a username and a classroom id from a CSV, so a model-wide requirement would fail every row of a class
+  # being onboarded. The column is offered, not demanded.
+  test "an import may omit the name, and may carry one" do
     classroom = create(:classroom, :with_trading)
-    student = create(:student, classroom:, username: "existing")
+
+    with_name = ImportStudentService.call(
+      username: "imported1", classroom_id: classroom.id, name: "Ada Lovelace"
+    )
+    without = ImportStudentService.call(username: "imported2", classroom_id: classroom.id)
+
+    assert_predicate with_name, :success?
+    assert_predicate without, :success?
+    assert_equal "Ada Lovelace", Student.find_by(username: "imported1").name
+    assert_nil Student.find_by(username: "imported2").name
+    assert_equal "imported2", Student.find_by(username: "imported2").display_name
+  end
+
+  # A student who predates the requirement can still be edited - the rule is a form-context validation,
+  # not a blanket presence check, so a password reset on a nameless student does not start failing on a
+  # field nobody touched.
+  test "a teacher can add a name to a student that has none" do
+    classroom = create(:classroom, :with_trading)
+    student = create(:student, :nameless, classroom:, username: "existing")
     sign_in teacher_in(classroom)
 
     visit edit_classroom_student_path(classroom, student)

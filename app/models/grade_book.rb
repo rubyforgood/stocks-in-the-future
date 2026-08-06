@@ -21,6 +21,19 @@ class GradeBook < ApplicationRecord
   #
   # {} covers the first quarter of a school year and a classroom with no grade book last quarter.
   # Both mean "no improvement to pay".
+  # The classroom's students who have no entry in this grade book yet - who "Add students" would add.
+  #
+  # PopulateGradeBook held this privately, so the view had no way to ask before offering the button. It
+  # offered it unconditionally, and in a fully populated grade book - which is the normal state - the
+  # button ran, added nobody, and flashed "Every student in this class already has a row". That message
+  # is a `notice`, so it auto-dismissed after 6s and the button looked broken. Reported exactly that way.
+  #
+  # classroom.students, not users: users includes the teachers attached to the classroom, and grading a
+  # teacher would pay a teacher. students is Student-typed and scoped to kept records.
+  def students_missing_entries
+    classroom.students.where.not(id: grade_entries.select(:user_id))
+  end
+
   def previous_entries_by_user_id
     previous_quarter = quarter&.previous
     return {} unless previous_quarter

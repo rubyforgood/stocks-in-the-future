@@ -24,7 +24,7 @@ class PopulateGradeBook
   def execute
     return false if grade_book.completed?
 
-    students = missing_students.to_a
+    students = grade_book.students_missing_entries.to_a
 
     ActiveRecord::Base.transaction do
       students.each { |student| grade_book.grade_entries.create!(user: student) }
@@ -36,15 +36,4 @@ class PopulateGradeBook
   private
 
   attr_reader :grade_book
-
-  # classroom.students, not classroom.users: users includes the teachers and admins
-  # attached to the classroom, and grading a teacher would pay a teacher. students is
-  # Student-typed and already scoped to kept records, so discarded students are out.
-  def missing_students
-    grade_book.classroom.students.where.not(id: existing_user_ids)
-  end
-
-  def existing_user_ids
-    grade_book.grade_entries.pluck(:user_id)
-  end
 end

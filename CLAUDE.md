@@ -193,6 +193,19 @@ reserves a single checkbox for opting in. iOS and Material 3 both raise the chos
 surface; a saturated brand fill repeated down 25 rows is the over-emphasis the row-action rule forbids.
 A badge is never the control - it has no editing affordance.
 
+**Check every path that creates a record before requiring a field on it.** `validates :name, presence:
+true, on: :create` looked right and would have failed every row of a CSV import - `ImportStudentService`
+takes a username and a classroom id and nothing else. The requirement belongs on the path where a human is
+typing: a `:student_form` validation context that `students#create/#update` and the admin form opt into.
+**And `update` runs before a context validation**, so it writes the blank value and then reports it -
+assign-then-`save(context:)` is the shape.
+
+**A control that can only report that it did nothing is not a control.** "Add new students" was offered on
+a fully populated grade book - the normal state - where it added nobody and flashed "Every student already
+has a row", which then auto-dismissed after 6s so even the explanation vanished. It renders only when
+somebody is actually missing an entry. Same rule as the column of dashes: ask whether the affordance can
+ever do anything for this viewer, in this state.
+
 **A `<th>` does not name a form control.** An input inside a table cell takes no accessible name from its
 column header, so a table of inputs is a table of unnamed controls - the grade book had eight, four per
 row. Give each an `aria-label` naming the field *and* the row, because a row is identified visually only.

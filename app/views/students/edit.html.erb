@@ -20,16 +20,23 @@
     <div class="bg-white shadow-sm overflow-hidden lg:rounded-md">
       <div class="px-4 py-5 lg:p-6">
         <div class="grid grid-cols-6 gap-6">
-          <%# Optional. `users.name` has existed the whole time and `User#display_name` prefers it, but
+          <%# `users.name` has existed the whole time and `User#display_name` prefers it, but
               nothing ever collected it - so every student's name was nil and every screen fell back to a
               lowercased username. Reported as "why are all the student names lowercase": they were not
-              names. Optional rather than required because existing students have none, and requiring it
-              would block editing any of them. %>
+              names. Required here, on the form, rather than on every create: bulk CSV import takes a
+              username and a classroom id and nothing else, so a model-wide requirement would fail every
+              row of a class being onboarded. See Student. %>
           <div class="col-span-6 lg:col-span-4">
-            <%= f.label :name, "Full name", class: "tw-label-primary" %>
-            <%= f.text_field :name, class: "tw-input-primary", placeholder: "e.g., Jordan Smith" %>
+            <%= f.label :name, class: "tw-label-primary" do %>
+              Full name<span class="required-indicator">*</span>
+            <% end %>
+            <%= f.text_field :name,
+                             class: "tw-input-primary",
+                             required: true,
+                             placeholder: "e.g., Jordan Smith" %>
             <p class="mt-2 text-sm text-slate-500">
-              Optional. Shown instead of the username wherever this student appears.
+              Shown instead of the username wherever this student appears. A roster of usernames alone is
+              hard to read.
             </p>
           </div>
 

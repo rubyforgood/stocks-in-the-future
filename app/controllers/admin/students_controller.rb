@@ -55,7 +55,7 @@ module Admin
         generated_password = @student.password
       end
 
-      if @student.save
+      if @student.save(context: :student_form)
         redirect_to admin_student_path(@student),
                     notice: t(".notice", username: @student.username, password: generated_password)
       else
@@ -68,7 +68,9 @@ module Admin
     end
 
     def update
-      if @student.update(student_params)
+      @student.assign_attributes(student_params)
+
+      if @student.save(context: :student_form)
         redirect_to admin_student_path(@student), notice: t(".notice")
       else
         @breadcrumbs = [

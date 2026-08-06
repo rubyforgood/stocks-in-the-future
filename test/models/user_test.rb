@@ -100,12 +100,13 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "display_name returns username when present" do
-    user = create(:student, username: "testuser")
+    # :nameless, because display_name only reaches the username when there is no name to prefer.
+    user = create(:student, :nameless, username: "testuser")
     assert_equal "testuser", user.display_name
   end
 
   test "display_name returns email prefix when username blank" do
-    user = build(:student, username: "", email: "test@example.com")
+    user = build(:student, :nameless, username: "", email: "test@example.com")
     user.save(validate: false) # Skip validation for this test
     assert_equal "test", user.display_name
   end

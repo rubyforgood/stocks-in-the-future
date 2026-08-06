@@ -7,7 +7,7 @@ class BulkStudentImportServiceTest < ActiveSupport::TestCase
 
   def setup
     @classroom = create(:classroom)
-    @csv_header = "classroom_id,username"
+    @csv_header = "classroom_id,username,name"
   end
 
   test "parses CSV and calls ImportStudentService for each valid row" do
@@ -79,7 +79,7 @@ class BulkStudentImportServiceTest < ActiveSupport::TestCase
     template = BulkStudentImportService.generate_csv_template
     lines = template.split("\n")
 
-    assert_equal "classroom_id,username", lines.first
+    assert_equal "classroom_id,username,name", lines.first
     assert_equal 4, lines.length
   end
 end
