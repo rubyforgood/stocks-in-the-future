@@ -1229,8 +1229,34 @@ at the foot of the page - and it is the action that pays every student and canno
 the copy, never in the control. For a completed grade book the block is not rendered at all, because a
 dead greyed control is worse than none.
 
+**The trailing column right-aligns whether or not it holds actions.** This document stated the rule for
+an *actions* column and, separately, for numeric ones - and every table in the app happened to satisfy it
+because every other table ends in actions. The grade book is the only one that does not, so its
+"Perfect attendance" checkbox column was the only left-aligned trailing column in the product, and it
+read as wrong beside the rest. Stated generally now: **the last column right-aligns**, header and cells,
+and `table-body-cell-right` is the class either way.
+
+**A `<select>` gets our chevron, not the browser's.** The native arrow's inset is not controllable: the
+field is `px-3` and Chrome draws its glyph hard against the right edge of that padding, so it sat visibly
+tighter to the border than any other control's contents - reported as the chevron not having enough
+padding. `select.tw-input-primary` is `appearance-none` with lucide's chevron-down at
+`right 0.75rem center` and `pr-9`, so the glyph matches the field's own `px-3` and a long option cannot
+run under it. Styled by **element**, so all ten selects in the app are fixed without touching a call
+site. Tailwind UI, Polaris and Primer all replace the native arrow for the same reason.
+
+**A `<th>` does not name a form control.** A column header names a data cell; an input in a table cell
+takes nothing from it. The grade book had **eight unnamed controls** on a two-student roster - four per
+row - so a screen reader could not tell a math grade from a reading grade, or whose row it was in. Each
+carries an `aria-label` naming the field *and* the student, since a row is only identified visually. axe's
+`label` rule catches this and had never been run against the page.
+
+**A column that carries a payment says what it pays.** "Perfect attendance" as a bare checkbox under two
+words gave a teacher nothing: not whether it was required, not what it was worth, not why it sits beside
+a day count. It is a flat bonus on top of the per-day rate, and the section now says so - with every
+figure interpolated from `GradeEntry`'s constants, so the copy cannot claim a rate the model does not pay.
+
 `grade_book_page_test.rb` measures the surface, the checkbox, the keyboard region, the status, the action
-alignment and the primary count. Six of its seven fail against the page as it was.
+alignment, the primary count, the chevron inset, the trailing-column alignment and every control's name.
 
 ### Sidebar footer
 

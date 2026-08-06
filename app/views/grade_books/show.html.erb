@@ -31,8 +31,16 @@
     <% can_populate = policy(@grade_book).populate? && !@grade_book.completed? %>
     <% entries = @grade_book.grade_entries.any? %>
 
-    <div class="mb-3 flex items-center justify-between gap-4">
-      <h2 class="text-base font-semibold text-slate-900">Student grades</h2>
+    <%# What the columns pay, which the table never said. "Perfect attendance" as a bare checkbox
+        headed by two words gave a teacher no way to know whether it was required, what it was worth, or
+        why it sits beside a day count - reported as the column not making sense. It is a flat bonus on
+        top of the per-day rate.
+
+        Every figure is interpolated from GradeEntry's constants rather than written out, so the sentence
+        cannot claim one rate while the model pays another. %>
+    <div class="mb-3">
+      <div class="flex items-center justify-between gap-4">
+        <h2 class="text-base font-semibold text-slate-900">Student grades</h2>
 
       <div class="flex items-center gap-4">
         <%# Announced politely so a screen reader hears "Saving" without losing focus. %>
@@ -41,7 +49,20 @@
         <% if entries && can_populate %>
           <%= render partial: "populate_button", locals: { label: "Add new students", button_class: "tw-btn-secondary" } %>
         <% end %>
+        </div>
       </div>
+
+      <% if entries %>
+        <p class="mt-1 text-sm text-slate-600">
+          Each day attended earns
+          <%= number_to_currency(GradeEntry::EARNINGS_PER_DAY_ATTENDANCE / 100.0) %>, and perfect
+          attendance adds a <%= number_to_currency(GradeEntry::EARNINGS_FOR_PERFECT_ATTENDANCE / 100.0) %>
+          bonus on top. An A earns <%= number_to_currency(GradeEntry::EARNINGS_FOR_A_GRADE / 100.0) %>
+          and a B <%= number_to_currency(GradeEntry::EARNINGS_FOR_B_GRADE / 100.0) %>, per subject, with
+          <%= number_to_currency(GradeEntry::EARNINGS_FOR_IMPROVED_GRADE / 100.0) %> more for a grade that
+          improved on last quarter.
+        </p>
+      <% end %>
     </div>
 
     <%# The populate buttons stay outside this form. A form cannot be nested inside

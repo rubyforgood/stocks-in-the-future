@@ -87,6 +87,91 @@ class GradeBookPageTest < ApplicationSystemTestCase
                  "the checkbox measures #{box.inspect}; it is carrying the text input class"
   end
 
+  # The native <select> arrow's inset cannot be controlled: the field is px-3 and Chrome draws its own
+  # glyph hard against the right edge of that padding, so it sat visibly tighter to the border than any
+  # other control's contents. Replaced with our own chevron, positioned to match the field's px-3.
+  test "the select chevron is inset like the rest of the field" do
+    classroom, book = a_grade_book_with_entries
+    sign_in teacher_for(classroom)
+
+    visit classroom_grade_book_path(classroom, book)
+
+    style = page.evaluate_script(<<~JS)
+      (function () {
+        const cs = getComputedStyle(document.querySelector("main select"));
+        return { appearance: cs.appearance, paddingRight: cs.paddingRight,
+                 position: cs.backgroundPosition };
+      })()
+    JS
+
+    assert_equal "none", style["appearance"], "the native arrow is back, and its inset is not ours"
+    assert_equal "36px", style["paddingRight"], "a long option can run under the chevron"
+    assert_includes style["position"], "12px",
+                    "the chevron should sit 12px from the edge, matching the field's px-3"
+  end
+
+  # design.md states this for an actions column and for numeric ones. This table's last column is
+  # neither, and was the only left-aligned trailing column in the app - which is what made it look wrong
+  # beside every other table.
+  test "the trailing column is right aligned, header and cells" do
+    classroom, book = a_grade_book_with_entries
+    sign_in teacher_for(classroom)
+
+    visit classroom_grade_book_path(classroom, book)
+
+    align = page.evaluate_script(<<~JS)
+      (function () {
+        const ths = document.querySelectorAll("main thead th");
+        const cell = document.querySelector("[data-testid='perfect-attendance-checkbox']").closest("td");
+        return [getComputedStyle(ths[ths.length - 1]).textAlign, getComputedStyle(cell).textAlign];
+      })()
+    JS
+
+    assert_equal %w[right right], align,
+                 "the trailing column is #{align.inspect}; every other table's right-aligns"
+  end
+
+  # A <th> names a data cell, not a form control - so a screen reader met four unnamed controls per row
+  # and could not tell a math grade from a reading grade, or whose row it was in. Rails' hidden companion
+  # input for a checkbox is excluded: it is not exposed to assistive tech.
+  test "every control in the grades table names itself" do
+    classroom, book = a_grade_book_with_entries
+    sign_in teacher_for(classroom)
+
+    visit classroom_grade_book_path(classroom, book)
+
+    unnamed = page.evaluate_script(<<~JS)
+      (function () {
+        const out = [];
+        document.querySelectorAll("main tbody select, main tbody input").forEach(function (el) {
+          if (el.type === "hidden") return;
+          if (!el.getAttribute("aria-label") && !el.labels.length) out.push(el.name || el.type);
+        });
+        return out;
+      })()
+    JS
+
+    assert_empty unnamed, "controls with no accessible name: #{unnamed.inspect}"
+  end
+
+  # The column is a flat bonus on top of the per-day rate, and the table never said so. Interpolated from
+  # GradeEntry's constants, so the copy cannot claim a rate the model does not pay.
+  test "the table says what the columns pay" do
+    classroom, book = a_grade_book_with_entries
+    sign_in teacher_for(classroom)
+
+    visit classroom_grade_book_path(classroom, book)
+
+    bonus = money(GradeEntry::EARNINGS_FOR_PERFECT_ATTENDANCE)
+
+    assert_text "perfect attendance adds a #{bonus} bonus"
+    assert_text money(GradeEntry::EARNINGS_PER_DAY_ATTENDANCE)
+  end
+
+  def money(cents)
+    ActiveSupport::NumberHelper.number_to_currency(cents / 100.0)
+  end
+
   test "the page says which state the grade book is in" do
     classroom, book = a_grade_book_with_entries
     sign_in teacher_for(classroom)

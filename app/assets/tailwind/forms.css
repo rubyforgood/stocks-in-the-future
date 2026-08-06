@@ -81,4 +81,23 @@
   input:disabled + .tw-switch {
     @apply cursor-not-allowed;
   }
+
+  /* A <select> wearing the field class. Styled by element rather than by a new class, so all ten
+     selects in the app are fixed without touching a call site.
+
+     The native arrow's inset is not controllable: `.tw-input-primary` is `px-3`, and Chrome draws its
+     own arrow hard against the right edge of that 12px, so the glyph sat visibly tighter to the border
+     than every other control's contents - reported as the chevron not having enough padding on the
+     right. Tailwind UI, Polaris and Primer all replace it for exactly this reason.
+
+     appearance-none removes the native arrow, the chevron is lucide's chevron-down in slate-500 (4.77:1,
+     and it is a decorative glyph beside a named control), and it is positioned 12px from the right so it
+     matches the field's own px-3. pr-9 (36px) keeps a long option from running under it. */
+  select.tw-input-primary,
+  select.tw-input-error {
+    @apply appearance-none bg-no-repeat pr-9;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-position: right 0.75rem center;
+    background-size: 1rem 1rem;
+  }
 }

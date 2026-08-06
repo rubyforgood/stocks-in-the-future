@@ -1,3 +1,13 @@
+<%# Every control names itself.
+
+    None of them did. A form control inside a table cell does **not** take its accessible name from the
+    column header - `<th>` names a data cell, not an input - so a screen reader met four unnamed controls
+    per row and had no way to tell a math grade from a reading grade, or whose row it was in. axe's
+    `label` rule catches this; nothing had run against this page.
+
+    The name carries the student as well as the field, because a row is only identified visually. %>
+<% who = entry.username.presence || "unnamed student" %>
+
 <tr id="<%= dom_id(entry) %>" class="table-body-row">
   <%= fields_for "grade_entries[]", entry do |f| %>
     <td class="table-body-cell whitespace-nowrap">
@@ -9,6 +19,7 @@
                    { include_blank: true },
                    disabled:,
                    class: "tw-input-primary",
+                   aria: { label: "Math grade for #{who}" },
                    data: { testid: "math-grade-select" } %>
     </td>
 
@@ -18,6 +29,7 @@
                    { include_blank: true },
                    disabled:,
                    class: "tw-input-primary",
+                   aria: { label: "Reading grade for #{who}" },
                    data: { testid: "reading-grade-select" } %>
     </td>
     <td class="table-body-cell whitespace-nowrap">
@@ -25,21 +37,24 @@
                          class: "tw-input-primary",
                          disabled:,
                          min: 0,
+                         aria: { label: "Days attended by #{who}" },
                          data: { testid: "attendance-days-input" } %>
     </td>
-    <td class="table-body-cell whitespace-nowrap">
-      <%# The checkbox tokens from components/ui/_checkbox, not `tw-input-primary`. That class is the
-          *text input* - w-full, bordered, 44px min-height - so on a checkbox it rendered a
-          **187x44px** box with a tick somewhere in it. The component cannot be used directly here
-          because it builds its own `check_box_tag` and this one is bound through `fields_for`, so the
-          class string is what is shared. accent-sitf-primary is how a native checkbox is tinted. %>
+
+    <%# Right-aligned, like the trailing column of every other table in the app. design.md states that
+        rule for an actions column and for numeric ones; this table is the only one whose last column is
+        neither, which is why it was the only one left-aligned and why it looked wrong beside the others.
+
+        The checkbox tokens come from components/ui/_checkbox - it used to carry `tw-input-primary`, the
+        *text input* class, and rendered as a 187x44px box. %>
+    <td class="table-body-cell table-body-cell-right whitespace-nowrap">
       <%= f.checkbox :is_perfect_attendance,
                      disabled:,
                      class: "size-4 shrink-0 rounded-sm border-slate-300 accent-sitf-primary " \
                             "focus-visible:outline-2 focus-visible:outline-offset-2 " \
                             "focus-visible:outline-sitf-primary",
+                     aria: { label: "Perfect attendance bonus for #{who}" },
                      data: { testid: "perfect-attendance-checkbox" } %>
     </td>
-
   <% end %>
 </tr>

@@ -367,7 +367,12 @@ and `_finalize_button` are reworked. New `grade_book_page_test.rb`.
    completed grade book rather than rendered disabled. A test asserting a disabled Finalize would fail;
    `assert_no_button` passes either way, which is why the existing suite did not notice.
 5. **The perfect-attendance checkbox is 16px, not 187x44.** Anything clicking it by position moves.
-6. **Row height stays 69px.** That is 44px of input plus 24px of padding plus the hairline, the same
+6. **Every `<select>` in the app changes.** `select.tw-input-primary` is `appearance-none` with a
+   background chevron and `pr-9`, styled by element, so all ten selects are affected rather than the two
+   on this page. A test asserting the native arrow, or measuring a select's padding-right as 12px, moves.
+7. **The grades table's trailing column right-aligns**, header and cells, and every control in it gained
+   an `aria-label`. A test selecting a control by position, or asserting `text-left` on that column, moves.
+8. **Row height stays 69px.** That is 44px of input plus 24px of padding plus the hairline, the same
    arithmetic as the 57px row with a 32px control. Shrinking the inputs to hit 48px would trade a real
    problem for a worse one - design.md's line about not shrinking content to dedupe sizes.
 

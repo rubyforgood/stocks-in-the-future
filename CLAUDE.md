@@ -154,6 +154,19 @@ same string forward, because `getBoundingClientRect` cannot see a pseudo-element
 the inset. **If a control's position carries meaning, make it a real element.** It is `.tw-switch` in
 `forms.css` now, defined once.
 
+**A `<th>` does not name a form control.** An input inside a table cell takes no accessible name from its
+column header, so a table of inputs is a table of unnamed controls - the grade book had eight, four per
+row. Give each an `aria-label` naming the field *and* the row, because a row is identified visually only.
+
+**The last column of a table right-aligns**, whether it holds actions, a number or a checkbox. design.md
+stated it for actions and for numerics, and every table satisfied it by accident because every other one
+ends in actions; the one table that does not was the one that looked wrong.
+
+**A native `<select>` arrow cannot be inset.** Chrome draws it against the edge of the field's padding, so
+it always reads tighter than the rest of the field's contents. `appearance-none` plus our own chevron,
+styled on `select.tw-input-primary` so every select in the app is fixed at once rather than call site by
+call site.
+
 **Read the page you are linking to.** I added four links to `grade_books#show`, asserted its status
 badges, rebuilt the section around it twice, and never opened it. It had a table on **no surface** (0px
 border, transparent, 0px radius), a checkbox rendered at **187x44px** because it carried the text-input
