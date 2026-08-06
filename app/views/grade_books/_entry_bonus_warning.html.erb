@@ -1,0 +1,16 @@
+<%# The inline half of the warning, beside the field it is about, and always rendered for the same
+    reason as the callout: an element that is absent cannot be replaced, so the marker would have
+    outlived the problem.
+
+    A sibling of the input rather than a wrapper around it, so replacing it never touches what the
+    teacher is typing in.
+
+    Amber, not `tw-field-error`: that token is red, and a bonus with no days recorded is something to
+    check before finalizing rather than a validation failure. %>
+<% unattended = entry.is_perfect_attendance && entry.attendance_days.to_i.zero? %>
+
+<%= tag.span id: dom_id(entry, :bonus_warning),
+             class: ("mt-1 block text-xs font-medium text-amber-700" if unattended),
+             data: { testid: ("unattended-bonus" if unattended) } do %>
+  <%= "No days recorded" if unattended %>
+<% end %>

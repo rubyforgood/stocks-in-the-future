@@ -34,59 +34,53 @@
         and it fetches the previous quarter's entries once rather than per student. %>
     <% earnings = GradeBookEarnings.new(@grade_book) if entries %>
 
-    <%# What the columns pay, which the table never said. "Perfect attendance" as a bare checkbox
-        headed by two words gave a teacher no way to know whether it was required, what it was worth, or
-        why it sits beside a day count - reported as the column not making sense. It is a flat bonus on
-        top of the per-day rate.
+    <%# Section header: the heading and its description in one column, the actions in another.
 
-        Every figure is interpolated from GradeEntry's constants rather than written out, so the sentence
-        cannot claim one rate while the model pays another. %>
-    <div class="mb-3">
-      <div class="flex items-center justify-between gap-4">
+        The description used to be a sibling of the heading *row*, so it spanned the full width and ran
+        underneath the "Add new students" button - reported as helper text flowing under the button, and
+        it did so at every width, not just narrow ones. A title and its subtitle are one block; the
+        actions sit beside that block and nothing passes under them. This is the shape
+        `components/ui/_page_header` already uses, and design.md's rule that a header carrying a
+        subtitle is `items-start` so the action aligns to the title rather than sinking to the
+        subtitle's baseline.
+
+        The copy says what the columns pay, which the table never did. Every figure is interpolated from
+        GradeEntry's constants, so it cannot claim a rate the model does not pay. %>
+    <div class="mb-3 flex flex-wrap items-start justify-between gap-4">
+      <div class="min-w-0 flex-1">
         <h2 class="text-base font-semibold text-slate-900">Student grades</h2>
 
-      <div class="flex items-center gap-4">
+        <% if entries %>
+          <p class="mt-1 max-w-2xl text-sm text-slate-600">
+            Each day attended earns
+            <%= number_to_currency(GradeEntry::EARNINGS_PER_DAY_ATTENDANCE / 100.0) %>, and perfect
+            attendance adds a
+            <%= number_to_currency(GradeEntry::EARNINGS_FOR_PERFECT_ATTENDANCE / 100.0) %> bonus on top.
+            An A earns <%= number_to_currency(GradeEntry::EARNINGS_FOR_A_GRADE / 100.0) %> and a B
+            <%= number_to_currency(GradeEntry::EARNINGS_FOR_B_GRADE / 100.0) %>, per subject, with
+            <%= number_to_currency(GradeEntry::EARNINGS_FOR_IMPROVED_GRADE / 100.0) %> more for a grade
+            that improved on last quarter.
+          </p>
+        <% end %>
+      </div>
+
+      <div class="flex shrink-0 items-center gap-4">
         <%# Announced politely so a screen reader hears "Saving" without losing focus. %>
         <div data-autosave-target="status" role="status" aria-live="polite" class="text-sm text-slate-600"></div>
 
         <% if entries && can_populate %>
           <%= render partial: "populate_button", locals: { label: "Add new students", button_class: "tw-btn-secondary" } %>
         <% end %>
-        </div>
       </div>
-
-      <% if entries %>
-        <p class="mt-1 text-sm text-slate-600">
-          Each day attended earns
-          <%= number_to_currency(GradeEntry::EARNINGS_PER_DAY_ATTENDANCE / 100.0) %>, and perfect
-          attendance adds a <%= number_to_currency(GradeEntry::EARNINGS_FOR_PERFECT_ATTENDANCE / 100.0) %>
-          bonus on top. An A earns <%= number_to_currency(GradeEntry::EARNINGS_FOR_A_GRADE / 100.0) %>
-          and a B <%= number_to_currency(GradeEntry::EARNINGS_FOR_B_GRADE / 100.0) %>, per subject, with
-          <%= number_to_currency(GradeEntry::EARNINGS_FOR_IMPROVED_GRADE / 100.0) %> more for a grade that
-          improved on last quarter.
-        </p>
-      <% end %>
     </div>
 
     <%# The populate buttons stay outside this form. A form cannot be nested inside
         another - the browser drops the inner one - so a button_to placed within the
         grades form would silently submit the grades instead of adding students. %>
-    <%# The summary half of the warning. An entry claiming the perfect-attendance bonus with no days
-        recorded is incoherent whatever the quarter's length, so it can be said without knowing how many
-        school days there were - the number this app does not store. Pairs with the inline marker under
-        the field, which is the shape this app already uses for form errors: a summary plus a
-        field-level note. Renders only when there is something to say. %>
-    <% if entries && earnings.unattended_bonus? %>
-      <% affected = earnings.unattended_bonus_entries %>
-      <div class="mb-6">
-        <%= render "components/ui/callout",
-                   title: "#{pluralize(affected.size, 'student')} set to be paid a bonus with no attendance recorded",
-                   body: "#{affected.map { |e| e.user.display_name }.to_sentence} " \
-                         "#{affected.one? ? 'is' : 'are'} marked as having perfect attendance but " \
-                         "#{affected.one? ? 'has' : 'have'} no days entered. Finalizing pays the " \
-                         "#{number_to_currency(GradeEntry::EARNINGS_FOR_PERFECT_ATTENDANCE / 100.0)} " \
-                         "bonus anyway." %>
-      </div>
+    <%# Both halves of the warning are always-present containers, so a save can clear them. See
+        _unattended_bonus_callout. %>
+    <% if entries %>
+      <%= render "unattended_bonus_callout", earnings: earnings %>
     <% end %>
 
     <% if entries %>
@@ -125,32 +119,21 @@
         `:secondary`, because design.md allows one filled primary per page and "Save grades" is it.
         Irreversibility is carried by the sentence and by the existing turbo_confirm, not by making the
         button red - a red button at rest is an always-on alarm. %>
-    <% if current_user.admin? && entries && !@grade_book.completed? %>
-      <%# The action sits at the bottom, after the copy and the figures it acts on. That is the reading
-          order every section pattern uses for a consequential action - GitHub's danger zone, Stripe's
-          section footers - and it was floated to the right of the copy before.
+    <% if entries %>
+      <%= render "earnings_summary", earnings: earnings %>
+    <% end %>
 
-          The total appears here and in the table footer and in the confirmation, each doing a different
-          job: the footer is the working figure, this is the decision, the confirmation is the
-          commitment. The split by reason is here rather than in the footer because it matters once. %>
+    <% if current_user.admin? && entries && !@grade_book.completed? %>
+      <%# The action, and only the action. The summary that used to live in here is above, visible to
+          anyone who can open the page - see _earnings_summary. This block restates no figure: the
+          summary card has it, and the confirmation carries it to the point of commitment, which is
+          where it does the most work. A fourth copy would just be four places to disagree. %>
       <section class="tw-card mt-6 p-5" aria-labelledby="finalize-heading">
         <p id="finalize-heading" class="text-sm font-medium text-slate-900">Finalize this quarter</p>
         <p class="mt-1 max-w-2xl text-sm text-slate-600">
-          Pays <span class="font-medium text-slate-900"><%= number_to_currency(earnings.total_cents / 100.0) %></span>
-          to <%= pluralize(earnings.student_count, "student") %> and locks these entries.
+          Pays the amounts above into each student's portfolio and locks these entries.
           This cannot be undone.
         </p>
-
-        <dl class="mt-3 max-w-xs space-y-1 text-sm">
-          <% { attendance: "Attendance", math: "Math", reading: "Reading" }.each do |key, label| %>
-            <div class="flex justify-between gap-4">
-              <dt class="text-slate-600"><%= label %></dt>
-              <dd class="tabular-nums text-slate-900">
-                <%= number_to_currency(earnings.totals_by_reason[key] / 100.0) %>
-              </dd>
-            </div>
-          <% end %>
-        </dl>
 
         <div class="mt-5">
           <%= render partial: "finalize_button", locals: { earnings: earnings } %>

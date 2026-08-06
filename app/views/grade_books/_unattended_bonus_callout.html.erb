@@ -1,0 +1,25 @@
+<%# The summary half of the warning, in a wrapper that is **always rendered**.
+
+    It has to exist even when there is nothing to say, because `turbo_stream.replace` needs an element
+    with that id to replace. Without it the warning could appear on load and never leave: correcting the
+    days fixed the data and the notification kept accusing you until a full reload. Reported exactly that
+    way, and it is the same staleness I had just fixed for the Earns figures in the very same change -
+    the callout is derived from the same entries and I did not carry the rule across.
+
+    An entry claiming the perfect-attendance bonus with no days recorded is incoherent whatever the
+    quarter's length, so this needs no school-days figure - the number the app does not store. %>
+<% affected = earnings.unattended_bonus_entries %>
+
+<div id="unattended-bonus-callout">
+  <% if affected.any? %>
+    <div class="mb-6">
+      <%= render "components/ui/callout",
+                 title: "#{pluralize(affected.size, 'student')} set to be paid a bonus with no attendance recorded",
+                 body: "#{affected.map { |e| e.user.display_name }.to_sentence} " \
+                       "#{affected.one? ? 'is' : 'are'} marked as having perfect attendance but " \
+                       "#{affected.one? ? 'has' : 'have'} no days entered. Finalizing pays the " \
+                       "#{number_to_currency(GradeEntry::EARNINGS_FOR_PERFECT_ATTENDANCE / 100.0)} " \
+                       "bonus anyway." %>
+    </div>
+  <% end %>
+</div>

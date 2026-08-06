@@ -13,7 +13,20 @@
   <%= turbo_stream.replace dom_id(entry, :earnings),
                            partial: "grade_books/entry_earnings",
                            locals: { entry: entry, earnings: earnings } %>
+
+  <%# The warning is derived from the same entries as the figures, so it goes stale the same way. It
+      did: correcting the days left the notification on screen, still accusing. %>
+  <%= turbo_stream.replace dom_id(entry, :bonus_warning),
+                           partial: "grade_books/entry_bonus_warning",
+                           locals: { entry: entry } %>
 <% end %>
 
+<%= turbo_stream.replace "unattended-bonus-callout",
+                         partial: "grade_books/unattended_bonus_callout",
+                         locals: { earnings: earnings } %>
+
 <%= turbo_stream.replace "earnings-total", partial: "grade_books/earnings_total",
+                         locals: { earnings: earnings } %>
+
+<%= turbo_stream.replace "earnings-summary", partial: "grade_books/earnings_summary",
                          locals: { earnings: earnings } %>

@@ -1286,10 +1286,25 @@ already separates rows, and the Dividers section forbids adding one where someth
 split by reason lives on the finalize block rather than in the footer, because it matters once rather
 than on every keystroke.
 
-**A derived figure has to refresh with what derives it.** The autosave response replaced only the
-buttons, so the Earns column would have shown what the grades used to earn. The cells are replaced by
-id - not the table, because the cursor is in an input and swapping the table takes the focus and any
-half-typed value with it.
+**Everything derived from the entries refreshes together.** The autosave response replaced only the
+buttons, so the Earns column would have shown what the grades used to earn. It now replaces the row
+figures, the column total, the summary card and **both halves of the warning** - that last pair was
+missed on the first pass, so correcting the days fixed the data and the notification stayed on screen
+still accusing. The cells are replaced by id, not the table, because the cursor is in an input and
+swapping the table takes the focus and any half-typed value with it. A conditional block needs an
+always-rendered container carrying the id, or there is nothing for the replacement to target and the
+message outlives the problem.
+
+**The summary is information; only finalizing is administrative.** Both were in one
+`if current_user.admin?` block, so the teacher entering the grades could not see what they added up to
+while the admin who only presses the button could. `_earnings_summary` renders for anyone who can open
+the page and carries the three-way split and the total; the finalize block restates no figure, because
+the summary has it and the confirmation carries it to the commitment.
+
+**A section description sits in the heading's column.** It was a sibling of the heading row, so it
+spanned the full width and ran under the "Add new students" button at every width. Title and subtitle are
+one block with the actions beside it, `items-start` so the action stays level with the title - the shape
+`_page_header` already uses.
 
 **A warning gets a summary and a note in place**, which is this app's own form-error shape. An entry
 claiming the perfect-attendance bonus with no days recorded is incoherent whatever the quarter's length,

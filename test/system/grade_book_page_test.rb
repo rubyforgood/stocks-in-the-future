@@ -304,6 +304,113 @@ class GradeBookPageTest < ApplicationSystemTestCase
     assert below, "the finalize button is beside its explanation rather than under it"
   end
 
+  # The one that had no excuse: in the same change I noticed the Earns figures would go stale after a
+  # save and fixed them, wrote "a derived figure must refresh with whatever derives it" into CLAUDE.md,
+  # and left both halves of the warning out of the same turbo_stream. Correcting the days fixed the data
+  # and the notification kept accusing.
+  test "the warning clears when the days are corrected" do
+    classroom, book = a_grade_book_with_entries
+    entry = book.grade_entries.first
+    entry.update!(is_perfect_attendance: true, attendance_days: nil)
+    sign_in teacher_for(classroom)
+
+    visit classroom_grade_book_path(classroom, book)
+
+    assert_text "set to be paid a bonus with no attendance recorded"
+    assert_selector "[data-testid='unattended-bonus']"
+
+    within("##{dom_id(entry)}") { find("[data-testid='attendance-days-input']").set(12) }
+    click_on "Save grades"
+
+    assert_no_text "set to be paid a bonus with no attendance recorded"
+    assert_no_selector "[data-testid='unattended-bonus']"
+  end
+
+  # And the other direction: creating the problem mid-edit has to raise it without a reload.
+  test "the warning appears when the problem is introduced" do
+    classroom, book = a_grade_book_with_entries
+    entry = book.grade_entries.first
+    entry.update!(is_perfect_attendance: false, attendance_days: nil)
+    sign_in teacher_for(classroom)
+
+    visit classroom_grade_book_path(classroom, book)
+
+    assert_no_text "set to be paid a bonus with no attendance recorded"
+
+    within("##{dom_id(entry)}") do
+      find("[data-testid='perfect-attendance-control']").find("label", text: "Yes").click
+    end
+    click_on "Save grades"
+
+    assert_text "set to be paid a bonus with no attendance recorded"
+  end
+
+  # The summary lived inside the finalize block, which is admin-only - so the person entering the grades
+  # could not see what they add up to, while the person who only presses the button could. The gate
+  # belongs on the action, not on the information.
+  test "a teacher sees the summary of what the quarter pays" do
+    classroom, book = a_grade_book_with_entries
+    book.grade_entries.each { |e| e.update!(attendance_days: 5, math_grade: "A") }
+    sign_in teacher_for(classroom)
+
+    visit classroom_grade_book_path(classroom, book)
+
+    expected = GradeBookEarnings.new(book.reload)
+
+    assert_selector "#earnings-summary"
+    assert_text "What this quarter pays"
+    assert_selector "[data-testid='summary-total']",
+                    text: ActiveSupport::NumberHelper.number_to_currency(expected.total_cents / 100.0)
+
+    # The action stays administrative.
+    assert_no_selector "#finalize-button"
+  end
+
+  test "the summary refreshes when a grade changes" do
+    classroom, book = a_grade_book_with_entries
+    book.grade_entries.each { |e| e.update!(attendance_days: nil, math_grade: nil, reading_grade: nil) }
+    entry = book.grade_entries.first
+    sign_in teacher_for(classroom)
+
+    visit classroom_grade_book_path(classroom, book)
+
+    assert_selector "[data-testid='summary-total']", text: "$0.00"
+
+    within("##{dom_id(entry)}") { find("[data-testid='attendance-days-input']").set(10) }
+    click_on "Save grades"
+
+    expected = ActiveSupport::NumberHelper.number_to_currency(
+      (10 * GradeEntry::EARNINGS_PER_DAY_ATTENDANCE) / 100.0
+    )
+
+    assert_selector "[data-testid='summary-total']", text: expected
+  end
+
+  # The description was a sibling of the heading *row*, so it spanned the full width and ran underneath
+  # the action - at every width, not only narrow ones. A title and its subtitle are one block; the
+  # actions sit beside that block.
+  test "the section description does not run under the action" do
+    classroom, book = a_grade_book_with_entries
+    sign_in teacher_for(classroom)
+
+    visit classroom_grade_book_path(classroom, book)
+
+    overlap = page.evaluate_script(<<~JS)
+      (function () {
+        const button = document.querySelector("form[action*='populate'] button, form[action*='populate'] input[type=submit]");
+        const copy = Array.from(document.querySelectorAll("main p"))
+          .find(function (p) { return p.textContent.includes("Each day attended earns"); });
+        if (!button || !copy) return null;
+        const b = button.getBoundingClientRect(), c = copy.getBoundingClientRect();
+        // The copy must stay clear of the action's column, not merely below its baseline.
+        return c.right > b.left;
+      })()
+    JS
+
+    skip "no populate button on this fixture" if overlap.nil?
+    assert_not overlap, "the description runs under the action instead of beside it"
+  end
+
   test "the page says which state the grade book is in" do
     classroom, book = a_grade_book_with_entries
     sign_in teacher_for(classroom)

@@ -416,11 +416,17 @@ autosave response refreshes the figures. `finalize_button` names the amount.
    so a test must click the label, not the input. Two existing tests needed this.
 3. **`form_field_test` had to exclude radios**, alongside the checkboxes it already excluded: an
    `sr-only` radio is not a rendered field and has no border to assert.
-4. **The autosave turbo_stream replaces more elements.** Every `dom_id(entry, :earnings)` cell and
-   `#earnings-total`. Adding a derived cell to this table means adding it there too, or it goes stale.
-5. **The confirmation text changed** and now interpolates a figure, so a test matching the old string
+4. **The autosave turbo_stream replaces more elements.** Every `dom_id(entry, :earnings)` cell, every
+   `dom_id(entry, :bonus_warning)` span, `#earnings-total`, `#earnings-summary` and
+   `#unattended-bonus-callout`. **Anything derived from the entries has to be added there or it goes
+   stale**, and it needs an always-rendered container with a stable id even when it has nothing to show -
+   the warning had neither on the first pass, so it outlived the problem it described.
+5. **The earnings summary is no longer admin-only.** It was inside the finalize block; it is its own
+   `_earnings_summary` section rendered for anyone who can open the page. A test asserting a teacher sees
+   no totals would now fail, and correctly.
+6. **The confirmation text changed** and now interpolates a figure, so a test matching the old string
    fails. It is still a native browser dialog - see design-todo.
-6. **The table has a `<tfoot>`**, the first in the app. Anything counting `tr` or `td` in this table, or
+7. **The table has a `<tfoot>`**, the first in the app. Anything counting `tr` or `td` in this table, or
    assuming `tbody` is the last child, moves.
 
 ### The switch becomes a component, and the grade book page is brought onto the system

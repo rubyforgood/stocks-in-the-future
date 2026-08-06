@@ -161,6 +161,25 @@ so - and nothing used it. **When a preview and a payment must agree, run the sam
 reimplement. And note what `turbo_confirm` is here: a **native OS dialog** with no override in this app,
 so the string is the only thing available to improve.
 
+**"Derived" includes the warnings, not just the figures.** I wrote the rule below, fixed the Earns
+column with it, and in the same commit left both halves of a warning out of the same turbo_stream - so
+correcting the data fixed the figures and the notification kept accusing. **When you find one stale
+derivation, list every derived thing on the page before moving on**: figures, totals, summaries,
+warnings, counts. An element also has to *exist* to be replaced, so a conditional block needs an
+always-rendered container with the id on it.
+
+**Gate the action, not the information.** The grade book's earnings summary sat inside an
+`if current_user.admin?` block with the finalize button, so the teacher entering the grades could not see
+what they added up to while the admin who only presses the button could. A summary is for whoever can
+open the page; only the irreversible action is administrative. If a permission check wraps both, it is
+wrapping too much.
+
+**A section's description belongs in the heading's column, never spanning under the action.** The grade
+book's helper text was a sibling of the heading *row*, so it ran the full width and passed beneath the
+button - at every width, not only narrow ones. Title and subtitle are one block, actions sit beside that
+block, and `items-start` keeps the action level with the title rather than sinking to the subtitle. That
+is what `_page_header` already does.
+
 **A derived figure must refresh with whatever derives it.** The grade book's autosave replaced only the
 buttons, so an Earns column would have gone on showing what the grades used to earn. Replace the derived
 cells by id, never the table - the cursor is in an input, and replacing the table takes the focus and any
