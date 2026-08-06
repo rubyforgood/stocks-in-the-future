@@ -494,3 +494,19 @@ replaces it.
 - **Still open:** whether `archived_at` should become the source of truth and the boolean go. The
   migration map is in `migration.md`; steps 4 and 6 (the admin checkbox, and ~30 tests setting
   `archived: true`) are the work.
+
+## `@classroom_stats` is computed and never rendered (2026-08)
+
+`ClassroomsController#show` sets `@classroom_stats = facade.stats` for a teacher or admin — four
+figures, four queries — and no template reads it. It has presumably never been rendered.
+
+The classroom page redesign nearly answered it with the four-across `_stat` strip, and that was
+wrong: measured at 1366x768 the strip is **134px**, and with the trading setting card above the
+roster it put the first student at **567px of a 625px viewport**. The roster is why a teacher opens
+the page, so the band came out and the first row landed at 296px.
+
+**Open:** either render the figures somewhere that costs ~24px rather than ~134px — a one-line meta
+summary beside the title, which is what GitHub and Linear do for an entity's counts — or delete the
+computation. Both are better than the present state, which pays for the queries and shows nothing.
+Worth deciding with a teacher: "students who have traded" and "orders this week" are the two that
+sound like they'd change how a lesson is run.

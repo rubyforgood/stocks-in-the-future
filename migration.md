@@ -347,6 +347,31 @@ signed-out `main` is `p-4 lg:p-6` rather than a flat `p-6`.
 4. `spacing_test.rb` gains three assertions - the title gutter at both widths, and the
    heading/helper/table gaps - and I checked each fails against the markup it was written for.
 
+### The classroom page stops being two columns
+
+**What.** `classrooms#show` stacks the roster and the grade books as full-width sections instead of a
+`lg:flex-row`. The trading switch leaves the page header for a new `classrooms/_trading_setting`.
+`_grade_books_list` goes from a 256px rail to four cards with status. New `classroom_page_test.rb`.
+
+**Why it has blast radius.**
+
+1. **The trading switch is no longer in the page header.** Anything locating it by walking down from
+   the `<h1>`, or by "the checkbox in the header", moves. `trading_toggle_test.rb` finds it by role and
+   was unaffected.
+2. **The roster's first row moves down**, 146px to 296px at 1366x768. That is the cost of a section
+   heading and a setting block that explains itself, and it is the number to argue with if the trade is
+   wrong. The table gains 280px of width in exchange (765 -> 1045). A test pins the first row under
+   340px so the next addition to the top of this page has to justify itself.
+3. **The grade books partial emits one `<section>` with an `<h2>`**, not a `w-64` div. A caller placing
+   it in a flex row would now get a full-width block; the only caller is this page.
+4. **`_card`'s header was dropped from the setting block** - it measured 57px of 179px and its title
+   repeated the sentence beneath it. Anything selecting the setting by `.tw-card h2` finds nothing;
+   the section is named by `aria-labelledby` pointing at the state sentence.
+5. **Grade book `status` is on screen for the first time** (draft / verified / completed). The enum
+   existed and the rail had no room for it. A copy change to those values now shows up in the UI.
+6. **`@classroom_stats` is still dead.** I nearly rendered it and it cost too much vertical space to
+   keep - see `design-todo`. Deleting the computation is a separate decision from where the figures go.
+
 ### Teachers can edit the classroom they teach
 
 **What.** `ClassroomPolicy#update?` (and `edit?`, now delegating to it) allows a teacher who teaches

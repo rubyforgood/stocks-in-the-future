@@ -1134,6 +1134,50 @@ halves, because 1366px cannot see this class of bug.
 
 `spacing_test` asserts the gutter matches on both sides.
 
+### An entity detail page, and a setting on one
+
+**Related collections stack full width. They are never side by side.** `classrooms#show` put the roster
+and the grade books in a `lg:flex-row`, which at 1366px gave one 765px and the other 256px. That is the
+shape Polaris calls a secondary column, and Polaris reserves it for **metadata** - status, tags,
+organisation - not for a second collection. Stripe's customer page (payments, then subscriptions, then
+invoices), GitHub's repository page and Linear's project page all stack an entity's collections at the
+full column width and let the **order** say which is primary, rather than the widths. Stacked, the
+roster went from 765px to 1045px and the grade books from a 256px rail to four cards that can show a
+quarter's status - which the rail had no room for, so a teacher opened all four to find the one they
+wanted.
+
+Each collection is a `<section>` with an `<h2>` and `aria-labelledby`, in the page's `space-y-6`.
+
+**A setting is not a page action, and its state must be readable as text.** The trading switch was a
+bare 36x20 track labelled "Trading" in the header's action area, beside "Add student" and "Edit
+classroom" - so the one control on the page that changes what students can do sat among the navigation,
+its state was carried by the track's colour, and nothing said what it did. Three separate faults, and
+the reported symptom was "the trading toggle makes no sense".
+
+Polaris's `SettingToggle` is the reference: a card stating the setting's **current state in words** and
+**what it means**, with the control beside it. Stripe and GitHub do the same for a consequential feature
+flag - the description carries the consequence, never the control. So `classrooms/_trading_setting` is a
+pill ("Trading on" / "Trading off"), a sentence in the student's terms ("Students can buy and sell
+shares."), a line on the consequence ("Turning this off stops new orders. It does not sell anything
+students already hold."), the date it went off from `classrooms.trading_disabled_at`, and a switch whose
+visible label is the **verb** ("Turn off"), because a switch beside a state pill leaves the reader
+guessing which of the two the switch reports.
+
+The switch itself is kept rather than replaced by a button: it is the app's control, its track contrast
+is measured, and `trading_toggle_test.rb` drives it.
+
+**A summary band is standard and was still wrong here.** Stripe leads a customer with its figures and
+the portfolio page uses the four-across `_stat` strip - but that strip is **134px** tall, and with the
+setting card above the roster it put the first student at **567px of a 625px viewport**. Measured
+through the change: 146px before, 567px with the band, **296px** after removing it and dropping
+`_card`'s redundant header from the setting block (179px -> 90px). The roster is why a teacher opens the
+page. `ClassroomsController` still computes `@classroom_stats` and nothing renders it - four queries a
+request thrown away - which is in `design-todo`, because the answer is a one-line meta summary beside
+the title, not a band above the content.
+
+`classroom_page_test.rb` asserts the stacking as geometry, both trading states, that the switch is not
+in the header, and that the first row stays on screen.
+
 ### Sidebar footer
 
 **A footer row is an ordinary nav row, pinned.** Same `px-3` inset, same 4px rhythm, separated

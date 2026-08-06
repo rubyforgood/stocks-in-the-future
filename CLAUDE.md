@@ -134,6 +134,25 @@ top-level element the partial emits becomes a spaced sibling. `_stocks_table` em
 helper line, table — and all three rendered 24px apart while the markup said 4px and 12px. Nothing in
 either file was wrong on its own; the bug lived in the relationship.
 
+**Two collections side by side is a two-column layout used wrong.** A narrow secondary column is for
+metadata - status, tags, counts - which is what Polaris says and what Stripe, GitHub and Linear do.
+`classrooms#show` put the roster at 765px beside a 256px grade-book rail, so one collection read as
+subordinate and the other had less room than it needed. Stack them full width as `<section>`s with `h2`s
+and let the order say which is primary.
+
+**A setting in the page header reads as a page action.** The trading switch sat beside "Add student",
+carried its state in the track's colour, and said nothing about what it did. A setting gets a block that
+states its state **in words**, what it means for the people it affects, and a control whose label is the
+**verb** ("Turn off") - Polaris's SettingToggle, and what Stripe and GitHub do for a feature flag. **Ask
+what the switch's colour is being asked to communicate**; if it is the only thing saying which way the
+setting points, the state is not readable.
+
+**Adding to the top of a page costs the thing the page is for.** A four-across `_stat` band is 134px, and
+with a setting card above it the roster's first row landed at 567px of a 625px viewport. Measure the
+first row before and after any block added above the primary content - 146px before, 567px with the band,
+296px without it. This is the same mistake as the trading floor's earnings card, made while fixing
+something else.
+
 **`tables.css` is layered, so a utility on the cell beats `table-body-cell`.** The class list reads
 `table-body-cell py-4` and looks like the shared padding is in force; it is not, and `py-4` wins. That
 put one classrooms cell's text 14px below every other column and made the row 69px against the app's

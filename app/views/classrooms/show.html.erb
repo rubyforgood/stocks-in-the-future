@@ -5,10 +5,15 @@
     commas - name, grade and year - so the page's accessible name carried its metadata; the name is
     the title now and the rest is the description.
 
-    The trading switch used to sit inside the h1's flex row, which put a form control in the
-    heading. It moves to the header's action area, where the page's other controls are. Its inline
-    `onchange="this.form.requestSubmit()"` is a Stimulus action now - it was the last inline handler
-    in the app. %>
+    The trading switch has moved twice. It started inside the h1's flex row, which put a form control
+    in the heading; it then went to the header's action area, which is for the page's *actions* and is
+    where it read as one. It is a setting, so it is a setting card now - see `_trading_setting`. Its
+    inline `onchange="this.form.requestSubmit()"` became a Stimulus action along the way; it was the
+    last inline handler in the app.
+
+    Section order is the summary band, the setting, the roster, then the grade books - figures first
+    because that is what an entity detail page opens with, and the two collections stacked full width
+    rather than side by side. %>
 <% content_for :title, @classroom.name %>
 
 <div class="mx-auto w-full">
@@ -19,22 +24,6 @@
 
   <%= render layout: "components/ui/page_header",
              locals: { title: @classroom.name, description: meta } do %>
-    <%= form_with url: toggle_trading_classroom_path(@classroom), method: :patch, class: "contents" do %>
-      <label class="inline-flex cursor-pointer items-center gap-2">
-        <span class="text-sm font-medium text-slate-700 select-none">Trading</span>
-        <%= check_box_tag "trading", "1", @classroom.trading_enabled?,
-                          class: "peer sr-only",
-                          disabled: !policy(@classroom).toggle_trading?,
-                          data: { controller: "submit-on-change",
-                                  action: "change->submit-on-change#submit" } %>
-        <%# peer-checked:after:border-buffer was here and compiled to nothing - there is no
-            "buffer" colour in the theme. Removed rather than guessed at. The track needs 3:1
-            against the page as a UI boundary: green-700 is 4.79:1 checked, slate-400 is 2.9:1
-            unchecked, so the unchecked track also carries a border. %>
-        <div class="peer relative h-5 w-9 rounded-full border border-slate-400 bg-slate-300 after:absolute after:top-0.5 after:start-0.5 after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:border-green-700 peer-checked:bg-green-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full"></div>
-      </label>
-    <% end %>
-
     <% if @can_manage_students %>
       <%= link_to "Add student", new_classroom_student_path(@classroom), class: "tw-btn-primary" %>
       <% if policy(@classroom).edit? %>
@@ -43,17 +32,46 @@
     <% end %>
   <% end %>
 
-  <%# flex-col below lg. As a bare `flex` this row put the roster and the grade book list
-      side by side at every width: 812px of content in a 328px viewport, which made <main>
-      itself scroll sideways and carried every row action off screen with it. The pinned
-      actions cell could not help, because it pins to its own table's scroll container and
-      that container was the thing being pushed right. %>
-  <div class="flex flex-col gap-6 lg:flex-row">
-    <div class="min-w-0 flex-1">
-      <%= render "classroom_students_table", students: @classroom.users %>
-    </div>
+  <%# Stacked sections, each the full column width, rather than the roster and the grade book rail
+      side by side. `lg:flex-row` gave one collection about 760px and the other 256px at 1366px, which
+      says "the narrow one is supporting detail" - and Polaris, whose two-column layout this imitated,
+      is explicit that a secondary column carries metadata rather than a second collection. Stripe's
+      customer page, GitHub's repository page and Linear's project page all stack an entity's related
+      collections full width and let the order say which is primary.
 
-    <%# Temporary UI, to be replaced when the tabbed table is wired up. %>
+      space-y-6 is the section rhythm this document sets, and it is on the wrapper so each child is a
+      top-level section - which is also why the grade books partial emits a single <section>. %>
+  <div class="mt-6 space-y-6">
+    <%# No four-across stat band here, deliberately, and this is the one place the page departs from
+        what the field does. Stripe leads a customer with its figures and the portfolio page in this app
+        uses exactly that strip - but measured at 1366x768 it is 134px tall, and with the setting card
+        above the roster it put the first student at **567px of a 625px viewport**. The roster is why a
+        teacher opens this page; a summary that pushes it off screen costs more than it tells.
+
+        ClassroomsController still computes @classroom_stats - total students, students who have traded,
+        class portfolio value, orders this week - and nothing renders it, which is four queries a
+        request thrown away. That is a real finding and it is recorded in design-todo rather than
+        answered by putting a 134px band above the thing the page is for. A one-line meta summary beside
+        the title is the shape that would fit. %>
+    <%# The setting, below the figures and above the roster. It is not a page action, so it is not in
+        the header; it is the one control here that changes what students can do, so it is not buried
+        under two tables either. %>
+    <% if @can_manage_students %>
+      <%= render "trading_setting", classroom: @classroom %>
+    <% end %>
+
+    <%# Heading, no description line. design.md asks a table to say what it is for, and that rule came
+        from two tables a reader could not tell apart - Active and Archived stocks. "Students" against
+        "Grade books" is not that case, and 20px above the roster is worth more than restating the
+        column headers. %>
+    <section aria-labelledby="students-heading">
+      <h2 id="students-heading" class="text-base font-semibold text-slate-900">Students</h2>
+
+      <div class="mt-3">
+        <%= render "classroom_students_table", students: @classroom.users %>
+      </div>
+    </section>
+
     <%= render "grade_books_list", grade_books: @classroom.grade_books %>
   </div>
 </div>
