@@ -134,6 +134,13 @@ top-level element the partial emits becomes a spaced sibling. `_stocks_table` em
 helper line, table — and all three rendered 24px apart while the markup said 4px and 12px. Nothing in
 either file was wrong on its own; the bug lived in the relationship.
 
+**A close button on page state is worse than no close button.** A callout saying "trading is turned
+off for your classroom" is still true after a reload, so a client-side dismiss brings it straight back
+and reads as broken. Either the dismissal is **persisted** - `portfolios/_first_share` posts to
+`acknowledge_first_share` and writes a column - or the banner has no close at all. Give it a column,
+not a controller. A form error summary gets neither: it describes the form as it stands and is rebuilt
+on submit, so hiding it hides the list of what is still wrong.
+
 **A message that removes itself must be an outcome, not a state.** The success flash auto-hides after
 6s; `#alert` never does, and neither do callouts or form error summaries. "Trading is turned off" is
 true until a teacher changes it, so a callout that deleted itself would be lying about the page, and

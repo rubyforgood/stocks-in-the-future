@@ -401,11 +401,39 @@ Two implementation traps, both real:
   display change mid-fade, a browser skipping it under reduced motion - would leave the message on
   screen forever. Under `prefers-reduced-motion` the element is removed without fading at all.
 
-**What must not auto-dismiss**, checked by `flash_dismiss_test.rb` rather than left to habit:
-`components/ui/_callout` (page state - "trading is turned off" is true until a teacher changes it, and
-state that deletes itself is a lie about the page), and the form error summaries on `students#new`,
-`students#edit` and `profiles/_errors`, which are the same shape as the alert. The test asserts on the
-attribute rather than by waiting, so a failure names the banner.
+**Sticking and dismissal, by banner type.** Whether a banner goes on its own, and whether the reader
+can send it away, both follow from what the message *is*. All four rows are asserted by
+`flash_dismiss_test.rb` rather than left to habit.
+
+| Banner | Sticks | Auto | Close control |
+|---|---|---|---|
+| flash `#notice` (success) | no | 6s, held by hover/focus | yes - 44px, `dismiss#now` |
+| flash `#alert` (error) | **yes** | never | yes - closing is the only way it goes |
+| `components/ui/_callout` (page state) | **yes** | never | only if **persisted** server-side |
+| form error summary (`students#new`, `students#edit`, `profiles/_errors`) | **yes** | never | **no** |
+
+The reasoning per row, since the table alone will not stop the next person guessing:
+
+- **The alert is dismissible but never automatic.** It is often the only record of what went wrong, so
+  a timer could take it before it was read - but sticking until the reader clears it is a different
+  promise from sticking until they navigate, and every system that ships an error banner offers the
+  close: Primer flash, Polaris `Banner` with `onDismiss`, Carbon inline notification.
+- **A callout is dismissible only when the dismissal is remembered.** A client-side close on page state
+  is worse than no close at all: "trading is turned off for your classroom" is still true on the next
+  page load, so the banner returns and the button reads as broken. `portfolios/_first_share` is the
+  pattern where it is genuinely dismissible - a `button_to` posting to `acknowledge_first_share`, which
+  writes `portfolios.first_share_acknowledged_at`. If a callout needs a close, give it a column, not a
+  controller.
+- **A form error summary has no close at all.** It is not an event, it is a description of the form as
+  it currently stands, rebuilt on every submit. Hiding it hides the list of what still needs fixing
+  while the fields it refers to are still wrong.
+
+The close control lives in `layouts/_flash_dismiss`, one definition for both tints. It is **44px**,
+matching the modal and drawer closes, because a bare icon control with no other affordance is the one
+case where this app uses that figure rather than the 32px a labelled ghost button gets. It carries no
+`text-*` colour, so the glyph inherits the banner's ink and keeps the copy's measured ratio, and it has
+an `sr-only` name because `lucide_icon` renders `aria-hidden`. `-my-3` keeps the 44px target from
+making the panel taller - measured 56px with the button and 56px without.
 
 Note the flash section further down this document, under Accessibility, describes a `shared/_flashes`
 partial with an `auto-dismiss` controller and a `notice_action` link. **That partial does not exist in

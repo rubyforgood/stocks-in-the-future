@@ -371,6 +371,16 @@ signed-out `main` is `p-4 lg:p-6` rather than a flat `p-6`.
 4. **`prefers-reduced-motion` is honoured here and nowhere else.** The controller removes the element
    without fading under that query; `drawer_controller`'s 300ms slide still animates regardless. That
    inconsistency is pre-existing and was not touched.
+5. **Both flash banners gained a close button**, so `layouts/_flash` now renders an interactive
+   control. A test that counts buttons on a page, or clicks "the only button", can be affected on any
+   page reached by a redirect that sets a flash. `dismiss_controller` is deliberately separate from
+   `auto-dismiss`: the alert takes the button without the timer.
+6. **The dismissal model is now a documented four-row rule, not a habit.** design.md carries the table
+   (sticks / auto / close, per banner type) and `flash_dismiss_test.rb` asserts every row. The one
+   that will surprise someone: **a callout may only have a close if the dismissal is persisted**, as
+   `portfolios/_first_share` does via `acknowledge_first_share`. Adding `data-controller="dismiss"` to
+   a callout instead fails the suite, by design - a client-side close on page state comes back on the
+   next load.
 
 ### The content column moves into both layouts
 

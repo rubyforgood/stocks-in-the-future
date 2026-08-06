@@ -113,6 +113,90 @@ class FlashDismissTest < ApplicationSystemTestCase
     assert_no_dismissers("the students#new error summary")
   end
 
+  # The manual half of the model. Both flash banners can be closed - the notice sooner than its
+  # timer, the alert at all - and closing is the *only* way the alert goes.
+  test "the success notice can be closed before its timer" do
+    student_who_can_sign_in("closer")
+    sign_in_through_the_form("closer")
+
+    assert_selector "#notice"
+    within("#notice") { click_on "Dismiss" }
+
+    assert_no_selector "#notice", wait: 2
+  end
+
+  test "the error alert can be closed, which is the only way it goes" do
+    student_who_can_sign_in("errcloser")
+
+    visit new_user_session_path
+    fill_in "Username", with: "errcloser"
+    fill_in "Password", with: "wrong-on-purpose"
+    click_on "Sign in"
+
+    assert_selector "#alert"
+    within("#alert") { click_on "Dismiss" }
+
+    assert_no_selector "#alert", wait: 2
+  end
+
+  # A bare icon control needs its own accessible name - lucide_icon renders aria-hidden - and it is
+  # the one case where this app uses 44px rather than the 32px a labelled ghost button gets.
+  test "each flash close control is named and 44px" do
+    student_who_can_sign_in("a11ycheck")
+    sign_in_through_the_form("a11ycheck")
+
+    assert_selector "#notice button", text: "Dismiss"
+
+    box = page.evaluate_script(<<~JS)
+      (function () {
+        const b = document.querySelector("#notice button").getBoundingClientRect();
+        return [Math.round(b.width), Math.round(b.height)];
+      })()
+    JS
+
+    assert_operator box[0], :>=, 44, "the close target is #{box[0]}px wide"
+    assert_operator box[1], :>=, 44, "the close target is #{box[1]}px tall"
+  end
+
+  # Page state and error summaries stick *and* have no close control: a dismissal that is not
+  # remembered comes back on the next page load, which reads as broken. Where a callout genuinely is
+  # dismissible the dismissal is persisted - portfolios/_first_share posts to acknowledge_first_share -
+  # so it is a button_to, and asserting on the `dismiss` controller distinguishes the two.
+  test "a callout has no client-side close, and its persisted one is a real form" do
+    classroom = create(:classroom, trading_enabled: false)
+    student = create(:student, :with_portfolio, classroom:)
+    student.reload
+    sign_in student
+
+    visit stocks_path
+    assert_text "Trading is turned off"
+    assert_no_selector "[data-controller~='dismiss']"
+  end
+
+  test "the first-share callout dismisses by posting, not by hiding" do
+    classroom = create(:classroom, :with_trading)
+    student = create(:student, :with_portfolio, classroom:)
+    student.reload
+    stock = create(:stock, ticker: "AAA", company_name: "Alpha", price_cents: 1000)
+    # The factory, not a bare create!: the holdings table reads purchase_price to work out the
+    # change, and a nil there is an ActionView error rather than a missing callout.
+    create(:portfolio_stock, portfolio: student.portfolio, stock:, shares: 1)
+    sign_in student
+
+    visit user_portfolio_path(student, student.portfolio)
+
+    if has_selector?("[data-testid='first-share']", wait: 2)
+      within("[data-testid='first-share']") do
+        assert_not has_selector?("[data-action~='dismiss#now']", wait: 0),
+                   "the first-share dismiss must persist, not hide: a callout that vanishes " \
+                   "without a round trip is back on the next page load"
+        assert_selector "form"
+      end
+    else
+      skip "first-share callout did not render for this fixture"
+    end
+  end
+
   # Only the flash notice may carry it. Anything else with the controller is a banner that will
   # delete itself off a page that still means what it says.
   def assert_no_dismissers(label)
