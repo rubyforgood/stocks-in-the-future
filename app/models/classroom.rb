@@ -119,12 +119,22 @@ class Classroom < ApplicationRecord
 
   private
 
+  # Three cases, and the middle one is the bug this had. `||=` alone kept whatever was already in the
+  # column, so a row sitting in the inconsistent state - trading on with a date still set, which is
+  # what any write that skips callbacks leaves behind, `update_column` or a row predating this method -
+  # reported the *previous* switch-off as the onset of the new one. A dismissal made in between then
+  # outranked it and the callout never came back, which is the exact failure the timestamp exists to
+  # prevent. Found by reading the live page, not by the suite: the test always enabled first, and
+  # enabling nils the column, so `||=` never met a stale value.
   def stamp_trading_disabled_at
     if trading_enabled?
       self.trading_disabled_at = nil
-    else
-      self.trading_disabled_at ||= Time.current
+    elsif will_save_change_to_trading_enabled? || trading_disabled_at.nil?
+      # A real transition to off, or a row that never had a date. Either way this switch-off is now.
+      self.trading_disabled_at = Time.current
     end
+    # Otherwise: already off and saved for some other reason. Leave the date where it is rather than
+    # dragging it forward, or every unrelated save would re-open every dismissal.
   end
 
   def create_gradebooks_for_quarters

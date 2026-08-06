@@ -64,6 +64,32 @@ class PortfolioTradingOffNoticeTest < ActiveSupport::TestCase
     assert_not student.portfolio.reload.trading_off_notice?
   end
 
+  # The case the suite missed. Every other test here enables trading before disabling it, and enabling
+  # nils the onset - so `trading_disabled_at ||= Time.current` was never asked to overwrite a stale
+  # value, and it did not. A row can sit in that state for real: any write that skips callbacks leaves
+  # trading on with a date still set, and so does a row that predates the column.
+  #
+  # Without the fix the onset stays in the past, a dismissal made in between outranks it, and the
+  # callout never returns - which is the whole failure the timestamp exists to prevent.
+  test "switching off overwrites a stale onset rather than keeping it" do
+    classroom = create(:classroom, trading_enabled: false)
+    student = student_in(classroom)
+    stale = 1.week.ago
+
+    # rubocop:disable Rails/SkipsModelValidations
+    classroom.update_column(:trading_enabled, true)
+    classroom.update_column(:trading_disabled_at, stale)
+    # rubocop:enable Rails/SkipsModelValidations
+    student.dismiss!(Dismissal::TRADING_OFF)
+
+    classroom.reload.update!(trading_enabled: false)
+
+    assert_operator classroom.reload.trading_disabled_at, :>, stale,
+                    "a real switch-off must stamp its own date over a stale one"
+    assert student.portfolio.reload.trading_off_notice?,
+           "a dismissal made before this switch-off must not suppress it"
+  end
+
   test "the onset is stamped once and not dragged forward by a resave" do
     classroom = create(:classroom, trading_enabled: false)
     stamped = classroom.trading_disabled_at

@@ -186,6 +186,14 @@ still true. Dismissals go in the **`dismissals` table** - one row per user per k
 route, no controller action. A form error summary gets no close at all - it describes the form as it
 stands and is rebuilt on submit, so hiding it hides the list of what is still wrong.
 
+**`||=` in a `before_save` cannot maintain an invariant.** `trading_disabled_at ||= Time.current` kept a
+**stale** value, so a row sitting in the inconsistent state - trading on with a date still set, which is
+what `update_column`, `update_all` or a row predating the callback all leave behind - reported the
+previous switch-off as the onset of the new one, and a dismissal made in between suppressed the callout
+for good. Stamp on the **transition** (`will_save_change_to_*?`) and treat nil as its own case. Every
+test passed, because they all enabled first and enabling nils the column: **a callback that reconciles
+two fields needs a test that starts from them disagreeing.**
+
 **Pass `since:` or the dismissal is a mute button.** It defaults to nil, which means permanent, and a
 caller who forgets it fails *silently* - the banner simply never comes back. Correct for something that
 happens once (`celebrate_first_share?` omits it on purpose); wrong for any condition a teacher can turn
