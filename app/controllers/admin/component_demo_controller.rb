@@ -62,6 +62,19 @@ module Admin
       ]
     end
 
+    # Design preview for one open question in design-todo.md: whether a teacher should see the
+    # split by reason, and if so where it goes. Development only, like the delight previews were -
+    # a live page of hypothetical UI reads as shipped product, and its hard-coded figures read as
+    # real money on a page about paying students.
+    def earnings_split
+      raise ActionController::RoutingError, "Not Found" unless Rails.env.development?
+
+      @breadcrumbs = [
+        { label: "Components", path: admin_component_demo_index_path },
+        { label: "Earnings split previews" }
+      ]
+    end
+
     def form
       @user = User.first || User.new(email: "", name: "", admin: false)
 

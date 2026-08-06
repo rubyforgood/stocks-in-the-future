@@ -560,6 +560,12 @@ before.
 - [ ] **Should a teacher see the split by reason, not just the total?** Raised by me when the split moved
   out of the table, and it needs a call rather than a judgement.
 
+  **Preview: `/admin/component_demo/earnings_split`**, development only, same guard the delight previews
+  carried. Four options as a teacher would see them - today's view, the recommended invoice totals block,
+  the cheap variant that keeps both summaries, and the two shapes already rejected - each with what it
+  costs. Delete the action, route, view and test when this is answered; the reasoning below survives
+  without it.
+
   Where the figures are now: every row's own amount in the **Earns** column and the class total in the
   table's `<tfoot>` - both visible to anyone who can open the page. The **attendance / math / reading**
   split is on the finalize block, which is `current_user.admin?`, so a teacher does not see it.
