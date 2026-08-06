@@ -220,6 +220,15 @@ has a row", which then auto-dismissed after 6s so even the explanation vanished.
 somebody is actually missing an entry. Same rule as the column of dashes: ask whether the affordance can
 ever do anything for this viewer, in this state.
 
+**Replacing a global browser primitive breaks whatever was driving the old one.** Styling
+`data-turbo-confirm` took an afternoon; the 20 tests calling Capybara's `accept_confirm` - which waits
+for a *native* dialog - took longer. **Before swapping a primitive, grep for what tests it**, not just
+what uses it. `accept_confirmation` / `dismiss_confirmation` drive the app's dialog now.
+
+**A native `<dialog>` needs `m-auto` and `w-auto` under Tailwind.** Preflight resets
+`dialog { margin: 0 }`, killing the UA's centring, and the UA sets `width: fit-content`, so a panel is
+sized by its own text. Both are invisible until measured - mine sat against the left edge at 301px wide.
+
 **A `<th>` does not name a form control.** An input inside a table cell takes no accessible name from its
 column header, so a table of inputs is a table of unnamed controls - the grade book had eight, four per
 row. Give each an `aria-label` naming the field *and* the row, because a row is identified visually only.

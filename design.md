@@ -1363,6 +1363,38 @@ control, the status, the action alignment and position, the primary count, the c
 trailing-column alignment, every control's name, the row figures, the total against what
 `DistributeEarnings` actually pays, both halves of the warning, and the confirmation's copy.
 
+### The confirmation dialog
+
+**One dialog, registered globally, for all 28 `data-turbo-confirm` call sites.** Turbo reads
+`config.forms.confirm` in `FormSubmission#start`, and a link carrying `turbo_method` becomes a form
+submission - so links, `button_to` forms and helper-generated row actions are all covered without
+touching a single call site. `Turbo.setConfirmMethod` is deprecated in turbo-rails 2.0.23 and warns; the
+config assignment is the current API, and it is called with `(message, formElement, submitter)`.
+
+**A native `<dialog>`, unlike `shared/_modal` and `dialog_controller`**, which hand-roll an overlay and
+therefore hand-roll a focus trap, an Escape handler and focus return. `showModal()` gives all of that
+from the browser, plus the backdrop and the inertness of the page behind it. A new modal should start
+here; the older two are not worth converting today.
+
+**A confirmation's question is its title**, so `aria-labelledby` points at the message rather than at an
+invented heading - "Are you sure?" above "Finalize and pay $5.60 to 2 students?" is a heading that says
+less than its own body.
+
+**Cancel takes focus and comes first**, so a stray Enter declines a destructive action. macOS, GitHub and
+Polaris all focus the safe option. The accept button carries the **verb** from the control that was
+pressed ("Finalize grades"), because "OK" makes the reader re-read the question to learn what it does;
+Turbo supplies a submitter for a form and not for a link, so a link-driven confirm falls back to
+"Confirm".
+
+**If the controller never connects, Turbo falls back to native `confirm()`.** A destructive action must
+not lose its confirmation because a script failed.
+
+**Three sizing classes, all on the scale, and each earned:** `inset-x-4` for the 16px page gutter,
+`m-auto` because Tailwind's preflight resets `dialog { margin: 0 }` and kills the UA's centring, and
+`w-auto` because the UA sets `width: fit-content` and the panel would otherwise be sized by its message.
+Measured: 448px centred at 1366px, and 328px with 16px either side at 375px. The first attempt used
+`w-[calc(100vw-2rem)]`, which `no_arbitrary_values_test` rejected.
+
 ### Sidebar footer
 
 **A footer row is an ordinary nav row, pinned.** Same `px-3` inset, same 4px rhythm, separated

@@ -84,7 +84,7 @@ class UserManagesOrdersTest < ApplicationSystemTestCase
     visit orders_path
 
     assert_difference -> { Order.pending.count } => -1, -> { Order.canceled.count } => +1 do
-      accept_confirm do
+      accept_confirmation do
         within "tr", text: order.stock.company_name do
           find("[data-testid='cancel-order-button']").click
         end

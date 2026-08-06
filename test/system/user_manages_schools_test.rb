@@ -34,7 +34,7 @@ class UserManagesSchoolsTest < ApplicationSystemTestCase
     sign_in(admin)
     visit admin_school_url(school)
 
-    accept_confirm do
+    accept_confirmation do
       click_on "Delete"
     end
 

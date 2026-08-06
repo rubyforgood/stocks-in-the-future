@@ -102,7 +102,7 @@ class FlashWidthTest < ApplicationSystemTestCase
 
     resize_window_to(*WIDE)
     visit admin_announcements_path
-    accept_confirm { click_on "Delete", match: :first }
+    accept_confirmation { click_on "Delete", match: :first }
     assert_selector "#notice"
     assert_flash_matches_content("admin announcements at 1920")
   ensure

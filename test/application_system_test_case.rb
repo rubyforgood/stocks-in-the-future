@@ -107,7 +107,27 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
     end
   end
 
-  def auto_accept_confirmations
-    page.execute_script("window.confirm = () => true")
+  # The app's own confirmation dialog, not the browser's.
+  #
+  # `accept_confirm` waits for a *native* JS dialog, so every one of its 20 call sites raised
+  # ModalNotFound the moment `Turbo.config.forms.confirm` started rendering HTML instead. That was the
+  # predicted cost of a styled confirm and the reason it was written down before being built: the risk is
+  # never the dialog, it is the call sites that were driving the old one.
+  #
+  # Same shape as `accept_confirm` - pass the block that triggers it - so the diff at each site is one
+  # word.
+  def accept_confirmation(&block)
+    block.call
+    find("#confirm-dialog[open] [data-confirm-dialog-target='accept']").click
+    assert_no_selector "#confirm-dialog[open]"
   end
+
+  def dismiss_confirmation(&block)
+    block.call
+    within("#confirm-dialog[open]") { click_on "Cancel" }
+    assert_no_selector "#confirm-dialog[open]"
+  end
+
+  # Was `window.confirm = () => true`. It no longer intercepts anything - the confirmation is HTML now -
+  # and it has no callers left, so it is gone rather than kept as a no-op that reads like it still works.
 end

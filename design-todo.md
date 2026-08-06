@@ -539,14 +539,18 @@ before.
 
 ## Raised while rebuilding the grade book, not done (2026-08)
 
-- **A styled confirmation dialog.** `turbo_confirm` has no override in this app - no
-  `Turbo.setConfirmMethod` anywhere - so every confirmation is a **native OS dialog** with OK/Cancel
-  that cannot be styled, including the one that finalizes a grade book and pays every student. The
-  string now carries the amount, which is the part that matters most, but the dialog itself is
-  unbranded and its buttons say "OK". `shared/_modal` and `dialog_controller.js` already exist, so a
-  Turbo confirm override has somewhere to live. Note the trap while doing it: a custom confirm must
-  keep working for `button_to`/`data-turbo-confirm` on every existing call site, not just the ones
-  someone remembers.
+- ~~**A styled confirmation dialog.**~~ **Done.** `shared/_confirm_dialog` is a native `<dialog>` and
+  `confirm_dialog_controller` registers `Turbo.config.forms.confirm`, so all 28 `data-turbo-confirm`
+  call sites are covered without touching any. The trap noted here was real and cost the most time:
+  **20 tests drove the old dialog with Capybara's `accept_confirm`**, which waits for a *native* dialog
+  and raised `ModalNotFound` the moment the confirmation became HTML. `accept_confirmation` /
+  `dismiss_confirmation` in `ApplicationSystemTestCase` replace it.
+
+  **Still open, small:** the accept button takes its verb from the submitter, which Turbo provides for a
+  `button_to` and **not** for a link carrying `turbo_method` - so the ~20 link-driven confirms say
+  "Confirm" rather than "Delete". Inferring the verb from the message's first word breaks on the several
+  that begin "Are you sure...", so it would need an explicit attribute per call site. Worth doing only if
+  "Confirm" proves unclear in use.
 - ~~**Students have no name, only a username.**~~ **Done.** `students#new` and `#edit` and the admin form
   all take an optional full name, `:name` is permitted on both controllers, and `User` normalizes it so a
   blank submission stores nil rather than `""`. The roster shows the name over the username - design.md's

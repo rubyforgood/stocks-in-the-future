@@ -39,7 +39,7 @@ class AdminEarningsDistributionTest < ApplicationSystemTestCase
 
     assert_difference -> { PortfolioTransaction.count } => 3,
                       -> { GradeBook.completed.count } => 1 do
-      accept_confirm do
+      accept_confirmation do
         click_on "Finalize grades"
       end
 
@@ -105,7 +105,7 @@ class AdminEarningsDistributionTest < ApplicationSystemTestCase
     visit classroom_grade_book_path(classroom, grade_book)
 
     assert_difference("PortfolioTransaction.count", 1) do
-      accept_confirm do
+      accept_confirmation do
         click_on "Finalize grades"
       end
 
@@ -161,7 +161,7 @@ class AdminEarningsDistributionTest < ApplicationSystemTestCase
     visit classroom_grade_book_path(classroom, grade_book)
 
     assert_difference("PortfolioTransaction.count", 1) do
-      accept_confirm do
+      accept_confirmation do
         click_on "Finalize grades"
       end
 
@@ -215,7 +215,7 @@ class AdminEarningsDistributionTest < ApplicationSystemTestCase
     visit classroom_grade_book_path(classroom, grade_book)
 
     assert_difference("PortfolioTransaction.count", 2) do
-      accept_confirm do
+      accept_confirmation do
         click_on "Finalize grades"
       end
 
@@ -276,7 +276,7 @@ class AdminEarningsDistributionTest < ApplicationSystemTestCase
     visit classroom_grade_book_path(classroom, grade_book)
 
     assert_difference("PortfolioTransaction.count", 2) do
-      accept_confirm do
+      accept_confirmation do
         click_on "Finalize grades"
       end
 
@@ -336,7 +336,7 @@ class AdminEarningsDistributionTest < ApplicationSystemTestCase
     visit classroom_grade_book_path(classroom, grade_book)
 
     assert_difference("PortfolioTransaction.count", 1) do
-      accept_confirm do
+      accept_confirmation do
         click_on "Finalize grades"
       end
 
@@ -413,7 +413,7 @@ class AdminEarningsDistributionTest < ApplicationSystemTestCase
     visit classroom_grade_book_path(classroom, current_grade_book)
 
     assert_difference("PortfolioTransaction.count", 2) do
-      accept_confirm do
+      accept_confirmation do
         click_on "Finalize grades"
       end
 
@@ -475,7 +475,7 @@ class AdminEarningsDistributionTest < ApplicationSystemTestCase
     visit classroom_grade_book_path(classroom, grade_book)
 
     assert_difference("PortfolioTransaction.count", 2) do
-      accept_confirm do
+      accept_confirmation do
         click_on "Finalize grades"
       end
 
@@ -574,7 +574,7 @@ class AdminEarningsDistributionTest < ApplicationSystemTestCase
 
     expected_transaction_count = 3 + 3 + 1 # student1 (3) + student2 (3) + student3 (1)
     assert_difference("PortfolioTransaction.count", expected_transaction_count) do
-      accept_confirm do
+      accept_confirmation do
         click_on "Finalize grades"
       end
 
@@ -629,7 +629,7 @@ class AdminEarningsDistributionTest < ApplicationSystemTestCase
     visit classroom_grade_book_path(classroom, grade_book)
 
     assert_difference("PortfolioTransaction.count", 3) do
-      accept_confirm do
+      accept_confirmation do
         click_on "Finalize grades"
       end
 

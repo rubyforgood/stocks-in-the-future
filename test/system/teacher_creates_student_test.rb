@@ -53,7 +53,7 @@ class TeacherCreatesStudentTest < ApplicationSystemTestCase
     visit classroom_path(classroom)
 
     assert_selector "##{dom_id(student)} [data-testid='reset-password']"
-    accept_confirm do
+    accept_confirmation do
       find("##{dom_id(student)} [data-testid='reset-password']").click
     end
 
@@ -102,7 +102,7 @@ class TeacherCreatesStudentTest < ApplicationSystemTestCase
     visit classroom_path(classroom)
 
     assert_selector "##{dom_id(student)} [data-testid='delete-student']"
-    accept_confirm do
+    accept_confirmation do
       find("##{dom_id(student)} [data-testid='delete-student']").click
     end
 

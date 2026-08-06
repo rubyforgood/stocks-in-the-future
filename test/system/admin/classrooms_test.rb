@@ -14,7 +14,7 @@ module Admin
       visit admin_classroom_url(@classroom)
       assert_text @classroom.name
 
-      accept_confirm do
+      accept_confirmation do
         click_on "Archive"
       end
 
@@ -28,7 +28,7 @@ module Admin
       visit admin_classroom_url(@classroom)
       assert_text @classroom.name
 
-      accept_confirm do
+      accept_confirmation do
         click_on "Activate"
       end
 

@@ -51,7 +51,7 @@ class GradeBooksTest < ApplicationSystemTestCase
     visit classroom_grade_book_path(classroom, grade_book)
 
     assert_button "Finalize grades"
-    accept_confirm do
+    accept_confirmation do
       click_on "Finalize grades"
     end
 

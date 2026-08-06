@@ -103,5 +103,10 @@
 
     <!-- Trading Modal -->
     <%= render 'shared/modal' %>
+
+    <%# Replaces the native confirm() for every data-turbo-confirm in the app. Outside <main> because it
+        is chrome rather than page content, and rendered for signed-out visitors too - cheap, and it means
+        the layout does not have to know which pages carry a destructive action. %>
+    <%= render 'shared/confirm_dialog' %>
   </body>
 </html>

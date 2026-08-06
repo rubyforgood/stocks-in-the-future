@@ -58,7 +58,7 @@ module Admin
       visit admin_announcement_url(@announcement)
 
       assert_difference("Announcement.count", -1) do
-        accept_confirm { click_on "Delete", match: :first }
+        accept_confirmation { click_on "Delete", match: :first }
 
         assert_text "Announcement deleted successfully."
       end
