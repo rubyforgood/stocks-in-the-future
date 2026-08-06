@@ -557,3 +557,29 @@ before.
   primary-identifier shape - and the grade book, its sort order and the portfolio title use
   `display_name`. Left on the username deliberately: `admin/users`, `admin/teachers` and the transaction
   screens, where the account rather than the person is the subject.
+- [ ] **Should a teacher see the split by reason, not just the total?** Raised by me when the split moved
+  out of the table, and it needs a call rather than a judgement.
+
+  Where the figures are now: every row's own amount in the **Earns** column and the class total in the
+  table's `<tfoot>` - both visible to anyone who can open the page. The **attendance / math / reading**
+  split is on the finalize block, which is `current_user.admin?`, so a teacher does not see it.
+
+  The argument for leaving it: the split is what the *payment* is made of rather than what the grades add
+  up to, and it is read once, by whoever authorises the money. That is the payroll-review shape (Gusto,
+  Square Payroll) and it keeps one figure in one place. The argument against: the teacher enters every
+  number that produces it, and design.md's own rule is **gate the action, not the information** - which
+  is the rule that pulled the total out of the admin block in the first place. Only the split's audience
+  is genuinely in question; nothing about the finalize *control* is.
+
+  If it should be visible to teachers, the placement is decided and is **not** the table: an invoice
+  totals block - a narrow right-aligned stack under the table, above "Save grades", aligned to the Earns
+  column's right edge, which is Stripe's and QuickBooks's shape for components of a total. It cannot go
+  inside `shared/_table_container`: that partial's `.table-wrapper` is both the card surface *and* the
+  horizontal scroller, so anything placed in it scrolls sideways with the table and lands off screen at
+  375px. Either give the container an optional footer slot (a rendered-string local, as `_page_header`
+  now takes `badge:`) or move the surface up a level - the second touches ~20 tables and wants a
+  `migration.md` entry.
+
+  What must not happen either way: the same figures in two places. If teachers get the block, the split
+  comes *off* the finalize section, which keeps naming the total in its sentence.
+
