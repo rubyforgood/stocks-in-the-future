@@ -134,6 +134,25 @@ top-level element the partial emits becomes a spaced sibling. `_stocks_table` em
 helper line, table — and all three rendered 24px apart while the markup said 4px and 12px. Nothing in
 either file was wrong on its own; the bug lived in the relationship.
 
+**A banner is only as wide as the container it is in, and the flash was in `<main>`.** The content
+column was per-page (`mx-auto max-w-7xl` in the view) while `layouts/_flash` was a bare child of
+`<main>`, so at 1920px the sign-in notice measured 1601px over cards of 1280px. **Anything the layout
+renders alongside `yield` has to share the page's column**, which is why the column now lives in the
+layout around both. Note the near miss: constraining the flash instead would have inverted the bug on
+the four pages that declared no column at all.
+
+**A layout width bug is invisible at every width the suite tests.** This one needs a viewport above
+~1584px - below that, main's content box is already narrower than `max-w-7xl`, so the cap does
+nothing and everything lines up. 1400, 1366 and 375 all measured a perfect match. **When a report
+only reproduces on a wide monitor, add the wide viewport rather than trusting the existing ones.**
+
+**Wrapping `yield` moves every selector that reaches through `main`.** `main > div` used to be the
+page; it is now the content column, and the page is one level deeper. `spacing_test`'s `section_gaps`
+read `main > div > *`, got a single element, never entered its comparison loop, and the test **passed
+while asserting nothing** - the only signal was minitest's "missing assertions", and the assertion
+count dropping 21 to 19. Adding a wrapper to a layout is a selector change: check the count, not just
+the pass.
+
 **`bin/dev` needs `tailwindcss:watch[always]`, or it kills itself with no TTY.** Plain `-w` makes the
 tailwind CLI exit the moment stdin closes — Docker, or any backgrounded run — and foreman terminates
 the whole formation when any one process exits. So `bin/dev` booted Puma, printed `Done in 929ms`,

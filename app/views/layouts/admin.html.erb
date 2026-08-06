@@ -98,24 +98,31 @@
     <!-- Main Content -->
     <main class="pt-16 lg:pl-64 min-h-screen">
       <div class="p-4 lg:p-6">
-        <%# The shared partial, so admin gets the same role=status announcement and
-            the icon-plus-text treatment as the rest of the app. %>
-        <%= render "layouts/flash" %>
+        <%# The content column, around the flash and the page both, exactly as the app layout does
+            it. Admin had the same split: every admin page wraps itself in `max-w-7xl mx-auto` while
+            the flash was a bare child of this wrapper, so at 1920px a flash measured 1616px against
+            content of 1280px. One product, one rule - a fix on the app side alone would have left
+            admin as the only half where a banner is wider than the page. %>
+        <div class="mx-auto max-w-7xl">
+          <%# The shared partial, so admin gets the same role=status announcement and
+              the icon-plus-text treatment as the rest of the app. %>
+          <%= render "layouts/flash" %>
 
-        <%# The page heading, from the same breadcrumb the title uses. Admin pages
-            previously had no heading describing them - their only h1 was the
-            branding in the header bar, identical on every page.
+          <%# The page heading, from the same breadcrumb the title uses. Admin pages
+              previously had no heading describing them - their only h1 was the
+              branding in the header bar, identical on every page.
 
-            Index and show pages lead with a section title rather than a page
-            title, so this is visually hidden to avoid saying the same word twice
-            on screen while still naming the page for assistive tech. A page that
-            has its own visible h1 declares `content_for :own_heading` and this
-            steps aside. %>
-        <% unless content_for?(:own_heading) %>
-          <h1 class="sr-only"><%= @breadcrumbs&.last&.dig(:label).presence || "Admin dashboard" %></h1>
-        <% end %>
+              Index and show pages lead with a section title rather than a page
+              title, so this is visually hidden to avoid saying the same word twice
+              on screen while still naming the page for assistive tech. A page that
+              has its own visible h1 declares `content_for :own_heading` and this
+              steps aside. %>
+          <% unless content_for?(:own_heading) %>
+            <h1 class="sr-only"><%= @breadcrumbs&.last&.dig(:label).presence || "Admin dashboard" %></h1>
+          <% end %>
 
-        <%= yield %>
+          <%= yield %>
+        </div>
       </div>
     </main>
   </body>

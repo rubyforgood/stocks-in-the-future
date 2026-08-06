@@ -67,9 +67,19 @@
           padding, which is what made the gap easy to miss - and design.md asserted this element was
           `p-4 lg:p-6` while only the signed-out branch was. %>
       <main id="main-content" class="min-h-screen p-4 lg:p-6 ml-0 lg:ml-64 mt-16 bg-slate-50">
-        <%= render 'layouts/flash' %>
+        <%# The content column lives here, around the flash *and* the page, because the flash has to
+            be the same width as the thing it sits above and only the layout can guarantee that.
+            It used to be per-page: home, stock#show and portfolio wrapped themselves in
+            `mx-auto max-w-7xl` while the flash was a bare child of <main>, so at 1920px the
+            sign-in banner measured 1601px against cards of 1280px - 321px wider, and starting
+            161px to their left. Below ~1584px nothing shows, because that is where main's content
+            box stops exceeding max-w-7xl, which is why this survived. Constraining the flash alone
+            would have inverted the bug on the four pages that span full width. %>
+        <div class="mx-auto max-w-7xl">
+          <%= render 'layouts/flash' %>
 
-        <%= yield %>
+          <%= yield %>
+        </div>
       </main>
     <% else %>
       <%# Signed out there was no header at all, so the only route in was whatever page you

@@ -262,10 +262,19 @@ class SpacingTest < ApplicationSystemTestCase
                     "no padding-top of its own on the signed-in side"
   end
 
+  # The page's own top-level children, which are one level deeper than they look. `main > div` is the
+  # layout's content column - it wraps the flash and the yield together so a banner cannot be a
+  # different width from the page under it - so the page's root is the column's *last* child, and its
+  # children are the sections. This read `main > div > *`, which was the page's sections back when the
+  # page's own wrapper was main's only child; after the column arrived it returned one element, the
+  # loop below never ran, and the test passed while asserting nothing. Minitest's "missing assertions"
+  # warning was the only sign.
   def section_gaps
     page.evaluate_script(<<~JS)
       (function () {
-        const kids = Array.from(document.querySelectorAll("main > div > *"));
+        const column = document.querySelector("main > div.max-w-7xl") || document.querySelector("main > div");
+        const root = column && column.lastElementChild ? column.lastElementChild : column;
+        const kids = Array.from(root ? root.children : []);
         const out = [];
         for (let i = 0; i < kids.length - 1; i++) {
           const a = kids[i].getBoundingClientRect(), b = kids[i + 1].getBoundingClientRect();

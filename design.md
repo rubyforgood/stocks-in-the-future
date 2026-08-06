@@ -1017,9 +1017,29 @@ left and card right all 16px, and the account chevron 16px from the right.
 `test/system/chrome_gutter_test.rb` asserts one gutter across both halves, and that both navigation
 triggers have the same fill.
 
-**Content width is `max-w-7xl`.** It is what 35 call sites and this document already use.
-`max-w-[1180px]` was an arbitrary value the token rules rule out, and home's `max-w-5xl` was
-narrow enough that `mx-auto` centred it and changed the gutter on one page only.
+**Content width is `max-w-7xl`, and the layout owns it.** `max-w-[1180px]` was an arbitrary value the
+token rules rule out, and home's `max-w-5xl` was narrow enough that `mx-auto` centred it and changed
+the gutter on one page only.
+
+Both layouts now put one `mx-auto max-w-7xl` around the flash **and** the yield, rather than leaving
+each page to declare its own. A per-page column cannot include the flash, and a flash outside it is
+the wrong width by definition: `layouts/_flash` was a bare child of `<main>`, so at 1920px the
+"Signed in successfully" banner measured **1601px against cards of 1280px** - 321px wider, starting
+161px to their left - and admin measured 1616px against 1280px. Nothing showed below about 1584px,
+which is where main's content box stops exceeding `max-w-7xl`, so every test width the suite had
+(1400, 1366, 375) measured a perfect match.
+
+Constraining the flash alone would have inverted it: the trading floor, orders, classrooms and
+classroom#show declared no column at all and spanned the full 1601px, so a 1280px banner would have
+been the narrow thing on those four. Those pages are now in the column like the rest, which is what
+this rule always said and what they were drifting from - they are **narrower above 1584px than they
+were**, and that is the intended half of the change rather than a side effect.
+
+The per-page `mx-auto max-w-7xl` wrappers still in the views are now redundant - a `max-w-7xl` inside
+an equal-width parent is a no-op - and are left in place rather than swept across 39 call sites.
+
+`test/system/flash_width_test.rb` measures the banner against the page below it at 1920px, on both
+halves, because 1366px cannot see this class of bug.
 
 `spacing_test` asserts the gutter matches on both sides.
 

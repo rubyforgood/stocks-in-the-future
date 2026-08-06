@@ -347,6 +347,33 @@ signed-out `main` is `p-4 lg:p-6` rather than a flat `p-6`.
 4. `spacing_test.rb` gains three assertions - the title gutter at both widths, and the
    heading/helper/table gaps - and I checked each fails against the markup it was written for.
 
+### The content column moves into both layouts
+
+**What.** `application.html.erb` (signed-in) and `admin.html.erb` each gain one
+`<div class="mx-auto max-w-7xl">` wrapping the flash **and** the yield. `spacing_test`'s
+`section_gaps` helper is retargeted. New `test/system/flash_width_test.rb`.
+
+**Why it has blast radius.**
+
+1. **Four pages get narrower above ~1584px.** The trading floor, orders, classrooms and
+   classroom#show declared no content column and spanned main's full box; they are now capped at
+   1280px like every other page. This is `design.md`'s existing rule ("Content width is
+   `max-w-7xl`") applied to the pages that had drifted from it, not a new decision - but it is a
+   visible change on a wide monitor, and it is the half of this change a reviewer should look at.
+   Below 1584px nothing moves anywhere, which is why no existing test width saw any of this.
+2. **`main > div` now means the content column, not the page.** Any selector or script reaching
+   into the page through `main`'s first child is off by one level. This already bit
+   `spacing_test`'s `section_gaps`, which read `main > div > *`: it returned a single element, the
+   comparison loop never ran, and `test_sections_on_a_page_are_24px_apart` **passed while asserting
+   nothing** - 21 assertions to 19, with minitest's "missing assertions" warning as the only
+   signal. The helper now descends to the column's last child. Anything else measuring positions
+   through `main > div` needs the same treatment.
+3. **The per-page `mx-auto max-w-7xl` wrappers are now redundant** on the ~39 call sites that have
+   them. They are harmless - a `max-w-7xl` inside an equal-width parent is a no-op - and were left
+   alone deliberately rather than swept. A later sweep removing them is safe; removing the
+   *layout's* column is not, because the flash would leave the column with it.
+4. **A flash is now inside the column**, so anything selecting it as a child of `<main>` moves.
+
 ### `stocks.archived_at`, and a retention rule for the archived list
 
 **What.** New nullable `stocks.archived_at`, a `before_save` keeping it true to the `archived` flag,
