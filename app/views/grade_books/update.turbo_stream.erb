@@ -1,3 +1,19 @@
-<%= turbo_stream.replace "submit-button", partial: "grade_books/submit_button" %>
-<%= turbo_stream.replace "finalize-button", partial: "grade_books/finalize_button" %>
+<%# A save refreshes the buttons *and* every figure derived from the entries. Replacing only the
+    buttons left the Earns column and its total showing what the grades used to earn.
 
+    The cells are replaced rather than the table: the teacher's cursor is in an input, and swapping the
+    table out from under them would take the focus and any half-typed value with it. %>
+<% earnings = GradeBookEarnings.new(@grade_book) %>
+
+<%= turbo_stream.replace "submit-button", partial: "grade_books/submit_button" %>
+<%= turbo_stream.replace "finalize-button", partial: "grade_books/finalize_button",
+                         locals: { earnings: earnings } %>
+
+<% @grade_book.grade_entries.each do |entry| %>
+  <%= turbo_stream.replace dom_id(entry, :earnings),
+                           partial: "grade_books/entry_earnings",
+                           locals: { entry: entry, earnings: earnings } %>
+<% end %>
+
+<%= turbo_stream.replace "earnings-total", partial: "grade_books/earnings_total",
+                         locals: { earnings: earnings } %>

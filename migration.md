@@ -397,6 +397,32 @@ applies only to grade books finalized after the change, or historical entries ke
 forever. That is not a design call; it needs whoever is accountable for the money. Until it is answered,
 the checkbox stays and the column at least explains what it pays.
 
+### The grade book shows what finalizing will pay
+
+**What.** New `GradeBookEarnings` presenter and `GradeBook#previous_entries_by_user_id`, which
+`DistributeEarnings` now uses instead of its private copy. New `.tw-segmented` in `forms.css`. The grade
+row gains an Earns cell and sized inputs, and its checkbox becomes two radios. New `<tfoot>`. The
+autosave response refreshes the figures. `finalize_button` names the amount.
+
+**Why it has blast radius.**
+
+1. **`DistributeEarnings` was refactored.** `find_previous_entries` moved to `GradeBook` and returns
+   `index_by` rather than `group_by`, so the service no longer does `&.first`. Behaviour is identical -
+   `grade_entries` is unique on `[grade_book_id, user_id]` - but it is a change to the code path that
+   moves money, and `grade_books_controller_test` is what covers it.
+2. **Perfect attendance is two radios, not a checkbox.** Anything finding
+   `[data-testid='perfect-attendance-checkbox']`, or `input[type=checkbox]` in this table, breaks. The
+   testid is `perfect-attendance-control` and the radios are `sr-only` with `<label>`s as the control -
+   so a test must click the label, not the input. Two existing tests needed this.
+3. **`form_field_test` had to exclude radios**, alongside the checkboxes it already excluded: an
+   `sr-only` radio is not a rendered field and has no border to assert.
+4. **The autosave turbo_stream replaces more elements.** Every `dom_id(entry, :earnings)` cell and
+   `#earnings-total`. Adding a derived cell to this table means adding it there too, or it goes stale.
+5. **The confirmation text changed** and now interpolates a figure, so a test matching the old string
+   fails. It is still a native browser dialog - see design-todo.
+6. **The table has a `<tfoot>`**, the first in the app. Anything counting `tr` or `td` in this table, or
+   assuming `tbody` is the last child, moves.
+
 ### The switch becomes a component, and the grade book page is brought onto the system
 
 **What.** New `.tw-switch` / `.tw-switch-thumb` in `forms.css`, with the thumb as a real element.

@@ -1,0 +1,13 @@
+<%# The row's figure, as its own element so a save can replace it.
+
+    Without this the column goes stale the moment a grade changes: the autosave PATCH returns a
+    turbo_stream that replaced only the buttons, so the money on screen would have disagreed with the
+    inputs beside it until a reload. A figure that is quietly wrong is worse than no figure.
+
+    Only the number, because the column is right-aligned with tabular-nums and an annotation in it
+    pushes the digits off the edge they align to. %>
+<%= tag.td id: dom_id(entry, :earnings),
+           class: "table-body-cell table-body-cell-right whitespace-nowrap font-medium",
+           data: { testid: "row-earnings" } do %>
+  <%= number_to_currency(earnings.for(entry).total / 100.0) %>
+<% end %>

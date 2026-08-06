@@ -26,12 +26,17 @@ class FormFieldTest < ApplicationSystemTestCase
       (function () {
         const out = [];
         const seen = new Set();
+        // Radios are excluded for the same reason checkboxes are: neither is a box-shaped field, so
+        // the border/radius/height tokens do not apply to them. The grade book's perfect-attendance
+        // control is two `sr-only` radios with styled labels - a native segmented control - and an
+        // sr-only input is not a rendered field at all, which the 1x1 box below also catches.
         document.querySelectorAll(
-          "input:not([type=hidden]):not([type=submit]):not([type=checkbox]), select, textarea"
+          "input:not([type=hidden]):not([type=submit]):not([type=checkbox]):not([type=radio]), select, textarea"
         ).forEach(el => {
           const s = getComputedStyle(el);
           const b = el.getBoundingClientRect();
           if (!b.height) return;
+          if (b.width <= 1 && b.height <= 1) return;
           const key = [s.borderTopWidth, s.borderTopLeftRadius, s.fontSize,
                        s.borderTopColor, el.tagName].join("|");
           if (seen.has(key)) return;

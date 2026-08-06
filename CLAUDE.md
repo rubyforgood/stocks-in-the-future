@@ -154,6 +154,26 @@ same string forward, because `getBoundingClientRect` cannot see a pseudo-element
 the inset. **If a control's position carries meaning, make it a real element.** It is `.tw-switch` in
 `forms.css` now, defined once.
 
+**Show what an irreversible action will do, in the confirmation.** Finalizing a grade book deposits real
+money into every student's portfolio and cannot be undone, and both the page and the dialog were silent
+about the amount. `EarningsCalculator` had existed for this since it was extracted - its docstring says
+so - and nothing used it. **When a preview and a payment must agree, run the same object**, do not
+reimplement. And note what `turbo_confirm` is here: a **native OS dialog** with no override in this app,
+so the string is the only thing available to improve.
+
+**A derived figure must refresh with whatever derives it.** The grade book's autosave replaced only the
+buttons, so an Earns column would have gone on showing what the grades used to earn. Replace the derived
+cells by id, never the table - the cursor is in an input, and replacing the table takes the focus and any
+half-typed value with it.
+
+**An input in a table cell is sized to its content**, not `w-full`. A days field at 322px for a two-digit
+value is `tw-input-primary`'s `w-full` taking the column's slack. GOV.UK ships width modifiers for this.
+
+**A yes/no answer is a segmented control on native radios, and its selected state is light.** GOV.UK
+reserves a single checkbox for opting in. iOS and Material 3 both raise the chosen segment on a light
+surface; a saturated brand fill repeated down 25 rows is the over-emphasis the row-action rule forbids.
+A badge is never the control - it has no editing affordance.
+
 **A `<th>` does not name a form control.** An input inside a table cell takes no accessible name from its
 column header, so a table of inputs is a table of unnamed controls - the grade book had eight, four per
 row. Give each an `aria-label` naming the field *and* the row, because a row is identified visually only.

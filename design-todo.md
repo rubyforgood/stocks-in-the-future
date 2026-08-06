@@ -536,3 +536,21 @@ The map is in `migration.md`. Two things need answering before any of it:
 
 Until then the checkbox stays, and the section copy at least states what the bonus pays - which it did not
 before.
+
+## Raised while rebuilding the grade book, not done (2026-08)
+
+- **A styled confirmation dialog.** `turbo_confirm` has no override in this app - no
+  `Turbo.setConfirmMethod` anywhere - so every confirmation is a **native OS dialog** with OK/Cancel
+  that cannot be styled, including the one that finalizes a grade book and pays every student. The
+  string now carries the amount, which is the part that matters most, but the dialog itself is
+  unbranded and its buttons say "OK". `shared/_modal` and `dialog_controller.js` already exist, so a
+  Turbo confirm override has somewhere to live. Note the trap while doing it: a custom confirm must
+  keep working for `button_to`/`data-turbo-confirm` on every existing call site, not just the ones
+  someone remembers.
+- **Students have no name, only a username.** `users.name` exists and `User#display_name` prefers it,
+  but `students#new` collects **only** a username - so every student's name is nil and every screen
+  falls back to a lowercased identifier (`mike`, `student`). Reported as "why are all the student names
+  lowercase". They are not names, and CSS-capitalising them would be wrong: usernames are downcased
+  because sign-in is case-insensitive, so "Mike" would display for someone who signs in as `mike`, and
+  `jsmith2` would render as `Jsmith2`. The fix is a name field on the add/edit student form, after
+  which `display_name` shows it everywhere with no further change.

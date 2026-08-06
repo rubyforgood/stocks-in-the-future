@@ -69,22 +69,42 @@ class GradeBookPageTest < ApplicationSystemTestCase
     assert_equal "Grades", wrap["aria-label"]
   end
 
-  test "the perfect attendance checkbox is a checkbox" do
+  # A bare checkbox said nothing about what was being answered - GOV.UK reserves a single checkbox for
+  # opting in and gives a yes/no question radios. Two native radios, so the keyboard behaviour is the
+  # browser's, and the selected option is a light raised surface rather than a brand fill: a saturated
+  # chip repeated down 25 rows is the over-emphasis the row-action rule forbids for buttons.
+  test "perfect attendance is an explicit yes or no, on radios" do
     classroom, book = a_grade_book_with_entries
     sign_in teacher_for(classroom)
 
     visit classroom_grade_book_path(classroom, book)
 
-    box = page.evaluate_script(<<~JS)
+    control = find("[data-testid='perfect-attendance-control']", match: :first)
+
+    assert_equal %w[Yes No], control.all("label").map(&:text)
+    assert_equal 2, control.all("input[type='radio']", visible: :all).size
+
+    assert_no_selector "[data-testid='perfect-attendance-checkbox']"
+  end
+
+  # Inputs are sized to their content. The days field rendered at 322px for a value that cannot exceed
+  # two digits, because tw-input-primary is w-full and the column took the table's slack. GOV.UK states
+  # the rule and ships width modifiers for exactly this.
+  test "the inputs are sized to what they hold" do
+    classroom, book = a_grade_book_with_entries
+    sign_in teacher_for(classroom)
+
+    visit classroom_grade_book_path(classroom, book)
+
+    widths = page.evaluate_script(<<~JS)
       (function () {
-        const el = document.querySelector("[data-testid='perfect-attendance-checkbox']");
-        const b = el.getBoundingClientRect();
-        return [Math.round(b.width), Math.round(b.height)];
+        function w(sel) { return Math.round(document.querySelector(sel).getBoundingClientRect().width); }
+        return { days: w("[data-testid='attendance-days-input']"), grade: w("[data-testid='math-grade-select']") };
       })()
     JS
 
-    assert_equal [16, 16], box,
-                 "the checkbox measures #{box.inspect}; it is carrying the text input class"
+    assert_operator widths["days"], :<=, 96, "the days input is #{widths['days']}px for two digits"
+    assert_operator widths["grade"], :<=, 120, "the grade select is #{widths['grade']}px for two characters"
   end
 
   # The native <select> arrow's inset cannot be controlled: the field is px-3 and Chrome draws its own
@@ -110,9 +130,10 @@ class GradeBookPageTest < ApplicationSystemTestCase
                     "the chevron should sit 12px from the edge, matching the field's px-3"
   end
 
-  # design.md states this for an actions column and for numeric ones. This table's last column is
-  # neither, and was the only left-aligned trailing column in the app - which is what made it look wrong
-  # beside every other table.
+  # The last column right-aligns, header and cells - design.md states it for actions and for numerics,
+  # and every other table in the app satisfied it because every other one ends in actions. Earns is the
+  # trailing column now and it is numeric, so it right-aligns on both counts; Perfect attendance sits
+  # mid-table and returns to left, because the rule follows the position rather than the column.
   test "the trailing column is right aligned, header and cells" do
     classroom, book = a_grade_book_with_entries
     sign_in teacher_for(classroom)
@@ -122,12 +143,15 @@ class GradeBookPageTest < ApplicationSystemTestCase
     align = page.evaluate_script(<<~JS)
       (function () {
         const ths = document.querySelectorAll("main thead th");
-        const cell = document.querySelector("[data-testid='perfect-attendance-checkbox']").closest("td");
-        return [getComputedStyle(ths[ths.length - 1]).textAlign, getComputedStyle(cell).textAlign];
+        const cell = document.querySelector("[data-testid='row-earnings']");
+        const total = document.querySelector("[data-testid='earnings-total']");
+        return [getComputedStyle(ths[ths.length - 1]).textAlign,
+                getComputedStyle(cell).textAlign,
+                getComputedStyle(total).textAlign];
       })()
     JS
 
-    assert_equal %w[right right], align,
+    assert_equal %w[right right right], align,
                  "the trailing column is #{align.inspect}; every other table's right-aligns"
   end
 
@@ -170,6 +194,114 @@ class GradeBookPageTest < ApplicationSystemTestCase
 
   def money(cents)
     ActiveSupport::NumberHelper.number_to_currency(cents / 100.0)
+  end
+
+  # A teacher clicked Finalize - irreversible, and it deposits real money into every student's
+  # portfolio - with no statement of what it would pay. EarningsCalculator existed for this and its
+  # docstring says so; nothing had used it.
+  test "each row shows what it earns, and the footer totals the column" do
+    classroom, book = a_grade_book_with_entries
+    book.grade_entries.each { |e| e.update!(attendance_days: 3, math_grade: "A") }
+    sign_in teacher_for(classroom)
+
+    visit classroom_grade_book_path(classroom, book)
+
+    expected = GradeBookEarnings.new(book.reload)
+
+    assert_selector "[data-testid='row-earnings']", count: 2
+    assert_selector "[data-testid='earnings-total']",
+                    text: ActiveSupport::NumberHelper.number_to_currency(expected.total_cents / 100.0)
+  end
+
+  # The figure must be the payout, not a second implementation of it.
+  test "the total is what DistributeEarnings would pay" do
+    _classroom, book = a_grade_book_with_entries
+    book.grade_entries.each { |e| e.update!(attendance_days: 4, math_grade: "B", reading_grade: "A") }
+
+    expected = GradeBookEarnings.new(book.reload).total_cents
+
+    assert_difference -> { PortfolioTransaction.sum(:amount_cents) }, expected do
+      book.verified!
+      DistributeEarnings.execute(book)
+    end
+  end
+
+  # Only the number goes in a right-aligned numeric column; an annotation in it pushes the digits off
+  # the edge they align to. The warning belongs beside the field it is about.
+  test "the earns column holds only the figure" do
+    classroom, book = a_grade_book_with_entries
+    book.grade_entries.first.update!(is_perfect_attendance: true, attendance_days: nil)
+    sign_in teacher_for(classroom)
+
+    visit classroom_grade_book_path(classroom, book)
+
+    assert_selector "[data-testid='unattended-bonus']", text: "No days recorded"
+
+    within all("[data-testid='row-earnings']").first do
+      assert_no_selector "span"
+    end
+  end
+
+  # Both halves of the warning, which is this app's own form-error shape: a summary above, a note beside
+  # the field. An entry claiming the bonus with no days is incoherent whatever the quarter's length, so
+  # it can be said without the school-days figure the app does not store.
+  test "a bonus with no attendance is flagged, by name and in place" do
+    classroom, book = a_grade_book_with_entries
+    entry = book.grade_entries.first
+    entry.update!(is_perfect_attendance: true, attendance_days: nil)
+    sign_in teacher_for(classroom)
+
+    visit classroom_grade_book_path(classroom, book)
+
+    assert_text "set to be paid a bonus with no attendance recorded"
+    assert_text entry.user.display_name
+    assert_selector "[data-testid='unattended-bonus']", count: 1
+  end
+
+  test "no warning when every entry is coherent" do
+    classroom, book = a_grade_book_with_entries
+    book.grade_entries.each { |e| e.update!(is_perfect_attendance: false, attendance_days: 3) }
+    sign_in teacher_for(classroom)
+
+    visit classroom_grade_book_path(classroom, book)
+
+    assert_no_text "no attendance recorded"
+    assert_no_selector "[data-testid='unattended-bonus']"
+  end
+
+  # The one place the amount reaches the person committing to it. It read "Are you sure you want to
+  # finalize these grades?" and carried no figure.
+  test "the confirmation names the amount and the number of students" do
+    classroom, book = a_grade_book_with_entries
+    book.grade_entries.each { |e| e.update!(attendance_days: 5) }
+    sign_in create(:admin)
+
+    visit classroom_grade_book_path(classroom, book)
+
+    total = ActiveSupport::NumberHelper.number_to_currency(GradeBookEarnings.new(book.reload).total_cents / 100.0)
+    confirm = find("#finalize-button button")["data-turbo-confirm"]
+
+    assert_includes confirm, total
+    assert_includes confirm, "2 students"
+    assert_includes confirm, "cannot be undone"
+  end
+
+  # The action goes after the copy and the figures it acts on, not floated beside them.
+  test "the finalize action sits below its explanation" do
+    classroom, book = a_grade_book_with_entries
+    sign_in create(:admin)
+
+    visit classroom_grade_book_path(classroom, book)
+
+    below = page.evaluate_script(<<~JS)
+      (function () {
+        const heading = document.querySelector("#finalize-heading");
+        const button = document.querySelector("#finalize-button");
+        return button.getBoundingClientRect().top > heading.getBoundingClientRect().bottom;
+      })()
+    JS
+
+    assert below, "the finalize button is beside its explanation rather than under it"
   end
 
   test "the page says which state the grade book is in" do
@@ -218,7 +350,7 @@ class GradeBookPageTest < ApplicationSystemTestCase
     JS
 
     assert_equal 1, primaries.length, "two filled primaries on one page: #{primaries.inspect}"
-    assert_text "Pays each student the funds their grades and attendance have earned"
+    assert_text "and locks these entries"
     assert_text "cannot be undone"
     assert_selector ".tw-btn-danger-outline", text: "Finalize grades"
   end

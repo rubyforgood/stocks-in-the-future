@@ -131,13 +131,19 @@ class GradeBooksTest < ApplicationSystemTestCase
       find("[data-testid='math-grade-select']").select("A")
       find("[data-testid='reading-grade-select']").select("A")
       find("[data-testid='attendance-days-input']").set(90)
-      find("[data-testid='perfect-attendance-checkbox']").check
+      # A segmented Yes/No now, so the answer is chosen rather than ticked. The radio is sr-only and
+      # its label is the visible control, which is how a native segmented control works.
+      find("[data-testid='perfect-attendance-control']").find("label", text: "Yes").click
     end
     click_on "Save grades"
 
     within("##{dom_id(student_entry)}") do
-      assert find("[data-testid='perfect-attendance-checkbox']").checked?
+      # The Yes radio is sr-only, so it is asserted rather than looked for visibly.
+      assert find("[data-testid='perfect-attendance-control']")
+        .find("input[type='radio'][value='true']", visible: :all).checked?
     end
+
+    assert student_entry.reload.is_perfect_attendance
   end
 
   test "teacher can view but cannot finalize grade book" do
@@ -198,7 +204,9 @@ class GradeBooksTest < ApplicationSystemTestCase
 
     assert_selector "select[disabled]", count: 4
     assert_selector "input[type='number'][disabled]", count: 2
-    assert_selector "input[type='checkbox'][disabled]", count: 2
+    # Two radios per row now, not one checkbox: perfect attendance is a segmented Yes/No, because a
+    # bare tick said nothing about what was being answered.
+    assert_selector "input[type='radio'][disabled]", count: 4, visible: :all
     assert_no_button "Save grades"
   end
 

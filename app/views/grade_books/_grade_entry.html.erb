@@ -1,24 +1,42 @@
-<%# Every control names itself.
+<%# One student's row.
 
-    None of them did. A form control inside a table cell does **not** take its accessible name from the
-    column header - `<th>` names a data cell, not an input - so a screen reader met four unnamed controls
-    per row and had no way to tell a math grade from a reading grade, or whose row it was in. axe's
-    `label` rule catches this; nothing had run against this page.
+    **Inputs are sized to their content.** They were `w-full`, which is right for a form column and
+    wrong in a table cell: the days input rendered at **322px** for a value that cannot exceed two
+    digits, because the column took the table's slack. GOV.UK states the rule and ships width-2/3/4/5
+    modifiers for exactly this - so days is w-20 (80px, two or three digits plus Chrome's spinner) and a
+    grade is w-24 (96px, two characters plus the chevron's 36px). The utility beats `tw-input-primary`'s
+    `w-full` deliberately here, which is the one place that override is wanted.
 
-    The name carries the student as well as the field, because a row is only identified visually. %>
-<% who = entry.username.presence || "unnamed student" %>
+    **Perfect attendance is a segmented Yes/No, not a checkbox.** A bare tick said nothing about what
+    was being answered; GOV.UK reserves a single checkbox for opting in and gives a yes/no question
+    radios. `.tw-segmented` is two native radios, so the keyboard behaviour is the browser's.
+
+    **Every control names itself**, including the student, because a row is identified visually only. A
+    `<th>` names a data cell, never a form control.
+
+    display_name, not username: it prefers the student's name and falls back to the username. Nothing
+    changes today because no student has a name - the add-student form collects only a username, which
+    is in design-todo - but the lowercase identifiers on screen are usernames, and capitalising them
+    would be wrong. %>
+<% who = entry.user.display_name %>
+<% unattended_bonus = entry.is_perfect_attendance && entry.attendance_days.to_i.zero? %>
 
 <tr id="<%= dom_id(entry) %>" class="table-body-row">
   <%= fields_for "grade_entries[]", entry do |f| %>
     <td class="table-body-cell whitespace-nowrap">
-      <%= entry.username.presence || content_tag(:span, "No username set", class: "text-slate-600 italic") %>
+      <% if entry.username.present? %>
+        <span class="font-medium text-slate-900"><%= who %></span>
+      <% else %>
+        <span class="text-slate-600 italic">No username set</span>
+      <% end %>
     </td>
+
     <td class="table-body-cell whitespace-nowrap">
       <%= f.select :math_grade,
                    options_for_select(GradeEntry::GRADE_OPTIONS, entry.math_grade),
                    { include_blank: true },
                    disabled:,
-                   class: "tw-input-primary",
+                   class: "tw-input-primary w-24",
                    aria: { label: "Math grade for #{who}" },
                    data: { testid: "math-grade-select" } %>
     </td>
@@ -28,33 +46,43 @@
                    options_for_select(GradeEntry::GRADE_OPTIONS, entry.reading_grade),
                    { include_blank: true },
                    disabled:,
-                   class: "tw-input-primary",
+                   class: "tw-input-primary w-24",
                    aria: { label: "Reading grade for #{who}" },
                    data: { testid: "reading-grade-select" } %>
     </td>
+
     <td class="table-body-cell whitespace-nowrap">
       <%= f.number_field :attendance_days,
-                         class: "tw-input-primary",
+                         class: "tw-input-primary w-20",
                          disabled:,
                          min: 0,
                          aria: { label: "Days attended by #{who}" },
                          data: { testid: "attendance-days-input" } %>
+
+      <%# The inline half of the warning, under the field it is about - the summary above the table is
+          the other half, which is this app's own form-error shape. Amber, not `tw-field-error`: that
+          token is red, and a bonus with no days recorded is a warning to check rather than a failure. %>
+      <% if unattended_bonus %>
+        <span class="mt-1 block text-xs font-medium text-amber-700" data-testid="unattended-bonus">
+          No days recorded
+        </span>
+      <% end %>
     </td>
 
-    <%# Right-aligned, like the trailing column of every other table in the app. design.md states that
-        rule for an actions column and for numeric ones; this table is the only one whose last column is
-        neither, which is why it was the only one left-aligned and why it looked wrong beside the others.
-
-        The checkbox tokens come from components/ui/_checkbox - it used to carry `tw-input-primary`, the
-        *text input* class, and rendered as a 187x44px box. %>
-    <td class="table-body-cell table-body-cell-right whitespace-nowrap">
-      <%= f.checkbox :is_perfect_attendance,
-                     disabled:,
-                     class: "size-4 shrink-0 rounded-sm border-slate-300 accent-sitf-primary " \
-                            "focus-visible:outline-2 focus-visible:outline-offset-2 " \
-                            "focus-visible:outline-sitf-primary",
-                     aria: { label: "Perfect attendance bonus for #{who}" },
-                     data: { testid: "perfect-attendance-checkbox" } %>
+    <td class="table-body-cell whitespace-nowrap">
+      <span class="tw-segmented" data-testid="perfect-attendance-control">
+        <% { true => "Yes", false => "No" }.each do |value, label| %>
+          <%= f.radio_button :is_perfect_attendance, value,
+                             class: "sr-only",
+                             disabled:,
+                             aria: { label: "Perfect attendance bonus for #{who}: #{label}" } %>
+          <%= f.label :is_perfect_attendance, label,
+                      value: value,
+                      class: "tw-segmented-option" %>
+        <% end %>
+      </span>
     </td>
+
+    <%= render "entry_earnings", entry: entry, earnings: grade_book_earnings %>
   <% end %>
 </tr>

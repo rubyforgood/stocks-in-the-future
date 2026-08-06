@@ -30,6 +30,9 @@
     <%# A completed grade book has already paid out, so there is nothing to add to it. %>
     <% can_populate = policy(@grade_book).populate? && !@grade_book.completed? %>
     <% entries = @grade_book.grade_entries.any? %>
+    <%# One instance for the page: the rows, the footer total and the finalize block all read from it,
+        and it fetches the previous quarter's entries once rather than per student. %>
+    <% earnings = GradeBookEarnings.new(@grade_book) if entries %>
 
     <%# What the columns pay, which the table never said. "Perfect attendance" as a bare checkbox
         headed by two words gave a teacher no way to know whether it was required, what it was worth, or
@@ -68,13 +71,31 @@
     <%# The populate buttons stay outside this form. A form cannot be nested inside
         another - the browser drops the inner one - so a button_to placed within the
         grades form would silently submit the grades instead of adding students. %>
+    <%# The summary half of the warning. An entry claiming the perfect-attendance bonus with no days
+        recorded is incoherent whatever the quarter's length, so it can be said without knowing how many
+        school days there were - the number this app does not store. Pairs with the inline marker under
+        the field, which is the shape this app already uses for form errors: a summary plus a
+        field-level note. Renders only when there is something to say. %>
+    <% if entries && earnings.unattended_bonus? %>
+      <% affected = earnings.unattended_bonus_entries %>
+      <div class="mb-6">
+        <%= render "components/ui/callout",
+                   title: "#{pluralize(affected.size, 'student')} set to be paid a bonus with no attendance recorded",
+                   body: "#{affected.map { |e| e.user.display_name }.to_sentence} " \
+                         "#{affected.one? ? 'is' : 'are'} marked as having perfect attendance but " \
+                         "#{affected.one? ? 'has' : 'have'} no days entered. Finalizing pays the " \
+                         "#{number_to_currency(GradeEntry::EARNINGS_FOR_PERFECT_ATTENDANCE / 100.0)} " \
+                         "bonus anyway." %>
+      </div>
+    <% end %>
+
     <% if entries %>
       <%= form_with model: [@classroom, @grade_book],
                     url: classroom_grade_book_path(@classroom, @grade_book),
                     method: :patch,
                     html: { data: { autosave_target: "form" } } do %>
 
-        <%= render partial: "table", locals: { grade_book: @grade_book } %>
+        <%= render partial: "table", locals: { grade_book: @grade_book, grade_book_earnings: earnings } %>
 
         <%# Left-aligned, not centred. Nothing else in the app centres a form action - the classroom
             form puts its submit on the left - and Polaris, Primer and Tailwind UI all anchor form
@@ -105,17 +126,34 @@
         Irreversibility is carried by the sentence and by the existing turbo_confirm, not by making the
         button red - a red button at rest is an always-on alarm. %>
     <% if current_user.admin? && entries && !@grade_book.completed? %>
-      <section class="tw-card mt-6 p-5" aria-labelledby="finalize-heading">
-        <div class="flex flex-wrap items-start justify-between gap-4">
-          <div class="min-w-0 flex-1">
-            <p id="finalize-heading" class="text-sm font-medium text-slate-900">Finalize this quarter</p>
-            <p class="mt-1 text-sm text-slate-600">
-              Pays each student the funds their grades and attendance have earned, and locks these
-              entries. This cannot be undone.
-            </p>
-          </div>
+      <%# The action sits at the bottom, after the copy and the figures it acts on. That is the reading
+          order every section pattern uses for a consequential action - GitHub's danger zone, Stripe's
+          section footers - and it was floated to the right of the copy before.
 
-          <%= render partial: "finalize_button" %>
+          The total appears here and in the table footer and in the confirmation, each doing a different
+          job: the footer is the working figure, this is the decision, the confirmation is the
+          commitment. The split by reason is here rather than in the footer because it matters once. %>
+      <section class="tw-card mt-6 p-5" aria-labelledby="finalize-heading">
+        <p id="finalize-heading" class="text-sm font-medium text-slate-900">Finalize this quarter</p>
+        <p class="mt-1 max-w-2xl text-sm text-slate-600">
+          Pays <span class="font-medium text-slate-900"><%= number_to_currency(earnings.total_cents / 100.0) %></span>
+          to <%= pluralize(earnings.student_count, "student") %> and locks these entries.
+          This cannot be undone.
+        </p>
+
+        <dl class="mt-3 max-w-xs space-y-1 text-sm">
+          <% { attendance: "Attendance", math: "Math", reading: "Reading" }.each do |key, label| %>
+            <div class="flex justify-between gap-4">
+              <dt class="text-slate-600"><%= label %></dt>
+              <dd class="tabular-nums text-slate-900">
+                <%= number_to_currency(earnings.totals_by_reason[key] / 100.0) %>
+              </dd>
+            </div>
+          <% end %>
+        </dl>
+
+        <div class="mt-5">
+          <%= render partial: "finalize_button", locals: { earnings: earnings } %>
         </div>
       </section>
     <% end %>

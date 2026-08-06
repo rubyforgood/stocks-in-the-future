@@ -1,16 +1,25 @@
 <%# `:danger_outline`, which design.md defines for exactly this: an action whose consequence is serious,
     identical to `:secondary` at rest so it never competes with the page's one filled primary ("Save
-    grades"), turning rose only on hover. A red button at rest is an always-on alarm; revealing the
-    danger at the point of action is the industry affordance (GitHub, Gmail, Linear).
+    grades"), turning rose only on hover. Revealing danger at the point of action is the industry
+    affordance; a red button at rest is an always-on alarm.
 
-    No disabled variant, because the block around this is not rendered for a completed grade book - it
-    has already paid out, so "Finalize this quarter" would be a dead control. This used to render as a
-    second filled `tw-btn-primary`, greyed when completed, centred at the foot of the page. %>
+    **The confirmation names the amount.** It read "Are you sure you want to finalize these grades?",
+    which is the one place the figure reaches the person committing to it and it did not carry it -
+    Stripe's "Pay $X", Amazon's order summary and AWS's typed confirmations all state the consequence
+    there. Note what this dialog actually is: `turbo_confirm` has no override in this app, so it is a
+    **native OS dialog** with OK and Cancel and cannot be styled. Giving it the number is the whole of
+    what is available today; a styled confirm is in design-todo.
+
+    No disabled variant: the block around this is not rendered for a completed grade book, which has
+    already paid out, so there is no dead control to grey. %>
+<% total = number_to_currency(earnings.total_cents / 100.0) %>
+<% students = pluralize(earnings.student_count, "student") %>
+
 <%= button_to "Finalize grades", finalize_classroom_grade_book_path(@classroom, @grade_book),
               class: "tw-btn-danger-outline",
               data: {
                 autosave_target: "button",
                 turbo_frame: "_top",
-                turbo_confirm: "Are you sure you want to finalize these grades? This action cannot be undone."
+                turbo_confirm: "Finalize and pay #{total} to #{students}? This cannot be undone."
               },
-              form: { id: "finalize-button", class: "shrink-0" } %>
+              form: { id: "finalize-button" } %>

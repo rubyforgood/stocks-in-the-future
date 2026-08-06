@@ -100,4 +100,38 @@
     background-position: right 0.75rem center;
     background-size: 1rem 1rem;
   }
+
+  /* Segmented control: two or three mutually exclusive options, shown as one control.
+     Built on native radios - the inputs are `sr-only` and the labels are what you see - so
+     arrow-key navigation, single selection, the click target and the accessible name all come from
+     the browser. No JavaScript, and nothing to get wrong on a keyboard.
+
+     Replaces a bare checkbox for a yes/no answer. GOV.UK is explicit that a single checkbox is for
+     opting in and a yes/no question takes radios; the checkbox in the grade book said nothing about
+     what ticking it meant, and a badge - the other idea - has no editing affordance at all.
+
+     The selected option is a *light* raised surface, not a brand fill. iOS raises the chosen segment
+     in white on a grey track and Material 3 uses a light container tint; a saturated fill repeated
+     down 25 table rows is the same over-emphasis the row-action rule forbids for buttons. Measured:
+     slate-900 on white 16.9:1, slate-600 on slate-100 6.92:1 - both clear AA, and the label always
+     states the option so meaning is never the fill. */
+  .tw-segmented {
+    @apply inline-flex gap-0.5 rounded-lg bg-slate-100 p-0.5 text-xs font-medium;
+  }
+
+  .tw-segmented-option {
+    @apply cursor-pointer rounded-md px-3 py-1 text-slate-600 transition-colors select-none;
+  }
+
+  input:checked + .tw-segmented-option {
+    @apply bg-white text-slate-900 shadow-sm;
+  }
+
+  input:focus-visible + .tw-segmented-option {
+    @apply outline-2 outline-offset-2 outline-sitf-primary;
+  }
+
+  input:disabled + .tw-segmented-option {
+    @apply cursor-not-allowed text-slate-500;
+  }
 }

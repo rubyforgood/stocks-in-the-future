@@ -2,25 +2,47 @@
 
     This was a hand-rolled `overflow-x-auto` div, so measured on a Chromebook the grades table sat on
     **no surface at all**: 0px border, transparent background, 0px radius, against a slate-50 page. The
-    roster on classrooms#show had exactly this defect and design.md records it as fixed there; this page
-    was never looked at. The container carries the same `.table-wrapper` card every other table gets.
+    roster on classrooms#show had exactly this defect and design.md records it as fixed there.
 
     region_label keeps the keyboard-scroll affordance the hand-rolled version was written for: a
     scrolling container needs to be focusable or its right-hand columns are unreachable without a mouse
     (axe scrollable-region-focusable). It is a container option now rather than a reason to bypass the
-    container. %>
+    container.
+
+    The Earns column is the trailing one, so it right-aligns with tabular-nums and the figures line up
+    down the column - which is also why nothing else goes in those cells. The footer carries one total:
+    the column's sum, invoice-style, in a <tfoot> because that is the element for a column summary and
+    what a screen reader expects to find it in. No rule above it - `divide-y` already separates rows and
+    design.md's Dividers section forbids adding one where something else is already separating. The
+    three-way split by reason is on the finalize block instead, because it matters once rather than on
+    every keystroke. %>
+<% earnings = grade_book_earnings %>
+
 <%= render "shared/table_container", region_label: "Grades" do %>
   <thead>
     <tr class="table-header-row">
       <th scope="col" class="table-header-cell table-header-cell-left">Student</th>
-      <th scope="col" class="table-header-cell table-header-cell-left">Math grade</th>
-      <th scope="col" class="table-header-cell table-header-cell-left">Reading grade</th>
-      <th scope="col" class="table-header-cell table-header-cell-left">Attendance days</th>
-      <%# Right-aligned to match its column, and to match the trailing column of every other table. %>
-      <th scope="col" class="table-header-cell table-header-cell-right">Perfect attendance</th>
+      <th scope="col" class="table-header-cell table-header-cell-left">Math</th>
+      <th scope="col" class="table-header-cell table-header-cell-left">Reading</th>
+      <th scope="col" class="table-header-cell table-header-cell-left">Days attended</th>
+      <th scope="col" class="table-header-cell table-header-cell-left">Perfect attendance</th>
+      <th scope="col" class="table-header-cell table-header-cell-right">Earns</th>
     </tr>
   </thead>
+
   <tbody class="bg-white">
-    <%= render partial: "grade_entry", collection: grade_book.grade_entries.sort_by { it.user.username }, as: :entry, locals: { disabled: grade_book.completed? } %>
+    <%= render partial: "grade_entry",
+               collection: grade_book.grade_entries.sort_by { it.user.username.to_s },
+               as: :entry,
+               locals: { disabled: grade_book.completed?, grade_book_earnings: earnings } %>
   </tbody>
+
+  <tfoot>
+    <tr class="table-body-row">
+      <th scope="row" class="table-body-cell text-left font-medium text-slate-900" colspan="5">
+        Total for <%= pluralize(earnings.student_count, "student") %>
+      </th>
+      <%= render "earnings_total", earnings: earnings %>
+    </tr>
+  </tfoot>
 <% end %>

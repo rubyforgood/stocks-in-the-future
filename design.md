@@ -1255,8 +1255,52 @@ words gave a teacher nothing: not whether it was required, not what it was worth
 a day count. It is a flat bonus on top of the per-day rate, and the section now says so - with every
 figure interpolated from `GradeEntry`'s constants, so the copy cannot claim a rate the model does not pay.
 
-`grade_book_page_test.rb` measures the surface, the checkbox, the keyboard region, the status, the action
-alignment, the primary count, the chevron inset, the trailing-column alignment and every control's name.
+**An input in a table cell is sized to its content.** `tw-input-primary` is `w-full`, which is right for
+a form column and wrong in a cell: the grade book's days field rendered at **322px** for a value that
+cannot exceed two digits, because the column took the table's slack. GOV.UK states the rule and ships
+`width-2/3/4/5` modifiers for it. Days is `w-20`, a grade is `w-24` (two characters plus the chevron's
+36px). This is the one place overriding the component's width is wanted.
+
+**A yes/no answer is a segmented control, not a checkbox.** `.tw-segmented` in `forms.css`: two native
+radios, `sr-only`, with their labels as the visible control - so arrow keys, single selection and the
+click target all come from the browser and there is no JavaScript. GOV.UK reserves a single checkbox for
+opting in and gives a yes/no question radios; the grade book's tick said nothing about what was being
+answered, and a **badge is not an option here at all** because it has no editing affordance.
+
+**The selected segment is a light raised surface, never a brand fill.** iOS raises the chosen segment in
+white on a grey track and Material 3 uses a light container tint. A saturated `sitf-primary` chip
+repeated down 25 rows is the same over-emphasis the row-action rule forbids for buttons, and it was
+reported as looking heavy. Measured: slate-900 on white 16.9:1, slate-600 on slate-100 6.92:1.
+
+**Show what an irreversible action will do, before it does it.** A teacher finalized a grade book -
+depositing real money into every student's portfolio, permanently - with no statement of what it would
+pay. `GradeBookEarnings` runs `EarningsCalculator`, the class `DistributeEarnings` pays from, so the
+figures are the payout by construction rather than by agreement. The total appears three times, each
+doing a different job: the table's `<tfoot>` while working, the finalize block at the decision, and the
+**confirmation at the commitment** - "Finalize and pay $5.60 to 2 students?" where it read "Are you sure
+you want to finalize these grades?". Stripe's "Pay $X", Amazon's order summary and AWS's typed
+confirmations all state the consequence there.
+
+A `<tfoot>` is the element for a column summary and the first in this app. No rule above it: `divide-y`
+already separates rows, and the Dividers section forbids adding one where something else separates. The
+split by reason lives on the finalize block rather than in the footer, because it matters once rather
+than on every keystroke.
+
+**A derived figure has to refresh with what derives it.** The autosave response replaced only the
+buttons, so the Earns column would have shown what the grades used to earn. The cells are replaced by
+id - not the table, because the cursor is in an input and swapping the table takes the focus and any
+half-typed value with it.
+
+**A warning gets a summary and a note in place**, which is this app's own form-error shape. An entry
+claiming the perfect-attendance bonus with no days recorded is incoherent whatever the quarter's length,
+so it can be flagged without the school-days figure the app does not store - and it is not hypothetical,
+the seeds contain one. Amber, not `tw-field-error`: that token is red and this is something to check, not
+a failure.
+
+`grade_book_page_test.rb` measures the surface, the keyboard region, the input widths, the segmented
+control, the status, the action alignment and position, the primary count, the chevron inset, the
+trailing-column alignment, every control's name, the row figures, the total against what
+`DistributeEarnings` actually pays, both halves of the warning, and the confirmation's copy.
 
 ### Sidebar footer
 
