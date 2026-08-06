@@ -1,33 +1,20 @@
-<%# The table's own totals: the three reasons the money is written under, then the sum.
+<%# One row: the label in the Student column, the sum under Earns. Nothing else.
 
-    This was a separate "What this quarter pays" card sitting **below the Save grades button** and above
-    the finalize block, which made the flow unreadable - a card after a save button reads as something
-    the save produced, and nothing on it said whether it counted what you had just typed. Reported as
-    exactly that.
+    A `<tfoot>` is for a **column summary** - Polaris's DataTable `totals`, GOV.UK's table totals, and
+    the bottom row of every spreadsheet. What makes this row readable is that both of its cells sit
+    under headers that describe them: the first column is where a row says which row it is, so "Total
+    for 25 students" is a row identifier, and the figure is under Earns with the figures it adds up.
 
-    In the <tfoot> it cannot be ambiguous: it totals the column it sits under, and it is the element a
-    screen reader expects a column summary in. That is also the invoice shape - line items, subtotals,
-    total - which is what someone reading a spreadsheet expects, and it removes a card from a page that
-    had too many.
-
-    One element with an id, replaced whole on save, because every row of it is derived from the entries.
-    Replacing the footer never touches the inputs, so it cannot take the cursor or a half-typed value
-    with it.
+    I briefly put the three-way split in here as three more `colspan="5"` rows, and it was reported as
+    unreadable - correctly. A row in a grid claims the columns above it describe it, and
+    "Attendance, including bonuses" spanning Student/Math/Reading/Days/Perfect is described by none of
+    them; four prose-labelled rows read as a second, differently-shaped table wearing the first one's
+    columns. **A stack of components is not table rows.** It is an invoice totals block or a summary
+    beside the action that commits it - which is where the split lives, on the finalize block.
 
     No rule above it: `divide-y` already separates rows and design.md's Dividers section forbids adding
-    one where something else is already separating. The total row carries the weight instead. %>
+    one where something else is already separating. The weight on this row carries it. %>
 <%= tag.tfoot id: "earnings-footer" do %>
-  <% { attendance: "Attendance, including bonuses", math: "Math", reading: "Reading" }.each do |reason, label| %>
-    <tr class="table-body-row">
-      <th scope="row" class="table-body-cell text-left font-normal text-slate-600" colspan="5">
-        <%= label %>
-      </th>
-      <td class="table-body-cell table-body-cell-right text-slate-600">
-        <%= number_to_currency(earnings.totals_by_reason[reason] / 100.0) %>
-      </td>
-    </tr>
-  <% end %>
-
   <tr class="table-body-row">
     <th scope="row" class="table-body-cell text-left font-medium text-slate-900" colspan="5">
       Total for <%= pluralize(earnings.student_count, "student") %>

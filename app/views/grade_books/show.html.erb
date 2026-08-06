@@ -133,17 +133,23 @@
         Irreversibility is carried by the sentence and by the existing turbo_confirm, not by making the
         button red - a red button at rest is an always-on alarm. %>
     <% if current_user.admin? && entries && !@grade_book.completed? %>
-      <%# The action, and only the action. The figures are in the table's own footer - see
-          _earnings_footer for why they are there and not in a card between this block and the Save
-          button. This block restates none of them: the footer has them, and the confirmation carries
-          the total to the point of commitment, which is where it does the most work. A third copy
-          would just be three places to disagree. %>
+      <%# The decision, with what it costs. design.md sanctions the total appearing three times, each
+          doing a different job: the table's footer while working, this block at the decision, the
+          confirmation at the commitment. The split into attendance, math and reading is here rather
+          than in the table because it is not a summary of the rows in the rows' own terms - it is what
+          the payment is made of, and it is worth reading once, here, where somebody authorises it. %>
       <section class="tw-card mt-6 p-5" aria-labelledby="finalize-heading">
         <p id="finalize-heading" class="text-sm font-medium text-slate-900">Finalize this quarter</p>
+        <%# The possessive has to be built rather than pluralized: `pluralize` gives "1 student", and
+            "1 student' portfolio" is what interpolating an apostrophe after it produces. %>
+        <% recipients = earnings.student_count == 1 ? "student's portfolio" : "students' portfolios" %>
         <p class="mt-1 max-w-2xl text-sm text-slate-600">
-          Pays the amounts above into each student's portfolio and locks these entries.
+          Pays <%= number_to_currency(earnings.total_cents / 100.0) %> into
+          <%= earnings.student_count %> <%= recipients %> and locks these entries.
           This cannot be undone.
         </p>
+
+        <%= render partial: "finalize_breakdown", locals: { earnings: earnings } %>
 
         <div class="mt-5">
           <%= render partial: "finalize_button", locals: { earnings: earnings } %>

@@ -25,7 +25,12 @@
                          partial: "grade_books/unattended_bonus_callout",
                          locals: { earnings: earnings } %>
 
-<%# The whole footer, because every row of it - the three subtotals and the total - is derived from the
-    entries that just changed. %>
 <%= turbo_stream.replace "earnings-footer", partial: "grade_books/earnings_footer",
+                         locals: { earnings: earnings } %>
+
+<%# The finalize block's split is derived from the same entries. It is admin-only and not rendered for a
+    completed book, so for anyone else there is no target and Turbo no-ops - which is right, because
+    there is nothing on their page to go stale. The sentence beside it carries the total, so that is
+    replaced too. %>
+<%= turbo_stream.replace "finalize-breakdown", partial: "grade_books/finalize_breakdown",
                          locals: { earnings: earnings } %>

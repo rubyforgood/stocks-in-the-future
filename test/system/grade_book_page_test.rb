@@ -345,15 +345,10 @@ class GradeBookPageTest < ApplicationSystemTestCase
     assert_text "set to be paid a bonus with no attendance recorded"
   end
 
-  # The breakdown is the table's own <tfoot>, not a card. It was a "What this quarter pays" card sitting
-  # **below the Save grades button**, which made the flow unreadable: a card after a save button reads as
-  # something the save produced, and nothing on it said whether it counted what had just been typed. In
-  # the footer it totals the column it sits under and cannot be misread.
-  #
-  # It is also visible to a teacher. Before that it was inside the admin-only finalize block, so the
-  # person entering the grades could not see what they added up to while the person who only presses the
-  # button could - the gate belongs on the action, not on the information.
-  test "a teacher sees the breakdown and total in the table, without the admin action" do
+  # A teacher sees what the grades add up to, without the action that pays it. It used to be inside the
+  # admin-only finalize block, so the person entering the grades could not see the sum while the person
+  # who only presses the button could - the gate belongs on the action, not on the information.
+  test "a teacher sees the total, without the admin action" do
     classroom, book = a_grade_book_with_entries
     book.grade_entries.each { |e| e.update!(attendance_days: 5, math_grade: "A") }
     sign_in teacher_for(classroom)
@@ -363,38 +358,81 @@ class GradeBookPageTest < ApplicationSystemTestCase
     expected = GradeBookEarnings.new(book.reload)
 
     assert_no_selector "#earnings-summary", visible: :all
-
-    within("#earnings-footer") do
-      assert_text "Attendance"
-      assert_text "Math"
-      assert_text "Reading"
-      assert_selector "[data-testid='earnings-total']",
-                      text: ActiveSupport::NumberHelper.number_to_currency(expected.total_cents / 100.0)
-    end
+    assert_selector "#earnings-footer [data-testid='earnings-total']",
+                    text: ActiveSupport::NumberHelper.number_to_currency(expected.total_cents / 100.0)
 
     # The action stays administrative.
     assert_no_selector "#finalize-button"
   end
 
-  # The footer is in the table proper, so a screen reader finds the totals as part of the grid rather
-  # than as loose text after it.
-  test "the totals are the table's own footer" do
+  # The footer is a column summary and nothing else: one row, its label in the column where a row says
+  # which row it is, its figure under the column it sums. Three more `colspan` rows carrying prose
+  # labels were reported as unreadable - a row in a grid claims the headers above it describe it, and
+  # "Attendance, including bonuses" spanning five unrelated columns is described by none of them.
+  test "the footer is one total row, not a second table" do
     classroom, book = a_grade_book_with_entries
     sign_in teacher_for(classroom)
 
     visit classroom_grade_book_path(classroom, book)
 
     assert_selector "main table tfoot#earnings-footer"
-    # Row headers, not data cells: each label names the figure beside it.
-    assert_selector "#earnings-footer th[scope='row']", count: 4
+    assert_selector "#earnings-footer tr", count: 1
+    assert_selector "#earnings-footer th[scope='row']", count: 1
+
+    # The split is not in the grid at any width.
+    within("#earnings-footer") { assert_no_text "Math" }
+
+    # The figure sits under Earns: same right edge as the per-row figures it adds up.
+    edges = page.evaluate_script(<<~JS)
+      (function () {
+        const r = (el) => Math.round(el.getBoundingClientRect().right);
+        return { total: r(document.querySelector("[data-testid='earnings-total']")),
+                 row: r(document.querySelector("[data-testid='row-earnings']")) };
+      })()
+    JS
+
+    assert_in_delta edges["row"], edges["total"], 1,
+                    "the total is not aligned with the column it totals"
+  end
+
+  # The split into attendance, math and reading is what the payment is made of, so it sits with the
+  # control that authorises it - the payroll-review shape - not in the table's grid and not in a card of
+  # its own on a page that already had six surfaces.
+  test "the split sits with the action that pays it" do
+    classroom, book = a_grade_book_with_entries
+    book.grade_entries.each { |e| e.update!(attendance_days: 5, math_grade: "A", reading_grade: "B") }
+    sign_in create(:admin)
+
+    visit classroom_grade_book_path(classroom, book)
+
+    expected = GradeBookEarnings.new(book.reload)
+
+    within("[aria-labelledby='finalize-heading']") do
+      assert_text "Attendance, including bonuses"
+      assert_text "Math"
+      assert_text "Reading"
+
+      %i[attendance math reading].each do |reason|
+        assert_selector "#finalize-breakdown dd",
+                        text: ActiveSupport::NumberHelper.number_to_currency(
+                          expected.totals_by_reason[reason] / 100.0
+                        )
+      end
+
+      # The sentence names the total; the breakdown does not restate it.
+      assert_text ActiveSupport::NumberHelper.number_to_currency(expected.total_cents / 100.0)
+    end
   end
 
   # Replaced whole on save, because every row of it is derived from the entries.
+  # As an admin, so the split beside the finalize control is on the page to go stale. A teacher has no
+  # finalize block, so there is nothing there to refresh - which is why the turbo_stream's replace of it
+  # is allowed to find no target.
   test "the totals refresh when a grade changes" do
     classroom, book = a_grade_book_with_entries
     book.grade_entries.each { |e| e.update!(attendance_days: nil, math_grade: nil, reading_grade: nil) }
     entry = book.grade_entries.first
-    sign_in teacher_for(classroom)
+    sign_in create(:admin)
 
     visit classroom_grade_book_path(classroom, book)
 
@@ -407,11 +445,10 @@ class GradeBookPageTest < ApplicationSystemTestCase
       (10 * GradeEntry::EARNINGS_PER_DAY_ATTENDANCE) / 100.0
     )
 
-    # The subtotal moves too, not only the total - the attendance row is where the money came from.
-    within("#earnings-footer") do
-      assert_selector "[data-testid='earnings-total']", text: expected
-      assert_selector "tr", text: /Attendance.*#{Regexp.escape(expected)}/
-    end
+    assert_selector "#earnings-footer [data-testid='earnings-total']", text: expected
+
+    # And so does the split beside the action, which derives from the same entries.
+    assert_selector "#finalize-breakdown dd", text: expected
   end
 
   # The reported bug, as an ordering: the figures come *before* the button that saves them, so nothing on

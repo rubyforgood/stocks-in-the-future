@@ -1342,18 +1342,20 @@ than on every keystroke.
 
 **Everything derived from the entries refreshes together.** The autosave response replaced only the
 buttons, so the Earns column would have shown what the grades used to earn. It now replaces the row
-figures, the column total, the summary card and **both halves of the warning** - that last pair was
+figures, the column total, the finalize block's split and **both halves of the warning** - that last pair was
 missed on the first pass, so correcting the days fixed the data and the notification stayed on screen
 still accusing. The cells are replaced by id, not the table, because the cursor is in an input and
 swapping the table takes the focus and any half-typed value with it. A conditional block needs an
 always-rendered container carrying the id, or there is nothing for the replacement to target and the
 message outlives the problem.
 
-**The summary is information; only finalizing is administrative.** Both were in one
+**The total is information; only finalizing is administrative.** Both were in one
 `if current_user.admin?` block, so the teacher entering the grades could not see what they added up to
-while the admin who only presses the button could. `_earnings_summary` renders for anyone who can open
-the page and carries the three-way split and the total; the finalize block restates no figure, because
-the summary has it and the confirmation carries it to the commitment.
+while the admin who only presses the button could. The total is in the table's footer now, which anyone
+who can open the page can see, and each row carries its own figure in Earns. The split by reason is on
+the finalize block, because it is what the payment is made of rather than what the grades add up to -
+so a teacher sees every figure the grades produce and an admin additionally sees how the payment
+divides.
 
 **A section description sits in the heading's column.** It was a sibling of the heading row, so it
 spanned the full width and ran under the "Add new students" button at every width. Title and subtitle are
@@ -2065,16 +2067,31 @@ half of them were missed on the first pass because they read
 `whitespace-nowrap px-3 py-2 text-sm ...`, with the padding in the middle. Sweep for any `<td>`/`<th>`
 whose class contains a `px-`/`py-` and no `table-*-cell`.
 
-**A column's totals belong in its `<tfoot>`, not in a card.** The grade book had a "What this quarter
-pays" card holding the same figures the Earns column adds up, and it sat **below the Save grades
-button** - so it read as output of the save, and nothing on it said whether it counted what had just
-been typed. Reported as exactly that ambiguity. In a `<tfoot>` the figures total the column they sit
-under and cannot be misread; it is also the element a screen reader expects a column summary in, and
-the invoice shape (line items, subtotals, total) that anyone reading a spreadsheet already knows. It
-removed a surface from a page that had too many. Label rows are `<th scope="row">`, so each label names
-the figure beside it. **Anything derived from the rows goes below them, and anything derived from the
-rows is refreshed with them** - the footer is one element with an id, replaced whole on save, which
-also means the swap never touches an input and so cannot take the cursor or a half-typed value with it.
+**A `<tfoot>` holds a column summary: one row, and only figures that belong to the columns above them.**
+The label goes in the **first** column, because that is where a row says which row it is, so "Total for
+25 students" reads as a row identifier; the figure goes under the column it sums. Measured on the grade
+book, the total's cell is 1245-1360px and the Earns column is 1245-1360px - the same box. That is
+Polaris's `DataTable` `totals`, GOV.UK's table totals and the bottom row of every spreadsheet.
+
+**A stack of components is not table rows.** The grade book's three-way split went into the footer as
+three more `colspan="5"` rows and was reported as unreadable: *"difficult to read as it's part of the
+columns, but not actually under the titles of the columns"*. Exactly right. A row in a grid claims the
+headers above it describe it, and "Attendance, including bonuses" spanning
+Student/Math/Reading/Days/Perfect is described by none of them - four prose-labelled rows read as a
+second, differently-shaped table wearing the first one's columns. Components of a total go in an
+**invoice totals block** (Stripe, QuickBooks, Xero: a narrow right-aligned stack outside the grid) or in
+a **review summary beside the control that commits them** (Gusto, Square Payroll). This app uses the
+second: the split is on the finalize block, next to the button that pays it.
+
+The same complaint had already rejected the other placement - a card holding those figures **below the
+Save grades button**, which read as output of the save and said nothing about whether it counted what
+had just been typed. So: the total belongs to the table, the split belongs to the action, and neither
+belongs to a card of its own. `design.md` had recorded that division before I overrode it, which is the
+recurring lesson - **where this document has already decided, that is the decision**.
+
+**Anything derived from the rows is refreshed with them.** The footer is one element with an id,
+replaced whole on save; the swap never touches an input, so it cannot take the cursor or a half-typed
+value with it.
 
 **A row partial rendered into someone else's `<tbody>` is invisible to a per-file sweep.**
 `grade_books/_grade_entry` holds a bare `<tr>` whose `<tbody>` lives in `grade_books/_table`, so a
