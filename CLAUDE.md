@@ -141,11 +141,23 @@ subordinate and the other had less room than it needed. Stack them full width as
 and let the order say which is primary.
 
 **A setting in the page header reads as a page action.** The trading switch sat beside "Add student",
-carried its state in the track's colour, and said nothing about what it did. A setting gets a block that
-states its state **in words**, what it means for the people it affects, and a control whose label is the
-**verb** ("Turn off") - Polaris's SettingToggle, and what Stripe and GitHub do for a feature flag. **Ask
-what the switch's colour is being asked to communicate**; if it is the only thing saying which way the
-setting points, the state is not readable.
+carried its state in the track's colour, and said nothing about what it did. A setting states its state
+**in words** and what it means for the people it affects, and it belongs on its **section's header line**
+- Polaris's card header action, Primer's `Subhead`, Stripe's list sections - not in the page header and
+not in a card of its own. **Ask what the switch's colour is being asked to communicate**; if it is the
+only thing saying which way the setting points, the state is not readable.
+
+**A pill never prefixes a sentence, and a switch is never labelled with a verb.** Both were my second
+attempt at that setting, and both are inventions: Polaris, Primer and Carbon place a pill against a
+*title* or on its own line, and Polaris's "Turn on" verb goes on a **button** - a switch's position is
+its state, so iOS, Material and Polaris all pair a switch with a **noun**. A pill beside a sentence that
+already says the state is the third copy of one fact. When the ask is "design system consistency",
+reaching for a reference component's *content* rule and inventing its *wrapper* is the failure mode.
+
+**A card per list item is card soup.** Four grade books as four `.tw-card` links, plus the roster's table
+card and a setting card, put six surfaces on one page. A row with a name and a status is a **list row**:
+one card, `divide-y` between rows, which is Polaris's `ResourceList` and the only divider the Dividers
+spec permits there. A card earns its edges for a summary figure, a person or a preview.
 
 **Adding to the top of a page costs the thing the page is for.** A four-across `_stat` band is 134px, and
 with a setting card above it the roster's first row landed at 567px of a 625px viewport. Measure the

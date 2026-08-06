@@ -1,75 +1,53 @@
-<%# Student trading, as a setting rather than a switch in the page header.
+<%# Student trading: the state as a sentence, with its control on the same line.
 
-    It was a bare 36x20 track beside the word "Trading" in the header's action area, next to "Add
-    student" and "Edit classroom". Three problems, and they compound:
+    Three arrangements in, and the previous two were both wrong in the same direction - inventing a
+    shape rather than using the system.
 
-      - A header action area is for the page's actions. A switch there reads as one of them, so the
-        one control on this page that changes what students can do sat among navigation.
-      - The state was carried by the track's colour alone. "Trading" plus green is not a sentence; a
-        reader had to know that green means on, and nothing said which way the switch was pointing.
-      - Nothing said what it *does*. A teacher could not tell from the page whether flipping it stops
-        an order in flight, hides prices, or something else.
+      1. A bare switch labelled "Trading" in the page header's action area, beside "Add student". A
+         setting is not a page action, and the state was carried by the track's colour alone.
+      2. Its own card, with a status pill sitting to the *left* of the sentence and the switch
+         labelled with a verb ("Turn off"). No design system puts a pill inline before body text:
+         Polaris, Primer and Carbon all place one against a title or on its own line. It was also the
+         third copy of one fact - pill, sentence, and switch position all said on or off - and
+         Polaris's verb belongs on a *button*, not on a switch, so "Turn on" beside a pill reading
+         "Trading off" gave the reader two things to reconcile.
 
-    Polaris's SettingToggle is the reference: a card that states the setting's current state in words
-    and what it means, with the control beside it. Stripe and GitHub both do the same for a
-    consequential feature flag - the description carries the consequence, not the control. The switch
-    itself is kept rather than replaced with a "Turn off" button: it is the app's existing control,
-    its track contrast is measured (green-700 4.79:1 checked, slate-400 border unchecked), and
-    trading_toggle_test.rb drives it.
+    So: no pill, and the label is the noun. A switch's position is its state, which is the whole
+    convention - iOS, Material and Polaris all pair a noun with a switch and never a verb - and the
+    sentence beside it says the state in words for anyone who should not have to read a control. The
+    consequence follows in the same sentence, because that is the thing a teacher is actually deciding.
 
-    The date comes from classrooms.trading_disabled_at, which exists so a student's dismissal of the
-    "trading is off" callout can expire. Showing it here is free and answers the obvious next
-    question. %>
+    No card of its own either. It sits in the Students section, on the line under the heading, which is
+    where a section's control goes in Polaris (card header action), Primer (Subhead) and Stripe. That
+    took the page from six surfaces to two. %>
 <% on = classroom.trading_enabled? %>
 
-<%# One card, no card header. `_card`'s header is a title behind a hairline, which measured 57px of the
-    179px this block used to take - and the title said "Student trading" while the row under it said the
-    same thing in a sentence. The sentence is the better of the two, so the header goes.
-    Measured: 179px -> 96px, which is what let the roster back above the fold. %>
-<section class="tw-card p-5" aria-labelledby="trading-setting-heading">
-  <div class="flex flex-wrap items-start justify-between gap-4">
-    <div class="min-w-0 flex-1">
-      <div class="flex flex-wrap items-center gap-2">
-        <%= render "components/ui/badge",
-                   label: on ? "Trading on" : "Trading off",
-                   tone: on ? :success : :neutral %>
-
-        <%# The state as a sentence, so it does not rest on the pill's tint or the switch's position,
-            and in the student's terms because that is what a teacher is deciding. This is the section's
-            accessible name, so the region is announced by what it says rather than by a generic title. %>
-        <p id="trading-setting-heading" class="text-sm font-medium text-slate-900">
-          <%= on ? "Students can buy and sell shares." : "Students cannot buy or sell." %>
-        </p>
-      </div>
-
-      <p class="mt-1 text-sm text-slate-600">
-        <% if on %>
-          Turning this off stops new orders. It does not sell anything students already hold.
-        <% else %>
-          Students still see their portfolio and the trading floor, with a note explaining why.
-          Nothing they hold is affected.<% if classroom.trading_disabled_at.present? %>
-            Off since <%= l(classroom.trading_disabled_at.to_date, format: :long) %>.<% end %>
-        <% end %>
-      </p>
-    </div>
-
-    <%# The control keeps a visible verb label. A switch with only a state pill beside it leaves the
-        reader guessing which of the two the switch reports - Polaris's SettingToggle labels the control
-        with the action for the same reason. %>
-    <%= form_with url: toggle_trading_classroom_path(classroom), method: :patch, class: "contents" do %>
-      <label class="inline-flex shrink-0 cursor-pointer items-center gap-2">
-        <span class="text-sm font-medium text-slate-700 select-none">
-          <%= on ? "Turn off" : "Turn on" %>
-        </span>
-        <%= check_box_tag "trading", "1", on,
-                          class: "peer sr-only",
-                          disabled: !policy(classroom).toggle_trading?,
-                          data: { controller: "submit-on-change",
-                                  action: "change->submit-on-change#submit" } %>
-        <%# The track needs 3:1 against the page as a UI boundary: green-700 is 4.79:1 checked,
-            slate-400 is 2.9:1 unchecked, so the unchecked track also carries a border. %>
-        <div class="peer relative h-5 w-9 rounded-full border border-slate-400 bg-slate-300 after:absolute after:top-0.5 after:start-0.5 after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:border-green-700 peer-checked:bg-green-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full"></div>
-      </label>
+<div class="mt-1 flex flex-wrap items-start justify-between gap-x-6 gap-y-2">
+  <p class="min-w-0 flex-1 text-sm text-slate-600">
+    <span class="font-medium text-slate-900">
+      <%= on ? "Trading is on." : "Trading is off." %>
+    </span>
+    <% if on %>
+      Students can buy and sell shares. Turning this off stops new orders - it does not sell anything
+      they already hold.
+    <% else %>
+      Students cannot buy or sell, and they see a note explaining why. Nothing they already hold is
+      affected.<% if classroom.trading_disabled_at.present? %>
+        Off since <%= l(classroom.trading_disabled_at.to_date, format: :long) %>.<% end %>
     <% end %>
-  </div>
-</section>
+  </p>
+
+  <%= form_with url: toggle_trading_classroom_path(classroom), method: :patch, class: "contents" do %>
+    <label class="inline-flex shrink-0 cursor-pointer items-center gap-2">
+      <span class="text-sm font-medium text-slate-700 select-none">Trading</span>
+      <%= check_box_tag "trading", "1", on,
+                        class: "peer sr-only",
+                        disabled: !policy(classroom).toggle_trading?,
+                        data: { controller: "submit-on-change",
+                                action: "change->submit-on-change#submit" } %>
+      <%# The track needs 3:1 against the page as a UI boundary: green-700 is 4.79:1 checked,
+          slate-400 is 2.9:1 unchecked, so the unchecked track also carries a border. %>
+      <div class="peer relative h-5 w-9 rounded-full border border-slate-400 bg-slate-300 after:absolute after:top-0.5 after:start-0.5 after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:border-green-700 peer-checked:bg-green-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full"></div>
+    </label>
+  <% end %>
+</div>

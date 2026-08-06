@@ -50,17 +50,16 @@ class ClassroomPageTest < ApplicationSystemTestCase
   end
 
   # A switch whose state is carried by the track's colour is the thing that "makes no sense". The state
-  # has to be readable as text.
+  # has to be readable as text, in the sentence beside the control.
   test "the trading setting says what it is and what it does" do
     classroom = create(:classroom, :with_trading)
     teacher_viewing(classroom)
 
     visit classroom_path(classroom)
 
-    assert_text "Trading on"
+    assert_text "Trading is on."
     assert_text "Students can buy and sell shares."
-    assert_text "Turning this off stops new orders"
-    assert_selector "label", text: "Turn off"
+    assert_text "does not sell anything"
   end
 
   test "the trading setting explains the off state, and says when" do
@@ -69,11 +68,48 @@ class ClassroomPageTest < ApplicationSystemTestCase
 
     visit classroom_path(classroom)
 
-    assert_text "Trading off"
-    assert_text "Students cannot buy or sell."
-    assert_text "with a note explaining why"
+    assert_text "Trading is off."
+    assert_text "Students cannot buy or sell"
+    assert_text "note explaining why"
     assert_text "Off since"
-    assert_selector "label", text: "Turn on"
+  end
+
+  # The switch is labelled with the noun, not a verb. A switch's position is its state - iOS, Material
+  # and Polaris all pair a noun with a switch - and Polaris's verb belongs on a button. "Turn on" beside
+  # a pill saying "Trading off" was two things to reconcile.
+  test "the trading switch is labelled with the noun and carries no status pill" do
+    classroom = create(:classroom, trading_enabled: false)
+    teacher_viewing(classroom)
+
+    visit classroom_path(classroom)
+
+    label = find("label", text: "Trading")
+
+    assert_equal "Trading", label.text.strip,
+                 "the switch label should be the noun, not a verb or a state"
+
+    row = label.find(:xpath, "../..")
+
+    assert_not row.has_selector?("span.rounded-full", wait: 0),
+               "a status pill sits beside the state sentence; the sentence already says the state"
+  end
+
+  # Six card surfaces on one page was reported as too many: the trading card, the roster's table card,
+  # and one per grade book. Four quarters with a name and a status are list rows in one card, which is
+  # what Polaris's ResourceList and Primer's Box rows are.
+  test "the page carries two surfaces, not six" do
+    classroom = create(:classroom, :with_trading)
+    2.times { create(:student, :with_portfolio, classroom:) }
+    teacher_viewing(classroom)
+
+    visit classroom_path(classroom)
+
+    surfaces = page.evaluate_script(
+      'document.querySelectorAll("main .tw-card, main .table-wrapper").length'
+    )
+
+    assert_operator surfaces, :<=, 2,
+                    "#{surfaces} card surfaces on one page; a card per list item is card soup"
   end
 
   # A setting is not a page action. The header carries navigation and the primary action; a control that
@@ -96,8 +132,10 @@ class ClassroomPageTest < ApplicationSystemTestCase
                "the trading switch is back in the page header, among the page's actions"
   end
 
-  # The roster is why a teacher opens this page, so it has to be on screen. 567px of a 625px viewport
-  # was the first attempt at this redesign, with a stat band above the setting card.
+  # The roster is why a teacher opens this page, so it has to be on screen. 567px of a 625px viewport was
+  # the first attempt at this redesign, with a stat band above a setting card; 296px was the second, with
+  # the setting still in a card of its own. Folding the setting into the section's own header row got it
+  # to 206px, which is the figure design.md set for the trading floor.
   test "the roster's first row is on screen on a Chromebook" do
     classroom = create(:classroom, :with_trading)
     3.times { create(:student, :with_portfolio, classroom:) }
@@ -114,7 +152,7 @@ class ClassroomPageTest < ApplicationSystemTestCase
         })()
       JS
 
-      assert_operator top, :<, 340,
+      assert_operator top, :<, 240,
                       "the first student sits #{top}px down; the viewport is 625px and the roster is " \
                       "what this page is for"
     end

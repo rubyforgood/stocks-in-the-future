@@ -1,54 +1,50 @@
-<%# Grade books, full width under the roster rather than a 256px rail beside it.
+<%# Grade books: one card, four rows, a rule between them.
 
-    It was `w-64 flex-initial` in a `lg:flex-row` with the roster, which is the shape Polaris calls a
-    secondary column - and Polaris is explicit that the secondary column carries *supporting* detail
-    (status, tags, metadata), not a second collection. Two collections side by side makes the narrower
-    one look subordinate while giving the wider one less room than it needs: at 1366px the roster had
-    about 760px for four columns including two currency figures.
+    This has been three shapes. A 256px rail beside the roster (a secondary column used for a
+    collection, which Polaris reserves for metadata). Then four separate `.tw-card` link cards across
+    the full width - which fixed the width and broke the surface count: with the roster's table card and
+    the trading card, one page carried six card surfaces. Card soup, and it was reported as exactly that.
 
-    Stacked full-width sections are what the field does for an entity's related collections - Stripe's
-    customer page (payments, then subscriptions, then invoices), GitHub's repository page, Linear's
-    project page. Each gets a heading and the full column width, and the reading order says which is
-    primary rather than the widths.
+    A card per item is for items that need one - a summary figure, a person, a preview. Four quarters
+    with a name and a status are list rows, which is what Polaris's ResourceList, Primer's Box rows and
+    Stripe's list sections all are: **one surface, `divide-y` between rows**. design.md's Dividers
+    section allows a row separator and nothing else, so this is the only divider shape available here -
+    the `divide-x` between grid cells I first reached for is not in that list.
 
-    Four quarters across at lg, one column below it. A quarter is a destination, not a row of data, so
-    each is a card-sized target with its state on it - which the 256px list could not show. `status` is
-    a real enum (draft / verified / completed) that the rail never surfaced, so a teacher could not see
-    which quarters were done without opening all four. %>
+    The original rail was right about all of this and wrong only about its width. What it could not do
+    at 256px was carry each quarter's status, which is a real enum (draft / verified / completed) that a
+    teacher otherwise discovers by opening all four. %>
 <% tones = { "draft" => :neutral, "verified" => :info, "completed" => :success } %>
 
 <section aria-labelledby="grade-books-heading">
   <h2 id="grade-books-heading" class="text-base font-semibold text-slate-900">Grade books</h2>
   <p class="mt-1 text-sm text-slate-600">
-    One per quarter. Open a quarter to record attendance and grades, which is what pays students their
-    funds to invest.
+    One per quarter. Recording attendance and grades is what pays students their funds to invest.
   </p>
 
   <div class="mt-3">
-    <% if grade_books.any? %>
-      <ul class="grid grid-cols-1 gap-4 lg:grid-cols-4">
-        <% grade_books.each do |book| %>
-          <li>
-            <%# The whole card is the link, so the target is the card and not a word inside it. %>
-            <%= link_to classroom_grade_book_path(@classroom, book),
-                        class: "tw-card flex items-center justify-between gap-3 p-5 transition-colors " \
-                               "hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 " \
-                               "focus-visible:outline-sitf-primary" do %>
-              <span class="min-w-0">
-                <span class="block text-sm font-medium text-slate-900"><%= book.quarter.name %></span>
-                <span class="mt-1 block">
+    <%= render layout: "components/ui/card", locals: { padded: false } do %>
+      <% if grade_books.any? %>
+        <ul class="divide-y divide-slate-200">
+          <% grade_books.each do |book| %>
+            <li>
+              <%# The row is the link, so the target is the row rather than a word in it. %>
+              <%= link_to classroom_grade_book_path(@classroom, book),
+                          class: "flex items-center justify-between gap-3 px-5 py-3 transition-colors " \
+                                 "hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 " \
+                                 "focus-visible:outline-sitf-primary" do %>
+                <span class="flex min-w-0 items-center gap-3">
+                  <span class="text-sm font-medium text-slate-900"><%= book.quarter.name %></span>
                   <%= render "components/ui/badge",
                              label: book.status.capitalize,
                              tone: tones.fetch(book.status, :neutral) %>
                 </span>
-              </span>
-              <%= lucide_icon("arrow-right", class: "size-4 shrink-0 text-slate-500") %>
-            <% end %>
-          </li>
-        <% end %>
-      </ul>
-    <% else %>
-      <%= render layout: "components/ui/card", locals: { padded: false } do %>
+                <%= lucide_icon("arrow-right", class: "size-4 shrink-0 text-slate-500") %>
+              <% end %>
+            </li>
+          <% end %>
+        </ul>
+      <% else %>
         <%= render layout: "components/ui/empty_state",
                    locals: { icon: "book", compact: true,
                              title: "No grade books yet",

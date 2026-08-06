@@ -1154,29 +1154,46 @@ classroom" - so the one control on the page that changes what students can do sa
 its state was carried by the track's colour, and nothing said what it did. Three separate faults, and
 the reported symptom was "the trading toggle makes no sense".
 
-Polaris's `SettingToggle` is the reference: a card stating the setting's **current state in words** and
-**what it means**, with the control beside it. Stripe and GitHub do the same for a consequential feature
-flag - the description carries the consequence, never the control. So `classrooms/_trading_setting` is a
-pill ("Trading on" / "Trading off"), a sentence in the student's terms ("Students can buy and sell
-shares."), a line on the consequence ("Turning this off stops new orders. It does not sell anything
-students already hold."), the date it went off from `classrooms.trading_disabled_at`, and a switch whose
-visible label is the **verb** ("Turn off"), because a switch beside a state pill leaves the reader
-guessing which of the two the switch reports.
+Polaris's `SettingToggle` is the reference for the *content* - state in words, then what it means - but
+not for the wrapper, and getting that wrong took two attempts worth recording.
 
-The switch itself is kept rather than replaced by a button: it is the app's control, its track contrast
-is measured, and `trading_toggle_test.rb` drives it.
+**A status pill never sits inline before body text**, and it was doing exactly that: a pill reading
+"Trading off" to the left of the sentence "Students cannot buy or sell." Polaris, Primer and Carbon all
+place a pill against a **title** or on its own line; none uses one as a sentence prefix. It was also the
+third copy of one fact - pill, sentence, and the switch's own position all said on or off - so it went.
+The sentence is the better of the three because it can carry the consequence in the same breath.
+
+**A switch is labelled with the noun, never a verb.** The label was "Turn on" / "Turn off", on
+`SettingToggle` reasoning - but Polaris puts that verb on a **button**, and a switch's position *is* its
+state. "Turn on" beside a pill reading "Trading off" gave a reader two things to reconcile. iOS, Material
+and Polaris all pair a noun with a switch. It is "Trading".
+
+**And the setting does not get a card of its own.** It sits on the line under the Students heading, which
+is where a section's control goes - Polaris's card header action, Primer's `Subhead`, Stripe's list
+sections - with the sentence beside it. That is what makes the pill unnecessary and what took the page
+from **six card surfaces to two**.
+
+**A card per list item is card soup.** Four grade books were four `.tw-card` links; with the roster's
+table card and the trading card that was six surfaces on one page, and it was reported as such. Four
+quarters with a name and a status are **list rows in one card** - Polaris's `ResourceList`, Primer's Box
+rows, Stripe's list sections - separated by `divide-y`, which is also the only divider the Dividers
+section above permits here. A card earns its edges for a summary figure, a person, a preview; not for a
+row with two fields. The original 256px rail had this right and was wrong only about its width.
 
 **A summary band is standard and was still wrong here.** Stripe leads a customer with its figures and
 the portfolio page uses the four-across `_stat` strip - but that strip is **134px** tall, and with the
 setting card above the roster it put the first student at **567px of a 625px viewport**. Measured
-through the change: 146px before, 567px with the band, **296px** after removing it and dropping
-`_card`'s redundant header from the setting block (179px -> 90px). The roster is why a teacher opens the
+through the change: 146px before, 567px with the band, 296px after removing it and dropping `_card`'s
+redundant header from the setting block (179px -> 90px), and **206px** once the setting moved onto the
+section's own header line and stopped being a card - which is the figure this document set for the
+trading floor. The roster is why a teacher opens the
 page. `ClassroomsController` still computes `@classroom_stats` and nothing renders it - four queries a
 request thrown away - which is in `design-todo`, because the answer is a one-line meta summary beside
 the title, not a band above the content.
 
-`classroom_page_test.rb` asserts the stacking as geometry, both trading states, that the switch is not
-in the header, and that the first row stays on screen.
+`classroom_page_test.rb` asserts the stacking as geometry, both trading states, that the switch is not in
+the page header, that no pill sits beside the sentence, that the page carries at most two surfaces, and
+that the first row stays above 240px.
 
 ### Sidebar footer
 

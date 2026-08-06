@@ -358,18 +358,23 @@ signed-out `main` is `p-4 lg:p-6` rather than a flat `p-6`.
 1. **The trading switch is no longer in the page header.** Anything locating it by walking down from
    the `<h1>`, or by "the checkbox in the header", moves. `trading_toggle_test.rb` finds it by role and
    was unaffected.
-2. **The roster's first row moves down**, 146px to 296px at 1366x768. That is the cost of a section
+2. **The roster's first row moves down**, 146px to 206px at 1366x768. That is the cost of a section
    heading and a setting block that explains itself, and it is the number to argue with if the trade is
    wrong. The table gains 280px of width in exchange (765 -> 1045). A test pins the first row under
-   340px so the next addition to the top of this page has to justify itself.
+   240px so the next addition to the top of this page has to justify itself.
 3. **The grade books partial emits one `<section>` with an `<h2>`**, not a `w-64` div. A caller placing
    it in a flex row would now get a full-width block; the only caller is this page.
-4. **`_card`'s header was dropped from the setting block** - it measured 57px of 179px and its title
-   repeated the sentence beneath it. Anything selecting the setting by `.tw-card h2` finds nothing;
-   the section is named by `aria-labelledby` pointing at the state sentence.
-5. **Grade book `status` is on screen for the first time** (draft / verified / completed). The enum
+4. **The setting has no card and no status pill.** It is a sentence and a switch on the line under the
+   Students heading. Anything selecting it by `.tw-card`, by a badge, or by a "Turn on" / "Turn off"
+   label finds nothing - the switch is labelled "Trading" and the state is in the sentence. Two earlier
+   shapes were wrong here: a card with a pill inline before the sentence, and before that a bare switch
+   in the page header.
+5. **The page holds two card surfaces, and a test caps it there.** It was six - one per grade book, plus
+   the table card and the setting card. Grade books are `divide-y` rows in one card now, so a caller
+   adding a card to this page will fail `classroom_page_test`.
+6. **Grade book `status` is on screen for the first time** (draft / verified / completed). The enum
    existed and the rail had no room for it. A copy change to those values now shows up in the UI.
-6. **`@classroom_stats` is still dead.** I nearly rendered it and it cost too much vertical space to
+7. **`@classroom_stats` is still dead.** I nearly rendered it and it cost too much vertical space to
    keep - see `design-todo`. Deleting the computation is a separate decision from where the figures go.
 
 ### Teachers can edit the classroom they teach
