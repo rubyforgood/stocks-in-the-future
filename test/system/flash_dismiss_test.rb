@@ -171,6 +171,61 @@ class FlashDismissTest < ApplicationSystemTestCase
     visit stocks_path
     assert_text "Trading is turned off"
     assert_no_selector "[data-controller~='dismiss']"
+    assert_selector "form[action*='dismiss_trading_off']"
+  end
+
+  # The whole point of persisting it: a reload is the test a client-side hide fails.
+  test "dismissing the trading callout survives a reload, on both pages" do
+    classroom = create(:classroom, trading_enabled: false)
+    student = create(:student, :with_portfolio, classroom:)
+    student.reload
+    sign_in student
+
+    visit stocks_path
+    assert_text "Trading is turned off"
+    click_on "Dismiss"
+
+    assert_no_text "Trading is turned off"
+
+    visit stocks_path
+    assert_no_text "Trading is turned off"
+
+    visit user_portfolio_path(student, student.portfolio)
+    assert_no_text "Trading is turned off"
+  end
+
+  # The condition recurring is the case a client-side hide and a boolean column both get wrong.
+  test "the trading callout returns after trading is switched off again" do
+    classroom = create(:classroom, trading_enabled: false)
+    student = create(:student, :with_portfolio, classroom:)
+    student.reload
+    sign_in student
+
+    visit stocks_path
+    click_on "Dismiss"
+    assert_no_text "Trading is turned off"
+
+    classroom.update!(trading_enabled: true)
+    travel 1.minute do
+      classroom.update!(trading_enabled: false)
+
+      visit stocks_path
+
+      assert has_text?("Trading is turned off"),
+             "a dismissal must cover the switch-off it was made against, not every later one"
+    end
+  end
+
+  # The callout inside admin/teachers/_form must never get one: button_to renders a <form>, the parser
+  # drops a nested one, and the button would silently submit the teacher form instead.
+  test "the callout inside a form has no dismiss button" do
+    sign_in create(:admin)
+
+    visit new_admin_teacher_path
+
+    within("form") do
+      assert_no_selector "form", text: "Dismiss"
+    end
   end
 
   test "the first-share callout dismisses by posting, not by hiding" do

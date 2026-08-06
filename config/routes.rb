@@ -134,6 +134,11 @@ Rails.application.routes.draw do
       # Dismisses the first-share message. A PATCH because it changes a record, and its own action
       # rather than a portfolio update so nothing else about a portfolio becomes writable here.
       patch :acknowledge_first_share
+
+      # Dismisses the "trading is turned off" callout. Same shape and the same reasoning: a PATCH
+      # because it writes a timestamp, and its own action so nothing else about a portfolio becomes
+      # writable through it.
+      patch :dismiss_trading_off
     end
   end
   resources :stocks, only: %i[show index]

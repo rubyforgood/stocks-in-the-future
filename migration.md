@@ -347,6 +347,35 @@ signed-out `main` is `p-4 lg:p-6` rather than a flat `p-6`.
 4. `spacing_test.rb` gains three assertions - the title gutter at both widths, and the
    heading/helper/table gaps - and I checked each fails against the markup it was written for.
 
+### The trading-off callout becomes dismissible, and records why it may come back
+
+**What.** Two nullable columns: `classrooms.trading_disabled_at` and
+`portfolios.trading_off_dismissed_at`. A `before_save` on `Classroom` keeps the first true to
+`trading_enabled`. `Portfolio#trading_off_notice?` replaces a bare `!trading_enabled?` at both call
+sites. New `patch :dismiss_trading_off` on portfolios, and `portfolios/_trading_off_dismiss`.
+
+**Why it has blast radius.**
+
+1. **A page can now be missing a callout that used to always render.** `stocks#index` and
+   `portfolios#show` no longer show "trading is turned off" purely because trading is off - a student
+   may have dismissed it. Any test asserting that text on a trading-disabled classroom needs an
+   undismissed portfolio, which is the default, but the coupling is new.
+2. **The onset column is what stops the dismissal being a mute button**, and it is load-bearing rather
+   than decorative. `Classroom` **clears** `trading_disabled_at` when trading is switched on, so the
+   next switch-off stamps its own date and is newer than any earlier dismissal. Remove the clear and a
+   dismissal made once suppresses the notice for good - which is the behaviour the no-dismiss rule
+   existed to prevent. `portfolio_trading_off_notice_test.rb` pins both directions, and a
+   boolean-style implementation fails it.
+3. **Deliberately not backfilled**, like `stocks.archived_at`: `updated_at` is not the date trading
+   changed. NULL onset plus a dismissal hides the callout, and the first real toggle makes the
+   comparison exact - so it heals instead of needing a data migration.
+4. **`trading_enabled` is still the flag.** The timestamp is derived, exactly as `archived_at` is
+   derived from `archived`, so nothing that reads or writes `trading_enabled` changes.
+5. **The dismiss block is per call site, not in the component.** `button_to` renders a `<form>`, and
+   the callout in `admin/teachers/_form` is inside the teacher form - a nested form is dropped by the
+   parser and the button would submit the outer one. Putting the dismiss into `_callout` itself would
+   break that page silently; a test asserts that callout has no dismiss.
+
 ### The success flash auto-dismisses after 6s
 
 **What.** New `auto_dismiss_controller.js`. `layouts/_flash`'s `#notice` gains

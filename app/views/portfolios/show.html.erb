@@ -37,10 +37,12 @@
     <% end %>
   <% end %>
 
-  <% if @portfolio.student? && !@portfolio.trading_enabled? %>
-    <%= render "components/ui/callout",
-               title: "Trading is turned off for your classroom",
-               body: "You cannot buy or sell right now. Your teacher can turn it back on." %>
+  <% if @portfolio.student? && @portfolio.trading_off_notice? %>
+    <%= render layout: "components/ui/callout",
+               locals: { title: "Trading is turned off for your classroom",
+                         body: "You cannot buy or sell right now. Your teacher can turn it back on." } do %>
+      <%= render "portfolios/trading_off_dismiss", portfolio: @portfolio %>
+    <% end %>
   <% end %>
 
   <%= render "portfolios/first_share" %>

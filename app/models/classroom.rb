@@ -26,6 +26,16 @@ class Classroom < ApplicationRecord
   validate :school_year_presence
   validate :grade_level
 
+  # One place keeps `trading_disabled_at` true to the flag, the same shape Stock uses for
+  # `archived_at`. `||=` so re-saving a classroom whose trading is already off does not keep moving
+  # the date forward, and clearing it when trading is switched back on so the *next* switch-off
+  # reports its own date rather than the first one.
+  #
+  # That last part is what makes the callout's dismissal safe: a student's dismissal is compared
+  # against this, so switching trading off again produces a date newer than any dismissal and the
+  # message returns. Without the clear, a dismissal made last term would suppress this term's notice.
+  before_save :stamp_trading_disabled_at
+
   after_create :create_gradebooks_for_quarters
 
   scope :active, -> { where(archived: false) }
@@ -108,6 +118,14 @@ class Classroom < ApplicationRecord
   end
 
   private
+
+  def stamp_trading_disabled_at
+    if trading_enabled?
+      self.trading_disabled_at = nil
+    else
+      self.trading_disabled_at ||= Time.current
+    end
+  end
 
   def create_gradebooks_for_quarters
     school_year.quarters.each do |quarter|

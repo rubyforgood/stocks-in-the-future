@@ -409,7 +409,7 @@ can send it away, both follow from what the message *is*. All four rows are asse
 |---|---|---|---|
 | flash `#notice` (success) | no | 6s, held by hover/focus | yes - 44px, `dismiss#now` |
 | flash `#alert` (error) | **yes** | never | yes - closing is the only way it goes |
-| `components/ui/_callout` (page state) | **yes** | never | only if **persisted** server-side |
+| `components/ui/_callout` (page state) | **yes** | never | **yes, persisted** - a `button_to`, never JS |
 | form error summary (`students#new`, `students#edit`, `profiles/_errors`) | **yes** | never | **no** |
 
 The reasoning per row, since the table alone will not stop the next person guessing:
@@ -420,10 +420,28 @@ The reasoning per row, since the table alone will not stop the next person guess
   close: Primer flash, Polaris `Banner` with `onDismiss`, Carbon inline notification.
 - **A callout is dismissible only when the dismissal is remembered.** A client-side close on page state
   is worse than no close at all: "trading is turned off for your classroom" is still true on the next
-  page load, so the banner returns and the button reads as broken. `portfolios/_first_share` is the
-  pattern where it is genuinely dismissible - a `button_to` posting to `acknowledge_first_share`, which
-  writes `portfolios.first_share_acknowledged_at`. If a callout needs a close, give it a column, not a
-  controller.
+  page load, so the banner returns and the button reads as broken. So both dismissible callouts post:
+  `portfolios/_first_share` to `acknowledge_first_share` (writing
+  `portfolios.first_share_acknowledged_at`), and the trading-off callout to `dismiss_trading_off`
+  (writing `portfolios.trading_off_dismissed_at`). **A callout's close is a column, never a
+  controller.**
+
+  **And the column is a timestamp, compared against the condition's onset.** A boolean would be a mute
+  button: a student who closed "trading is turned off" once would never see it again, including next
+  term when their teacher switches trading off for a different reason - which is hiding something true
+  and newly relevant, the exact harm the no-dismiss rule was protecting against. So
+  `classrooms.trading_disabled_at` records *when* trading went off, `Classroom` clears it when trading
+  comes back on, and `Portfolio#trading_off_notice?` shows the callout when the onset is newer than the
+  dismissal. A dismissal covers the switch-off it was made against and nothing later.
+
+  A NULL onset means the row predates the column, which was deliberately not backfilled; a dismissal is
+  honoured in that case, and the next real toggle makes the comparison exact, so it heals rather than
+  needing a backfill.
+
+  **The block is passed per call site, not built into the component**, because `button_to` renders a
+  `<form>` and the callout in `admin/teachers/_form` sits *inside* the teacher form - where the parser
+  drops the nested form and the button silently submits the outer one. That callout has no dismiss, and
+  a test asserts it stays that way.
 - **A form error summary has no close at all.** It is not an event, it is a description of the form as
   it currently stands, rebuilt on every submit. Hiding it hides the list of what still needs fixing
   while the fields it refers to are still wrong.

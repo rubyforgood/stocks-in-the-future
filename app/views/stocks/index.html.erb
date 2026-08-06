@@ -14,11 +14,16 @@
     budget while scanning, but as a figure on the header's baseline rather than a card - and the page
     is on components/ui/_page_header like every other page, which it also was not. %>
 <div class="w-full">
-  <% if current_user.student? && !current_user.classroom&.trading_enabled? %>
-    <%= render "components/ui/callout",
-               title: "Trading is turned off for your classroom",
-               body: "You cannot buy or sell right now. Your teacher can turn it back on.",
-               class: "mb-5" %>
+  <%# @portfolio#trading_off_notice? rather than a bare `!trading_enabled?`, so a student who has
+      dismissed this switch-off does not see it again - and so the next switch-off, which stamps a
+      newer classrooms.trading_disabled_at, brings it back. %>
+  <% if @portfolio&.trading_off_notice? %>
+    <%= render layout: "components/ui/callout",
+               locals: { title: "Trading is turned off for your classroom",
+                         body: "You cannot buy or sell right now. Your teacher can turn it back on.",
+                         class: "mb-5" } do %>
+      <%= render "portfolios/trading_off_dismiss", portfolio: @portfolio %>
+    <% end %>
   <% end %>
 
   <%= render layout: "components/ui/page_header", locals: { title: "Trading floor" } do %>

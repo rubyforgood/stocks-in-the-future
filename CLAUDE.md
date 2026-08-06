@@ -134,12 +134,24 @@ top-level element the partial emits becomes a spaced sibling. `_stocks_table` em
 helper line, table — and all three rendered 24px apart while the markup said 4px and 12px. Nothing in
 either file was wrong on its own; the bug lived in the relationship.
 
-**A close button on page state is worse than no close button.** A callout saying "trading is turned
-off for your classroom" is still true after a reload, so a client-side dismiss brings it straight back
-and reads as broken. Either the dismissal is **persisted** - `portfolios/_first_share` posts to
-`acknowledge_first_share` and writes a column - or the banner has no close at all. Give it a column,
-not a controller. A form error summary gets neither: it describes the form as it stands and is rebuilt
-on submit, so hiding it hides the list of what is still wrong.
+**A callout's dismiss is a column, never a controller.** A client-side close on page state brings the
+banner straight back on the next load, because "trading is turned off for your classroom" is still
+true - so both dismissible callouts post: `_first_share` to `acknowledge_first_share`, the trading-off
+callout to `dismiss_trading_off`. A form error summary gets no close at all: it describes the form as
+it stands and is rebuilt on submit, so hiding it hides the list of what is still wrong.
+
+**And that column is a timestamp compared against the condition's onset, or it is a mute button.** A
+boolean `dismissed` would hide "trading is turned off" for good - including next term, when a teacher
+switches it off again for a different reason, which is hiding something true and newly relevant. So
+`classrooms.trading_disabled_at` records when the condition began, `Classroom` **clears it when trading
+comes back on** so the next switch-off stamps its own date, and the callout shows when the onset is
+newer than the dismissal. Whenever you make a recurring condition dismissible, ask what the dismissal
+is dismissing - the message, or every future instance of it.
+
+**A `button_to` dismiss cannot live in the component.** `button_to` renders a whole `<form>`, and the
+callout in `admin/teachers/_form` sits inside the teacher form, where the parser drops the nested form
+and the button silently submits the outer one. That is why the dismiss is passed as a block per call
+site - a component-level default would have broken that page and still rendered fine.
 
 **A message that removes itself must be an outcome, not a state.** The success flash auto-hides after
 6s; `#alert` never does, and neither do callouts or form error summaries. "Trading is turned off" is

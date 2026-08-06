@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_05_215252) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_06_150100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -90,6 +90,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_05_215252) do
     t.datetime "created_at", null: false
     t.string "name"
     t.bigint "school_year_id"
+    t.datetime "trading_disabled_at"
     t.boolean "trading_enabled", default: false, null: false
     t.datetime "updated_at", null: false
     t.index ["school_year_id"], name: "index_classrooms_on_school_year_id"
@@ -181,6 +182,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_05_215252) do
   create_table "portfolios", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "first_share_acknowledged_at"
+    t.datetime "trading_off_dismissed_at"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.index ["user_id"], name: "index_portfolios_on_user_id"
