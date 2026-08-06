@@ -44,7 +44,7 @@ class BulkStudentImportServiceTest < ActiveSupport::TestCase
   end
 
   test "handles malformed CSV files" do
-    csv_content = "classroom_id,username\n1,\"unclosed quote\n2,another_row"
+    csv_content = "classroom_id,username,name\n1,\"unclosed quote\n2,another_row,Name"
 
     with_temp_csv_file(csv_content) do |csv_file|
       assert_raises(CSV::MalformedCSVError) do

@@ -319,11 +319,13 @@ module Admin
       assert_response :success
       assert_equal "text/csv", response.media_type
       assert_includes response.headers["Content-Disposition"], "attachment; filename=\"student_import_template.csv\""
-      assert_match(/classroom_id,username/, response.body)
+      assert_match(/classroom_id,username,name/, response.body)
     end
 
     test "import should create students from valid CSV" do
-      csv_content = "classroom_id,username\n#{@classroom1.id},import_student1\n#{@classroom2.id},import_student2"
+      csv_content = "classroom_id,username,name\n" \
+                    "#{@classroom1.id},import_student1,Import One\n" \
+                    "#{@classroom2.id},import_student2,Import Two"
       csv_file = Tempfile.new(["test_import", ".csv"])
       csv_file.write(csv_content)
       csv_file.rewind
@@ -345,7 +347,9 @@ module Admin
 
     test "import should skip existing students" do
       create(:student, username: "student1", classroom: @classroom1)
-      csv_content = "classroom_id,username\n#{@classroom1.id},student1\n#{@classroom2.id},new_student"
+      csv_content = "classroom_id,username,name\n" \
+                    "#{@classroom1.id},student1,Existing One\n" \
+                    "#{@classroom2.id},new_student,New Student"
       csv_file = Tempfile.new(["test_import", ".csv"])
       csv_file.write(csv_content)
       csv_file.rewind
@@ -365,7 +369,9 @@ module Admin
     end
 
     test "import should handle errors and show line numbers" do
-      csv_content = "classroom_id,username\n999,invalid_student\n#{@classroom1.id},valid_student"
+      csv_content = "classroom_id,username,name\n" \
+                    "999,invalid_student,Invalid One\n" \
+                    "#{@classroom1.id},valid_student,Valid One"
       csv_file = Tempfile.new(["test_import", ".csv"])
       csv_file.write(csv_content)
       csv_file.rewind
@@ -392,7 +398,7 @@ module Admin
     end
 
     test "import should handle malformed CSV" do
-      csv_content = "classroom_id,username\n1,\"unclosed quote\n2,another_row"
+      csv_content = "classroom_id,username,name\n1,\"unclosed quote\n2,another_row,Name"
       csv_file = Tempfile.new(["test_import", ".csv"])
       csv_file.write(csv_content)
       csv_file.rewind
@@ -411,7 +417,7 @@ module Admin
     end
 
     test "import should handle empty CSV" do
-      csv_content = "classroom_id,username\n"
+      csv_content = "classroom_id,username,name\n"
       csv_file = Tempfile.new(["test_import", ".csv"])
       csv_file.write(csv_content)
       csv_file.rewind
@@ -430,8 +436,10 @@ module Admin
     end
 
     test "import should show both success and error messages" do
-      csv_content = "classroom_id,username\n" \
-                    "#{@classroom1.id},import_success1\n999,import_fail\n#{@classroom2.id},import_success2"
+      csv_content = "classroom_id,username,name\n" \
+                    "#{@classroom1.id},import_success1,Success One\n" \
+                    "999,import_fail,Fail One\n" \
+                    "#{@classroom2.id},import_success2,Success Two"
       csv_file = Tempfile.new(["test_import", ".csv"])
       csv_file.write(csv_content)
       csv_file.rewind

@@ -53,10 +53,14 @@ class StudentNameTest < ApplicationSystemTestCase
     assert_text "Name can't be blank"
   end
 
-  # And *not* required on import, which is the other half of the same decision: ImportStudentService takes
-  # a username and a classroom id from a CSV, so a model-wide requirement would fail every row of a class
-  # being onboarded. The column is offered, not demanded.
-  test "an import may omit the name, and may carry one" do
+  # Required on import too, so the rule is the same however a student arrives. This was optional for one
+  # commit on the argument that an import should not drop a row it could otherwise create - but a
+  # bulk-imported class is exactly where a roster of lowercased usernames is least navigable, and it is the
+  # path that creates twenty-five of them at once.
+  #
+  # A failure rather than a skip: the importer reports skips as "existing usernames", which would mislabel
+  # a row that simply has no name.
+  test "an import requires the name, and keeps the one it is given" do
     classroom = create(:classroom, :with_trading)
 
     with_name = ImportStudentService.call(
@@ -65,10 +69,12 @@ class StudentNameTest < ApplicationSystemTestCase
     without = ImportStudentService.call(username: "imported2", classroom_id: classroom.id)
 
     assert_predicate with_name, :success?
-    assert_predicate without, :success?
     assert_equal "Ada Lovelace", Student.find_by(username: "imported1").name
-    assert_nil Student.find_by(username: "imported2").name
-    assert_equal "imported2", Student.find_by(username: "imported2").display_name
+
+    assert_not without.success?
+    assert_predicate without, :failed?
+    assert_equal "Name is required", without.error_message
+    assert_nil Student.find_by(username: "imported2")
   end
 
   # A student who predates the requirement can still be edited - the rule is a form-context validation,

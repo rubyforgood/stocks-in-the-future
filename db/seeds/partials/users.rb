@@ -34,6 +34,7 @@ end
 student = User.find_or_initialize_by(email: "student@example.com")
 unless student.persisted?
   student.attributes = {
+    name: "Sam Student",
     username: "Student",
     password: "password",
     password_confirmation: "password",
@@ -70,6 +71,7 @@ end
 mike = User.find_or_initialize_by(email: "mike@example.com")
 unless mike.persisted?
   mike.attributes = {
+    name: "Mike Rivera",
     username: "mike",
     email: "mike@example.com",
     password: "password",

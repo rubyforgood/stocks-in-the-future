@@ -19,9 +19,13 @@ class ImportStudentService
     new.call(username: username, classroom_id: classroom_id, name: name)
   end
 
-  # name is optional here and required on the forms, deliberately. A student typed in by hand must have
-  # one - a roster of lowercased usernames is guesswork - but an import that cannot supply a name should
-  # still create the student rather than dropping the row, so the CSV column is offered and not demanded.
+  # A name is required here as well as on the forms, so the rule is the same however a student arrives.
+  # It was optional for one commit, on the argument that an import should not drop a row it could
+  # otherwise create - but that just moves the problem: a bulk-imported class is exactly where a roster of
+  # lowercased usernames is least navigable, and it is the path that creates twenty-five of them at once.
+  #
+  # Refused as a skip_result rather than left to the model, so the import report names the row and says
+  # what is missing, the same as a blank username or a duplicate.
   def call(username:, classroom_id:, name: nil)
     username = sanitize_input(username)
     classroom_id = sanitize_input(classroom_id)
@@ -29,6 +33,11 @@ class ImportStudentService
     return skip_result("Username is required") if username.blank?
     return skip_result("Student with username '#{username}' already exists") if Student.exists?(username: username)
     return skip_result("Classroom ID is required") if classroom_id.blank?
+    # A *failure*, not a skip. The two buckets are reported differently: the controller describes skips
+    # as "Skipped N existing usernames", which is true of a duplicate and a lie about a row that simply
+    # has no name, while failures are reported per row as "Row N: <message>" - which is what someone
+    # fixing a spreadsheet needs.
+    return failure_result("Name is required") if name.blank?
 
     import_student(username: username, classroom_id: classroom_id, name: name)
   end
@@ -72,6 +81,16 @@ class ImportStudentService
       student: nil,
       error_message: message,
       action: :skipped
+    )
+  end
+
+  # For a row that is wrong before a record is built, so there is no model to read errors from.
+  def failure_result(message)
+    Result.new(
+      success?: false,
+      student: nil,
+      error_message: message,
+      action: :failed
     )
   end
 

@@ -11,8 +11,8 @@ class BulkStudentImportService
     CSV.foreach(csv_file_path, headers: true).with_index(2) do |row, csv_line_number|
       classroom_id = row["classroom_id"]&.strip
       username = row["username"]&.strip
-      # Optional column. A CSV without it still imports, and one with it gives every student a readable
-      # name from the start instead of a lowercased identifier.
+      # Required, like the username and the classroom. A bulk-imported class is where a roster of
+      # lowercased usernames is least navigable, so this is the path that most needs the name.
       name = row["name"]&.strip
 
       next if classroom_id.blank? || username.blank?
@@ -33,8 +33,8 @@ class BulkStudentImportService
     [
       "classroom_id,username,name",
       "1,student001,Jordan Smith",
-      "1,student002",
-      "2,student003"
+      "1,student002,Ada Lovelace",
+      "2,student003,Grace Hopper"
     ].join("\n")
   end
 end

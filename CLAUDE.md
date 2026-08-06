@@ -194,11 +194,16 @@ surface; a saturated brand fill repeated down 25 rows is the over-emphasis the r
 A badge is never the control - it has no editing affordance.
 
 **Check every path that creates a record before requiring a field on it.** `validates :name, presence:
-true, on: :create` looked right and would have failed every row of a CSV import - `ImportStudentService`
-takes a username and a classroom id and nothing else. The requirement belongs on the path where a human is
-typing: a `:student_form` validation context that `students#create/#update` and the admin form opt into.
-**And `update` runs before a context validation**, so it writes the blank value and then reports it -
+true, on: :create` looked right and would have broken CSV import and the seeds, which build students
+without one. The requirement is a `:student_form` context the forms opt into, plus an explicit check in
+`ImportStudentService` - every path a *person* creates a student through, while a console or a seed still
+can. **And `update` runs before a context validation**, so it writes the blank value and then reports it;
 assign-then-`save(context:)` is the shape.
+
+**A rejected import row is a failure, not a skip, unless "skip" is what the report says.** The importer
+describes its skip bucket as "Skipped N existing usernames" and its failures as "Row N: <message>". Putting
+a nameless row in the first bucket labels it a duplicate. **Read how the buckets are reported before
+choosing one** - the words are the contract, not the enum name.
 
 **A control that can only report that it did nothing is not a control.** "Add new students" was offered on
 a fully populated grade book - the normal state - where it added nobody and flashed "Every student already
