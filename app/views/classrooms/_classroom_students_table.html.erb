@@ -16,12 +16,22 @@
     <% @students.each do |student| %>
       <tr class="table-body-row group"
           id="<%= dom_id(student) %>">
+        <%# Name over username, which is design.md's primary-identifier shape - `font-medium slate-900`
+            for the value, `text-xs slate-600` for the line beneath - and what GitHub does for a person.
+            Both are needed: the name is who the teacher is looking for, the username is what the student
+            signs in with and what a password reset refers to. `display_name` falls back to the username,
+            so a student with no name shows one line rather than the same string twice. %>
         <td class="table-body-cell whitespace-nowrap" data-testid="student-username">
           <% if student.username.present? %>
             <% if student.portfolio %>
-              <%= link_to student.username, user_portfolio_path(student, student.portfolio), class: "tw-link font-medium" %>
+              <%= link_to student.display_name, user_portfolio_path(student, student.portfolio),
+                          class: "tw-link font-medium" %>
             <% else %>
-              <span class="text-slate-600 italic"><%= student.username %></span>
+              <span class="font-medium text-slate-900"><%= student.display_name %></span>
+            <% end %>
+
+            <% if student.name.present? %>
+              <span class="mt-0.5 block text-xs text-slate-600"><%= student.username %></span>
             <% end %>
           <% else %>
             <span class="text-slate-600 italic">No username set</span>

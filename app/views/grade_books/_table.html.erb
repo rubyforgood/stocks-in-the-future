@@ -32,7 +32,7 @@
 
   <tbody class="bg-white">
     <%= render partial: "grade_entry",
-               collection: grade_book.grade_entries.sort_by { it.user.username.to_s },
+               collection: grade_book.grade_entries.sort_by { it.user.display_name.to_s },
                as: :entry,
                locals: { disabled: grade_book.completed?, grade_book_earnings: earnings } %>
   </tbody>

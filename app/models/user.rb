@@ -39,6 +39,12 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
 
+  # A blank name is no name. Submitting the optional name field empty stored "" rather than nil, which
+  # `display_name` survives because it uses `.presence` - but the column would then hold two different
+  # representations of "unset", and anything reaching for `name.nil?` would be wrong for half of them.
+  # Also trims, so " Jordan " does not become a name with edges.
+  normalizes :name, with: ->(value) { value.strip.presence }
+
   validates :email, uniqueness: true, presence: false, allow_blank: true
   validates :username, presence: true, uniqueness: true
   validates :type, inclusion: { in: %w[User Student Teacher] }

@@ -547,10 +547,9 @@ before.
   Turbo confirm override has somewhere to live. Note the trap while doing it: a custom confirm must
   keep working for `button_to`/`data-turbo-confirm` on every existing call site, not just the ones
   someone remembers.
-- **Students have no name, only a username.** `users.name` exists and `User#display_name` prefers it,
-  but `students#new` collects **only** a username - so every student's name is nil and every screen
-  falls back to a lowercased identifier (`mike`, `student`). Reported as "why are all the student names
-  lowercase". They are not names, and CSS-capitalising them would be wrong: usernames are downcased
-  because sign-in is case-insensitive, so "Mike" would display for someone who signs in as `mike`, and
-  `jsmith2` would render as `Jsmith2`. The fix is a name field on the add/edit student form, after
-  which `display_name` shows it everywhere with no further change.
+- ~~**Students have no name, only a username.**~~ **Done.** `students#new` and `#edit` and the admin form
+  all take an optional full name, `:name` is permitted on both controllers, and `User` normalizes it so a
+  blank submission stores nil rather than `""`. The roster shows the name over the username - design.md's
+  primary-identifier shape - and the grade book, its sort order and the portfolio title use
+  `display_name`. Left on the username deliberately: `admin/users`, `admin/teachers` and the transaction
+  screens, where the account rather than the person is the subject.

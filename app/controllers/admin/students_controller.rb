@@ -143,7 +143,7 @@ module Admin
     end
 
     def student_params
-      params.expect(student: %i[username classroom_id password password_confirmation])
+      params.expect(student: %i[name username classroom_id password password_confirmation])
     end
 
     def transaction_params

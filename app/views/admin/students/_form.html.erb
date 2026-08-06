@@ -3,6 +3,12 @@
     <div class="px-6 py-6">
       <h3 class="text-lg font-medium text-slate-900 mb-6">Student details</h3>
 
+      <%# Both halves of the product get the field. Admin keeps showing the username as well, because
+          an administrator manages the account and the username is what the student signs in with. %>
+      <%= f.text_field :name,
+                       label: "Full name",
+                       hint: "Optional. Shown instead of the username wherever this student appears" %>
+
       <%= f.text_field :username,
                        label: "Username",
                        hint: "Unique username for the student",

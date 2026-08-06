@@ -20,10 +20,25 @@
     <div class="bg-white shadow-sm overflow-hidden lg:rounded-md">
       <div class="px-4 py-5 lg:p-6">
         <div class="grid grid-cols-6 gap-6">
+          <%# Optional. `users.name` has existed the whole time and `User#display_name` prefers it, but
+              nothing ever collected it - so every student's name was nil and every screen fell back to a
+              lowercased username. Reported as "why are all the student names lowercase": they were not
+              names. Optional rather than required because existing students have none, and requiring it
+              here would block editing any of them. %>
+          <div class="col-span-6 lg:col-span-4">
+            <%= f.label :name, "Full name", class: "tw-label-primary" %>
+            <%= f.text_field :name, class: "tw-input-primary", placeholder: "e.g., Jordan Smith" %>
+            <p class="mt-2 text-sm text-slate-500">
+              Optional. Shown instead of the username wherever this student appears.
+            </p>
+          </div>
+
           <div class="col-span-6 lg:col-span-4">
             <%= f.label :username, class: "tw-label-primary" %>
             <%= f.text_field :username, class: "tw-input-primary", required: true, placeholder: "e.g., john_doe" %>
-            <p class="mt-2 text-sm text-slate-500">A password will be automatically generated for the student.</p>
+            <p class="mt-2 text-sm text-slate-500">
+              What the student signs in with. A password is generated automatically.
+            </p>
           </div>
         </div>
       </div>

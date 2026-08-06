@@ -397,6 +397,26 @@ applies only to grade books finalized after the change, or historical entries ke
 forever. That is not a design call; it needs whoever is accountable for the money. Until it is answered,
 the checkbox stays and the column at least explains what it pays.
 
+### Students get a name
+
+**What.** `students#new` / `#edit` and `admin/students/_form` gain an optional full name; `:name` is
+permitted on both controllers. `User` normalizes it. The roster shows name over username; the grade book,
+its sort and the portfolio title use `display_name`.
+
+**Why it has blast radius.**
+
+1. **No migration - `users.name` already existed.** Nothing collected it, which is why every student's
+   name was nil. So this is additive with no schema change and nothing to backfill.
+2. **`normalizes :name` applies to every user, not just students.** A blank name becomes nil and a padded
+   one is trimmed, on teachers and admins too. Anything comparing `name == " Foo "` changes; nothing does.
+3. **The roster cell now has two lines** when a student has a name. A test asserting its exact text, or
+   measuring the row height on a named student, moves - and the row grows by the second line.
+4. **Sort order follows what is displayed.** The grade book sorted by username and now sorts by
+   `display_name`, so a named student moves in the list relative to an unnamed one.
+5. **Deliberately not changed**: `admin/users`, `admin/teachers`, `orders#index` and the transaction
+   screens still show the username, because there the account is the subject rather than the person. If
+   that is wrong it should be changed as one decision, not drifted into.
+
 ### The grade book shows what finalizing will pay
 
 **What.** New `GradeBookEarnings` presenter and `GradeBook#previous_entries_by_user_id`, which

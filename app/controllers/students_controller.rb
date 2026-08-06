@@ -70,8 +70,10 @@ class StudentsController < ApplicationController
     redirect_to classroom_path(@classroom), alert: t("students.not_found")
   end
 
+  # :name is optional and free text - it is the student's actual name, shown wherever they appear
+  # instead of the lowercased username they sign in with.
   def student_params
-    params.expect(student: %i[username email])
+    params.expect(student: %i[name username email])
   end
 
   def generate_memorable_password

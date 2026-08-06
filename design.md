@@ -1244,6 +1244,24 @@ padding. `select.tw-input-primary` is `appearance-none` with lucide's chevron-do
 run under it. Styled by **element**, so all ten selects in the app are fixed without touching a call
 site. Tailwind UI, Polaris and Primer all replace the native arrow for the same reason.
 
+**A person's row shows the name over the username.** `font-medium slate-900` for the name,
+`text-xs slate-600` for the username beneath - this document's primary-identifier shape, and what GitHub
+does for a person. Both are needed and neither replaces the other: the name is who a teacher is looking
+for, and the username is what they sign in with and what a password reset refers to. `display_name` falls
+back to the username, so a student with no name shows **one** line rather than the same string twice.
+
+Students had no name at all until now: `users.name` existed and `display_name` has always preferred it,
+but nothing collected it, so every screen fell back to the lowercased identifier and it was reported as
+the names being lowercase. They were not names, and capitalising them would have been wrong - usernames
+are downcased because sign-in is case-insensitive, so `jsmith2` would have rendered as `Jsmith2`.
+
+The name is **optional**, because every existing student has none and requiring it would block editing
+any of them, and `User` normalizes it (`strip.presence`) so an empty submission is nil rather than `""` -
+two representations of "unset" in one column is how `name.nil?` ends up wrong half the time.
+
+`admin/users`, `admin/teachers` and the transaction screens keep showing the username, deliberately:
+there the account is the subject rather than the person.
+
 **A `<th>` does not name a form control.** A column header names a data cell; an input in a table cell
 takes nothing from it. The grade book had **eight unnamed controls** on a two-student roster - four per
 row - so a screen reader could not tell a math grade from a reading grade, or whose row it was in. Each
