@@ -153,6 +153,91 @@ class TableConsistencyTest < ApplicationSystemTestCase
     end
   end
 
+  # The classrooms table had a cell overriding the shared padding. `table-body-cell` is `py-3`; the
+  # Teacher(s) cell was `table-body-cell py-4`, and its badge strip carried `py-1` and `min-h-9` on
+  # top - all three inherited from an inline `style="max-width: 510px; min-height: 36px"`. Measured
+  # for a teacher: that cell's text sat at 28px from the row top against 14px for every other
+  # column, and the row was 69px against the 48px design.md sets. tables.css is in
+  # `@layer components`, so a `py-4` utility on the element beats the layered `py-3` and the class
+  # list reads as though it is using the shared padding.
+  #
+  # The badge's own `py-1` still puts its text ~4px below bare text, which is what a pill does and
+  # what every other table in the app measures - the tolerance covers that and not 14px.
+  test "a classrooms row shares one line, at the standard row height" do
+    classroom = create(:classroom, :with_trading, name: "Aligned Class")
+    teacher = create(:teacher, name: "Terry Teacher")
+    create(:teacher_classroom, teacher:, classroom:)
+    2.times { create(:student, :with_portfolio, classroom:) }
+    sign_in(teacher)
+
+    visit classrooms_path
+
+    report = page.evaluate_script(<<~JS)
+      (function () {
+        const row = document.querySelector("tbody tr.table-body-row");
+        const rb = row.getBoundingClientRect();
+        function firstLine(el) {
+          const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+          let n;
+          while ((n = walker.nextNode())) {
+            if (!n.textContent.trim()) continue;
+            const r = document.createRange();
+            r.selectNodeContents(n);
+            const rects = r.getClientRects();
+            if (rects.length) return Math.round(rects[0].top - rb.top);
+          }
+          return null;
+        }
+        return {
+          height: Math.round(rb.height),
+          tops: Array.from(row.querySelectorAll("td")).map(firstLine),
+          pads: Array.from(row.querySelectorAll("td")).map(function (td) {
+            return getComputedStyle(td).paddingTop;
+          })
+        };
+      })()
+    JS
+
+    assert_equal ["12px"], report["pads"].uniq,
+                 "a cell is overriding table-body-cell's padding: #{report['pads'].inspect}"
+
+    tops = report["tops"].compact
+
+    assert_in_delta tops.min, tops.max, 5,
+                    "the row's cells start on different lines: #{report['tops'].inspect}"
+    assert_in_delta 48, report["height"], 2,
+                    "the row is #{report['height']}px; design.md sets 48px"
+  end
+
+  # An unlabelled trailing column whose every cell is the no-permission dash tells a reader nothing.
+  # ClassroomPolicy#edit? is admin-only, so that is exactly what a teacher saw. The dash stays where a
+  # column holds actions for some rows and not others - portfolios#show - so this asserts the column
+  # is absent for a teacher and present for an admin rather than removing the convention.
+  test "the classrooms actions column is absent when the viewer has no action" do
+    classroom = create(:classroom, :with_trading)
+    teacher = create(:teacher)
+    create(:teacher_classroom, teacher:, classroom:)
+    sign_in(teacher)
+
+    visit classrooms_path
+
+    assert_selector "tbody tr.table-body-row"
+    assert_not has_selector?(".table-no-permission", wait: 0),
+               "a teacher sees a column of dashes where no action is ever available"
+    assert_equal 4, page.evaluate_script('document.querySelectorAll("thead th").length'),
+                 "the actions column is still being rendered for a viewer who has none"
+  end
+
+  test "the classrooms actions column is present for an admin" do
+    create(:classroom, :with_trading)
+    sign_in(create(:admin))
+
+    visit classrooms_path
+
+    assert_equal 5, page.evaluate_script('document.querySelectorAll("thead th").length')
+    assert_selector "tbody tr.table-body-row a", text: "Edit"
+  end
+
   # Everything in a row hangs off the row's first line.
   test "a trading floor row shares one baseline" do
     classroom = create(:classroom, :with_trading)

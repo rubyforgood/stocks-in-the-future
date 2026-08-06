@@ -1152,6 +1152,30 @@ a taller row and nothing shares a baseline. Polaris, Primer, Stripe and Tailwind
 to top alignment for exactly this. Middle is only safe when every cell is one line, which is not
 a property that stays true as columns are added.
 
+**A cell does not override the shared padding.** `table-body-cell` is `px-4 py-3`, and `tables.css`
+lives in `@layer components` - so a `py-4` utility on the element **wins**, while the class list still
+reads `table-body-cell` and looks like it is using the shared padding. classrooms#index did exactly
+that: `table-body-cell py-4` on the Teacher(s) cell, plus `py-1` and `min-h-9` on the badge strip
+inside it, all three carried over from an inline `style="max-width: 510px; min-height: 36px"`.
+Measured: that cell's text at **28px** from the row top against **14px** for every other column, in a
+row **69px** tall against the 48px above. Now 12px padding everywhere, one line, 49px.
+
+A badge still sits ~4px below bare text, because a pill has `py-1` of its own; that is true of every
+table in the app and is not worth chasing. Put a badge straight into `table-body-cell` the way the
+admin tables do, with no wrapper padding.
+
+**An unlabelled actions column is not rendered when the viewer can never use it.** The
+`table-no-permission` dash is right when a column holds actions for *some* rows - `portfolios#show`
+gives a non-student viewer the dash where a student gets Trade - but `ClassroomPolicy#edit?` is
+admin-only, so a teacher's classrooms table was a trailing column containing nothing but italic
+hyphens, on every row. A column of dashes communicates only that there is a column. classrooms#index
+computes whether **any** row has a permitted action and drops the header, the cells and one from the
+empty state's `colspan` when none does. Asked per record, not per class, so it stays correct if the
+policy ever starts reading the record.
+
+`table_consistency_test.rb` measures both: one line and 48px for a classrooms row, and the column
+absent for a teacher while present for an admin.
+
 **One set of cell classes, `table-*`, on both sides.** Eight admin tables hand-wrote
 `px-3 py-4` while their headers used the shared `table-header-cell` at `px-4 py-3` - transposed,
 so **every column's header text sat 4px off its own data** (measured: `thLeft=281`,

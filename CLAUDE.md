@@ -134,6 +134,18 @@ top-level element the partial emits becomes a spaced sibling. `_stocks_table` em
 helper line, table — and all three rendered 24px apart while the markup said 4px and 12px. Nothing in
 either file was wrong on its own; the bug lived in the relationship.
 
+**`tables.css` is layered, so a utility on the cell beats `table-body-cell`.** The class list reads
+`table-body-cell py-4` and looks like the shared padding is in force; it is not, and `py-4` wins. That
+put one classrooms cell's text 14px below every other column and made the row 69px against the app's
+48px. **A cell that carries its own `py-*` is a bug, not a tweak** - and the same applies to any
+wrapper inside it, since `py-1` and `min-h-9` on the badge strip were doing half the damage.
+
+**A column of dashes is not a column.** The `table-no-permission` dash means "no action on this row",
+which only says something when other rows have one. `ClassroomPolicy#edit?` is admin-only, so a
+teacher's classrooms table was an unlabelled trailing column of italic hyphens, every row. Ask whether
+**any** row has a permitted action; if none does, drop the header, the cells, and one from the empty
+state's `colspan`.
+
 **A callout's dismiss is a round trip, never a Stimulus controller.** A client-side close on page state
 brings the banner straight back on the next load, because "trading is turned off for your classroom" is
 still true. Dismissals go in the **`dismissals` table** - one row per user per key - via

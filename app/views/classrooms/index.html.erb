@@ -10,6 +10,18 @@
     <% end %>
   </div>
 
+  <%# Whether the actions column can ever hold anything for this viewer.
+
+      ClassroomPolicy#edit? is `user.admin?`, so a teacher had an unlabelled trailing column
+      containing nothing but the `table-no-permission` dash, on every row - a column of italic
+      hyphens that says only "there is a column here". The dash is the right convention when a
+      column holds actions for *some* rows and not others, which is what portfolios#show does; it
+      is not a column.
+
+      `any?` rather than `policy(Classroom).edit?` because edit? is defined per record. It happens
+      to ignore the record today, and asking per record is what keeps this correct if it stops. %>
+  <% actions_column = @classrooms.any? { |classroom| policy(classroom).edit? } %>
+
   <div class="flex-1 pb-6">
     <%= render "shared/table_container" do %>
       <thead>
@@ -28,9 +40,11 @@
           </th>
           <%# The trailing actions column is unlabelled, like every other table in the app - a
               header naming one action stops being true as soon as a second one is added. %>
-          <th scope="col" class="table-header-cell table-header-cell-right table-actions-pinned">
-            <span class="sr-only">Actions</span>
-          </th>
+          <% if actions_column %>
+            <th scope="col" class="table-header-cell table-header-cell-right table-actions-pinned">
+              <span class="sr-only">Actions</span>
+            </th>
+          <% end %>
         </tr>
       </thead>
       <tbody>
@@ -42,11 +56,16 @@
                   <%= link_to classroom.name, classroom_path(classroom), class: "tw-link font-medium" %>
                 </span>
               </td>
-              <td class="table-body-cell py-4">
-                <%# max-w-128 is 512px and min-h-9 is 36px, both on the scale. This was an inline
-                    style="max-width: 510px; min-height: 36px" - the 2px difference is not visible
-                    and the scale value is checkable. %>
-                <div class="flex max-w-128 min-h-9 gap-1 overflow-x-auto py-1">
+              <td class="table-body-cell">
+                <%# max-w-128 is 512px, on the scale, and caps the badge strip so a class with six
+                    teachers scrolls rather than widening the column.
+                    No `py-4` on the cell and no `py-1` or `min-h-9` on the strip. All three were
+                    carried over from an inline `style="max-width: 510px; min-height: 36px"`, and
+                    together they put this cell's text 14px below every other column in the row and
+                    made the row 69px against the 48px this document sets. `items-start` keeps the
+                    badges on the same line as the neighbouring text rather than stretching them to
+                    the row's height. %>
+                <div class="flex max-w-128 items-start gap-1 overflow-x-auto">
                   <% if classroom.teachers.any? %>
                     <% classroom.teachers.each do |teacher| %>
                       <%= render "components/ui/badge",
@@ -74,20 +93,23 @@
                   <%= number_to_currency(classroom.students.sum { |s| s.portfolio&.calculate_total_value_cents || 0 } / 100.0) %>
                 </span>
               </td>
-              <td class="table-body-cell table-body-cell-right table-actions-pinned">
-                <div class="flex items-center justify-end gap-1">
-                  <% if policy(classroom).edit? %>
-                    <%= ghost_action_link "Edit", edit_classroom_path(classroom), icon: "pencil" %>
-                  <% else %>
-                    <span class="table-no-permission">-</span>
-                  <% end %>
-                </div>
-              </td>
+              <% if actions_column %>
+                <td class="table-body-cell table-body-cell-right table-actions-pinned">
+                  <div class="flex items-center justify-end gap-1">
+                    <% if policy(classroom).edit? %>
+                      <%= ghost_action_link "Edit", edit_classroom_path(classroom), icon: "pencil" %>
+                    <% else %>
+                      <%# Still the dash here: this column does hold actions, just not on this row. %>
+                      <span class="table-no-permission">-</span>
+                    <% end %>
+                  </div>
+                </td>
+              <% end %>
             </tr>
           <% end %>
         <% else %>
           <tr class="table-body-row">
-            <td class="table-empty-cell" colspan="5">
+            <td class="table-empty-cell" colspan="<%= actions_column ? 5 : 4 %>">
               <p class="text-lg">No classrooms found</p>
               <p class="mt-2">Create your first classroom to get started!</p>
             </td>
