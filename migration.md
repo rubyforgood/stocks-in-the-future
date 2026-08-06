@@ -347,6 +347,56 @@ signed-out `main` is `p-4 lg:p-6` rather than a flat `p-6`.
 4. `spacing_test.rb` gains three assertions - the title gutter at both widths, and the
    heading/helper/table gaps - and I checked each fails against the markup it was written for.
 
+### Map: deriving perfect attendance (not started)
+
+**Asked for:** drop the per-student "Perfect attendance" checkbox and let the data decide, surfacing the
+result as a badge. It is the right instinct - the checkbox is a decision a teacher makes 25 times a
+quarter, and it is *already* wrong in the seeds: one entry has `is_perfect_attendance: true` with
+`attendance_days` **nil** and is paid the bonus, another counts 3 days as perfect. A flag that can
+contradict the number beside it is worse than an extra step.
+
+**Why it cannot be done yet.** There is no denominator. Nothing in the schema records how many school
+days a quarter has - `quarters` is `name`, `number`, `school_year_id`; `school_years` is two foreign
+keys; `years` is a name string. `grep` for `start_date|end_date|school_days|total_days` across the whole
+schema returns nothing. Perfect attendance means "attended every day there was", and the app does not
+know how many days there were.
+
+**The one derivation available from today's data is wrong.** Taking the denominator as the highest
+`attendance_days` in the grade book means that in a quarter where nobody attended every day, the best
+attender is paid a bonus they did not earn - and it changes when a teacher edits somebody else's row.
+Do not do this.
+
+**Current structure.** `grade_entries.is_perfect_attendance` (boolean, `default: false, null: false`),
+set by a checkbox per row, read only by `GradeEntry#attendance_perfect_earnings`, which pays
+`EARNINGS_FOR_PERFECT_ATTENDANCE` (100 cents). Also read by `AttendanceEntryPresenter#perfect_attendance?`
+for a Yes/No badge on `admin/students#show`.
+
+**Target structure.** `quarters.school_days` (integer, nullable). `GradeEntry#perfect_attendance?`
+returns `attendance_days.present? && school_days.present? && attendance_days >= school_days`. The column
+`is_perfect_attendance` goes. The table column becomes a **badge**, not an input.
+
+**Order of moves, and what each breaks.**
+
+1. **Add `quarters.school_days`, nullable, not backfilled.** Nothing reads it yet. Breaks nothing. It
+   must be nullable because no existing quarter has a value and inventing one would change what students
+   are paid.
+2. **Build somewhere to set it.** There is *no quarters UI at all* - `bin/rails routes | grep quarter` is
+   empty, quarters come from seeds and `Classroom#create_gradebooks_for_quarters`. This is the real cost
+   of the change, and it is a product question: an admin per school year, or the teacher at the start of a
+   quarter? A teacher-entered figure is closer to the truth and closer to the person who knows it.
+3. **Derive the predicate, keeping the column as the fallback** while `school_days` is nil. Two sources of
+   truth for one fact, deliberately and temporarily.
+4. **Replace the input with a badge** once a quarter has `school_days`. The column stops being a decision
+   and becomes a readout: "Perfect" / nothing, or "17 of 18 days".
+5. **Drop `is_perfect_attendance`.** Only after every quarter that matters has a `school_days`, because
+   this is the step that changes money.
+
+**The decision that blocks all of it.** Step 5 changes what a student is paid, and **finalized grade books
+have already paid out** - `DistributeFunds` has run and the transactions exist. So either the derivation
+applies only to grade books finalized after the change, or historical entries keep their stored boolean
+forever. That is not a design call; it needs whoever is accountable for the money. Until it is answered,
+the checkbox stays and the column at least explains what it pays.
+
 ### The switch becomes a component, and the grade book page is brought onto the system
 
 **What.** New `.tw-switch` / `.tw-switch-thumb` in `forms.css`, with the thumb as a real element.

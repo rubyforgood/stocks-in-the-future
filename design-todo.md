@@ -510,3 +510,29 @@ summary beside the title, which is what GitHub and Linear do for an entity's cou
 computation. Both are better than the present state, which pays for the queries and shows nothing.
 Worth deciding with a teacher: "students who have traded" and "orders this week" are the two that
 sound like they'd change how a lesson is run.
+
+## Perfect attendance is entered by hand, and already contradicts the data (2026-08)
+
+Reported as not adding value: a teacher ticks a box per student per quarter to say they attended every
+day, having already typed the day count into the cell beside it.
+
+It is worse than redundant. In the development seeds one entry carries `is_perfect_attendance: true` with
+`attendance_days` **nil** and is paid the 100-cent bonus, and another treats 3 days as perfect. The flag
+is independent of the number it summarises, so it can pay a bonus the attendance record contradicts.
+
+**It cannot be derived today**: nothing stores how many school days a quarter has. `quarters` holds a
+name and a number, `school_years` two foreign keys, `years` a name - and a search of the whole schema for
+`start_date|end_date|school_days|total_days` finds nothing. Taking the denominator from the highest
+`attendance_days` in the grade book would pay the best attender in a quarter where nobody was perfect.
+
+The map is in `migration.md`. Two things need answering before any of it:
+
+1. **Who sets a quarter's school days?** There is no quarters UI at all, so one has to be built. An admin
+   per school year, or the teacher at the start of the quarter - the teacher knows the number and is the
+   one the change is meant to help.
+2. **What happens to grade books already finalized?** They have paid out. Deriving the bonus retroactively
+   changes money that has been distributed, so either the derivation applies only from the change onward
+   or historical rows keep their stored flag. That belongs to whoever is accountable for the funds.
+
+Until then the checkbox stays, and the section copy at least states what the bonus pays - which it did not
+before.
