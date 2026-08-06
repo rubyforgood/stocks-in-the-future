@@ -28,9 +28,16 @@
                          data: { testid: "attendance-days-input" } %>
     </td>
     <td class="table-body-cell whitespace-nowrap">
+      <%# The checkbox tokens from components/ui/_checkbox, not `tw-input-primary`. That class is the
+          *text input* - w-full, bordered, 44px min-height - so on a checkbox it rendered a
+          **187x44px** box with a tick somewhere in it. The component cannot be used directly here
+          because it builds its own `check_box_tag` and this one is bound through `fields_for`, so the
+          class string is what is shared. accent-sitf-primary is how a native checkbox is tinted. %>
       <%= f.checkbox :is_perfect_attendance,
                      disabled:,
-                     class: "tw-input-primary",
+                     class: "size-4 shrink-0 rounded-sm border-slate-300 accent-sitf-primary " \
+                            "focus-visible:outline-2 focus-visible:outline-offset-2 " \
+                            "focus-visible:outline-sitf-primary",
                      data: { testid: "perfect-attendance-checkbox" } %>
     </td>
 

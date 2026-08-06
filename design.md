@@ -1195,6 +1195,43 @@ the title, not a band above the content.
 the page header, that no pill sits beside the sentence, that the page carries at most two surfaces, and
 that the first row stays above 240px.
 
+### The grade book page
+
+Reported as "does not match the design system at all", and it did not. It had never been opened: four
+links to it were added and its status badges asserted while the page itself went unread. Every figure
+here is what it measured.
+
+**A table always goes on `shared/_table_container`.** The grades table hand-rolled an `overflow-x-auto`
+div to carry the three attributes a data-only scroll region needs - `tabindex="0"`, `role="region"`,
+`aria-label` - and lost the card doing it: **0px border, transparent background, 0px radius** on a
+slate-50 page. `classrooms#show`'s roster had exactly this defect and this document records it as fixed
+there. The container takes an optional `region_label` now, so the affordance is an option rather than a
+reason to bypass the container.
+
+**`tw-input-primary` is the text input, and it was on a checkbox.** Perfect attendance rendered at
+**187x44px** - a full-width bordered box with a tick in it. A checkbox takes the tokens from
+`components/ui/_checkbox`: `size-4 rounded-sm border-slate-300 accent-sitf-primary`. `accent-*` is how a
+native checkbox is tinted; `rounded-sm` because at 16px the control radius is nearly a circle and a
+checkbox reads as a square.
+
+**A page shows its own state.** The grade book's status - a real enum the classroom list displays on
+every row - appeared nowhere on the grade book, so "Completed" in the list had no confirmation on the
+page it linked to. It is a pill against the `h1`, and the `h1` is now the **quarter**: "Grade book"
+identified nothing, since all four are grade books and all four had the same accessible name.
+
+**Form actions anchor to the leading edge, never centred.** Two centred stacks - the submit and the
+finalize - against a form whose own fields start at the left. Polaris, Primer and Tailwind UI all put
+form actions on the leading edge or in a footer bar.
+
+**One filled primary.** "Finalize grades" was a second `tw-btn-primary`, greyed when completed, floating
+at the foot of the page - and it is the action that pays every student and cannot be undone. It is
+`:danger_outline` in an explained block now, the same shape as the trading setting: the consequence in
+the copy, never in the control. For a completed grade book the block is not rendered at all, because a
+dead greyed control is worse than none.
+
+`grade_book_page_test.rb` measures the surface, the checkbox, the keyboard region, the status, the action
+alignment and the primary count. Six of its seven fail against the page as it was.
+
 ### Sidebar footer
 
 **A footer row is an ordinary nav row, pinned.** Same `px-3` inset, same 4px rhythm, separated

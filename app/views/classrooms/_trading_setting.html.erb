@@ -41,13 +41,17 @@
     <label class="inline-flex shrink-0 cursor-pointer items-center gap-2">
       <span class="text-sm font-medium text-slate-700 select-none">Trading</span>
       <%= check_box_tag "trading", "1", on,
-                        class: "peer sr-only",
+                        class: "sr-only",
                         disabled: !policy(classroom).toggle_trading?,
                         data: { controller: "submit-on-change",
                                 action: "change->submit-on-change#submit" } %>
-      <%# The track needs 3:1 against the page as a UI boundary: green-700 is 4.79:1 checked,
-          slate-400 is 2.9:1 unchecked, so the unchecked track also carries a border. %>
-      <div class="peer relative h-5 w-9 rounded-full border border-slate-400 bg-slate-300 after:absolute after:top-0.5 after:start-0.5 after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:border-green-700 peer-checked:bg-green-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full"></div>
+      <%# .tw-switch, one definition in forms.css. The thumb is a real element so its inset can be
+          measured - as a pseudo-element it had 0px of gap at the bottom and, when checked, at the
+          right, and three passes over this markup did not catch it because there was no box to
+          measure. %>
+      <span class="tw-switch">
+        <span class="tw-switch-thumb"></span>
+      </span>
     </label>
   <% end %>
 </div>

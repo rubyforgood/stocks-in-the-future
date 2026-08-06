@@ -33,4 +33,52 @@
   .tw-field-hint {
     @apply mt-1 text-sm text-slate-600
   }
+
+  /* Switch. One definition, because the hand-rolled version was wrong three commits running and
+     nobody could see it.
+
+     The knob was an `::after` on the track, `size-4` (16px) at a 2px inset, moved by
+     `translate-x-full`. The track is h-5 w-9 with a 1px border, so its padding box is 34x18: a 16px
+     knob at top 2px ends at 18px, flush against the bottom, and translating by its own width puts its
+     right edge at 34px, flush against the right. Reported as "no padding around the white circle
+     within the green oblong". Both were true, in every state.
+
+     14px in an 18px box at a 2px inset leaves 2px on all four sides, and the travel is then
+     34 - 14 - 2 - 2 = 16px, which is translate-x-4 - both on the scale, no arbitrary values.
+
+     The thumb is a real element rather than a pseudo-element, and that is the point: a pseudo-element
+     has no box to measure, so `getBoundingClientRect` cannot see it and a test cannot assert its
+     inset. That is why three passes over this markup never caught a 0px gap. A descendant cannot use
+     `peer-checked:`, which is why this is CSS rather than utilities.
+
+     The focus ring is new. The input is `sr-only`, so keyboard focus previously landed on something
+     invisible with no indicator anywhere - design.md's rule is that every removed outline gets a
+     visible replacement. */
+  .tw-switch {
+    @apply relative inline-block h-5 w-9 shrink-0 rounded-full border border-slate-400 bg-slate-300
+           transition-colors;
+  }
+
+  .tw-switch-thumb {
+    @apply pointer-events-none absolute top-0.5 start-0.5 size-3.5 rounded-full bg-white
+           transition-transform;
+  }
+
+  /* green-700 is 4.79:1 against the page, slate-400 2.9:1 - so the unchecked track keeps its border
+     to clear the 3:1 a UI boundary needs. */
+  input:checked + .tw-switch {
+    @apply border-green-700 bg-green-700;
+  }
+
+  input:checked + .tw-switch .tw-switch-thumb {
+    @apply translate-x-4;
+  }
+
+  input:focus-visible + .tw-switch {
+    @apply outline-2 outline-offset-2 outline-sitf-primary;
+  }
+
+  input:disabled + .tw-switch {
+    @apply cursor-not-allowed;
+  }
 }

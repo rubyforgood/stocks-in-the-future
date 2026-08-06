@@ -347,6 +347,30 @@ signed-out `main` is `p-4 lg:p-6` rather than a flat `p-6`.
 4. `spacing_test.rb` gains three assertions - the title gutter at both widths, and the
    heading/helper/table gaps - and I checked each fails against the markup it was written for.
 
+### The switch becomes a component, and the grade book page is brought onto the system
+
+**What.** New `.tw-switch` / `.tw-switch-thumb` in `forms.css`, with the thumb as a real element.
+`shared/_table_container` takes an optional `region_label`. `grade_books/show`, `_table`, `_grade_entry`
+and `_finalize_button` are reworked. New `grade_book_page_test.rb`.
+
+**Why it has blast radius.**
+
+1. **The switch thumb is a real element, not `::after`.** Anything selecting `label div.peer` or reading
+   the thumb through `getComputedStyle(el, "::after")` moves. The geometry changed too: 14px thumb,
+   `translate-x-4`, 2px inset on all four sides in both states - it was flush against the bottom always
+   and the right when checked. The track also gains a focus ring, which it had none of.
+2. **`shared/_table_container` has a new optional local.** Existing callers are unchanged; passing
+   `region_label` adds `tabindex="0"`, `role="region"` and a name to the scroll wrapper.
+3. **`grade_books#show`'s `h1` is the quarter, not "Grade book".** Any test asserting that `h1`, or the
+   page title, changes. The status pill is new on the page.
+4. **"Finalize grades" is `:danger_outline`, not `tw-btn-primary`**, and is **not rendered at all** for a
+   completed grade book rather than rendered disabled. A test asserting a disabled Finalize would fail;
+   `assert_no_button` passes either way, which is why the existing suite did not notice.
+5. **The perfect-attendance checkbox is 16px, not 187x44.** Anything clicking it by position moves.
+6. **Row height stays 69px.** That is 44px of input plus 24px of padding plus the hairline, the same
+   arithmetic as the 57px row with a 32px control. Shrinking the inputs to hit 48px would trade a real
+   problem for a worse one - design.md's line about not shrinking content to dedupe sizes.
+
 ### The classroom page stops being two columns
 
 **What.** `classrooms#show` stacks the roster and the grade books as full-width sections instead of a

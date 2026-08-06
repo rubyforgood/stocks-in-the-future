@@ -1,25 +1,25 @@
-<%# tabindex and role, because this table is pure data - no links, no inputs, nothing focusable
-    inside it - and it scrolls horizontally. A scroll container whose content cannot be focused
-    cannot be scrolled from the keyboard at all (axe scrollable-region-focusable), so the columns
-    past the right edge were unreachable without a mouse. Every other scrolling table in the app
-    holds row-action links, which give a keyboard user a way in; this one holds grades. Same
-    treatment as components/ui/_data_table. %>
-<div class="overflow-x-auto focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary"
-     tabindex="0"
-     role="region"
-     aria-label="Grades">
-  <table class="table-base">
-    <thead>
-      <tr class="table-header-row">
-        <th scope="col" class="table-header-cell table-header-cell-left">Student</th>
-        <th scope="col" class="table-header-cell table-header-cell-left">Math grade</th>
-        <th scope="col" class="table-header-cell table-header-cell-left">Reading grade</th>
-        <th scope="col" class="table-header-cell table-header-cell-left">Attendance days</th>
-        <th scope="col" class="table-header-cell table-header-cell-left">Perfect attendance</th>
-      </tr>
-    </thead>
-    <tbody class="bg-white">
-      <%= render partial: "grade_entry", collection: grade_book.grade_entries.sort_by { it.user.username }, as: :entry, locals: { disabled: grade_book.completed? } %>
-    </tbody>
-  </table>
-</div>
+<%# On shared/_table_container, like every other table in the app.
+
+    This was a hand-rolled `overflow-x-auto` div, so measured on a Chromebook the grades table sat on
+    **no surface at all**: 0px border, transparent background, 0px radius, against a slate-50 page. The
+    roster on classrooms#show had exactly this defect and design.md records it as fixed there; this page
+    was never looked at. The container carries the same `.table-wrapper` card every other table gets.
+
+    region_label keeps the keyboard-scroll affordance the hand-rolled version was written for: a
+    scrolling container needs to be focusable or its right-hand columns are unreachable without a mouse
+    (axe scrollable-region-focusable). It is a container option now rather than a reason to bypass the
+    container. %>
+<%= render "shared/table_container", region_label: "Grades" do %>
+  <thead>
+    <tr class="table-header-row">
+      <th scope="col" class="table-header-cell table-header-cell-left">Student</th>
+      <th scope="col" class="table-header-cell table-header-cell-left">Math grade</th>
+      <th scope="col" class="table-header-cell table-header-cell-left">Reading grade</th>
+      <th scope="col" class="table-header-cell table-header-cell-left">Attendance days</th>
+      <th scope="col" class="table-header-cell table-header-cell-left">Perfect attendance</th>
+    </tr>
+  </thead>
+  <tbody class="bg-white">
+    <%= render partial: "grade_entry", collection: grade_book.grade_entries.sort_by { it.user.username }, as: :entry, locals: { disabled: grade_book.completed? } %>
+  </tbody>
+<% end %>

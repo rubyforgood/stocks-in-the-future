@@ -147,6 +147,19 @@ carried its state in the track's colour, and said nothing about what it did. A s
 not in a card of its own. **Ask what the switch's colour is being asked to communicate**; if it is the
 only thing saying which way the setting points, the state is not readable.
 
+**A pseudo-element cannot be measured, so its geometry never gets checked.** The switch thumb was an
+`::after`, and it had **0px of gap** at the bottom always and at the right when checked - a 16px thumb at
+a 2px inset in a 34x18 padding box, moved by `translate-x-full`. Three passes over that markup carried the
+same string forward, because `getBoundingClientRect` cannot see a pseudo-element and no test could assert
+the inset. **If a control's position carries meaning, make it a real element.** It is `.tw-switch` in
+`forms.css` now, defined once.
+
+**Read the page you are linking to.** I added four links to `grade_books#show`, asserted its status
+badges, rebuilt the section around it twice, and never opened it. It had a table on **no surface** (0px
+border, transparent, 0px radius), a checkbox rendered at **187x44px** because it carried the text-input
+class, no sign of its own status, centred form actions and **two filled primaries**. A page one click
+downstream of the one you are fixing has usually drifted for the same reasons.
+
 **A pill never prefixes a sentence, and a switch is never labelled with a verb.** Both were my second
 attempt at that setting, and both are inventions: Polaris, Primer and Carbon place a pill against a
 *title* or on its own line, and Polaris's "Turn on" verb goes on a **button** - a switch's position is

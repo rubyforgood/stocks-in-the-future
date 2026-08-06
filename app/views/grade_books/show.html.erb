@@ -9,9 +9,23 @@
   <% autosave = @grade_book.completed? ? {} : { controller: "autosave", autosave_interval_value: 30_000 } %>
 
   <%= tag.div data: autosave do %>
-    <% grade_book_subtitle = [@classroom.name, @grade_book.quarter&.name].compact.join(" · ") %>
+    <%# The quarter is the title. "Grade book" identified nothing - every grade book is one, and the
+        page's accessible name was the same on all four - so the quarter leads and the classroom is the
+        description, which is what classrooms#show does with name and meta.
+
+        The status is on the page for the first time. It is a real enum the classroom list now shows on
+        every row, and the page it links to did not say which state it was in - so a teacher could see
+        "Completed" in the list and find no confirmation of it here. A pill against the title is where
+        every system puts entity state. %>
+    <% grade_book_subtitle = [@classroom.name, "grade book"].compact.join(" ") %>
+    <% status_tones = { "draft" => :neutral, "verified" => :info, "completed" => :success } %>
     <%= render layout: "components/ui/page_header",
-               locals: { title: "Grade book", description: grade_book_subtitle } do %><% end %>
+               locals: { title: @grade_book.quarter&.name || "Grade book",
+                         description: grade_book_subtitle } do %>
+      <%= render "components/ui/badge",
+                 label: @grade_book.status.capitalize,
+                 tone: status_tones.fetch(@grade_book.status, :neutral) %>
+    <% end %>
 
     <%# A completed grade book has already paid out, so there is nothing to add to it. %>
     <% can_populate = policy(@grade_book).populate? && !@grade_book.completed? %>
@@ -41,8 +55,11 @@
 
         <%= render partial: "table", locals: { grade_book: @grade_book } %>
 
-        <%# Was a <br>. Spacing belongs in the layout, not in the content. %>
-        <div class="mt-6 flex flex-col items-center">
+        <%# Left-aligned, not centred. Nothing else in the app centres a form action - the classroom
+            form puts its submit on the left - and Polaris, Primer and Tailwind UI all anchor form
+            actions to the form's leading edge or to a footer bar, never to its centre. This was one of
+            two centred stacks on the page. %>
+        <div class="mt-6">
           <%= render partial: "submit_button" %>
         </div>
       <% end %>
@@ -59,10 +76,27 @@
       </div>
     <% end %>
 
-    <% if current_user.admin? %>
-      <div class="flex flex-col items-center pt-4">
-        <%= render partial: "finalize_button" %>
-      </div>
+    <%# Finalizing pays the students, and it cannot be undone - so it says so, next to the control,
+        rather than being a second filled primary floating at the foot of the page. Same reasoning as
+        the trading setting: the consequence belongs in the copy, never in the control.
+
+        `:secondary`, because design.md allows one filled primary per page and "Save grades" is it.
+        Irreversibility is carried by the sentence and by the existing turbo_confirm, not by making the
+        button red - a red button at rest is an always-on alarm. %>
+    <% if current_user.admin? && entries && !@grade_book.completed? %>
+      <section class="tw-card mt-6 p-5" aria-labelledby="finalize-heading">
+        <div class="flex flex-wrap items-start justify-between gap-4">
+          <div class="min-w-0 flex-1">
+            <p id="finalize-heading" class="text-sm font-medium text-slate-900">Finalize this quarter</p>
+            <p class="mt-1 text-sm text-slate-600">
+              Pays each student the funds their grades and attendance have earned, and locks these
+              entries. This cannot be undone.
+            </p>
+          </div>
+
+          <%= render partial: "finalize_button" %>
+        </div>
+      </section>
     <% end %>
   <% end %>
 <% end %>

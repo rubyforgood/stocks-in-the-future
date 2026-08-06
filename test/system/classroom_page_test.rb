@@ -94,6 +94,68 @@ class ClassroomPageTest < ApplicationSystemTestCase
                "a status pill sits beside the state sentence; the sentence already says the state"
   end
 
+  # "There is no padding around the white circle within the green oblong." There was not: the thumb was
+  # a `::after` at `size-4` with `translate-x-full`, and the track's padding box is 34x18 - so a 16px
+  # thumb at a 2px inset sat flush against the bottom always, and flush against the right when checked.
+  #
+  # It survived three passes over that markup because a pseudo-element has no box: getBoundingClientRect
+  # cannot see it, so nothing could measure the gap. The thumb is a real element now, which is what makes
+  # this test possible at all.
+  test "the switch thumb is evenly inset in both states" do
+    classroom = create(:classroom, trading_enabled: false)
+    teacher_viewing(classroom)
+
+    visit classroom_path(classroom)
+
+    assert_equal [2, 2, 2], thumb_insets.values_at("top", "bottom", "left"),
+                 "the thumb is not evenly inset while off: #{thumb_insets.inspect}"
+
+    find("label", text: "Trading").click
+    assert_text "Trading is on."
+
+    on = thumb_insets
+
+    assert_equal [2, 2, 2], on.values_at("top", "bottom", "right"),
+                 "the thumb is not evenly inset while on: #{on.inspect}"
+    assert_equal 18, on["left"], "the thumb did not travel the full track"
+  end
+
+  # Insets measured from inside the track's border, which is where the gap is judged by eye.
+  def thumb_insets
+    page.evaluate_script(<<~JS)
+      (function () {
+        const track = document.querySelector(".tw-switch");
+        const thumb = document.querySelector(".tw-switch-thumb");
+        const t = track.getBoundingClientRect(), k = thumb.getBoundingClientRect();
+        const b = parseFloat(getComputedStyle(track).borderTopWidth);
+        return {
+          top: Math.round(k.top - t.top - b),
+          bottom: Math.round(t.bottom - b - k.bottom),
+          left: Math.round(k.left - t.left - b),
+          right: Math.round(t.right - b - k.right)
+        };
+      })()
+    JS
+  end
+
+  # The input is sr-only, so without this a keyboard user focuses something invisible.
+  test "the switch shows focus" do
+    classroom = create(:classroom, :with_trading)
+    teacher_viewing(classroom)
+
+    visit classroom_path(classroom)
+
+    outline = page.evaluate_script(<<~JS)
+      (function () {
+        const input = document.querySelector(".tw-switch").previousElementSibling;
+        input.focus();
+        return getComputedStyle(document.querySelector(".tw-switch")).outlineWidth;
+      })()
+    JS
+
+    assert_equal "2px", outline, "the track shows no focus ring when its input is focused"
+  end
+
   # Six card surfaces on one page was reported as too many: the trading card, the roster's table card,
   # and one per grade book. Four quarters with a name and a status are list rows in one card, which is
   # what Polaris's ResourceList and Primer's Box rows are.

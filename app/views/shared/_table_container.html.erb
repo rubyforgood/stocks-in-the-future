@@ -1,9 +1,22 @@
 <%# table_class: for a caller that needs table-fixed - two tables that have to share one column
-    geometry, for instance. Optional, so every other caller is unchanged. %>
+    geometry, for instance. Optional, so every other caller is unchanged.
+
+    region_label: for a table that holds no focusable content. A scroll container whose contents
+    cannot be focused cannot be scrolled from the keyboard at all (axe scrollable-region-focusable),
+    so a data-only table needs tabindex="0", role="region" and a name. Most tables here hold row
+    action links, which give a keyboard user a way in; the grade book holds inputs but grade_books#show
+    used to hand-roll the whole wrapper to get these three attributes, and lost the card surface doing
+    it. Optional, so a table with links is unchanged. %>
+<% region = local_assigns[:region_label].presence %>
+<% focus_ring = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary" %>
+
 <div class="table-container">
-  <div class="table-wrapper overflow-x-auto">
+  <%= tag.div class: ["table-wrapper overflow-x-auto", (focus_ring if region)],
+              tabindex: (0 if region),
+              role: ("region" if region),
+              aria: { label: region } do %>
     <table class="table-base <%= local_assigns[:table_class] %>">
       <%= yield %>
     </table>
-  </div>
+  <% end %>
 </div>

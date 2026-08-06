@@ -1,9 +1,16 @@
+<%# `:danger_outline`, which design.md defines for exactly this: an action whose consequence is serious,
+    identical to `:secondary` at rest so it never competes with the page's one filled primary ("Save
+    grades"), turning rose only on hover. A red button at rest is an always-on alarm; revealing the
+    danger at the point of action is the industry affordance (GitHub, Gmail, Linear).
+
+    No disabled variant, because the block around this is not rendered for a completed grade book - it
+    has already paid out, so "Finalize this quarter" would be a dead control. This used to render as a
+    second filled `tw-btn-primary`, greyed when completed, centred at the foot of the page. %>
 <%= button_to "Finalize grades", finalize_classroom_grade_book_path(@classroom, @grade_book),
-              disabled: @grade_book.completed?,
-              class: @grade_book.completed? ? "tw-btn-primary-disabled" : "tw-btn-primary",
+              class: "tw-btn-danger-outline",
               data: {
                 autosave_target: "button",
                 turbo_frame: "_top",
                 turbo_confirm: "Are you sure you want to finalize these grades? This action cannot be undone."
               },
-              form: { id: "finalize-button" } %>
+              form: { id: "finalize-button", class: "shrink-0" } %>
