@@ -1349,6 +1349,26 @@ swapping the table takes the focus and any half-typed value with it. A condition
 always-rendered container carrying the id, or there is nothing for the replacement to target and the
 message outlives the problem.
 
+**A status pill is words the reader can act on, never the enum's own value.** `status.capitalize` gave
+"Draft", and it was reported as unreadable in the exact way that matters: *"I'm unclear whether this is
+because the grades have not saved?"*. That is a collision, not a misreading - this page autosaves every
+30s, has a "Save grades" button and a live "Saving..." region a few inches from the pill, and "draft" is
+the word Docs, Gmail and WordPress all use for **unsaved** work. Stripe can label an invoice "Draft"
+because nothing on that screen is autosaving. So the labels are the lifecycle in the page's **own verb** -
+the action is "Finalize this quarter", so the states are **not finalized / finalizing / finalized** -
+which cannot be confused with saving and tells a teacher what is outstanding rather than making them
+learn an enum. `GradeBooksHelper.grade_book_status_badge` is the only definition; the page and the
+classroom list each had their own `tones` hash before, which is the drift mechanism, twice.
+
+**Naming a state is not explaining it.** A finalized grade book carried a pill and nothing else: every
+input disabled, a dead "Save grades" primary, no finalize block, and no sentence anywhere saying what had
+happened or why nothing could be typed - reported as the pill's "utility is unclear as a completed grades
+page". The consequence now leads a callout above the table ("These grades have been paid and can no longer
+be changed"), and the callout's **title carries the consequence rather than the state**, because the pill
+already states the state and a third copy of one fact is what the Dividers-adjacent rule forbids. The dead
+primary is not rendered at all - same rule as "Add new students", and note that `assert_no_button` passed
+either way, because Capybara does not match a disabled button.
+
 **Two summaries of one set of numbers must state their relationship, or they read as rivals.** The
 split by reason and the Earns column are the **same money on different axes** - Earns adds up per
 student, the split adds up per reason, and the only figure they share is the corner: $52.60 either way.

@@ -12,9 +12,12 @@
     the `divide-x` between grid cells I first reached for is not in that list.
 
     The original rail was right about all of this and wrong only about its width. What it could not do
-    at 256px was carry each quarter's status, which is a real enum (draft / verified / completed) that a
-    teacher otherwise discovers by opening all four. %>
-<% tones = { "draft" => :neutral, "verified" => :info, "completed" => :success } %>
+    at 256px was carry each quarter's status, which a teacher otherwise discovers by opening all four.
+
+    The pill's wording comes from `grade_book_status_badge`. The enum's own words were printed here and
+    on the grade book page, from two separate `tones` hashes - and "Draft" was reported as unreadable
+    on that page, where it sits near a Save button. One mapping now, so the list and the page cannot
+    disagree about what a state is called. %>
 
 <section aria-labelledby="grade-books-heading">
   <h2 id="grade-books-heading" class="text-base font-semibold text-slate-900">Grade books</h2>
@@ -35,9 +38,7 @@
                                  "focus-visible:outline-sitf-primary" do %>
                 <span class="flex min-w-0 items-center gap-3">
                   <span class="text-sm font-medium text-slate-900"><%= book.quarter.name %></span>
-                  <%= render "components/ui/badge",
-                             label: book.status.capitalize,
-                             tone: tones.fetch(book.status, :neutral) %>
+                  <%= grade_book_status_badge(book) %>
                 </span>
                 <%= lucide_icon("arrow-right", class: "size-4 shrink-0 text-slate-500") %>
               <% end %>

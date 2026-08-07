@@ -15,8 +15,12 @@
 
         The status is on the page for the first time. It is a real enum the classroom list now shows on
         every row, and the page it links to did not say which state it was in - so a teacher could see
-        "Completed" in the list and find no confirmation of it here. A pill against the title is where
-        every system puts entity state.
+        it in the list and find no confirmation of it here. A pill against the title is where every
+        system puts entity state.
+
+        The wording comes from `grade_book_status_badge`, not from the enum. It printed "Draft", which
+        was read as "the grades have not saved" - a fair reading beside a Save button and a live
+        "Saving..." region. See GradeBooksHelper.
 
         `badge:`, not the block: the block is the header's *actions* slot, which right-aligns its
         contents, so the pill floated alone in the top-right corner where "Add student" and "Edit
@@ -24,16 +28,10 @@
         to a local because a nested render inside the locals hash trips erb_lint's
         Layout/FirstMethodArgumentLineBreak. %>
     <% grade_book_subtitle = [@classroom.name, "grade book"].compact.join(" ") %>
-    <% status_tones = { "draft" => :neutral, "verified" => :info, "completed" => :success } %>
-    <% status_badge = render(
-         "components/ui/badge",
-         label: @grade_book.status.capitalize,
-         tone: status_tones.fetch(@grade_book.status, :neutral)
-       ) %>
     <%= render layout: "components/ui/page_header",
                locals: { title: @grade_book.quarter&.name || "Grade book",
                          description: grade_book_subtitle,
-                         badge: status_badge } do %><% end %>
+                         badge: grade_book_status_badge(@grade_book) } do %><% end %>
 
     <%# A completed grade book has already paid out, so there is nothing to add to it. %>
     <%# A control that can only report that it did nothing is not a control. "Add new students" was
@@ -87,6 +85,24 @@
       </div>
     </div>
 
+    <%# A finalized grade book had a pill saying "Completed" and nothing else: every input disabled, a
+        dead "Save grades" button, no finalize block, and no sentence anywhere saying what had happened
+        or why none of it could be touched. Reported as the pill's "utility is unclear as a completed
+        grades page" - naming a state is not explaining it.
+
+        The title carries the **consequence**, not the state, because the pill beside the h1 already
+        states the state and design.md forbids a third copy of one fact. Not dismissible: this is
+        permanently true of the page, and a callout that removes itself would be lying about it. %>
+    <% if @grade_book.completed? %>
+      <%= render "components/ui/callout",
+                 tone: :info,
+                 title: "These grades have been paid and can no longer be changed",
+                 body: "Finalizing paid each student's earnings into their portfolio. " \
+                       "The total below is what was paid.",
+                 class: "mb-4",
+                 testid: "finalized-notice" %>
+    <% end %>
+
     <%# The populate buttons stay outside this form. A form cannot be nested inside
         another - the browser drops the inner one - so a button_to placed within the
         grades form would silently submit the grades instead of adding students. %>
@@ -108,9 +124,14 @@
             form puts its submit on the left - and Polaris, Primer and Tailwind UI all anchor form
             actions to the form's leading edge or to a footer bar, never to its centre. This was one of
             two centred stacks on the page. %>
-        <div class="mt-6">
-          <%= render partial: "submit_button" %>
-        </div>
+        <%# Not rendered for a finalized book. It was a disabled primary that could never do anything -
+            the rule this page already applies to "Add new students", and `assert_no_button` passed
+            either way because Capybara does not match a disabled button. %>
+        <% unless @grade_book.completed? %>
+          <div class="mt-6">
+            <%= render partial: "submit_button" %>
+          </div>
+        <% end %>
       <% end %>
     <% else %>
       <div class="tw-card">

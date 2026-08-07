@@ -507,13 +507,13 @@ class GradeBookPageTest < ApplicationSystemTestCase
 
     visit classroom_grade_book_path(classroom, book)
 
-    assert_text "Draft"
+    assert_text "Not finalized"
 
     beside = page.evaluate_script(<<~JS)
       (function () {
         const h1 = document.querySelector("main h1");
         const pill = Array.from(document.querySelectorAll("main span"))
-          .find(function (s) { return s.textContent.trim() === "Draft"; });
+          .find(function (s) { return s.textContent.trim() === "Not finalized"; });
         if (!pill) return null;
         const a = h1.getBoundingClientRect(), b = pill.getBoundingClientRect();
         // On the title's line, and immediately after it rather than pushed to the far edge.
@@ -521,7 +521,7 @@ class GradeBookPageTest < ApplicationSystemTestCase
       })()
     JS
 
-    assert_not_nil beside, "no Draft pill on the page"
+    assert_not_nil beside, "no status pill on the page"
     assert beside["sameLine"], "the status pill is not on the title's line"
     assert_operator beside["gap"], :<, 40,
                     "the status pill sits #{beside['gap']}px after the title - it is still in the corner"
@@ -584,14 +584,24 @@ class GradeBookPageTest < ApplicationSystemTestCase
     assert_text joiner.display_name
   end
 
-  test "the page says which state the grade book is in" do
+  # The state is named in words that cannot be read as save state. "Draft" could: this page autosaves,
+  # carries a "Save grades" button and a live "Saving..." region, and every other product uses "draft"
+  # for unsaved work - which is exactly how it was read.
+  test "the page says which state the grade book is in, without saying draft" do
     classroom, book = a_grade_book_with_entries
     sign_in teacher_for(classroom)
 
     visit classroom_grade_book_path(classroom, book)
 
     assert_selector "h1", text: book.quarter.name
-    assert_text "Draft"
+    assert_text "Not finalized"
+    assert_no_text "Draft"
+
+    book.update!(status: :completed)
+    visit classroom_grade_book_path(classroom, book)
+
+    assert_text "Finalized"
+    assert_no_text "Completed"
   end
 
   test "form actions are not centred" do
@@ -644,7 +654,16 @@ class GradeBookPageTest < ApplicationSystemTestCase
 
     visit classroom_grade_book_path(classroom, book)
 
-    assert_text "Completed"
+    assert_text "Finalized"
     assert_no_selector "#finalize-button"
+
+    # And the state is explained, not just named. Naming it was the whole of what this page did: a
+    # pill, every input dead, and no sentence saying what had happened or why nothing could be typed.
+    assert_selector "[data-testid='finalized-notice']",
+                    text: "These grades have been paid and can no longer be changed"
+
+    # A control that can never act is not rendered. `assert_no_button` cannot see this on its own -
+    # Capybara does not match a disabled button, so it passed while a dead primary was on screen.
+    assert_no_selector "#submit-button"
   end
 end

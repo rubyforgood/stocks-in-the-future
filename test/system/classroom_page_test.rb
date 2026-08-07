@@ -229,7 +229,9 @@ class ClassroomPageTest < ApplicationSystemTestCase
 
     within("section[aria-labelledby='grade-books-heading']") do
       assert_selector "a", minimum: 1
-      assert_text "Draft"
+      # One mapping for the label, shared with the grade book page, so the two cannot disagree.
+      assert_text "Not finalized"
+      assert_no_text "Draft"
     end
   end
 end
