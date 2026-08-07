@@ -40,7 +40,12 @@
             belongs to the price rather than to what the student owns. Not shown for an archived company,
             where the em dash in the column would be the whole of the information. %>
         <% if !stock.archived? && stock.yesterday_price_cents.present? %>
-          <span class="mt-1 text-xs lg:hidden <%= movement_class(stock.percentage_change) %>">
+          <span class="mt-1 inline-flex items-center gap-1 text-xs lg:hidden <%= movement_class(stock.percentage_change) %>">
+            <% if stock.percentage_change.positive? %>
+              <%= lucide_icon("trending-up", class: "size-3.5 shrink-0") %>
+            <% elsif stock.percentage_change.negative? %>
+              <%= lucide_icon("trending-down", class: "size-3.5 shrink-0") %>
+            <% end %>
             <%= stock.percentage_change_formatted %> since yesterday
           </span>
         <% end %>
@@ -69,7 +74,19 @@
     <% if stock.archived? || stock.yesterday_price_cents.blank? %>
       <span class="text-slate-500">&mdash;</span>
     <% else %>
-      <span class="<%= movement_class(stock.percentage_change) %>">
+      <%# The arrow, which design.md specifies for this column and which the card that preceded it had - I
+          dropped it when moving the data across. It is also the glyph `_trade_actions` gives up: a vertical
+          arrow in a finance interface means the *price* moved that way, which is this column and not the
+          Buy and Sell buttons, so the two cannot both use it.
+
+          The sign already satisfies "never colour alone"; the arrow is what makes the direction readable
+          without reading, which is the point of a column you scan. No arrow when the change is zero. %>
+      <span class="inline-flex items-center justify-end gap-1 <%= movement_class(stock.percentage_change) %>">
+        <% if stock.percentage_change.positive? %>
+          <%= lucide_icon("trending-up", class: "size-4 shrink-0") %>
+        <% elsif stock.percentage_change.negative? %>
+          <%= lucide_icon("trending-down", class: "size-4 shrink-0") %>
+        <% end %>
         <%= stock.percentage_change_formatted %>
       </span>
     <% end %>

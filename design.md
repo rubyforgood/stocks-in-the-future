@@ -2516,9 +2516,16 @@ and the report from looking at it was that they were garish and did not work. Th
 comparison holds for a single trade button in a row, not for a permanently doubled one; and the
 argument was made from reading the class names rather than the page.
 
-The two actions are told apart by **label and arrow** (`arrow-up` Buy, `arrow-down` Sell), not by
-colour - which the colour rules require regardless, since colour may not be the only carrier of
-meaning. Measured: white ground, `slate-700` label at 10.35:1, 40px, identical at 375px and 1366px.
+The two actions are told apart by their **labels**, not by colour - which the colour rules require
+regardless, since colour may not be the only carrier of meaning. Measured: white ground, `slate-700`
+label at 10.35:1, 40px, identical at 375px and 1366px.
+
+**And not by an arrow, which this entry used to prescribe** (`arrow-up` Buy, `arrow-down` Sell). In a
+finance interface a vertical arrow means the *price* moved that way, and that is what the trading floor's
+own **Change** column uses it for, a few pixels along the same row - so the same glyph would mean two
+things on one screen. Fidelity, Vanguard, Schwab, Robinhood, E*Trade, Webull and Coinbase all label Buy and
+Sell as text and leave the arrows to the numbers. The label is the affordance; the leading-icon rule is
+about row-action ghosts, not about a CTA.
 
 **Emphasis belongs to the confirm step, not the list.** The order modal's Review order and submit
 are a single `.tw-btn-primary` in brand teal, with Cancel and Back as secondary beside them - one

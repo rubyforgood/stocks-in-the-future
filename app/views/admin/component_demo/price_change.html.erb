@@ -74,7 +74,16 @@
                   <span class="table-cell-content"><%= number_to_currency(state[:price]) %></span>
                 </td>
                 <td class="table-body-cell table-body-cell-right bg-blue-50">
-                  <span class="<%= movement_class(state[:change]) %>">
+                  <%# The arrow is here because it is in the app. An earlier draft of this page showed the
+                      states list with arrows and this mock without them, so the two halves of a preview of
+                      *shipped* UI disagreed with each other and one of them disagreed with the app. That was
+                      reported before I noticed it. A mock's job is to be the thing. %>
+                  <span class="inline-flex items-center justify-end gap-1 <%= movement_class(state[:change]) %>">
+                    <% if state[:change].positive? %>
+                      <%= lucide_icon("trending-up", class: "size-4 shrink-0") %>
+                    <% elsif state[:change].negative? %>
+                      <%= lucide_icon("trending-down", class: "size-4 shrink-0") %>
+                    <% end %>
                     <%= state[:change].zero? ? "0.00%" : format("%+.2f%%", state[:change]) %>
                   </span>
                 </td>
@@ -150,7 +159,12 @@
                 <td class="table-body-cell">
                   <span class="block font-medium text-slate-900"><%= state[:ticker] %></span>
                   <span class="block text-sm text-slate-600"><%= state[:company] %></span>
-                  <span class="mt-1 block text-xs <%= movement_class(state[:change]) %>">
+                  <span class="mt-1 inline-flex items-center gap-1 text-xs <%= movement_class(state[:change]) %>">
+                    <% if state[:change].positive? %>
+                      <%= lucide_icon("trending-up", class: "size-3.5 shrink-0") %>
+                    <% else %>
+                      <%= lucide_icon("trending-down", class: "size-3.5 shrink-0") %>
+                    <% end %>
                     <%= format("%+.2f%%", state[:change]) %> since yesterday
                   </span>
                   <span class="mt-1 block text-xs text-slate-600">You own 0</span>
@@ -163,6 +177,40 @@
           </tbody>
         </table>
       <% end %>
+    </div>
+  </section>
+
+  <%# ------------------------------------------------------------------ buy and sell %>
+  <section aria-labelledby="actions">
+    <div class="mb-3">
+      <h2 id="actions" class="text-base font-semibold text-slate-900">Buy and Sell are still buttons</h2>
+      <p class="mt-1 max-w-2xl text-sm text-slate-600">
+        Unchanged by this column: `.tw-btn-secondary`, 40px, bordered white with a slate-700 label at
+        10.35:1, rendered as links that open the order modal. They are **not** ghosts like other row
+        actions, and not filled either - a filled teal Buy beside a filled amber Sell put two saturated
+        fills in two hues on every row, and was reported as garish.
+      </p>
+    </div>
+
+    <div class="tw-card p-5">
+      <div class="flex flex-wrap items-center gap-6">
+        <span class="text-xs text-slate-600">Active company</span>
+        <div class="flex gap-2">
+          <span class="tw-btn-secondary">Buy</span>
+          <span class="tw-btn-secondary">Sell</span>
+        </div>
+
+        <span class="text-xs text-slate-600">Archived - sell only</span>
+        <div class="flex gap-2">
+          <span class="tw-btn-secondary">Sell</span>
+        </div>
+      </div>
+
+      <p class="mt-4 max-w-2xl text-sm text-slate-600">
+        And no arrows on them, which is why the Change column can have them: a vertical arrow in a finance
+        interface means the price moved that way, so the same glyph cannot also mean "place an order". The
+        buttons used to carry one; the column now does.
+      </p>
     </div>
   </section>
 

@@ -58,7 +58,8 @@ class PriceChangeTest < ApplicationSystemTestCase
           // The whole row's text: the primary cell leads with the ticker, so the first line is "UP", not
           // "Riser", and matching on the first line found nothing.
           return { name: tr.textContent.replace(/\s+/g, " ").trim(),
-                   change: change ? change.textContent.trim() : null,
+                   change: change ? change.textContent.replace(/\s+/g, " ").trim() : null,
+                   arrows: change ? change.querySelectorAll("svg").length : 0,
                    colour: change ? getComputedStyle(change.querySelector("span") || change).color : null };
         });
       })()
@@ -70,6 +71,42 @@ class PriceChangeTest < ApplicationSystemTestCase
     assert_equal "+10.00%", riser["change"]
     assert_equal "-10.00%", faller["change"]
     assert_not_equal riser["colour"], faller["colour"], "up and down are the same colour"
+
+    # The arrow, which design.md specifies for this column and which the sign alone does not replace: it is
+    # what makes the direction readable without reading. I shipped the column without it, and the preview
+    # showed it, so the two disagreed.
+    assert_equal 1, riser["arrows"], "the up figure has no arrow"
+    assert_equal 1, faller["arrows"], "the down figure has no arrow"
+  end
+
+  # Buy and Sell are unchanged by the column beside them: bordered secondary buttons, not ghosts and not
+  # filled, and with no icons - a vertical arrow means the price moved, which is the Change column's glyph
+  # now, so the same one cannot also mean "place an order".
+  test "buy and sell are still secondary buttons, with no arrows" do
+    a_student_with_stocks
+    create(:stock, ticker: "UP", company_name: "Riser", price_cents: 11_000, yesterday_price_cents: 10_000)
+
+    visit stocks_path
+
+    buy = page.evaluate_script(<<~JS)
+      (function () {
+        // The visible copy. `_trade_actions` renders twice - `lg:hidden` inside the primary cell and
+        // `hidden lg:table-cell` in the actions column - so the first in the DOM is the one that is
+        // display:none at this width, and measuring it reports a 0px button.
+        const el = Array.from(document.querySelectorAll("[data-testid='buy-stock-button']"))
+          .find(function (c) { return c.getClientRects().length > 0; });
+        if (!el) return null;
+        const box = el.getBoundingClientRect();
+        return { classes: el.className, height: Math.round(box.height),
+                 icons: el.querySelectorAll("svg").length, text: el.textContent.trim() };
+      })()
+    JS
+
+    assert_not_nil buy, "no Buy control on the trading floor"
+    assert_includes buy["classes"], "tw-btn-secondary"
+    assert_equal "Buy", buy["text"]
+    assert_in_delta 40, buy["height"], 2
+    assert_equal 0, buy["icons"], "Buy carries an icon; the arrow belongs to the price, not the action"
   end
 
   # An archived company's price is frozen, so a change for it is arithmetic on a stale number.
