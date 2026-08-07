@@ -20,6 +20,7 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
   # rather than adding a second driver keeps one browser for the suite.
   PHONE = [375, 812].freeze
   CHROMEBOOK = [1366, 768].freeze
+  LG_MINIMUM = [1024, 768].freeze
   DEFAULT_SIZE = [1400, 1400].freeze
 
   # Restores the default size afterwards. Capybara reuses the browser between tests, so a test
@@ -46,6 +47,20 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
     yield
   ensure
     resize_window_to(*DEFAULT_SIZE)
+  end
+
+  # 1024x768: Tailwind's `lg` minimum, and a real width - an iPad in landscape, a small laptop. It is
+  # where the widest tables still overflow now that the primary cell wraps and every secondary column
+  # collapses below `lg`: measured, admin/users runs 202px past its container here, admin/stocks 298px
+  # and admin/teachers 251px, while all of them fit a Chromebook. That makes it the only width at which
+  # the pinned actions cell does anything, so it is the width its test has to run at.
+  def in_lg_minimum_viewport
+    resize_window_to(*LG_MINIMUM)
+    wait_until { desktop_viewport? }
+    yield
+  ensure
+    resize_window_to(*DEFAULT_SIZE)
+    wait_until { desktop_viewport? }
   end
 
   private

@@ -7,7 +7,14 @@
 <div class="tw-card">
   <div class="overflow-x-auto">
     <table class="table-base">
-      <%# Below lg this table is **one column**: the first column's value, then every other column as a
+<%# The identifier column, which is the one that stays visible below lg. Not necessarily the first:
+    three of these tables lead with `id`, and a bare number is a poor thing to head a stacked row with -
+    the reader is looking for "Apple Inc.", not "7". A caller can name it; otherwise it is the first
+    column that is not an id, and only then the first column. %>
+<% primary = columns.index { it[:primary] } ||
+             columns.index { it[:attribute].to_s != "id" } || 0 %>
+
+      <%# Below lg this table is **one column**: the identifier column's value, then every other as a
           labelled line, then the actions. Nine index tables render through here and each one scrolled
           sideways at 375px - 685px of overflow on admin/teachers, 632px on admin/users - carrying the
           data off the right edge of a scroll a phone user has to discover.
@@ -26,7 +33,7 @@
           <% columns.each_with_index do |column, index| %>
             <%# Column headers are chrome, not content: smaller and muted so they
                 do not read at the same weight as the data. Matches tables.css. %>
-            <th scope="col" class="table-header-cell table-header-cell-left <%= "hidden lg:table-cell" unless index.zero? %>">
+            <th scope="col" class="table-header-cell table-header-cell-left <%= "hidden lg:table-cell" unless index == primary %>">
               <% if column[:sortable] %>
                 <%= sort_link(column[:attribute], column[:label]) %>
               <% else %>
@@ -49,10 +56,17 @@
                 data-clickable-row-url-value="<%= url_for([:admin, route_model(record)]) %>"
                 data-action="click->clickable-row#navigate">
               <% columns.each_with_index do |column, index| %>
-                <%# whitespace-nowrap on the primary cell only at lg: below it, this cell holds the
-                    whole row and has to be free to wrap. The testid stays on the real cell either way,
-                    so a test that reads a column still reads that column. %>
-                <td class="table-body-cell <%= index.zero? ? "lg:whitespace-nowrap" : "hidden whitespace-nowrap lg:table-cell" %>"
+                <%# The primary cell never gets `whitespace-nowrap`. Below lg it holds the whole row and
+                    has to wrap; at lg it holds the prose - a name, a company, an email - and it is what
+                    makes these tables wider than a Chromebook. Measured on admin/stocks at 1366px: 38px
+                    of overflow with it, 0 without. The portfolio holdings table has always worked this
+                    way, and design.md records that it "never scrolls at any width, because it adapts by
+                    wrapping the company name".
+
+                    The other cells keep it: a date breaking across two lines reads as a mistake, and a
+                    figure is short. The testid stays on the real cell either way, so a test that reads a
+                    column still reads that column. %>
+                <td class="table-body-cell <%= "hidden whitespace-nowrap lg:table-cell" unless index == primary %>"
                     data-testid="<%= column[:attribute] %>">
                   <% if column[:link] %>
                     <%= link_to format_attribute(record, column[:attribute]), [:admin, route_model(record)], class: "tw-link font-medium" %>
@@ -61,9 +75,10 @@
                   <% end %>
 
                   <%# The rest of the row, below lg, in the one cell that is always on screen. %>
-                  <% if index.zero? %>
+                  <% if index == primary %>
+                    <% secondary = columns.each_with_index.reject { |_, i| i == primary } %>
                     <%= render "shared/stacked_row_fields",
-                               fields: columns.drop(1).map { [it[:label], format_attribute(record, it[:attribute])] },
+                               fields: secondary.map { |c, _| [c[:label], format_attribute(record, c[:attribute])] },
                                actions: (if options[:show_actions] == false
                                            nil
                                          else

@@ -77,11 +77,17 @@ class TableActionsReachableTest < ApplicationSystemTestCase
     end
   end
 
-  # At a Chromebook's width, not a phone's. Below lg no table scrolls sideways any more - each one
-  # collapses to a single column - so there is no scroll at 375px for a pinned cell to hold its place
-  # against, and this test asserted a state the app can no longer reach. Pinning is not dead, though:
-  # measured at 1366px, admin/users still overflows by 64px and admin/classrooms by 90px with seven
-  # columns, and at 1024px by 406px and 432px. That is where the sticky cell earns its keep.
+  # At 1024px, which is Tailwind's `lg` minimum and the only width where this mechanism does anything.
+  #
+  # Below `lg` no table scrolls sideways any more - each one collapses to a single column - so there is
+  # no scroll at 375px for a pinned cell to hold its place against. And a Chromebook no longer overflows
+  # either, since the primary cell wraps and the Website column shows its host rather than a 267px URL.
+  # What is left is 1024px: admin/users runs 202px past its container there, admin/stocks 298px,
+  # admin/teachers 251px.
+  #
+  # This test found that itself. It was written at a Chromebook width and its precondition assertion -
+  # "this table does not scroll at 1366px, so the rest of this test proves nothing" - failed the moment
+  # the wrapping change landed, which is exactly the failure a precondition is for.
   test "the pinned cell holds its place when the table is scrolled to the end" do
     sign_in(create(:admin))
     # Long enough to overflow seven columns at 1366px. With the factory's short name this table fits,
@@ -97,7 +103,7 @@ class TableActionsReachableTest < ApplicationSystemTestCase
                           classroom: classroom
     )
 
-    in_chromebook_viewport do
+    in_lg_minimum_viewport do
       visit admin_classrooms_path
 
       # The precondition, asserted rather than assumed: there is a scroll for the cell to hold its
@@ -110,7 +116,7 @@ class TableActionsReachableTest < ApplicationSystemTestCase
       JS
 
       assert_operator overflow, :>, 1,
-                      "this table does not scroll at 1366px, so the rest of this test proves nothing"
+                      "this table does not scroll at 1024px, so the rest of this test proves nothing"
 
       page.execute_script(<<~JS)
         const wrap = document.querySelector("td.table-actions-pinned").closest("[class*='overflow-x']");

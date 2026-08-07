@@ -3,9 +3,12 @@
     **Inputs are sized to their content.** They were `w-full`, which is right for a form column and
     wrong in a table cell: the days input rendered at **322px** for a value that cannot exceed two
     digits, because the column took the table's slack. GOV.UK states the rule and ships width-2/3/4/5
-    modifiers for exactly this - so days is w-20 (80px, two or three digits plus Chrome's spinner) and a
-    grade is w-24 (96px, two characters plus the chevron's 36px). The utility beats `tw-input-primary`'s
-    `w-full` deliberately here, which is the one place that override is wanted.
+    modifiers for exactly this. All three are w-24 (96px): a grade needs two characters plus the chevron's
+    36px, and days needs two digits plus Chrome's spinner, which lands under the same figure. Days was
+    w-20, which is enough for its content and **16px narrower than its neighbours** - and below lg, where
+    the row stacks and every control is right-aligned against the same edge, three controls of two widths
+    read as a misalignment rather than as sizing. Reported that way. Sizing to content is still the rule;
+    it just does not mean sizing each field to a different width when the difference is one digit.
 
     **Perfect attendance is a segmented Yes/No, not a checkbox.** A bare tick said nothing about what
     was being answered; GOV.UK reserves a single checkbox for opting in and gives a yes/no question
@@ -62,7 +65,7 @@
     <td class="table-body-cell whitespace-nowrap">
       <%= f.label :attendance_days, "Days attended", class: "table-stacked-label lg:hidden" %>
       <%= f.number_field :attendance_days,
-                         class: "tw-input-primary w-20",
+                         class: "tw-input-primary w-24",
                          disabled:,
                          min: 0,
                          aria: { label: "Days attended by #{who}" },

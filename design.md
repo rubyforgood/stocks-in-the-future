@@ -1312,8 +1312,19 @@ figure interpolated from `GradeEntry`'s constants, so the copy cannot claim a ra
 **An input in a table cell is sized to its content.** `tw-input-primary` is `w-full`, which is right for
 a form column and wrong in a cell: the grade book's days field rendered at **322px** for a value that
 cannot exceed two digits, because the column took the table's slack. GOV.UK states the rule and ships
-`width-2/3/4/5` modifiers for it. Days is `w-20`, a grade is `w-24` (two characters plus the chevron's
-36px). This is the one place overriding the component's width is wanted.
+`width-2/3/4/5` modifiers for it. This is the one place overriding the component's width is wanted.
+
+**Sized to content does not mean a different width per field.** All three grade-book fields are `w-24`
+(96px): a grade needs two characters plus the chevron's 36px, and two digits plus Chrome's spinner lands
+under the same figure. Days was `w-20` - enough for its content and **16px narrower than its
+neighbours** - and below `lg`, where the row stacks and every control is right-aligned against one edge,
+three controls at two widths read as a misalignment rather than as sizing. Reported that way. Measured
+after: Math, Reading and Days attended all `left=246 right=342 w=96`.
+
+**And the segmented control is sized to the field it sits with, not to its own text.** Measured, the
+fields were 96x44 and `.tw-segmented` was **89x28** in the same stacked row. iOS and Material both give
+a segmented control the height of the field beside it, so it is `min-h-11 min-w-24` with
+`items-stretch`, and `min-*` rather than fixed so a longer pair of options grows instead of clipping.
 
 **A yes/no answer is a segmented control, not a checkbox.** `.tw-segmented` in `forms.css`: two native
 radios, `sr-only`, with their labels as the visible control - so arrow keys, single selection and the
@@ -2320,6 +2331,31 @@ one copy `display: none`. That is out of the accessibility tree and invisible to
 it is safe - but **a request test has no CSS and counts both**, so `assert_select "tbody a[href*='/edit']"`
 doubled. Scope such an assertion to `td.table-actions-pinned`.
 
+**At `lg`, a table earns its width back by wrapping - it does not drop a column.** The question was what
+to do about the residual overflow at 1366px, and the answer came from measuring rather than choosing:
+
+- **The primary cell never gets `whitespace-nowrap`.** It holds the prose - a name, a company, an email -
+  and it is what made these tables wider than a Chromebook. The portfolio holdings table has always
+  worked this way; design.md already recorded that it "never scrolls at any width, because it adapts by
+  wrapping the company name". Applied to the rest: admin/classrooms went from 286px of overflow to 213px
+  at 1024px, and every table that overflowed a Chromebook stopped.
+- **A URL shows its host.** `admin/stocks` still ran 38px past a Chromebook after that, from a single
+  267px `https://www.verizon.com/...` in a `whitespace-nowrap` cell - the widest cell in the app.
+  `AdminHelper#format_url` renders the host, linked, with the full URL in the title and the href, which
+  is what Stripe, Linear and GitHub do with a URL in a table. 38px to 0.
+- **No column is dropped.** `ID` is sortable and it is what an admin quotes in a support conversation,
+  and dropping it recovers ~60px that wrapping recovers anyway. Dropping columns at `lg` would also need
+  a breakpoint this system does not have - only `base` and `lg:` - so it would mean hiding them on a
+  desktop too.
+- **Dates, figures, badges and the actions cell keep `whitespace-nowrap`.** A date broken over two lines
+  reads as a mistake, and a figure is short enough not to matter.
+
+**What is left is 1024px, and horizontal scroll is the right answer there.** At Tailwind's `lg` minimum
+admin/users still runs 202px past its container, admin/stocks 298px and admin/teachers 251px. That is
+where the pinned cell does its work, and it is what AG Grid, Polaris `lastColumnSticky` and Stripe all
+do at a width too narrow for a dense table and too wide to stack. `in_lg_minimum_viewport` exists for
+exactly this width, because a test written at 1366px now passes without exercising anything.
+
 **Pinning is still needed, at `lg`.** It is not dead code: measured at 1366px - the Chromebook width
 this app is used at - admin/users still overflows by 64px and admin/classrooms by 90px with seven
 columns, and at 1024px by 406px and 432px. Below `lg` there is no longer any scroll for a sticky cell to
@@ -2372,6 +2408,31 @@ a hidden action. Only the trailing actions cell is asserted.
 axe `scrollable-region-focusable`. Every other scrolling table here holds row-action links, which
 give a keyboard user a way to scroll it; `grade_books/_table` holds only grades and had neither, so
 its off-screen columns were unreachable without a mouse.
+
+**The accessibility result for this work, measured.** On the grade book, the classroom page and the
+classrooms list, at 1400px and 375px: **no contrast failures**, **no unnamed controls**, **no duplicate
+ids**, and **no 2.5.8 failures**. Worth keeping because two of those numbers were wrong the first time I
+produced them, in both directions:
+
+- **Compute the accessible name with the browser, not by hand.** My first pass checked `aria-label`,
+  `label[for]`, text content and `title`, and reported the trading switch as an unnamed control. It is
+  wrapped in a `<label>` containing "Trading" - an *implicit* association the name algorithm handles and
+  a hand-rolled check does not. `Accessibility.getFullAXTree` over CDP gives Chrome's own computed names
+  and cannot be fooled that way.
+- **2.5.8 is a size rule with a spacing exception, and an `sr-only` input is not the target.** Measuring
+  the input reported four 1x1 failures per grade-book row; those radios are visually hidden and the
+  target is the `.tw-segmented-option` label that activates them. And the genuinely small targets - a
+  16px sort link, a 17px row link - pass on **spacing**: nothing else comes within 24px of their
+  centres, measured at 51-305px. A size-only check condemns every text link in a table.
+- Duplicate ids matter here specifically because the collapse renders a row's actions twice. It
+  introduces none: the row actions carry no ids.
+
+**A table that stops being a table below `lg` loses 1.3.1 relationships, and has to pay for them.** With
+`display: block` the grid semantics are gone from the accessibility tree in Chrome and Firefox. That is
+only acceptable where the information comes back another way: in the grade book every control gains a
+real `<label for>` - which a `<th>` never gave it - and in the read-only reflowed tables every cell
+carries a visible `.table-stacked-label`. The collapse pattern keeps the semantics and does not need
+this argument, which is a reason to prefer it wherever there is a primary column to collapse into.
 
 **An audit that looks only at pinned cells cannot see a table without them.**
 `table_actions_reachable_test` queries `td.table-actions-pinned`, so the grade book - a table of form

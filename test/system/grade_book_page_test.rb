@@ -457,6 +457,38 @@ class GradeBookPageTest < ApplicationSystemTestCase
     assert_selector "#finalize-breakdown dd", text: expected
   end
 
+  # Every control in a row is one size. The days field was `w-20` against the grades' `w-24` - enough
+  # for two digits, and 16px narrower than its neighbours - and the Yes/No control was 89x28 against
+  # their 96x44. Below lg the row stacks and all four are right-aligned against one edge, so three
+  # widths read as a misalignment rather than as sizing. Reported that way.
+  test "a row's controls are all one size" do
+    classroom, book = a_grade_book_with_entries
+    sign_in teacher_for(classroom)
+
+    in_phone_viewport do
+      visit classroom_grade_book_path(classroom, book)
+
+      boxes = page.evaluate_script(<<~JS)
+        (function () {
+          const row = document.querySelector("tbody tr");
+          return Array.from(row.querySelectorAll("td")).map(function (td) {
+            const c = td.querySelector("select, input[type=number], .tw-segmented");
+            if (!c) return null;
+            const b = c.getBoundingClientRect();
+            return { w: Math.round(b.width), h: Math.round(b.height), right: Math.round(b.right) };
+          }).filter(Boolean);
+        })()
+      JS
+
+      assert_equal 4, boxes.size, "expected two grades, days attended and perfect attendance"
+      assert_equal 1, boxes.pluck("w").uniq.size,
+                   "the controls are #{boxes.pluck('w').inspect}px wide; they should match"
+      assert_equal 1, boxes.pluck("h").uniq.size,
+                   "the controls are #{boxes.pluck('h').inspect}px tall; they should match"
+      assert_equal 1, boxes.pluck("right").uniq.size, "the controls do not share a right edge"
+    end
+  end
+
   # The reported bug, as an ordering: the figures come *before* the button that saves them, so nothing on
   # the page can be read as output of the save. When they were a card below "Save grades" - and above the
   # finalize block - it was unclear whether they counted what had just been typed.

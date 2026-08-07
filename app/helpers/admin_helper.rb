@@ -90,9 +90,32 @@ module AdminHelper
       # slate-400 measures 2.6:1 on white and fails AA. slate-500 is 4.76:1 and
       # still reads as an absent value. Matches the em-dash markers in the views.
       content_tag(:span, "—", class: "text-slate-500")
+    when %r{\Ahttps?://}
+      format_url(value)
     else
       value.to_s
     end
+  end
+
+  # A URL in a dense table shows its host and links to the whole thing.
+  #
+  # Printed in full it was the widest cell in the app: admin/stocks carried a 267px
+  # "https://www.verizon.com/..." in a `whitespace-nowrap` cell, which was the entire reason that
+  # table still overflowed a Chromebook by 38px after every other column had been dealt with. The
+  # host is the part an admin reads to confirm the right company; the rest is noise they can click.
+  # Stripe, Linear and GitHub all shorten a URL to its host in a table.
+  #
+  # The full URL stays available to assistive tech through the title and the href, so nothing is
+  # lost - and an invalid one falls back to printing what is there rather than raising.
+  def format_url(value)
+    host = begin
+      URI.parse(value).host&.delete_prefix("www.")
+    rescue URI::InvalidURIError
+      nil
+    end
+    return value.to_s if host.blank?
+
+    link_to host, value, class: "tw-link", title: value, rel: "noopener", target: "_blank"
   end
 
   # Renders a boolean badge
