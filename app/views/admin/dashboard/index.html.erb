@@ -96,7 +96,7 @@
       <% else %>
         <div class="p-5">
           <%= render layout: "components/ui/empty_state",
-                     locals: { compact: true, icon: "clock",
+                     locals: { compact: true,
                                title: "Nothing waiting",
                                body: "Orders appear here between being placed and being executed." } do %>
           <% end %>
@@ -139,7 +139,7 @@
       <% else %>
         <div class="p-5">
           <%= render layout: "components/ui/empty_state",
-                     locals: { compact: true, icon: "arrow-left-right",
+                     locals: { compact: true,
                                title: "No transactions yet",
                                body: "Deposits appear when a grade book is finalised." } do %>
           <% end %>

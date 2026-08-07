@@ -1181,6 +1181,22 @@ is where a section's control goes - Polaris's card header action, Primer's `Subh
 sections - with the sentence beside it. That is what makes the pill unnecessary and what took the page
 from **six card surfaces to two**.
 
+**One icon per card, and it lives in the header.** The announcements card had `megaphone` twice: 16px in
+a 32x32 blue-50 tile in the header, and 20px bare slate-500 in the body's empty state. Bigger, a different
+colour, no tile - reported as the two not matching. Matching them would have been the wrong fix: it would
+still be the same glyph twice, 40px apart, giving a card with nothing in it two focal points.
+
+**An icon in an empty state belongs to the page-level variant only**, where the emptiness *is* the screen
+and the icon is what the eye lands on - Polaris's `EmptyState` illustration, Primer's `Blankslate` visual,
+Material's full-screen states. Inside a titled card the header already carries one, so the compact variant
+is **text**, which is what Stripe's card empty states and GOV.UK's are. `components/ui/_empty_state` takes
+`icon` for the default variant and ignores it when `compact`.
+
+**And an empty state occupies the same box as the content it replaces.** The glyph plus its gap indented
+the copy **32px** past the card's content edge, so an announcement arriving shifted the text left: measured
+333px empty against 301px filled, and 301px for both now. A state change must not move the layout.
+`announcements_test.rb` asserts the icon count and that the two left edges are equal.
+
 **A card per list item is card soup.** Four grade books were four `.tw-card` links; with the roster's
 table card and the trading card that was six surfaces on one page, and it was reported as such. Four
 quarters with a name and a status are **list rows in one card** - Polaris's `ResourceList`, Primer's Box
