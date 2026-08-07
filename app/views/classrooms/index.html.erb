@@ -29,19 +29,19 @@
           <th scope="col" class="table-header-cell table-header-cell-left">
             <%= sort_link(:name, "Name") %>
           </th>
-          <th scope="col" class="table-header-cell table-header-cell-left">
+          <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">
             Teacher(s)
           </th>
-          <th scope="col" class="table-header-cell table-header-cell-left">
+          <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">
             <%= sort_link(:student_count, "Student count") %>
           </th>
-          <th scope="col" class="table-header-cell table-header-cell-right">
+          <th scope="col" class="table-header-cell table-header-cell-right hidden lg:table-cell">
             <%= sort_link(:total_earnings, "Total earnings") %>
           </th>
           <%# The trailing actions column is unlabelled, like every other table in the app - a
               header naming one action stops being true as soon as a second one is added. %>
           <% if actions_column %>
-            <th scope="col" class="table-header-cell table-header-cell-right table-actions-pinned">
+            <th scope="col" class="table-header-cell table-header-cell-right table-actions-pinned hidden lg:table-cell">
               <span class="sr-only">Actions</span>
             </th>
           <% end %>
@@ -50,13 +50,11 @@
       <tbody>
         <% if @classrooms.any? %>
           <% @classrooms.each do |classroom| %>
-            <tr class="table-body-row">
-              <td class="table-body-cell">
-                <span class="table-cell-content">
-                  <%= link_to classroom.name, classroom_path(classroom), class: "tw-link font-medium" %>
-                </span>
-              </td>
-              <td class="table-body-cell">
+            <%# Each cell's content is captured once and rendered at whichever width is in play - in its
+                own column at lg, or as a labelled line inside the Name cell below it, where this table
+                is one column. Captured rather than written twice, so the two widths cannot come to show
+                different things. This table overflowed its scroller by 227px at 375px. %>
+            <% teachers_cell = capture do %>
                 <%# max-w-128 is 512px, on the scale, and caps the badge strip so a class with six
                     teachers scrolls rather than widening the column.
                     No `py-4` on the cell and no `py-1` or `min-h-9` on the strip. All three were
@@ -80,21 +78,55 @@
                                class: "whitespace-nowrap" %>
                   <% end %>
                 </div>
-              </td>
+            <% end %>
+
+            <% students_cell = capture do %>
+              <span class="table-cell-content">
+                <%= classroom.students.count %>
+              </span>
+            <% end %>
+
+            <% earnings_cell = capture do %>
+              <span class="table-cell-content">
+                <%# Sum integer cents and convert once, rather than adding up
+                    per-student Floats and accumulating error across a class. %>
+                <%= number_to_currency(classroom.students.sum { |s| s.portfolio&.calculate_total_value_cents || 0 } / 100.0) %>
+              </span>
+            <% end %>
+
+            <%# The capture is entered whatever `actions_column` says, and comes back blank when the
+                column is not there - a blank capture is `blank?`, so the stacked block renders nothing
+                for it. Wrapping the capture in the `if` instead would leave the local undefined. %>
+            <% row_actions = capture do %>
+              <% if actions_column %>
+                <% if policy(classroom).edit? %>
+                  <%= ghost_action_link "Edit", edit_classroom_path(classroom), icon: "pencil" %>
+                <% end %>
+              <% end %>
+            <% end %>
+
+            <tr class="table-body-row">
               <td class="table-body-cell">
                 <span class="table-cell-content">
-                  <%= classroom.students.count %>
+                  <%= link_to classroom.name, classroom_path(classroom), class: "tw-link font-medium" %>
                 </span>
+
+                <%= render "shared/stacked_row_fields",
+                           fields: [["Teacher(s)", teachers_cell], ["Student count", students_cell],
+                                    ["Total earnings", earnings_cell]],
+                           actions: row_actions %>
               </td>
-              <td class="table-body-cell table-body-cell-right">
-                <span class="table-cell-content">
-                  <%# Sum integer cents and convert once, rather than adding up
-                      per-student Floats and accumulating error across a class. %>
-                  <%= number_to_currency(classroom.students.sum { |s| s.portfolio&.calculate_total_value_cents || 0 } / 100.0) %>
-                </span>
+              <td class="table-body-cell hidden lg:table-cell">
+                <%= teachers_cell %>
+              </td>
+              <td class="table-body-cell hidden lg:table-cell">
+                <%= students_cell %>
+              </td>
+              <td class="table-body-cell table-body-cell-right hidden lg:table-cell">
+                <%= earnings_cell %>
               </td>
               <% if actions_column %>
-                <td class="table-body-cell table-body-cell-right table-actions-pinned">
+                <td class="table-body-cell table-body-cell-right table-actions-pinned hidden lg:table-cell">
                   <div class="flex items-center justify-end gap-1">
                     <% if policy(classroom).edit? %>
                       <%= ghost_action_link "Edit", edit_classroom_path(classroom), icon: "pencil" %>

@@ -2648,3 +2648,78 @@ These are not mine to make, and Steps 2–4 are shaped by them.
 - No change to when money moves.
 - No schema changes in Steps 0–4. If pairing deposits to grade books in Step 3 proves
   ambiguous, that becomes a separate step with its own map entry.
+
+## Tables at 375px: from sideways scroll to stacked rows (2026-08)
+
+**Blast radius: every table in the app, both sides.** Reported as *"the table just scrolls sideways and
+the actions go off screen, does not match design system and industry std"*, with the ask being *"the
+table to stack or scroll cleanly at 375px"*.
+
+### What was there, measured
+
+Audited every table at 375px, per table, as the role that sees it. Overflow of the scroll container:
+
+| Page | cols | overflow | actions pinned |
+|---|---|---|---|
+| admin/teachers | 7 | **685px** | yes |
+| admin/users | 7 | 632px | yes |
+| admin/stocks | 7 | 595px | yes |
+| admin/classrooms | 7 | 579px | yes |
+| orders | 8 | 489px | yes |
+| admin/transactions | 6 | 404px | yes |
+| grade book | 6 | **398px** | **no - it has no actions column** |
+| classroom show (roster) | 4 | 364px | yes |
+| admin/students | 5 | 332px | yes |
+| admin/school_years | 5 | 299px | yes |
+| classrooms (teacher) | 5 | 227px | yes |
+| admin/schools | 4 | 196px | yes |
+| admin/student show | 4 | 88px, 152px | no |
+| portfolio holdings | 6 | 101px | no |
+| stocks (trading floor) | 4 | **0px** | collapses instead |
+| admin/dashboard | 3 | 0px | n/a |
+
+Two things that table shows. **The trading floor already fits**, because it is the one table that
+collapses its secondary columns into the primary cell below `lg` instead of scrolling. And the grade
+book is the worst case in kind rather than in pixels: it is a table of **form controls** with no
+actions column, so pinning never applied to it and four inputs per row sat off screen.
+
+### What this overturns
+
+`design.md`'s "Narrow-viewport tables: pin the actions, never let the page scroll" said pinning was the
+answer for dense tables and that column-hiding could not work, because three labelled ghost actions are
+~250px against a 343px viewport. **That reasoning holds only while the actions stay in their own
+column.** Once the actions collapse into the primary cell - which the trading floor already does - there
+is nothing left to need 250px of width beside the data, and the scroll goes away entirely.
+
+So the rule changes from *pin the actions inside a horizontal scroll* to **below `lg` a table is one
+column per row**: identifier, then its secondary fields as labelled lines, then its actions. That is
+Polaris's `IndexTable` condensed mode and Primer's guidance for the same problem. Pinning stays in the
+stylesheet for the `lg` case, where a wide table can still overflow.
+
+### Order of moves
+
+1. `admin/shared/_table.html.erb` - nine index tables come from this one partial, so the generic
+   treatment lands there first: secondary columns `hidden lg:table-cell`, their values restated as a
+   `<dl>` inside the primary cell under `lg:hidden`, actions moved into the primary cell below `lg`.
+   Breaks nothing that selects on `[data-testid]`, because the testids stay on the real cells.
+2. `grade_books/_table.html.erb` - the form case, and the only one where the trading floor's trick is
+   **not** available: restating a control in a second cell would render **two inputs with the same
+   name**, and the last one submitted wins. So this one reflows in CSS (`.table-stacked`), keeping one
+   DOM and one input per field, and gains a real `<label>` per control below `lg`.
+3. The hand-written tables: `orders/index`, `classrooms/index`, `classrooms/_classroom_students_table`,
+   the portfolio holdings table, `admin/students/show`.
+4. A test that asserts **no table scroller overflows at 375px** anywhere, which is the assertion the
+   suite never had - `table_actions_reachable_test` only ever looked at `td.table-actions-pinned`, so a
+   table with no actions column (the grade book) was invisible to it.
+
+### What each step breaks
+
+- Any test asserting a cell is visible at 375px: below `lg` the secondary cells are `display: none`, so
+  `assert_text` inside them fails while the same text passes in the primary cell's `<dl>`. Assert on the
+  row, not the cell.
+- `.table-stacked` changes `display` on table elements below `lg`, which removes table semantics from
+  the accessibility tree in Chrome and Firefox. The grade book gains real `<label>`s in exchange, which
+  is a better trade for a form than a `<th>` that never named a control anyway.
+- Column counts in `colspan` on empty rows are unchanged, because the empty row spans the full table at
+  every width.
+

@@ -1,0 +1,18 @@
+<%# The three row actions, defined once and rendered twice: in the trailing cell at lg, and inside the
+    primary cell below it, where the table is one column. Two definitions of one row's actions is how
+    the two widths would come to offer different things.
+
+    Duplicated in the DOM rather than moved by CSS, which is what the trading floor does with Buy/Sell.
+    Safe here because these are links: the copy that is not in play is `display: none`, so it is out of
+    the accessibility tree and Capybara will not match it either. It would **not** be safe for a form
+    control - two inputs with the same name submit twice - which is why the grade book reflows instead.
+
+    A vague "Are you sure?" gives no basis for the decision, so the confirmation names the record. %>
+<%= ghost_action_link "View", [:admin, route_model(record)], icon: "eye" %>
+<%= ghost_action_link "Edit", [:edit, :admin, route_model(record)], icon: "pencil" %>
+<%= ghost_action_link "Delete", [:admin, route_model(record)],
+                      icon: "trash-2", variant: :danger,
+                      data: { turbo_method: :delete,
+                              turbo_confirm: "Delete #{record.class.model_name.human.downcase} " \
+                                             "\"#{record.try(:name) || record.try(:username) || record.try(:title) || record.id}\"? " \
+                                             "This cannot be undone." } %>

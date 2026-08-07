@@ -10,25 +10,25 @@
       <table class="table-base">
         <thead>
           <tr class="table-header-row">
-            <th scope="col" class="table-header-cell table-header-cell-left">
+            <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">
               <%= sort_link(:id, "ID") %>
             </th>
             <th scope="col" class="table-header-cell table-header-cell-left">
               <%= sort_link(:username, "Username") %>
             </th>
-            <th scope="col" class="table-header-cell table-header-cell-left">
+            <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">
               <%= sort_link(:type, "Type") %>
             </th>
-            <th scope="col" class="table-header-cell table-header-cell-left">
+            <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">
               <%= sort_link(:email, "Email") %>
             </th>
-            <th scope="col" class="table-header-cell table-header-cell-left">
+            <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">
               Classroom
             </th>
-            <th scope="col" class="table-header-cell table-header-cell-left">
+            <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">
               <%= sort_link(:admin, "Admin") %>
             </th>
-            <th scope="col" class="table-header-cell table-header-cell-right table-actions-pinned">
+            <th scope="col" class="table-header-cell table-header-cell-right table-actions-pinned hidden lg:table-cell">
               <span class="sr-only">Actions</span>
             </th>
           </tr>
@@ -40,35 +40,56 @@
                   data-controller="clickable-row"
                   data-clickable-row-url-value="<%= user_show_path(user) %>"
                   data-action="click->clickable-row#navigate">
-                <td class="table-body-cell whitespace-nowrap">
+                <% id_cell = capture do %>
                   <%= user.id %>
-                </td>
-                <td class="table-body-cell whitespace-nowrap">
-                  <%= user.username %>
-                </td>
-                <td class="table-body-cell whitespace-nowrap">
+                <% end %>
+                <% type_cell = capture do %>
                   <%= user.type %>
-                </td>
-                <td class="table-body-cell whitespace-nowrap">
+                <% end %>
+                <% email_cell = capture do %>
                   <%= user.email.presence || content_tag(:span, "—", class: "text-slate-500") %>
-                </td>
-                <td class="table-body-cell whitespace-nowrap">
+                <% end %>
+                <% classroom_cell = capture do %>
                   <%= user.classroom&.name || content_tag(:span, "—", class: "text-slate-500") %>
-                </td>
-                <td class="table-body-cell whitespace-nowrap">
+                <% end %>
+                <% admin_cell = capture do %>
                   <%= render "components/ui/badge",
                              label: user.admin? ? "Yes" : "No",
                              tone: user.admin? ? :success : :neutral %>
-                </td>
-                <td class="table-body-cell table-body-cell-right whitespace-nowrap table-actions-pinned">
-                  <div class="flex items-center justify-end gap-1">
-                    <%= ghost_action_link "View", user_show_path(user), icon: "eye" %>
+                <% end %>
+                <% row_actions = capture do %>
+                  <%= ghost_action_link "View", user_show_path(user), icon: "eye" %>
                     <%= ghost_action_link "Edit", edit_admin_user_path(user), icon: "pencil" %>
                     <%= ghost_action_link "Delete", admin_user_path(user),
                                           icon: "trash-2", variant: :danger,
                                           data: { turbo_method: :delete,
                                                   turbo_confirm: "Delete #{user.username}? This cannot be undone." } %>
-                  </div>
+                <% end %>
+
+                <td class="table-body-cell whitespace-nowrap hidden lg:table-cell">
+                  <%= id_cell %>
+                </td>
+                <td class="table-body-cell lg:whitespace-nowrap">
+                  <%= user.username %>
+
+                  <%= render "shared/stacked_row_fields",
+                             fields: [["ID", id_cell], ["Type", type_cell], ["Email", email_cell], ["Classroom", classroom_cell], ["Admin", admin_cell]],
+                             actions: row_actions %>
+                </td>
+                <td class="table-body-cell whitespace-nowrap hidden lg:table-cell">
+                  <%= type_cell %>
+                </td>
+                <td class="table-body-cell whitespace-nowrap hidden lg:table-cell">
+                  <%= email_cell %>
+                </td>
+                <td class="table-body-cell whitespace-nowrap hidden lg:table-cell">
+                  <%= classroom_cell %>
+                </td>
+                <td class="table-body-cell whitespace-nowrap hidden lg:table-cell">
+                  <%= admin_cell %>
+                </td>
+                <td class="table-body-cell table-body-cell-right whitespace-nowrap table-actions-pinned hidden lg:table-cell">
+                  <div class="flex items-center justify-end gap-1"><%= row_actions %></div>
                 </td>
               </tr>
             <% end %>

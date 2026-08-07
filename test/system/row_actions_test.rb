@@ -29,9 +29,14 @@ class RowActionsTest < ApplicationSystemTestCase
     JS
   end
 
+  # Only the copy that is on screen. Below lg a row's actions are rendered twice - once in the trailing
+  # cell, once inside the primary cell, which is the collapse that stops the table scrolling sideways at
+  # 375px - and the trailing cell is `display: none` at that width. Measuring both reported a row action
+  # 0px tall, which is not a spacing regression but a measurement of a hidden element.
   def row_action_boxes
     page.evaluate_script(<<~JS)
-      Array.from(document.querySelectorAll("tbody tr td:last-child a, tbody tr td:last-child button"))
+      Array.from(document.querySelectorAll("tbody tr a, tbody tr button"))
+           .filter(function (el) { return el.getClientRects().length > 0; })
            .map(function (el) {
              const box = el.getBoundingClientRect();
              return {

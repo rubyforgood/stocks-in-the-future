@@ -2287,10 +2287,49 @@ different:
 student, teacher and admin pages, and names the offending element in the failure message. Show and
 edit pages are covered as well as indexes, because the breadcrumb trail is longest there.
 
-### Narrow-viewport tables: pin the actions, never let the page scroll
+### Narrow-viewport tables: below `lg` a table is one column
 
-Two rules, from sweeping every table in the app at 375px and measuring each clickable against the
-box of the container it scrolls inside.
+**No table scrolls sideways at 375px.** Every one of them did, and it was reported: *"the table just
+scrolls sideways and the actions go off screen"*. Measured, per table, at 375px: admin/teachers 685px of
+overflow, admin/users 632, admin/stocks 595, admin/classrooms 579, orders 489, admin/transactions 404,
+the grade book 398, the roster 364, admin/students 332, admin/school_years 299, teacher classrooms 227,
+admin/schools 196, portfolio holdings 101, admin/student show 88 and 152. All zero now.
+
+**The trading floor was the exception that showed the way.** It measured 0px because it was the one
+table that collapsed its secondary columns into the primary cell instead of scrolling. That treatment is
+now every table's: below `lg` the secondary cells are `hidden lg:table-cell`, and their values come back
+as labelled lines inside the primary cell via `shared/_stacked_row_fields`, with the row's actions
+underneath. Polaris's `IndexTable` condensed mode and Primer's guidance for the same problem.
+
+**Two mechanisms, and the choice between them is not stylistic.**
+
+- **Collapse** (`hidden lg:table-cell` + `shared/_stacked_row_fields`) where the row has an identifying
+  primary column to collapse *into*, and where the cells hold text, badges and links. Table semantics
+  survive: below `lg` it is a one-column table. The content is captured once per row and rendered at
+  whichever width applies, so the two widths cannot drift apart.
+- **Reflow** (`.table-stacked` in `tables.css`) where there is no primary column to collapse into - four
+  peer columns of date/type/reason/amount - or where a cell holds a **form control**. The grade book is
+  the second case and it is not a preference: restating an input in the primary cell would put two
+  controls with the same `name` in one form and the second would win on submit. Reflow keeps one DOM and
+  one input per field, and each control gains a real `<label for>`, which a `<th>` never gave it. The
+  cost is that `display: block` removes table semantics below `lg`; for a form that is the better half
+  of the trade.
+
+**A duplicated link is fine; a duplicated input is a bug.** The collapse renders a row's actions twice,
+one copy `display: none`. That is out of the accessibility tree and invisible to Capybara, which is why
+it is safe - but **a request test has no CSS and counts both**, so `assert_select "tbody a[href*='/edit']"`
+doubled. Scope such an assertion to `td.table-actions-pinned`.
+
+**Pinning is still needed, at `lg`.** It is not dead code: measured at 1366px - the Chromebook width
+this app is used at - admin/users still overflows by 64px and admin/classrooms by 90px with seven
+columns, and at 1024px by 406px and 432px. Below `lg` there is no longer any scroll for a sticky cell to
+hold its place against, so the test for it runs at a Chromebook width and **asserts the overflow exists
+before asserting anything about it**.
+
+**What the earlier rule got wrong.** It said column-hiding could not solve this, because three labelled
+ghost actions are ~250px against a 343px viewport, so data and actions cannot share a row. True only
+while the actions have a column of their own. Collapsed into the primary cell they need no width beside
+the data, and the scroll goes away entirely.
 
 **1. The trailing actions cell is `.table-actions-pinned`** - `sticky right-0`, with its separator
 and opaque ground appearing **only once the table has actually been scrolled**, which the
@@ -2309,7 +2348,8 @@ solve it - three labelled ghosts are about 250px, roughly 73% of a 343px viewpor
 actions do not fit side by side at that width whatever you drop. The column has to stop scrolling.
 Pinning the last column is AG Grid, Polaris `lastColumnSticky` and Material. Pinned only below
 `lg`, so at the width admin is actually used at the cell is ordinary and the row hover tint is
-unbroken. A pinned cell needs an **opaque** background or the scrolling columns show through it.
+unbroken. (Historical: those 375px figures are what the collapse above replaced. The mechanism now
+earns its keep between `lg` and a table's natural width.) A pinned cell needs an **opaque** background or the scrolling columns show through it.
 
 **Where the action is the point of the page, collapse instead of pinning** - that is the trading
 floor, where Buy and Sell move into the primary cell below `lg`. Pinning keeps a horizontal scroll;
@@ -2332,6 +2372,13 @@ a hidden action. Only the trailing actions cell is asserted.
 axe `scrollable-region-focusable`. Every other scrolling table here holds row-action links, which
 give a keyboard user a way to scroll it; `grade_books/_table` holds only grades and had neither, so
 its off-screen columns were unreachable without a mouse.
+
+**An audit that looks only at pinned cells cannot see a table without them.**
+`table_actions_reachable_test` queries `td.table-actions-pinned`, so the grade book - a table of form
+controls with no actions column - was invisible to it while four inputs per row sat off screen. And
+`page_width_test` asserts `main` does not scroll, which is a different question: a table scrolling
+inside its own container leaves `main` perfectly happy. `table_stacking_test` asserts the thing neither
+of them did - that no table's scroller overflows at 375px, on every page, for every role.
 
 **"Present" is not "reachable."** `assert_selector` and `click_on` both passed against a control
 sitting outside its scroll container, so `test/system/trading_cta_test.rb` asserts the visible copy's

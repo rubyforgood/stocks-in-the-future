@@ -10,19 +10,19 @@
       <table class="table-base">
         <thead>
           <tr class="table-header-row">
-            <th scope="col" class="table-header-cell table-header-cell-left">
+            <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">
               <%= sort_link(:id, "ID") %>
             </th>
             <th scope="col" class="table-header-cell table-header-cell-left">
               School
             </th>
-            <th scope="col" class="table-header-cell table-header-cell-left">
+            <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">
               Year
             </th>
-            <th scope="col" class="table-header-cell table-header-cell-left">
+            <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">
               <%= sort_link(:created_at, "Created at") %>
             </th>
-            <th scope="col" class="table-header-cell table-header-cell-right table-actions-pinned">
+            <th scope="col" class="table-header-cell table-header-cell-right table-actions-pinned hidden lg:table-cell">
               <span class="sr-only">Actions</span>
             </th>
           </tr>
@@ -34,27 +34,42 @@
                   data-controller="clickable-row"
                   data-clickable-row-url-value="<%= admin_school_year_path(school_year) %>"
                   data-action="click->clickable-row#navigate">
-                <td class="table-body-cell whitespace-nowrap">
+                <% id_cell = capture do %>
                   <%= school_year.id %>
-                </td>
-                <td class="table-body-cell whitespace-nowrap">
-                  <%= school_year.school_name %>
-                </td>
-                <td class="table-body-cell whitespace-nowrap">
+                <% end %>
+                <% year_cell = capture do %>
                   <%= school_year.year_name %>
-                </td>
-                <td class="table-body-cell whitespace-nowrap">
+                <% end %>
+                <% created_at_cell = capture do %>
                   <%= school_year.created_at.strftime("%B %d, %Y") %>
-                </td>
-                <td class="table-body-cell table-body-cell-right whitespace-nowrap table-actions-pinned">
-                  <div class="flex items-center justify-end gap-1">
-                    <%= ghost_action_link "View", admin_school_year_path(school_year), icon: "eye" %>
+                <% end %>
+                <% row_actions = capture do %>
+                  <%= ghost_action_link "View", admin_school_year_path(school_year), icon: "eye" %>
                     <%= ghost_action_link "Edit", edit_admin_school_year_path(school_year), icon: "pencil" %>
                     <%= ghost_action_link "Delete", admin_school_year_path(school_year),
                                           icon: "trash-2", variant: :danger,
                                           data: { turbo_method: :delete,
                                                   turbo_confirm: "Delete #{school_year.name}? This cannot be undone." } %>
-                  </div>
+                <% end %>
+
+                <td class="table-body-cell whitespace-nowrap hidden lg:table-cell">
+                  <%= id_cell %>
+                </td>
+                <td class="table-body-cell lg:whitespace-nowrap">
+                  <%= school_year.school_name %>
+
+                  <%= render "shared/stacked_row_fields",
+                             fields: [["ID", id_cell], ["Year", year_cell], ["Created at", created_at_cell]],
+                             actions: row_actions %>
+                </td>
+                <td class="table-body-cell whitespace-nowrap hidden lg:table-cell">
+                  <%= year_cell %>
+                </td>
+                <td class="table-body-cell whitespace-nowrap hidden lg:table-cell">
+                  <%= created_at_cell %>
+                </td>
+                <td class="table-body-cell table-body-cell-right whitespace-nowrap table-actions-pinned hidden lg:table-cell">
+                  <div class="flex items-center justify-end gap-1"><%= row_actions %></div>
                 </td>
               </tr>
             <% end %>

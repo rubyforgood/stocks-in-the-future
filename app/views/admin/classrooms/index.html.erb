@@ -10,25 +10,25 @@
       <table class="table-base">
         <thead>
           <tr class="table-header-row">
-            <th scope="col" class="table-header-cell table-header-cell-left">
+            <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">
               <%= sort_link(:id, "ID") %>
             </th>
             <th scope="col" class="table-header-cell table-header-cell-left">
               <%= sort_link(:name, "Name") %>
             </th>
-            <th scope="col" class="table-header-cell table-header-cell-left">
+            <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">
               Grade
             </th>
-            <th scope="col" class="table-header-cell table-header-cell-left">
+            <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">
               School year
             </th>
-            <th scope="col" class="table-header-cell table-header-cell-left">
+            <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">
               <%= sort_link(:archived, "Archived") %>
             </th>
-            <th scope="col" class="table-header-cell table-header-cell-left">
+            <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">
               <%= sort_link(:trading_enabled, "Trading enabled") %>
             </th>
-            <th scope="col" class="table-header-cell table-header-cell-right table-actions-pinned">
+            <th scope="col" class="table-header-cell table-header-cell-right table-actions-pinned hidden lg:table-cell">
               <span class="sr-only">Actions</span>
             </th>
           </tr>
@@ -40,31 +40,27 @@
                   data-controller="clickable-row"
                   data-clickable-row-url-value="<%= admin_classroom_path(classroom) %>"
                   data-action="click->clickable-row#navigate">
-                <td class="table-body-cell whitespace-nowrap">
+                <% id_cell = capture do %>
                   <%= classroom.id %>
-                </td>
-                <td class="table-body-cell whitespace-nowrap">
-                  <%= classroom.name %>
-                </td>
-                <td class="table-body-cell whitespace-nowrap">
+                <% end %>
+                <% grade_cell = capture do %>
                   <%= classroom.grades.pluck(:name).join(', ') %>
-                </td>
-                <td class="table-body-cell whitespace-nowrap">
+                <% end %>
+                <% school_year_cell = capture do %>
                   <%= "#{classroom.school_name} - #{classroom.year_name}" %>
-                </td>
-                <td class="table-body-cell whitespace-nowrap">
+                <% end %>
+                <% archived_cell = capture do %>
                   <%= render "components/ui/badge",
                              label: classroom.archived? ? "Yes" : "No",
                              tone: classroom.archived? ? :danger : :neutral %>
-                </td>
-                <td class="table-body-cell whitespace-nowrap">
+                <% end %>
+                <% trading_enabled_cell = capture do %>
                   <%= render "components/ui/badge",
                              label: classroom.trading_enabled? ? "Yes" : "No",
                              tone: classroom.trading_enabled? ? :success : :neutral %>
-                </td>
-                <td class="table-body-cell table-body-cell-right whitespace-nowrap table-actions-pinned">
-                  <div class="flex items-center justify-end gap-1">
-                    <%= ghost_action_link "View", admin_classroom_path(classroom), icon: "eye" %>
+                <% end %>
+                <% row_actions = capture do %>
+                  <%= ghost_action_link "View", admin_classroom_path(classroom), icon: "eye" %>
                     <%= ghost_action_link "Edit", edit_admin_classroom_path(classroom), icon: "pencil" %>
                     <% if classroom.archived? %>
                       <%= ghost_action_link "Activate", toggle_archive_admin_classroom_path(classroom),
@@ -75,7 +71,32 @@
                                             icon: "archive", variant: :danger,
                                             data: { turbo_method: :patch, turbo_confirm: "Archive #{classroom.name}? Teachers and students will no longer be able to access it, but all historical data is preserved." } %>
                     <% end %>
-                  </div>
+                <% end %>
+
+                <td class="table-body-cell whitespace-nowrap hidden lg:table-cell">
+                  <%= id_cell %>
+                </td>
+                <td class="table-body-cell lg:whitespace-nowrap">
+                  <%= classroom.name %>
+
+                  <%= render "shared/stacked_row_fields",
+                             fields: [["ID", id_cell], ["Grade", grade_cell], ["School year", school_year_cell], ["Archived", archived_cell], ["Trading enabled", trading_enabled_cell]],
+                             actions: row_actions %>
+                </td>
+                <td class="table-body-cell whitespace-nowrap hidden lg:table-cell">
+                  <%= grade_cell %>
+                </td>
+                <td class="table-body-cell whitespace-nowrap hidden lg:table-cell">
+                  <%= school_year_cell %>
+                </td>
+                <td class="table-body-cell whitespace-nowrap hidden lg:table-cell">
+                  <%= archived_cell %>
+                </td>
+                <td class="table-body-cell whitespace-nowrap hidden lg:table-cell">
+                  <%= trading_enabled_cell %>
+                </td>
+                <td class="table-body-cell table-body-cell-right whitespace-nowrap table-actions-pinned hidden lg:table-cell">
+                  <div class="flex items-center justify-end gap-1"><%= row_actions %></div>
                 </td>
               </tr>
             <% end %>

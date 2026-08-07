@@ -108,7 +108,10 @@
         </h3>
         <% if transactions.any? %>
           <div class="overflow-x-auto border-t border-slate-200">
-            <table class="table-base">
+            <%# table-stacked, not the collapse the index tables use: these are four peer columns with
+                no identifying primary to collapse into and no row actions. Below lg each transaction
+                becomes a block of labelled lines. It overflowed by 88px at 375px. %>
+            <table class="table-base table-stacked">
               <thead>
                 <tr class="table-header-row">
                   <th scope="col" class="table-header-cell table-header-cell-left">Date</th>
@@ -124,14 +127,17 @@
                       <%= transaction.created_at.strftime("%m/%d/%Y") %>
                     </td>
                     <td class="table-body-cell whitespace-nowrap">
+                      <span class="table-stacked-label lg:hidden">Type</span>
                       <%= render "components/ui/badge",
                                  label: transaction.transaction_type.humanize,
                                  tone: transaction.deposit? ? :success : :neutral %>
                     </td>
                     <td class="table-body-cell">
+                      <span class="table-stacked-label lg:hidden">Reason</span>
                       <%= transaction.reason&.humanize || "—" %>
                     </td>
                     <td class="table-body-cell table-body-cell-right whitespace-nowrap font-medium tabular-nums">
+                      <span class="table-stacked-label lg:hidden">Amount</span>
                       <%= number_to_currency(transaction.amount_cents / 100.0) %>
                     </td>
                   </tr>
@@ -152,7 +158,8 @@
     <%= render layout: "components/ui/card", locals: { title: "Attendance" } do %>
       <% if @attendance_entries.any? %>
         <div class="overflow-x-auto border-t border-slate-200">
-          <table class="table-base">
+          <%# Same treatment as the transactions table above, and the same reason. 152px at 375px. %>
+          <table class="table-base table-stacked">
             <thead>
               <tr class="table-header-row">
                 <th scope="col" class="table-header-cell table-header-cell-left">Year</th>
@@ -164,12 +171,20 @@
             <tbody class="bg-white">
               <% @attendance_entries.each do |entry| %>
                 <tr class="table-body-row">
-                  <td class="table-body-cell whitespace-nowrap"><%= entry.year_name %></td>
-                  <td class="table-body-cell whitespace-nowrap"><%= entry.quarter_name %></td>
+                  <td class="table-body-cell whitespace-nowrap">
+                    <span class="table-stacked-label lg:hidden">Year</span>
+                    <%= entry.year_name %>
+                  </td>
+                  <td class="table-body-cell whitespace-nowrap">
+                    <span class="table-stacked-label lg:hidden">Quarter</span>
+                    <%= entry.quarter_name %>
+                  </td>
                   <td class="table-body-cell table-body-cell-right whitespace-nowrap tabular-nums">
+                    <span class="table-stacked-label lg:hidden">Attendance days</span>
                     <%= entry.attendance_days_display %>
                   </td>
                   <td class="table-body-cell table-body-cell-center whitespace-nowrap">
+                    <span class="table-stacked-label lg:hidden">Perfect attendance</span>
                     <%= render "components/ui/badge",
                                label: entry.perfect_attendance? ? "Yes" : "No",
                                tone: entry.perfect_attendance? ? :success : :neutral %>

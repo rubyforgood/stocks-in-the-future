@@ -122,11 +122,11 @@
       <thead>
         <tr class="table-header-row">
           <th scope="col" class="table-header-cell table-header-cell-left">Company</th>
-          <th scope="col" class="table-header-cell table-header-cell-right">Qty.</th>
-          <th scope="col" class="table-header-cell table-header-cell-right">Last price</th>
-          <th scope="col" class="table-header-cell table-header-cell-right">Change</th>
-          <th scope="col" class="table-header-cell table-header-cell-right">Total return</th>
-          <th scope="col" class="table-header-cell"><span class="sr-only">Actions</span></th>
+          <th scope="col" class="table-header-cell table-header-cell-right hidden lg:table-cell">Qty.</th>
+          <th scope="col" class="table-header-cell table-header-cell-right hidden lg:table-cell">Last price</th>
+          <th scope="col" class="table-header-cell table-header-cell-right hidden lg:table-cell">Change</th>
+          <th scope="col" class="table-header-cell table-header-cell-right hidden lg:table-cell">Total return</th>
+          <th scope="col" class="table-header-cell hidden lg:table-cell"><span class="sr-only">Actions</span></th>
         </tr>
       </thead>
       <tbody>
@@ -135,6 +135,29 @@
             <% change_amount = position.change_amount %>
             <% total_return_amount = position.total_return_amount %>
             <% logo_path = "stock_logos/#{position.stock_ticker}-logo.svg" %>
+            <%# Below lg this table is one column: the company, then its figures as labelled lines and
+                the Trade action beneath them. Each figure is captured once so the two widths cannot
+                diverge. Measured before: 101px of sideways scroll at 375px, which put Total return and
+                Trade off the edge on the first screen a student sees. The sign stays inside the capture
+                so direction is never carried by colour alone at either width. %>
+            <% qty_cell = capture { share_count(position.shares) } %>
+            <% price_cell = capture { number_to_currency(position.stock_current_price) } %>
+            <% change_cell = capture do %>
+              <span class="<%= change_amount >= 0 ? "text-green-700" : "text-red-700" %>">
+                <%= change_amount >= 0 ? "+" : "" %><%= number_to_currency(change_amount) %>
+              </span>
+            <% end %>
+            <% return_cell = capture do %>
+              <span class="<%= total_return_amount >= 0 ? "text-green-700" : "text-red-700" %>">
+                <%= total_return_amount >= 0 ? "+" : "" %><%= number_to_currency(total_return_amount) %>
+              </span>
+            <% end %>
+            <% row_actions = capture do %>
+              <% if current_user.student? %>
+                <%= ghost_action_link "Trade", stocks_path, icon: "arrow-right-left" %>
+              <% end %>
+            <% end %>
+
             <tr class="table-body-row">
               <td class="table-body-cell">
                 <div class="flex items-center gap-3">
@@ -157,25 +180,26 @@
                     <span class="text-xs text-slate-600"><%= position.stock_ticker %></span>
                   </div>
                 </div>
+
+                <%= render "shared/stacked_row_fields",
+                           fields: [["Qty.", qty_cell], ["Last price", price_cell],
+                                    ["Change", change_cell], ["Total return", return_cell]],
+                           actions: row_actions %>
               </td>
-              <td class="table-body-cell table-body-cell-right whitespace-nowrap"><%= share_count(position.shares) %></td>
-              <td class="table-body-cell table-body-cell-right whitespace-nowrap"><%= number_to_currency(position.stock_current_price) %></td>
+              <td class="table-body-cell table-body-cell-right hidden whitespace-nowrap lg:table-cell"><%= qty_cell %></td>
+              <td class="table-body-cell table-body-cell-right hidden whitespace-nowrap lg:table-cell"><%= price_cell %></td>
 
               <%# A sign as well as a colour, so the direction is not carried by
                   colour alone. green-700/red-700 clear AA where 600 does not. %>
-              <td class="table-body-cell table-body-cell-right whitespace-nowrap <%= change_amount >= 0 ? 'text-green-700' : 'text-red-700' %>">
-                <%= change_amount >= 0 ? "+" : "" %><%= number_to_currency(change_amount) %>
-              </td>
-              <td class="table-body-cell table-body-cell-right whitespace-nowrap <%= total_return_amount >= 0 ? 'text-green-700' : 'text-red-700' %>">
-                <%= total_return_amount >= 0 ? "+" : "" %><%= number_to_currency(total_return_amount) %>
-              </td>
+              <td class="table-body-cell table-body-cell-right hidden whitespace-nowrap lg:table-cell"><%= change_cell %></td>
+              <td class="table-body-cell table-body-cell-right hidden whitespace-nowrap lg:table-cell"><%= return_cell %></td>
 
               <%# A row action, so it is the ghost, like every other row action in the app.
                   It was a filled primary repeated down every holding - the shape design.md
                   rules out for a per-row action - and the earlier sweep missed this table.
                   A viewer who is not a student gets the dash the rest of the app uses for
                   "not yours to do" rather than a disabled pill. %>
-              <td class="table-body-cell table-body-cell-right table-actions-pinned">
+              <td class="table-body-cell table-body-cell-right hidden table-actions-pinned lg:table-cell">
                 <div class="flex items-center justify-end gap-1">
                   <% if current_user.student? %>
                     <%# arrow-right-left, not arrow-up-down. A vertical two-arrow glyph is the

@@ -49,9 +49,13 @@ module Admin
 
       assert_response :success
       assert_select "tbody tr", count: 3
-      # Scoped to the table body. As `a[href*='edit']` this also counted the account menu's
+      # Scoped to the actions column, because below lg the row's actions are rendered a second time
+      # inside the primary cell - the collapse that stops the table scrolling sideways at 375px. Only
+      # one copy is ever on screen, but a request test has no CSS and counts both.
+      #
+      # Scoped to the table body as well: as `a[href*='edit']` this also counted the account menu's
       # "Edit profile" link, so adding a profile page broke a test about student rows.
-      assert_select "tbody a[href*='/edit']", count: 2
+      assert_select "tbody td.table-actions-pinned a[href*='/edit']", count: 2
     end
 
     test "show" do
@@ -86,8 +90,11 @@ module Admin
       assert_response :success
       assert_select "h2", text: "Attendance"
       assert_select "tbody tr", minimum: 1
-      assert_select "td", text: "Q1"
-      assert_select "td", text: "42"
+      # A regex, not an exact string: below lg this table reflows and each cell carries a visible
+      # label, so the cell's text is "Quarter Q1" rather than "Q1". The label is markup at every
+      # width, which is what a request test sees.
+      assert_select "td", text: /\bQ1\b/
+      assert_select "td", text: /\b42\b/
     end
 
     test "show displays empty attendance message when no records" do

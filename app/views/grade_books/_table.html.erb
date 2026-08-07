@@ -15,7 +15,10 @@
     of their own. %>
 <% earnings = grade_book_earnings %>
 
-<%= render "shared/table_container", region_label: "Grades" do %>
+<%# table-stacked: below lg this stops being a grid and each student becomes a block of labelled
+    fields. A table of inputs cannot use the collapse the other tables use, because restating a control
+    in the primary cell would submit two inputs with the same name. See tables.css. %>
+<%= render "shared/table_container", region_label: "Grades", table_class: "table-stacked" do %>
   <thead>
     <tr class="table-header-row">
       <th scope="col" class="table-header-cell table-header-cell-left">Student</th>

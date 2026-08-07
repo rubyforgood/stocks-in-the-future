@@ -5,15 +5,48 @@
   <thead>
     <tr class="table-header-row">
       <th scope="col" class="table-header-cell table-header-cell-left">Student</th>
-      <th scope="col" class="table-header-cell table-header-cell-left">Portfolio value</th>
+      <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">Portfolio value</th>
       <% if @can_manage_students %>
-        <th scope="col" class="table-header-cell table-header-cell-left">Available cash</th>
-        <th scope="col" class="table-header-cell table-header-cell-right table-actions-pinned"><span class="sr-only">Actions</span></th>
+        <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">Available cash</th>
+        <th scope="col" class="table-header-cell table-header-cell-right table-actions-pinned hidden lg:table-cell"><span class="sr-only">Actions</span></th>
       <% end %>
     </tr>
   </thead>
   <tbody class="bg-white">
     <% @students.each do |student| %>
+      <%# Every cell's content is captured once and rendered at whichever width applies: its own column
+          at lg, a labelled line inside the Student cell below it. This table overflowed its scroller by
+          364px at 375px, so portfolio value, available cash and all three row actions were behind a
+          sideways scroll on a phone. %>
+      <% holdings_cell = capture do %>
+        <%= number_to_currency(student.portfolio&.holdings_value || 0) %>
+      <% end %>
+      <% cash_cell = capture do %>
+        <%= number_to_currency(student.portfolio&.cash_balance || 0) %>
+      <% end %>
+      <% row_actions = capture do %>
+        <% if @can_manage_students %>
+          <%= ghost_action_link "Edit", edit_classroom_student_path(@classroom, student),
+                                icon: "pencil",
+                                data: { testid: "edit-student-stacked" } %>
+          <%= ghost_action_link "Reset password",
+                                reset_password_classroom_student_path(@classroom, student),
+                                icon: "key-round",
+                                data: {
+                                  turbo_method: :patch,
+                                  turbo_confirm: "Reset #{student.username}'s password?",
+                                  testid: "reset-password-stacked"
+                                } %>
+          <%= ghost_action_link "Delete", classroom_student_path(@classroom, student),
+                                icon: "trash-2", variant: :danger,
+                                data: {
+                                  turbo_method: :delete,
+                                  turbo_confirm: "Delete #{student.username}? This cannot be undone.",
+                                  testid: "delete-student-stacked"
+                                } %>
+        <% end %>
+      <% end %>
+
       <tr class="table-body-row group"
           id="<%= dom_id(student) %>">
         <%# Name over username, which is design.md's primary-identifier shape - `font-medium slate-900`
@@ -36,17 +69,21 @@
           <% else %>
             <span class="text-slate-600 italic">No username set</span>
           <% end %>
+
+          <% fields = [["Portfolio value", holdings_cell]] %>
+          <% fields << ["Available cash", cash_cell] if @can_manage_students %>
+          <%= render "shared/stacked_row_fields", fields: fields, actions: row_actions %>
         </td>
-        <td class="table-body-cell whitespace-nowrap font-medium">
-          <%= number_to_currency(student.portfolio&.holdings_value || 0) %>
+        <td class="table-body-cell hidden whitespace-nowrap font-medium lg:table-cell">
+          <%= holdings_cell %>
         </td>
         <% if @can_manage_students %>
-          <td class="table-body-cell whitespace-nowrap font-medium">
-            <%= number_to_currency(student.portfolio&.cash_balance || 0) %>
+          <td class="table-body-cell hidden whitespace-nowrap font-medium lg:table-cell">
+            <%= cash_cell %>
           </td>
         <% end %>
         <% if @can_manage_students %>
-          <td class="table-body-cell table-body-cell-right whitespace-nowrap table-actions-pinned" data-testid="student-actions">
+          <td class="table-body-cell table-body-cell-right hidden whitespace-nowrap table-actions-pinned lg:table-cell" data-testid="student-actions">
             <div class="flex items-center justify-end gap-1">
               <%# Were three icon-only 32px links whose only accessible name was a title
                   attribute, coloured black / amber-600 / red-600 at rest. Now the same ghost

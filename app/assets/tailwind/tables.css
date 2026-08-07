@@ -144,6 +144,80 @@
     @apply border-l border-slate-200 bg-white;
   }
 
+  /* A table of form controls cannot use the collapse the other tables use.
+   *
+   * Everywhere else, below lg the secondary cells are `hidden lg:table-cell` and their values are
+   * restated inside the primary cell. That works because those values are text, badges and links, and
+   * a duplicate link is harmless - the copy that is not in play is display:none. Restating an **input**
+   * would put two controls with the same name in one form, and the second would overwrite the first on
+   * submit. The grade book has four per row.
+   *
+   * So this one reflows instead: one DOM, one input per field, and below lg the table stops being a
+   * grid. Each row becomes a block with its student's name as the heading and one labelled line per
+   * field. Measured before: 398px of sideways scroll at 375px, with two selects, the days input and the
+   * Yes/No control off the right edge - and no actions column, so the pinned-cell rule never applied to
+   * it and `table_actions_reachable_test` never looked at it.
+   *
+   * The trade this makes: display:block removes table semantics from the accessibility tree in Chrome
+   * and Firefox below lg. In exchange every control gains a real `<label for>`, which a `<th>` never
+   * gave it - a column header does not name a form control. For a form that is the better half of the
+   * trade.
+   *
+   * 63.9375rem is Tailwind's lg (64rem) minus one pixel at the default root size, so this and the
+   * `lg:` utilities in the markup switch at the same width. */
+  @media (max-width: 63.9375rem) {
+    .table-stacked,
+    .table-stacked > tbody,
+    .table-stacked > tfoot {
+      @apply block;
+    }
+
+    /* A header for a column that is no longer a column names nothing. */
+    .table-stacked > thead {
+      @apply hidden;
+    }
+
+    .table-stacked > tbody > tr {
+      @apply block px-4 py-3;
+    }
+
+    .table-stacked > tbody > tr + tr {
+      @apply border-t border-slate-100;
+    }
+
+    .table-stacked > tbody > tr > td {
+      @apply flex flex-wrap items-center justify-between gap-x-4 gap-y-1 px-0 py-1.5;
+    }
+
+    /* A cell can hold more than its control - the days cell carries the bonus warning underneath - so
+     * anything after the control takes the full width rather than being squeezed beside it. */
+    .table-stacked > tbody > tr > td > *:nth-child(n + 3) {
+      @apply w-full;
+    }
+
+    /* The first cell is the row's heading - who this row is about - so it spans the block rather
+     * than sitting opposite a label it does not have. */
+    .table-stacked > tbody > tr > td:first-child {
+      @apply block pt-0 pb-2;
+    }
+
+    /* The footer keeps its two cells on one line: a label and the figure it labels. */
+    .table-stacked > tfoot > tr {
+      @apply flex items-baseline justify-between gap-4 border-t border-slate-200 px-4 py-3;
+    }
+
+    .table-stacked > tfoot > tr > th,
+    .table-stacked > tfoot > tr > td {
+      @apply p-0;
+    }
+  }
+
+  /* The field name, visible only where the column header is not. `lg:hidden` on the element handles
+   * the other half; this carries the type treatment so it is not repeated at every call site. */
+  .table-stacked-label {
+    @apply shrink-0 text-xs font-normal text-slate-600;
+  }
+
   /* .table-action-link and .table-action-button are gone. Row actions are the ghost button from
    * ButtonHelper#ghost_class, so a table action is one treatment across both sides of the product
    * instead of a brand-coloured link plus a red-at-rest button. */

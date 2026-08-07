@@ -16,25 +16,25 @@
       <table class="table-base">
         <thead>
           <tr class="table-header-row">
-            <th scope="col" class="table-header-cell table-header-cell-left">
+            <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">
               <%= sort_link(:id, "ID") %>
             </th>
             <th scope="col" class="table-header-cell table-header-cell-left">
               <%= sort_link(:username, "Username") %>
             </th>
-            <th scope="col" class="table-header-cell table-header-cell-left">
+            <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">
               <%= sort_link(:email, "Email") %>
             </th>
-            <th scope="col" class="table-header-cell table-header-cell-left">
+            <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">
               <%= sort_link(:name, "Name") %>
             </th>
-            <th scope="col" class="table-header-cell table-header-cell-left">
+            <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">
               <%= sort_link(:created_at, "Created at") %>
             </th>
-            <th scope="col" class="table-header-cell table-header-cell-left">
+            <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">
               Status
             </th>
-            <th scope="col" class="table-header-cell table-header-cell-right table-actions-pinned">
+            <th scope="col" class="table-header-cell table-header-cell-right table-actions-pinned hidden lg:table-cell">
               <span class="sr-only">Actions</span>
             </th>
           </tr>
@@ -43,29 +43,25 @@
           <% if @teachers.any? %>
             <% @teachers.each do |teacher| %>
               <tr class="table-body-row" id="<%= dom_id(teacher) %>" class="hover:bg-slate-50 transition-colors">
-                <td class="table-body-cell whitespace-nowrap">
+                <% id_cell = capture do %>
                   <%= teacher.id %>
-                </td>
-                <td class="table-body-cell whitespace-nowrap">
-                  <%= teacher.username %>
-                </td>
-                <td class="table-body-cell whitespace-nowrap">
+                <% end %>
+                <% email_cell = capture do %>
                   <%= teacher.email %>
-                </td>
-                <td class="table-body-cell whitespace-nowrap">
+                <% end %>
+                <% name_cell = capture do %>
                   <%= teacher.name %>
-                </td>
-                <td class="table-body-cell whitespace-nowrap">
+                <% end %>
+                <% created_at_cell = capture do %>
                   <%= teacher.created_at.strftime("%B %d, %Y") %>
-                </td>
-                <td class="table-body-cell whitespace-nowrap">
+                <% end %>
+                <% status_cell = capture do %>
                   <%= render "components/ui/badge",
                              label: teacher.discarded? ? "Deactivated" : "Active",
                              tone: teacher.discarded? ? :danger : :success %>
-                </td>
-                <td class="table-body-cell table-body-cell-right whitespace-nowrap table-actions-pinned">
-                  <div class="flex items-center justify-end gap-1">
-                    <%= ghost_action_link "View", admin_teacher_path(teacher), icon: "eye" %>
+                <% end %>
+                <% row_actions = capture do %>
+                  <%= ghost_action_link "View", admin_teacher_path(teacher), icon: "eye" %>
                     <%= ghost_action_link "Edit", edit_admin_teacher_path(teacher), icon: "pencil" %>
                     <% if teacher.discarded? %>
                       <%= ghost_action_link "Reactivate", admin_teacher_reactivation_path(teacher),
@@ -76,7 +72,32 @@
                                             icon: "ban", variant: :danger,
                                             data: { turbo_method: :post, turbo_confirm: "Deactivate #{teacher.display_name}? They will lose access, but their data is preserved." } %>
                     <% end %>
-                  </div>
+                <% end %>
+
+                <td class="table-body-cell whitespace-nowrap hidden lg:table-cell">
+                  <%= id_cell %>
+                </td>
+                <td class="table-body-cell lg:whitespace-nowrap">
+                  <%= teacher.username %>
+
+                  <%= render "shared/stacked_row_fields",
+                             fields: [["ID", id_cell], ["Email", email_cell], ["Name", name_cell], ["Created at", created_at_cell], ["Status", status_cell]],
+                             actions: row_actions %>
+                </td>
+                <td class="table-body-cell whitespace-nowrap hidden lg:table-cell">
+                  <%= email_cell %>
+                </td>
+                <td class="table-body-cell whitespace-nowrap hidden lg:table-cell">
+                  <%= name_cell %>
+                </td>
+                <td class="table-body-cell whitespace-nowrap hidden lg:table-cell">
+                  <%= created_at_cell %>
+                </td>
+                <td class="table-body-cell whitespace-nowrap hidden lg:table-cell">
+                  <%= status_cell %>
+                </td>
+                <td class="table-body-cell table-body-cell-right whitespace-nowrap table-actions-pinned hidden lg:table-cell">
+                  <div class="flex items-center justify-end gap-1"><%= row_actions %></div>
                 </td>
               </tr>
             <% end %>

@@ -7,12 +7,26 @@
 <div class="tw-card">
   <div class="overflow-x-auto">
     <table class="table-base">
+      <%# Below lg this table is **one column**: the first column's value, then every other column as a
+          labelled line, then the actions. Nine index tables render through here and each one scrolled
+          sideways at 375px - 685px of overflow on admin/teachers, 632px on admin/users - carrying the
+          data off the right edge of a scroll a phone user has to discover.
+
+          Pinning the actions cell, which is what design.md previously called for, kept them reachable
+          and kept the scroll. The reasoning was that three labelled ghosts are ~250px against a 343px
+          viewport, so data and actions cannot share a row - true only while the actions have their own
+          column. Collapsed into the primary cell they need no width of their own, and the scroll goes.
+          The trading floor has done it this way since it was measured at left=370 in a 326px viewport,
+          and it is the one table in the app that already fitted.
+
+          This is Polaris's IndexTable condensed mode and Primer's guidance for the same problem. The
+          headers go with their columns: a `<th>` for a column nobody can see names nothing. %>
       <thead>
         <tr class="table-header-row">
-          <% columns.each do |column| %>
+          <% columns.each_with_index do |column, index| %>
             <%# Column headers are chrome, not content: smaller and muted so they
                 do not read at the same weight as the data. Matches tables.css. %>
-            <th scope="col" class="table-header-cell table-header-cell-left">
+            <th scope="col" class="table-header-cell table-header-cell-left <%= "hidden lg:table-cell" unless index.zero? %>">
               <% if column[:sortable] %>
                 <%= sort_link(column[:attribute], column[:label]) %>
               <% else %>
@@ -21,7 +35,7 @@
             </th>
           <% end %>
           <% if options[:show_actions] != false %>
-            <th scope="col" class="table-header-cell table-header-cell-right table-actions-pinned">
+            <th scope="col" class="table-header-cell table-header-cell-right table-actions-pinned hidden lg:table-cell">
               <span class="sr-only">Actions</span>
             </th>
           <% end %>
@@ -34,26 +48,34 @@
                 data-controller="clickable-row"
                 data-clickable-row-url-value="<%= url_for([:admin, route_model(record)]) %>"
                 data-action="click->clickable-row#navigate">
-              <% columns.each do |column| %>
-                <td class="table-body-cell whitespace-nowrap" data-testid="<%= column[:attribute] %>">
+              <% columns.each_with_index do |column, index| %>
+                <%# whitespace-nowrap on the primary cell only at lg: below it, this cell holds the
+                    whole row and has to be free to wrap. The testid stays on the real cell either way,
+                    so a test that reads a column still reads that column. %>
+                <td class="table-body-cell <%= index.zero? ? "lg:whitespace-nowrap" : "hidden whitespace-nowrap lg:table-cell" %>"
+                    data-testid="<%= column[:attribute] %>">
                   <% if column[:link] %>
                     <%= link_to format_attribute(record, column[:attribute]), [:admin, route_model(record)], class: "tw-link font-medium" %>
                   <% else %>
                     <%= format_attribute(record, column[:attribute]) %>
                   <% end %>
+
+                  <%# The rest of the row, below lg, in the one cell that is always on screen. %>
+                  <% if index.zero? %>
+                    <%= render "shared/stacked_row_fields",
+                               fields: columns.drop(1).map { [it[:label], format_attribute(record, it[:attribute])] },
+                               actions: (if options[:show_actions] == false
+                                           nil
+                                         else
+                                           render("admin/shared/table_row_actions", record: record)
+                                         end) %>
+                  <% end %>
                 </td>
               <% end %>
               <% if options[:show_actions] != false %>
-                <td class="table-body-cell table-body-cell-right whitespace-nowrap table-actions-pinned">
+                <td class="table-body-cell table-body-cell-right hidden whitespace-nowrap table-actions-pinned lg:table-cell">
                   <div class="flex items-center justify-end gap-1">
-                    <%= ghost_action_link "View", [:admin, route_model(record)], icon: "eye" %>
-                    <%= ghost_action_link "Edit", [:edit, :admin, route_model(record)], icon: "pencil" %>
-                    <%# A vague "Are you sure?" gives no basis for the decision.
-                        Name the record so the confirmation is meaningful. %>
-                    <%= ghost_action_link "Delete", [:admin, route_model(record)],
-                                          icon: "trash-2", variant: :danger,
-                                          data: { turbo_method: :delete,
-                                                  turbo_confirm: "Delete #{record.class.model_name.human.downcase} \"#{record.try(:name) || record.try(:username) || record.try(:title) || record.id}\"? This cannot be undone." } %>
+                    <%= render "admin/shared/table_row_actions", record: record %>
                   </div>
                 </td>
               <% end %>

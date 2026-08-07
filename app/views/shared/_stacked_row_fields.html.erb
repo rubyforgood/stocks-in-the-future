@@ -1,0 +1,37 @@
+<%# The rest of a table row, for the width where the table is one column.
+
+    Below `lg` every table in this app shows its first column and nothing else: the other cells are
+    `hidden lg:table-cell`, and their values come back here as labelled lines inside the primary cell.
+    That is the trading floor's treatment, generalised - it was the only table in the app that fitted
+    375px, because it was the only one that collapsed instead of scrolling. Nine tables scrolled between
+    196px and 685px sideways, which on a phone means the data is behind a gesture nobody is told about.
+
+    A description list, because a label and a value is what a `<dl>` is for, and because `sr-only` labels
+    would leave a column of bare values with nothing saying which is which. The `<th>`s stay with their
+    columns and disappear with them: a header for a column nobody can see names nothing.
+
+    Values may be pre-rendered markup - a badge, a link, an em dash for absent - so they arrive already
+    escaped or already safe from the caller.
+
+    Locals:
+      fields  - array of [label, value] pairs, in the order the columns appear
+      actions - optional pre-rendered row actions, placed after the fields %>
+<% fields = local_assigns[:fields] || [] %>
+
+<% if fields.any? %>
+  <dl class="mt-2 space-y-1 lg:hidden">
+    <% fields.each do |label, value| %>
+      <div class="flex items-baseline justify-between gap-3">
+        <dt class="shrink-0 text-xs text-slate-600"><%= label %></dt>
+        <dd class="min-w-0 text-right text-sm text-slate-900"><%= value %></dd>
+      </div>
+    <% end %>
+  </dl>
+<% end %>
+
+<%# Row actions sit after the data, not before it: below lg they are the last thing in the row, which is
+    where they are at lg too. `flex-wrap` because three labelled ghosts are ~250px and the cell is ~300px
+    minus its padding, so the third can need a second line. %>
+<% if local_assigns[:actions].present? %>
+  <div class="mt-3 flex flex-wrap items-center gap-1 lg:hidden"><%= actions %></div>
+<% end %>

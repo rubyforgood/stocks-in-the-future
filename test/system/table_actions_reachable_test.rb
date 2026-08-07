@@ -77,12 +77,40 @@ class TableActionsReachableTest < ApplicationSystemTestCase
     end
   end
 
+  # At a Chromebook's width, not a phone's. Below lg no table scrolls sideways any more - each one
+  # collapses to a single column - so there is no scroll at 375px for a pinned cell to hold its place
+  # against, and this test asserted a state the app can no longer reach. Pinning is not dead, though:
+  # measured at 1366px, admin/users still overflows by 64px and admin/classrooms by 90px with seven
+  # columns, and at 1024px by 406px and 432px. That is where the sticky cell earns its keep.
   test "the pinned cell holds its place when the table is scrolled to the end" do
     sign_in(create(:admin))
-    create(:school_year)
+    # Long enough to overflow seven columns at 1366px. With the factory's short name this table fits,
+    # and the test would then assert against a scroll that never happened - which is how it would pass
+    # while proving nothing.
+    classroom = create(
+      :classroom, :with_trading,
+      name: "Mrs Abernathy's Advanced Placement Sixth Grade Homeroom",
+      school_year: create(:school_year, school: create(:school), year: create(:year))
+    )
+    create(
+      :teacher_classroom, teacher: create(:teacher, name: "Wilhelmina Abernathy-Fitzgerald"),
+                          classroom: classroom
+    )
 
-    in_phone_viewport do
-      visit admin_school_years_path
+    in_chromebook_viewport do
+      visit admin_classrooms_path
+
+      # The precondition, asserted rather than assumed: there is a scroll for the cell to hold its
+      # place against.
+      overflow = page.evaluate_script(<<~JS)
+        (function () {
+          const wrap = document.querySelector("td.table-actions-pinned").closest("[class*='overflow-x']");
+          return Math.round(wrap.scrollWidth - wrap.clientWidth);
+        })()
+      JS
+
+      assert_operator overflow, :>, 1,
+                      "this table does not scroll at 1366px, so the rest of this test proves nothing"
 
       page.execute_script(<<~JS)
         const wrap = document.querySelector("td.table-actions-pinned").closest("[class*='overflow-x']");

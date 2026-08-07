@@ -14,6 +14,13 @@
     **Every control names itself**, including the student, because a row is identified visually only. A
     `<th>` names a data cell, never a form control.
 
+    **Below lg this row is a block, not a grid** - see `.table-stacked` in tables.css - so every cell
+    carries a `<label>` that shows at that width and hides at lg, where the column header does the job.
+    A real `<label for>` rather than a span: the ids are per-row (`grade_entries_2_math_grade`), so it
+    associates properly, and a control in a table cell has never had a label - a `<th>` names a data
+    cell, not a form control. The `aria-label` stays because it names the *row* as well as the field,
+    which the visible label cannot do without repeating the student's name four times.
+
     display_name, not username: it prefers the student's name and falls back to the username. Nothing
     changes today because no student has a name - the add-student form collects only a username, which
     is in design-todo - but the lowercase identifiers on screen are usernames, and capitalising them
@@ -31,6 +38,7 @@
     </td>
 
     <td class="table-body-cell whitespace-nowrap">
+      <%= f.label :math_grade, "Math", class: "table-stacked-label lg:hidden" %>
       <%= f.select :math_grade,
                    options_for_select(GradeEntry::GRADE_OPTIONS, entry.math_grade),
                    { include_blank: true },
@@ -41,6 +49,7 @@
     </td>
 
     <td class="table-body-cell whitespace-nowrap">
+      <%= f.label :reading_grade, "Reading", class: "table-stacked-label lg:hidden" %>
       <%= f.select :reading_grade,
                    options_for_select(GradeEntry::GRADE_OPTIONS, entry.reading_grade),
                    { include_blank: true },
@@ -51,6 +60,7 @@
     </td>
 
     <td class="table-body-cell whitespace-nowrap">
+      <%= f.label :attendance_days, "Days attended", class: "table-stacked-label lg:hidden" %>
       <%= f.number_field :attendance_days,
                          class: "tw-input-primary w-20",
                          disabled:,
@@ -62,6 +72,9 @@
     </td>
 
     <td class="table-body-cell whitespace-nowrap">
+      <%# A span, not a label: the control is two radios, each already labelled Yes or No, and a
+          `<label for>` pointing at one of them would name the group after one of its options. %>
+      <span class="table-stacked-label lg:hidden">Perfect attendance</span>
       <span class="tw-segmented" data-testid="perfect-attendance-control">
         <% { true => "Yes", false => "No" }.each do |value, label| %>
           <%= f.radio_button :is_perfect_attendance, value,
