@@ -1226,6 +1226,24 @@ well. `<marquee>` was deprecated, and 2.2.2 is why.
   stays at its old position and Announcements moves down by the card's 366px plus the 24px gap. This
   document had already measured the opposite mistake at a cost of 421px on the roster.
 
+**A measure cap is for the line length, not for leaving a gutter - so a long note in a wide card gets
+columns, not a cap.** The movers footnote was one `<p class="max-w-2xl">` inside a card measuring 1081px,
+which left **407px of empty card** to its right while the rows above spanned the full width. It read as
+truncated, and was reported that way.
+
+Widening it is the wrong instinct and the numbers say so: at 672px it already ran **~95 characters per
+line**, and spanning the card would have been **~152**, where the readable measure is 45-75. Two columns
+of ~504px are about 70 characters each - the width is used and the measure is right. Split where the sense
+splits (what the list is; what it is not and what to do), stacked below `lg`, because two 150px columns on
+a phone would be worse than a paragraph.
+
+**When the cap is still correct:** a sentence or two, where the line ends because the sentence does. The
+grade book's finalize card has two of those - 87 and 106 characters at 672px in a 1041px card - and they
+read as short paragraphs rather than as truncation. And where something sits *beside* the text, the cap is
+load-bearing: the grade book's section description shares its row with "Add new students", and without the
+cap it runs under the button, which this document already records. **The test is whether the cap or the
+sentence is ending the line.**
+
 **And it carries help text, which is the condition of it existing at all.** A "biggest movers" list put in
 front of eleven-year-olds teaches performance chasing - buy what went up - which is the opposite of what
 this app is for. So the card says what a move is ("changed most since yesterday"), that prices move every

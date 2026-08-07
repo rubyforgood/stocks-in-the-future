@@ -63,13 +63,33 @@
     </ul>
 
     <%# Inside the card, under the rows, with a rule: it explains the list above it, so it is a footnote to
-        that list rather than a separate thought on the page. %>
+        that list rather than a separate thought on the page.
+
+        **Two columns at lg, because one capped paragraph did not use the card.** This was a single `<p>` at
+        `max-w-2xl` inside a card measuring 1081px, which left **407px of empty card to its right** - the
+        rows above it span the full width, so the note stopped short and read as truncated. Reported that
+        way.
+
+        Removing the cap is not the fix: measured, the paragraph already ran ~95 characters per line at
+        672px, and spanning the card would have taken it to ~152. The readable measure is 45-75 characters
+        and both of those are past it. Two columns of about 520px land inside the range and use the width.
+
+        Split where the sense splits, not at the halfway word: what the list is, then what it is not and
+        what to do instead. Two short blocks are also easier for an eleven-year-old to scan than one
+        three-sentence paragraph, so the structure earns its place twice. %>
     <div class="border-t border-slate-200 px-5 py-4">
-      <p class="max-w-2xl text-sm text-slate-600">
-        Share prices move every day, up and down. A company at the top of this list is not a better buy -
-        it just changed more than the others today. If one surprises you, open it and read what the company
-        does and how its price has moved over time before you decide anything.
-      </p>
+      <div class="grid grid-cols-1 gap-x-8 gap-y-3 text-sm text-slate-600 lg:grid-cols-2">
+        <p>
+          Share prices move every day, up and down. These are just the three that moved most since
+          yesterday.
+        </p>
+
+        <p>
+          A company at the top of the list
+          <strong class="font-medium text-slate-900">is not a better buy</strong> - it only changed more
+          than the others today. If one surprises you, open it and read what the company does.
+        </p>
+      </div>
     </div>
   <% else %>
     <%= render layout: "components/ui/empty_state",
