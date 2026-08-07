@@ -571,6 +571,14 @@ rendered nine forms with `placeholder:text-gray-400` at 2.54:1. Same for `.tw-bt
 button sweep. When you write a shared class, convert every caller in the same change, or it becomes
 documentation of a fix nobody got.
 
+**Reading a transitioned property in the same instant as the state change measures the value it is
+leaving.** `.tw-btn-*` transitions `outline-color`, so a computed read taken immediately after Tab returns
+the *interpolated start* - `currentColor`, which is white on a filled primary. I measured the app's main
+action as having a **white focus ring on a white page**, an invisible-focus WCAG failure, and was about to
+report it. Waiting 0.35s gives `rgb(0, 79, 107)`, which is correct and always was. The tell is that the
+value equals the element's own text colour: that is `currentColor`, not a real token. Anything measuring
+colour on hover, focus or open state has to let the transition finish.
+
 **Contrast maths on `oklch()` needs a real conversion.** `getComputedStyle().color` returns
 `oklch(0.446 0.043 257.281)` in this browser, and pulling the three numbers out as if they were RGB
 reports slate-600 on slate-50 as **1.05:1**. I wrote an audit that way and reported five contrast

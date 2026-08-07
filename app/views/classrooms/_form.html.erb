@@ -54,6 +54,17 @@
   </div>
 <% end %>
 
+  <%# These three checkboxes were the only controls in the app with no focus indicator of their own.
+      They carried `focus-visible:ring-sitf-primary`, which sets a ring *colour* and no ring *width*, so
+      nothing painted and they fell back to Chrome's default 1px outline - measured, `1px auto
+      rgb(16, 16, 16)` against every other control's `2px solid rgb(0, 105, 140)`. The same shape as the
+      `ring-2` trap already recorded here: a ring needs a width, and this app draws focus with `outline`.
+
+      Three more things were wrong with the same string. `text-sitf-primary` does nothing to a native
+      checkbox - `accent-color` is what tints it - `rounded` is an 8px radius on a 16px box, which reads
+      as a circle, and there was no size. `components/ui/_checkbox` had all four right the whole time.
+      Matched to it here rather than converted, because these are collection checkboxes inside a form
+      builder; a call site that can use the component should. %>
   <div class="my-5">
   <%= form.label :grade_ids, class: 'tw-label-primary flex items-center gap-2' do %>
     Grades<span class="required-indicator">*</span>
@@ -71,7 +82,7 @@
         <%= check_box_tag "classroom[grade_ids][]",
                           grade.id,
                           is_checked,
-                          class: "rounded border-slate-300 text-sitf-primary focus-visible:ring-sitf-primary" %>
+                          class: "size-4 shrink-0 rounded-sm border-slate-300 accent-sitf-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary" %>
 
         <div class="flex-1">
           <div class="font-medium text-slate-900">
@@ -89,7 +100,7 @@
 
   <div class="my-5">
     <div class="flex items-center gap-3">
-      <%= form.check_box :trading_enabled, class: "rounded border-slate-300 text-sitf-primary focus-visible:ring-sitf-primary" %>
+      <%= form.check_box :trading_enabled, class: "size-4 shrink-0 rounded-sm border-slate-300 accent-sitf-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary" %>
       <%= form.label :trading_enabled, "Enable trading", class: 'tw-label-primary' %>
     </div>
     <p class="text-sm text-slate-600 mt-1">When enabled, students in this classroom can place buy and sell orders.</p>
@@ -112,7 +123,7 @@
                             teacher.id,
                             is_checked,
                             {
-                              class: "rounded border-slate-300 text-sitf-primary focus-visible:ring-sitf-primary mt-0.5",
+                              class: "mt-0.5 size-4 shrink-0 rounded-sm border-slate-300 accent-sitf-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary",
                               id: "classroom_teacher_ids_#{teacher.id}"
                             } %>
 

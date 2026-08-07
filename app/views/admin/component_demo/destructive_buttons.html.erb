@@ -93,8 +93,15 @@
         <span class="ml-1 align-middle"><%= render "components/ui/badge", label: "Recommended", tone: :success %></span>
       </h2>
       <p class="mt-1 max-w-2xl text-sm text-slate-600">
-        rose-700 filled, at the same weight as the brand primary. Cancel keeps focus, so the dangerous
-        answer is still not the default.
+        rose-700 filled, at the same weight as the brand primary.
+      </p>
+      <p class="mt-1 max-w-2xl text-sm text-slate-600">
+        <strong class="font-medium text-slate-900">Cancel still holds focus when the dialog opens</strong>,
+        through <code class="text-xs">autofocus</code>, so the dangerous answer is not the default. That is
+        stated rather than drawn: an earlier version of this page painted a resting focus ring on Cancel to
+        illustrate it, and <strong class="font-medium text-slate-900">no control in this app carries a ring
+        at rest</strong> - every one of them is <code class="text-xs">focus-visible:</code> only. A preview
+        that invents a resting state is a preview that misrepresents the system it is arguing about.
       </p>
     </div>
 
@@ -106,10 +113,7 @@
           grades are kept, and an administrator can restore the account from the students list.
         </p>
         <div class="mt-5 flex flex-wrap justify-end gap-3">
-          <%# The focus ring is drawn on Cancel to show where focus actually sits when the dialog opens.
-              `autofocus` is on Cancel in the real dialog, so a stray Return dismisses rather than
-              deletes - Apple HIG's rule, and the half of its guidance that survives this change. %>
-          <span class="tw-btn-secondary outline-2 outline-offset-2 outline-sitf-primary">Cancel</span>
+          <span class="tw-btn-secondary">Cancel</span>
           <span class="<%= proposed %>">Delete</span>
         </div>
       </div>
@@ -128,7 +132,7 @@
           so you will need to pass it on. Their current password stops working immediately.
         </p>
         <div class="mt-5 flex flex-wrap justify-end gap-3">
-          <span class="tw-btn-secondary outline-2 outline-offset-2 outline-sitf-primary">Cancel</span>
+          <span class="tw-btn-secondary">Cancel</span>
           <span class="tw-btn-primary">Reset password</span>
         </div>
       </div>

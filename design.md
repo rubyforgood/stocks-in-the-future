@@ -2316,6 +2316,29 @@ button's top is 12px and the adjacent text's is 13px, at every width.
 header naming one action stops being true the moment a second one is added, which is what
 `classrooms#index` had ("Edit"), and an empty `<th />` gives the column no accessible name at all.
 
+**Focus is an `outline`, never a `ring`, and only ever on `:focus-visible`.** Counted:
+`focus-visible:outline-2` and `focus-visible:outline-offset-2` 28 times each,
+`focus-visible:outline-sitf-primary` 25 - with `sitf-primary-dark` on the filled primary and `rose-700` on
+the destructive outline, so the ring belongs to the control it surrounds. The colour is **always named**:
+an unnamed `outline-color` falls back to `currentColor`, which is white on a filled button.
+
+**A ring utility needs a width, and without one it paints nothing.** Three checkboxes on the classroom
+form carried `focus-visible:ring-sitf-primary` - a ring *colour* with no `ring-2` - so they had **no focus
+indicator of their own** and fell back to Chrome's default: measured, `1px auto rgb(16, 16, 16)` against
+every other control's `2px solid rgb(0, 105, 140)`. They were the only controls in the app in that state,
+and `components/ui/_checkbox` had the right string the whole time. Same string was wrong three more ways -
+`text-sitf-primary` does nothing to a native checkbox (`accent-color` tints it), `rounded` is an 8px radius
+on a 16px box, and there was no size.
+
+**No control carries a ring at rest**, which is what makes a *preview* that paints one misleading:
+`focus-visible` is a state, so a static mock cannot show it and must say it in words instead.
+`focus_indicator_test.rb` asserts all three - the app's ring on every control the classroom form owns, the
+checkbox specifically, and that nothing is ringed while unfocused.
+
+**A text input is the deliberate exception, on `focus:` rather than `focus-visible:`**, with a *negative*
+offset so the ring sits inside the field. Showing focus when a field is clicked into is correct and is
+what every form library does; the distinction is that a button should not flash a ring at a mouse user.
+
 **No red at rest, anywhere, including the bordered destructive button.** `admin_danger_button_class`
 was `border-red-300 text-red-700` and is now slate at rest like `:secondary`, rose on hover -- it
 sits in the `classrooms#show` toolbar between a bordered Edit and a bordered Delete, and a ghost
