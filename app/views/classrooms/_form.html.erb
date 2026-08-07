@@ -76,9 +76,20 @@
           field_error_proc handles every text-like control automatically and skips checkboxes for exactly
           this reason - see FormErrorsHelper. %>
       <%= tag.fieldset(**field_error_attrs(classroom, :grades)) do %>
-        <legend class="tw-label-primary mb-2">
+        <legend class="tw-label-primary">
           Grades<span class="required-indicator">*</span>
         </legend>
+
+        <%# **Under the subheader, before the options.** It sat below the grid, which put the instruction
+            after the decision it governs and left it floating between this group and the next - design.md
+            says hint text goes "under the group's subheader ... not floating between two field groups",
+            because a hint between groups is ambiguous about which one it modifies. GOV.UK puts a fieldset's
+            hint between the legend and the inputs for the same reason.
+
+            It used to open with a red "* Required:", which was a third statement of one fact - the asterisk
+            on the legend and the browser's own validation being the other two - in the colour this app
+            reserves for errors. %>
+        <p class="mt-1 mb-3 text-sm text-slate-600">Select at least one grade that applies to this classroom.</p>
 
         <%# One empty value, so unchecking everything submits an empty list rather than omitting the key
             and leaving the old grades in place. `id: nil` because it would otherwise take the same
@@ -100,53 +111,49 @@
           <% end %>
         </div>
 
-        <%# The hint says what to do. It used to open with a red "* Required:", which is a third statement
-            of the same fact - the asterisk on the legend and the browser's own validation being the other
-            two - and red type on a form that has no error yet reads as one. %>
-        <p class="mt-2 text-sm text-slate-600">Select at least one grade that applies to this classroom.</p>
-
         <%= field_error(classroom, :grades) %>
       <% end %>
 
-      <%# The trading flag, which a teacher may also set. The switch on classrooms#show is the same
-          setting: that one is for changing it day to day, with the consequence in words beside it; this
-          is for setting it while the classroom is being created or renamed. %>
-      <div>
-        <label class="flex items-center gap-3">
-          <%= form.check_box :trading_enabled,
-                             class: "size-4 shrink-0 rounded-sm border-slate-300 accent-sitf-primary " \
-                                    "focus-visible:outline-2 focus-visible:outline-offset-2 " \
-                                    "focus-visible:outline-sitf-primary" %>
-          <span class="tw-label-primary mb-0">Enable trading</span>
-        </label>
-        <p class="mt-1 text-sm text-slate-600">
-          When enabled, students in this classroom can place buy and sell orders.
-        </p>
-      </div>
-
       <% if admin_fields %>
+        <%# Checkboxes, and no avatars.
+
+            **The control is right for the volume.** A checkbox list is what GOV.UK, Polaris and Primer all
+            use for a short, fully known set of options, and there is one teacher in this database. Beyond
+            roughly ten it should become a searchable multi-select with chips - GitHub's assignees picker,
+            Linear's, Jira's - because a list you have to scroll to find a name in is a list you should be
+            able to type into. That threshold is the trigger, not a redesign for its own sake.
+
+            **The avatar is gone.** An avatar earns its place by making a person recognisable at a glance,
+            and a 32px disc containing one letter does not: two teachers whose names begin with T get the
+            same disc, so it identified nobody while taking the widest column in the row. The name and the
+            email do the identifying, and the email is what disambiguates. Reported as not making sense,
+            which it did not.
+
+            The email is the secondary line under the name - design.md's primary-identifier shape, and what
+            GitHub's collaborator lists and Google Workspace's member pickers show for exactly this. %>
         <%= tag.fieldset(**field_error_attrs(classroom, :teachers)) do %>
-          <legend class="tw-label-primary mb-2">Teachers</legend>
+          <legend class="tw-label-primary">Teachers</legend>
+
+          <%# Under the subheader, before the options, like the grades hint. %>
+          <p class="mt-1 mb-3 text-sm text-slate-600">
+            Teachers you select can see this classroom and edit its grades and trading setting.
+          </p>
 
           <%= hidden_field_tag "classroom[teacher_ids][]", "", id: nil %>
 
           <div class="grid grid-cols-1 gap-1">
             <% @teachers.each do |teacher| %>
-              <label class="flex items-center gap-3 rounded-lg px-2 py-2 transition-colors hover:bg-slate-50">
+              <label class="flex items-start gap-3 rounded-lg px-2 py-2 transition-colors hover:bg-slate-50">
+                <%# mt-0.5 on a 16px box beside a two-line block, so the checkbox's centre lands on the
+                    name's first line rather than its top edge - design.md states that for a lone checkbox
+                    and measures it as centre-to-centre. %>
                 <%= check_box_tag "classroom[teacher_ids][]",
                                   teacher.id,
                                   classroom.persisted? && classroom.teachers.include?(teacher),
                                   id: "classroom_teacher_ids_#{teacher.id}",
-                                  class: "size-4 shrink-0 rounded-sm border-slate-300 accent-sitf-primary " \
-                                         "focus-visible:outline-2 focus-visible:outline-offset-2 " \
-                                         "focus-visible:outline-sitf-primary" %>
-
-                <%# The avatar is the app's own initial treatment - bg-blue-500 with white text measures
-                    3.68:1, the brand teal 6.18:1 - and it aligns to the row's centre with the checkbox
-                    and the name rather than being nudged with mt-1. %>
-                <span class="flex size-8 shrink-0 items-center justify-center rounded-full bg-sitf-primary text-sm font-medium text-sitf-on-primary">
-                  <%= teacher.display_name.first.upcase %>
-                </span>
+                                  class: "mt-0.5 size-4 shrink-0 rounded-sm border-slate-300 " \
+                                         "accent-sitf-primary focus-visible:outline-2 " \
+                                         "focus-visible:outline-offset-2 focus-visible:outline-sitf-primary" %>
 
                 <span class="min-w-0">
                   <span class="block truncate text-sm font-medium text-slate-900"><%= teacher.display_name %></span>
@@ -156,13 +163,36 @@
             <% end %>
           </div>
 
-          <p class="mt-2 text-sm text-slate-600">
-            Teachers you select can see this classroom and edit its grades and trading setting.
-          </p>
-
           <%= field_error(classroom, :teachers) %>
         <% end %>
       <% end %>
+
+      <%# **Last in the form**, after what the classroom *is* and who can see it.
+
+          It is the only field here with a runtime effect on students, it is optional with a default, and it
+          is the one setting that also has its own control on the classroom page - so in a form it is "and
+          one more thing", not part of the classroom's identity. Required identity first, access next,
+          behaviour last is the order GOV.UK and Polaris both use when fields are grouped on one page.
+
+          A single checkbox is the right control and not a switch: GOV.UK reserves a lone checkbox for
+          opting in, which is what this is, and a switch implies the change takes effect as you flip it -
+          which it does on the classroom page, and does not here, where nothing happens until you save.
+
+          The hint is indented to the label's text column rather than starting under the checkbox, so it
+          reads as belonging to that option. GOV.UK indents a checkbox's hint the same way. `pl-7` is the
+          16px box plus the 12px gap. %>
+      <div>
+        <label class="flex items-center gap-3">
+          <%= form.check_box :trading_enabled,
+                             class: "size-4 shrink-0 rounded-sm border-slate-300 accent-sitf-primary " \
+                                    "focus-visible:outline-2 focus-visible:outline-offset-2 " \
+                                    "focus-visible:outline-sitf-primary" %>
+          <span class="tw-label-primary mb-0">Enable trading</span>
+        </label>
+        <p class="mt-1 pl-7 text-sm text-slate-600">
+          When enabled, students in this classroom can place buy and sell orders.
+        </p>
+      </div>
     </div>
   </div>
 

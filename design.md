@@ -1327,6 +1327,44 @@ by putting the grey strip back and watching it fail.
 all of it. A form's readable measure does not scale with the window. `max-w-2xl` (672px), which is what
 students#new and #edit already used - measured after: 672px at 1400px and at 1920px.
 
+**A group's hint goes under its subheader, before the options.** Reported on the classroom form, where both
+groups had theirs below the checkboxes - which puts the instruction after the decision it governs, and leaves
+it floating between one group and the next. This document already stated the rule for filters: hint text
+"under the group's subheader ... not floating between two field groups", because a hint between groups is
+ambiguous about which one it modifies. GOV.UK puts a fieldset's hint between the legend and the inputs for
+the same reason. Measured after: on classrooms#new, Grades legend 457, hint 485, first option 527.
+
+Note the distinction from a **single** field, where the hint goes *below* the input - that is Polaris and
+Material, and it is what the student and grade-book forms do. A group has no single input to sit under, and
+its legend is a subheader rather than a label.
+
+**A boolean setting comes last: identity, then access, then behaviour.** "Enable trading" sat between the
+grades and the teachers. It is optional with a default, it is the only field on that form with a runtime
+effect on students, and it is the one setting that also has its own control on the classroom page - so in a
+form it is "and one more thing", not part of what the classroom is. Required identity first, access next,
+behaviour last is the order GOV.UK and Polaris both use when fields are grouped on one page.
+
+**It is a checkbox, not a switch, and that is not a contradiction.** GOV.UK reserves a lone checkbox for
+opting in, which is what this is; and a switch implies the change takes effect as you flip it, which is true
+of the control on the classroom page and false here, where nothing happens until you save. The same setting
+can legitimately be a switch in one place and a checkbox in another for exactly that reason.
+
+**A checkbox's own hint is indented to its label's text**, not to the box - `pl-7`, the 16px box plus the
+12px gap, which GOV.UK also does. Measured: label text and hint text both at x=538, the checkbox at 510.
+
+**Choosing a person is a checkbox list at this size, and an avatar is not part of it.** The teacher picker
+put a 32px disc containing one letter beside each name, and it was reported as not making sense. It did not:
+a single initial identifies nobody - two teachers whose names begin with T get the same disc - while taking
+the widest column in the row. The name identifies and the **email disambiguates**, which is what GitHub's
+collaborator lists and Google Workspace's member pickers show. An avatar earns its place where it carries a
+real image or where a name alone is ambiguous in a dense list, not as a decorated bullet.
+
+**The volume is what decides the control.** A checkbox list is right for a short, fully known set - GOV.UK,
+Polaris and Primer all use one - and there is one teacher in this database. **Past roughly ten it should
+become a searchable multi-select with chips**, which is GitHub's assignees picker, Linear's and Jira's,
+because a list you have to scroll to find a name in is a list you should be able to type into. That threshold
+is the trigger; not a redesign for its own sake.
+
 **A group of checkboxes is a `<fieldset>` with a `<legend>`.** It is the only thing that can name a group,
 because there is no single control for a `<label for>` to point at - and the classroom form proved it by
 trying: `form.label :grade_ids` emitted `for="classroom_grade_ids"`, no element had that id, and the

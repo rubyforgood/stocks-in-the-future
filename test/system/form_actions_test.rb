@@ -198,4 +198,108 @@ class FormActionsTest < ApplicationSystemTestCase
       assert_leading_edge_actions("students#new at 375px")
     end
   end
+
+  # A group's hint goes **under its subheader, before the options** - design.md: "hint text under the group's
+  # subheader ... not floating between two field groups", because a hint between groups is ambiguous about
+  # which one it modifies. Both of the classroom form's groups had theirs below the options, which put the
+  # instruction after the decision it governs.
+  test "a field group's hint sits between its legend and its options" do
+    create(:school)
+    # The grades group renders nothing without them, and a group with no options cannot show hint order.
+    (Classroom::MIN_GRADE..Classroom::MAX_GRADE).each { |n| create(:grade, level: n, name: "#{n}th Grade") }
+    create(:teacher, name: "Terry Teacher")
+    sign_in create(:admin)
+
+    visit new_classroom_path
+
+    order = page.evaluate_script(<<~JS)
+      (function () {
+        return Array.from(document.querySelectorAll("main form fieldset")).map(function (fs) {
+          const y = (el) => el.getBoundingClientRect().top + window.scrollY;
+          const hint = fs.querySelector("p");
+          const option = fs.querySelector("input[type=checkbox]");
+          return { group: fs.querySelector("legend").textContent.replace("*", "").trim(),
+                   hintBeforeOptions: !!hint && !!option && y(hint) < y(option) };
+        });
+      })()
+    JS
+
+    assert_equal %w[Grades Teachers], order.pluck("group")
+    order.each do |group|
+      assert group["hintBeforeOptions"],
+             "#{group['group']}: the hint is below its options, so it explains a choice already made"
+    end
+  end
+
+  # Selecting a teacher: a checkbox list, which is what a short known set takes, and **no avatar**. A 32px
+  # disc containing one letter identifies nobody - two teachers whose names start with T get the same disc -
+  # while taking the widest column in the row. The name and the email identify; the email disambiguates.
+  test "a teacher is chosen by name and email, not by an initial in a disc" do
+    create(:school)
+    create(:teacher, name: "Terry Teacher", email: "terry@example.com")
+    sign_in create(:admin)
+
+    visit new_classroom_path
+
+    row = page.evaluate_script(<<~JS)
+      (function () {
+        const label = document.querySelector("input[id^='classroom_teacher_ids_']").closest("label");
+        const centre = (el) => { const b = el.getBoundingClientRect(); return b.top + b.height / 2; };
+        const discs = Array.from(label.querySelectorAll("span")).filter(function (s) {
+          return parseFloat(getComputedStyle(s).borderRadius) > 12;
+        });
+        return { discs: discs.length,
+                 text: label.textContent.replace(/\s+/g, " ").trim(),
+                 offset: Math.round(centre(label.querySelector("input")) -
+                                    centre(label.querySelector("span.font-medium"))) };
+      })()
+    JS
+
+    assert_equal 0, row["discs"], "the teacher row still carries an avatar disc"
+    assert_includes row["text"], "Terry Teacher"
+    assert_includes row["text"], "terry@example.com"
+    # mt-0.5 puts the 16px box's centre on the name's first line, not its top edge - design.md's own test.
+    assert_in_delta 0, row["offset"], 1
+  end
+
+  # Trading is a behaviour with a default, not part of what the classroom is, and it is the one setting with
+  # its own control on the classroom page - so it comes last, after identity and access.
+  test "enable trading comes last, with its hint under its own label" do
+    create(:school)
+    create(:teacher)
+    sign_in create(:admin)
+
+    visit new_classroom_path
+
+    layout = page.evaluate_script(<<~JS)
+      (function () {
+        const y = (el) => el.getBoundingClientRect().top + window.scrollY;
+        const box = document.querySelector("#classroom_trading_enabled");
+        const wrapper = box.closest("div");
+        const label = box.closest("label").querySelector("span");
+        const hint = wrapper.querySelector("p");
+        const groups = Array.from(document.querySelectorAll("main form fieldset"));
+        const textLeft = function (el) {
+          const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+          while (w.nextNode()) {
+            if (w.currentNode.textContent.trim()) {
+              const r = document.createRange();
+              r.selectNodeContents(w.currentNode);
+              const rect = r.getClientRects()[0];
+              if (rect) return Math.round(rect.left);
+            }
+          }
+          return null;
+        };
+        return { afterEveryGroup: groups.every(function (g) { return y(wrapper) > y(g); }),
+                 labelX: textLeft(label), hintX: textLeft(hint),
+                 checkboxX: Math.round(box.getBoundingClientRect().left) };
+      })()
+    JS
+
+    assert layout["afterEveryGroup"], "enable trading is not the last field in the form"
+    assert_equal layout["labelX"], layout["hintX"],
+                 "the hint starts under the checkbox rather than under its label's text"
+    assert_operator layout["hintX"], :>, layout["checkboxX"]
+  end
 end
