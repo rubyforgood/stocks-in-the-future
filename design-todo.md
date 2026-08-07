@@ -595,3 +595,42 @@ before.
   design call: it decides whether an admin can lock themselves out of an account permanently by clicking
   one row action.
 
+## Should the confirmation dialog get a solid destructive accept? (2026-08)
+
+- [ ] **One decision: may "no red at rest, anywhere" become "no red at rest on a page", with the
+  confirmation dialog named as the exception?**
+
+  **Preview: `/admin/component_demo/destructive_buttons`**, development only. It shows what does not
+  change, the dialog as it is, the dialog as proposed, and the shade comparison with every ratio measured
+  from what actually painted. No class was added to the design system to build it - the proposed button is
+  composed from utilities - so the page can be deleted without leaving anything behind.
+
+  Where this came from: I added a solid `.tw-btn-danger` on my own judgement, it broke two rules
+  design.md states by name, and I reverted it. The question of whether the *rule* should change is a
+  different one and it is not mine to settle.
+
+  **The case.** The field splits by context rather than by taste. A destructive control **on a page** is
+  low emphasis - Primer's danger variant is red text at rest with the fill on hover, Carbon ships
+  `danger--ghost` and `danger--tertiary`, Gmail and Linear are neutral at rest - and this app has that
+  tier twice over, 15 controls. A destructive control that is **the subject of its surface** is solid red:
+  Polaris renders a modal's destructive `primaryAction` as a critical fill, GOV.UK reserves its warning
+  button for serious or irreversible consequences, and Atlassian, Carbon and Ant Design all agree. This
+  app has no such tier in use, and `:danger` sits in the variant list with no implementation and no
+  caller - which by this document's own rule is a class indistinguishable from a supported one.
+
+  The reason "no red at rest" holds is that a red control alarms you while you are doing something else. A
+  confirmation exists only because you asked for the action a moment ago. The rule keeps its force
+  everywhere it was written for; the dialog is the one place the argument does not reach.
+
+  **rose-700, not the spec's rose-600.** Measured by painting the fill and reading the pixel: rose-600
+  with white text is 4.53:1, which clears AA by 0.03 and is no headroom; rose-700 is 6.03:1, level with
+  the brand primary's 6.18:1. design.md already makes this correction one entry above, for `:success`
+  ("emerald-700, not 600: white on 600 is 3.77:1"). GOV.UK's warning red measures 4.85:1 for comparison.
+
+  **What survives either way:** Cancel keeps `autofocus`, so the destructive answer is never the default -
+  Apple's rule, and the half of its guidance that is orthogonal to the fill.
+
+  **Cost:** an amendment to the strongest word in an existing rule, which has to be written down or it
+  gets re-litigated; one class; one line in `confirm_dialog_controller`; two tests invert. ~10
+  confirmations change and nothing else.
+
