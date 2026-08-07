@@ -26,7 +26,13 @@
     <% end %>
   <% end %>
 
-  <%= render layout: "components/ui/page_header", locals: { title: "Trading floor" } do %>
+  <%# The description is the caution that used to be the movers card's subtitle, and this is a better place
+      for it: it is read where a student is about to choose, not on the launchpad they passed through. Two
+      sentences, because "prices update once a day" is what makes the Change column legible at all. %>
+  <%= render layout: "components/ui/page_header",
+             locals: { title: "Trading floor",
+                       description: "Prices update once a day. A big move does not make a company a " \
+                                    "better buy - open one to see what it does." } do %>
     <%# show_holdings? on its own. The `|| current_user.student?` that used to be here widened this
         to students with no persisted portfolio, and stocks#index only sets @portfolio for a student
         who has one - so a student without a portfolio got a 500, not a degraded page. %>

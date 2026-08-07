@@ -622,7 +622,9 @@ before.
   was green with an up arrow because the test was `>= 0` - and a ticker is a broadcast component that no
   finance application uses in its chrome.
 
-  The replacement lists only companies that actually moved, in three states rather than two, below the
-  balance rather than above it, and carries help text saying a big one-day move is not a reason to buy.
+  The replacement went through a "Today's movers" card on the home page - reported as making no sense there,
+  because it pushed the balance, the announcements and the getting-started steps down to list three of the
+  companies the trading floor lists anyway - and ended as a **Change column on the trading floor**, beside
+  the price it is about, with the caution as that page's description.
   `app/assets/stylesheets/application.css` is now in CLAUDE.md's audit scope, which is why those colours
   survived every sweep.

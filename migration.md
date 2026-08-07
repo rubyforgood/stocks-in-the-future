@@ -2768,10 +2768,14 @@ green ticker... it does not look WCAG compliant nor is there any real data here"
 
 ### What replaced it
 
-`home/_todays_movers`, a still card on the home page below the balance, plus `Stock.movers` and
-`ApplicationHelper#movement_class`. The card lists up to three companies whose price actually changed, with
-company name, ticker, price, change, an arrow and a link to the company - and help text explaining that a
-big one-day move is not a reason to buy, which is the condition of showing a movers list to children at all.
+**A Change column on the trading floor**, beside Last price, plus `ApplicationHelper#movement_class`.
+
+It spent one commit as `home/_todays_movers`, a card below the balance listing three companies with price
+and change. That was reported as making no sense there, correctly: it pushed the balance, the announcements
+and the getting-started steps down in order to show three of the companies the trading floor lists anyway.
+The card, its partial and the `Stock.movers` scope that fed it are all deleted - an unused scope is
+indistinguishable from a supported one - and the caution it carried is the trading floor's page description
+now, where it is read at the point of choosing.
 
 ### What this breaks
 
@@ -2782,7 +2786,8 @@ big one-day move is not a reason to buy, which is the condition of showing a mov
 - **`app/assets/stylesheets/application.css` now holds only a font import.** It is kept for that import and
   for the comment recording why the two tokens went. It is also **now in CLAUDE.md's audit scope**, which it
   never was - the reason a 2.74:1 colour survived the entire design migration.
-- **`Stock.movers` returns nothing until the daily price job has run twice.** That is the honest state, and
-  the card says so rather than showing zeroes. Any environment where the job has never run sees the empty
-  state, which is what development sees.
+- **The Change column shows an em dash until the daily price job has run twice**, and for every archived
+  company. That is the honest state: a stock with no yesterday price has no change, and an archived one has
+  a frozen price. Any environment where the job has never run sees em dashes down the column, which is what
+  development saw before three rows were given yesterday prices by hand.
 

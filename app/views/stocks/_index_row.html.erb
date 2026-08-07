@@ -36,6 +36,15 @@
             always on screen. As their own trailing columns they sat at left=370 in a viewport
             326px wide - the trading floor's only call to action was off the right edge of a
             horizontal scroll on a phone, which is the width most students are on. %>
+        <%# Below lg the Change column collapses in here, on its own line above the holdings, because it
+            belongs to the price rather than to what the student owns. Not shown for an archived company,
+            where the em dash in the column would be the whole of the information. %>
+        <% if !stock.archived? && stock.yesterday_price_cents.present? %>
+          <span class="mt-1 text-xs lg:hidden <%= movement_class(stock.percentage_change) %>">
+            <%= stock.percentage_change_formatted %> since yesterday
+          </span>
+        <% end %>
+
         <% if policy(stock).show_holdings? %>
           <span class="mt-1 text-xs text-slate-600 lg:hidden">
             You own <%= share_count(@portfolio&.shares_owned(stock.id) || 0) %>
@@ -52,6 +61,18 @@
     <span class="table-cell-content">
       <%= number_to_currency(stock.current_price) %>
     </span>
+  </td>
+
+  <%# An archived company's price is frozen, so a change figure for it would be arithmetic on a stale
+      number. The em dash is this app's marker for "no value here", which is the honest answer. %>
+  <td class="table-body-cell table-body-cell-right hidden whitespace-nowrap lg:table-cell">
+    <% if stock.archived? || stock.yesterday_price_cents.blank? %>
+      <span class="text-slate-500">&mdash;</span>
+    <% else %>
+      <span class="<%= movement_class(stock.percentage_change) %>">
+        <%= stock.percentage_change_formatted %>
+      </span>
+    <% end %>
   </td>
   <%# Same condition as the header in _stocks_table, so the column counts cannot diverge. It used
       to be current_user.student? there and policy(stock).show_holdings? here - a student with no

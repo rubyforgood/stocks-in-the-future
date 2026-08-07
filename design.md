@@ -1181,91 +1181,50 @@ is where a section's control goes - Polaris's card header action, Primer's `Subh
 sections - with the sentence beside it. That is what makes the pill unnecessary and what took the page
 from **six card surfaces to two**.
 
-### Today's movers, and why the nav ticker was removed
+### Price change: where it went, and the three places it did not belong
 
-**Decision: the scrolling stock ticker is gone from the header, and its content is a still card on the home
-page.** Reported as "a continuously scrolling green ticker... it does not look WCAG compliant nor is there
-any real data here". All of that checked out, and the reasons are worth keeping because a ticker is the
-kind of thing that gets proposed again.
+**Decision: a Change column on the trading floor, beside Last price.** That is where Robinhood, Fidelity,
+Schwab and E*TRADE all put a price change - next to the price it is about, in the list a person is choosing
+from. It got there by way of two worse homes, and both are worth keeping because both looked reasonable.
 
-**Why it was removed.** Four reasons, in the order that matters:
+**1. A scrolling ticker in the header. Removed.** `animation: scroll 20s linear infinite`, automatic,
+endless, **no pause control and no `prefers-reduced-motion`** - WCAG 2.2.2 at **Level A**, on every
+signed-in page. Its two colours measured **2.74:1** and **3.78:1** against AA's 4.5:1, and both lived in
+`app/assets/stylesheets/application.css`, the one stylesheet outside this repo's audit scope, which is how
+they survived every colour sweep. It also showed nothing true: every `yesterday_price_cents` was nil, so all
+18 stocks read `0.00%`, and because the colour test was `percentage_change >= 0`, every one was green with an
+upward arrow. And it carried a symbol and a percentage - no price, no company name, no link - while being
+`hidden lg:block`, so the phones these students mostly use never saw it.
 
-1. **WCAG 2.2.2 Pause, Stop, Hide, at Level A.** `animation: scroll 20s linear infinite`, starting by
-   itself, running forever, with no pause control and no `prefers-reduced-motion` guard. Level A is the
-   tier below which nothing is negotiable, and this was on every signed-in page.
-2. **WCAG 1.4.3.** Its two colours measured **2.74:1** (up) and **3.78:1** (down) on white, against AA's
-   4.5:1. Both tokens lived in `app/assets/stylesheets/application.css` - the one stylesheet outside this
-   repo's stated audit scope - which is how they survived every colour sweep. **That file is now in the
-   scope in CLAUDE.md.**
-3. **It said nothing true.** Every stock's `yesterday_price_cents` was nil, so `percentage_change` returned
-   0.0 and all 18 read `0.00%` - and because the colour test was `percentage_change >= 0`, every one of
-   them was green with an upward arrow. A market where nothing moved and everything gained.
-4. **It carried no useful content even when working.** A symbol and a percentage: no price, no company
-   name, not a link, no relation to what the student owns - while the trading floor, one click away, has
-   all four. And `hidden lg:block`, so the phones these students mostly use never saw it.
+**A ticker is a broadcast component.** It belongs to television lower-thirds and public information
+displays, where the viewer is captive, has no pointer and cannot scroll. No finance application animates its
+chrome; `<marquee>` was deprecated and 2.2.2 is why. In an application the reader sets the pace, and motion
+takes that away for nothing, because the same figures sit still perfectly well.
 
-**Why a ticker was the wrong component to begin with.** It is a **broadcast** device. Auto-scrolling
-tickers survive in television lower-thirds and public information displays, where the viewer is captive,
-has no pointer and cannot scroll. No finance application animates its chrome: Robinhood has a static
-watchlist, Fidelity and Schwab have pinned quote panels, Yahoo Finance's quote row is user-scrolled, and
-the Bloomberg Terminal - the densest financial interface there is - does not marquee. In an application the
-reader sets the pace, and motion takes that away for nothing, because the same figures sit still perfectly
-well. `<marquee>` was deprecated, and 2.2.2 is why.
+**2. A "Today's movers" card on the home page. Removed.** It listed three companies with price and change,
+and it was reported as making no sense there - it pushed the balance, the announcements and the
+getting-started steps down to show three of the companies the trading floor lists anyway. Two lessons in it:
+**a card that duplicates a page one click away is not carrying its own weight**, and the home page's job is
+the balance, the news and the onboarding, so a fourth thing competes with all three. This document had
+already measured that mistake at 421px on the roster and it happened again anyway.
 
-**Why the replacement is shaped the way it is.**
+**3. The column.** `hidden lg:table-cell` like the table's other secondary columns, with the figure
+restated in the primary cell below `lg` - the collapse this table has used since the trade buttons were
+measured off the right edge of a phone. A third always-visible column would have put the table back into a
+horizontal scroll at 375px, which `table_stacking_test` would catch. `w-28`, so the two stacked tables keep
+one column geometry. Measured after: 0px of overflow at 1400px and at 375px.
 
-- **A mover has to have moved.** `Stock.movers` excludes unchanged prices and rows with no yesterday
-  price, rather than sorting them to the bottom. Three companies at 0.00% under the heading "Today's
-  movers" is the ticker's lie in a new frame.
-- **Three states, not two.** Up is green with an up arrow, down is red with a down arrow, unchanged is
-  slate with **no arrow**. `ApplicationHelper#movement_class` is the one place that decides, at green-700
-  and red-700 - measured 4.95:1 and 6.42:1 - and the sign and the arrow mean it is never colour alone.
-- **List rows in one card**, `divide-y` between them, per the card-soup rule. Each row is the link, so the
-  target is the row rather than a word in it.
-- **Below the balance, not above it.** A student comes to that page for one number. Measured: the balance
-  stays at its old position and Announcements moves down by the card's 366px plus the 24px gap. This
-  document had already measured the opposite mistake at a cost of 421px on the roster.
+**Three states, never two.** Up green with an up arrow, down red with a down arrow, unchanged slate with no
+arrow - `ApplicationHelper#movement_class`, at green-700 and red-700 which measure **4.95:1** and **6.42:1**.
+The sign and the arrow carry the direction as well, so it is never colour alone. **And an archived company
+gets an em dash, not a figure**: its price is frozen, so a change for it is arithmetic on a stale number.
 
-**A card's supporting line goes under its title, and nowhere else.** The movers help text took three goes
-and the first two are the lesson. As a capped paragraph in a band under the rows it left **407px of a
-1081px card** empty and read as truncated. As two columns it used the width but was reported as jarring
-across viewports, and fairly: a band that is two columns at `lg` and one below it changes shape at every
-width, sitting under rows that never change shape at all. As the card's **subtitle** it has neither problem
-- it fills the header's width, it is read *before* the list rather than after it, which is the right order
-for a caution, and it is where every other card in this app puts its supporting line.
-
-**Condensing is what made that possible**, and the copy is better for it: 155 characters first, which was
-one line at 1400px and two at a Chromebook - the same sentence changing shape between the two widths this
-app is used at - then 122, which is one line at both. Measured: 1 line at 1400 and 1366, 2 at 1024, 3 at
-375, and the card 273px instead of 366px.
-
-**A measure cap is for the line length. If the text does not wrap at the container's width, it has no line
-to shorten and is only leaving a gutter.** Surveyed every cap in the app after this, and there are two
-kinds:
-
-- **Keep it where something sits beside the text.** The grade book's "Student grades" description shares
-  its row with "Add new students": that is the page-header shape - title and subtitle in one column,
-  actions in another - and this document already records that without the cap the text ran under the
-  button. The space to its right is the action's column, not a gutter.
-- **Keep it where the block is centred.** `components/ui/_empty_state`'s default variant caps its body at
-  `max-w-md` inside a centred column, so the space is equal on both sides. That is centring, which is what
-  Polaris's `EmptyState` and Primer's `Blankslate` both do.
-- **Remove it otherwise.** The finalize card's two sentences were capped at 672px inside a 1041px card, and
-  at 87 and 106 characters each is **one line at the card's width** - measured at 1400, 1366 and 1024. The
-  cap never shortened a line there; it only left 369px empty.
-
-**The test is whether the cap or the sentence is ending the line.**
-
-**And it carries help text, which is the condition of it existing at all.** A "biggest movers" list put in
-front of eleven-year-olds teaches performance chasing - buy what went up - which is the opposite of what
-this app is for. So the card says what a move is ("changed most since yesterday"), that prices move every
-day in both directions, that **a company at the top of the list is not a better buy**, and what to do
-instead: open it and read what the company does and how its price has moved over time. No advice, and the
-one instruction is something a student can actually act on. If a future card of this kind cannot carry that
-sentence, it should not carry the list either.
-
-`todays_movers_test.rb` asserts all of it, including that **nothing on the page animates at all** - which
-is the assertion that would fail if a ticker ever came back.
+**The caution moved with the data, and it is better placed than it was.** "Prices update once a day. A big
+move does not make a company a better buy - open one to see what it does." On the trading floor that is read
+where the choice is made rather than on a launchpad the student passed through. It exists because a
+biggest-movers list put in front of eleven-year-olds teaches performance chasing, which is the opposite of
+what this app is for - and the reason it is one sentence in a page description rather than a band inside a
+card is the measure rule below.
 
 **One icon per card, and it lives in the header.** The announcements card had `megaphone` twice: 16px in
 a 32x32 blue-50 tile in the header, and 20px bare slate-500 in the body's empty state. Bigger, a different

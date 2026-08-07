@@ -749,10 +749,19 @@ without the spaces before concluding anything.
 ## Comments are not inert
 
 A comment containing its own terminator ends early, and the remainder becomes
-content. I did this twice on this branch: a `*/` inside a CSS comment broke the
-Tailwind build, and a `%>` inside an ERB comment leaked a whole sentence onto a
-rendered page as visible text. Don't write those sequences inside the comment that
-uses them.
+content. Four times on this branch now: a `*/` inside a CSS comment broke the
+Tailwind build; a closing ERB delimiter inside an ERB comment leaked a whole sentence onto a
+rendered page as visible text; then **the same thing again in a comment explaining that trap**, which put
+its own second half above a card on the home page; and then an ERB comment placed *inside* a `render` tag's
+argument list, which ended the tag mid-hash and broke the partial with a syntax error.
+
+**The rule is not "be careful" - it is never write the delimiter inside a comment, and never put a comment
+tag inside another tag.** Describe the delimiter in words instead.
+
+Neither `bin/lint` nor the suite catches any of this, because neither reads the page:
+`test/system/no_leaked_template_syntax_test.rb` does, across every page and both layouts, by looking for
+delimiters in rendered `innerText`. It caught the fourth one. It is also why the third one shipped - I
+verified the *card* that turn, measuring its subtitle and its height, and never read the text above it.
 
 Relatedly, interpolating an optional HTML attribute yields an *unquoted*
 attribute, which CSS and Capybara selectors will not match. Use `tag.div`, which

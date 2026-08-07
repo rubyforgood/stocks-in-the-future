@@ -64,14 +64,6 @@
       </section>
     <% end %>
 
-    <%# Today's movers, which is where the header's scrolling ticker went.
-
-        **After** the funds card, not above it. A student is on this page to read one number, and this
-        document's own rule is that adding to the top of a page costs the thing the page is for - the
-        roster's first row went from 146px to 567px once, exactly that way. Measured: the balance stays
-        where it was and Announcements moves down by the card's height plus the 24px gap. %>
-    <%= render "home/todays_movers" %>
-
     <%# Announcements. The card is always padded now: the empty state is the compact
         variant, which carries no padding of its own.
 

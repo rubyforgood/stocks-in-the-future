@@ -37,6 +37,17 @@
     <tr class="table-header-row">
       <th scope="col" class="table-header-cell table-header-cell-left">Company (exchange)</th>
       <th scope="col" class="table-header-cell table-header-cell-right w-32">Last price</th>
+      <%# Change belongs beside the price, which is where every brokerage list puts it - Robinhood,
+          Fidelity, Schwab, E*TRADE. It arrived here from a "Today's movers" card on the home page: the
+          data was right and the card was not, because it listed three of the companies that are in this
+          table anyway, and on the home page it pushed the balance, the announcements and the getting-
+          started steps down to make room. See design.md.
+
+          `hidden lg:table-cell` like the other secondary columns, with the figure restated in the primary
+          cell below lg - the collapse this table has used since the trade buttons were measured off the
+          right edge of a phone. Adding a third always-visible column would have put the table back into a
+          horizontal scroll at 375px, which `table_stacking_test` would catch. %>
+      <th scope="col" class="table-header-cell table-header-cell-right hidden w-28 lg:table-cell">Change</th>
       <%# policy(Stock).show_holdings?, not current_user.student?, so this agrees with the body
           row in _index_row. show_holdings? also requires a persisted portfolio. Both columns are
           hidden below lg, where their contents move into the primary cell. %>
@@ -54,8 +65,15 @@
         <%= render "stocks/index_row", stock: stock %>
       <% end %>
     <% else %>
+      <%# Five columns with holdings and actions, three without - the Change column counts. An empty row
+          that spans the wrong number leaves a gap at the end of the table.
+
+          Above the call, not inside it: a comment tag cannot sit within another tag, because the outer one
+          ends at the first closing delimiter it meets. I did that twice in one sitting - once leaking a
+          sentence onto the home page and once breaking this partial - which is why
+          `no_leaked_template_syntax_test` exists and why it caught the second one. %>
       <%= render "admin/shared/empty_row",
-                 colspan: policy(Stock).show_holdings? ? 4 : 2,
+                 colspan: policy(Stock).show_holdings? ? 5 : 3,
                  icon: "chart-line",
                  title: local_assigns[:title].present? ? "No #{title.downcase} to show" : "Nothing to show",
                  body: "Stocks appear here once your teacher adds them." %>
