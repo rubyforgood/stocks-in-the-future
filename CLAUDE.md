@@ -368,6 +368,17 @@ and Docker's published port cannot forward to loopback inside the container. `do
 always passed the flag; `Procfile.dev` did not, so swapping a hand-run `bin/rails server -b 0.0.0.0`
 for `bin/dev` silently took the app off the browser while every check still passed.
 
+**`172.17.0.1:$PORT` is my check, not the browser's URL.** The gateway address is how *this container*
+reaches the published port, and curling it proves the publish works. It is not where the user goes: on a
+macOS host that IP lives inside Docker Desktop's Linux VM and no browser there can route to it. The host
+URL is **`localhost:$EXPLORE_CLIENT_PORT`** - `localhost:3700` here. I handed over the gateway address
+and the page "did not load", which cost a round trip; note that the container cannot verify the host URL
+either, since 3700 is not bound in here, so getting it right matters more than usual.
+
+**A page under `/admin` needs the `admin` account.** `Admin::BaseController#authenticate_admin` redirects
+any non-admin to the app root with an alert, so as `teacher` a preview link lands on the trading floor
+rather than failing visibly - which reads like a broken link.
+
 **A container cannot check its own reachability over loopback.** `curl 127.0.0.1:3000` from inside
 succeeds whether the bind is loopback-only or not, so it cannot distinguish the working case from the
 broken one — I called the server verified on exactly that evidence. Use the container's own address,
