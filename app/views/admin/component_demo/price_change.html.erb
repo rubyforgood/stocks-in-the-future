@@ -1,51 +1,100 @@
-<%# Design preview: the trading floor's Change column.
+<%# Design preview: remove the trading floor's Change column, and mark a price that is not today's.
+    Development only.
 
-    Built because the column shipped and was not found. It is there - the header renders and the cells
-    render - but it is `hidden lg:table-cell`, so it appears only from 1024px up, and in this database seven
-    of the ten active companies had no yesterday price, so the rows at the top of the table all showed an em
-    dash. A column of dashes above the fold reads as a column that does nothing.
-
-    Everything below is a mock built from the app's real table classes and the real `movement_class` helper.
-    The figures are illustrative. %>
+    This is the third proposal about the same figure - a scrolling ticker, then a movers card, then this
+    column - and the honest reading of what the last two rounds turned up is that the *daily change* is not
+    worth a column, while the **age of the price** is worth stating. That is the reversal this page argues
+    for, and if the answer is "stop changing it", leaving the column as it is costs nothing. %>
 <% content_for :own_heading, true %>
 
-<%# One row's worth of data per state. Plain hashes rather than a struct: nothing here renders a partial that
-    expects a Stock, so nothing needs the interface. %>
-<% states = [
-     { company: "The Coca-Cola Company", ticker: "KO", price: 68.99, change: 6.39,
-       note: "Up - green, an up arrow, and a + sign" },
-     { company: "Carnival Corporation", ticker: "CCL", price: 21.85, change: -3.02,
-       note: "Down - red, a down arrow, and a - sign" },
-     { company: "Verizon Communications", ticker: "VZ", price: 40.12, change: 0.0,
-       note: "Unchanged - slate, and no arrow at all" },
-     { company: "Gone Away Inc.", ticker: "OLD", price: 5.00, change: nil,
-       note: "Archived - the price is frozen, so there is no change to state" },
-     { company: "Newly Added Co.", ticker: "NEW", price: 12.50, change: nil,
-       note: "No yesterday price yet - the daily job has not run twice" }
+<% today = Date.current %>
+<% rows = [
+     { company: "The Coca-Cola Company", ticker: "KO", price: 68.99, priced: today,
+       note: "Priced today - nothing extra to say" },
+     { company: "Carnival Corporation", ticker: "CCL", price: 21.85, priced: today - 4,
+       note: "The fetch has failed for four days - this is what a student would buy at" },
+     { company: "Newly Added Co.", ticker: "NEW", price: 12.50, priced: nil,
+       note: "Never successfully priced" }
    ] %>
 
 <%= render layout: "components/ui/page_header",
-           locals: { title: "Price change",
-                     description: "Where the Change column sits, what each state looks like, and what it " \
-                                  "does on a phone" } do %><% end %>
+           locals: { title: "Price change, reconsidered",
+                     description: "Why the daily change is not worth a column, and what is" } do %><% end %>
 
 <%= render "components/ui/callout",
-           tone: :info,
-           title: "This is a preview of shipped UI, not a proposal",
-           body: "The Change column is live on the trading floor. This page exists because it was not " \
-                 "easy to find: it shows only from 1024px up, and most rows were showing an em dash " \
-                 "because the companies had no yesterday price. Figures here are illustrative." %>
+           tone: :warning,
+           title: "This is a proposal to remove something shipped two commits ago",
+           body: "Development only, nothing is wired up, and the Change column is still live on the " \
+                 "trading floor. Say the word and it stays exactly as it is - the case below is a case, " \
+                 "not a fait accompli." %>
 
 <div class="mt-6 space-y-10">
-  <%# ------------------------------------------------------------------ where it is %>
-  <section aria-labelledby="where">
+  <%# ------------------------------------------------------------------ the case %>
+  <section aria-labelledby="case">
     <div class="mb-3">
-      <h2 id="where" class="text-base font-semibold text-slate-900">Where it is</h2>
+      <h2 id="case" class="text-base font-semibold text-slate-900">Four facts about the daily change</h2>
+    </div>
+
+    <div class="tw-card p-5">
+      <dl class="space-y-4 text-sm">
+        <div>
+          <dt class="font-medium text-slate-900">"Since yesterday" is wrong two days a week</dt>
+          <dd class="mt-1 max-w-2xl text-slate-600">
+            The job runs on the cron <code class="text-xs">0 2 * * 2-6</code> - Tuesday to Saturday. Nothing
+            runs for Sunday or Monday, so on a Monday the figure spans Friday to Saturday and still says
+            yesterday. Market holidays widen the same gap.
+          </dd>
+        </div>
+
+        <div>
+          <dt class="font-medium text-slate-900">Without an API key it is an em dash, always</dt>
+          <dd class="mt-1 max-w-2xl text-slate-600">
+            <code class="text-xs">ALPHA_VANTAGE_API_KEY</code> is not set in this environment, and
+            <code class="text-xs">fetch_quote</code> returns nil without one - so the column is empty by
+            default in any environment that has not been given a key.
+          </dd>
+        </div>
+
+        <div>
+          <dt class="font-medium text-slate-900">Rate limits make a partial update the normal case</dt>
+          <dd class="mt-1 max-w-2xl text-slate-600">
+            18 stocks, one request each, with a 1.1s sleep between them for the free tier's limit. When the
+            allowance runs out mid-run, some companies are fresh and some are days old - and the column
+            renders both identically, which is the failure that was just fixed in the job.
+          </dd>
+        </div>
+
+        <div>
+          <dt class="font-medium text-slate-900">It is hidden from the audience</dt>
+          <dd class="mt-1 max-w-2xl text-slate-600">
+            <code class="text-xs">hidden lg:table-cell</code>, because a third always-visible column puts
+            that table into a sideways scroll at 375px. These students are largely on phones, so the column
+            is absent exactly where they are.
+          </dd>
+        </div>
+      </dl>
+    </div>
+
+    <p class="mt-3 max-w-2xl text-sm text-slate-600">
+      And the change figure that <em>is</em> worth having already exists, on the portfolio: current value
+      minus what was paid, per holding. It needs no API for its baseline - the purchase price is stored - so
+      it is always computable and always true. Note the collision that has been sitting there: "Change"
+      means <strong class="font-medium text-slate-900">since purchase</strong> on one page and
+      <strong class="font-medium text-slate-900">since yesterday</strong> on the other.
+    </p>
+  </section>
+
+  <%# ------------------------------------------------------------------ the proposal %>
+  <section aria-labelledby="proposal">
+    <div class="mb-3">
+      <h2 id="proposal" class="text-base font-semibold text-slate-900">
+        Instead: say how old the price is
+        <span class="ml-1 align-middle"><%= render "components/ui/badge", label: "Recommended", tone: :success %></span>
+      </h2>
       <p class="mt-1 max-w-2xl text-sm text-slate-600">
-        Third column on the trading floor, between <strong class="font-medium text-slate-900">Last
-        price</strong> and <strong class="font-medium text-slate-900">Your holdings</strong>. As a teacher
-        or an admin there are no holdings or actions columns - <code class="text-xs">StockPolicy#show_holdings?</code>
-        requires a student with a portfolio - so it is the last column you see.
+        Whatever else is true, a student places an order against this number. If it is four days old,
+        nothing on the page currently says so - and that is worth more than a percentage, because it bears
+        on the transaction rather than on the browsing.
       </p>
     </div>
 
@@ -55,8 +104,7 @@
           <thead>
             <tr class="table-header-row">
               <th scope="col" class="table-header-cell table-header-cell-left">Company (exchange)</th>
-              <th scope="col" class="table-header-cell table-header-cell-right w-32">Last price</th>
-              <th scope="col" class="table-header-cell table-header-cell-right w-28 bg-blue-50">Change</th>
+              <th scope="col" class="table-header-cell table-header-cell-right w-40">Last price</th>
               <th scope="col" class="table-header-cell table-header-cell-left w-32">Your holdings</th>
               <th scope="col" class="table-header-cell table-header-cell-right w-52">
                 <span class="sr-only">Actions</span>
@@ -64,32 +112,33 @@
             </tr>
           </thead>
           <tbody class="bg-white">
-            <% states.first(3).each do |state| %>
+            <% rows.each do |row| %>
               <tr class="table-body-row">
                 <td class="table-body-cell">
-                  <span class="block font-medium text-slate-900"><%= state[:ticker] %></span>
-                  <span class="block text-sm text-slate-600"><%= state[:company] %></span>
+                  <span class="block font-medium text-slate-900"><%= row[:ticker] %></span>
+                  <span class="block text-sm text-slate-600"><%= row[:company] %></span>
                 </td>
+
+                <%# The date only when it is not today's, so a fresh price stays a clean figure and the note
+                    means something when it appears. slate-600 at 7.58:1, not amber or rose: a stale price is
+                    a fact about the data, not an error the student has made. %>
                 <td class="table-body-cell table-body-cell-right">
-                  <span class="table-cell-content"><%= number_to_currency(state[:price]) %></span>
+                  <span class="block tabular-nums text-slate-900"><%= number_to_currency(row[:price]) %></span>
+                  <% if row[:priced].nil? %>
+                    <span class="mt-0.5 block text-xs text-slate-600">Not priced yet</span>
+                  <% elsif row[:priced] != today %>
+                    <span class="mt-0.5 block text-xs text-slate-600">
+                      as of <%= row[:priced].strftime("%-d %b") %>
+                    </span>
+                  <% end %>
                 </td>
-                <td class="table-body-cell table-body-cell-right bg-blue-50">
-                  <%# The arrow is here because it is in the app. An earlier draft of this page showed the
-                      states list with arrows and this mock without them, so the two halves of a preview of
-                      *shipped* UI disagreed with each other and one of them disagreed with the app. That was
-                      reported before I noticed it. A mock's job is to be the thing. %>
-                  <span class="inline-flex items-center justify-end gap-1 <%= movement_class(state[:change]) %>">
-                    <% if state[:change].positive? %>
-                      <%= lucide_icon("trending-up", class: "size-4 shrink-0") %>
-                    <% elsif state[:change].negative? %>
-                      <%= lucide_icon("trending-down", class: "size-4 shrink-0") %>
-                    <% end %>
-                    <%= state[:change].zero? ? "0.00%" : format("%+.2f%%", state[:change]) %>
-                  </span>
-                </td>
+
                 <td class="table-body-cell"><span class="table-cell-content">You own 0</span></td>
                 <td class="table-body-cell table-body-cell-right">
-                  <span class="text-xs text-slate-600">Buy / Sell</span>
+                  <div class="flex justify-end gap-2">
+                    <span class="tw-btn-secondary">Buy</span>
+                    <span class="tw-btn-secondary">Sell</span>
+                  </div>
                 </td>
               </tr>
             <% end %>
@@ -98,152 +147,55 @@
       </div>
     </div>
 
-    <p class="text-sm text-slate-600">The tinted column is the new one; it is not tinted in the app.</p>
-  </section>
-
-  <%# ------------------------------------------------------------------ the states %>
-  <section aria-labelledby="states">
-    <div class="mb-3">
-      <h2 id="states" class="text-base font-semibold text-slate-900">Five states, and why two of them are a dash</h2>
-      <p class="mt-1 max-w-2xl text-sm text-slate-600">
-        Up, down and unchanged are three states rather than two - the ticker this replaced tested
-        <code class="text-xs">&gt;= 0</code>, so a flat price was green with an upward arrow. The other two
-        have nothing to state, and say so.
-      </p>
-    </div>
-
     <%= render layout: "components/ui/card", locals: { padded: false } do %>
       <ul class="divide-y divide-slate-200">
-        <% states.each do |state| %>
-          <li class="flex flex-wrap items-center justify-between gap-4 px-5 py-3">
-            <span class="min-w-0">
-              <span class="block text-sm font-medium text-slate-900"><%= state[:company] %></span>
-              <span class="block text-xs text-slate-600"><%= state[:note] %></span>
-            </span>
-
-            <span class="flex shrink-0 items-center gap-1 text-sm tabular-nums <%= state[:change] ? movement_class(state[:change]) : 'text-slate-500' %>">
-              <% if state[:change].nil? %>
-                &mdash;
-              <% else %>
-                <% if state[:change].positive? %>
-                  <%= lucide_icon("trending-up", class: "size-4 shrink-0") %>
-                <% elsif state[:change].negative? %>
-                  <%= lucide_icon("trending-down", class: "size-4 shrink-0") %>
-                <% end %>
-                <%= state[:change].zero? ? "0.00%" : format("%+.2f%%", state[:change]) %>
-              <% end %>
+        <% rows.each do |row| %>
+          <li class="flex flex-wrap items-baseline justify-between gap-4 px-5 py-3">
+            <span class="text-sm text-slate-600"><%= row[:note] %></span>
+            <span class="text-sm font-medium text-slate-900">
+              <%= number_to_currency(row[:price]) %><% if row[:priced].nil? %> &middot; not priced yet<% elsif row[:priced] != today %> &middot; as of <%= row[:priced].strftime("%-d %b") %><% end %>
             </span>
           </li>
         <% end %>
       </ul>
     <% end %>
+
+    <p class="mt-3 max-w-2xl text-sm text-slate-600">
+      It is visible at every width, because it lives in a column that already exists rather than adding one -
+      which is the other reason to prefer it over the change figure.
+    </p>
   </section>
 
-  <%# ------------------------------------------------------------------ below lg %>
-  <section aria-labelledby="narrow">
-    <div class="mb-3">
-      <h2 id="narrow" class="text-base font-semibold text-slate-900">Below 1024px it is not a column</h2>
-      <p class="mt-1 max-w-2xl text-sm text-slate-600">
-        It collapses into the company cell, the way the holdings and the trade buttons already do. A third
-        always-visible column would put this table back into a sideways scroll at 375px, which is the thing
-        that was just fixed across the app.
-      </p>
-    </div>
-
-    <div class="mx-auto max-w-sm">
-      <%= render layout: "components/ui/card", locals: { padded: false } do %>
-        <table class="table-base">
-          <tbody class="bg-white">
-            <% states.first(2).each do |state| %>
-              <tr class="table-body-row">
-                <td class="table-body-cell">
-                  <span class="block font-medium text-slate-900"><%= state[:ticker] %></span>
-                  <span class="block text-sm text-slate-600"><%= state[:company] %></span>
-                  <span class="mt-1 inline-flex items-center gap-1 text-xs <%= movement_class(state[:change]) %>">
-                    <% if state[:change].positive? %>
-                      <%= lucide_icon("trending-up", class: "size-3.5 shrink-0") %>
-                    <% else %>
-                      <%= lucide_icon("trending-down", class: "size-3.5 shrink-0") %>
-                    <% end %>
-                    <%= format("%+.2f%%", state[:change]) %> since yesterday
-                  </span>
-                  <span class="mt-1 block text-xs text-slate-600">You own 0</span>
-                </td>
-                <td class="table-body-cell table-body-cell-right">
-                  <span class="table-cell-content"><%= number_to_currency(state[:price]) %></span>
-                </td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
-      <% end %>
-    </div>
-  </section>
-
-  <%# ------------------------------------------------------------------ buy and sell %>
-  <section aria-labelledby="actions">
-    <div class="mb-3">
-      <h2 id="actions" class="text-base font-semibold text-slate-900">Buy and Sell are still buttons</h2>
-      <p class="mt-1 max-w-2xl text-sm text-slate-600">
-        Unchanged by this column: `.tw-btn-secondary`, 40px, bordered white with a slate-700 label at
-        10.35:1, rendered as links that open the order modal. They are **not** ghosts like other row
-        actions, and not filled either - a filled teal Buy beside a filled amber Sell put two saturated
-        fills in two hues on every row, and was reported as garish.
-      </p>
-    </div>
-
-    <div class="tw-card p-5">
-      <div class="flex flex-wrap items-center gap-6">
-        <span class="text-xs text-slate-600">Active company</span>
-        <div class="flex gap-2">
-          <span class="tw-btn-secondary">Buy</span>
-          <span class="tw-btn-secondary">Sell</span>
-        </div>
-
-        <span class="text-xs text-slate-600">Archived - sell only</span>
-        <div class="flex gap-2">
-          <span class="tw-btn-secondary">Sell</span>
-        </div>
-      </div>
-
-      <p class="mt-4 max-w-2xl text-sm text-slate-600">
-        And no arrows on them, which is why the Change column can have them: a vertical arrow in a finance
-        interface means the price moved that way, so the same glyph cannot also mean "place an order". The
-        buttons used to carry one; the column now does.
-      </p>
-    </div>
-  </section>
-
-  <%# ------------------------------------------------------------------ why it looked empty %>
-  <section class="tw-card p-5" aria-labelledby="why">
-    <h2 id="why" class="text-base font-semibold text-slate-900">Why it looked like nothing was there</h2>
+  <%# ------------------------------------------------------------------ what it costs %>
+  <section class="tw-card p-5" aria-labelledby="cost">
+    <h2 id="cost" class="text-base font-semibold text-slate-900">What it costs, and the honest alternative</h2>
 
     <dl class="mt-4 space-y-4 text-sm">
       <div>
-        <dt class="font-medium text-slate-900">Seven of the ten companies had no yesterday price</dt>
+        <dt class="font-medium text-slate-900">Doing it</dt>
         <dd class="mt-1 max-w-2xl text-slate-600">
-          <code class="text-xs">yesterday_price_cents</code> is set by the daily price job, which has never
-          run in this environment, and the column shows an em dash rather than inventing a change. The rows
-          that did have one - BAC, CCL and F - were further down an unordered list, so the visible part of
-          the table was all dashes. Every active company has a plausible change in the development database
-          now, so the live page demonstrates itself.
+          Remove the Change column from the header, the row and the below-lg block, take the column count in
+          the empty row's colspan back to four, widen Last price to <code class="text-xs">w-40</code> for the
+          second line, and add the date. `movement_class` stays - the portfolio still uses it. Two of the six
+          tests in `price_change_test` change, and `migration.md` gets the removal. About an hour.
         </dd>
       </div>
 
       <div>
-        <dt class="font-medium text-slate-900">And it is hidden below 1024px</dt>
+        <dt class="font-medium text-slate-900">The argument against, which is real</dt>
         <dd class="mt-1 max-w-2xl text-slate-600">
-          Deliberately - see above - but it does mean a narrow window shows no Change header at all, which
-          reads the same as a missing feature.
+          This would be the third revision of one small feature, and churn has a cost of its own. The column
+          is not harmful now that the job no longer fabricates zeros: it is honest, it just says
+          <em>nothing</em> most of the time. Leaving it and only adding the date is a coherent middle - you
+          keep a figure that is right when it is there, and gain the staleness marker that matters.
         </dd>
       </div>
 
       <div>
-        <dt class="font-medium text-slate-900">What I should have done</dt>
+        <dt class="font-medium text-slate-900">What it needs from you</dt>
         <dd class="mt-1 max-w-2xl text-slate-600">
-          Said where to look and at what width, and populated the data before calling it done. A feature
-          whose every visible row is an em dash has not been demonstrated, whatever the tests say - the
-          tests create their own stocks with yesterday prices, so they passed on data the page did not have.
+          One of three: remove the column and add the date; keep the column and add the date; or stop here,
+          because the job fix already removed the part that was actively misleading.
         </dd>
       </div>
     </dl>
