@@ -62,6 +62,10 @@
         <h2 class="text-base font-semibold text-slate-900">Student grades</h2>
 
         <% if entries %>
+          <%# This cap stays. It is a section heading's description with the "Add new students" button
+              beside it, which is the page-header shape - title and subtitle in one column, actions in
+              another - and design.md records that without the cap this text ran under the button at every
+              width. The space to its right is the action's column, not a gutter. %>
           <p class="mt-1 max-w-2xl text-sm text-slate-600">
             Each day attended earns
             <%= number_to_currency(GradeEntry::EARNINGS_PER_DAY_ATTENDANCE / 100.0) %>, and perfect
@@ -164,7 +168,11 @@
         <%# The possessive has to be built rather than pluralized: `pluralize` gives "1 student", and
             "1 student' portfolio" is what interpolating an apostrophe after it produces. %>
         <% recipients = earnings.student_count == 1 ? "student's portfolio" : "students' portfolios" %>
-        <p class="mt-1 max-w-2xl text-sm text-slate-600">
+        <%# No measure cap. At 87 characters this is one line at the card's width, so `max-w-2xl` never
+            shortened a line - it only left 369px of the card empty to the right of it. A cap earns its
+            place when the text wraps several times against it, or when something sits beside it; neither
+            is true here. See design.md. %>
+        <p class="mt-1 text-sm text-slate-600">
           Pays <%= number_to_currency(earnings.total_cents / 100.0) %> into
           <%= earnings.student_count %> <%= recipients %> and locks these entries.
           This cannot be undone.

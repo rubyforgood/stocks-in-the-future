@@ -18,7 +18,9 @@
     No total line: the sentence above the block names it, and the confirmation names it again at the
     commitment. A fourth copy would be a fourth place to disagree. %>
 <%= tag.div id: "finalize-breakdown", class: "mt-4" do %>
-  <p class="max-w-2xl text-sm text-slate-600">
+  <%# No measure cap, for the same reason as the sentence above this block: 106 characters is one line at
+      the card's width, so the cap only left the card unfinished on the right. %>
+  <p class="text-sm text-slate-600">
     Each student is paid in three deposits, which is how the total divides and what their statement
     will show.
   </p>

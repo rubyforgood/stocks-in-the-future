@@ -57,7 +57,9 @@ class TodaysMoversTest < ApplicationSystemTestCase
   end
 
   # The help text is the reason this card is allowed to exist. A "biggest movers" list put in front of
-  # eleven-year-olds teaches buying what went up, which is the opposite of what this app is for.
+  # eleven-year-olds teaches buying what went up, which is the opposite of what this app is for. All three
+  # things it has to say are in the subtitle: what the list is, that moving most is not a recommendation,
+  # and what to do instead.
   test "the card explains what a move means and what it does not mean" do
     a_student_on_the_home_page
     create(:stock, ticker: "KO", company_name: "Coca-Cola", price_cents: 6_241, yesterday_price_cents: 6_100)
@@ -65,10 +67,9 @@ class TodaysMoversTest < ApplicationSystemTestCase
     visit root_path
 
     within "section", text: "Today's movers" do
-      assert_text "changed most since yesterday"
-      assert_text "Share prices move every day, up and down"
-      assert_text "is not a better buy"
-      assert_text "read what the company does"
+      assert_text "The biggest price changes since yesterday"
+      assert_text "does not make a company a better buy"
+      assert_text "open one to see what it does"
     end
   end
 
@@ -146,66 +147,46 @@ class TodaysMoversTest < ApplicationSystemTestCase
                     "the movers card is above the balance"
   end
 
-  # The footnote uses the card. It was one `<p class="max-w-2xl">` in a card measuring 1081px, which left
-  # **407px of empty card to its right** while the rows above it spanned the full width - so it read as
-  # truncated rather than as a paragraph. Reported that way.
+  # The help text is the card's subtitle, not a band under the rows. It was a capped paragraph leaving
+  # 407px of the card empty, then two columns that used the width but changed shape between viewports -
+  # one column below lg, two above, under rows that never change shape at all. Reported as jarring.
   #
-  # Widening it was not the fix: at 672px it already ran ~95 characters per line, and spanning the card
-  # would have been ~152, where the readable measure is 45-75. Two columns of ~504px are ~70 characters
-  # each, which uses the width and keeps the measure.
-  test "the footnote uses the width of the card" do
+  # A subtitle has neither problem: it fills the header's width, and at 122 characters it is one line at
+  # both widths this app is used at. Asserted as *shape*, not as pixels: no band inside the card, and the
+  # subtitle reaching the header's content width.
+  test "the help text is the subtitle, with no band under the rows" do
     a_student_on_the_home_page
     create(:stock, ticker: "KO", company_name: "Coca-Cola", price_cents: 6_241, yesterday_price_cents: 6_100)
 
-    visit root_path
+    [nil, :phone].each do |viewport|
+      run = lambda do
+        visit root_path
 
-    geometry = page.evaluate_script(<<~JS)
-      (function () {
-        const heading = Array.from(document.querySelectorAll("h2, h3, p"))
-          .find(function (e) { return e.textContent.trim() === "Today's movers"; });
-        const card = heading.closest(".tw-card");
-        const row = card.querySelector("li a");
-        const columns = Array.from(card.querySelectorAll("div.grid p"));
-        const block = columns[0].parentElement;
-        return { row: Math.round(row.getBoundingClientRect().width),
-                 block: Math.round(block.getBoundingClientRect().width),
-                 columns: columns.map(function (p) { return Math.round(p.getBoundingClientRect().width); }) };
-      })()
-    JS
+        shape = page.evaluate_script(<<~JS)
+          (function () {
+            const heading = Array.from(document.querySelectorAll("h2, h3, p"))
+              .find(function (e) { return e.textContent.trim() === "Today's movers"; });
+            const card = heading.closest(".tw-card");
+            const header = heading.closest("header");
+            const sub = header.querySelector("p");
+            const cs = getComputedStyle(header);
+            const inner = header.getBoundingClientRect().width -
+                          parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+            return { bands: card.querySelectorAll(".border-t").length,
+                     columns: card.querySelectorAll("div.grid p").length,
+                     subtitle: Math.round(sub.getBoundingClientRect().width),
+                     headerInner: Math.round(inner) };
+          })()
+        JS
 
-    # The block reaches the row's width less the card's own horizontal padding (px-5 each side).
-    assert_in_delta geometry["row"] - 40, geometry["block"], 2,
-                    "the footnote block is #{geometry['block']}px against rows of #{geometry['row']}px, " \
-                    "so it leaves the card unfinished on the right"
+        assert_equal 0, shape["bands"], "there is still a band under the rows"
+        assert_equal 0, shape["columns"], "the help text is still in columns"
+        assert_in_delta shape["headerInner"], shape["subtitle"], 2,
+                        "the subtitle is #{shape['subtitle']}px inside #{shape['headerInner']}px of " \
+                        "header, so it leaves the card unfinished on the right"
+      end
 
-    assert_equal 2, geometry["columns"].size
-    assert_operator geometry["columns"].first, :>, 400,
-                    "a column is #{geometry['columns'].first}px, which is too narrow to read comfortably"
-    assert_operator geometry["columns"].first, :<, 700,
-                    "a column is #{geometry['columns'].first}px, which is past the readable measure"
-  end
-
-  # One column on a phone: two 150px columns would be worse than a paragraph.
-  test "the footnote stacks at 375px" do
-    a_student_on_the_home_page
-    create(:stock, ticker: "KO", company_name: "Coca-Cola", price_cents: 6_241, yesterday_price_cents: 6_100)
-
-    in_phone_viewport do
-      visit root_path
-
-      stacked = page.evaluate_script(<<~JS)
-        (function () {
-          const heading = Array.from(document.querySelectorAll("h2, h3, p"))
-            .find(function (e) { return e.textContent.trim() === "Today's movers"; });
-          const columns = Array.from(heading.closest(".tw-card").querySelectorAll("div.grid p"));
-          const tops = columns.map(function (p) { return Math.round(p.getBoundingClientRect().top); });
-          return { widths: columns.map(function (p) { return Math.round(p.getBoundingClientRect().width); }),
-                   sameLine: tops[0] === tops[1] };
-        })()
-      JS
-
-      assert_not stacked["sameLine"], "the two columns are side by side at 375px"
-      assert_equal stacked["widths"].first, stacked["widths"].last
+      viewport == :phone ? in_phone_viewport { run.call } : run.call
     end
   end
 end

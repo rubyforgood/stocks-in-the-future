@@ -63,6 +63,9 @@
     <p class="text-base font-semibold text-slate-900"><%= title %></p>
 
     <% if local_assigns[:body].present? %>
+      <%# This cap stays too. The block is centred, so the cap gives the sentence a readable measure with
+          equal space on both sides - which is centring, not a gutter. Polaris's EmptyState and Primer's
+          Blankslate both constrain their body text this way. %>
       <p class="mt-1 max-w-md text-sm text-slate-600"><%= body %></p>
     <% end %>
 

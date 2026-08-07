@@ -1226,23 +1226,35 @@ well. `<marquee>` was deprecated, and 2.2.2 is why.
   stays at its old position and Announcements moves down by the card's 366px plus the 24px gap. This
   document had already measured the opposite mistake at a cost of 421px on the roster.
 
-**A measure cap is for the line length, not for leaving a gutter - so a long note in a wide card gets
-columns, not a cap.** The movers footnote was one `<p class="max-w-2xl">` inside a card measuring 1081px,
-which left **407px of empty card** to its right while the rows above spanned the full width. It read as
-truncated, and was reported that way.
+**A card's supporting line goes under its title, and nowhere else.** The movers help text took three goes
+and the first two are the lesson. As a capped paragraph in a band under the rows it left **407px of a
+1081px card** empty and read as truncated. As two columns it used the width but was reported as jarring
+across viewports, and fairly: a band that is two columns at `lg` and one below it changes shape at every
+width, sitting under rows that never change shape at all. As the card's **subtitle** it has neither problem
+- it fills the header's width, it is read *before* the list rather than after it, which is the right order
+for a caution, and it is where every other card in this app puts its supporting line.
 
-Widening it is the wrong instinct and the numbers say so: at 672px it already ran **~95 characters per
-line**, and spanning the card would have been **~152**, where the readable measure is 45-75. Two columns
-of ~504px are about 70 characters each - the width is used and the measure is right. Split where the sense
-splits (what the list is; what it is not and what to do), stacked below `lg`, because two 150px columns on
-a phone would be worse than a paragraph.
+**Condensing is what made that possible**, and the copy is better for it: 155 characters first, which was
+one line at 1400px and two at a Chromebook - the same sentence changing shape between the two widths this
+app is used at - then 122, which is one line at both. Measured: 1 line at 1400 and 1366, 2 at 1024, 3 at
+375, and the card 273px instead of 366px.
 
-**When the cap is still correct:** a sentence or two, where the line ends because the sentence does. The
-grade book's finalize card has two of those - 87 and 106 characters at 672px in a 1041px card - and they
-read as short paragraphs rather than as truncation. And where something sits *beside* the text, the cap is
-load-bearing: the grade book's section description shares its row with "Add new students", and without the
-cap it runs under the button, which this document already records. **The test is whether the cap or the
-sentence is ending the line.**
+**A measure cap is for the line length. If the text does not wrap at the container's width, it has no line
+to shorten and is only leaving a gutter.** Surveyed every cap in the app after this, and there are two
+kinds:
+
+- **Keep it where something sits beside the text.** The grade book's "Student grades" description shares
+  its row with "Add new students": that is the page-header shape - title and subtitle in one column,
+  actions in another - and this document already records that without the cap the text ran under the
+  button. The space to its right is the action's column, not a gutter.
+- **Keep it where the block is centred.** `components/ui/_empty_state`'s default variant caps its body at
+  `max-w-md` inside a centred column, so the space is equal on both sides. That is centring, which is what
+  Polaris's `EmptyState` and Primer's `Blankslate` both do.
+- **Remove it otherwise.** The finalize card's two sentences were capped at 672px inside a 1041px card, and
+  at 87 and 106 characters each is **one line at the card's width** - measured at 1400, 1366 and 1024. The
+  cap never shortened a line there; it only left 369px empty.
+
+**The test is whether the cap or the sentence is ending the line.**
 
 **And it carries help text, which is the condition of it existing at all.** A "biggest movers" list put in
 front of eleven-year-olds teaches performance chasing - buy what went up - which is the opposite of what
