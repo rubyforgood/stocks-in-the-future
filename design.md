@@ -1400,14 +1400,32 @@ credibility. Two more found by checking rather than assuming: `admin/users` "Del
 **raised in development**, because the guard only steps aside in production), and only
 `Admin::TeachersController#destroy` is a genuine `really_destroy!`.
 
-**A confirmation's accept button is solid rose when the action is destructive, and the trigger says
-which.** `.tw-btn-danger` on white measures 6.03:1. This is the one place a solid destructive button
-belongs: the reasoning for `:danger_outline` - "a red button at rest is an always-on alarm" - is about a
-control sitting on a page, whereas in a dialog the reader has already asked for the action and the dialog
-exists to describe it. macOS, GitHub and Polaris all use a solid destructive accept there, and an outline
-accept beside an outline cancel gives two controls of one weight. **Matched on the trigger, not on its
-words**: `data-confirm-danger`, or the ghost's own danger class, because keying on "delete" or "remove"
-would colour a button for a noun in its label and would miss "Deactivate".
+**A confirmation's destructive accept is `:danger_outline`, because Cancel beside it is bordered.** That
+is this document's existing rule applied, not a new one: a destructive action **matches the buttons beside
+it** - `ghost_class(:danger)` among ghosts, `button_classes(:danger_outline)` among bordered buttons - and
+**no red at rest, anywhere, including the bordered destructive button**. `.tw-btn-secondary` on Cancel is
+bordered, so the accept is `.tw-btn-danger-outline`: slate at rest, rose on hover.
+
+I got this wrong first and it is worth keeping why. I added a solid rose `.tw-btn-danger` and argued for
+it from the field - macOS, GitHub and Polaris do use a solid destructive accept - **on a question this
+document had already answered twice**, in the variant list and in the no-red-at-rest rule. The
+justification I gave was also false: I said the spec's filled rose-600 fails AA, and measured properly,
+white on rose-600 is **4.53:1**, which passes. And `buttons.css` records that `.tw-btn-danger` had been
+**deleted** once already, eight lines above where I re-added it, for having no callers. Three signals,
+all pointing the same way.
+
+The cost of the spec's answer is real and worth naming: at rest the accept matches Cancel, so the labels
+carry the difference. That is also what macOS HIG asks of a destructive alert - the destructive button is
+not the default and Cancel holds focus - which is what `autofocus` on Cancel already does here.
+
+**Matched on the trigger, not on its words**: `data-confirm-danger`, or the ghost's own danger class,
+because keying on "delete" or "remove" would style a button for a noun in its label and would miss
+"Deactivate".
+
+**The filled `:danger` variant in the list above has no implementation and no caller.** Nothing routes to
+it - every usage instruction here points at `:danger_outline` or ghost danger - and by this document's own
+rule an unused class is indistinguishable from a supported one. It should either gain a stated use or come
+out of the list; that is a decision, not a sweep.
 
 **A dialog's buttons are trailing-aligned, which is the exception the form-actions rule names.** Cancel
 first in the DOM with `autofocus`, accept last: macOS, Polaris, Material and GitHub all put the answer

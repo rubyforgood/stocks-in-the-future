@@ -89,15 +89,16 @@ class ConfirmDialogTest < ApplicationSystemTestCase
     end
   end
 
-  # A destructive accept is solid rose; anything else is the brand primary. The trigger says which, so a
-  # label containing the word "delete" is not what decides it.
+  # A destructive accept is `:danger_outline` - design.md's variant for a destructive action among
+  # bordered buttons, and Cancel beside it is bordered - while anything else is the brand primary. The
+  # trigger says which, so a label containing the word "delete" is not what decides it.
   test "the accept button is destructive only for a destructive action" do
     classroom, = a_classroom_with_a_student
 
     visit classroom_path(classroom)
     click_on "Delete", match: :first
 
-    assert_selector "#confirm-dialog[open] [data-confirm-dialog-target='accept'].tw-btn-danger"
+    assert_selector "#confirm-dialog[open] [data-confirm-dialog-target='accept'].tw-btn-danger-outline"
     assert_no_selector "#confirm-dialog [data-confirm-dialog-target='accept'].tw-btn-primary"
 
     within("#confirm-dialog") { click_on "Cancel" }
@@ -105,7 +106,40 @@ class ConfirmDialogTest < ApplicationSystemTestCase
     click_on "Reset password", match: :first
 
     assert_selector "#confirm-dialog[open] [data-confirm-dialog-target='accept'].tw-btn-primary"
-    assert_no_selector "#confirm-dialog [data-confirm-dialog-target='accept'].tw-btn-danger"
+    assert_no_selector "#confirm-dialog [data-confirm-dialog-target='accept'].tw-btn-danger-outline"
+  end
+
+  # "No red at rest, anywhere, including the bordered destructive button" - design.md, stated absolutely.
+  # A solid rose accept broke it, and the reason I gave for adding one (that the spec's rose-600 fails AA)
+  # was wrong too: white on rose-600 measures 4.53:1. Asserted by painting the button's own background
+  # into a canvas and reading the pixel, because getComputedStyle returns oklch() in this browser and
+  # parsing those three numbers as if they were RGB is how an audit here once invented five failures.
+  test "the destructive accept carries no red at rest" do
+    classroom, = a_classroom_with_a_student
+
+    visit classroom_path(classroom)
+    click_on "Delete", match: :first
+
+    assert_selector "#confirm-dialog[open]"
+
+    channels = page.evaluate_script(<<~JS)
+      (function () {
+        const el = document.querySelector("[data-confirm-dialog-target='accept']");
+        const c = document.createElement("canvas");
+        c.width = c.height = 1;
+        const x = c.getContext("2d");
+        x.fillStyle = "white";
+        x.fillRect(0, 0, 1, 1);
+        x.fillStyle = getComputedStyle(el).backgroundColor;
+        x.fillRect(0, 0, 1, 1);
+        const d = x.getImageData(0, 0, 1, 1).data;
+        return { r: d[0], g: d[1], b: d[2] };
+      })()
+    JS
+
+    # Rose is red-dominant by a wide margin; white and a hairline-bordered white are not.
+    assert_operator channels["r"] - channels["g"], :<, 24,
+                    "the destructive accept is red at rest (#{channels.inspect})"
   end
 
   # The body is hidden rather than empty when a confirmation has nothing to add, so a one-line question

@@ -58,7 +58,6 @@
    * `font-semibold`. A shared base cannot drift from itself. */
   .tw-btn-primary,
   .tw-btn-secondary,
-  .tw-btn-danger,
   .tw-btn-danger-outline,
   .tw-btn-primary-disabled {
     @apply inline-flex h-10 items-center justify-center gap-2 rounded-lg px-4 text-sm shadow-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2;
@@ -87,23 +86,6 @@
   /* design.md's :danger_outline. Identical to :secondary at rest - no red anywhere until hover -
    * for a destructive action sitting among bordered buttons. Use ghost_class(:danger) when the
    * neighbours are ghosts instead. Measured: rose-700 on rose-50 is 5.72:1. */
-  /* Solid destructive, for the accept button of a confirmation and nowhere else.
-   *
-   * design.md's reasoning for the outline variant - "a red button at rest is an always-on alarm" - is
-   * about a control sitting on a page. Inside a dialog the reader has already asked for this action and
-   * the dialog exists to describe it, so the destructive choice is the subject rather than a hazard
-   * sitting in wait. macOS alerts, GitHub's confirmation dialogs and Polaris's destructive modal all use
-   * a solid destructive button there, and an outline accept beside an outline cancel gives two controls
-   * of one weight, which is the actual failure mode.
-   *
-   * rose-700, not rose-600: measured on white text, 600 is 4.15:1 and fails AA for body-size text while
-   * 700 is 6.06:1. The same one-step-darker correction design.md already records for red-500. */
-  .tw-btn-danger {
-    @apply border border-transparent bg-rose-700 text-white shadow-xs;
-    @apply hover:bg-rose-800;
-    @apply focus-visible:ring-2 focus-visible:ring-rose-700 focus-visible:ring-offset-2;
-  }
-
   .tw-btn-danger-outline {
     @apply cursor-pointer border border-slate-200 bg-white font-medium text-slate-700 hover:border-rose-300 hover:bg-rose-50 hover:text-rose-700 focus-visible:outline-rose-700;
   }

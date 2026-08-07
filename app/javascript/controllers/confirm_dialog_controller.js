@@ -116,8 +116,19 @@ export default class extends Controller {
            trigger.className.toString().includes("hover:text-rose-700")
   }
 
+  // `:danger_outline`, which is design.md's variant for a destructive action **among bordered buttons** -
+  // and Cancel beside it is `.tw-btn-secondary`, which is bordered. Slate at rest, rose on hover.
+  //
+  // I first added a solid rose `.tw-btn-danger` here and it was wrong twice over: design.md says "no red
+  // at rest, anywhere, including the bordered destructive button", and it already defines the variant
+  // for this neighbourhood. The justification I gave - that the spec's filled rose-600 fails AA - was
+  // also wrong: white on rose-600 measures 4.53:1 and passes. The spec was not silent, so it decides.
+  //
+  // The cost is that at rest the accept matches Cancel, and the labels carry the difference. That is
+  // also what macOS HIG asks for in a destructive alert - the destructive button is not the default and
+  // Cancel holds focus, which is what `autofocus` on Cancel already does here.
   _setDanger(danger) {
-    this.acceptTarget.classList.toggle("tw-btn-danger", danger)
+    this.acceptTarget.classList.toggle("tw-btn-danger-outline", danger)
     this.acceptTarget.classList.toggle("tw-btn-primary", !danger)
   }
 
