@@ -8,13 +8,13 @@ module Admin
       @school_years = apply_sorting(SchoolYear.includes(:school, :year), default: "id")
 
       @breadcrumbs = [
-        { label: "School Years" }
+        { label: "School years" }
       ]
     end
 
     def show
       @breadcrumbs = [
-        { label: "School Years", path: admin_school_years_path },
+        { label: "School years", path: admin_school_years_path },
         { label: @school_year.to_s }
       ]
     end
@@ -23,14 +23,14 @@ module Admin
       @school_year = SchoolYear.new
 
       @breadcrumbs = [
-        { label: "School Years", path: admin_school_years_path },
-        { label: "New School Year" }
+        { label: "School years", path: admin_school_years_path },
+        { label: "New school year" }
       ]
     end
 
     def edit
       @breadcrumbs = [
-        { label: "School Years", path: admin_school_years_path },
+        { label: "School years", path: admin_school_years_path },
         { label: @school_year.to_s, path: admin_school_year_path(@school_year) },
         { label: "Edit" }
       ]
@@ -66,7 +66,7 @@ module Admin
         redirect_to admin_school_year_path(@school_year), notice: t(".notice")
       else
         @breadcrumbs = [
-          { label: "School Years", path: admin_school_years_path },
+          { label: "School years", path: admin_school_years_path },
           { label: @school_year.to_s, path: admin_school_year_path(@school_year) },
           { label: "Edit" }
         ]
@@ -96,8 +96,8 @@ module Admin
 
     def render_new_with_errors
       @breadcrumbs = [
-        { label: "School Years", path: admin_school_years_path },
-        { label: "New School Year" }
+        { label: "School years", path: admin_school_years_path },
+        { label: "New school year" }
       ]
       render :new, status: :unprocessable_content
     end
@@ -105,7 +105,7 @@ module Admin
     def save_error(params)
       @school_year = SchoolYear.new(params)
       @school_year.valid?
-      @school_year.errors.add(:base, "A School year with this school and year already exists.")
+      @school_year.errors.add(:base, "A school year with this school and year already exists.")
     end
   end
 end

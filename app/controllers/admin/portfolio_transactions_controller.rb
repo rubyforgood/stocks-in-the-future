@@ -4,12 +4,20 @@ module Admin
   class PortfolioTransactionsController < BaseController
     before_action :set_portfolio_transaction, only: %i[show edit update destroy]
 
+    def index
+      @portfolio_transactions = apply_sorting(
+        PortfolioTransaction.includes(portfolio: :user),
+        default: "created_at"
+      )
+      @breadcrumbs = [{ label: "Portfolio transactions" }]
+    end
+
     def show
       # TODO: FIX
       # authorize @portfolio_transaction
 
       @breadcrumbs = [
-        { label: "Portfolio Transaction ##{@portfolio_transaction.id}" }
+        { label: "Portfolio transaction ##{@portfolio_transaction.id}" }
       ]
     end
 
@@ -19,7 +27,7 @@ module Admin
       # authorize @portfolio_transaction
 
       @breadcrumbs = [
-        { label: "Portfolio Transactions", path: "#" },
+        { label: "Portfolio transactions", path: "#" },
         { label: "New" }
       ]
     end
@@ -29,7 +37,7 @@ module Admin
       # authorize @portfolio_transaction
 
       @breadcrumbs = [
-        { label: "Portfolio Transaction ##{@portfolio_transaction.id}",
+        { label: "Portfolio transaction ##{@portfolio_transaction.id}",
           path: admin_portfolio_transaction_path(@portfolio_transaction) },
         { label: "Edit" }
       ]
@@ -45,7 +53,7 @@ module Admin
                     notice: t(".notice")
       else
         @breadcrumbs = [
-          { label: "Portfolio Transactions", path: "#" },
+          { label: "Portfolio transactions", path: "#" },
           { label: "New" }
         ]
         render :new, status: :unprocessable_content
@@ -61,7 +69,7 @@ module Admin
                     notice: t(".notice")
       else
         @breadcrumbs = [
-          { label: "Portfolio Transaction ##{@portfolio_transaction.id}",
+          { label: "Portfolio transaction ##{@portfolio_transaction.id}",
             path: admin_portfolio_transaction_path(@portfolio_transaction) },
           { label: "Edit" }
         ]

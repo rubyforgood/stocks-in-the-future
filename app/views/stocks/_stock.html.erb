@@ -1,160 +1,82 @@
+<%# Stock detail.
+
+  Rebuilt on the shared card primitive. The three sections previously carried
+  saturated amber, blue and green header bands - decorative colour-coding that
+  said nothing and matched no other surface in the app.
+
+  Two substantive fixes:
+
+  - The price was text-green-600, which measures 3.30:1 on white and 3.15:1 on
+    slate-50, so the single most important number on the page failed AA. Green
+    also implies a gain, and this is a static price rather than a movement, so
+    colour was carrying a meaning that was not there. Now slate-900 at 17:1.
+  - Four <label> elements wrapped text with no associated form control. These are
+    term/description pairs, so they are now a <dl>. %>
 <div id="<%= dom_id stock %>" class="space-y-6">
-  <% if action_name == "show" %>
-    <!-- Price and Key Metrics Card -->
-    <div class="bg-white rounded-[22px] border border-black/30 overflow-hidden">
-      <div class="bg-amber-300/95 px-6 py-4">
-        <h2 class="text-lg font-semibold text-gray-900">Current Price & Key Metrics</h2>
-      </div>
-      <div class="p-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div class="bg-gray-50 rounded-xl p-4">
-            <div class="text-sm text-gray-600 mb-1">Current Price</div>
-            <div class="text-2xl font-bold text-green-600"><%= number_to_currency(stock.current_price) %></div>
-          </div>
-          <div class="bg-gray-50 rounded-xl p-4">
-            <div class="text-sm text-gray-600 mb-1">Stock Exchange</div>
-            <div class="text-lg font-semibold"><%= stock.stock_exchange %></div>
-          </div>
-          <div class="bg-gray-50 rounded-xl p-4">
-            <div class="text-sm text-gray-600 mb-1">Industry</div>
-            <div class="text-lg font-semibold"><%= stock.industry %></div>
-          </div>
-          <div class="bg-gray-50 rounded-xl p-4">
-            <div class="text-sm text-gray-600 mb-1">Employees</div>
-            <div class="text-lg font-semibold"><%= number_with_delimiter(stock.employees) if stock.employees.present? %></div>
-          </div>
-        </div>
-      </div>
+  <%= render layout: "components/ui/card", locals: { title: "Current price and key metrics" } do %>
+    <div class="grid grid-cols-1 gap-4 lg:grid-cols-4">
+      <%= render "components/ui/stat", label: "Current price", value: number_to_currency(stock.current_price) %>
+      <%= render "components/ui/stat", label: "Stock exchange", value: stock.stock_exchange.presence || "—" %>
+      <%= render "components/ui/stat", label: "Industry", value: stock.industry.presence || "—" %>
+      <%= render "components/ui/stat", label: "Employees", value: stock.employees.present? ? number_with_delimiter(stock.employees) : "—" %>
     </div>
+  <% end %>
 
-    <!-- Company Information Card -->
-    <div class="bg-white rounded-[22px] border border-black/30 overflow-hidden">
-      <div class="bg-blue-300/95 px-6 py-4">
-        <h2 class="text-lg font-semibold text-gray-900">Company Information</h2>
-      </div>
-      <div class="p-6">
-        <div class="space-y-4">
-          <% if stock.company_website.present? %>
-            <div>
-              <label class="text-sm font-medium text-gray-600">Website</label>
-              <p class="mt-1">
-                <%= link_to(
-                      stock.company_website,
-                      safe_url(stock.company_website),
-                      target: "_blank",
-                      class: "text-black underline hover:text-[var(--sitf-secondary-chart2)]", rel: "noopener"
-                    ) %>
-              </p>
-            </div>
-          <% end %>
-          <% if stock.description.present? %>
-            <div>
-              <label class="text-sm font-medium text-gray-600">Description</label>
-              <p class="mt-1 text-gray-900 leading-relaxed"><%= stock.description %></p>
-            </div>
-          <% end %>
-          <% if stock.management.present? %>
-            <div>
-              <label class="text-sm font-medium text-gray-600">Management</label>
-              <p class="mt-1 text-gray-900"><%= stock.management %></p>
-            </div>
-          <% end %>
-          <% if stock.competitor_names.present? %>
-            <div>
-              <label class="text-sm font-medium text-gray-600">Key Competitors</label>
-              <p class="mt-1 text-gray-900"><%= stock.competitor_names %></p>
-            </div>
-          <% end %>
-        </div>
-      </div>
-    </div>
+<% website_class = "text-sitf-primary underline underline-offset-2 hover:text-sitf-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary rounded-sm" %>
+<% website_link = stock.company_website.presence && link_to(stock.company_website, safe_url(stock.company_website), target: "_blank", rel: "noopener", class: website_class) %>
+<% company_facts = {} %>
+<% company_facts["Website"] = website_link if website_link %>
+<% company_facts["Description"] = stock.description if stock.description.present? %>
+<% company_facts["Management"] = stock.management if stock.management.present? %>
+<% company_facts["Key competitors"] = stock.competitor_names if stock.competitor_names.present? %>
 
-    <!-- Financial Metrics Card -->
-    <div class="bg-white rounded-[22px] border border-black/30 overflow-hidden">
-      <div class="bg-green-300/95 px-6 py-4">
-        <h2 class="text-lg font-semibold text-gray-900">Financial Metrics</h2>
-      </div>
-      <div class="p-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <!-- Company Metrics -->
-          <div class="space-y-4">
-            <h3 class="font-medium text-gray-800 border-b border-gray-200 pb-2">Company Performance</h3>
-            <% if stock.sales_growth.present? %>
-              <div class="flex justify-between items-center py-2">
-                <span class="text-gray-600">Sales Growth</span>
-                <span class="font-semibold text-gray-900"><%= stock.sales_growth %>%</span>
-              </div>
-            <% end %>
-            <% if stock.profit_margin.present? %>
-              <div class="flex justify-between items-center py-2">
-                <span class="text-gray-600">Profit Margin</span>
-                <span class="font-semibold text-gray-900"><%= stock.profit_margin %>%</span>
-              </div>
-            <% end %>
-            <% if stock.debt_to_equity.present? %>
-              <div class="flex justify-between items-center py-2">
-                <span class="text-gray-600">Debt to Equity</span>
-                <span class="font-semibold text-gray-900"><%= stock.debt_to_equity %></span>
-              </div>
-            <% end %>
-            <% if stock.cash_flow.present? %>
-              <div class="flex justify-between items-center py-2">
-                <span class="text-gray-600">Cash Flow</span>
-                <span class="font-semibold text-gray-900"><%= number_to_currency(stock.cash_flow) %></span>
-              </div>
-            <% end %>
-            <% if stock.debt.present? %>
-              <div class="flex justify-between items-center py-2">
-                <span class="text-gray-600">Total Debt</span>
-                <span class="font-semibold text-gray-900"><%= number_to_currency(stock.debt) %></span>
-              </div>
-            <% end %>
+  <% if company_facts.any? %>
+    <%= render layout: "components/ui/card", locals: { title: "Company information" } do %>
+      <dl class="space-y-4">
+        <% company_facts.each do |term, value| %>
+          <div>
+            <dt class="text-sm font-medium text-slate-700"><%= term %></dt>
+            <dd class="mt-1 text-sm leading-relaxed text-slate-900"><%= value %></dd>
           </div>
+        <% end %>
+      </dl>
+    <% end %>
+  <% end %>
 
-          <!-- Industry Averages -->
-          <div class="space-y-4">
-            <h3 class="font-medium text-gray-800 border-b border-gray-200 pb-2">Industry Averages</h3>
-            <% if stock.industry_avg_sales_growth.present? %>
-              <div class="flex justify-between items-center py-2">
-                <span class="text-gray-600">Avg Sales Growth</span>
-                <span class="font-semibold text-gray-900"><%= stock.industry_avg_sales_growth %>%</span>
-              </div>
-            <% end %>
-            <% if stock.industry_avg_profit_margin.present? %>
-              <div class="flex justify-between items-center py-2">
-                <span class="text-gray-600">Avg Profit Margin</span>
-                <span class="font-semibold text-gray-900"><%= stock.industry_avg_profit_margin %>%</span>
-              </div>
-            <% end %>
-            <% if stock.industry_avg_debt_to_equity.present? %>
-              <div class="flex justify-between items-center py-2">
-                <span class="text-gray-600">Avg Debt to Equity</span>
-                <span class="font-semibold text-gray-900"><%= stock.industry_avg_debt_to_equity %></span>
-              </div>
-            <% end %>
+  <% company_metrics = {
+       "Sales growth" => (stock.sales_growth.present? ? "#{stock.sales_growth}%" : nil),
+       "Profit margin" => (stock.profit_margin.present? ? "#{stock.profit_margin}%" : nil),
+       "Debt to equity" => stock.debt_to_equity.presence,
+       "Cash flow" => (stock.cash_flow.present? ? number_to_currency(stock.cash_flow) : nil),
+       "Total debt" => (stock.debt.present? ? number_to_currency(stock.debt) : nil)
+     }.compact %>
+
+  <% industry_metrics = {
+       "Sales growth" => (stock.industry_avg_sales_growth.present? ? "#{stock.industry_avg_sales_growth}%" : nil),
+       "Profit margin" => (stock.industry_avg_profit_margin.present? ? "#{stock.industry_avg_profit_margin}%" : nil),
+       "Debt to equity" => stock.industry_avg_debt_to_equity.presence
+     }.compact %>
+
+  <% if company_metrics.any? || industry_metrics.any? %>
+    <%= render layout: "components/ui/card",
+               locals: { title: "Financial metrics",
+                         subtitle: "This company against the average for its industry." } do %>
+      <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <% { "Company performance" => company_metrics, "Industry averages" => industry_metrics }.each do |heading, metrics| %>
+          <% next if metrics.empty? %>
+          <div>
+            <h3 class="pb-2 text-sm font-semibold text-slate-900"><%= heading %></h3>
+            <dl class="mt-2 divide-y divide-slate-100">
+              <% metrics.each do |term, value| %>
+                <div class="flex items-center justify-between py-2">
+                  <dt class="text-sm text-slate-600"><%= term %></dt>
+                  <dd class="text-sm font-semibold text-slate-900 tabular-nums"><%= value %></dd>
+                </div>
+              <% end %>
+            </dl>
           </div>
-        </div>
+        <% end %>
       </div>
-    </div>
-  <% else %>
-    <!-- Simplified view for index pages -->
-    <div class="bg-white rounded-lg border border-gray-200 p-4">
-      <div class="flex justify-between items-start">
-        <div>
-          <h3 class="font-semibold text-lg text-gray-900">
-            <%= stock.ticker %>
-            <% if stock.archived? %>
-              <span class="ml-2 bg-red-100 text-red-800 text-xs font-medium px-2 py-1 rounded-full">ARCHIVED</span>
-            <% end %>
-          </h3>
-          <p class="text-gray-600 mt-1"><%= stock.company_name %></p>
-          <p class="text-sm text-gray-500 mt-1"><%= stock.stock_exchange %> • <%= stock.industry %></p>
-        </div>
-        <div class="text-right">
-          <div class="text-lg font-bold text-green-600"><%= number_to_currency(stock.current_price) %></div>
-          <%= link_to "View Details", stock, class: "tw-btn-secondary mt-2" %>
-        </div>
-      </div>
-    </div>
+    <% end %>
   <% end %>
 </div>

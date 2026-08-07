@@ -16,7 +16,7 @@ module Admin
       get admin_schools_path
 
       assert_response :success
-      assert_select "h3", "Schools"
+      assert_select "h1", "Schools"
       assert_select "tbody tr", count: 2
     end
 
@@ -26,7 +26,7 @@ module Admin
       get admin_school_path(school)
 
       assert_response :success
-      assert_select "h2", school.name
+      assert_select "h1", school.name
     end
 
     test "show displays associated years" do
@@ -46,7 +46,7 @@ module Admin
       get new_admin_school_path
 
       assert_response :success
-      assert_select "h1", "New School"
+      assert_select "h1", "New school"
     end
 
     test "new shows year checkboxes" do
@@ -117,7 +117,7 @@ module Admin
       get edit_admin_school_path(school)
 
       assert_response :success
-      assert_select "h1", "Edit School"
+      assert_select "h1", "Edit school"
     end
 
     test "edit shows current year selections" do

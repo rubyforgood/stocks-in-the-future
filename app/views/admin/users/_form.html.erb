@@ -1,7 +1,7 @@
 <%= form_with model: @user, scope: :user, url: @user.persisted? ? admin_user_path(@user) : admin_users_path, builder: Admin::FormBuilder, class: "space-y-6" do |f| %>
-  <div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg">
+  <div class="tw-card">
     <div class="px-6 py-6">
-      <h3 class="text-lg font-medium text-gray-900 mb-6">User Details</h3>
+      <h3 class="text-lg font-medium text-slate-900 mb-6">User details</h3>
 
       <%= f.text_field :username,
                        label: "Username",
@@ -13,7 +13,7 @@
                      %w[User Student Teacher].map { |t| [t, t] },
                      @user.type
                    ),
-                   label: "User Type",
+                   label: "User type",
                    hint: "Select the type of user (Student, Teacher, or generic User)",
                    include_blank: false %>
 
@@ -38,8 +38,8 @@
                    include_blank: "No classroom" %>
 
       <% if @user.new_record? %>
-        <div class="mt-6 pt-6 border-t border-gray-200">
-          <h4 class="text-md font-medium text-gray-900 mb-4">Password</h4>
+        <div class="mt-6 pt-6 border-t border-slate-200">
+          <h4 class="text-md font-medium text-slate-900 mb-4">Password</h4>
 
           <%= f.password_field :password,
                                label: "Password",
@@ -47,7 +47,7 @@
                                placeholder: "••••••••" %>
 
           <%= f.password_field :password_confirmation,
-                               label: "Password Confirmation",
+                               label: "Password confirmation",
                                hint: "Re-enter password to confirm",
                                placeholder: "••••••••" %>
         </div>
@@ -57,6 +57,6 @@
 
   <div class="flex items-center justify-end gap-x-4">
     <%= f.cancel_button "Cancel", url: @user.persisted? ? admin_user_path(@user) : admin_users_path %>
-    <%= f.submit_button @user.persisted? ? "Update User" : "Create User" %>
+    <%= f.submit_button @user.persisted? ? "Update user" : "Create user" %>
   </div>
 <% end %>

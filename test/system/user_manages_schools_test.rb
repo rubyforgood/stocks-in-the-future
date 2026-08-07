@@ -8,9 +8,9 @@ class UserManagesSchoolsTest < ApplicationSystemTestCase
     sign_in(admin)
     visit admin_schools_path
 
-    click_on "New School"
+    click_on "New school"
     fill_in "Name", with: "Test School"
-    click_on "Create School"
+    click_on "Create school"
 
     assert_selector "#notice", text: "School created successfully"
   end
@@ -23,7 +23,7 @@ class UserManagesSchoolsTest < ApplicationSystemTestCase
 
     click_on "Edit"
     fill_in "Name", with: "Updated School"
-    click_on "Update School"
+    click_on "Update school"
 
     assert_selector "#notice", text: "School updated successfully"
   end

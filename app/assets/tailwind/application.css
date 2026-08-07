@@ -1,8 +1,9 @@
 @import "tailwindcss";
+@import "./figtree.css";
 @import "./shadcn.css";
 @import "./tailwind.config.css";
 @import "./navbar.css";
 @import "./tables.css";
 @import "./buttons.css";
+@import "./cards.css";
 @import "./forms.css";
-@import "./admin.css";

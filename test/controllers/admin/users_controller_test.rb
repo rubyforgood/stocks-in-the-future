@@ -13,7 +13,7 @@ module Admin
       get admin_users_path
 
       assert_response :success
-      assert_select "h3", "Users"
+      assert_select "h1", "Users"
       assert_select "tbody tr", count: User.count
     end
 
@@ -51,7 +51,7 @@ module Admin
       get admin_user_path(user)
 
       assert_response :success
-      assert_select "h2", "finn"
+      assert_select "h1", "finn"
     end
 
     test "new" do
@@ -61,7 +61,7 @@ module Admin
       get new_admin_user_path
 
       assert_response :success
-      assert_select "h1", "New User"
+      assert_select "h1", "New user"
     end
 
     test "edit" do
@@ -72,7 +72,7 @@ module Admin
       get edit_admin_user_path(user)
 
       assert_response :success
-      assert_select "h1", "Edit User"
+      assert_select "h1", "Edit user"
     end
 
     test "create" do

@@ -25,7 +25,7 @@ class GradeBooksTest < ApplicationSystemTestCase
       find("[data-testid='reading-grade-select']").select("A")
       find("[data-testid='attendance-days-input']").set(87)
     end
-    click_on "Save Grades"
+    click_on "Save grades"
 
     within("##{dom_id(student1_entry)}") do
       assert_equal "A", find("[data-testid='math-grade-select']").value
@@ -50,9 +50,9 @@ class GradeBooksTest < ApplicationSystemTestCase
     sign_in(admin)
     visit classroom_grade_book_path(classroom, grade_book)
 
-    assert_button "Finalize Grades"
+    assert_button "Finalize grades"
     accept_confirm do
-      click_on "Finalize Grades"
+      click_on "Finalize grades"
     end
 
     assert_selector(
@@ -83,7 +83,7 @@ class GradeBooksTest < ApplicationSystemTestCase
       find("[data-testid='reading-grade-select']").select("A")
       find("[data-testid='attendance-days-input']").set(87)
     end
-    click_on "Save Grades"
+    click_on "Save grades"
 
     within("##{dom_id(student1_entry)}") do
       assert_equal "A", find("[data-testid='math-grade-select']").value
@@ -109,7 +109,7 @@ class GradeBooksTest < ApplicationSystemTestCase
       find("[data-testid='reading-grade-select']").select("B+")
       find("[data-testid='attendance-days-input']").set(25)
     end
-    click_on "Save Grades"
+    click_on "Save grades"
 
     within("##{dom_id(student_entry)}") do
       assert_equal "A", find("[data-testid='math-grade-select']").value
@@ -133,7 +133,7 @@ class GradeBooksTest < ApplicationSystemTestCase
       find("[data-testid='attendance-days-input']").set(90)
       find("[data-testid='perfect-attendance-checkbox']").check
     end
-    click_on "Save Grades"
+    click_on "Save grades"
 
     within("##{dom_id(student_entry)}") do
       assert find("[data-testid='perfect-attendance-checkbox']").checked?
@@ -154,7 +154,7 @@ class GradeBooksTest < ApplicationSystemTestCase
 
     assert_selector "##{dom_id(student1_entry)}"
     assert_selector "##{dom_id(student2_entry)}"
-    assert_no_text "Finalize Grades"
+    assert_no_text "Finalize grades"
   end
 
   test "teacher cannot view grade books from other classrooms" do
@@ -199,6 +199,44 @@ class GradeBooksTest < ApplicationSystemTestCase
     assert_selector "select[disabled]", count: 4
     assert_selector "input[type='number'][disabled]", count: 2
     assert_selector "input[type='checkbox'][disabled]", count: 2
-    assert_no_button "Save Grades"
+    assert_no_button "Save grades"
+  end
+
+  # These two exercise the buttons through a real click rather than posting to the
+  # route. The buttons have to sit outside the grades form: nested forms are dropped
+  # by the browser, so a button placed inside it would submit the grades instead.
+  test "teacher adds the class's students to an empty grade book" do
+    classroom = create(:classroom)
+    grade_book = create(:grade_book, classroom:)
+    create_list(:student, 2, classroom:)
+    teacher = create(:teacher)
+    create(:teacher_classroom, teacher:, classroom:)
+    sign_in(teacher)
+    visit classroom_grade_book_path(classroom, grade_book)
+
+    assert_text "No students yet"
+
+    click_on "Add this class's students"
+
+    assert_selector "#notice", text: "Added 2 students to this grade book."
+    assert_selector "tbody tr", count: 2
+  end
+
+  test "teacher adds a student who joined after the grade book was filled" do
+    classroom = create(:classroom)
+    grade_book = create(:grade_book, classroom:)
+    create(:grade_entry, grade_book:, user: create(:student, classroom:))
+    create(:student, classroom:)
+    teacher = create(:teacher)
+    create(:teacher_classroom, teacher:, classroom:)
+    sign_in(teacher)
+    visit classroom_grade_book_path(classroom, grade_book)
+
+    assert_selector "tbody tr", count: 1
+
+    click_on "Add new students"
+
+    assert_selector "#notice", text: "Added 1 student to this grade book."
+    assert_selector "tbody tr", count: 2
   end
 end

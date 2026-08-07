@@ -1,37 +1,43 @@
-<div class="min-h-full">
-  <div class="max-w-[1180px] mx-auto px-4 py-6 space-y-6" style="font-family: Inter, system-ui, sans-serif;">
-    <% if notice.present? %>
-      <div class="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg mb-6">
-        <p class="font-medium"><%= notice %></p>
-      </div>
+<% content_for :title, @stock.ticker %>
+
+<%# Stock detail.
+
+    This page had escaped every earlier sweep, and it showed:
+
+    - a hand-rolled header (h1 + an actions row) where every other page in the app renders
+      components/ui/_page_header, so it also never declared :own_heading
+    - a decorative emoji pair beside the h1
+    - the archived state as a hand-rolled bg-red-100/text-red-800 rounded-full pill instead of
+      components/ui/_badge
+    - py-6 on top of main's own p-4 lg:p-6, and a <div class="h-8"> spacer under the content
+    - one more </div> than it opened
+    - flex-shrink-0 and HTML comments, where the app uses shrink-0 and ERB comments
+
+    The company name moves into the header's description, and the ticker is the title. It used to
+    be one h1 reading "AAPL | Apple Inc." with the company name in a nested span at a smaller
+    size - a two-part heading held together by a pipe. %>
+<div class="mx-auto max-w-7xl">
+  <%# The badge goes under the title, not inside the h1 - the same reason admin/teachers#show
+      records: inside the heading it becomes part of the page's accessible name. %>
+  <% description = @stock.company_name %>
+  <% if @stock.archived? %>
+    <% badge = render("components/ui/badge", label: "Archived", tone: :danger) %>
+    <% description = safe_join([description, badge], " ") %>
+  <% end %>
+
+  <%= render layout: "components/ui/page_header",
+             locals: { title: @stock.ticker, description: description } do %>
+    <%= link_to "Back to trading floor", stocks_path, class: "tw-btn-secondary" %>
+
+    <%# The page's own trade action. It used to be a primary "Trade" that navigated to the
+        trading floor - the same destination as the back link beside it - so a stock's page
+        could not act on that stock. This is the trading floor's own Buy/Sell partial behind
+        the same policy gate, which keeps one definition of the product's core transaction and
+        opens the order modal for this stock. %>
+    <% if policy(@stock).show_trading_link? %>
+      <%= render "stocks/trade_actions", stock: @stock %>
     <% end %>
+  <% end %>
 
-    <!-- Header with stock symbol and company name -->
-    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-      <div class="flex items-center gap-3 min-w-0 flex-1">
-        <div class="flex items-center gap-1 text-2xl flex-shrink-0"><span>📈📊</span></div>
-        <div class="min-w-0 flex-1">
-          <h1 class="text-xl lg:text-2xl font-bold tracking-wide truncate">
-            <%= @stock.ticker %>
-            <span class="font-normal text-gray-600 text-base lg:text-lg">| <%= @stock.company_name %></span>
-          </h1>
-          <% if @stock.archived? %>
-            <span class="bg-red-100 text-red-800 text-sm font-medium px-3 py-1 rounded-full mt-2 inline-block">ARCHIVED</span>
-          <% end %>
-        </div>
-      </div>
-      <div class="flex gap-3 flex-shrink-0">
-        <%= link_to "Back to stocks", stocks_path, class: "tw-btn-tertiary" %>
-        <% if policy(@stock).show_trading_link? %>
-          <%= link_to "Trade Stock", stocks_path, class: "inline-flex items-center justify-center rounded-full bg-sky-800 text-white px-6 py-2 text-sm font-medium shadow hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-1 transition-colors" %>
-        <% end %>
-      </div>
-    </div>
-
-    <%= render @stock %>
-
-    <!-- Bottom spacing to ensure content doesn't get cut off -->
-    <div class="h-8"></div>
-  </div>
-</div>
+  <%= render @stock %>
 </div>

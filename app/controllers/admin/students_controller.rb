@@ -31,7 +31,7 @@ module Admin
 
       @breadcrumbs = [
         { label: "Students", path: admin_students_path },
-        { label: "New Student" }
+        { label: "New student" }
       ]
     end
 
@@ -61,7 +61,7 @@ module Admin
       else
         @breadcrumbs = [
           { label: "Students", path: admin_students_path },
-          { label: "New Student" }
+          { label: "New student" }
         ]
         render :new, status: :unprocessable_content
       end

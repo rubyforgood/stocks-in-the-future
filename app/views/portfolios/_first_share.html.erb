@@ -1,0 +1,32 @@
+<%# The first-share moment. Shows once, when a student holds something and has not dismissed it.
+
+    Inline rather than a modal: on a shared Chromebook a modal gets dismissed by whoever walks
+    past, and this is the one message worth not missing. It also cannot cover the page it is
+    explaining.
+
+    It explains *owning*, not buying - "you own part of a company" is the concept shift, and it
+    says nothing about whether the purchase was clever. The copy says "you hold", never "you just
+    bought", so it is accurate for any holder, which matters because nothing was backfilled.
+
+    On components/ui/_callout with the :info tone rather than a hand-rolled panel. It was
+    bg-teal-50 / border-teal-200 / text-teal-900 - Tailwind's teal, which is a mint green and not
+    this product's brand: sitf-primary is #00698c, a blue-teal. An informational panel is blue in
+    every system that ships one, and the callout's blue is measured. A bespoke panel was also how
+    the mint got in: the component was built two commits earlier and then not used here. %>
+<% return unless current_user.student? && @portfolio.celebrate_first_share? %>
+
+<%= render layout: "components/ui/callout",
+           locals: { tone: :info,
+                     icon: "chart-pie",
+                     title: "You own part of a company",
+                     body: "You hold #{pluralize(@insights.company_count, 'company')}. That makes you one of its owners - when the company is worth more, your shares are worth more too.",
+                     testid: "first-share" } do %>
+  <%# button_to renders its own form, which is fine here: this sits between cards, never inside
+      another form. %>
+  <%= button_to acknowledge_first_share_portfolio_path(@portfolio),
+                method: :patch,
+                class: ghost_class do %>
+    <%= lucide_icon "x", class: "size-4 shrink-0" %>
+    Dismiss
+  <% end %>
+<% end %>

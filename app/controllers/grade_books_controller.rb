@@ -22,6 +22,22 @@ class GradeBooksController < ApplicationController
     end
   end
 
+  # PopulateGradeBook returns false when it refuses (completed book) and otherwise a
+  # count, so 0 has to be told apart from false before anything reads it as a number.
+  def populate
+    created = PopulateGradeBook.execute(@grade_book)
+
+    notice = if created == false
+               t(".completed")
+             elsif created.zero?
+               t(".none_added")
+             else
+               t(".notice", count: created)
+             end
+
+    redirect_to classroom_grade_book_path(@classroom, @grade_book), notice: notice
+  end
+
   def finalize
     if @grade_book.completed?
       redirect_to classroom_grade_book_path(@classroom, @grade_book),

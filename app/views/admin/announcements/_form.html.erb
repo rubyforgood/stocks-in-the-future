@@ -1,12 +1,12 @@
 <%= form_with model: @announcement, url: @announcement.persisted? ? admin_announcement_path(@announcement) : admin_announcements_path, builder: Admin::FormBuilder, class: "space-y-6" do |f| %>
-  <div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg">
+  <div class="tw-card">
     <div class="px-6 py-6">
-      <h3 class="text-lg font-medium text-gray-900 mb-6">Announcement Details</h3>
+      <h3 class="text-lg font-medium text-slate-900 mb-6">Announcement details</h3>
 
       <%= f.text_field :title,
                        label: "Title",
                        hint: "Enter the announcement title (max 255 characters)",
-                       placeholder: "Important Update" %>
+                       placeholder: "Important update" %>
 
       <%= f.rich_text_area :content,
                            label: "Content",
@@ -20,6 +20,6 @@
 
   <div class="flex items-center justify-end gap-x-4">
     <%= f.cancel_button "Cancel", url: @announcement.persisted? ? admin_announcement_path(@announcement) : admin_announcements_path %>
-    <%= f.submit_button @announcement.persisted? ? "Update Announcement" : "Create Announcement" %>
+    <%= f.submit_button @announcement.persisted? ? "Update announcement" : "Create announcement" %>
   </div>
 <% end %>

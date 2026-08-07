@@ -1,8 +1,13 @@
-<div class="mx-auto md:w-2/3 w-full">
-  <h1 class="font-bold text-4xl">Editing classroom</h1>
+<div class="mx-auto lg:w-2/3 w-full">
+  <%= render layout: "components/ui/page_header",
+             locals: { title: "Editing classroom" } do %><% end %>
 
   <%= render "form", classroom: @classroom %>
 
-  <%= link_to "Show this classroom", @classroom, class: "tw-btn-tertiary" %>
-  <%= link_to "Back to classrooms", classrooms_path, class: "tw-btn-tertiary" %>
+  <%# tw-btn-secondary used to carry its own ml-2, so these relied on the button for their
+      spacing. Spacing belongs to the container. %>
+  <div class="mt-6 flex flex-wrap gap-3">
+    <%= link_to "View classroom", @classroom, class: "tw-btn-secondary" %>
+    <%= link_to "Back to classrooms", classrooms_path, class: "tw-btn-secondary" %>
+  </div>
 </div>

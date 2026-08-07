@@ -3,20 +3,23 @@
 module Admin
   # rubocop:disable Metrics/ClassLength
   class FormBuilder < ActionView::Helpers::FormBuilder
-    # Tailwind CSS classes for form elements
-    INPUT_CLASSES = "block w-full rounded-md border-0 py-2 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 " \
-                    "placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 " \
-                    "sm:text-sm sm:leading-6"
+    # The named classes from forms.css, not a second set of strings. These were the app's
+    # longest-standing field drift: rounded-md where the token is rounded-lg, a border faked with
+    # ring-1 ring-inset, gray-* rather than slate-*, an off-brand blue-600 focus ring, an `sm:`
+    # tier this app does not use, and `placeholder:text-gray-400` at **2.54:1** - a straight AA
+    # failure on every placeholder in nine admin forms. tw-input-primary was written specifically
+    # to fix all of that and this builder never adopted it.
+    INPUT_CLASSES = "tw-input-primary"
+    # The same native control components/ui/_checkbox renders: accent-sitf-primary rather than an
+    # off-brand blue tick, a slate border, and a named focus ring.
+    CHECKBOX_CLASSES = "size-4 shrink-0 rounded-sm border-slate-300 accent-sitf-primary " \
+                       "focus-visible:outline-2 focus-visible:outline-offset-2 " \
+                       "focus-visible:outline-sitf-primary"
 
-    INPUT_ERROR_CLASSES = "block w-full rounded-md border-0 py-2 px-3 text-red-900 ring-1 ring-inset " \
-                          "ring-red-300 placeholder:text-red-300 focus:ring-2 focus:ring-inset " \
-                          "focus:ring-red-500 sm:text-sm sm:leading-6"
-
-    LABEL_CLASSES = "block text-sm font-medium leading-6 text-gray-900"
-
-    ERROR_CLASSES = "mt-2 text-sm text-red-600"
-
-    HINT_CLASSES = "mt-1 text-sm text-gray-500"
+    INPUT_ERROR_CLASSES = "tw-input-error"
+    LABEL_CLASSES = "tw-label-primary"
+    ERROR_CLASSES = "tw-field-error"
+    HINT_CLASSES = "tw-field-hint"
 
     # Override text_field to include Tailwind styling and error handling
     def text_field(attribute, options = {})
@@ -121,12 +124,12 @@ module Admin
         @template.content_tag(:div, class: "flex h-6 items-center") do
           check_box(
             attribute,
-            class: "h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-600"
+            class: CHECKBOX_CLASSES
           )
         end +
           @template.content_tag(:div, class: "ml-3 text-sm leading-6") do
-            label(attribute, label_text, class: "font-medium text-gray-900") +
-              (hint ? @template.content_tag(:p, hint, class: "text-gray-500") : "".html_safe)
+            label(attribute, label_text, class: "font-medium text-slate-900") +
+              (hint ? @template.content_tag(:p, hint, class: HINT_CLASSES) : "".html_safe)
           end
       end
     end
@@ -192,29 +195,42 @@ module Admin
       hint = options.delete(:hint)
 
       @template.content_tag(:div, class: "py-4") do
-        @template.content_tag(:dt, label_text, class: "text-sm font-medium text-gray-500") +
-          @template.content_tag(:dd, class: "mt-1 text-sm text-gray-900") do
+        @template.content_tag(:dt, label_text, class: "text-sm font-medium text-slate-600") +
+          @template.content_tag(:dd, class: "mt-1 text-sm text-slate-900") do
             value.to_s.html_safe # rubocop:disable Rails/OutputSafety
           end +
           (hint ? @template.content_tag(:p, hint, class: HINT_CLASSES) : "".html_safe)
       end
     end
 
-    # Submit button with Tailwind styling
+    # Both of these delegate to the shared button classes rather than hand-rolling a shape.
+    #
+    # submit_button backs eleven admin forms and was `bg-blue-600` - a generic Tailwind blue, not
+    # the brand teal, at `rounded-md px-4 py-2` instead of the 40px `h-10 rounded-lg` token. So
+    # every primary button on every admin form was off-brand and a different size from the primary
+    # buttons in the page headers directly above them. cancel_button (ten forms) was the same
+    # story in `gray-*`. This file sits in app/form_builders, which is why sweeps over app/views,
+    # app/helpers and app/assets/tailwind never saw it - and Tailwind scans .rb, so it all
+    # compiled and shipped.
+    # variant: :secondary for a sub-form's submit. design.md, "One primary CTA per page": a view
+    # gets exactly one filled primary - its main action - and an inline sub-form submit inside a
+    # management card is secondary, never primary. admin/students#edit stacked "Update student"
+    # with "Add transaction", which is the shape that rule exists to prevent.
     def submit_button(text = "Save", options = {})
-      options[:class] = "inline-flex justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold " \
-                        "text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 " \
-                        "focus-visible:outline-offset-2 focus-visible:outline-blue-600 " \
-                        "#{options[:class]}"
+      variant = options.delete(:variant) || :primary
+      base = if variant.to_sym == :secondary
+               @template.admin_secondary_button_class
+             else
+               @template.admin_primary_button_class
+             end
+      options[:class] = "#{base} #{options[:class]}".strip
 
       submit(text, options)
     end
 
     # Cancel button (link styled as button)
     def cancel_button(text = "Cancel", url:, options: {})
-      options[:class] = "inline-flex justify-center rounded-md bg-white px-4 py-2 text-sm font-semibold " \
-                        "text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 " \
-                        "#{options[:class]}"
+      options[:class] = "#{@template.admin_secondary_button_class} #{options[:class]}".strip
 
       @template.link_to(text, url, options)
     end
@@ -225,7 +241,7 @@ module Admin
 
       @template.content_tag(:div, class: "mb-6 p-4 bg-red-50 border border-red-200 rounded-lg") do
         @template.content_tag(:p, class: "text-sm text-red-600") do
-          @template.content_tag(:i, "", class: "fas fa-exclamation-circle mr-1") +
+          @template.lucide_icon("circle-alert", class: "mr-1 inline size-4 shrink-0") +
             object.errors[:base].join(", ")
         end
       end
@@ -285,7 +301,7 @@ module Admin
           value,
           checked,
           id: checkbox_id,
-          class: "h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-600"
+          class: CHECKBOX_CLASSES
         )
       end
     end
@@ -293,7 +309,7 @@ module Admin
     # Build checkbox label element
     def build_checkbox_label(checkbox_id, text)
       @template.content_tag(:div, class: "ml-3 text-sm leading-6") do
-        @template.label_tag(checkbox_id, text, class: "font-medium text-gray-900")
+        @template.label_tag(checkbox_id, text, class: "font-medium text-slate-900")
       end
     end
 
@@ -382,24 +398,29 @@ module Admin
       return "".html_safe unless object&.errors && object.errors[attribute].any?
 
       @template.content_tag(:p, class: ERROR_CLASSES, id: "#{attribute}-error") do
-        @template.content_tag(:i, "", class: "fas fa-exclamation-circle mr-1") +
+        @template.lucide_icon("circle-alert", class: "mr-1 inline size-4 shrink-0") +
           object.errors[attribute].first
       end
+    end
+
+    # Yes/No were two hand-rolled pills, one of them the only bg-green-100 in the app.
+    def badge(label, tone)
+      @template.render("components/ui/badge", label: label, tone: tone)
     end
 
     # Formats a value for display in read-only fields
     def format_value(value)
       case value
       when TrueClass
-        '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ' \
-        'bg-green-100 text-green-800">Yes</span>'
+        badge("Yes", :success)
       when FalseClass
-        '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ' \
-        'bg-gray-100 text-gray-800">No</span>'
+        badge("No", :neutral)
       when Time, DateTime, Date
         value.strftime("%B %d, %Y")
       when nil
-        '<span class="text-gray-400">—</span>'
+        # text-gray-400 measured 2.54:1, a straight AA failure, and the same one admin_helper.rb
+        # had for absent values - which a test caught rather than an audit.
+        @template.content_tag(:span, "—", class: "text-slate-500")
       else
         value.to_s
       end

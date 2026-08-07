@@ -1,16 +1,30 @@
-<div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg overflow-hidden">
-  <div class="px-4 py-5 sm:px-6">
-    <dl class="divide-y divide-gray-200">
-      <% attributes.each do |attribute| %>
-        <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4" data-testid="<%= attribute %>">
-          <dt class="text-sm font-medium text-gray-500">
-            <%= attribute.to_s.humanize %>
-          </dt>
-          <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-            <%= format_attribute(resource, attribute) %>
-          </dd>
-        </div>
-      <% end %>
-    </dl>
-  </div>
-</div>
+<%# Attribute list for admin show pages. Drives ten of them, so this is the
+    highest-leverage surface in the admin area.
+
+    Rebuilt on components/ui/_card: hairline border and a very low shadow rather
+    than the previous ring-1 ring-slate-900/5, which drew a visible rule at an
+    awkward opacity.
+
+    Labels follow design.md's scale - text-sm font-medium slate-700. They were
+    slate-500, which read as muted metadata rather than as the key half of a
+    key/value pair.
+
+    Locals:
+      resource   - the record
+      attributes - array of attribute names
+      title      - optional card heading %>
+<%= render layout: "components/ui/card",
+           locals: { title: local_assigns[:title], padded: false } do %>
+  <dl class="divide-y divide-slate-100">
+    <% attributes.each do |attribute| %>
+      <div class="px-5 py-4 lg:grid lg:grid-cols-3 lg:gap-4" data-testid="<%= attribute %>">
+        <dt class="text-sm font-medium text-slate-700">
+          <%= attribute.to_s.humanize %>
+        </dt>
+        <dd class="mt-1 text-sm text-slate-900 lg:col-span-2 lg:mt-0">
+          <%= format_attribute(resource, attribute) %>
+        </dd>
+      </div>
+    <% end %>
+  </dl>
+<% end %>

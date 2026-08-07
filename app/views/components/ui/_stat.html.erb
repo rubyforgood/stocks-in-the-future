@@ -1,0 +1,56 @@
+<%# A single headline figure with its label.
+
+    Stripe reading: the number is the content, so it gets the size and weight and
+    the label stays quiet above it. Figures use tabular-nums so a row of stats
+    lines up rather than jittering.
+
+    Built with tag.div rather than a literal element because the optional
+    data-testid has to be omitted entirely when absent - interpolating it into the
+    markup produced an unquoted attribute that selectors could not match.
+
+    Locals:
+      label  - what the figure is
+      value  - the figure, already formatted
+      icon      - optional Lucide name, as a 32px tile on the label's line
+      icon_tone - tone for that tile (:neutral default)
+      hint      - optional supporting line
+      change    - optional comparison line, already formatted
+      change_up - true for a gain, false for a loss; sets the arrow and the colour
+      testid - optional data-testid, for tests targeting a specific stat %>
+<%# .tw-card, not its own rounded-xl / shadow-xs surface. This was a fourth card treatment: the
+    portfolio page put three of these beside a .tw-card chart, a .tw-card summary and a
+    hand-rolled h-[150px] panel, so four radii and three shadows shared one screen. %>
+<%= tag.div class: "tw-card p-5",
+            data: { testid: local_assigns[:testid] } do %>
+  <%# A leading icon goes on the label's line, at the 32px size - the same place and size as the
+      home page's balance card and _card's header. best_month used to hang its tile off the right
+      in an items-start justify-between row, so two cards sitting side by side in one grid row
+      mirrored each other. design.md: the icon belongs on the title's line, and 32px is the size
+      for a tile next to a 14px label; 36px is for a tile on its own line above a figure, which is
+      what the admin dashboard does. %>
+  <div class="flex items-center gap-2">
+    <% if local_assigns[:icon].present? %>
+      <%= render "components/ui/icon_tile",
+                 icon: icon, tone: local_assigns.fetch(:icon_tone, :neutral), compact: true %>
+    <% end %>
+    <p class="text-sm font-medium text-slate-600"><%= label %></p>
+  </div>
+  <%# 8px under a tile row, 4px under a bare label. The seam is measured from whatever is above it:
+      a 32px tile row needs more air than a 20px line of text, and the home page's balance card
+      already used mt-2 for exactly this. Three values were in play for one seam - 4px here, 8px on
+      home, 12px in money_at_work. %>
+  <p class="<%= local_assigns[:icon].present? ? 'mt-2' : 'mt-1' %> text-2xl font-bold tracking-tight text-slate-900 tabular-nums"><%= value %></p>
+  <%# A comparison line, when the figure has something to compare against. The sign and the arrow
+      carry the direction as well as the colour, so a loss does not depend on being able to tell
+      green from red. green-700/red-700 clear AA where 600 does not. %>
+  <% if local_assigns[:change].present? %>
+    <p class="mt-1 inline-flex items-center gap-1 text-xs font-medium <%= local_assigns[:change_up] ? 'text-green-700' : 'text-red-700' %>">
+      <%= lucide_icon(local_assigns[:change_up] ? "trending-up" : "trending-down", class: "size-3.5 shrink-0") %>
+      <%= change %>
+    </p>
+  <% end %>
+
+  <% if local_assigns[:hint].present? %>
+    <p class="mt-1 text-xs text-slate-500"><%= hint %></p>
+  <% end %>
+<% end %>

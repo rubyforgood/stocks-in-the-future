@@ -1,0 +1,76 @@
+<%# Portfolio transactions.
+
+    This page did not exist: the route excluded :index, so a transaction was reachable only if
+    you already had its id. Every other CRUD action was there, the sidebar had no entry, and the
+    dashboard listed "Portfolio transactions" as grey text with nothing to link to.
+
+    Written out rather than using admin_table because that helper renders each cell through
+    format_attribute, which stringifies - amount_cents would print as raw cents. Money goes
+    through number_to_currency, right-aligned, tabular-nums. %>
+<div class="max-w-7xl mx-auto">
+  <%= admin_breadcrumbs(@breadcrumbs) %>
+
+  <%= render layout: "components/ui/page_header", locals: { title: "Portfolio transactions" } do %>
+    <%= link_to "New transaction", new_admin_portfolio_transaction_path, class: admin_primary_button_class %>
+  <% end %>
+
+  <div class="tw-card">
+    <div class="overflow-x-auto">
+      <table class="table-base">
+        <caption class="sr-only">Every portfolio transaction, most recent first</caption>
+        <thead>
+          <tr class="table-header-row">
+            <th scope="col" class="table-header-cell table-header-cell-left"><%= sort_link(:created_at, "Date") %></th>
+            <th scope="col" class="table-header-cell table-header-cell-left">Student</th>
+            <th scope="col" class="table-header-cell table-header-cell-left"><%= sort_link(:transaction_type, "Type") %></th>
+            <th scope="col" class="table-header-cell table-header-cell-left"><%= sort_link(:reason, "Reason") %></th>
+            <th scope="col" class="table-header-cell table-header-cell-right"><%= sort_link(:amount_cents, "Amount") %></th>
+            <th scope="col" class="table-header-cell table-header-cell-right table-actions-pinned"><span class="sr-only">Actions</span></th>
+          </tr>
+        </thead>
+        <tbody class="bg-white">
+          <% if @portfolio_transactions.any? %>
+            <% @portfolio_transactions.each do |transaction| %>
+              <tr class="table-body-row" id="<%= dom_id(transaction) %>" class="hover:bg-slate-50 transition-colors">
+                <td class="table-body-cell whitespace-nowrap">
+                  <%= link_to admin_portfolio_transaction_path(transaction),
+                              class: "font-medium tw-link focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary" do %>
+                    <%= transaction.created_at.strftime("%b %d, %Y") %>
+                  <% end %>
+                </td>
+                <td class="table-body-cell whitespace-nowrap">
+                  <%= transaction.portfolio.username %>
+                </td>
+                <td class="table-body-cell whitespace-nowrap">
+                  <%= render "components/ui/badge",
+                             label: transaction.transaction_type.humanize,
+                             tone: transaction.deposit? ? :success : :neutral %>
+                </td>
+                <td class="table-body-cell"><%= transaction.reason&.humanize || "—" %></td>
+                <td class="table-body-cell table-body-cell-right whitespace-nowrap font-medium">
+                  <%= number_to_currency(transaction.amount_cents / 100.0) %>
+                </td>
+                <td class="table-body-cell table-body-cell-right whitespace-nowrap table-actions-pinned">
+                  <div class="flex items-center justify-end gap-1">
+                    <%= ghost_action_link "View", admin_portfolio_transaction_path(transaction), icon: "eye" %>
+                    <%= ghost_action_link "Edit", edit_admin_portfolio_transaction_path(transaction), icon: "pencil" %>
+                    <%= ghost_action_link "Delete", admin_portfolio_transaction_path(transaction),
+                                          icon: "trash-2", variant: :danger,
+                                          data: { turbo_method: :delete,
+                                                  turbo_confirm: "Delete this #{transaction.transaction_type} of #{number_to_currency(transaction.amount_cents / 100.0)} for #{transaction.portfolio.username}? This cannot be undone." } %>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          <% else %>
+            <%= render "admin/shared/empty_row",
+                       colspan: 6,
+                       icon: "arrow-left-right",
+                       title: "No transactions yet",
+                       body: "Deposits appear here when a grade book is finalised, and withdrawals when a student trades." %>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

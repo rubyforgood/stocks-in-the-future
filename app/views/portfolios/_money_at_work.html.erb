@@ -1,0 +1,38 @@
+<%# One plain-English sentence over figures already on the page.
+    It restates rather than adds, which is the point: reading "$4.00 is still waiting to be
+    invested" makes an idle balance feel like a decision instead of a number in a card.
+
+    Withheld when a student has earned nothing yet - there is no story to tell, and the empty
+    state above says the useful thing instead. %>
+<% return if @insights.earned_cents.zero? %>
+
+<div class="tw-card h-full p-5">
+  <%# An icon tile, not a bare glyph - design.md says so in as many words for KPI cards, section
+      headers and list-item leading icons. A banner is the exception; see _callout, which keeps a
+      plain glyph.
+
+      compact and gap-2 and a slate-600 label, matching _stat beside it and _card's header. This was
+      a 36px tile at gap-3 with a `font-semibold text-slate-900` label, so the card next to it in the
+      same row had a smaller tile and a quieter label. %>
+  <div class="flex items-center gap-2">
+    <%= render "components/ui/icon_tile", icon: "lightbulb", tone: :warning, compact: true %>
+    <p class="text-sm font-medium text-slate-600">Your money at work</p>
+  </div>
+  <p class="mt-2 text-sm text-slate-700">
+    You have earned
+    <span class="font-semibold tabular-nums"><%= number_to_currency(@insights.earned_cents / 100.0) %></span>.
+    <% if @insights.holdings? %>
+      <%# pluralize, so a student with one company does not read "1 companies". %>
+      You put
+      <span class="font-semibold tabular-nums"><%= number_to_currency(@insights.invested_cents / 100.0) %></span>
+      into <%= pluralize(@insights.company_count, "company") %>,
+      and
+      <span class="font-semibold tabular-nums"><%= number_to_currency(@insights.cash_cents / 100.0) %></span>
+      is still waiting to be invested.
+    <% else %>
+      All
+      <span class="font-semibold tabular-nums"><%= number_to_currency(@insights.cash_cents / 100.0) %></span>
+      of it is waiting to be invested.
+    <% end %>
+  </p>
+</div>

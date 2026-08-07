@@ -15,7 +15,7 @@ class UserManagesOrdersTest < ApplicationSystemTestCase
 
     visit stocks_path
 
-    assert_text "Trading Floor"
+    assert_text "Trading floor"
     assert_text stock.ticker
 
     within "tr", text: stock.company_name do
@@ -24,7 +24,8 @@ class UserManagesOrdersTest < ApplicationSystemTestCase
 
     fill_in "Number of shares", with: shares_to_buy
     assert_difference("Order.buy.pending.count", +1) do
-      click_button "Buy Shares"
+      click_button "Review order"
+      click_button "Buy shares"
       assert_text "Order was successfully created"
     end
 
@@ -59,7 +60,8 @@ class UserManagesOrdersTest < ApplicationSystemTestCase
     fill_in "Number of shares", with: updated_shares
 
     assert_no_difference("Order.buy.pending.count") do
-      click_button "Buy Shares"
+      click_button "Review order"
+      click_button "Buy shares"
 
       assert_text "Order was successfully updated"
     end

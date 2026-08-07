@@ -1,6 +1,6 @@
 <%= form_with(model: classroom, class: "contents") do |form| %>
   <% if classroom.errors.any? %>
-    <div id="error_explanation" class="bg-red-50 text-red-500 px-3 py-2 font-medium rounded-lg mt-3">
+    <div id="error_explanation" class="bg-red-50 text-red-700 px-3 py-2 font-medium rounded-lg mt-3">
       <h2>
         <%= pluralize(classroom.errors.count, "error") %> prohibited this classroom from being saved:
       </h2>
@@ -23,7 +23,7 @@
   </div>
 
   <div class="my-5">
-    <%= form.label :school_id, "School Name", class: 'tw-label-primary' %>
+    <%= form.label :school_id, "School name", class: 'tw-label-primary' %>
     <div class="mt-2">
       <% school_year = classroom&.school_year
          selected_school_id = school_year&.school&.id %>
@@ -54,7 +54,7 @@
   <!-- Single hidden field to handle empty selections -->
   <%= hidden_field_tag "classroom[grade_ids][]", "" %>
 
-  <div class="mt-3 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 max-h-60 overflow-y-auto p-3 border border-gray-200 rounded-lg bg-gray-50">
+  <div class="mt-3 grid grid-cols-2 lg:grid-cols-4 gap-3 max-h-60 overflow-y-auto p-3 border border-slate-200 rounded-lg bg-slate-50">
     <% Grade.where(level: Classroom::GRADE_RANGE).order(:level).each do |grade| %>
       <%# Check if this grade is selected for the classroom %>
       <% is_checked = classroom.persisted? ? classroom.grades.include?(grade) : false %>
@@ -63,10 +63,10 @@
         <%= check_box_tag "classroom[grade_ids][]",
                           grade.id,
                           is_checked,
-                          class: "rounded border-gray-300 text-blue-600 focus:ring-blue-500" %>
+                          class: "rounded border-slate-300 text-sitf-primary focus-visible:ring-sitf-primary" %>
 
         <div class="flex-1">
-          <div class="font-medium text-gray-900">
+          <div class="font-medium text-slate-900">
             <%= grade.name %>
           </div>
         </div>
@@ -74,17 +74,17 @@
     <% end %>
   </div>
 
-  <p class="text-sm text-gray-600 mt-2">
-    <span class="text-red-500 font-medium">* Required:</span> Select at least one grade that applies to this classroom.
+  <p class="text-sm text-slate-600 mt-2">
+    <span class="text-red-700 font-medium">* Required:</span> Select at least one grade that applies to this classroom.
   </p>
   </div>
 
   <div class="my-5">
     <div class="flex items-center gap-3">
-      <%= form.check_box :trading_enabled, class: "rounded border-gray-300 text-blue-600 focus:ring-blue-500" %>
-      <%= form.label :trading_enabled, "Enable Trading", class: 'tw-label-primary' %>
+      <%= form.check_box :trading_enabled, class: "rounded border-slate-300 text-sitf-primary focus-visible:ring-sitf-primary" %>
+      <%= form.label :trading_enabled, "Enable trading", class: 'tw-label-primary' %>
     </div>
-    <p class="text-sm text-gray-600 mt-1">When enabled, students in this classroom can place buy and sell orders.</p>
+    <p class="text-sm text-slate-600 mt-1">When enabled, students in this classroom can place buy and sell orders.</p>
   </div>
 
   <div class="my-5">
@@ -93,7 +93,7 @@
     <!-- Single hidden field to handle empty selections -->
     <%= hidden_field_tag "classroom[teacher_ids][]", "" %>
 
-    <div class="mt-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 max-h-60 overflow-y-auto p-2 border border-gray-200 rounded-lg bg-gray-50">
+    <div class="mt-3 grid grid-cols-1 lg:grid-cols-3 gap-2 max-h-60 overflow-y-auto p-2 border border-slate-200 rounded-lg bg-slate-50">
       <% @teachers.each do |teacher| %>
         <%# Check if teacher is assigned to this classroom %>
         <% is_checked = classroom.persisted? ? classroom.teachers.include?(teacher) : false %>
@@ -103,19 +103,20 @@
                             teacher.id,
                             is_checked,
                             {
-                              class: "rounded border-gray-300 text-blue-600 focus:ring-blue-500 mt-0.5",
+                              class: "rounded border-slate-300 text-sitf-primary focus-visible:ring-sitf-primary mt-0.5",
                               id: "classroom_teacher_ids_#{teacher.id}"
                             } %>
 
           <div class="flex items-start gap-2 min-w-0 flex-1">
-            <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-medium flex-shrink-0 mt-1">
+            <%# bg-blue-500 with white text measures 3.68:1. The brand teal is 6.18:1. %>
+            <div class="w-8 h-8 bg-sitf-primary rounded-full flex items-center justify-center text-sitf-on-primary text-sm font-medium flex-shrink-0 mt-1">
               <%= teacher.display_name.first.upcase %>
             </div>
             <div class="min-w-0 flex-1">
-              <div class="text-gray-900 font-medium truncate">
+              <div class="text-slate-900 font-medium truncate">
                 <%= teacher.display_name %>
               </div>
-              <div class="text-xs text-gray-500 truncate">
+              <div class="text-xs text-slate-500 truncate">
                 @<%= teacher.email %>
               </div>
             </div>
@@ -126,6 +127,10 @@
   </div>
 
   <div class="inline">
-    <%= form.submit class: "tw-btn-primary" %>
+    <%# The label is explicit because a bare form.submit lets Rails generate one from the model
+        name - "Create Classroom" - which is Title Case and invisible to any copy sweep, since
+        the string exists nowhere in the source. %>
+    <% submit_label = classroom.persisted? ? "Update classroom" : "Create classroom" %>
+    <%= form.submit submit_label, class: "tw-btn-primary" %>
   </div>
 <% end %>

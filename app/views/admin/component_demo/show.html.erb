@@ -1,9 +1,9 @@
+<% content_for :own_heading, true %>
 <div class="max-w-4xl mx-auto">
   <%= admin_breadcrumbs(@breadcrumbs) %>
 
-  <div class="mb-6">
-    <h1 class="text-2xl font-bold text-gray-900">User Details</h1>
-  </div>
+  <%= render layout: "components/ui/page_header",
+             locals: { title: "User details" } do %><% end %>
 
   <%= admin_show_attributes(
         @user,
@@ -16,10 +16,10 @@
           actions: %i[edit delete],
           custom_actions: [
             {
-              label: "Back to List",
+              label: "Back to list",
               path: admin_component_demo_index_path,
-              icon: "fas fa-arrow-left",
-              class: "text-gray-700 bg-white hover:bg-gray-50 border-gray-300"
+              icon: "arrow-left",
+              class: "text-slate-700 bg-white hover:bg-slate-50 border-slate-300"
             }
           ]
         ) %>

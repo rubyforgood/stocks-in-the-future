@@ -1,25 +1,43 @@
-<div class="rounded-xl border border-black/60 overflow-hidden bg-white">
-  <div class="bg-amber-300 py-3 px-5 font-medium text-sm tracking-wide rounded-t-xl">Investment Earnings Summary</div>
-  <div class="divide-y divide-black/40 text-sm">
-    <% summary_rows = [
-         ['Attendance Earnings', @earnings_summary.attendance_earnings_cents / 100.0],
-         ['Reading Earnings', @earnings_summary.reading_earnings_cents / 100.0],
-         ['Math Earnings', @earnings_summary.math_earnings_cents / 100.0],
-         ['Rewards', @earnings_summary.awards_cents / 100.0]
-       ] %>
-    <% summary_rows.each do |label, amount| %>
-      <div class="flex items-center justify-between py-4 px-5 bg-white">
-        <span><%= label %></span>
-        <span class="tabular-nums"><%= number_to_currency(amount) %></span>
+<%# Where the money came from, and what it cost.
+
+    Was a saturated bg-amber-300 header band with tracking-wide, rows separated by
+    divide-black/40, a bg-sitf-accent-soft total and text-red-600 fees - four colour decisions
+    none of which are in the token set, and a rounded-t-xl band inside a rounded-2xl card so the
+    corners did not agree. It is a definition list on the card component now, which means it gets
+    the same header treatment as every other card on the page.
+
+    dl/dt/dd rather than divs: it is a list of terms and their values, and that is what the
+    markup should say. Figures are tabular-nums so they read down the column. %>
+<%= render layout: "components/ui/card",
+           locals: { title: "Earnings breakdown",
+                     subtitle: "How you earned your cash to invest",
+                     padded: false,
+                     class: "h-full" } do %>
+  <dl class="divide-y divide-slate-100 text-sm">
+    <% [["Attendance", @earnings_summary.attendance_earnings_cents],
+        ["Reading", @earnings_summary.reading_earnings_cents],
+        ["Math", @earnings_summary.math_earnings_cents],
+        ["Rewards", @earnings_summary.awards_cents]].each do |label, cents| %>
+      <div class="flex items-center justify-between gap-4 px-5 py-3">
+        <dt class="text-slate-700"><%= label %></dt>
+        <dd class="tabular-nums text-slate-900"><%= number_to_currency(cents / 100.0) %></dd>
       </div>
     <% end %>
-    <div class="flex items-center justify-between py-4 px-5 font-semibold bg-[#eceec8]">
-      <span>Total Earnings</span>
-      <span class="tabular-nums"><%= number_to_currency(@earnings_summary.total_earnings_cents / 100.0) %></span>
+
+    <div class="flex items-center justify-between gap-4 bg-slate-50 px-5 py-3">
+      <dt class="font-semibold text-slate-900">Total earned</dt>
+      <dd class="font-semibold tabular-nums text-slate-900">
+        <%= number_to_currency(@earnings_summary.total_earnings_cents / 100.0) %>
+      </dd>
     </div>
-    <div class="flex items-center justify-between py-4 px-5 font-medium text-red-600">
-      <span>Transaction Fees</span>
-      <span class="tabular-nums"><%= number_to_currency(@earnings_summary.transaction_fees_cents / 100.0) %></span>
+
+    <%# A deduction, so it carries an explicit minus as well as the colour - the same convention
+        the holdings table uses for a negative, and it keeps the meaning off colour alone. %>
+    <div class="flex items-center justify-between gap-4 px-5 py-3">
+      <dt class="text-slate-700">Transaction fees</dt>
+      <dd class="tabular-nums text-red-700">
+        -<%= number_to_currency(@earnings_summary.transaction_fees_cents / 100.0) %>
+      </dd>
     </div>
-  </div>
-</div>
+  </dl>
+<% end %>

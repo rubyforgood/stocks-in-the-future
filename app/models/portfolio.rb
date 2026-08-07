@@ -13,12 +13,30 @@ class Portfolio < ApplicationRecord
   has_many :stocks, through: :portfolio_stocks
   has_many :portfolio_snapshots, dependent: :destroy
 
+  # Integer cents. Use this for any arithmetic or comparison. Converting to a
+  # Float and back loses value for most two-decimal amounts, which previously
+  # made an exactly-affordable order read as unaffordable.
+  def cash_balance_cents
+    cash_on_hand_in_cents
+  end
+
+  # Float, for display only. Never multiply this back up to get cents.
   def cash_balance
     cash_on_hand
   end
 
   def path
     portfolio_path(self)
+  end
+
+  # The first-share moment shows once: when a student holds something and has not dismissed it.
+  # A timestamp rather than a flag, so the record says when as well as whether.
+  def celebrate_first_share?
+    first_share_acknowledged_at.nil? && portfolio_stocks.exists?(shares: 1..)
+  end
+
+  def acknowledge_first_share!
+    update!(first_share_acknowledged_at: Time.current)
   end
 
   def shares_owned(stock_id)

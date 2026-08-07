@@ -1,196 +1,178 @@
 <div class="max-w-7xl mx-auto">
   <%= admin_breadcrumbs(@breadcrumbs) %>
 
-  <div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg mb-6">
-    <div class="px-6 py-6">
-      <div class="flex items-center justify-between mb-6">
-        <h2 class="text-2xl font-bold text-gray-900"><%= @student.username %></h2>
-        <div class="flex gap-3">
-          <%= link_to edit_admin_student_path(@student),
-                      class: "inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" do %>
-            <i class="fas fa-edit -ml-1 mr-2 h-5 w-5 text-gray-500"></i>
-            Edit
-          <% end %>
-          <%= link_to admin_student_path(@student),
-                      data: { turbo_method: :delete, turbo_confirm: "Are you sure you want to archive this student?" },
-                      class: "inline-flex items-center px-4 py-2 border border-red-300 shadow-sm text-sm font-medium rounded-md text-red-700 bg-white hover:bg-red-50" do %>
-            <i class="fas fa-box-archive -ml-1 mr-2 h-5 w-5 text-red-500"></i>
-            Archive
-          <% end %>
-        </div>
-      </div>
+  <%= render layout: "components/ui/page_header", locals: { title: @student.username } do %>
+    <%= link_to edit_admin_student_path(@student), class: admin_secondary_button_class do %>
+      <%= lucide_icon("square-pen", class: "h-5 w-5 shrink-0 text-slate-500") %>
+      Edit
+    <% end %>
 
-      <div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg overflow-hidden">
-        <div class="px-4 py-5 sm:px-6">
-          <dl class="divide-y divide-gray-200">
-            <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
-              <dt class="text-sm font-medium text-gray-500">Id</dt>
-              <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0"><%= @student.id %></dd>
-            </div>
-            <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
-              <dt class="text-sm font-medium text-gray-500">Username</dt>
-              <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0"><%= @student.username %></dd>
-            </div>
-            <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
-              <dt class="text-sm font-medium text-gray-500">Classroom</dt>
-              <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0"><%= @student.classroom.name %></dd>
-            </div>
-            <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
-              <dt class="text-sm font-medium text-gray-500">Created at</dt>
-              <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0"><%= @student.created_at.strftime("%B %d, %Y") %></dd>
-            </div>
-            <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
-              <dt class="text-sm font-medium text-gray-500">Updated at</dt>
-              <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0"><%= @student.updated_at.strftime("%B %d, %Y") %></dd>
-            </div>
-          </dl>
-        </div>
-      </div>
+    <%= link_to admin_student_path(@student),
+                data: { turbo_method: :delete,
+                        turbo_confirm: "Archive #{@student.username}? They will no longer appear in the active list." },
+                class: admin_danger_button_class do %>
+      <%= lucide_icon("archive", class: "h-5 w-5 shrink-0") %>
+      Archive
+    <% end %>
+  <% end %>
 
-      <!-- Associated Portfolio -->
-      <% if @student.portfolio.present? %>
-        <div class="mt-6 pt-6 border-t border-gray-200">
-          <h3 class="text-sm font-medium text-gray-500 mb-3">Portfolio Details</h3>
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <div class="bg-blue-50 p-4 rounded-lg">
-              <div class="text-xs font-medium text-blue-600 mb-1" data-testid="cash_balance_label">
-                Cash Balance
-              </div>
-              <div class="text-2xl font-bold text-blue-900"><%= number_to_currency(@student.portfolio.cash_balance) %></div>
+  <div class="space-y-6">
+    <%# Was a hand-rolled dl repeating what admin_show_attributes already renders, with
+        slate-500 labels rather than the slate-700 the shared partial uses. %>
+    <%= admin_show_attributes(
+          @student,
+          attributes: %i[id username classroom created_at updated_at]
+        ) %>
+
+    <% if @student.portfolio.present? %>
+      <%= render layout: "components/ui/card", locals: { title: "Portfolio details" } do %>
+        <div class="grid grid-cols-1 gap-4 lg:grid-cols-4">
+          <%# Neutral, not hue-coded. These were blue-50 / green-50 / purple-50 panels beside a
+              slate-50 one - four figures, three arbitrary hues and no icon to carry them.
+              design.md hue-codes a KPI's *icon tile*, never the panel fill, and says a numeral is
+              always slate-900 and never carries state. Same fix as the order modal's pair. %>
+          <div class="rounded-lg bg-slate-50 p-4">
+            <div class="mb-1 text-xs font-medium text-slate-600" data-testid="cash_balance_label">
+              Cash balance
             </div>
-            <div class="bg-green-50 p-4 rounded-lg">
-              <div class="text-xs font-medium text-green-600 mb-1" data-testid="total_portfolio_worth_label">
-                Total Portfolio Worth
-              </div>
-              <div class="text-2xl font-bold text-green-900"><%= number_to_currency(@student.portfolio.total_portfolio_worth) %></div>
-            </div>
-            <div class="bg-purple-50 p-4 rounded-lg">
-              <div class="text-xs font-medium text-purple-600 mb-1">Total Stocks</div>
-              <div class="text-2xl font-bold text-purple-900"><%= @student.portfolio.portfolio_stocks.sum(:shares).to_i %></div>
-            </div>
-            <%= link_to portfolio_path(@student.portfolio), class: "bg-gray-50 p-4 rounded-lg block hover:bg-gray-100 transition-colors" do %>
-              <div class="text-xs font-medium text-gray-600 mb-1">Portfolio ID</div>
-              <div class="text-2xl font-bold text-gray-900">#<%= @student.portfolio.id %></div>
-            <% end %>
+            <div class="text-2xl font-bold text-slate-900 tabular-nums">
+              <%= number_to_currency(@student.portfolio.cash_balance) %>
             </div>
           </div>
 
-          <!-- Earnings Summary -->
-          <h4 class="text-sm font-medium text-gray-700 mb-3">Earnings Summary</h4>
-          <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 rounded-lg mb-6">
-            <table class="min-w-full divide-y divide-gray-300">
-              <thead class="bg-gray-50">
-                <tr>
-                  <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
-                  <th class="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase">Amount</th>
+          <div class="rounded-lg bg-slate-50 p-4">
+            <div class="mb-1 text-xs font-medium text-slate-600" data-testid="total_portfolio_worth_label">
+              Total portfolio worth
+            </div>
+            <div class="text-2xl font-bold text-slate-900 tabular-nums">
+              <%= number_to_currency(@student.portfolio.total_portfolio_worth) %>
+            </div>
+          </div>
+
+          <div class="rounded-lg bg-slate-50 p-4">
+            <div class="mb-1 text-xs font-medium text-slate-600">Total stocks</div>
+            <div class="text-2xl font-bold text-slate-900 tabular-nums">
+              <%= @student.portfolio.portfolio_stocks.sum(:shares).to_i %>
+            </div>
+          </div>
+
+          <%= link_to portfolio_path(@student.portfolio),
+                      class: "block rounded-lg bg-slate-50 p-4 transition-colors hover:bg-slate-100 " \
+                             "focus-visible:outline-2 focus-visible:outline-offset-2 " \
+                             "focus-visible:outline-sitf-primary" do %>
+            <div class="mb-1 text-xs font-medium text-slate-600">Portfolio ID</div>
+            <div class="text-2xl font-bold text-slate-900 tabular-nums">#<%= @student.portfolio.id %></div>
+          <% end %>
+        </div>
+
+        <h3 class="mt-6 mb-3 text-sm font-medium text-slate-700">Earnings summary</h3>
+        <div class="overflow-x-auto border-t border-slate-200">
+          <table class="table-base">
+            <thead>
+              <tr class="table-header-row">
+                <th scope="col" class="table-header-cell table-header-cell-left">Category</th>
+                <th scope="col" class="table-header-cell table-header-cell-right">Amount</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white">
+              <% { "Attendance earnings" => @earnings_summary.attendance_earnings_cents,
+                   "Math earnings" => @earnings_summary.math_earnings_cents,
+                   "Rewards" => @earnings_summary.awards_cents }.each do |label, cents| %>
+                <tr class="table-body-row">
+                  <td class="table-body-cell"><%= label %></td>
+                  <td class="table-body-cell table-body-cell-right font-medium tabular-nums">
+                    <%= number_to_currency(cents / 100.0) %>
+                  </td>
+                </tr>
+              <% end %>
+              <tr class="table-body-row bg-green-50">
+                <td class="table-body-cell font-semibold">Total earnings</td>
+                <td class="table-body-cell table-body-cell-right font-bold tabular-nums">
+                  <%= number_to_currency(@earnings_summary.total_earnings_cents / 100.0) %>
+                </td>
+              </tr>
+              <%# red-600 on white is 4.0:1, under the gate. red-700 is 5.9:1. %>
+              <tr class="table-body-row">
+                <td class="table-body-cell font-medium text-red-700">Transaction fees</td>
+                <td class="table-body-cell table-body-cell-right font-medium text-red-700 tabular-nums">
+                  <%= number_to_currency(@earnings_summary.transaction_fees_cents / 100.0) %>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <% transactions = @student.portfolio.portfolio_transactions.order(created_at: :desc) %>
+        <h3 class="mt-6 mb-3 text-sm font-medium text-slate-700">
+          All transactions (<%= transactions.count %>)
+        </h3>
+        <% if transactions.any? %>
+          <div class="overflow-x-auto border-t border-slate-200">
+            <table class="table-base">
+              <thead>
+                <tr class="table-header-row">
+                  <th scope="col" class="table-header-cell table-header-cell-left">Date</th>
+                  <th scope="col" class="table-header-cell table-header-cell-left">Type</th>
+                  <th scope="col" class="table-header-cell table-header-cell-left">Reason</th>
+                  <th scope="col" class="table-header-cell table-header-cell-right">Amount</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-gray-200 bg-white">
-                <tr>
-                  <td class="px-3 py-2 text-sm text-gray-900">Attendance Earnings</td>
-                  <td class="px-3 py-2 text-sm text-right font-medium text-gray-900"><%= number_to_currency(@earnings_summary.attendance_earnings_cents / 100.0) %></td>
-                </tr>
-                <tr>
-                  <td class="px-3 py-2 text-sm text-gray-900">Math Earnings</td>
-                  <td class="px-3 py-2 text-sm text-right font-medium text-gray-900"><%= number_to_currency(@earnings_summary.math_earnings_cents / 100.0) %></td>
-                </tr>
-                <tr>
-                  <td class="px-3 py-2 text-sm text-gray-900">Rewards</td>
-                  <td class="px-3 py-2 text-sm text-right font-medium text-gray-900"><%= number_to_currency(@earnings_summary.awards_cents / 100.0) %></td>
-                </tr>
-                <tr class="bg-green-50">
-                  <td class="px-3 py-2 text-sm font-semibold text-gray-900">Total Earnings</td>
-                  <td class="px-3 py-2 text-sm text-right font-bold text-gray-900"><%= number_to_currency(@earnings_summary.total_earnings_cents / 100.0) %></td>
-                </tr>
-                <tr>
-                  <td class="px-3 py-2 text-sm font-medium text-red-600">Transaction Fees</td>
-                  <td class="px-3 py-2 text-sm text-right font-medium text-red-600"><%= number_to_currency(@earnings_summary.transaction_fees_cents / 100.0) %></td>
-                </tr>
+              <tbody class="bg-white">
+                <% transactions.each do |transaction| %>
+                  <tr class="table-body-row">
+                    <td class="table-body-cell whitespace-nowrap">
+                      <%= transaction.created_at.strftime("%m/%d/%Y") %>
+                    </td>
+                    <td class="table-body-cell whitespace-nowrap">
+                      <%= render "components/ui/badge",
+                                 label: transaction.transaction_type.humanize,
+                                 tone: transaction.deposit? ? :success : :neutral %>
+                    </td>
+                    <td class="table-body-cell">
+                      <%= transaction.reason&.humanize || "—" %>
+                    </td>
+                    <td class="table-body-cell table-body-cell-right whitespace-nowrap font-medium tabular-nums">
+                      <%= number_to_currency(transaction.amount_cents / 100.0) %>
+                    </td>
+                  </tr>
+                <% end %>
               </tbody>
             </table>
           </div>
-
-          <!-- Transactions -->
-          <% transactions = @student.portfolio.portfolio_transactions.order(created_at: :desc) %>
-          <% if transactions.any? %>
-            <h4 class="text-sm font-medium text-gray-700 mb-3">All Transactions (<%= transactions.count %>)</h4>
-            <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 rounded-lg mb-4">
-              <table class="min-w-full divide-y divide-gray-300">
-                <thead class="bg-gray-50">
-                  <tr>
-                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Reason</th>
-                    <th class="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase">Amount</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-200 bg-white">
-                  <% transactions.each do |transaction| %>
-                    <tr>
-                      <td class="whitespace-nowrap px-3 py-2 text-sm text-gray-900">
-                        <%= transaction.created_at.strftime("%m/%d/%Y") %>
-                      </td>
-                      <td class="whitespace-nowrap px-3 py-2 text-sm">
-                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium <%= transaction.transaction_type == 'deposit' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' %>">
-                          <%= transaction.transaction_type.capitalize %>
-                        </span>
-                      </td>
-                      <td class="px-3 py-2 text-sm text-gray-900">
-                        <%= transaction.reason&.humanize || 'N/A' %>
-                      </td>
-                      <td class="whitespace-nowrap px-3 py-2 text-sm text-right font-medium text-gray-900">
-                        <%= number_to_currency(transaction.amount_cents / 100.0) %>
-                      </td>
-                    </tr>
-                  <% end %>
-                </tbody>
-              </table>
-            </div>
-          <% else %>
-            <p class="text-sm text-gray-500 mb-4">No transactions yet.</p>
-          <% end %>
-        </div>
-      <% else %>
-        <div class="mt-6 pt-6 border-t border-gray-200">
-          <p class="text-sm text-gray-500">No portfolio associated with this student.</p>
-        </div>
+        <% else %>
+          <p class="text-sm text-slate-600">No transactions yet.</p>
+        <% end %>
       <% end %>
-    </div>
-  </div>
+    <% else %>
+      <%= render layout: "components/ui/card", locals: { title: "Portfolio details" } do %>
+        <p class="text-sm text-slate-600">No portfolio associated with this student.</p>
+      <% end %>
+    <% end %>
 
-  <!-- Attendance -->
-  <div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg mb-6">
-    <div class="px-6 py-6">
-      <h3 class="text-sm font-medium text-gray-500 mb-3">Attendance</h3>
+    <%= render layout: "components/ui/card", locals: { title: "Attendance" } do %>
       <% if @attendance_entries.any? %>
-        <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 rounded-lg">
-          <table class="min-w-full divide-y divide-gray-300">
-            <thead class="bg-gray-50">
-              <tr>
-                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Year</th>
-                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Quarter</th>
-                <th class="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase">Attendance Days</th>
-                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase">Perfect Attendance</th>
+        <div class="overflow-x-auto border-t border-slate-200">
+          <table class="table-base">
+            <thead>
+              <tr class="table-header-row">
+                <th scope="col" class="table-header-cell table-header-cell-left">Year</th>
+                <th scope="col" class="table-header-cell table-header-cell-left">Quarter</th>
+                <th scope="col" class="table-header-cell table-header-cell-right">Attendance days</th>
+                <th scope="col" class="table-header-cell table-header-cell-center">Perfect attendance</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-gray-200 bg-white">
+            <tbody class="bg-white">
               <% @attendance_entries.each do |entry| %>
-                <tr>
-                  <td class="whitespace-nowrap px-3 py-2 text-sm text-gray-900">
-                    <%= entry.year_name %>
-                  </td>
-                  <td class="whitespace-nowrap px-3 py-2 text-sm text-gray-900">
-                    <%= entry.quarter_name %>
-                  </td>
-                  <td class="whitespace-nowrap px-3 py-2 text-sm text-right text-gray-900">
+                <tr class="table-body-row">
+                  <td class="table-body-cell whitespace-nowrap"><%= entry.year_name %></td>
+                  <td class="table-body-cell whitespace-nowrap"><%= entry.quarter_name %></td>
+                  <td class="table-body-cell table-body-cell-right whitespace-nowrap tabular-nums">
                     <%= entry.attendance_days_display %>
                   </td>
-                  <td class="whitespace-nowrap px-3 py-2 text-sm text-center">
-                    <% if entry.perfect_attendance? %>
-                      <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">Yes</span>
-                    <% else %>
-                      <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600">No</span>
-                    <% end %>
+                  <td class="table-body-cell table-body-cell-center whitespace-nowrap">
+                    <%= render "components/ui/badge",
+                               label: entry.perfect_attendance? ? "Yes" : "No",
+                               tone: entry.perfect_attendance? ? :success : :neutral %>
                   </td>
                 </tr>
               <% end %>
@@ -198,13 +180,12 @@
           </table>
         </div>
       <% else %>
-        <p class="text-sm text-gray-500">No attendance records found.</p>
+        <p class="text-sm text-slate-600">No attendance records found.</p>
       <% end %>
-    </div>
+    <% end %>
   </div>
 
-  <div class="flex gap-3">
-    <%= link_to "Back to Students", admin_students_path,
-                class: "inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" %>
+  <div class="mt-6 flex gap-3">
+    <%= link_to "Back to students", admin_students_path, class: admin_secondary_button_class %>
   </div>
 </div>

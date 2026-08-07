@@ -1,102 +1,150 @@
+<%# Admin dashboard.
+
+    This was four cards of links to Classrooms, Schools, Students and so on - a second copy of
+    the sidebar rather than a dashboard, plus a yellow banner explaining that links marked "#"
+    were unimplemented, by which point no such links remained.
+
+    design.md's dashboard patterns are KPI stat cards then a "needs your attention" worklist,
+    which is also what Stripe, Shopify, Salesforce and Django's admin do: figures first, then the
+    work waiting on you, then the few actions worth a shortcut. Navigation stays in the sidebar.
+
+    Numbers are always slate-900 - design.md is explicit that a numeral never carries state, and
+    records the two occasions a coloured one was read as an error rather than a count. The icon
+    tile carries it instead. %>
+<% content_for :own_heading, true %>
+
 <div class="max-w-7xl mx-auto">
-  <div class="mb-6">
-    <h1 class="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-    <p class="text-gray-600 mt-2">Welcome to the in-house admin interface</p>
+  <%= render layout: "components/ui/page_header",
+             locals: { title: "Admin dashboard",
+                       description: "Where the money and the grading stand today." } do %>
+    <%= link_to "New announcement", new_admin_announcement_path, class: admin_secondary_button_class %>
+    <%= link_to "New student", new_admin_student_path, class: admin_primary_button_class %>
+  <% end %>
+
+  <%# Work first, then scale. Pending orders and unpaid grade books are the two figures an admin
+      can act on; the rest is context. %>
+  <%# Hue carries state, not decoration: amber for the two queues that need someone to act,
+      emerald for money moved. The three plain counts are :neutral - they were bg-sky-50, a hue the
+      tone vocabulary does not have, then :info in the tile sweep, which still read as though a
+      count of classrooms were telling you something. %>
+  <% stats = [
+       { label: "Orders awaiting execution", value: @dashboard.pending_orders_count,
+         icon: "clock", tone: :warning, testid: "pending-orders",
+         hint: "Executed by the daily job" },
+       { label: "Grade books ready to pay out", value: @dashboard.grade_books_awaiting_payout_count,
+         icon: "book-check", tone: :warning, testid: "grade-books-awaiting",
+         hint: "Verified, not yet distributed" },
+       { label: "Distributed to students", value: number_to_currency(@dashboard.total_distributed_cents / 100.0),
+         icon: "hand-coins", tone: :success, testid: "total-distributed",
+         hint: "All deposits, all time" },
+       { label: "Active students", value: @dashboard.students_count,
+         icon: "graduation-cap", tone: :neutral, testid: "students" },
+       { label: "Classrooms", value: @dashboard.classrooms_count,
+         icon: "presentation", tone: :neutral, testid: "classrooms" },
+       { label: "Stocks on the trading floor", value: @dashboard.stocks_count,
+         icon: "chart-line", tone: :neutral, testid: "stocks" }
+     ] %>
+
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+    <% stats.each do |stat| %>
+      <%= tag.div class: "tw-card p-5", data: { testid: stat[:testid] } do %>
+        <div class="mb-3">
+          <%= render "components/ui/icon_tile", icon: stat[:icon], tone: stat[:tone] %>
+        </div>
+        <p class="text-3xl font-bold tracking-tight text-slate-900 tabular-nums"><%= stat[:value] %></p>
+        <p class="mt-1 text-sm text-slate-600"><%= stat[:label] %></p>
+        <% if stat[:hint] %>
+          <p class="mt-1 text-xs text-slate-500"><%= stat[:hint] %></p>
+        <% end %>
+      <% end %>
+    <% end %>
   </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    <!-- Academic Resources -->
-    <div class="bg-white rounded-lg shadow p-6 border border-gray-200">
-      <div class="flex items-center mb-4">
-        <i class="fas fa-graduation-cap text-blue-600 text-2xl mr-3"></i>
-        <h2 class="text-lg font-semibold text-gray-900">Academic</h2>
-      </div>
-      <ul class="space-y-2 text-sm">
-        <li>
-          <%= link_to admin_classrooms_path, class: "text-blue-600 hover:text-blue-800 hover:underline" do %>
-            <i class="fas fa-chalkboard w-4 mr-2"></i>Classrooms
+  <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+    <%# One card per list, with the table inside it - not a box per row, which design.md calls
+        out as the nested-card anti-pattern. Every row links to the record, because a row you can
+        see and cannot act on is the thing that was wrong here. %>
+    <%= render layout: "components/ui/card",
+               locals: { title: "Orders awaiting execution", padded: false } do %>
+      <% if @dashboard.pending_orders.any? %>
+        <table class="table-base">
+          <caption class="sr-only">Orders placed but not yet executed</caption>
+          <thead>
+            <tr class="table-header-row">
+              <th scope="col" class="table-header-cell table-header-cell-left">Student</th>
+              <th scope="col" class="table-header-cell table-header-cell-left">Order</th>
+              <th scope="col" class="table-header-cell table-header-cell-right">Placed</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white">
+            <% @dashboard.pending_orders.each do |order| %>
+              <tr class="table-body-row">
+                <td class="table-body-cell"><%= order.user.display_name %></td>
+                <td class="table-body-cell">
+                  <%= link_to admin_stock_path(order.stock),
+                              class: "font-medium tw-link" do %>
+                    <%= order.action.humanize %> <%= order.stock.ticker %>
+                  <% end %>
+                </td>
+                <td class="table-body-cell table-body-cell-right whitespace-nowrap text-slate-600">
+                  <%= order.created_at.strftime("%b %d") %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% else %>
+        <div class="p-5">
+          <%= render layout: "components/ui/empty_state",
+                     locals: { compact: true, icon: "clock",
+                               title: "Nothing waiting",
+                               body: "Orders appear here between being placed and being executed." } do %>
           <% end %>
-        </li>
-        <li>
-          <%= link_to admin_schools_path, class: "text-blue-600 hover:text-blue-800 hover:underline" do %>
-            <i class="fas fa-school w-4 mr-2"></i>Schools
-          <% end %>
-        </li>
-        <li>
-          <%= link_to admin_school_years_path, class: "text-blue-600 hover:text-blue-800 hover:underline" do %>
-            <i class="fas fa-calendar-check w-4 mr-2"></i>School Years
-          <% end %>
-        </li>
-      </ul>
-    </div>
+        </div>
+      <% end %>
+    <% end %>
 
-    <!-- User Management -->
-    <div class="bg-white rounded-lg shadow p-6 border border-gray-200">
-      <div class="flex items-center mb-4">
-        <i class="fas fa-users text-green-600 text-2xl mr-3"></i>
-        <h2 class="text-lg font-semibold text-gray-900">User Management</h2>
-      </div>
-      <ul class="space-y-2 text-sm">
-        <li>
-          <%= link_to admin_students_path, class: "text-blue-600 hover:text-blue-800 hover:underline" do %>
-            <i class="fas fa-user-graduate w-4 mr-2"></i>Students
+    <%= render layout: "components/ui/card",
+               locals: { title: "Recent transactions", padded: false } do %>
+      <% if @dashboard.recent_transactions.any? %>
+        <table class="table-base">
+          <caption class="sr-only">The most recent portfolio transactions</caption>
+          <thead>
+            <tr class="table-header-row">
+              <th scope="col" class="table-header-cell table-header-cell-left">Student</th>
+              <th scope="col" class="table-header-cell table-header-cell-left">Reason</th>
+              <th scope="col" class="table-header-cell table-header-cell-right">Amount</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white">
+            <% @dashboard.recent_transactions.each do |transaction| %>
+              <tr class="table-body-row">
+                <td class="table-body-cell">
+                  <%= link_to transaction.portfolio.username,
+                              admin_portfolio_transaction_path(transaction),
+                              class: "font-medium tw-link" %>
+                </td>
+                <td class="table-body-cell text-slate-600"><%= transaction.reason&.humanize || transaction.transaction_type.humanize %></td>
+                <td class="table-body-cell table-body-cell-right whitespace-nowrap font-medium">
+                  <%= number_to_currency(transaction.amount_cents / 100.0) %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+        <div class="border-t border-slate-200 px-5 py-3">
+          <%= link_to "View all", admin_portfolio_transactions_path,
+                      class: "text-sm font-medium tw-link" %>
+        </div>
+      <% else %>
+        <div class="p-5">
+          <%= render layout: "components/ui/empty_state",
+                     locals: { compact: true, icon: "arrow-left-right",
+                               title: "No transactions yet",
+                               body: "Deposits appear when a grade book is finalised." } do %>
           <% end %>
-        </li>
-        <li>
-          <%= link_to admin_teachers_path, class: "text-blue-600 hover:text-blue-800 hover:underline" do %>
-            <i class="fas fa-chalkboard-teacher w-4 mr-2"></i>Teachers
-          <% end %>
-        </li>
-        <li>
-          <%= link_to admin_users_path, class: "text-blue-600 hover:text-blue-800 hover:underline" do %>
-            <i class="fas fa-users w-4 mr-2"></i>Users
-          <% end %>
-        </li>
-      </ul>
-    </div>
-
-    <!-- Portfolio & Finance -->
-    <div class="bg-white rounded-lg shadow p-6 border border-gray-200">
-      <div class="flex items-center mb-4">
-        <i class="fas fa-chart-line text-purple-600 text-2xl mr-3"></i>
-        <h2 class="text-lg font-semibold text-gray-900">Portfolio & Finance</h2>
-      </div>
-      <ul class="space-y-2 text-sm">
-        <li>
-          <%= link_to admin_stocks_path, class: "text-blue-600 hover:text-blue-800 hover:underline" do %>
-            <i class="fas fa-chart-line w-4 mr-2"></i>Stocks
-          <% end %>
-        </li>
-        <li class="text-gray-600"><i class="fas fa-exchange-alt w-4 mr-2"></i>Portfolio Transactions</li>
-      </ul>
-    </div>
-
-    <!-- Content -->
-    <div class="bg-white rounded-lg shadow p-6 border border-gray-200">
-      <div class="flex items-center mb-4">
-        <i class="fas fa-bullhorn text-orange-600 text-2xl mr-3"></i>
-        <h2 class="text-lg font-semibold text-gray-900">Content</h2>
-      </div>
-      <ul class="space-y-2 text-sm">
-        <li>
-          <%= link_to admin_announcements_path, class: "text-blue-600 hover:text-blue-800 hover:underline" do %>
-            <i class="fas fa-bullhorn w-4 mr-2"></i>Announcements
-          <% end %>
-        </li>
-      </ul>
-    </div>
-  </div>
-
-  <div class="mt-8 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-    <div class="flex items-start">
-      <i class="fas fa-exclamation-triangle text-yellow-600 mt-1 mr-3"></i>
-      <div>
-        <h3 class="font-semibold text-yellow-900 mb-1">Development Status</h3>
-        <p class="text-sm text-yellow-800">
-          Resource pages are being built incrementally. Use the sidebar navigation to access completed resources.
-          Links marked with "#" are not yet implemented.
-        </p>
-      </div>
-    </div>
+        </div>
+      <% end %>
+    <% end %>
   </div>
 </div>

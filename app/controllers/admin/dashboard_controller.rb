@@ -3,7 +3,7 @@
 module Admin
   class DashboardController < BaseController
     def index
-      # Dashboard will show overview of admin resources
+      @dashboard = AdminDashboard.new
     end
   end
 end

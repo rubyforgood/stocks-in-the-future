@@ -5,6 +5,9 @@ student = User.find_by(email: "student@example.com")
 
 if student
   portfolio = Portfolio.find_or_create_by(user: student)
+end
+
+if student && portfolio.portfolio_transactions.none?
 
   # Initial deposit to give student starting balance
   PortfolioTransaction.create(
@@ -52,8 +55,9 @@ if student
   puts "Seeded portfolio transactions for Student user"
   Rails.logger.info "Seeded portfolio transactions for Student user"
 else
-  puts "Student user not found. Skipping Student portfolio transactions seeding."
-  Rails.logger.warn "Student user not found. Skipping Student portfolio transactions seeding."
+  msg = student ? "Student portfolio already has transactions. Skipping." : "Student user not found. Skipping Student portfolio transactions seeding."
+  puts msg
+  Rails.logger.warn msg
 end
 
 # Create transactions for Mike user
@@ -61,6 +65,9 @@ mike = User.find_by(email: "mike@example.com")
 
 if mike
   portfolio = Portfolio.find_or_create_by(user: mike)
+end
+
+if mike && portfolio.portfolio_transactions.none?
 
   pt = PortfolioTransaction.create(
     portfolio: portfolio,
@@ -137,6 +144,7 @@ if mike
   puts "Seeded three completed orders and transactions for the Student user 'Mike'"
   Rails.logger.info "Seeded three completed orders and transactions for the Student user 'Mike"
 else
-  puts "Student user 'Mike' not found. Skipping portfolio transactions seeding."
-  Rails.logger.warn "Student user 'Mike' not found. Skipping portfolio transactions seeding."
+  msg = mike ? "Mike's portfolio already has transactions. Skipping." : "Student user 'Mike' not found. Skipping portfolio transactions seeding."
+  puts msg
+  Rails.logger.warn msg
 end

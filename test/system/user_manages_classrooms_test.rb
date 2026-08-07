@@ -17,11 +17,11 @@ class UserManagesClassroomsTest < ApplicationSystemTestCase
     check "5th Grade"
     select school1.name, from: "classroom_school_id"
     select year1.name, from: "classroom_year_id"
-    click_on "Create Classroom"
+    click_on "Create classroom"
 
     assert_selector "#notice", text: "Classroom was successfully created"
     assert_selector "h1", text: "Test Classroom"
-    assert_selector "h1", text: "2023-2024"
+    assert_selector "p", text: "2023-2024"
   end
 
   test "admin can update a classroom" do
@@ -39,11 +39,11 @@ class UserManagesClassroomsTest < ApplicationSystemTestCase
     fill_in "Name", with: "Updated Classroom"
     select school2.name, from: "classroom_school_id"
     select year2.name, from: "classroom_year_id"
-    click_on "Update Classroom"
+    click_on "Update classroom"
 
     assert_selector "#notice", text: "Classroom was successfully updated"
     assert_selector "h1", text: "Updated Classroom"
-    assert_selector "h1", text: "2024-2025"
+    assert_selector "p", text: "2024-2025"
   end
 
   test "admin can update trading for a classroom" do

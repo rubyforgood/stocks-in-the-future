@@ -1,0 +1,42 @@
+<%# Status pill.
+
+    design.md, Status pill:
+
+      inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium
+
+    with a light tint and a dark foreground per tone, and **no ring and no border**. This
+    component had `ring-1 ring-inset` with a per-tone ring colour, which the spec does not
+    specify - and because fourteen hand-rolled badges were swept onto it, that unspecified
+    stroke ended up on every badge in the app. Aligning a component is only alignment if the
+    component itself matches the spec; treating whatever exists as the baseline just
+    standardises the drift.
+
+    Tones follow design.md's names, so emerald and rose rather than green and red. Measured on
+    their own tints: emerald 5.21:1, rose 5.72:1, slate 6.92:1, amber 4.84:1, blue 6.16:1,
+    all clear AA. Neutral is slate-600, not slate-500, because design.md records
+    that slate-500 is 4.34:1 on the slate-100 tint.
+
+    :info is not named in design.md; it follows the same tint/foreground shape.
+
+    There was a :brand tone, bg-teal-50 / text-teal-700, and it was used nowhere. Tailwind's teal is
+    a mint green; this product's brand is sitf-primary #00698c, a blue-teal. An unused tone that is
+    also off-brand is the worst pair, because whoever adopts it will be reaching for the brand and
+    will not get it.
+
+    Meaning is never colour-alone: the label always states the status.
+
+    Locals:
+      label - text
+      tone  - :neutral (default) :success :warning :danger :info
+      class - optional extra classes %>
+<% tone = local_assigns.fetch(:tone, :neutral).to_sym %>
+<% tones = {} %>
+<% tones[:neutral] = "bg-slate-100 text-slate-600" %>
+<% tones[:success] = "bg-emerald-50 text-emerald-700" %>
+<% tones[:warning] = "bg-amber-50 text-amber-700" %>
+<% tones[:danger] = "bg-rose-50 text-rose-700" %>
+<% tones[:info] = "bg-blue-50 text-blue-700" %>
+
+<span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium <%= tones.fetch(tone, tones[:neutral]) %> <%= local_assigns[:class] %>">
+  <%= label %>
+</span>

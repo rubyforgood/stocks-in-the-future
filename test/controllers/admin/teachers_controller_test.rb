@@ -15,7 +15,7 @@ module Admin
       row_ids = rows.pluck("id")
 
       assert_response :success
-      assert_select "h3", "Teachers"
+      assert_select "h1", "Teachers"
       assert_equal [dom_id(teacher2), dom_id(teacher1)], row_ids
     end
 
@@ -45,7 +45,10 @@ module Admin
 
       assert_response :success
       assert_select "tbody tr", count: 1
-      assert_select "span.bg-green-50", text: "Active"
+      # Asserted on the label, not the badge's fill class. These used to name bg-green-50 /
+      # bg-red-50, so replacing a hand-rolled badge with the shared component broke three tests
+      # that were not testing anything about filtering.
+      assert_select "tbody span", text: "Active"
     end
 
     test "index shows both active and deactivated teachers with all filter" do
@@ -60,8 +63,8 @@ module Admin
 
       assert_response :success
       assert_select "tbody tr", count: 2
-      assert_select "span.bg-red-50", text: "Deactivated"
-      assert_select "span.bg-green-50", text: "Active"
+      assert_select "tbody span", text: "Deactivated"
+      assert_select "tbody span", text: "Active"
     end
 
     test "index shows only deactivated teachers with discarded filter" do
@@ -75,7 +78,7 @@ module Admin
 
       assert_response :success
       assert_select "tbody tr", count: 1
-      assert_select "span.bg-red-50", text: "Deactivated"
+      assert_select "tbody span", text: "Deactivated"
     end
 
     # Show tests
@@ -87,7 +90,7 @@ module Admin
       get admin_teacher_path(teacher)
 
       assert_response :success
-      assert_select "h2", teacher.username
+      assert_select "h1", teacher.username
     end
 
     test "should show teacher classrooms" do
@@ -100,8 +103,8 @@ module Admin
       get admin_teacher_path(teacher)
 
       assert_response :success
-      assert_select "h2", teacher.username
-      assert_select "h3", "Classrooms"
+      assert_select "h1", teacher.username
+      assert_select "h2", "Classrooms"
       assert_select "li", text: classroom.name
     end
 
@@ -123,7 +126,7 @@ module Admin
       get new_admin_teacher_path
 
       assert_response :success
-      assert_select "h1", "New Teacher"
+      assert_select "h1", "New teacher"
     end
 
     test "new shows warning message when no classrooms available" do
@@ -133,11 +136,14 @@ module Admin
       get new_admin_teacher_path
 
       assert_response :success
-      assert_select "h1", "New Teacher"
+      assert_select "h1", "New teacher"
 
-      assert_select "h3", text: "No Classrooms Available"
-      assert_select "p", text: /No Classrooms associated with this school and active year/
-      assert_select "a[href='#{admin_classrooms_path}']", text: "update classrooms"
+      # The notice is components/ui/_callout now, so its title is a <p> rather than an <h3> - it is
+      # a message in a form, not a section heading - and the link is the callout's trailing action
+      # rather than a link buried mid-sentence.
+      assert_select "[role='status']", text: /No classrooms available/
+      assert_select "[role='status']", text: /No classrooms are associated with this school/
+      assert_select "a[href='#{admin_classrooms_path}']", text: /Update classrooms/
     end
 
     test "new shows classrooms when available" do
@@ -156,7 +162,7 @@ module Admin
       assert_select "input[type='checkbox'][name='teacher[classroom_ids][]']"
       assert_select "label", text: "Test Classroom"
 
-      assert_select "h3", text: "No Classrooms Available", count: 0
+      assert_select "h3", text: "No classrooms available", count: 0
     end
 
     test "create" do
@@ -212,7 +218,7 @@ module Admin
       get edit_admin_teacher_path(teacher)
 
       assert_response :success
-      assert_select "h1", "Edit Teacher"
+      assert_select "h1", "Edit teacher"
     end
 
     test "update" do

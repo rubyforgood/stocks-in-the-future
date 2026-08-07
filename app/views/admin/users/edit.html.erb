@@ -1,10 +1,8 @@
 <div class="max-w-7xl mx-auto">
   <%= admin_breadcrumbs(@breadcrumbs) %>
 
-  <div class="mb-6">
-    <h1 class="text-3xl font-bold text-gray-900">Edit User</h1>
-    <p class="text-gray-600 mt-2"><%= @user.username %></p>
-  </div>
+  <%= render layout: "components/ui/page_header",
+             locals: { title: "Edit user", description: @user.username } do %><% end %>
 
   <%= render "form" %>
 </div>

@@ -1,25 +1,34 @@
-<div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
-  <div class="sm:mx-auto sm:w-full sm:max-w-sm">
-      <div class="flex w-full justify-center">
-      <%= image_tag "SITF-caponly-Logo.svg", class: "navbar-logo", alt: "Stocks in The Future" %>
-      </div>
+<% content_for :title, "Sign in" %>
 
-      <h2 class="text-center text-2xl/9 font-bold tracking-tight text-gray-900 pb-4">Sign in to your account</h2>
+<div class="flex min-h-full flex-col justify-center py-12">
+  <div class="mx-auto w-full max-w-sm">
+    <div class="flex w-full justify-center">
+      <%= image_tag "SITF-caponly-Logo.svg", class: "h-8 w-auto", alt: "Stocks in the Future" %>
+    </div>
+
+    <h1 class="text-center text-2xl/9 font-bold tracking-tight text-slate-900 pb-4">Sign in to your account</h1>
 
     <%= render_form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
       <div class="space-y-4">
-          <%= f.text_field :username, placeholder: "Username", autocomplete: "username", class: "block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" %>
-          <%= f.password_field :password, placeholder: "Password", autocomplete: "current-password", class: "block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" %>
+        <div>
+          <%= f.label :username, class: "mb-1" %>
+          <%= f.text_field :username, autocomplete: "username", required: true %>
+        </div>
 
-      <div class="flex items-center justify-between">
-        <% if devise_mapping.rememberable? %>
-          <%= render_checkbox name: "user[remember_me]", label: "Remember Me" %>
-        <% end %>
+        <div>
+          <%= f.label :password, class: "mb-1" %>
+          <%= f.password_field :password, autocomplete: "current-password", required: true %>
+        </div>
 
-        <%= render_button "Forgot your password?", href: new_password_path(resource_name), variant: :ghost, class: "text-sm font-semibold text-black underline hover:text-[var(--sitf-secondary-chart2)]", as: :link %>
-      </div>
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <% if devise_mapping.rememberable? %>
+            <%= render_checkbox name: "user[remember_me]", label: "Remember me" %>
+          <% end %>
 
-        <%= render_button "Sign in", class: "flex w-full justify-center rounded-md bg-[#00698C] px-3 py-1.5 text-sm/6  text-white shadow-xs hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600", type: "submit" %>
+          <%= link_to "Forgot your password?", new_password_path(resource_name), class: "tw-link-tap" %>
+        </div>
+
+        <%= f.submit "Sign in", class: "w-full" %>
       </div>
     <% end %>
   </div>

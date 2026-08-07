@@ -1,32 +1,61 @@
-<% if notice.present? %>
-  <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-lg inline-block" id="notice"><%= notice %></p>
-<% end %>
-<% if alert.present? %>
-  <p class="py-2 px-3 bg-red-50 mb-5 text-red-500 font-medium rounded-lg inline-block" id="alert"><%= alert %></p>
-<% end %>
-
 <%= turbo_frame_tag @grade_book do %>
-  <div class="mt-8"
-    <% unless @grade_book.completed? %>
-      data-controller="autosave"
-      data-autosave-interval-value="30000"
-    <% end %>>
-    <div class="flex justify-between items-center mb-4">
-      <h3 class="text-lg font-medium text-gray-900">Grade Book</h3>
-      <div data-autosave-target="status" class="text-sm text-gray-500"></div>
+  <%# This is a standalone page at /classrooms/:id/grade_books/:id, and it had no
+      h1 at all - its only heading was an h3. Every page needs exactly one h1, and
+      the quarter it belongs to is the thing that identifies it.
+
+      The wrapper's data attributes are conditional, so the opening tag is built in
+      one expression rather than split across an `if`, which previously left an
+      unterminated tag mid-template. %>
+  <% autosave = @grade_book.completed? ? {} : { controller: "autosave", autosave_interval_value: 30_000 } %>
+
+  <%= tag.div data: autosave do %>
+    <% grade_book_subtitle = [@classroom.name, @grade_book.quarter&.name].compact.join(" · ") %>
+    <%= render layout: "components/ui/page_header",
+               locals: { title: "Grade book", description: grade_book_subtitle } do %><% end %>
+
+    <%# A completed grade book has already paid out, so there is nothing to add to it. %>
+    <% can_populate = policy(@grade_book).populate? && !@grade_book.completed? %>
+    <% entries = @grade_book.grade_entries.any? %>
+
+    <div class="mb-3 flex items-center justify-between gap-4">
+      <h2 class="text-base font-semibold text-slate-900">Student grades</h2>
+
+      <div class="flex items-center gap-4">
+        <%# Announced politely so a screen reader hears "Saving" without losing focus. %>
+        <div data-autosave-target="status" role="status" aria-live="polite" class="text-sm text-slate-600"></div>
+
+        <% if entries && can_populate %>
+          <%= render partial: "populate_button", locals: { label: "Add new students", button_class: "tw-btn-secondary" } %>
+        <% end %>
+      </div>
     </div>
 
-    <%= form_with model: [@classroom, @grade_book],
-                  url: classroom_grade_book_path(@classroom, @grade_book),
-                  method: :patch,
-                  html: { data: { autosave_target: "form" } } do |f| %>
+    <%# The populate buttons stay outside this form. A form cannot be nested inside
+        another - the browser drops the inner one - so a button_to placed within the
+        grades form would silently submit the grades instead of adding students. %>
+    <% if entries %>
+      <%= form_with model: [@classroom, @grade_book],
+                    url: classroom_grade_book_path(@classroom, @grade_book),
+                    method: :patch,
+                    html: { data: { autosave_target: "form" } } do %>
 
-      <%= render partial: "table", locals: { grade_book: @grade_book } %>
+        <%= render partial: "table", locals: { grade_book: @grade_book } %>
 
-      <br>
-
-      <div class="flex flex-col items-center">
-        <%= render partial: "submit_button" %>
+        <%# Was a <br>. Spacing belongs in the layout, not in the content. %>
+        <div class="mt-6 flex flex-col items-center">
+          <%= render partial: "submit_button" %>
+        </div>
+      <% end %>
+    <% else %>
+      <div class="tw-card">
+        <%= render layout: "components/ui/empty_state",
+                   locals: { icon: "users",
+                             title: "No students yet",
+                             body: "Add the students in this class to start entering grades." } do %>
+          <% if can_populate %>
+            <%= render partial: "populate_button", locals: { label: "Add this class's students", button_class: "tw-btn-primary" } %>
+          <% end %>
+        <% end %>
       </div>
     <% end %>
 
@@ -35,5 +64,5 @@
         <%= render partial: "finalize_button" %>
       </div>
     <% end %>
-  </div>
+  <% end %>
 <% end %>

@@ -1,35 +1,51 @@
-<div class="w-full px-6">
-  <% if notice.present? %>
-    <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-lg inline-block" id="notice"><%= notice %></p>
-  <% end %>
+<%# Trading floor.
 
+    The header used to be hand-rolled, and it carried the whole "My earnings to invest" card - a
+    217x114 bordered .tw-card - in the row beside the h1. Measured at 1366x768 that made the header
+    row 130px and pushed the first table row to 296px, half the usable height; at 375px the header
+    was 178px, the first row started at 344px and **two of seven rows** were visible. The page is a
+    list of things to buy, and the list was below the fold.
+
+    No brokerage puts buying power in a card above the instrument list. Fidelity, Schwab, E*Trade and
+    Vanguard all render "cash available to trade" as a compact labelled figure in a summary strip, and
+    Robinhood keeps it off the list entirely - it belongs where the decision is made, which is the
+    order ticket. This app already does that: the order modal shows the fee, the total and the
+    balance afterwards. So the figure stays, because a student choosing what to buy wants to see their
+    budget while scanning, but as a figure on the header's baseline rather than a card - and the page
+    is on components/ui/_page_header like every other page, which it also was not. %>
+<div class="w-full">
   <% if current_user.student? && !current_user.classroom&.trading_enabled? %>
-    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-lg mb-5">
-      <div class="flex items-start">
-        <div class="flex-shrink-0">
-          <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-          </svg>
-        </div>
-        <div class="ml-3">
-          <p class="text-sm font-medium text-yellow-800">Trading is currently disabled for your classroom.</p>
-          <p class="mt-1 text-sm text-yellow-700">You cannot place buy or sell orders at this time. Please contact your teacher for more information.</p>
-        </div>
-      </div>
-    </div>
+    <%= render "components/ui/callout",
+               title: "Trading is turned off for your classroom",
+               body: "You cannot buy or sell right now. Your teacher can turn it back on.",
+               class: "mb-5" %>
   <% end %>
 
-  <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center pb-2 pt-4 gap-4">
-    <h1 class="font-bold text-4xl">Trading Floor</h1>
-    <% if policy(Stock).show_holdings? || (current_user.present? && current_user.student?) %>
-      <div class="mt-4">
-        <%= render 'shared/earnings_to_invest_card' %>
+  <%= render layout: "components/ui/page_header", locals: { title: "Trading floor" } do %>
+    <%# show_holdings? on its own. The `|| current_user.student?` that used to be here widened this
+        to students with no persisted portfolio, and stocks#index only sets @portfolio for a student
+        who has one - so a student without a portfolio got a 500, not a degraded page. %>
+    <% if policy(Stock).show_holdings? %>
+      <div class="text-left lg:text-right">
+        <p class="text-xs font-medium text-slate-600">Cash to invest</p>
+        <p class="text-base font-semibold text-slate-900 tabular-nums">
+          <%= number_to_currency(@portfolio.cash_balance) %>
+        </p>
       </div>
     <% end %>
-  </div>
+  <% end %>
 
-  <main class="flex-1 py-6">
-    <%= render "stocks/stocks_table", title: "Active Stocks", stocks: @stocks.active %>
-    <%= render "stocks/stocks_table", title: "Archived Stocks", stocks: @stocks.archived %>
-  </main>
+  <div class="space-y-6">
+    <%= render "stocks/stocks_table",
+               title: "Active stocks",
+               description: "Companies you can buy shares in right now. Prices update every school day.",
+               stocks: @stocks.active %>
+
+    <%# Two relations, because the two halves answer to different rules. A stock you hold is listed
+        however long ago it was archived - you must always be able to sell it - while the rest are
+        subject to Stock::LIST_RETENTION. %>
+    <%= render "stocks/archived_stocks",
+               stocks: @stocks.archived,
+               listed: @stocks.archived_recently %>
+  </div>
 </div>

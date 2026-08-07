@@ -1,0 +1,15 @@
+<%# Errors for one of the two forms on this page.
+
+    Both forms render the same @user, so a bare errors block would print a password error above the
+    details form and vice versa. `on:` filters to the attributes the form actually owns. %>
+<% messages = user.errors.select { |error| on.include?(error.attribute) }.map(&:full_message) %>
+
+<% if messages.any? %>
+  <div class="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700" role="alert">
+    <ul class="space-y-1">
+      <% messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>

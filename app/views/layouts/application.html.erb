@@ -1,52 +1,92 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <title>StocksInTheFuture</title>
+    <%# Per-page titles: set with `content_for :title` in a view.
+        WCAG 2.4.2 - each page needs a title describing its topic. %>
+    <title><%= content_for?(:title) ? "#{yield(:title)} | Stocks in the Future" : "Stocks in the Future" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
     <%= stylesheet_link_tag :app, 'data-turbo-track': "reload" %>
     <%= stylesheet_link_tag "actiontext", 'data-turbo-track': "reload" %>
     <%= javascript_importmap_tags %>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   </head>
-  <body class="min-h-screen bg-[#f7f9f3]">
+  <body class="min-h-screen bg-slate-50" data-controller="drawer table-scroll">
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-100 focus:rounded-md focus:bg-sitf-primary focus:px-4 focus:py-2 focus:text-sitf-on-primary focus:outline-2 focus:outline-offset-2 focus:outline-sitf-primary-dark">Skip to main content</a>
     <% if user_signed_in? %>
-      <div class="fixed top-0 left-0 w-full z-50 flex items-center justify-between py-4 px-6 h-16 bg-[#f7f9f3]">
+      <%# Same treatment as the admin app bar: white against the slate-50 page, with the
+          hairline bottom edge design.md blesses for fixed chrome. It was a full-width 1px bar
+          in sitf-primary-dark (8.5:1, body-text weight for furniture), then briefly shadow-xs
+          while the header was the same colour as the page. %>
+      <%# px-4 lg:px-6 matches <main> below. As px-6 at every width the header's contents sat 24px in
+          while the cards sat at 16px on a phone, so the chrome and the content did not share an edge. %>
+      <header class="fixed top-0 left-0 w-full z-50 flex h-16 items-center justify-between border-b border-slate-200 bg-white px-4 py-4 lg:px-6">
         <div class="flex items-center gap-4">
-          <label
-            for="mobile-menu-toggle"
-            class="lg:hidden cursor-pointer flex items-center justify-center w-10 h-10 bg-[#00698c] text-white rounded-lg hover:bg-[#004f6b] transition-colors"
-            aria-label="Toggle menu">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <%# A button, not a label driving a hidden checkbox: a label is announced as a
+              checkbox rather than as a control that opens navigation.
+
+              No negative margin. The control's box is the thing that paints, so the box is what
+              aligns to the gutter - flush with the cards below it at 16px. Two attempts at
+              pulling it out to put the *glyph* on the gutter instead both failed, because
+              whatever paints comes with it: first a filled button, then a hover fill, then a
+              40px state layer, each hanging 6-8px past the content edge. The glyph sits 10px
+              inside its own box because a 44px target centres a 24px icon; that is inherent, and
+              it is the box the eye reads.
+
+              rounded-lg, not rounded-full: design.md's radius token is `controls rounded-lg`.
+              slate-600 on white is 7.58:1. %>
+          <button type="button"
+                  data-drawer-target="trigger"
+                  data-action="drawer#toggle"
+                  data-testid="open-navigation"
+                  aria-expanded="false"
+                  aria-controls="main-navigation"
+                  class="lg:hidden flex min-h-11 min-w-11 items-center justify-center rounded-lg text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary">
+            <span class="sr-only">Open navigation menu</span>
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
-          </label>
+          </button>
           <%= image_tag "SITF-Horz-no-tag-logo.svg", class: "h-8 w-auto", alt: "Stocks in The Future" %>
         </div>
-        <div class="hidden lg:block">
-          <%= render 'layouts/stock_ticker' %>
+        <div class="flex items-center gap-4">
+          <div class="hidden lg:block">
+            <%= render 'layouts/stock_ticker' %>
+          </div>
+
+          <%= render 'layouts/account_menu' %>
         </div>
-      </div>
+      </header>
 
-      <div class="fixed w-full h-px z-40 top-16 bg-[#004f6b]"></div>
+      <%= render 'layouts/navbar' %>
 
-      <%= render 'layouts/navbar', stocks: @navbar_stocks %>
-
-      <!-- Main: responsive margins and padding -->
-      <main class="min-h-screen overflow-auto px-4 sm:px-6 ml-0 lg:ml-50 mt-16 pb-6 bg-[#f7f9f3]">
-        <!-- Flash Messages -->
-        <% if notice.present? %>
-          <p class="mb-4 p-4 bg-green-50 border border-green-200 text-green-800 rounded-lg" id="notice"><%= notice %></p>
-        <% end %>
-        <% if alert.present? %>
-          <p class="mb-4 p-4 bg-red-50 border border-red-200 text-red-800 rounded-lg" id="alert"><%= alert %></p>
-        <% end %>
+      <%# p-4 lg:p-6 on all four sides, the same gutter the signed-out branch below uses and the
+          same one admin's inner wrapper uses. This was `px-4 lg:px-6 ... pb-6`: horizontal padding
+          and bottom padding, with **no padding-top**, so the page title sat hard against the bottom
+          edge of the fixed 64px nav on every signed-in page. mt-16 clears that nav and is not
+          padding, which is what made the gap easy to miss - and design.md asserted this element was
+          `p-4 lg:p-6` while only the signed-out branch was. %>
+      <main id="main-content" class="min-h-screen p-4 lg:p-6 ml-0 lg:ml-64 mt-16 bg-slate-50">
+        <%= render 'layouts/flash' %>
 
         <%= yield %>
       </main>
     <% else %>
-      <main class="min-h-screen overflow-auto p-6 bg-[#f7f9f3]">
+      <%# Signed out there was no header at all, so the only route in was whatever page you
+          happened to land on. The logo and one Sign in action, matching the signed-in bar. %>
+      <header class="flex h-16 w-full items-center justify-between border-b border-slate-200 bg-white px-6 py-4">
+        <%= link_to root_path, class: "inline-flex items-center rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary-dark" do %>
+          <%= image_tag "SITF-Horz-no-tag-logo.svg", class: "h-8 w-auto", alt: "Stocks in The Future" %>
+        <% end %>
+
+        <% unless request.path == new_user_session_path %>
+          <%= link_to "Sign in", new_user_session_path, class: "tw-btn-primary" %>
+        <% end %>
+      </header>
+
+      <main id="main-content" class="min-h-screen p-4 lg:p-6 bg-slate-50">
+        <%= render 'layouts/flash' %>
+
         <%= yield %>
       </main>
     <% end %>

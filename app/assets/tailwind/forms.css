@@ -1,11 +1,36 @@
-.tw-label-primary {
-  @apply block text-sm/6 font-medium text-gray-900
-}
+@layer components {
+  .tw-label-primary {
+    @apply block text-sm/6 font-medium text-slate-900
+  }
 
-.required-indicator {
-  @apply text-red-500 ml-1
-}
+  .required-indicator {
+    /* red-500 measured 3.76:1 on white and failed AA; red-600 is 4.83:1. */
+    @apply text-red-600 ml-1
+  }
 
-.tw-input-primary {
-  @apply block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 border border-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6
+  /* rounded-lg, not rounded-md: the radius token is `controls rounded-lg`. */
+  .tw-input-primary {
+    /* placeholder was gray-400 at 2.54:1 (failed AA), focus ring was off-brand
+       indigo, sm: is not a supported tier, and py-1.5 fell short of the 44px
+       minimum touch target. */
+    @apply block w-full min-h-11 rounded-lg bg-white px-3 py-2 text-base text-slate-900 border border-slate-300 placeholder:text-slate-500 focus:outline-2 focus:-outline-offset-2 focus:outline-sitf-primary lg:text-sm/6
+  }
+
+  /* The same field, in an error state. Red is on the border and the focus outline, never on the
+     ink: the value a user typed stays slate-900 so it is still the most legible thing in the
+     field, and the message beneath says what is wrong. Measured: red-600 border on white 4.83:1,
+     which clears the 3:1 UI gate with room. */
+  .tw-input-error {
+    @apply block w-full min-h-11 rounded-lg bg-white px-3 py-2 text-base text-slate-900 border border-red-600 placeholder:text-slate-500 focus:outline-2 focus:-outline-offset-2 focus:outline-red-700 lg:text-sm/6
+  }
+
+  /* The message under a field, and the hint above it. Both were slate-500/red-600 written inline in
+     four different places. */
+  .tw-field-error {
+    @apply mt-2 text-sm text-red-700
+  }
+
+  .tw-field-hint {
+    @apply mt-1 text-sm text-slate-600
+  }
 }

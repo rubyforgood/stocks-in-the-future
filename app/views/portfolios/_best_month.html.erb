@@ -1,0 +1,21 @@
+<%# A personal best, never a comparison with anyone else.
+
+    Earnings here come from grades and attendance, so ranking students would publish their school
+    record to their classmates. Against their own history it is encouragement.
+
+    Withheld until a student has earned something, so it never reads "best month: $0.00".
+
+    This renders components/ui/_stat. It used to hand-write the same card: identical label, figure
+    and hint tokens, plus a tile hung off the right in an `items-start justify-between` row - so it
+    mirrored money_at_work, which sits beside it in the same grid row with its tile on the left. Two
+    copies of one card is also how the tile sizes drifted; this one was 36px against the home page's
+    32px. %>
+<% return if @insights.best_month_cents.nil? %>
+
+<%= render "components/ui/stat",
+           testid: "best-month",
+           icon: "trophy",
+           icon_tone: :warning,
+           label: "Best month yet",
+           value: number_to_currency(@insights.best_month_cents / 100.0),
+           hint: "#{@insights.best_month_date.strftime('%B %Y')} - your biggest month of earnings" %>

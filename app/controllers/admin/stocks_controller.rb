@@ -24,7 +24,7 @@ module Admin
 
       @breadcrumbs = [
         { label: "Stocks", path: admin_stocks_path },
-        { label: "New Stock" }
+        { label: "New stock" }
       ]
     end
 
@@ -44,7 +44,7 @@ module Admin
       else
         @breadcrumbs = [
           { label: "Stocks", path: admin_stocks_path },
-          { label: "New Stock" }
+          { label: "New stock" }
         ]
         render :new, status: :unprocessable_content
       end

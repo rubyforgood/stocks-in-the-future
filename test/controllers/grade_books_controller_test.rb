@@ -206,4 +206,61 @@ class GradeBooksControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to classroom_grade_book_path(@classroom, @grade_book)
     assert_equal "Cannot finalize because it's already completed.", flash[:alert]
   end
+
+  # The second quarter's grade book has no entries, so it is the empty case setup
+  # does not cover.
+  test "a teacher can populate an empty grade book" do
+    sign_in(@teacher)
+    empty_grade_book = @classroom.grade_books.find_by!(quarter: @second_quarter)
+
+    post populate_classroom_grade_book_path(@classroom, empty_grade_book)
+
+    assert_redirected_to classroom_grade_book_path(@classroom, empty_grade_book)
+    assert_equal "Added 1 student to this grade book.", flash[:notice]
+    assert_equal [@student.id], empty_grade_book.grade_entries.reload.pluck(:user_id)
+  end
+
+  test "populating twice adds nothing the second time" do
+    sign_in(@teacher)
+    empty_grade_book = @classroom.grade_books.find_by!(quarter: @second_quarter)
+    post populate_classroom_grade_book_path(@classroom, empty_grade_book)
+
+    assert_no_changes -> { GradeEntry.count } do
+      post populate_classroom_grade_book_path(@classroom, empty_grade_book)
+    end
+
+    assert_equal "Every student in this class already has a row.", flash[:notice]
+  end
+
+  test "students cannot populate a grade book" do
+    sign_in(@student)
+
+    assert_no_changes -> { GradeEntry.count } do
+      post populate_classroom_grade_book_path(@classroom, @grade_book)
+    end
+
+    assert_redirected_to @student.portfolio_path
+  end
+
+  test "populate refuses a completed grade book" do
+    sign_in(@teacher)
+    empty_grade_book = @classroom.grade_books.find_by!(quarter: @second_quarter)
+    empty_grade_book.completed!
+
+    assert_no_changes -> { GradeEntry.count } do
+      post populate_classroom_grade_book_path(@classroom, empty_grade_book)
+    end
+
+    assert_equal "This grade book is complete, so students cannot be added to it.", flash[:notice]
+  end
+
+  test "populate reports the number of students added" do
+    sign_in(@teacher)
+    create_list(:student, 2, classroom: @classroom)
+    empty_grade_book = @classroom.grade_books.find_by!(quarter: @second_quarter)
+
+    post populate_classroom_grade_book_path(@classroom, empty_grade_book)
+
+    assert_equal "Added 3 students to this grade book.", flash[:notice]
+  end
 end

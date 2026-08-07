@@ -1,0 +1,32 @@
+<%# The Buy/Sell pair, defined once and rendered in two places: inside the primary cell below
+    lg, and in the trailing actions column at lg. Two call sites, one definition, because these
+    are the product's core transaction and a copy that drifts is worse here than anywhere.
+
+    Both are the secondary button. They were a filled teal Buy beside a filled amber Sell,
+    repeated down every row - two saturated fills per row, in two different hues, on the densest
+    page in the app. The emphasis belongs to the confirm step in the order modal, where a single
+    primary button sits alone.
+
+    No icons. They carried arrow-up and arrow-down, and in a finance interface a vertical arrow
+    means the *price* moved that way - which is what the Change and Total return columns use it for,
+    a few pixels away. Putting the same glyph on the action makes an up arrow mean two things on one
+    screen. Fidelity, Vanguard, Schwab, Robinhood, E*Trade, Webull and Coinbase all label Buy and
+    Sell as text and leave the arrows to the numbers. The label is the affordance, and design.md's
+    leading-icon rule is about *row actions* - the ghosts - not about a CTA.
+
+    Buy is withheld for an archived stock - you may only sell out of one. %>
+<div class="flex gap-2 <%= local_assigns[:class] %>">
+  <% unless stock.archived? %>
+    <%= link_to new_order_path(stock_id: stock.id, transaction_type: :buy),
+                class: "tw-btn-secondary",
+                data: { turbo_frame: "modal_frame", testid: "buy-stock-button" } do %>
+      Buy
+    <% end %>
+  <% end %>
+
+  <%= link_to new_order_path(stock_id: stock.id, transaction_type: :sell),
+              class: "tw-btn-secondary",
+              data: { turbo_frame: "modal_frame", testid: "sell-stock-button" } do %>
+    Sell
+  <% end %>
+</div>

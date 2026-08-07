@@ -12,7 +12,10 @@ class OrdersController < ApplicationController
   end
 
   def new
-    @order = Order.new(action: params[:transaction_type], stock: @stock)
+    # The user is assigned here as well as in create, because the form shows the
+    # trading fee and that depends on whether this user already has a pending
+    # order. Without it the form would quote the fee to every student regardless.
+    @order = Order.new(action: params[:transaction_type], stock: @stock, user: current_user)
   end
 
   def edit; end

@@ -7,14 +7,54 @@ Rails.application.routes.draw do
 
   root "home#index"
 
-  devise_for :users
+  # Registrations, minus the account-edit half. /profile/edit is the account page: it sets a display
+  # name, which Devise's registrations#edit cannot, and it does not demand the current password
+  # before it will save one. Keeping both left two pages doing the same job, one of them worse.
+  #
+  # What is deliberately not routed any more:
+  #
+  #   PATCH/PUT /users (registrations#update) - nothing renders a form posting to it now that
+  #     registrations/edit is gone, and leaving it routed would make a validation failure render a
+  #     template that no longer exists.
+  #   DELETE /users (registrations#destroy) - the "Delete account" button. It never worked: User
+  #     raises "Hard delete attempted ... Use #discard instead", so the button returned a 500, and it
+  #     had no test at all. Had it worked it would have been worse - portfolio and orders are
+  #     `dependent: :destroy`, so a student could have deleted their own money history. Account
+  #     removal here is an adult's action and already exists as admin Deactivate / Reactivate, which
+  #     discards rather than destroys.
+  #   /users/cancel (registrations#cancel) - part of the same self-service delete flow.
+  #
+  # A previous `devise_scope` block redirected users/sign_up to root, but it was declared *after*
+  # devise_for, and the first matching route wins - so it never fired and sign-up rendered anyway.
+  # Removed rather than moved: whether public sign-up should be open at all is a product question,
+  # recorded in design-todo, and a dead route that reads as though it closed sign-up is worse than
+  # no route.
+  devise_for :users, skip: %i[registrations]
 
   devise_scope :user do
-    get "users/sign_up", to: redirect("/")
+    get "users/sign_up", to: "devise/registrations#new", as: :new_user_registration
+    post "users", to: "devise/registrations#create", as: :user_registration
+    get "users/edit", to: redirect("/profile/edit"), as: :edit_user_registration
   end
 
-  resources :users do
+  # only: [] because there is no top-level UsersController. index / show / new / edit / create /
+  # update / destroy were all routed and all raised "uninitialized constant UsersController";
+  # nothing linked to any of them. The nested portfolio route is the only one this block was ever
+  # for, and PortfoliosController serves it.
+  resources :users, only: [] do
     resources :portfolios, only: :show
+  end
+
+  # Your own account. design-todo recorded that there was no profile page: a top-level
+  # UsersController was routed for seven actions and had never existed, and Devise's
+  # registrations#edit demanded the current password before you could change anything - so a
+  # student, who signs in with a username and may have no email, had no way to set a display name.
+  #
+  # Password lives on its own action because changing a display name should not require the
+  # current password, and changing a password must. One form each, the way GitHub and Stripe
+  # split them.
+  resource :profile, only: %i[edit update] do
+    patch :password
   end
 
   resources :classrooms, except: [:destroy] do
@@ -24,6 +64,7 @@ Rails.application.routes.draw do
     resources :grade_books, only: %i[show update] do
       member do
         post :finalize
+        post :populate
       end
     end
     resources :students, except: %i[index show] do
@@ -73,15 +114,28 @@ Rails.application.routes.draw do
       resource :reactivation, only: [:create], controller: "teachers/reactivations"
     end
     resources :users
-    resources :portfolio_transactions, except: [:index]
+    # index was excluded, which left transactions reachable only if you already had an id:
+    # every other CRUD action existed, the sidebar had no entry, and the dashboard listed
+    # "Portfolio transactions" as dead grey text because there was nothing to link to.
+    resources :portfolio_transactions
   end
 
-  resources :orders do
+  # No show or destroy: neither action exists on OrdersController, and orders/show.html.erb was
+  # scaffolding that rendered `render @order` with @order never assigned - so GET /orders/:id
+  # raised "'nil' is not an ActiveModel-compatible object" for every order, on a route nothing in
+  # the app linked to. An order is read on orders#index; cancelling is the destructive path.
+  resources :orders, except: %i[show destroy] do
     member do
       patch :cancel
     end
   end
-  resources :portfolios, only: :show
+  resources :portfolios, only: :show do
+    member do
+      # Dismisses the first-share message. A PATCH because it changes a record, and its own action
+      # rather than a portfolio update so nothing else about a portfolio becomes writable here.
+      patch :acknowledge_first_share
+    end
+  end
   resources :stocks, only: %i[show index]
   resources :announcements, only: :show
 end

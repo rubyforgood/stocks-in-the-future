@@ -1,7 +1,10 @@
-<div class="mx-auto md:w-2/3 w-full">
-  <h1 class="font-bold text-4xl">New classroom</h1>
+<div class="mx-auto lg:w-2/3 w-full">
+  <%= render layout: "components/ui/page_header",
+             locals: { title: "New classroom" } do %><% end %>
 
   <%= render "form", classroom: @classroom %>
 
-  <%= link_to "Back to classrooms", classrooms_path, class: "tw-btn-tertiary" %>
+  <div class="mt-6 flex flex-wrap gap-3">
+    <%= link_to "Back to classrooms", classrooms_path, class: "tw-btn-secondary" %>
+  </div>
 </div>

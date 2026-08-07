@@ -27,7 +27,7 @@ module Admin
       set_form_data
       @breadcrumbs = [
         { label: "Schools", path: admin_schools_path },
-        { label: "New School" }
+        { label: "New school" }
       ]
     end
 
@@ -51,7 +51,7 @@ module Admin
         set_form_data
         @breadcrumbs = [
           { label: "Schools", path: admin_schools_path },
-          { label: "New School" }
+          { label: "New school" }
         ]
         render :new, status: :unprocessable_content
       end

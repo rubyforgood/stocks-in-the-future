@@ -1,12 +1,50 @@
-<h2 class="text-2xl font-semibold mb-4"><%= title %></h2>
-<%= render "shared/table_container" do %>
+<%# design.md section-title scale: text-base font-semibold. Was text-2xl, the same
+    size as the page h1.
+
+    Optional, because the archived disclosure's <summary> is already the heading for the table
+    inside it - a second one under it would announce the same section twice. %>
+<%# One root element, deliberately. This partial used to emit the heading, the helper line and the
+    table as three siblings, and it is rendered into a `space-y-6` container - whose
+    `> :not([hidden]) ~ :not([hidden])` rule outspecifies a plain mt-1 or mt-3. So the heading, the
+    line under it and the table each sat 24px apart while the markup said 4px and 12px. A partial
+    rendered inside a space-y-* container has to have a single root or the container spaces its
+    insides. %>
+<section>
+  <% if local_assigns[:title].present? %>
+    <h2 class="text-base font-semibold text-slate-900"><%= title %></h2>
+  <% end %>
+
+  <%# One line saying what this table is for. Neither table said anything: a reader had "Active
+    stocks" and "Archived stocks" and no way to know that one is buyable and the other is not, or
+    why a company they remember has moved. design.md's empty states already work this way - say what
+    appears here and what to do about it - and a populated table deserves the same courtesy. %>
+  <% if local_assigns[:description].present? %>
+  <p class="mt-1 text-sm text-slate-600"><%= description %></p>
+  <% end %>
+
+  <div class="mt-3">
+  <%# table-fixed, with a width on every column but the first.
+    Active stocks and Archived stocks are two separate <table> elements rendered from this one
+    partial, and with the default auto layout each sized its columns from its own content: the
+    Buy/Sell pair widened the actions column in the active table and pulled every other column
+    left, so the two tables' columns landed in different places (measured at 1366px: column two
+    started at 567px in one and 699px in the other). Reading down the page, everything shifted
+    sideways at the boundary. table-fixed makes the widths here authoritative, so both instances
+    are identical whatever they contain - including an archived table whose rows have one button
+    instead of two. %>
+  <%= render "shared/table_container", table_class: "table-fixed" do %>
   <thead>
     <tr class="table-header-row">
-      <th class="table-header-cell table-header-cell-left">Company (Exchange)</th>
-      <th class="table-header-cell table-header-cell-right">Last Price</th>
-      <% if current_user.student? %>
-        <th class="table-header-cell table-header-cell-left">Your Holdings</th>
-        <th class="table-header-cell table-header-cell-center" colspan="2"></th>
+      <th scope="col" class="table-header-cell table-header-cell-left">Company (exchange)</th>
+      <th scope="col" class="table-header-cell table-header-cell-right w-32">Last price</th>
+      <%# policy(Stock).show_holdings?, not current_user.student?, so this agrees with the body
+          row in _index_row. show_holdings? also requires a persisted portfolio. Both columns are
+          hidden below lg, where their contents move into the primary cell. %>
+      <% if policy(Stock).show_holdings? %>
+        <th scope="col" class="table-header-cell table-header-cell-left hidden w-32 lg:table-cell">Your holdings</th>
+        <th scope="col" class="table-header-cell table-header-cell-right hidden w-52 lg:table-cell">
+          <span class="sr-only">Actions</span>
+        </th>
       <% end %>
     </tr>
   </thead>
@@ -16,11 +54,13 @@
         <%= render "stocks/index_row", stock: stock %>
       <% end %>
     <% else %>
-      <tr class="table-body-row">
-        <td class="table-empty-cell" colspan="<%= current_user.student? ? 5 : 2 %>">
-          <p class="text-lg">No <%= title.downcase %> found</p>
-        </td>
-      </tr>
+      <%= render "admin/shared/empty_row",
+                 colspan: policy(Stock).show_holdings? ? 4 : 2,
+                 icon: "chart-line",
+                 title: local_assigns[:title].present? ? "No #{title.downcase} to show" : "Nothing to show",
+                 body: "Stocks appear here once your teacher adds them." %>
     <% end %>
   </tbody>
-<% end %>
+  <% end %>
+  </div>
+</section>

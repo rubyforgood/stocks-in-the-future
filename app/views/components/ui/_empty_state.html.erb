@@ -1,0 +1,61 @@
+<%# Empty state.
+
+    Airbnb reading: an empty state is friendly and tells you what to do next,
+    rather than apologising. Icon is decorative (aria-hidden via lucide_icon's
+    defaults) because the heading and body carry the meaning.
+
+    Two sizes, and the distinction matters. Polaris, Stripe and Material all draw the
+    same line:
+
+      default - page or table level, where the emptiness IS the screen. Centred, a
+                48px icon tile, py-12. It earns the room because there is nothing else
+                on the page competing for it.
+      compact - section level, inside a card that already has a title and siblings.
+                One left-aligned line with a small icon, and no padding of its own, so
+                the card's p-5 sets the spacing. A centred full-height state here makes
+                a card with nothing to say the tallest thing on the screen.
+
+    Locals:
+      title   - short heading, sentence case
+      body    - optional sentence explaining what will appear here
+      icon    - optional Lucide icon name (default: inbox)
+      compact - true for the section-level treatment
+      action  - optional block for a call to action %>
+<% icon = local_assigns.fetch(:icon, "inbox") %>
+
+<%# See _page_header: check the yielded content, not block_given?. %>
+<% action = yield %>
+
+<% if local_assigns[:compact] %>
+  <div class="flex items-start gap-3">
+    <%= lucide_icon(icon, class: "mt-0.5 h-5 w-5 shrink-0 text-slate-500") %>
+
+    <div class="min-w-0">
+      <p class="text-sm font-medium text-slate-900"><%= title %></p>
+
+      <% if local_assigns[:body].present? %>
+        <p class="mt-0.5 text-sm text-slate-600"><%= body %></p>
+      <% end %>
+
+      <% if action.present? %>
+        <div class="mt-3"><%= action %></div>
+      <% end %>
+    </div>
+  </div>
+<% else %>
+  <div class="flex flex-col items-center justify-center px-6 py-12 text-center">
+    <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-slate-100">
+      <%= lucide_icon(icon, class: "h-6 w-6 text-slate-500") %>
+    </div>
+
+    <p class="text-base font-semibold text-slate-900"><%= title %></p>
+
+    <% if local_assigns[:body].present? %>
+      <p class="mt-1 max-w-md text-sm text-slate-600"><%= body %></p>
+    <% end %>
+
+    <% if action.present? %>
+      <div class="mt-4"><%= action %></div>
+    <% end %>
+  </div>
+<% end %>

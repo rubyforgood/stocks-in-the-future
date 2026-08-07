@@ -1,0 +1,16 @@
+@layer components {
+  /* Card surface.
+
+     design.md, Card / panel: rounded-2xl, hairline slate-200 border, bg-white, shadow-sm,
+     padded p-5. Named once here because it had drifted into four different treatments -
+     seven distinct class strings across 22 files - and nobody could tell which was intended.
+
+     Padding is deliberately NOT part of this. A card holding a flush table needs no body
+     padding, so callers add p-5 (or components/ui/_card's padded local) themselves.
+
+     overflow-hidden is included so a table's first row clips to the rounded corner. */
+  .tw-card {
+    @apply overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm;
+  }
+
+}

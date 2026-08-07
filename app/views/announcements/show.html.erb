@@ -1,22 +1,27 @@
 <% content_for :title, @announcement.title %>
 
-<div class="max-w-[1180px] mx-auto space-y-6 pb-16" style="font-family: Inter, system-ui, sans-serif;">
-  <% if notice.present? %>
-    <div class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-md inline-block" id="notice"><%= notice %></div>
-  <% end %>
+<div class="max-w-7xl mx-auto space-y-6">
 
-  <!-- Announcement Content Card -->
-  <div class="rounded-xl border-2 border-black bg-white overflow-hidden">
-    <div class="bg-teal-500 text-white py-4 px-6 font-semibold text-lg tracking-wide border-b-2 border-black">
-      <%= @announcement.title %>
-    </div>
-    <div class="p-8">
-      <div class="trix-content text-gray-700 leading-relaxed">
+  <%# The title was a saturated bg-teal-700 band inside the card, at text-lg with tracking-wide -
+      Tailwind's teal, which is a mint green and not the brand (sitf-primary is #00698c), and two
+      steps off the type scale. It was also the only thing on the page that looked like a heading
+      while not being one: this page had no h1 at all.
+
+      It is the page's h1 now, on the shared header, like every other page in the app. %>
+  <%= render layout: "components/ui/page_header",
+             locals: { title: @announcement.title } do %><% end %>
+
+  <div class="tw-card">
+    <div class="p-5">
+      <div class="trix-content text-slate-700 leading-relaxed">
         <%= @announcement.content %>
       </div>
 
-      <div class="mt-8 pt-6 border-t border-gray-200">
-        <%= link_to "Back", :back, class: "inline-flex items-center rounded-md px-4 py-2.5 bg-gray-100 hover:bg-gray-50 font-medium text-gray-700 transition-colors" %>
+      <div class="mt-6 pt-5 border-t border-slate-200">
+        <%# There is no announcements index - the route is show-only - so this cannot go "back to
+            announcements". Home is where the announcement is surfaced, and a named destination
+            beats link_to :back, which cannot say where it goes. %>
+        <%= link_to "Back to home", root_path, class: "tw-btn-secondary" %>
       </div>
     </div>
   </div>
