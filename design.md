@@ -1696,6 +1696,28 @@ between nav rows. Neither is visible at rest; the hover highlight draws both, wh
 reported.
 
 ### Tables: alignment and the primary cell
+**A row action sits on the row's first line, which means centre to centre and not top to top.** Reported as
+the Edit button on the classrooms table not looking aligned; measured, it was **every table in the app, off
+by 7px**. A 32px ghost and a 17px line of text both start at the cell's content edge, so the button's box
+top-aligns exactly as this document asks while its vertically centred label lands 6.5px below the row's text.
+Top-to-top is not the test - this document already says so for a lone checkbox, where the criterion is
+"checkbox center == the name's first-line center", with `mt-0.5` as the mechanism. A control *taller* than a
+line needs the same correction in the other direction.
+
+**The correction is padding on the cell, never a negative margin on the control.** `td.table-actions-pinned`
+takes `pt-1.5` where the shared cell takes `py-3`. A negative margin would drag the hover fill above the
+content edge, which is recorded here three times as the wrong fix. Measured after, on five tables: off by
+0.5px, and the row drops from **57px to 51px** - nearer this document's 48px row than it was, because the
+32px control plus 24px of padding was what made those rows 57px in the first place.
+
+This is deliberately a cell carrying its own `py-*`, which the note below calls a bug. The distinction is
+that it is the shared token for one kind of cell, compensating for a control taller than a line of text - not
+an ad-hoc padding at a call site, which is what that note is about and what put one classrooms cell 14px
+below its neighbours. `td` only: the same class is on the header, where there is no control to align.
+
+`row_action_alignment_test.rb` measures the centres across both sides of the product, and verifying it meant
+putting the 12px back and watching all three tests fail by 6.5px.
+
 **Cells are `align-top`.** As soon as one cell stacks two lines — a company name over a ticker,
 a name over an email — middle alignment floats every single-line cell to the vertical centre of
 a taller row and nothing shares a baseline. Polaris, Primer, Stripe and Tailwind UI all switch

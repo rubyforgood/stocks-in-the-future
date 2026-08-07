@@ -638,3 +638,16 @@ before.
   Stale is defined as "older than the freshest price on this page" rather than "older than today", because the
   job runs at 02:00 for the previous close and a fresh price normally carries yesterday's date. The page states
   the cadence and the date once; a row speaks only when it is behind.
+
+## The trading floor's Buy/Sell sit 10.5px below the row's first line (2026-08)
+
+- [ ] **Same class of misalignment as the row actions, different geometry.** Found while fixing those. The
+  trading floor's Buy and Sell are **40px** buttons, not 32px ghosts, and its primary cell stacks a 40px logo
+  over a ticker and a company name - so the row is 65px and the control's centre is 10.5px below the ticker's
+  line. Its actions cell does not carry `table-actions-pinned`, so the `pt-1.5` correction does not reach it
+  and 6px would not be the right number anyway.
+
+  Left alone deliberately rather than bent to fit the other fix: the right treatment depends on whether the
+  ticker's line or the whole stacked block is what a 40px pair should align to, and on whether that table's
+  rows should be 65px at all. Worth measuring against the stacked cell rather than guessing a padding.
+

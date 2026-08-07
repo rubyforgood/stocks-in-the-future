@@ -202,20 +202,30 @@ class TableConsistencyTest < ApplicationSystemTestCase
       })()
     JS
 
-    assert_equal ["12px"], report["pads"].uniq,
-                 "a cell is overriding table-body-cell's padding: #{report['pads'].inspect}"
+    # Every data cell shares the token's padding; the trailing actions cell takes 6px, on purpose, so its
+    # 32px control's centre lands on the row's first line rather than 6.5px below it. That is the one
+    # permitted override and it is defined once on `td.table-actions-pinned`, not at a call site - which is
+    # what this assertion is really guarding against, since the bug it was written for was a cell with an
+    # ad-hoc `py-4` that pushed its text 14px below its neighbours.
+    data_pads = report["pads"][0..-2]
+    actions_pad = report["pads"].last
+
+    assert_equal ["12px"], data_pads.uniq,
+                 "a data cell is overriding table-body-cell's padding: #{report['pads'].inspect}"
+    assert_equal "6px", actions_pad,
+                 "the actions cell lost its alignment padding: #{report['pads'].inspect}"
 
     tops = report["tops"].compact
 
     assert_in_delta tops.min, tops.max, LINE_SPREAD,
                     "the row's cells start on different lines: #{report['tops'].inspect}"
-    # 57, not the 48 design.md names, and both are right: 48 is the padding-only row, and a row
-    # carrying a 32px ghost action is 32 + 24 padding + the hairline. admin/classrooms and admin/users
-    # measure exactly 57 for the same reason, so this asserts the app's own figure rather than the one
-    # for a row without controls. It was 69.
-    assert_in_delta 57, report["height"], 2,
-                    "the row is #{report['height']}px; a row with a ghost action measures 57 " \
-                    "across the app, and one without measures 48"
+    # 51 now, and the arithmetic is the point: a 32px ghost plus 6px above and 12px below, plus the
+    # hairline. It was 57 while the actions cell carried the full 12px top - which is the same 6px that
+    # was putting the control below the row's first line, so fixing the alignment brought the row nearer
+    # design.md's 48px than it was. 48 remains the figure for a row with no control in it.
+    assert_in_delta 51, report["height"], 2,
+                    "the row is #{report['height']}px; a row with a ghost action measures 51 across the " \
+                    "app now, and one without measures 48"
   end
 
   # A teacher edits the classrooms they teach, so the column carries Edit for them and the dash is gone

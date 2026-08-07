@@ -132,6 +132,33 @@
     @apply sticky right-0 z-10;
   }
 
+  /* The trailing actions cell takes 6px of top padding rather than the shared cell's 12px, so its control
+   * sits **on the row's first line** instead of 7px below it.
+   *
+   * Reported as the Edit button not looking aligned on the classrooms table, and measured, it was every
+   * table in the app: a 32px ghost and a 17px line of text both start at the cell's content edge, so the
+   * button's box top-aligns correctly while its centred label lands 6.5px low. design.md's own criterion is
+   * centre-to-first-line-centre - it says so for a lone checkbox, with `mt-0.5` as the mechanism and
+   * "checkbox center == the name's first-line center, not just top==top" as the test. A 32px control needs
+   * the offset in the other direction, and a negative margin is out: it would drag the hover fill above the
+   * content edge, which this codebase has already recorded as the wrong fix three times.
+   *
+   * Padding on the cell keeps every pixel of paint inside the cell. Measured on admin/users: off by 6.5px
+   * before, 0.5px after, and the row drops from 57px to 51px - nearer design.md's 48px row than it was.
+   *
+   * `td` only: the same class is on the header cell, where there is no control to align.
+   *
+   * This is deliberately a cell that carries its own `py-*`, which this document elsewhere calls a bug. The
+   * distinction is that this is the shared token for one kind of cell, compensating for a control that is
+   * taller than a line of text - not an ad-hoc padding at a call site, which is what that rule is about and
+   * what put one classrooms cell 14px below its neighbours.
+   *
+   * Not the trading floor: its Buy/Sell are 40px against a stacked primary cell and its actions cell does
+   * not carry this class. That case is noted in design-todo rather than bent to fit this one. */
+  td.table-actions-pinned {
+    @apply pt-1.5;
+  }
+
   /* The separator and the opaque ground appear only once the table has actually been scrolled,
    * which the table-scroll controller records on the wrapper.
    *
