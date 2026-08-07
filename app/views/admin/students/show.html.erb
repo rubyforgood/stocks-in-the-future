@@ -9,7 +9,10 @@
 
     <%= link_to admin_student_path(@student),
                 data: { turbo_method: :delete,
-                        turbo_confirm: "Archive #{@student.username}? They will no longer appear in the active list." },
+                        turbo_confirm: "Archive #{@student.display_name}?\n\n" \
+                                       "They stop being able to sign in and leave the active list. " \
+                                       "Their portfolio, transactions and grades are kept, and you " \
+                                       "can restore the account from the students list." },
                 class: admin_danger_button_class do %>
       <%= lucide_icon("archive", class: "h-5 w-5 shrink-0") %>
       Archive

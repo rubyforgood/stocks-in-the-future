@@ -7,8 +7,22 @@
     they are not worth converting today, but a new modal should start here.
 
     Named by its own message: a confirmation's question *is* its title, so `aria-labelledby` points at
-    the message rather than at an invented heading. "Are you sure?" above "Finalize and pay $5.60 to 2
+    the question rather than at an invented heading. "Are you sure?" above "Finalize and pay $5.60 to 2
     students?" would be a heading that says less than the body under it.
+
+    **Two parts: the question, then what the action actually does.** A one-line confirmation can only
+    restate the button - "Reset Ada's password?" tells a teacher nothing they did not know when they
+    clicked - and reported as exactly that: it should say whether the student gets an email, and what
+    happens. That is the shape of every confirmation worth reading: macOS pairs message text with
+    informative text, and Polaris and GOV.UK both put the consequence in the body. `aria-describedby`
+    points at it, so a screen reader gets the consequence with the question rather than after it.
+
+    The body arrives in the same string, after the first blank line, because that is the **only** channel
+    available. Turbo copies exactly five attributes onto the form it builds for a link
+    (`data-turbo-method`, `-frame`, `-action`, `-confirm`, `-stream`) and passes no submitter for one, so
+    a second data attribute on the link would reach nothing. Splitting the message works identically for
+    a link, a `button_to` and a helper-generated row action - and if this controller never connects, the
+    native `confirm()` renders the newline perfectly well.
 
     Cancel carries `autofocus` and comes first. The safe option takes focus in a destructive dialog -
     macOS, GitHub and Polaris all do this - so a stray Enter dismisses rather than confirms. It is also
@@ -18,14 +32,24 @@
     grades" rather than "OK". Its text here is only what shows if that lookup finds nothing. %>
 <%= tag.dialog id: "confirm-dialog",
                class: "inset-x-4 m-auto w-auto max-w-md rounded-2xl bg-white p-0 shadow-2xl backdrop:bg-black/50",
-               aria: { labelledby: "confirm-dialog-message" },
+               aria: { labelledby: "confirm-dialog-message", describedby: "confirm-dialog-body" },
                data: { controller: "confirm-dialog",
                        action: "close->confirm-dialog#closed click->confirm-dialog#backdrop" } do %>
   <div class="p-5">
     <p id="confirm-dialog-message"
-       class="text-sm text-slate-900"
+       class="text-base font-semibold text-slate-900"
        data-confirm-dialog-target="message"></p>
 
+    <%# Hidden until it has something in it, so a confirmation with no consequence to explain does not
+        leave a gap under its question. %>
+    <p id="confirm-dialog-body"
+       class="mt-2 hidden text-sm text-slate-600"
+       data-confirm-dialog-target="body"></p>
+
+    <%# Trailing-aligned, which is not the leading edge this document requires of **form** actions. A
+        dialog is the other case named in that rule: macOS, Polaris, Material and GitHub all right-align
+        a dialog's buttons with the accept last, because the reader has arrived at a question and the
+        answer sits where the reading ends. %>
     <div class="mt-5 flex flex-wrap justify-end gap-3">
       <button type="button"
               autofocus

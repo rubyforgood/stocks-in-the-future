@@ -34,12 +34,13 @@ class ConfirmDialogTest < ApplicationSystemTestCase
     within("#confirm-dialog") { assert_text "Delete" }
   end
 
-  # The accept button takes the verb from the control that was pressed, where there is one. Turbo passes a
-  # submitter for a form submission - a `button_to` - and **not** for a link carrying `turbo_method`,
-  # because it synthesises the form itself. So a link falls back to "Confirm", which is honest: the app
-  # cannot know the verb, and inferring it from the message's first word breaks on the several that begin
-  # "Are you sure...".
-  test "a link-driven confirm falls back to a generic verb" do
+  # A link-driven confirm now carries its verb too, which it could not before.
+  #
+  # Turbo passes a submitter for a form submission - a `button_to` - and **not** for a link carrying
+  # `turbo_method`, because it synthesises the form itself and copies only five attributes onto it. So
+  # ~20 confirmations said "Confirm". The controller remembers the last element clicked that carries
+  # `data-turbo-confirm`, which is available whatever Turbo hands the hook.
+  test "a link-driven confirm carries the control's verb" do
     classroom, = a_classroom_with_a_student
 
     visit classroom_path(classroom)
@@ -50,8 +51,81 @@ class ConfirmDialogTest < ApplicationSystemTestCase
     within("#confirm-dialog") do
       assert_selector "button", text: "Cancel"
       assert_no_selector "button", text: "OK"
-      assert_selector "[data-confirm-dialog-target='accept']", text: "Confirm"
+      assert_no_selector "[data-confirm-dialog-target='accept']", text: "Confirm"
+      assert_selector "[data-confirm-dialog-target='accept']", text: "Delete"
     end
+  end
+
+  # A confirmation's job is to say what the action does. "Reset Ada's password?" told a teacher nothing
+  # they did not know when they clicked - reported as exactly that, asking whether the student gets an
+  # email. They do not: the password is generated, set immediately, and shown to the teacher once.
+  test "a confirmation explains what the action will do" do
+    classroom, student = a_classroom_with_a_student
+
+    visit classroom_path(classroom)
+    click_on "Reset password", match: :first
+
+    assert_selector "#confirm-dialog[open]"
+
+    within("#confirm-dialog") do
+      # The question is the dialog's accessible name; the consequence is its description.
+      assert_selector "#confirm-dialog-message", text: "Reset #{student.display_name}'s password?"
+      assert_selector "#confirm-dialog-body", text: "No email is sent"
+      assert_selector "#confirm-dialog-body", text: "stops working immediately"
+    end
+  end
+
+  # "This cannot be undone" was false: StudentsController#destroy discards, and User#destroy raises
+  # rather than hard-delete a person, so everything attached to the account survives.
+  test "a reversible action does not claim to be permanent" do
+    classroom, = a_classroom_with_a_student
+
+    visit classroom_path(classroom)
+    click_on "Delete", match: :first
+
+    within("#confirm-dialog") do
+      assert_no_text "cannot be undone"
+      assert_selector "#confirm-dialog-body", text: "an administrator can restore"
+    end
+  end
+
+  # A destructive accept is solid rose; anything else is the brand primary. The trigger says which, so a
+  # label containing the word "delete" is not what decides it.
+  test "the accept button is destructive only for a destructive action" do
+    classroom, = a_classroom_with_a_student
+
+    visit classroom_path(classroom)
+    click_on "Delete", match: :first
+
+    assert_selector "#confirm-dialog[open] [data-confirm-dialog-target='accept'].tw-btn-danger"
+    assert_no_selector "#confirm-dialog [data-confirm-dialog-target='accept'].tw-btn-primary"
+
+    within("#confirm-dialog") { click_on "Cancel" }
+
+    click_on "Reset password", match: :first
+
+    assert_selector "#confirm-dialog[open] [data-confirm-dialog-target='accept'].tw-btn-primary"
+    assert_no_selector "#confirm-dialog [data-confirm-dialog-target='accept'].tw-btn-danger"
+  end
+
+  # The body is hidden rather than empty when a confirmation has nothing to add, so a one-line question
+  # does not sit above a gap.
+  test "a confirmation with no body leaves no gap" do
+    classroom, = a_classroom_with_a_student
+
+    visit classroom_path(classroom)
+    click_on "Reset password", match: :first
+
+    height = page.evaluate_script(<<~JS)
+      (function () {
+        const body = document.querySelector("#confirm-dialog-body");
+        body.textContent = "";
+        body.classList.add("hidden");
+        return Math.round(body.getBoundingClientRect().height);
+      })()
+    JS
+
+    assert_equal 0, height
   end
 
   # And where Turbo does pass one, the button names the action: "Finalize grades", not "OK".

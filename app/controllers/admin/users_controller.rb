@@ -63,8 +63,12 @@ module Admin
       end
     end
 
+    # `discard`, not `destroy`. User#destroy calls soft_delete_guard, which **raises** outside
+    # production and only then falls through to discard - so this action returned a 500 for every
+    # admin who tried it in development, and in production soft-deleted while the confirmation said
+    # "This cannot be undone". Nothing tested it. The guard exists to force this call, so make it.
     def destroy
-      @user.destroy
+      @user.discard
       redirect_to admin_users_path, notice: t(".notice")
     end
 

@@ -2723,3 +2723,20 @@ stylesheet for the `lg` case, where a wide table can still overflow.
 - Column counts in `colspan` on empty rows are unchanged, because the empty row spans the full table at
   every width.
 
+## `Admin::UsersController#destroy` now discards explicitly (2026-08)
+
+**Data behaviour, and a control that never worked outside production.** It called `@user.destroy`.
+`User#destroy` runs `soft_delete_guard` first, which **raises** in every environment except production
+and only then falls through to `discard` - so this action returned a 500 for every admin who tried it in
+development or test, and nothing covered it. In production it soft-deleted, while its confirmation said
+"This cannot be undone".
+
+It calls `discard` directly now, which is what the guard exists to force. **Production behaviour is
+unchanged** - it discarded there already. What changes is that the control works in development and test,
+and that the confirmation tells the truth: the action is labelled "Archive", and says the account loses
+access immediately and that nothing is deleted.
+
+**Still open, and a product decision rather than a design one:** a discarded plain user has no way back
+through the admin screens. `admin/students` has `restore`, teachers have reactivation, and a user who is
+neither has neither. Recorded in `design-todo.md`.
+

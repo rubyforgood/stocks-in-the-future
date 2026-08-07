@@ -583,3 +583,15 @@ before.
 
   The preview at `/admin/component_demo/earnings_split` is deleted - it existed to decide this. In
   `5cc9fb4` if it is ever wanted back.
+
+## An archived plain user cannot be restored (2026-08)
+
+- [ ] **`admin/users` archives, and nothing un-archives.** Found while making the destructive
+  confirmations tell the truth. The action discards - it used to call `destroy`, which raised outside
+  production - and `admin/students#restore` and the teachers' reactivation cover the two subclasses, so a
+  user who is neither a student nor a teacher has no route back. Either add `restore` to `admin/users`,
+  which is the same shape as the students one and would cover every type at once, or say in the
+  confirmation that this cannot be reversed from the admin screens. The second is honest and worse. Not a
+  design call: it decides whether an admin can lock themselves out of an account permanently by clicking
+  one row action.
+

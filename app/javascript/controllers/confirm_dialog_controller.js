@@ -13,9 +13,18 @@ import { Turbo } from "@hotwired/turbo-rails"
 // `turbo_method` becomes a form submission, so links are covered too.
 //
 // `Turbo.config.forms.confirm`, not `Turbo.setConfirmMethod`: the latter is deprecated in turbo-rails
-// 2.0.23 and warns to the console. Turbo calls it with (message, formElement, submitter), and the
-// submitter is what lets the accept button carry the verb from the control that was pressed rather
-// than saying "OK".
+// 2.0.23 and warns to the console. Turbo calls it with (message, formElement, submitter).
+//
+// The submitter is only there for a `button_to`. For a **link** carrying `turbo_method`, Turbo builds a
+// throwaway form and copies exactly five attributes onto it - data-turbo-method, -frame, -action,
+// -confirm, -stream - and passes no submitter at all (FormLinkClickObserver#followedLinkToLocation).
+// That is why ~20 link-driven confirmations used to say "Confirm" instead of their verb, and why a
+// second data attribute on the link cannot carry anything here.
+//
+// So the trigger is captured on the way in instead: one capturing click listener, remembering the
+// nearest element carrying `data-turbo-confirm`. A confirmation always follows the activation that
+// caused it - a keyboard Enter on a link fires a click too - so the element is the right one, and the
+// accept button gets its verb and its destructive treatment from the control that was actually pressed.
 //
 // If this controller never connects - a JS failure, an old browser - `config.forms.confirm` stays unset
 // and Turbo falls back to native confirm(). The confirmation still happens; it is just ugly. A
@@ -23,15 +32,24 @@ import { Turbo } from "@hotwired/turbo-rails"
 const MAX_VERB = 32
 
 export default class extends Controller {
-  static targets = ["message", "accept"]
+  static targets = ["message", "body", "accept"]
 
   connect() {
+    this._trigger = null
+    this._rememberTrigger = (event) => {
+      const el = event.target?.closest?.("[data-turbo-confirm]")
+      if (el) this._trigger = el
+    }
+    // Capturing, so it runs before Turbo's own click handling opens the dialog.
+    document.addEventListener("click", this._rememberTrigger, true)
+
     Turbo.config.forms.confirm = (message, _form, submitter) => this._ask(message, submitter)
   }
 
   // Handing it back rather than leaving a dangling reference to a removed element. A Turbo visit
   // replaces the body, so this controller disconnects and reconnects on every navigation.
   disconnect() {
+    document.removeEventListener("click", this._rememberTrigger, true)
     Turbo.config.forms.confirm = null
     this._settle()
   }
@@ -60,8 +78,16 @@ export default class extends Controller {
   }
 
   _ask(message, submitter) {
-    this.messageTarget.textContent = message
-    this.acceptTarget.textContent = this._verb(submitter)
+    const [question, ...rest] = String(message).split(/\n\s*\n|\n/)
+    const body = rest.join(" ").trim()
+
+    this.messageTarget.textContent = question.trim()
+    this.bodyTarget.textContent = body
+    this.bodyTarget.classList.toggle("hidden", body === "")
+
+    const trigger = submitter || this._trigger
+    this.acceptTarget.textContent = this._verb(trigger)
+    this._setDanger(this._destructive(trigger))
 
     return new Promise((resolve) => {
       this._resolve = resolve
@@ -73,10 +99,26 @@ export default class extends Controller {
   // The label of the control that was pressed - "Finalize grades", "Delete student" - so the accept
   // button names the action it is about to take. GitHub, Stripe and Polaris all label a confirm with the
   // verb rather than with "OK", because "OK" makes the reader re-read the question to know what it does.
-  _verb(submitter) {
-    const label = (submitter?.value || submitter?.textContent || "").replace(/\s+/g, " ").trim()
+  _verb(trigger) {
+    const label = (trigger?.value || trigger?.textContent || "").replace(/\s+/g, " ").trim()
 
     return label && label.length <= MAX_VERB ? label : "Confirm"
+  }
+
+  // A control marks itself destructive, rather than this guessing from its words: matching on "delete"
+  // or "remove" would colour a button red because of a noun in its label, and would miss "Deactivate".
+  // `ghost_action_link variant: :danger` already carries the ghost's danger class, so both are accepted
+  // and no call site has to repeat itself.
+  _destructive(trigger) {
+    if (!trigger) return false
+
+    return trigger.hasAttribute("data-confirm-danger") ||
+           trigger.className.toString().includes("hover:text-rose-700")
+  }
+
+  _setDanger(danger) {
+    this.acceptTarget.classList.toggle("tw-btn-danger", danger)
+    this.acceptTarget.classList.toggle("tw-btn-primary", !danger)
   }
 
   _settle() {

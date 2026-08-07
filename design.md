@@ -1375,6 +1375,50 @@ white on a grey track and Material 3 uses a light container tint. A saturated `s
 repeated down 25 rows is the same over-emphasis the row-action rule forbids for buttons, and it was
 reported as looking heavy. Measured: slate-900 on white 16.9:1, slate-600 on slate-100 6.92:1.
 
+**A confirmation has two parts: the question, then what the action actually does.** "Reset Ada's
+password?" tells a teacher nothing they did not know when they clicked, and it was reported as exactly
+that - *"what happens when the password is reset? Does the student get an email?"*. It does not send one:
+`MemorablePasswordGenerator` makes a password, the student's is changed immediately, and the new one is
+shown to the teacher **once**, in the flash on the next screen. That is a job the teacher has to finish,
+so the dialog says so. macOS pairs message text with informative text, Polaris and GOV.UK both put the
+consequence in the body, and `aria-describedby` points at it so a screen reader gets the consequence
+with the question rather than after it.
+
+**The body travels in the message string, after a blank line.** It is the only channel there is: Turbo
+copies exactly five attributes onto the form it synthesises for a link - `data-turbo-method`, `-frame`,
+`-action`, `-confirm`, `-stream` - and passes **no submitter** for one, so a second data attribute on the
+link would reach nothing. Splitting on the first newline works the same for a link, a `button_to` and a
+helper-generated row action, and degrades correctly: if the controller never connects, native
+`confirm()` renders the newline perfectly well.
+
+**Never claim an action cannot be undone unless it cannot.** "Delete Ada? This cannot be undone" was
+false on every student delete in the product: `StudentsController#destroy` calls `discard`, and
+`User#destroy` **raises** rather than hard-delete a person, so the portfolio, transactions and grade
+entries all survive and an admin restores the account from the students list. The sentence a reader most
+needs to trust is the one about irreversibility, and a false one there costs the next true one its
+credibility. Two more found by checking rather than assuming: `admin/users` "Delete" also discarded (and
+**raised in development**, because the guard only steps aside in production), and only
+`Admin::TeachersController#destroy` is a genuine `really_destroy!`.
+
+**A confirmation's accept button is solid rose when the action is destructive, and the trigger says
+which.** `.tw-btn-danger` on white measures 6.03:1. This is the one place a solid destructive button
+belongs: the reasoning for `:danger_outline` - "a red button at rest is an always-on alarm" - is about a
+control sitting on a page, whereas in a dialog the reader has already asked for the action and the dialog
+exists to describe it. macOS, GitHub and Polaris all use a solid destructive accept there, and an outline
+accept beside an outline cancel gives two controls of one weight. **Matched on the trigger, not on its
+words**: `data-confirm-danger`, or the ghost's own danger class, because keying on "delete" or "remove"
+would colour a button for a noun in its label and would miss "Deactivate".
+
+**A dialog's buttons are trailing-aligned, which is the exception the form-actions rule names.** Cancel
+first in the DOM with `autofocus`, accept last: macOS, Polaris, Material and GitHub all put the answer
+where the reading ends. Form actions go on the leading edge; a dialog is the other case.
+
+**And a link-driven confirmation carries its verb now.** ~20 of them said "Confirm" because Turbo passes
+no submitter for a link. The controller keeps the last element clicked that carries
+`data-turbo-confirm`, from one capturing listener - a confirmation always follows the activation that
+caused it, and a keyboard Enter on a link fires a click too - so the accept button reads "Delete" or
+"Reset password" whatever Turbo hands the hook.
+
 **Show what an irreversible action will do, before it does it.** A teacher finalized a grade book -
 depositing real money into every student's portfolio, permanently - with no statement of what it would
 pay. `GradeBookEarnings` runs `EarningsCalculator`, the class `DistributeEarnings` pays from, so the
