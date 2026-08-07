@@ -1349,6 +1349,22 @@ swapping the table takes the focus and any half-typed value with it. A condition
 always-rendered container carrying the id, or there is nothing for the replacement to target and the
 message outlives the problem.
 
+**Two summaries of one set of numbers must state their relationship, or they read as rivals.** The
+split by reason and the Earns column are the **same money on different axes** - Earns adds up per
+student, the split adds up per reason, and the only figure they share is the corner: $52.60 either way.
+That is a cross-tabulation whose middle is never rendered, so nothing on the page makes the connection
+visible, and it was reported as *"I still don't understand the distinction between the two or the
+relationship between the two"*. **If the relationship between two summaries has to be explained, they
+should not both be on the screen** - which is why the teacher's view carries one axis only, and why
+the split does not go near the table at any width. Where it does appear, beside the finalize control, it
+now opens with a sentence saying what it is: "Each student is paid in three deposits, which is how the
+total divides and what their statement will show." That is also the only place the product says a
+student receives three deposits rather than one, which is what `DistributeEarnings` writes.
+
+**A label must not mean two things on one screen.** "Math" was a column of letter grades and a line of
+money twelve inches apart. The split's labels name what earned the money - "Math grades", "Reading
+grades" - for the same reason a figure never travels without its unit.
+
 **The total is information; only finalizing is administrative.** Both were in one
 `if current_user.admin?` block, so the teacher entering the grades could not see what they added up to
 while the admin who only presses the button could. The total is in the table's footer now, which anyone
@@ -2081,7 +2097,9 @@ Student/Math/Reading/Days/Perfect is described by none of them - four prose-labe
 second, differently-shaped table wearing the first one's columns. Components of a total go in an
 **invoice totals block** (Stripe, QuickBooks, Xero: a narrow right-aligned stack outside the grid) or in
 a **review summary beside the control that commits them** (Gusto, Square Payroll). This app uses the
-second: the split is on the finalize block, next to the button that pays it.
+second, and the invoice block was previewed for this page and rejected - not on placement, but because
+a second summary of the same money next to the table cannot be read at all, whatever shape it takes.
+See "Two summaries of one set of numbers" in the grade book section.
 
 The same complaint had already rejected the other placement - a card holding those figures **below the
 Save grades button**, which read as output of the save and said nothing about whether it counted what

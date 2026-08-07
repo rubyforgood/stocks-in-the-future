@@ -557,35 +557,29 @@ before.
   primary-identifier shape - and the grade book, its sort order and the portfolio title use
   `display_name`. Left on the username deliberately: `admin/users`, `admin/teachers` and the transaction
   screens, where the account rather than the person is the subject.
-- [ ] **Should a teacher see the split by reason, not just the total?** Raised by me when the split moved
-  out of the table, and it needs a call rather than a judgement.
+- [x] ~~**Should a teacher see the split by reason, not just the total?**~~ **Answered: no.** The preview
+  answered it by failing. Shown four options, the reaction was *"I still don't understand the distinction
+  between the two or the relationship between the two"* - and then the two questions that matter: is the
+  split the same money as the table, and is the total just the sum of the Earns column? Yes to both, and
+  needing to ask is the verdict. **If the relationship between two summaries has to be explained, they
+  should not both be on the screen.**
 
-  **Preview: `/admin/component_demo/earnings_split`**, development only, same guard the delight previews
-  carried. Four options as a teacher would see them - today's view, the recommended invoice totals block,
-  the cheap variant that keeps both summaries, and the two shapes already rejected - each with what it
-  costs. Delete the action, route, view and test when this is answered; the reasoning below survives
-  without it.
+  Why it reads that way, which is worth keeping: the figures are a **cross-tabulation whose middle is
+  never shown**. Earns is the row totals (per student), the split is the column totals (per reason), and
+  the only cell they share is the corner - $52.60 either way. Nothing on the page renders the grid that
+  would make that obvious, so two totals of the same money sit side by side looking like rivals. Showing
+  the grid is not the fix either: it means three money columns per student on a table that already has
+  five columns and 25 rows.
 
-  Where the figures are now: every row's own amount in the **Earns** column and the class total in the
-  table's `<tfoot>` - both visible to anyone who can open the page. The **attendance / math / reading**
-  split is on the finalize block, which is `current_user.admin?`, so a teacher does not see it.
+  A second collision made it worse and is now avoided by name: **"Math" was a column of letter grades and
+  a line of money on the same screen.** The split's labels say what earned the money - "Math grades",
+  "Reading grades".
 
-  The argument for leaving it: the split is what the *payment* is made of rather than what the grades add
-  up to, and it is read once, by whoever authorises the money. That is the payroll-review shape (Gusto,
-  Square Payroll) and it keeps one figure in one place. The argument against: the teacher enters every
-  number that produces it, and design.md's own rule is **gate the action, not the information** - which
-  is the rule that pulled the total out of the admin block in the first place. Only the split's audience
-  is genuinely in question; nothing about the finalize *control* is.
+  What changed instead: the split stays where the payment is authorised, and it now **states its
+  relationship** rather than leaving it to be inferred - "Each student is paid in three deposits, which is
+  how the total divides and what their statement will show." That sentence is also the only place the
+  product says a student receives three deposits rather than one, which is what `DistributeEarnings`
+  actually writes. The teacher view keeps one summary on one axis: each row's Earns and the column total.
 
-  If it should be visible to teachers, the placement is decided and is **not** the table: an invoice
-  totals block - a narrow right-aligned stack under the table, above "Save grades", aligned to the Earns
-  column's right edge, which is Stripe's and QuickBooks's shape for components of a total. It cannot go
-  inside `shared/_table_container`: that partial's `.table-wrapper` is both the card surface *and* the
-  horizontal scroller, so anything placed in it scrolls sideways with the table and lands off screen at
-  375px. Either give the container an optional footer slot (a rendered-string local, as `_page_header`
-  now takes `badge:`) or move the surface up a level - the second touches ~20 tables and wants a
-  `migration.md` entry.
-
-  What must not happen either way: the same figures in two places. If teachers get the block, the split
-  comes *off* the finalize section, which keeps naming the total in its sentence.
-
+  The preview at `/admin/component_demo/earnings_split` is deleted - it existed to decide this. In
+  `5cc9fb4` if it is ever wanted back.

@@ -408,9 +408,15 @@ class GradeBookPageTest < ApplicationSystemTestCase
     expected = GradeBookEarnings.new(book.reload)
 
     within("[aria-labelledby='finalize-heading']") do
+      # The relationship is stated, not left to be inferred. Three bare amounts beside a table that
+      # totals to the same figure read as a competing summary; they are the same money on the other
+      # axis, and the reason they are shown at all is that the payment is written as three deposits.
+      assert_text "Each student is paid in three deposits, which is how the total divides"
+
+      # Labels name what earned the money. "Math" alone is a column of letter grades on this page.
       assert_text "Attendance, including bonuses"
-      assert_text "Math"
-      assert_text "Reading"
+      assert_text "Math grades"
+      assert_text "Reading grades"
 
       %i[attendance math reading].each do |reason|
         assert_selector "#finalize-breakdown dd",
