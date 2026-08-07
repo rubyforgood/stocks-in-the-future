@@ -20,6 +20,18 @@
      ink: the value a user typed stays slate-900 so it is still the most legible thing in the
      field, and the message beneath says what is wrong. Measured: red-600 border on white 4.83:1,
      which clears the 3:1 UI gate with room. */
+  /* The rose border comes from the class *and* from the attribute. `tw-input-error` covers the inputs
+   * the form builders and the field_error_proc rewrite; `[aria-invalid="true"]` covers everything else,
+   * including a control whose class list this app does not own. Belt and braces on purpose: a field that
+   * is announced as invalid and does not look invalid is the failure this pair prevents.
+   *
+   * red-600 rather than rose-500: measured against white, rose-500 is 3.76:1 and red-600 is 4.83:1, and
+   * a border is a non-text boundary needing 3:1 - but this one is the only visual signal a sighted user
+   * gets before reading, so it takes the text threshold. */
+  [aria-invalid="true"] {
+    @apply border-red-600;
+  }
+
   .tw-input-error {
     @apply block w-full min-h-11 rounded-lg bg-white px-3 py-2 text-base text-slate-900 border border-red-600 placeholder:text-slate-500 focus:outline-2 focus:-outline-offset-2 focus:outline-red-700 lg:text-sm/6
   }

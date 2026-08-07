@@ -72,7 +72,10 @@
           `mb-2` on the legend rather than `mt-*` on what follows: a legend's default rendering already
           sits it on the border box, and design.md records that a fieldset's inline margin needs resetting
           rather than compensating for. %>
-      <fieldset>
+      <%# The group's error goes on the fieldset, not on whichever checkbox Rails renders first. The
+          field_error_proc handles every text-like control automatically and skips checkboxes for exactly
+          this reason - see FormErrorsHelper. %>
+      <%= tag.fieldset(**field_error_attrs(classroom, :grades)) do %>
         <legend class="tw-label-primary mb-2">
           Grades<span class="required-indicator">*</span>
         </legend>
@@ -101,7 +104,9 @@
             of the same fact - the asterisk on the legend and the browser's own validation being the other
             two - and red type on a form that has no error yet reads as one. %>
         <p class="mt-2 text-sm text-slate-600">Select at least one grade that applies to this classroom.</p>
-      </fieldset>
+
+        <%= field_error(classroom, :grades) %>
+      <% end %>
 
       <%# The trading flag, which a teacher may also set. The switch on classrooms#show is the same
           setting: that one is for changing it day to day, with the consequence in words beside it; this
@@ -120,7 +125,7 @@
       </div>
 
       <% if admin_fields %>
-        <fieldset>
+        <%= tag.fieldset(**field_error_attrs(classroom, :teachers)) do %>
           <legend class="tw-label-primary mb-2">Teachers</legend>
 
           <%= hidden_field_tag "classroom[teacher_ids][]", "", id: nil %>
@@ -154,7 +159,9 @@
           <p class="mt-2 text-sm text-slate-600">
             Teachers you select can see this classroom and edit its grades and trading setting.
           </p>
-        </fieldset>
+
+          <%= field_error(classroom, :teachers) %>
+        <% end %>
       <% end %>
     </div>
   </div>

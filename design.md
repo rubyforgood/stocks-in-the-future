@@ -1294,6 +1294,50 @@ fields were a `grid grid-cols-6` with `col-span-6 lg:col-span-4` - a twelve-colu
 which at `lg` made the inputs two thirds of a container already capped at 672px. One field per row in a
 `space-y-5` stack is what GOV.UK, Polaris and Tailwind UI use for a short form.
 
+**Validation errors appear when the user clicks save, and this app now implements the pattern the
+Validation section specifies.** It did not, and could not: every required input carried `required` and no
+form set `noValidate`, so the browser's native bubble fired first and blocked the submit. The server never
+saw an invalid form, so neither the summary nor any field-level message could ever render - and the proof
+is in the suite, where the one test that needed the summary had to submit a **duplicate username** to get
+past the browser rather than a blank field.
+
+What is here now, against the four parts that section names:
+
+- **Native validation off app-wide.** A handler in `application.js` sets `form.noValidate` on every form
+  without `data-native-validation`, on `DOMContentLoaded`, `turbo:load`, `turbo:frame-load` and
+  `turbo:render` - four events because Turbo Drive replaces the body on navigation and a frame can bring
+  a form in on its own. The inputs keep `required`: it is what tells assistive tech the field is
+  required, and it is harmless once the browser is not acting on it. If the JS never runs, native
+  validation returns, which blocks the invalid submit - a safe way to fail.
+- **Field level, automatic.** `config/initializers/field_error_proc.rb`. Every invalid text-like control
+  gets `aria-invalid`, an `aria-describedby` pointing at a generated message, and `tw-input-error` **in
+  place of** `tw-input-primary` - not alongside, because both set a border colour and the winner would be
+  file order rather than intent. It skips labels, hidden, checkbox, radio and submit, and skips any
+  control that already has `aria-describedby`, so a hand-placed message never doubles. It keeps Rails'
+  `<div class="field_with_errors">` wrapper, which the suite selects on.
+- **Groups, by hand.** A checkbox group's error belongs to its `<fieldset>`, not to whichever box Rails
+  rendered first, so `FormErrorsHelper#field_error_attrs` splats the attributes onto the fieldset via
+  `tag.fieldset(**...)` and `#field_error` renders the message under it. Both grades and teachers on the
+  classroom form use them.
+- **The border, twice over.** `tw-input-error` for the controls this app's classes reach, and
+  `[aria-invalid="true"]` in `forms.css` for everything else. A field announced as invalid that does not
+  look invalid is the failure that pair prevents. Note one difference from the section above: in **this**
+  app `.field_with_errors` carries no border of its own - it is Rails' wrapper, kept as a hook - and the
+  border comes from the class and the attribute.
+
+**The message is the full message, at the field and in the summary both**, so the two say the same thing
+rather than two versions of it: "Name can't be blank" under the field and in the list. Sentence case, no
+trailing period.
+
+**Which fields are required comes from the model, not the form.** The classroom form's grades group is
+marked required and the model backs it - `validate :grade_level` adds "must have at least one grade" to
+`:grades`, which is why the fieldset can be flagged at all. A form that marks a field required with no
+validation behind it is a form that will silently accept a blank.
+
+`validation_errors_test.rb` covers it: that `noValidate` is set, that the summary and every field message
+appear on save, that nothing marked invalid is left without a message (1.4.1 - never colour alone), that a
+valid save is unaffected, and that the student form gets it too.
+
 **One error summary, in `shared/_form_errors`.** There were three: the student pages' bolded "Error:"
 over a bare list, the classroom form's `bg-red-50 px-3 py-2 rounded-lg` with an `<h2>`, and Devise's
 own. The shared one **counts** - "1 error stopped this student being saved" - because a reader needs to
