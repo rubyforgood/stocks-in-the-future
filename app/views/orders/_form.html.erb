@@ -13,7 +13,7 @@
       }
     ) do |form| %>
 
-  <!-- Error Messages -->
+  <%# Error Messages %>
   <% if order.errors.any? %>
     <%# The alert tokens - red-50 with a red-200 hairline - rather than sitf-danger at 10% and 20%
         opacity, which is red-500 tinted by transparency and lands somewhere off the scale. And a
@@ -43,7 +43,7 @@
     </p>
   </div>
 
-  <!-- Account Info -->
+  <%# Account Info %>
   <div class="grid grid-cols-2 gap-4 mb-6">
     <%# Neutral, not hue-coded. This was bg-teal-700/10 with teal-700 ink and its neighbour was
         sitf-ring/10 with violet-700 - a mint panel beside an indigo one, colouring two account
@@ -67,7 +67,7 @@
     </div>
   </div>
 
-  <!-- Shares Input -->
+  <%# Shares Input %>
   <div class="mb-6">
     <%# tw-label-primary and tw-input-primary, the named classes, rather than a hand-rolled pair.
         The label was text-black where the token is slate-900, and the input was border-2
@@ -130,7 +130,7 @@
     </p>
   </div>
 
-  <!-- Hidden Fields -->
+  <%# Hidden Fields %>
   <%= form.hidden_field :action, value: order.action %>
   <%= form.hidden_field :stock_id, value: order.stock.id %>
 

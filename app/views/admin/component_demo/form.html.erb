@@ -1,6 +1,6 @@
 <% content_for :own_heading, true %>
 <div class="max-w-7xl mx-auto">
-  <!-- Page Header -->
+  <%# Page Header %>
   <%= admin_breadcrumbs(@breadcrumbs) %>
 
   <div class="mb-6">
@@ -9,7 +9,7 @@
     <p class="text-slate-600">Showcase of Admin::FormBuilder with all field types</p>
   </div>
 
-  <!-- Alert Box -->
+  <%# Alert Box %>
   <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
     <div class="flex items-start">
       <%= lucide_icon("info", class: "text-blue-600 mt-1 mr-3 w-4 h-4 shrink-0") %>
@@ -23,13 +23,13 @@
     </div>
   </div>
 
-  <!-- Form Demo -->
+  <%# Form Demo %>
   <div class="tw-card mb-6">
     <div class="px-6 py-6">
       <h2 class="text-xl font-semibold text-slate-900 mb-6">Sample form</h2>
 
       <%= form_with model: @user, url: "#", builder: Admin::FormBuilder, class: "space-y-6" do |f| %>
-        <!-- Text Fields -->
+        <%# Text Fields %>
         <div class="border-b border-slate-200 pb-6">
           <h3 class="text-lg font-medium text-slate-900 mb-4">Text fields</h3>
 
@@ -46,7 +46,7 @@
                                hint: "Minimum 8 characters" %>
         </div>
 
-        <!-- Number & Currency Fields -->
+        <%# Number & Currency Fields %>
         <div class="border-b border-slate-200 pb-6">
           <h3 class="text-lg font-medium text-slate-900 mb-4">Number & currency fields</h3>
 
@@ -61,7 +61,7 @@
                                hint: "Currency field with $ prefix" %>
         </div>
 
-        <!-- Text Area -->
+        <%# Text Area %>
         <div class="border-b border-slate-200 pb-6">
           <h3 class="text-lg font-medium text-slate-900 mb-4">Text area</h3>
 
@@ -71,7 +71,7 @@
                           hint: "Tell us about yourself" %>
         </div>
 
-        <!-- Select Fields -->
+        <%# Select Fields %>
         <div class="border-b border-slate-200 pb-6">
           <h3 class="text-lg font-medium text-slate-900 mb-4">Select fields</h3>
 
@@ -81,7 +81,7 @@
                              include_blank: "Select a type..." %>
         </div>
 
-        <!-- Boolean Field -->
+        <%# Boolean Field %>
         <div class="border-b border-slate-200 pb-6">
           <h3 class="text-lg font-medium text-slate-900 mb-4">Boolean field</h3>
 
@@ -90,7 +90,7 @@
                               hint: "Grant admin privileges to this user" %>
         </div>
 
-        <!-- Date & DateTime Fields -->
+        <%# Date & DateTime Fields %>
         <div class="border-b border-slate-200 pb-6">
           <h3 class="text-lg font-medium text-slate-900 mb-4">Date & DateTime fields</h3>
 
@@ -101,7 +101,7 @@
                                label: "Last updated" %>
         </div>
 
-        <!-- Read-only fields -->
+        <%# Read-only fields %>
         <div class="border-b border-slate-200 pb-6">
           <h3 class="text-lg font-medium text-slate-900 mb-4">Read-only fields</h3>
 
@@ -115,7 +115,7 @@
                                 label: "Administrator status" %>
         </div>
 
-        <!-- Form Actions -->
+        <%# Form Actions %>
         <div class="flex flex-wrap items-center gap-3 pt-4">
           <%= f.submit_button "Save changes" %>
           <%= f.cancel_button "Cancel", url: admin_component_demo_index_path %>
@@ -124,7 +124,7 @@
     </div>
   </div>
 
-  <!-- Validation Error Demo -->
+  <%# Validation Error Demo %>
   <div class="tw-card mb-6">
     <div class="px-6 py-6">
       <h2 class="text-xl font-semibold text-slate-900 mb-4">Validation error display</h2>
@@ -138,7 +138,7 @@
     </div>
   </div>
 
-  <!-- Usage Examples -->
+  <%# Usage Examples %>
   <div class="tw-card mb-6">
     <div class="px-6 py-6">
       <h2 class="text-xl font-semibold text-slate-900 mb-4">Usage examples</h2>
@@ -186,7 +186,7 @@
     </div>
   </div>
 
-  <!-- Field Reference -->
+  <%# Field Reference %>
   <div class="tw-card mb-6">
     <div class="px-6 py-6">
       <h2 class="text-xl font-semibold text-slate-900 mb-4">Available field types</h2>

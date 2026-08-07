@@ -2,7 +2,7 @@
 <% search_placeholder ||= "Search..." %>
 <div class="tw-card p-4 mb-6">
   <%= form_with url: request.path, method: :get, class: "space-y-4 lg:space-y-0 lg:flex lg:items-center lg:gap-4" do |form| %>
-    <!-- Search Field -->
+    <%# Search Field %>
     <div class="flex-1">
       <label for="search" class="sr-only">Search</label>
       <div class="relative">
@@ -16,7 +16,7 @@
       </div>
     </div>
 
-    <!-- Filter Dropdowns -->
+    <%# Filter Dropdowns %>
     <% filters.each do |filter| %>
       <div class="lg:w-48">
         <label for="<%= filter[:name] %>" class="sr-only"><%= filter[:label] %></label>
@@ -27,7 +27,7 @@
       </div>
     <% end %>
 
-    <!-- Action Buttons -->
+    <%# Action Buttons %>
     <div class="flex gap-2">
       <%= form.submit "Filter", class: admin_primary_button_class %>
       <% if params[:search].present? || filters.any? { |f| params[f[:name]].present? } %>

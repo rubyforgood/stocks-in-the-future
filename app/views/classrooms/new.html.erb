@@ -1,10 +1,10 @@
-<div class="mx-auto lg:w-2/3 w-full">
+<%# max-w-2xl, which is what every other form page in the app uses. This was `lg:w-2/3`, a
+    *fraction* of the viewport - on a 1920px monitor that is a 1280px-wide single-column form, with a
+    name field stretched across all of it. A form's measure does not scale with the window. %>
+<div class="mx-auto max-w-2xl">
   <%= render layout: "components/ui/page_header",
-             locals: { title: "New classroom" } do %><% end %>
+             locals: { title: "New classroom",
+                       description: "You can add students once it exists." } do %><% end %>
 
   <%= render "form", classroom: @classroom %>
-
-  <div class="mt-6 flex flex-wrap gap-3">
-    <%= link_to "Back to classrooms", classrooms_path, class: "tw-btn-secondary" %>
-  </div>
 </div>

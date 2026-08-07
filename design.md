@@ -1253,6 +1253,40 @@ edge. Reported as the grey background behind the buttons. So, everywhere:
 40px height, and the card's own radius and border - on both sides of the product and at 375px. Verified
 by putting the grey strip back and watching it fail.
 
+**A form's measure is a `max-w-*`, never a fraction of the viewport.** `classrooms#new` and `#edit` were
+`mx-auto lg:w-2/3`, so on a 1920px monitor the form was 1280px wide with the name field stretched across
+all of it. A form's readable measure does not scale with the window. `max-w-2xl` (672px), which is what
+students#new and #edit already used - measured after: 672px at 1400px and at 1920px.
+
+**A group of checkboxes is a `<fieldset>` with a `<legend>`.** It is the only thing that can name a group,
+because there is no single control for a `<label for>` to point at - and the classroom form proved it by
+trying: `form.label :grade_ids` emitted `for="classroom_grade_ids"`, no element had that id, and the
+Grades group had **no accessible name at all**. Worse, `check_box_tag "classroom[grade_ids][]"` derives one
+id from the name, so the hidden field and all four checkboxes shared `id="classroom_grade_ids_"` - five
+elements, one id, invalid, and every `for=`/`aria-*` reference resolving to whichever came first. Give each
+box an explicit id and the hidden companion `id: nil`. GOV.UK, Polaris and Primer all use a fieldset here.
+
+**An option list only gets a scroll container when it can scroll.** Both of that form's groups were
+`max-h-60 overflow-y-auto` panels with a `bg-slate-50` fill, around four grades and one teacher. A scroll
+container that never scrolls, and a tinted panel inside a card - the same shape as the column of dashes and
+the button that could only report it did nothing. Count the options before reaching for `max-h-*`; measured
+after, the form has **0** scrolling sub-panels.
+
+**A required hint states the requirement once.** That form's grades hint opened with a red
+`* Required:` while the legend already carried the asterisk and the browser enforces it - three statements
+of one fact, the third in the colour this app reserves for errors. Red type on a form with no error in it
+reads as an error.
+
+**Navigation is not a form action.** `classrooms#edit` ended with "View classroom" and "Back to
+classrooms" as two `tw-btn-secondary` links *below* the form, under the submit - three actions in two
+groups with the primary orphaned above them. Going back is one action, it is Cancel, and on an edit page it
+goes to the record. `form_actions_test` asserts both nav buttons are gone.
+
+**A view comment goes in an ERB comment tag.** An HTML comment is sent to the browser and can be read
+there; 37 of them were, across nine views. And do not write the ERB terminator *inside* an ERB comment -
+this document already records a case where that ended the comment early and leaked a sentence onto the page
+as visible text.
+
 **A form's card is `.tw-card`, and its fields are one column.** The student pages hand-rolled
 `bg-white shadow-sm overflow-hidden lg:rounded-md`: no border at any width and no radius at all below
 `lg`, so on a phone the form sat on a square-cornered white rectangle against a slate-50 page. And the

@@ -4,7 +4,7 @@
              locals: { title: "Admin components demo",
                        description: "Showcase of all reusable admin components" } do %><% end %>
 
-  <!-- Alert Box -->
+  <%# Alert Box %>
   <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
     <div class="flex items-start">
       <%= lucide_icon("info", class: "text-blue-600 mt-1 mr-3 w-4 h-4 shrink-0") %>
@@ -18,7 +18,7 @@
     </div>
   </div>
 
-  <!-- Quick Links -->
+  <%# Quick Links %>
   <div class="tw-card p-4 mb-6">
     <h3 class="text-sm font-semibold text-slate-900 mb-3">Component demos</h3>
     <div class="flex gap-3">
@@ -29,7 +29,7 @@
     </div>
   </div>
 
-  <!-- Breadcrumbs Demo -->
+  <%# Breadcrumbs Demo %>
   <div class="mb-6">
     <h2 class="text-xl font-semibold text-slate-900 mb-4">Breadcrumbs component</h2>
     <%= admin_breadcrumbs(@breadcrumbs) %>
@@ -37,7 +37,7 @@
 
   <hr class="my-6">
 
-  <!-- Search/Filter Demo -->
+  <%# Search/Filter Demo %>
   <div class="mb-6">
     <h2 class="text-xl font-semibold text-slate-900 mb-4">Search & filter component</h2>
     <%= admin_search_filter(
@@ -48,7 +48,7 @@
 
   <hr class="my-6">
 
-  <!-- Table Demo -->
+  <%# Table Demo %>
   <div class="mb-6">
     <h2 class="text-xl font-semibold text-slate-900 mb-4">Table component</h2>
     <p class="text-slate-600 mb-4">
@@ -68,7 +68,7 @@
 
   <hr class="my-6">
 
-  <!-- Show Attributes Demo -->
+  <%# Show Attributes Demo %>
   <div class="mb-6">
     <h2 class="text-xl font-semibold text-slate-900 mb-4">Show attributes component</h2>
     <p class="text-slate-600 mb-4">Clean attribute display for show/detail pages.</p>
@@ -81,7 +81,7 @@
 
   <hr class="my-6">
 
-  <!-- Action Buttons Demo -->
+  <%# Action Buttons Demo %>
   <div class="mb-6">
     <h2 class="text-xl font-semibold text-slate-900 mb-4">Action buttons component</h2>
     <p class="text-slate-600 mb-4">Standard and custom action buttons with icons.</p>
@@ -121,7 +121,7 @@
 
   <hr class="my-6">
 
-  <!-- Boolean Badge Demo -->
+  <%# Boolean Badge Demo %>
   <div class="mb-6">
     <h2 class="text-xl font-semibold text-slate-900 mb-4">Boolean badges</h2>
     <div class="tw-card p-6">
@@ -140,7 +140,7 @@
 
   <hr class="my-6">
 
-  <!-- Format Attribute Demo -->
+  <%# Format Attribute Demo %>
   <div class="mb-6">
     <h2 class="text-xl font-semibold text-slate-900 mb-4">Attribute formatting examples</h2>
     <div class="tw-card p-6">
@@ -167,7 +167,7 @@
 
   <hr class="my-6">
 
-  <!-- Component Usage Examples -->
+  <%# Component Usage Examples %>
   <div class="mb-6">
     <h2 class="text-xl font-semibold text-slate-900 mb-4">Usage examples</h2>
     <div class="bg-slate-50 p-6 rounded-lg">
