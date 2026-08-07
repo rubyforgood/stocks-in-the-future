@@ -1,0 +1,203 @@
+<%# Design preview: the trading floor's Change column.
+
+    Built because the column shipped and was not found. It is there - the header renders and the cells
+    render - but it is `hidden lg:table-cell`, so it appears only from 1024px up, and in this database seven
+    of the ten active companies had no yesterday price, so the rows at the top of the table all showed an em
+    dash. A column of dashes above the fold reads as a column that does nothing.
+
+    Everything below is a mock built from the app's real table classes and the real `movement_class` helper.
+    The figures are illustrative. %>
+<% content_for :own_heading, true %>
+
+<%# One row's worth of data per state. Plain hashes rather than a struct: nothing here renders a partial that
+    expects a Stock, so nothing needs the interface. %>
+<% states = [
+     { company: "The Coca-Cola Company", ticker: "KO", price: 68.99, change: 6.39,
+       note: "Up - green, an up arrow, and a + sign" },
+     { company: "Carnival Corporation", ticker: "CCL", price: 21.85, change: -3.02,
+       note: "Down - red, a down arrow, and a - sign" },
+     { company: "Verizon Communications", ticker: "VZ", price: 40.12, change: 0.0,
+       note: "Unchanged - slate, and no arrow at all" },
+     { company: "Gone Away Inc.", ticker: "OLD", price: 5.00, change: nil,
+       note: "Archived - the price is frozen, so there is no change to state" },
+     { company: "Newly Added Co.", ticker: "NEW", price: 12.50, change: nil,
+       note: "No yesterday price yet - the daily job has not run twice" }
+   ] %>
+
+<%= render layout: "components/ui/page_header",
+           locals: { title: "Price change",
+                     description: "Where the Change column sits, what each state looks like, and what it " \
+                                  "does on a phone" } do %><% end %>
+
+<%= render "components/ui/callout",
+           tone: :info,
+           title: "This is a preview of shipped UI, not a proposal",
+           body: "The Change column is live on the trading floor. This page exists because it was not " \
+                 "easy to find: it shows only from 1024px up, and most rows were showing an em dash " \
+                 "because the companies had no yesterday price. Figures here are illustrative." %>
+
+<div class="mt-6 space-y-10">
+  <%# ------------------------------------------------------------------ where it is %>
+  <section aria-labelledby="where">
+    <div class="mb-3">
+      <h2 id="where" class="text-base font-semibold text-slate-900">Where it is</h2>
+      <p class="mt-1 max-w-2xl text-sm text-slate-600">
+        Third column on the trading floor, between <strong class="font-medium text-slate-900">Last
+        price</strong> and <strong class="font-medium text-slate-900">Your holdings</strong>. As a teacher
+        or an admin there are no holdings or actions columns - <code class="text-xs">StockPolicy#show_holdings?</code>
+        requires a student with a portfolio - so it is the last column you see.
+      </p>
+    </div>
+
+    <div class="table-container">
+      <div class="table-wrapper overflow-x-auto">
+        <table class="table-base table-fixed">
+          <thead>
+            <tr class="table-header-row">
+              <th scope="col" class="table-header-cell table-header-cell-left">Company (exchange)</th>
+              <th scope="col" class="table-header-cell table-header-cell-right w-32">Last price</th>
+              <th scope="col" class="table-header-cell table-header-cell-right w-28 bg-blue-50">Change</th>
+              <th scope="col" class="table-header-cell table-header-cell-left w-32">Your holdings</th>
+              <th scope="col" class="table-header-cell table-header-cell-right w-52">
+                <span class="sr-only">Actions</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody class="bg-white">
+            <% states.first(3).each do |state| %>
+              <tr class="table-body-row">
+                <td class="table-body-cell">
+                  <span class="block font-medium text-slate-900"><%= state[:ticker] %></span>
+                  <span class="block text-sm text-slate-600"><%= state[:company] %></span>
+                </td>
+                <td class="table-body-cell table-body-cell-right">
+                  <span class="table-cell-content"><%= number_to_currency(state[:price]) %></span>
+                </td>
+                <td class="table-body-cell table-body-cell-right bg-blue-50">
+                  <span class="<%= movement_class(state[:change]) %>">
+                    <%= state[:change].zero? ? "0.00%" : format("%+.2f%%", state[:change]) %>
+                  </span>
+                </td>
+                <td class="table-body-cell"><span class="table-cell-content">You own 0</span></td>
+                <td class="table-body-cell table-body-cell-right">
+                  <span class="text-xs text-slate-600">Buy / Sell</span>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <p class="text-sm text-slate-600">The tinted column is the new one; it is not tinted in the app.</p>
+  </section>
+
+  <%# ------------------------------------------------------------------ the states %>
+  <section aria-labelledby="states">
+    <div class="mb-3">
+      <h2 id="states" class="text-base font-semibold text-slate-900">Five states, and why two of them are a dash</h2>
+      <p class="mt-1 max-w-2xl text-sm text-slate-600">
+        Up, down and unchanged are three states rather than two - the ticker this replaced tested
+        <code class="text-xs">&gt;= 0</code>, so a flat price was green with an upward arrow. The other two
+        have nothing to state, and say so.
+      </p>
+    </div>
+
+    <%= render layout: "components/ui/card", locals: { padded: false } do %>
+      <ul class="divide-y divide-slate-200">
+        <% states.each do |state| %>
+          <li class="flex flex-wrap items-center justify-between gap-4 px-5 py-3">
+            <span class="min-w-0">
+              <span class="block text-sm font-medium text-slate-900"><%= state[:company] %></span>
+              <span class="block text-xs text-slate-600"><%= state[:note] %></span>
+            </span>
+
+            <span class="flex shrink-0 items-center gap-1 text-sm tabular-nums <%= state[:change] ? movement_class(state[:change]) : 'text-slate-500' %>">
+              <% if state[:change].nil? %>
+                &mdash;
+              <% else %>
+                <% if state[:change].positive? %>
+                  <%= lucide_icon("trending-up", class: "size-4 shrink-0") %>
+                <% elsif state[:change].negative? %>
+                  <%= lucide_icon("trending-down", class: "size-4 shrink-0") %>
+                <% end %>
+                <%= state[:change].zero? ? "0.00%" : format("%+.2f%%", state[:change]) %>
+              <% end %>
+            </span>
+          </li>
+        <% end %>
+      </ul>
+    <% end %>
+  </section>
+
+  <%# ------------------------------------------------------------------ below lg %>
+  <section aria-labelledby="narrow">
+    <div class="mb-3">
+      <h2 id="narrow" class="text-base font-semibold text-slate-900">Below 1024px it is not a column</h2>
+      <p class="mt-1 max-w-2xl text-sm text-slate-600">
+        It collapses into the company cell, the way the holdings and the trade buttons already do. A third
+        always-visible column would put this table back into a sideways scroll at 375px, which is the thing
+        that was just fixed across the app.
+      </p>
+    </div>
+
+    <div class="mx-auto max-w-sm">
+      <%= render layout: "components/ui/card", locals: { padded: false } do %>
+        <table class="table-base">
+          <tbody class="bg-white">
+            <% states.first(2).each do |state| %>
+              <tr class="table-body-row">
+                <td class="table-body-cell">
+                  <span class="block font-medium text-slate-900"><%= state[:ticker] %></span>
+                  <span class="block text-sm text-slate-600"><%= state[:company] %></span>
+                  <span class="mt-1 block text-xs <%= movement_class(state[:change]) %>">
+                    <%= format("%+.2f%%", state[:change]) %> since yesterday
+                  </span>
+                  <span class="mt-1 block text-xs text-slate-600">You own 0</span>
+                </td>
+                <td class="table-body-cell table-body-cell-right">
+                  <span class="table-cell-content"><%= number_to_currency(state[:price]) %></span>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% end %>
+    </div>
+  </section>
+
+  <%# ------------------------------------------------------------------ why it looked empty %>
+  <section class="tw-card p-5" aria-labelledby="why">
+    <h2 id="why" class="text-base font-semibold text-slate-900">Why it looked like nothing was there</h2>
+
+    <dl class="mt-4 space-y-4 text-sm">
+      <div>
+        <dt class="font-medium text-slate-900">Seven of the ten companies had no yesterday price</dt>
+        <dd class="mt-1 max-w-2xl text-slate-600">
+          <code class="text-xs">yesterday_price_cents</code> is set by the daily price job, which has never
+          run in this environment, and the column shows an em dash rather than inventing a change. The rows
+          that did have one - BAC, CCL and F - were further down an unordered list, so the visible part of
+          the table was all dashes. Every active company has a plausible change in the development database
+          now, so the live page demonstrates itself.
+        </dd>
+      </div>
+
+      <div>
+        <dt class="font-medium text-slate-900">And it is hidden below 1024px</dt>
+        <dd class="mt-1 max-w-2xl text-slate-600">
+          Deliberately - see above - but it does mean a narrow window shows no Change header at all, which
+          reads the same as a missing feature.
+        </dd>
+      </div>
+
+      <div>
+        <dt class="font-medium text-slate-900">What I should have done</dt>
+        <dd class="mt-1 max-w-2xl text-slate-600">
+          Said where to look and at what width, and populated the data before calling it done. A feature
+          whose every visible row is an em dash has not been demonstrated, whatever the tests say - the
+          tests create their own stocks with yesterday prices, so they passed on data the page did not have.
+        </dd>
+      </div>
+    </dl>
+  </section>
+</div>

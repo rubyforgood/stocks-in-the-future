@@ -87,6 +87,8 @@ Rails.application.routes.draw do
     resources :component_demo, only: %i[index show] do
       collection do
         get :form
+        # Design preview. Development only - see the controller, which refuses it elsewhere.
+        get :price_change
       end
     end
 
