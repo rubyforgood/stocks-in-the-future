@@ -1,0 +1,294 @@
+<%# Design preview: remove the nav's scrolling ticker, and repurpose its content as a static card.
+
+    Rendered with the app's real components. The figures are illustrative and labelled as such - there is
+    no real change data to draw on, which is half of what is wrong with the thing being replaced.
+
+    The current ticker is shown **still**, on purpose. Its motion is the objection, and reproducing an
+    animation that fails WCAG 2.2.2 on a second page to demonstrate that it fails WCAG 2.2.2 would be a
+    poor trade.
+
+    The measurements below were taken from the live one on the **app-side** pages. Not from this page: it
+    is under /admin, which renders `layouts/admin`, and the ticker is only in `layouts/application`. An
+    earlier draft of this page said "in the header of this very page", which was wrong - the check that
+    caught it was a script that tried to read the ticker here and found nothing. %>
+<% content_for :own_heading, true %>
+
+<%# Enough of a stock for `layouts/_stock_item` to render, so the "today" section below is the **real**
+    partial with the real tokens rather than my impression of it. A struct with the formatted string as a
+    member rather than a method: a `def` inside an ERB tag does not survive compilation.
+
+    A local, not a constant - assigning a constant from a view reassigns it on every reload. %>
+<% sample = Struct.new(
+     :ticker, :company_name, :price, :percentage_change, :percentage_change_formatted,
+     keyword_init: true
+   ) %>
+
+<% movers = [
+     sample.new(
+       ticker: "KO", company_name: "Coca-Cola", price: 62.41,
+       percentage_change: 2.14, percentage_change_formatted: "+2.14%"
+     ),
+     sample.new(
+       ticker: "F", company_name: "Ford Motor Company", price: 11.08,
+       percentage_change: -1.62, percentage_change_formatted: "-1.62%"
+     ),
+     sample.new(
+       ticker: "AAPL", company_name: "Apple Inc.", price: 231.50,
+       percentage_change: 0.0, percentage_change_formatted: "0.00%"
+     )
+   ] %>
+
+<%= render layout: "components/ui/page_header",
+           locals: { title: "The nav's stock ticker",
+                     description: "What it is, why it should go, and what its content is worth as a card" } do %><% end %>
+
+<%= render "components/ui/callout",
+           tone: :info,
+           title: "This is a preview, not shipped UI",
+           body: "Development only, and nothing is wired up. The share prices and changes are invented " \
+                 "for illustration. No code has changed - to see the live ticker, open any page " \
+                 "outside the admin section, since it is in the app layout only." %>
+
+<div class="mt-6 space-y-10">
+  <%# ------------------------------------------------------------------ today %>
+  <section aria-labelledby="today">
+    <div class="mb-3">
+      <h2 id="today" class="text-base font-semibold text-slate-900">What is there now</h2>
+      <p class="mt-1 max-w-2xl text-sm text-slate-600">
+        Ten active stocks, each rendered twice for a seamless loop, scrolling through a 400px window at
+        <code class="text-xs">20s linear infinite</code>. Symbol and percentage only: no price, no company
+        name, not a link, and no relation to what the student owns. <code class="text-xs">hidden lg:block</code>,
+        so the phones most of these students use never see it at all.
+      </p>
+    </div>
+
+    <div class="tw-card p-5">
+      <div class="flex flex-wrap items-start gap-8">
+        <% movers.each { |stock| %><%= render "layouts/stock_item", stock: stock %><% } %>
+      </div>
+
+      <p class="mt-4 max-w-2xl text-sm text-slate-600">
+        The real partial, standing still. Note the third item: <strong class="font-medium text-slate-900">a
+        stock that has not moved is green with an upward arrow</strong>, because the condition is
+        <code class="text-xs">percentage_change &gt;= 0</code>. That is a bug independent of placement, and
+        in this database it is <em>every</em> item - all 18 stocks have no yesterday price, so everything
+        reads 0.00% and everything reads as a gain.
+      </p>
+    </div>
+
+    <div class="tw-card mt-4 p-5">
+      <p class="text-sm font-medium text-slate-900">Measured, on the app-side header</p>
+      <dl class="mt-3 space-y-1 text-sm">
+        <% [["Animation", "scroll 20s linear infinite, no pause control, no prefers-reduced-motion"],
+            ["WCAG 2.2.2 Pause, Stop, Hide", "fails - and it is Level A"],
+            ["Symbol contrast", "2.74:1 at 18px bold, where AA asks 4.5:1"],
+            ["Percentage contrast", "2.74:1 at 12px"],
+            ["Items in the DOM", "20, for 10 stocks"],
+            ["Reviewed in design.md", "never - no mention of it anywhere in the design system"]].each do |label, value| %>
+          <div class="flex flex-wrap items-baseline justify-between gap-4">
+            <dt class="text-slate-600"><%= label %></dt>
+            <dd class="text-slate-900"><%= value %></dd>
+          </div>
+        <% end %>
+      </dl>
+    </div>
+  </section>
+
+  <%# ------------------------------------------------------------------ recommended %>
+  <section aria-labelledby="recommended">
+    <div class="mb-3">
+      <h2 id="recommended" class="text-base font-semibold text-slate-900">
+        Recommended: a still card on the home page
+        <span class="ml-1 align-middle"><%= render "components/ui/badge", label: "Recommended", tone: :success %></span>
+      </h2>
+      <p class="mt-1 max-w-2xl text-sm text-slate-600">
+        The same idea in the form an application uses: three rows, each a link, with the company name a
+        student can recognise, the price, and the change. One card with <code class="text-xs">divide-y</code>
+        between rows - design.md's list-row shape - rather than three cards.
+      </p>
+    </div>
+
+    <%= render layout: "components/ui/card",
+               locals: { title: "Today's movers", icon: "trending-up", icon_tone: :info,
+                         padded: false } do %>
+      <ul class="divide-y divide-slate-200">
+        <% movers.each do |stock| %>
+          <li>
+            <a href="#" class="flex items-center justify-between gap-4 px-5 py-3 transition-colors hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary">
+              <span class="min-w-0">
+                <span class="block truncate text-sm font-medium text-slate-900"><%= stock.company_name %></span>
+                <span class="block text-xs text-slate-600"><%= stock.ticker %></span>
+              </span>
+
+              <span class="flex shrink-0 items-center gap-4">
+                <span class="text-sm tabular-nums text-slate-900"><%= number_to_currency(stock.price) %></span>
+
+                <%# Three states, not two. Up is green with an up arrow, down is red with a down arrow, and
+                    unchanged is slate with **no arrow** - a flat stock is not a gain. The colours are the
+                    app's own green-700 and red-700, which measure 5.02:1 and 6.47:1 where the ticker's
+                    tokens measure 2.74:1 and 3.78:1. The sign and the arrow carry the direction as well,
+                    so it is never colour alone. %>
+                <span class="flex w-24 shrink-0 items-center justify-end gap-1 text-sm tabular-nums
+                             <%= if stock.percentage_change.positive?
+                                   "text-green-700"
+                                 elsif stock.percentage_change.negative?
+                                   "text-red-700"
+                                 else
+                                   "text-slate-600"
+                                 end %>">
+                  <% if stock.percentage_change.positive? %>
+                    <%= lucide_icon("trending-up", class: "size-4 shrink-0") %>
+                  <% elsif stock.percentage_change.negative? %>
+                    <%= lucide_icon("trending-down", class: "size-4 shrink-0") %>
+                  <% end %>
+                  <%= stock.percentage_change_formatted %>
+                </span>
+              </span>
+            </a>
+          </li>
+        <% end %>
+      </ul>
+    <% end %>
+
+    <p class="mt-3 max-w-2xl text-sm text-slate-600">
+      And when there is no change data - which is the state of this database, and of any fresh install
+      until the daily price job has run twice - the card does not pretend otherwise:
+    </p>
+
+    <%= render layout: "components/ui/card",
+               locals: { title: "Today's movers", icon: "trending-up", icon_tone: :info } do %>
+      <%= render layout: "components/ui/empty_state",
+                 locals: { compact: true,
+                           title: "No price movement recorded yet",
+                           body: "Changes appear here once prices have been updated for a second day." } do %>
+      <% end %>
+    <% end %>
+  </section>
+
+  <%# ------------------------------------------------------------------ colour %>
+  <section aria-labelledby="colour">
+    <div class="mb-3">
+      <h2 id="colour" class="text-base font-semibold text-slate-900">The colours, measured</h2>
+      <p class="mt-1 max-w-2xl text-sm text-slate-600">
+        Both ticker tokens live in <code class="text-xs">app/assets/stylesheets/application.css</code>,
+        which is the one stylesheet outside this repo's audit scope - that is how they survived every
+        colour sweep. The file contains nothing else but a font import.
+      </p>
+    </div>
+
+    <div class="table-container">
+      <div class="table-wrapper overflow-x-auto">
+        <table class="table-base table-stacked">
+          <thead>
+            <tr class="table-header-row">
+              <th scope="col" class="table-header-cell table-header-cell-left">Token</th>
+              <th scope="col" class="table-header-cell table-header-cell-left">Sample</th>
+              <th scope="col" class="table-header-cell table-header-cell-right">On white</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white">
+            <%# Every figure here is measured from what actually paints, by filling a canvas pixel and
+                reading it back. The first draft quoted 5.02:1 and 6.47:1 for green-700 and red-700, which
+                are the **v3 hex** values - Tailwind v4 ships an oklch palette and those two measure 4.95:1
+                and 6.42:1. Both still pass; the point is that a palette figure from memory is not a
+                measurement. %>
+            <% [["--green-up #1EB500 (ticker, up)", "text-green-up", "2.74:1", "fails AA"],
+                ["--destructive #EE4447 (ticker, down)", "text-destructive", "3.78:1", "fails AA"],
+                ["green-700 (the app's own)", "text-green-700", "4.95:1", "passes"],
+                ["red-700 (the app's own)", "text-red-700", "6.42:1", "passes"],
+                ["slate-600 (unchanged)", "text-slate-600", "7.58:1", "passes"]].each do |label, cls, ratio, verdict| %>
+              <tr class="table-body-row">
+                <td class="table-body-cell">
+                  <span class="table-stacked-label lg:hidden">Token</span>
+                  <span class="text-sm text-slate-900"><%= label %></span>
+                </td>
+                <td class="table-body-cell">
+                  <span class="table-stacked-label lg:hidden">Sample</span>
+                  <span class="text-lg font-bold <%= cls %>">+2.14%</span>
+                </td>
+                <td class="table-body-cell table-body-cell-right">
+                  <span class="table-stacked-label lg:hidden">On white</span>
+                  <span class="tabular-nums text-slate-900"><%= ratio %></span>
+                  <span class="text-xs text-slate-600">(<%= verdict %>)</span>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <%# ------------------------------------------------------------------ why %>
+  <section class="tw-card p-5" aria-labelledby="why">
+    <h2 id="why" class="text-base font-semibold text-slate-900">Why, where it goes, and what it costs</h2>
+
+    <dl class="mt-4 space-y-4 text-sm">
+      <div>
+        <dt class="font-medium text-slate-900">A ticker is a broadcast device</dt>
+        <dd class="mt-1 max-w-2xl text-slate-600">
+          Auto-scrolling tickers survive in television lower-thirds and public information displays, where
+          the viewer is captive, has no pointer and cannot scroll. No finance application animates its
+          chrome: Robinhood has a static watchlist, Fidelity and Schwab have pinned quote panels, Yahoo
+          Finance has a horizontally scrollable row the user drives, and the Bloomberg Terminal - the
+          densest financial interface there is - does not marquee. In an application the reader sets the
+          pace, and motion takes that away for nothing, because the same figures sit still perfectly well.
+        </dd>
+      </div>
+
+      <div>
+        <dt class="font-medium text-slate-900">It is a Level A failure, today, on every signed-in page</dt>
+        <dd class="mt-1 max-w-2xl text-slate-600">
+          WCAG 2.2.2 requires a way to pause, stop or hide content that moves automatically for more than
+          five seconds. There is none, and no <code class="text-xs">prefers-reduced-motion</code> guard.
+          Level A is the tier below which nothing is negotiable, and the contrast failures sit on top of it.
+        </dd>
+      </div>
+
+      <div>
+        <dt class="font-medium text-slate-900">Where the card goes, and what it pushes down</dt>
+        <dd class="mt-1 max-w-2xl text-slate-600">
+          Into the home page's existing <code class="text-xs">space-y-6</code> stack, <strong class="font-medium text-slate-900">after</strong>
+          the funds card rather than above it. A student is on that page to read one number, and this
+          document's own rule is that adding to the top of a page costs the thing the page is for - the
+          roster's first row went from 146px to 567px once, exactly this way. Measured on this page the
+          card is <strong class="font-medium text-slate-900">249px</strong> tall - I guessed 180px first
+          and the measurement disagreed - so Announcements moves down 273px with the gap, and the balance
+          does not move at all.
+        </dd>
+      </div>
+
+      <div>
+        <dt class="font-medium text-slate-900">Three states, because two is wrong</dt>
+        <dd class="mt-1 max-w-2xl text-slate-600">
+          <code class="text-xs">percentage_change &gt;= 0</code> paints an unchanged stock green with an
+          upward arrow. Up, down and flat are three states and the card renders three - which also means
+          that a fresh database, where nothing has a yesterday price, reads as flat rather than as a market
+          where every share gained nothing and still went up.
+        </dd>
+      </div>
+
+      <div>
+        <dt class="font-medium text-slate-900">What it costs</dt>
+        <dd class="mt-1 max-w-2xl text-slate-600">
+          Deleting <code class="text-xs">layouts/_stock_ticker</code>, <code class="text-xs">layouts/_stock_item</code>,
+          the <code class="text-xs">ticker_stocks</code> helper, the four rules in
+          <code class="text-xs">navbar.css</code> and both tokens in
+          <code class="text-xs">application.css</code>; adding one card partial and a
+          <code class="text-xs">Stock</code> scope for the movers. Removing a capability, so it wants a
+          <code class="text-xs">migration.md</code> entry. Half a day, including the tests and adding that
+          stylesheet to the audit scope so the next sweep can see it.
+        </dd>
+      </div>
+
+      <div>
+        <dt class="font-medium text-slate-900">What it needs from you</dt>
+        <dd class="mt-1 max-w-2xl text-slate-600">
+          Which of the three: remove and replace with this card, remove and let the trading floor cover it,
+          or keep it and make it compliant. The second is the cheapest and loses nothing a student cannot
+          get one click away; the third keeps a component no design system here has ever endorsed.
+        </dd>
+      </div>
+    </dl>
+  </section>
+</div>

@@ -62,6 +62,17 @@ module Admin
       ]
     end
 
+    # Design preview for the nav ticker question in design-todo.md: remove it, and repurpose the content
+    # as a static card. Development only - a live page of hypothetical UI reads as shipped product.
+    def stock_ticker
+      raise ActionController::RoutingError, "Not Found" unless Rails.env.development?
+
+      @breadcrumbs = [
+        { label: "Components", path: admin_component_demo_index_path },
+        { label: "Stock ticker" }
+      ]
+    end
+
     def form
       @user = User.first || User.new(email: "", name: "", admin: false)
 
