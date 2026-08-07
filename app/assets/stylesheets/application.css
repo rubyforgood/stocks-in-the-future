@@ -1,10 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 
-/* Global color utilities */
-.text-green-up {
-  color: #1EB500;
-}
-
-.text-destructive {
-  color: #EE4447;
-}
+/* The two colour utilities that used to live here - .text-green-up (#1EB500, 2.74:1 on white) and
+   .text-destructive (#EE4447, 3.78:1) - are gone with the stock ticker that was their only caller. Both
+   failed WCAG 1.4.3, and they survived every colour sweep in this repo because this file is the one
+   stylesheet outside the stated audit scope. Anything that needs an up/down colour uses
+   ApplicationHelper#movement_class, which returns green-700 or red-700 at 4.95:1 and 6.42:1. */

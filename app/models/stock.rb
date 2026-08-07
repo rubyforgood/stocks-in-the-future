@@ -21,6 +21,30 @@ class Stock < ApplicationRecord
   scope :active, -> { where(archived: false) }
   scope :archived, -> { where(archived: true) }
 
+  # The companies whose price moved most since yesterday, for the home page card.
+  #
+  # **A mover has to have moved.** Rows where the price is unchanged are excluded, not sorted to the
+  # bottom, and so are rows with no yesterday price at all - which is every row until the daily price
+  # job has run twice. Without that filter the card would show three companies at 0.00% and call them
+  # today's movers, which is what the nav ticker it replaces did: all 18 stocks had a nil yesterday
+  # price, so every item read 0.00% and, because the colour test was `>= 0`, every one read as a gain.
+  #
+  # Ordered in SQL rather than by loading every stock and sorting on `percentage_change` in Ruby. The
+  # `* 100.0` is what keeps it out of integer division, and Postgres types it as `numeric`, so the
+  # arithmetic is exact - the same reason design.md tells you not to "fix" the existing
+  # `price_cents / 100.0` expressions.
+  #
+  # Ticker breaks the tie so the order is stable between requests when two stocks move identically.
+  MOVERS_SHOWN = 3
+
+  scope :movers, lambda { |limit = MOVERS_SHOWN|
+    active
+      .where.not(yesterday_price_cents: [nil, 0])
+      .where("price_cents <> yesterday_price_cents")
+      .order(Arel.sql("ABS((price_cents - yesterday_price_cents) * 100.0 / yesterday_price_cents) DESC"), :ticker)
+      .limit(limit)
+  }
+
   # How long an archived company stays on the student-facing list.
   #
   # This is a *display* retention rule, not a purge, and it cannot be anything else: orders.stock_id

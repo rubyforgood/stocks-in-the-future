@@ -49,13 +49,12 @@
           </button>
           <%= image_tag "SITF-Horz-no-tag-logo.svg", class: "h-8 w-auto", alt: "Stocks in The Future" %>
         </div>
-        <div class="flex items-center gap-4">
-          <div class="hidden lg:block">
-            <%= render 'layouts/stock_ticker' %>
-          </div>
-
-          <%= render 'layouts/account_menu' %>
-        </div>
+        <%# The scrolling stock ticker was here, 400px wide, `hidden lg:block`. Removed: see
+            migration.md. It failed WCAG 2.2.2 at Level A - content moving automatically for more than
+            five seconds with no way to pause, stop or hide it - its two colours measured 2.74:1 and
+            3.78:1, and it showed a symbol and a percentage with no price, no company name and no link.
+            Its content lives on the home page now, still, as `home/_todays_movers`. %>
+        <%= render 'layouts/account_menu' %>
       </header>
 
       <%= render 'layouts/navbar' %>

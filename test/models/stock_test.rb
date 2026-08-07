@@ -84,4 +84,33 @@ class StockTest < ActiveSupport::TestCase
       "must be a valid HTTP or HTTPS URL"
     )
   end
+
+  # A mover has to have moved. The nav ticker this feeds the replacement for showed all 18 stocks at
+  # 0.00% - none had a yesterday price - and coloured every one of them green with an up arrow.
+  test "movers excludes stocks that have not moved" do
+    create(:stock, ticker: "FLAT", price_cents: 10_000, yesterday_price_cents: 10_000)
+    create(:stock, ticker: "NEW", price_cents: 10_000, yesterday_price_cents: nil)
+    create(:stock, ticker: "ZERO", price_cents: 10_000, yesterday_price_cents: 0)
+    moved = create(:stock, ticker: "MOVED", price_cents: 11_000, yesterday_price_cents: 10_000)
+
+    assert_equal [moved], Stock.movers.to_a
+  end
+
+  test "movers orders by the size of the move, up or down" do
+    small = create(:stock, ticker: "SMALL", price_cents: 10_100, yesterday_price_cents: 10_000)
+    big_drop = create(:stock, ticker: "DROP", price_cents: 8_000, yesterday_price_cents: 10_000)
+    medium = create(:stock, ticker: "MED", price_cents: 11_000, yesterday_price_cents: 10_000)
+
+    # A 20% fall is a bigger move than a 10% rise, so direction does not decide the order.
+    assert_equal [big_drop, medium, small], Stock.movers.to_a
+  end
+
+  test "movers leaves archived companies out and takes a limit" do
+    create(:stock, ticker: "GONE", price_cents: 20_000, yesterday_price_cents: 10_000, archived: true)
+    create_list(:stock, 4, price_cents: 11_000, yesterday_price_cents: 10_000)
+
+    assert_not_includes Stock.movers(10).map(&:ticker), "GONE"
+    assert_equal 3, Stock.movers.size
+    assert_equal 2, Stock.movers(2).size
+  end
 end

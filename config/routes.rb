@@ -87,9 +87,6 @@ Rails.application.routes.draw do
     resources :component_demo, only: %i[index show] do
       collection do
         get :form
-        # Design preview of a proposal. Development only - see the controller, which refuses it
-        # elsewhere.
-        get :stock_ticker
       end
     end
 

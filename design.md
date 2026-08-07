@@ -1181,6 +1181,62 @@ is where a section's control goes - Polaris's card header action, Primer's `Subh
 sections - with the sentence beside it. That is what makes the pill unnecessary and what took the page
 from **six card surfaces to two**.
 
+### Today's movers, and why the nav ticker was removed
+
+**Decision: the scrolling stock ticker is gone from the header, and its content is a still card on the home
+page.** Reported as "a continuously scrolling green ticker... it does not look WCAG compliant nor is there
+any real data here". All of that checked out, and the reasons are worth keeping because a ticker is the
+kind of thing that gets proposed again.
+
+**Why it was removed.** Four reasons, in the order that matters:
+
+1. **WCAG 2.2.2 Pause, Stop, Hide, at Level A.** `animation: scroll 20s linear infinite`, starting by
+   itself, running forever, with no pause control and no `prefers-reduced-motion` guard. Level A is the
+   tier below which nothing is negotiable, and this was on every signed-in page.
+2. **WCAG 1.4.3.** Its two colours measured **2.74:1** (up) and **3.78:1** (down) on white, against AA's
+   4.5:1. Both tokens lived in `app/assets/stylesheets/application.css` - the one stylesheet outside this
+   repo's stated audit scope - which is how they survived every colour sweep. **That file is now in the
+   scope in CLAUDE.md.**
+3. **It said nothing true.** Every stock's `yesterday_price_cents` was nil, so `percentage_change` returned
+   0.0 and all 18 read `0.00%` - and because the colour test was `percentage_change >= 0`, every one of
+   them was green with an upward arrow. A market where nothing moved and everything gained.
+4. **It carried no useful content even when working.** A symbol and a percentage: no price, no company
+   name, not a link, no relation to what the student owns - while the trading floor, one click away, has
+   all four. And `hidden lg:block`, so the phones these students mostly use never saw it.
+
+**Why a ticker was the wrong component to begin with.** It is a **broadcast** device. Auto-scrolling
+tickers survive in television lower-thirds and public information displays, where the viewer is captive,
+has no pointer and cannot scroll. No finance application animates its chrome: Robinhood has a static
+watchlist, Fidelity and Schwab have pinned quote panels, Yahoo Finance's quote row is user-scrolled, and
+the Bloomberg Terminal - the densest financial interface there is - does not marquee. In an application the
+reader sets the pace, and motion takes that away for nothing, because the same figures sit still perfectly
+well. `<marquee>` was deprecated, and 2.2.2 is why.
+
+**Why the replacement is shaped the way it is.**
+
+- **A mover has to have moved.** `Stock.movers` excludes unchanged prices and rows with no yesterday
+  price, rather than sorting them to the bottom. Three companies at 0.00% under the heading "Today's
+  movers" is the ticker's lie in a new frame.
+- **Three states, not two.** Up is green with an up arrow, down is red with a down arrow, unchanged is
+  slate with **no arrow**. `ApplicationHelper#movement_class` is the one place that decides, at green-700
+  and red-700 - measured 4.95:1 and 6.42:1 - and the sign and the arrow mean it is never colour alone.
+- **List rows in one card**, `divide-y` between them, per the card-soup rule. Each row is the link, so the
+  target is the row rather than a word in it.
+- **Below the balance, not above it.** A student comes to that page for one number. Measured: the balance
+  stays at its old position and Announcements moves down by the card's 366px plus the 24px gap. This
+  document had already measured the opposite mistake at a cost of 421px on the roster.
+
+**And it carries help text, which is the condition of it existing at all.** A "biggest movers" list put in
+front of eleven-year-olds teaches performance chasing - buy what went up - which is the opposite of what
+this app is for. So the card says what a move is ("changed most since yesterday"), that prices move every
+day in both directions, that **a company at the top of the list is not a better buy**, and what to do
+instead: open it and read what the company does and how its price has moved over time. No advice, and the
+one instruction is something a student can actually act on. If a future card of this kind cannot carry that
+sentence, it should not carry the list either.
+
+`todays_movers_test.rb` asserts all of it, including that **nothing on the page animates at all** - which
+is the assertion that would fail if a ticker ever came back.
+
 **One icon per card, and it lives in the header.** The announcements card had `megaphone` twice: 16px in
 a 32x32 blue-50 tile in the header, and 20px bare slate-500 in the body's empty state. Bigger, a different
 colour, no tile - reported as the two not matching. Matching them would have been the wrong fix: it would

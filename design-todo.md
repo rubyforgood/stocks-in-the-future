@@ -616,39 +616,13 @@ before.
 
 ## The nav's scrolling stock ticker (2026-08)
 
-- [ ] **Remove it, and decide what replaces it.** Reported as a continuously scrolling green ticker with no
-  real data, and every part of that checked out.
+- [x] ~~**Remove it, and decide what replaces it.**~~ **Done: removed, replaced by `home/_todays_movers`.**
+  The reasoning is in design.md and the removal is mapped in migration.md. In short: WCAG 2.2.2 at Level A
+  with no pause control, 2.74:1 and 3.78:1 colours, no real data - all 18 stocks read 0.00% and every one
+  was green with an up arrow because the test was `>= 0` - and a ticker is a broadcast component that no
+  finance application uses in its chrome.
 
-  **Preview: `/admin/component_demo/stock_ticker`**, development only. Shows the current component standing
-  still, the recommended card, the three change states, and the colour table - with every figure measured
-  from what actually paints.
-
-  **What it is.** Ten active stocks rendered twice for a seamless loop, `20s linear infinite`, through a
-  400px window in the app-side header. Symbol and percentage only: no price, no company name, not a link,
-  no relation to what the student owns. `hidden lg:block`, so the phones these students use never see it.
-
-  **Two WCAG failures, one at Level A.** No pause, stop or hide for content that moves automatically for
-  more than five seconds (2.2.2, **Level A**), and no `prefers-reduced-motion` guard. And 2.74:1 for the up
-  colour, 3.78:1 for the down colour, where AA asks 4.5:1.
-
-  **A bug under the data problem.** The condition is `percentage_change >= 0`, so an unchanged stock is
-  green with an upward arrow. In this database that is every stock - all 18 have no yesterday price, so
-  everything reads 0.00% and everything reads as a gain.
-
-  **Why the audits missed it.** Both colour tokens live in `app/assets/stylesheets/application.css`, the one
-  stylesheet outside this repo's audit scope, which is `app/views`, `app/helpers`, `app/assets/tailwind`,
-  `app/components` and `app/form_builders`. That file holds nothing else but a font import. **Add it to the
-  scope in CLAUDE.md whichever way this goes.**
-
-  **Industry standard.** A ticker is a broadcast device - television lower-thirds and public information
-  displays, where the viewer is captive and cannot scroll. No finance application animates its chrome:
-  Robinhood has a static watchlist, Fidelity and Schwab have pinned quote panels, Yahoo Finance's quote row
-  is user-scrolled, and the Bloomberg Terminal does not marquee.
-
-  **The three options**, and the decision needed: replace it with the "Today's movers" card in the preview;
-  remove it and let the trading floor cover it, which is one click away and shows name, price, holdings and
-  actions; or keep it and make it compliant, which means a pause control, a reduced-motion guard, AA colours
-  and the flat-is-green fix on a component no design system here has ever endorsed.
-
-  Removing a capability, so whichever way it goes it wants a `migration.md` entry.
-
+  The replacement lists only companies that actually moved, in three states rather than two, below the
+  balance rather than above it, and carries help text saying a big one-day move is not a reason to buy.
+  `app/assets/stylesheets/application.css` is now in CLAUDE.md's audit scope, which is why those colours
+  survived every sweep.

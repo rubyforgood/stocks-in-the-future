@@ -703,8 +703,13 @@ Twice on this branch a sweep looked complete because it only covered
 
 `@apply` classes are Tailwind, so they look migrated and get skipped. They are
 not exempt from the token rules or from contrast. Any audit should cover
-`app/views`, `app/helpers`, `app/assets/tailwind`, `app/components` **and
-`app/form_builders`**.
+`app/views`, `app/helpers`, `app/assets/tailwind`, `app/components`, `app/form_builders` **and
+`app/assets/stylesheets`**.
+
+That last one is not a typo for the tailwind directory. `app/assets/stylesheets/application.css` is a
+separate file, loaded by both layouts, and it held the nav ticker's two colours at **2.74:1 and 3.78:1**
+for the whole design migration - invisible to every sweep, because every sweep used the list above without
+it. It now holds nothing but a font import and a comment saying why.
 
 That last one was missing and it hid the biggest colour divergence in the app:
 `Admin::FormBuilder#submit_button` backs eleven admin forms and was `bg-blue-600`

@@ -49,8 +49,20 @@ module ApplicationHelper
     number_with_precision(shares.to_d, precision: 2, strip_insignificant_zeros: true)
   end
 
-  def ticker_stocks
-    Stock.active.order(:ticker)
+  # Up, down, flat - three states, and the colour is never the only signal (the sign and the arrow carry
+  # the direction as well). The ticker this replaced tested `>= 0`, so an unchanged price was green with an
+  # upward arrow; in a database where nothing has a yesterday price that was every row.
+  #
+  # green-700 and red-700, not the green-up/destructive pair in app/assets/stylesheets/application.css:
+  # measured on white those two are 2.74:1 and 3.78:1 and fail AA, while these are 4.95:1 and 6.42:1.
+  def movement_class(change)
+    if change.positive?
+      "text-green-700"
+    elsif change.negative?
+      "text-red-700"
+    else
+      "text-slate-600"
+    end
   end
 
   def format_money(cents)

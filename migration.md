@@ -2740,3 +2740,49 @@ access immediately and that nothing is deleted.
 through the admin screens. `admin/students` has `restore`, teachers have reactivation, and a user who is
 neither has neither. Recorded in `design-todo.md`.
 
+## The nav's scrolling stock ticker is removed (2026-08)
+
+**Capability removed, plus a file and two colour tokens deleted.** Reported as "a continuously scrolling
+green ticker... it does not look WCAG compliant nor is there any real data here", previewed at
+`/admin/component_demo/stock_ticker`, and approved.
+
+### What went
+
+| Deleted | Was |
+|---|---|
+| `app/views/layouts/_stock_ticker.html.erb` | the 400px `hidden lg:block` window in the app-side header |
+| `app/views/layouts/_stock_item.html.erb` | one symbol + percentage, rendered twice per stock for the loop |
+| `ApplicationHelper#ticker_stocks` | `Stock.active.order(:ticker)` |
+| `app/assets/tailwind/navbar.css` | the whole file - four rules and the `scroll` keyframes, nothing else |
+| `.text-green-up` / `.text-destructive` | in `app/assets/stylesheets/application.css`, at 2.74:1 and 3.78:1 |
+
+### Why
+
+1. **WCAG 2.2.2 Pause, Stop, Hide - Level A.** `20s linear infinite`, automatic, endless, no pause control,
+   no `prefers-reduced-motion`. On every signed-in page.
+2. **WCAG 1.4.3.** 2.74:1 up and 3.78:1 down on white against AA's 4.5:1.
+3. **It was not showing data.** Every `yesterday_price_cents` was nil, so all 18 stocks read `0.00%`, and
+   the colour test was `percentage_change >= 0`, so every one was green with an upward arrow.
+4. **A ticker is a broadcast component.** It belongs to television lower-thirds and public displays, where
+   the viewer is captive and cannot scroll. No finance application animates its chrome. See design.md.
+
+### What replaced it
+
+`home/_todays_movers`, a still card on the home page below the balance, plus `Stock.movers` and
+`ApplicationHelper#movement_class`. The card lists up to three companies whose price actually changed, with
+company name, ticker, price, change, an arrow and a link to the company - and help text explaining that a
+big one-day move is not a reason to buy, which is the condition of showing a movers list to children at all.
+
+### What this breaks
+
+- **Anything selecting `.ticker-content`, `.ticker-item`, `.animate-scroll`, `.text-green-up` or
+  `.text-destructive`** finds nothing. Nothing in the app did; `todays_movers_test` asserts the absence.
+- **The header is one element narrower at `lg`.** Nothing measured against its 400px, and the account menu
+  was already the flex row's other child, so it simply sits where it did with more room beside it.
+- **`app/assets/stylesheets/application.css` now holds only a font import.** It is kept for that import and
+  for the comment recording why the two tokens went. It is also **now in CLAUDE.md's audit scope**, which it
+  never was - the reason a 2.74:1 colour survived the entire design migration.
+- **`Stock.movers` returns nothing until the daily price job has run twice.** That is the honest state, and
+  the card says so rather than showing zeroes. Any environment where the job has never run sees the empty
+  state, which is what development sees.
+
