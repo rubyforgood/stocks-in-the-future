@@ -62,18 +62,6 @@ module Admin
       ]
     end
 
-    # Design preview for the destructive-button question in design-todo.md: whether the confirmation
-    # dialog's accept should be a solid destructive fill. Development only - a live page of
-    # hypothetical UI reads as shipped product. Same guard the earlier previews carried.
-    def destructive_buttons
-      raise ActionController::RoutingError, "Not Found" unless Rails.env.development?
-
-      @breadcrumbs = [
-        { label: "Components", path: admin_component_demo_index_path },
-        { label: "Destructive buttons" }
-      ]
-    end
-
     def form
       @user = User.first || User.new(email: "", name: "", admin: false)
 

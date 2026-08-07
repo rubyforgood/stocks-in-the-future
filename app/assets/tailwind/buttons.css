@@ -34,8 +34,13 @@
    *  - .tw-btn-buy put white text on #80cec8, which measures 1.81:1 - the least readable
    *    button in the app was the Buy control on the trading floor.
    *
-   * .tw-btn-danger, .tw-btn-buy, .tw-btn-sell and .tw-btn-tertiary are gone: nothing references
-   * them. An unused class is indistinguishable from a supported one until someone adopts it.
+   * .tw-btn-buy, .tw-btn-sell and .tw-btn-tertiary are gone: nothing references them. An unused class
+   * is indistinguishable from a supported one until someone adopts it.
+   *
+   * .tw-btn-danger went the same way and is back, deliberately and with one caller: the accept button
+   * of a destructive confirmation, defined below. It was removed the first time for having no callers,
+   * then I re-added it on my own judgement with the wrong shade and a property the spec forbids, and
+   * that was reverted. The difference now is that design.md names its use.
    * .tw-btn-tertiary was a filled slate-100 button that is not one of design.md's variants at
    * all - the spec's tertiary is the ghost in ButtonHelper - and its six call sites were all
    * standalone "Back to X" / "Edit class" actions, which the spec calls :secondary.
@@ -58,6 +63,7 @@
    * `font-semibold`. A shared base cannot drift from itself. */
   .tw-btn-primary,
   .tw-btn-secondary,
+  .tw-btn-danger,
   .tw-btn-danger-outline,
   .tw-btn-primary-disabled {
     @apply inline-flex h-10 items-center justify-center gap-2 rounded-lg px-4 text-sm shadow-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2;
@@ -81,6 +87,31 @@
    * deliberate change to the spec, made once here, not per call site. */
   .tw-btn-secondary {
     @apply cursor-pointer border border-slate-200 bg-white font-medium text-slate-700 hover:bg-slate-50 focus-visible:outline-sitf-primary;
+  }
+
+  /* design.md's :danger, and the one place it belongs: the accept button of a destructive confirmation.
+   *
+   * Not a general-purpose red button. "No red at rest" still holds for every control that sits on a
+   * page, which is the 15 ghost and bordered destructive actions - a red control alarms you while you
+   * are doing something else, and that is the whole of the rule. A confirmation exists only because you
+   * asked for the action a moment ago and its job is to describe it, so the argument does not reach it.
+   * Polaris renders a modal's destructive primaryAction as a critical fill, GOV.UK reserves its warning
+   * button for serious or irreversible consequences, and Atlassian, Carbon and Ant Design agree.
+   *
+   * rose-700, not the rose-600 the variant list used to state: measured with white text, 600 is 4.53:1
+   * and clears AA by 0.03, which is no headroom, while 700 is 6.03:1 - level with the brand primary's
+   * 6.18:1, so the destructive accept does not read weaker than a benign one. The same one-step-darker
+   * correction the spec already makes for :success ("emerald-700, not 600: white on 600 is 3.77:1").
+   *
+   * font-semibold because the filled variants are semibold and the outlined ones font-medium - the
+   * weight carries part of the emphasis hierarchy. No `border border-transparent`: the spec rules it out
+   * by name and the h-10 token already equalises the heights.
+   *
+   * The focus ring is rose-800, a darker shade of the control's own colour, which is the same
+   * relationship .tw-btn-primary has with sitf-primary-dark. It sits outside the button on the page, so
+   * what it needs contrast against is the page: 7.92:1 on white. */
+  .tw-btn-danger {
+    @apply cursor-pointer bg-rose-700 font-semibold text-white hover:bg-rose-800 focus-visible:outline-rose-800;
   }
 
   /* design.md's :danger_outline. Identical to :secondary at rest - no red anywhere until hover -

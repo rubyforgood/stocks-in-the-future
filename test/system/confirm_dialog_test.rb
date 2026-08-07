@@ -89,8 +89,7 @@ class ConfirmDialogTest < ApplicationSystemTestCase
     end
   end
 
-  # A destructive accept is `:danger_outline` - design.md's variant for a destructive action among
-  # bordered buttons, and Cancel beside it is bordered - while anything else is the brand primary. The
+  # A destructive accept is `.tw-btn-danger` - solid rose - and anything else is the brand primary. The
   # trigger says which, so a label containing the word "delete" is not what decides it.
   test "the accept button is destructive only for a destructive action" do
     classroom, = a_classroom_with_a_student
@@ -98,7 +97,7 @@ class ConfirmDialogTest < ApplicationSystemTestCase
     visit classroom_path(classroom)
     click_on "Delete", match: :first
 
-    assert_selector "#confirm-dialog[open] [data-confirm-dialog-target='accept'].tw-btn-danger-outline"
+    assert_selector "#confirm-dialog[open] [data-confirm-dialog-target='accept'].tw-btn-danger"
     assert_no_selector "#confirm-dialog [data-confirm-dialog-target='accept'].tw-btn-primary"
 
     within("#confirm-dialog") { click_on "Cancel" }
@@ -106,15 +105,18 @@ class ConfirmDialogTest < ApplicationSystemTestCase
     click_on "Reset password", match: :first
 
     assert_selector "#confirm-dialog[open] [data-confirm-dialog-target='accept'].tw-btn-primary"
-    assert_no_selector "#confirm-dialog [data-confirm-dialog-target='accept'].tw-btn-danger-outline"
+    assert_no_selector "#confirm-dialog [data-confirm-dialog-target='accept'].tw-btn-danger"
   end
 
-  # "No red at rest, anywhere, including the bordered destructive button" - design.md, stated absolutely.
-  # A solid rose accept broke it, and the reason I gave for adding one (that the spec's rose-600 fails AA)
-  # was wrong too: white on rose-600 measures 4.53:1. Asserted by painting the button's own background
-  # into a canvas and reading the pixel, because getComputedStyle returns oklch() in this browser and
-  # parsing those three numbers as if they were RGB is how an audit here once invented five failures.
-  test "the destructive accept carries no red at rest" do
+  # The fill, and its contrast, measured rather than asserted on the class name. Painted into a canvas and
+  # read back, because getComputedStyle returns oklch() in this browser and parsing those three numbers as
+  # if they were RGB is how an audit here once invented five contrast failures.
+  #
+  # This test used to assert the opposite - that the accept carried no red at rest - when the rule read
+  # "no red at rest, anywhere". The rule now reads "on a page", with the dialog as the named exception, so
+  # the assertion inverts with it. What has not changed: a destructive control **on a page** is still
+  # slate at rest, which `row_actions_test` covers.
+  test "the destructive accept is a solid rose that clears AA" do
     classroom, = a_classroom_with_a_student
 
     visit classroom_path(classroom)
@@ -137,9 +139,34 @@ class ConfirmDialogTest < ApplicationSystemTestCase
       })()
     JS
 
-    # Rose is red-dominant by a wide margin; white and a hairline-bordered white are not.
-    assert_operator channels["r"] - channels["g"], :<, 24,
-                    "the destructive accept is red at rest (#{channels.inspect})"
+    # Red-dominant by a wide margin, which white and a hairline-bordered white are not.
+    assert_operator channels["r"] - channels["g"], :>, 100,
+                    "the destructive accept is not a red fill (#{channels.inspect})"
+
+    ratio = page.evaluate_script(<<~JS)
+      (function () {
+        const el = document.querySelector("[data-confirm-dialog-target='accept']");
+        const paint = (colour) => {
+          const c = document.createElement("canvas");
+          c.width = c.height = 1;
+          const x = c.getContext("2d");
+          x.fillStyle = "white";
+          x.fillRect(0, 0, 1, 1);
+          x.fillStyle = colour;
+          x.fillRect(0, 0, 1, 1);
+          return x.getImageData(0, 0, 1, 1).data;
+        };
+        const lum = (d) => {
+          const f = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+          return 0.2126 * f(d[0]) + 0.7152 * f(d[1]) + 0.0722 * f(d[2]);
+        };
+        const cs = getComputedStyle(el);
+        const [hi, lo] = [lum(paint(cs.color)), lum(paint(cs.backgroundColor))].sort((a, b) => b - a);
+        return Math.round(((hi + 0.05) / (lo + 0.05)) * 100) / 100;
+      })()
+    JS
+
+    assert_operator ratio, :>=, 4.5, "the destructive accept's label is #{ratio}:1 on its fill"
   end
 
   # The body is hidden rather than empty when a confirmation has nothing to add, so a one-line question

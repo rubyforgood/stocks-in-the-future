@@ -96,8 +96,9 @@ class FocusIndicatorTest < ApplicationSystemTestCase
                         "a ring colour with no ring width paints nothing; this app draws focus with outline"
   end
 
-  # No control shows a ring at rest. This is what makes a *preview* that paints one misleading, which is
-  # how the one on /admin/component_demo/destructive_buttons was wrong.
+  # No control shows a ring at rest. This is what makes a mock that paints one misleading - a preview of
+  # the destructive-button proposal did exactly that, and it is why `focus-visible` state has to be
+  # described in words rather than drawn.
   test "no control carries a focus ring at rest" do
     classroom = create(:classroom, :with_trading)
     teacher = create(:teacher)

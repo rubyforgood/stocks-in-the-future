@@ -1400,32 +1400,17 @@ credibility. Two more found by checking rather than assuming: `admin/users` "Del
 **raised in development**, because the guard only steps aside in production), and only
 `Admin::TeachersController#destroy` is a genuine `really_destroy!`.
 
-**A confirmation's destructive accept is `:danger_outline`, because Cancel beside it is bordered.** That
-is this document's existing rule applied, not a new one: a destructive action **matches the buttons beside
-it** - `ghost_class(:danger)` among ghosts, `button_classes(:danger_outline)` among bordered buttons - and
-**no red at rest, anywhere, including the bordered destructive button**. `.tw-btn-secondary` on Cancel is
-bordered, so the accept is `.tw-btn-danger-outline`: slate at rest, rose on hover.
+**A confirmation's destructive accept is `.tw-btn-danger` - solid rose.** It is the one place a filled
+destructive button belongs, and the reasoning is in "No red at rest" in the Buttons section: that rule is
+about a control sitting on a page, and a confirmation is not sitting in wait. A benign confirmation keeps
+the brand primary, so the fill is carrying information rather than decorating every dialog.
 
-I got this wrong first and it is worth keeping why. I added a solid rose `.tw-btn-danger` and argued for
-it from the field - macOS, GitHub and Polaris do use a solid destructive accept - **on a question this
-document had already answered twice**, in the variant list and in the no-red-at-rest rule. The
-justification I gave was also false: I said the spec's filled rose-600 fails AA, and measured properly,
-white on rose-600 is **4.53:1**, which passes. And `buttons.css` records that `.tw-btn-danger` had been
-**deleted** once already, eight lines above where I re-added it, for having no callers. Three signals,
-all pointing the same way.
+`:danger_outline` keeps its own home, which is a destructive action **among bordered buttons on a page** -
+the grade book's Finalize. The rule that a destructive action matches its neighbours still holds there;
+the dialog is the exception, not a repeal.
 
-The cost of the spec's answer is real and worth naming: at rest the accept matches Cancel, so the labels
-carry the difference. That is also what macOS HIG asks of a destructive alert - the destructive button is
-not the default and Cancel holds focus - which is what `autofocus` on Cancel already does here.
-
-**Matched on the trigger, not on its words**: `data-confirm-danger`, or the ghost's own danger class,
-because keying on "delete" or "remove" would style a button for a noun in its label and would miss
-"Deactivate".
-
-**The filled `:danger` variant in the list above has no implementation and no caller.** Nothing routes to
-it - every usage instruction here points at `:danger_outline` or ghost danger - and by this document's own
-rule an unused class is indistinguishable from a supported one. It should either gain a stated use or come
-out of the list; that is a decision, not a sweep.
+Cancel is `.tw-btn-secondary`, first in the DOM, and holds `autofocus` - so a stray Return dismisses
+rather than deletes, which is Apple HIG's rule and unaffected by the fill.
 
 **A dialog's buttons are trailing-aligned, which is the exception the form-actions rule names.** Cancel
 first in the DOM with `autofocus`, accept last: macOS, Polaris, Material and GitHub all put the answer
@@ -1987,7 +1972,12 @@ truth. Never hand-write button class strings in views; they drift (that is how t
 ended up mismatched). Variants:
 - `:primary` (filled brand): `bg-brand-600 text-white font-semibold hover:bg-brand-700`
 - `:secondary` (outlined): `border border-slate-200 bg-white text-slate-700 font-medium hover:bg-slate-50`
-- `:danger` (filled rose): `bg-rose-600 text-white font-semibold hover:bg-rose-700`
+- `:danger` (filled rose): `bg-rose-700 text-white font-semibold hover:bg-rose-800`, focus ring
+  `rose-800`. **For the accept button of a destructive confirmation, and nothing else** - see "No red at
+  rest" below for why that is the one place it belongs. rose-700 rather than rose-600: measured with white
+  text, 600 is **4.53:1** and clears AA by 0.03, which is no headroom, while 700 is **6.03:1** and sits
+  level with the brand primary's 6.18:1, so a destructive accept does not read weaker than a benign one.
+  The same one-step-darker correction this list already makes for `:success`.
 - `:danger_outline` (a **quiet outlined destructive** button): identical to `:secondary` at rest -- `border border-slate-200 bg-white text-slate-700 font-medium` -- and turns rose only on hover (`hover:border-rose-300 hover:bg-rose-50 hover:text-rose-700`, rose focus ring). Use it for a destructive action that sits **among bordered buttons** (a toolbar/section/header of `:secondary`/`:primary`), so it matches them at rest with no always-on red; use `ghost_class(:danger)` when the neighbours are ghost (see below). No red-at-rest either way.
 - `:success` (filled emerald, for a **prominent** positive action, e.g. reactivating a deactivated user): `bg-emerald-700 text-white font-semibold hover:bg-emerald-800` (emerald-700, not 600: white on 600 is 3.77:1, below AA). A **repeated per-row/card "resolve"** (e.g. resolving a followup reminder) recedes to `:secondary` -- a filled emerald over-emphasizes a low-frequency action next to its neutral row-mates.
 
@@ -2109,7 +2099,7 @@ white on it 6.18:1):
 | `:primary` | `.tw-btn-primary` | `bg-sitf-primary`, `font-semibold`, white label |
 | `:secondary` | `.tw-btn-secondary` | `border border-slate-200`, `font-medium` |
 | `:danger_outline` | `.tw-btn-danger-outline` | identical to secondary at rest, rose on hover |
-| `:danger` (filled rose) | **not shipped** | no styled confirm dialog here; Turbo uses the native one, so there is no surface for it. Do not add it unused. |
+| `:danger` (filled rose) | `.tw-btn-danger` | the accept button of a destructive confirmation, and nothing else. The note here used to read "not shipped - Turbo uses the native dialog, so there is no surface for it", which stopped being true when `shared/_confirm_dialog` landed. |
 | `:success` (filled emerald) | **not shipped** | see below |
 | tertiary / ghost | `ghost_class` in `ButtonHelper` | row actions |
 
@@ -2339,7 +2329,40 @@ checkbox specifically, and that nothing is ringed while unfocused.
 offset so the ring sits inside the field. Showing focus when a field is clicked into is correct and is
 what every form library does; the distinction is that a button should not flash a ring at a mouse user.
 
-**No red at rest, anywhere, including the bordered destructive button.** `admin_danger_button_class`
+**No red at rest for any control that sits on a page** - which is 15 of the app's 16 destructive
+controls, and the rule as it was written. It reads "on a page" rather than "anywhere" because of one
+named exception: **the accept button of a confirmation dialog is `.tw-btn-danger`, solid rose.**
+
+The reason a red control is wrong at rest is that it alarms you while you are doing something else. A
+confirmation exists only because you asked for the action a moment ago, and the dialog's whole job is to
+describe it, so the argument does not reach it. The field splits the same way: a destructive control *on a
+page* is low emphasis (Primer's danger variant is red text at rest with the fill on hover; Carbon ships
+`danger--ghost` and `danger--tertiary`; Gmail and Linear are neutral), while a destructive control that is
+*the subject of its surface* is solid red (Polaris's destructive modal `primaryAction`, GOV.UK's warning
+button, Atlassian, Carbon, Ant Design). Before this, the app had the first tier twice over and the second
+not at all, and the defect that showed was two identical white boxes as the two answers to "delete this
+person?" - in the one dialog whose job is to make the choice deliberate.
+
+**What does not change:** Cancel keeps `autofocus`, so the destructive answer is never the default. That
+is Apple HIG's rule, it is orthogonal to the fill, and Polaris and Carbon ship both together. Apple is
+the dissent on the fill itself - it uses red *text* - and this follows the majority.
+
+**How the choice is made:** on the trigger, never on its words. `data-confirm-danger`, or the ghost's own
+danger class. Keying on "delete" or "remove" would style a button for a noun in its label and would miss
+"Deactivate".
+
+**Do not read this as a general licence.** One class, one caller, and a page-level destructive button is
+still slate at rest. `confirm_dialog_test.rb` asserts the fill on a destructive confirmation and its
+absence on a benign one, and `focus_indicator_test.rb` asserts nothing carries a ring at rest.
+
+**The history, because I got here badly.** I added a solid `.tw-btn-danger` on my own judgement while the
+rule still read "anywhere", with rose-700 justified by a claim that rose-600 fails AA - it does not - and
+with `border border-transparent`, which this document forbids by name. `buttons.css` recorded that the
+class had already been deleted once for having no callers, eight lines above where I re-added it. Three
+signals, none read. It was reverted, previewed at
+`/admin/component_demo/destructive_buttons`, and adopted as a decision rather than a preference.
+
+`admin_danger_button_class`
 was `border-red-300 text-red-700` and is now slate at rest like `:secondary`, rose on hover -- it
 sits in the `classrooms#show` toolbar between a bordered Edit and a bordered Delete, and a ghost
 among bordered neighbours reads as broken. Restore was `green-600` on white, **3.30:1, a straight
