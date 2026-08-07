@@ -18,8 +18,8 @@
     </div>
   </div>
 
-  <div class="flex items-center justify-end gap-x-4">
-    <%= f.cancel_button "Cancel", url: @announcement.persisted? ? admin_announcement_path(@announcement) : admin_announcements_path %>
+  <div class="flex flex-wrap items-center gap-3">
     <%= f.submit_button @announcement.persisted? ? "Update announcement" : "Create announcement" %>
+    <%= f.cancel_button "Cancel", url: @announcement.persisted? ? admin_announcement_path(@announcement) : admin_announcements_path %>
   </div>
 <% end %>

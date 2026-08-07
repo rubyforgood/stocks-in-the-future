@@ -1231,6 +1231,44 @@ identified nothing, since all four are grade books and all four had the same acc
 finalize - against a form whose own fields start at the left. Polaris, Primer and Tailwind UI all put
 form actions on the leading edge or in a footer bar.
 
+**Of those two, this product uses the leading edge, and the choice is now settled.** "Leading edge *or*
+a footer bar" left room for three answers, and the app had all three: the students#new and #edit pages
+put their actions in a `px-4 py-3 bg-slate-50 text-right` strip **inside** the card, the admin forms
+right-aligned theirs on the page background, and the classroom form and grade book used the leading
+edge. Reported as the grey background behind the buttons. So, everywhere:
+
+- **On the page background, below the card** - never a tinted strip inside it. A footer bar is a real
+  pattern (Polaris `Card` footer actions, Stripe's settings panels) but it is a *different* decision,
+  not a free one: it needs the card to own its padding and it fills a strip with a colour that means
+  nothing here. Measured after: the action row's background is `rgba(0, 0, 0, 0)`.
+- **Aligned to the card's leading edge.** Measured on students#edit: card at 485px, primary at 485px.
+- **Primary first, then cancel.** The order follows the alignment: at the leading edge the eye reads
+  left to right and the primary is what the form is for, which is GOV.UK's and Material's order.
+  Right-aligned rows reverse it - Polaris and Stripe put cancel first there - and that is precisely why
+  the two cannot be mixed in one product.
+- `flex flex-wrap items-center gap-3`, so a narrow viewport wraps instead of pushing cancel off the
+  edge, and `gap-3` rather than `ml-3` on the second button.
+
+`test/system/form_actions_test.rb` asserts all of it as pixels - inside-the-card, tint, leading edge,
+40px height, and the card's own radius and border - on both sides of the product and at 375px. Verified
+by putting the grey strip back and watching it fail.
+
+**A form's card is `.tw-card`, and its fields are one column.** The student pages hand-rolled
+`bg-white shadow-sm overflow-hidden lg:rounded-md`: no border at any width and no radius at all below
+`lg`, so on a phone the form sat on a square-cornered white rectangle against a slate-50 page. And the
+fields were a `grid grid-cols-6` with `col-span-6 lg:col-span-4` - a twelve-column grid for two fields,
+which at `lg` made the inputs two thirds of a container already capped at 672px. One field per row in a
+`space-y-5` stack is what GOV.UK, Polaris and Tailwind UI use for a short form.
+
+**One error summary, in `shared/_form_errors`.** There were three: the student pages' bolded "Error:"
+over a bare list, the classroom form's `bg-red-50 px-3 py-2 rounded-lg` with an `<h2>`, and Devise's
+own. The shared one **counts** - "1 error stopped this student being saved" - because a reader needs to
+know how many things to look for, which is GOV.UK's, Polaris's and Primer's error summary. It carries
+`role="alert"`, an id and `tabindex="-1"` so focus can be moved to it, and **no dismiss**: it describes
+the form as it stands and is rebuilt on submit, so hiding it hides the list of what is still wrong.
+Note the test that broke on this - it found the summary by the word "Error", so a copy change read as a
+dismissal regression. Assert the testid, not the wording.
+
 **One filled primary.** "Finalize grades" was a second `tw-btn-primary`, greyed when completed, floating
 at the foot of the page - and it is the action that pays every student and cannot be undone. It is
 `:danger_outline` in an explained block now, the same shape as the trading setting: the consequence in

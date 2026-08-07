@@ -1,0 +1,40 @@
+<%# The error summary for a form, in one place.
+
+    There were three shapes for this: `rounded-2xl border-red-200 bg-red-50` with a bolded "Error:" on
+    the student pages, `bg-red-50 px-3 py-2 rounded-lg` with an `<h2>` on the classroom form, and
+    Devise's own partial. Three definitions of one thing is the drift mechanism this codebase keeps
+    rediscovering.
+
+    design.md's alert shape: a red-50 tint, a red-200 hairline, red-700 ink, at the panel radius.
+    Measured: red-700 on red-50 is 6.48:1.
+
+    **A heading that counts, not a bare "Error:".** "2 errors prohibited this student from being saved"
+    tells the reader how many things to look for; "Error:" over a list of two does not. That is GOV.UK's
+    error summary, Polaris's and Primer's.
+
+    **No dismiss.** It describes the form as it stands and is rebuilt on every submit, so hiding it
+    hides the list of what is still wrong. `role="alert"` so it is announced when it appears, and
+    `tabindex="-1"` with an id so a caller can move focus to it.
+
+    Locals:
+      record - the model whose errors these are
+      subject - optional noun for the sentence; defaults to the model name %>
+<% return unless record.errors.any? %>
+
+<% subject = local_assigns.fetch(:subject, record.class.model_name.human.downcase) %>
+
+<div id="error_explanation"
+     class="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-red-700"
+     role="alert"
+     tabindex="-1"
+     data-testid="form-errors">
+  <p class="text-sm font-semibold">
+    <%= pluralize(record.errors.count, "error") %> stopped this <%= subject %> being saved
+  </p>
+
+  <ul class="mt-1 list-disc space-y-0.5 pl-5 text-sm">
+    <% record.errors.each do |error| %>
+      <li><%= error.full_message %></li>
+    <% end %>
+  </ul>
+</div>

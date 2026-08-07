@@ -45,9 +45,9 @@
     </div>
   </div>
 
-  <div class="flex items-center justify-end gap-x-4">
-    <%= f.cancel_button "Cancel", url: @student.persisted? ? admin_student_path(@student) : admin_students_path %>
+  <div class="flex flex-wrap items-center gap-3">
     <%= f.submit_button @student.persisted? ? "Update student" : "Create student" %>
+    <%= f.cancel_button "Cancel", url: @student.persisted? ? admin_student_path(@student) : admin_students_path %>
   </div>
 <% end %>
 
@@ -91,7 +91,7 @@
       </div>
     </div>
 
-    <div class="flex items-center justify-end gap-x-4">
+    <div class="flex flex-wrap items-center gap-3">
       <%= f.submit_button "Add transaction", variant: :secondary %>
     </div>
   <% end %>

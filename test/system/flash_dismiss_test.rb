@@ -110,7 +110,13 @@ class FlashDismissTest < ApplicationSystemTestCase
     fill_in "Username", with: "taken"
     click_on "Create student"
 
-    assert_selector "[role='alert']", text: "Error"
+    # On the testid, not on the copy. This read `text: "Error"`, which was how the old summary opened -
+    # "Error:" over a bare list. It counts now, because a reader needs to know how many things to look
+    # for: "1 error stopped this student being saved". Asserting the wording here made a copy change look
+    # like a dismissal regression.
+    assert_selector "[data-testid='form-errors'][role='alert']",
+                    text: "1 error stopped this student being saved"
+    assert_selector "[data-testid='form-errors']", text: "Username has already been taken"
     assert_no_dismissers("the students#new error summary")
   end
 
