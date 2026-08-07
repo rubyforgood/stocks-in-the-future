@@ -4,8 +4,9 @@ require "application_system_test_case"
 
 # Price change, in the one place it belongs: beside the price, in the table a student buys from.
 #
-# It has had three homes in as many commits, and the reasons are worth keeping. It was a scrolling ticker in
-# the header - WCAG 2.2.2 at Level A with no pause control, colours at 2.74:1 and 3.78:1, and every stock
+# It had three homes in as many commits and is now gone, and the reasons are worth keeping. It was a
+# scrolling ticker in the header - WCAG 2.2.2 at Level A with no pause control, colours at 2.74:1 and 3.78:1, and
+# every stock
 # reading 0.00% and green because nothing had a yesterday price. Then a "Today's movers" card on the home
 # page, which pushed the balance, the announcements and the getting-started steps down in order to list
 # three of the companies the trading floor lists anyway. Now a column, which is where Robinhood, Fidelity,
@@ -41,47 +42,93 @@ class PriceChangeTest < ApplicationSystemTestCase
     end
   end
 
-  test "the trading floor shows a change beside each price" do
+  # The Change column is gone - see design.md for the four reasons. What replaced it is the age of the price,
+  # which bears on the transaction rather than on the browsing: a student places an order against this
+  # number.
+  test "there is no change column" do
     a_student_with_stocks
-    create(:stock, ticker: "UP", company_name: "Riser", price_cents: 11_000, yesterday_price_cents: 10_000)
-    create(:stock, ticker: "DOWN", company_name: "Faller", price_cents: 9_000, yesterday_price_cents: 10_000)
+    create(
+      :stock, ticker: "UP", company_name: "Riser", price_cents: 11_000, yesterday_price_cents: 10_000,
+              last_trading_day: Date.current - 1
+    )
 
     visit stocks_path
 
-    assert_selector "th", text: "Change"
+    assert_no_selector "th", text: "Change"
+    assert_no_text "+10.00%"
+  end
+
+  # Stale means "older than the freshest price on this page", which needs no calendar knowledge - and that
+  # matters, because the job runs at 02:00 for the previous close, so a fresh price normally carries
+  # yesterday's date. Comparing against today would mark every row.
+  test "a price behind the freshest one on the page says how old it is" do
+    a_student_with_stocks
+    create(
+      :stock, ticker: "FRESH", company_name: "Up To Date", price_cents: 10_000,
+              yesterday_price_cents: 9_900, last_trading_day: Date.current - 1
+    )
+    create(
+      :stock, ticker: "OLD", company_name: "Left Behind", price_cents: 5_000,
+              yesterday_price_cents: 4_900, last_trading_day: Date.current - 5
+    )
+
+    visit stocks_path
 
     rows = page.evaluate_script(<<~JS)
       (function () {
-        return Array.from(document.querySelectorAll("main tbody tr")).map(function (tr) {
-          const cells = tr.querySelectorAll("td");
-          const change = cells[2];
-          // The whole row's text: the primary cell leads with the ticker, so the first line is "UP", not
-          // "Riser", and matching on the first line found nothing.
-          return { name: tr.textContent.replace(/\s+/g, " ").trim(),
-                   change: change ? change.textContent.replace(/\s+/g, " ").trim() : null,
-                   arrows: change ? change.querySelectorAll("svg").length : 0,
-                   colour: change ? getComputedStyle(change.querySelector("span") || change).color : null };
+        const out = {};
+        document.querySelectorAll("main tbody tr").forEach(function (tr) {
+          const name = tr.textContent.replace(/\s+/g, " ").trim();
+          const price = tr.querySelectorAll("td")[1];
+          const note = price ? price.querySelector("span.text-xs") : null;
+          if (name.includes("Up To Date")) out.fresh = note ? note.textContent.trim() : null;
+          if (name.includes("Left Behind")) out.stale = note ? note.textContent.trim() : null;
         });
+        return out;
       })()
     JS
 
-    riser = rows.find { it["name"].include?("Riser") }
-    faller = rows.find { it["name"].include?("Faller") }
-
-    assert_equal "+10.00%", riser["change"]
-    assert_equal "-10.00%", faller["change"]
-    assert_not_equal riser["colour"], faller["colour"], "up and down are the same colour"
-
-    # The arrow, which design.md specifies for this column and which the sign alone does not replace: it is
-    # what makes the direction readable without reading. I shipped the column without it, and the preview
-    # showed it, so the two disagreed.
-    assert_equal 1, riser["arrows"], "the up figure has no arrow"
-    assert_equal 1, faller["arrows"], "the down figure has no arrow"
+    assert_nil rows["fresh"], "the freshest price carries a date it does not need: #{rows['fresh']}"
+    assert_equal "as of #{(Date.current - 5).strftime('%-d %b')}", rows["stale"]
   end
 
-  # Buy and Sell are unchanged by the column beside them: bordered secondary buttons, not ghosts and not
-  # filled, and with no icons - a vertical arrow means the price moved, which is the Change column's glyph
-  # now, so the same one cannot also mean "place an order".
+  test "a company that has never been priced says so" do
+    a_student_with_stocks
+    create(
+      :stock, ticker: "NEW", company_name: "Never Priced", price_cents: 1_250,
+              yesterday_price_cents: nil, last_trading_day: nil
+    )
+
+    visit stocks_path
+
+    assert_text "Not priced yet"
+  end
+
+  # When every price is behind, no row is marked and the page carries the date. "Prices as of 3 August" is
+  # the fact; "every company is stale" is not.
+  test "the page states how old its prices are, once" do
+    a_student_with_stocks
+    create(:stock, ticker: "A", company_name: "Alpha", price_cents: 10_000, last_trading_day: Date.current - 4)
+    create(:stock, ticker: "B", company_name: "Beta", price_cents: 20_000, last_trading_day: Date.current - 4)
+
+    visit stocks_path
+
+    assert_text "Prices are updated once a day, after the market closes."
+    assert_text "as of #{I18n.l(Date.current - 4, format: :long)}"
+    assert_no_selector "span", text: "as of #{(Date.current - 4).strftime('%-d %b')}"
+  end
+
+  test "a floor with no priced companies at all says that instead of a date" do
+    a_student_with_stocks
+    create(:stock, ticker: "NEW", company_name: "Never Priced", price_cents: 1_250, last_trading_day: nil)
+
+    visit stocks_path
+
+    assert_text "Prices have not been updated yet."
+  end
+
+  # Buy and Sell: bordered secondary buttons, not ghosts and not filled, and with no icons - in a finance
+  # interface a vertical arrow means the price moved that way, which is not what a button does.
   test "buy and sell are still secondary buttons, with no arrows" do
     a_student_with_stocks
     create(:stock, ticker: "UP", company_name: "Riser", price_cents: 11_000, yesterday_price_cents: 10_000)
@@ -109,51 +156,14 @@ class PriceChangeTest < ApplicationSystemTestCase
     assert_equal 0, buy["icons"], "Buy carries an icon; the arrow belongs to the price, not the action"
   end
 
-  # An archived company's price is frozen, so a change for it is arithmetic on a stale number.
-  test "an archived company shows no change figure" do
-    a_student_with_stocks
-    create(
-      :stock, ticker: "OLD", company_name: "Gone Away", price_cents: 5_000,
-              yesterday_price_cents: 4_000, archived: true
-    )
-
-    visit stocks_path
-
-    archived_change = page.evaluate_script(<<~JS)
-      (function () {
-        const row = Array.from(document.querySelectorAll("main tbody tr"))
-          .find(function (tr) { return tr.textContent.includes("Gone Away"); });
-        if (!row) return "no row";
-        const cells = row.querySelectorAll("td");
-        return cells[2] ? cells[2].textContent.trim() : "no cell";
-      })()
-    JS
-
-    assert_equal "—", archived_change
-  end
-
-  # Below lg the column collapses into the primary cell, like the holdings and the trade buttons - adding a
-  # third always-visible column would put this table back into a horizontal scroll at 375px.
-  test "the change collapses into the primary cell at 375px" do
-    a_student_with_stocks
-    create(:stock, ticker: "UP", company_name: "Riser", price_cents: 11_000, yesterday_price_cents: 10_000)
-
-    in_phone_viewport do
-      visit stocks_path
-
-      assert_text "+10.00% since yesterday"
-      assert_no_selector "th", text: "Change"
-    end
-  end
-
-  # The caution is on the page where the choice is made, not on the launchpad a student passed through.
-  test "the trading floor says a big move is not a reason to buy" do
+  # The caution about a big move went with the column it described - the thing it cautioned against is no
+  # longer on the screen.
+  test "the page no longer cautions about a figure it does not show" do
     a_student_with_stocks
 
     visit stocks_path
 
-    assert_text "Prices update once a day"
-    assert_text "does not make a company a better buy"
+    assert_no_text "does not make a company a better buy"
   end
 
   # And the home page is back to the three things it is for.

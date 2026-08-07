@@ -62,17 +62,6 @@ module Admin
       ]
     end
 
-    # Design preview of the trading floor's Change column - where it sits, what each state looks like, and
-    # what it does below lg. Development only, like the previews before it.
-    def price_change
-      raise ActionController::RoutingError, "Not Found" unless Rails.env.development?
-
-      @breadcrumbs = [
-        { label: "Components", path: admin_component_demo_index_path },
-        { label: "Price change" }
-      ]
-    end
-
     def form
       @user = User.first || User.new(email: "", name: "", admin: false)
 

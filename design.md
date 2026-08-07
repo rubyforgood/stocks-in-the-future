@@ -1181,50 +1181,58 @@ is where a section's control goes - Polaris's card header action, Primer's `Subh
 sections - with the sentence beside it. That is what makes the pill unnecessary and what took the page
 from **six card surfaces to two**.
 
-### Price change: where it went, and the three places it did not belong
+### Price age, and why the daily change is not a column
 
-**Decision: a Change column on the trading floor, beside Last price.** That is where Robinhood, Fidelity,
-Schwab and E*TRADE all put a price change - next to the price it is about, in the list a person is choosing
-from. It got there by way of two worse homes, and both are worth keeping because both looked reasonable.
+**Decision: the trading floor states how old its prices are. It does not show a daily change.** That figure
+had three homes in as many commits - a scrolling ticker in the header, a "Today's movers" card on the home
+page, a Change column beside the price - and each move taught something. It is worth keeping all of it,
+because the pull toward showing a market-style delta is strong and the reasons not to are not obvious.
 
-**1. A scrolling ticker in the header. Removed.** `animation: scroll 20s linear infinite`, automatic,
-endless, **no pause control and no `prefers-reduced-motion`** - WCAG 2.2.2 at **Level A**, on every
-signed-in page. Its two colours measured **2.74:1** and **3.78:1** against AA's 4.5:1, and both lived in
-`app/assets/stylesheets/application.css`, the one stylesheet outside this repo's audit scope, which is how
-they survived every colour sweep. It also showed nothing true: every `yesterday_price_cents` was nil, so all
-18 stocks read `0.00%`, and because the colour test was `percentage_change >= 0`, every one was green with an
-upward arrow. And it carried a symbol and a percentage - no price, no company name, no link - while being
-`hidden lg:block`, so the phones these students mostly use never saw it.
+**Why the ticker went.** `animation: scroll 20s linear infinite`, automatic and endless with **no pause
+control and no `prefers-reduced-motion`** - WCAG 2.2.2 at **Level A**, on every signed-in page. Colours at
+2.74:1 and 3.78:1. And it showed nothing true: every `yesterday_price_cents` was nil, so all 18 stocks read
+`0.00%`, and because the test was `percentage_change >= 0` every one was green with an upward arrow. **A
+ticker is a broadcast component** - television lower-thirds and public displays, where the viewer is captive
+and cannot scroll. No finance application animates its chrome.
 
-**A ticker is a broadcast component.** It belongs to television lower-thirds and public information
-displays, where the viewer is captive, has no pointer and cannot scroll. No finance application animates its
-chrome; `<marquee>` was deprecated and 2.2.2 is why. In an application the reader sets the pace, and motion
-takes that away for nothing, because the same figures sit still perfectly well.
+**Why the card went.** It listed three companies with price and change on the home page, pushing the balance,
+the announcements and the getting-started steps down to do it. **A card that duplicates a page one click away
+is not carrying its own weight**, and the home page's job is the balance, the news and the onboarding.
 
-**2. A "Today's movers" card on the home page. Removed.** It listed three companies with price and change,
-and it was reported as making no sense there - it pushed the balance, the announcements and the
-getting-started steps down to show three of the companies the trading floor lists anyway. Two lessons in it:
-**a card that duplicates a page one click away is not carrying its own weight**, and the home page's job is
-the balance, the news and the onboarding, so a fourth thing competes with all three. This document had
-already measured that mistake at 421px on the roster and it happened again anyway.
+**Why the column went, which is the substantive one.** Four facts, each checked:
 
-**3. The column.** `hidden lg:table-cell` like the table's other secondary columns, with the figure
-restated in the primary cell below `lg` - the collapse this table has used since the trade buttons were
-measured off the right edge of a phone. A third always-visible column would have put the table back into a
-horizontal scroll at 375px, which `table_stacking_test` would catch. `w-28`, so the two stacked tables keep
-one column geometry. Measured after: 0px of overflow at 1400px and at 375px.
+- **"Since yesterday" is wrong two days a week.** The job's cron is `0 2 * * 2-6`, Tuesday to Saturday, so
+  nothing covers Sunday or Monday: on a Monday the figure spans Friday to Saturday. Holidays widen it.
+- **Without an API key it is an em dash, always.** `fetch_quote` returns nil without one.
+- **Rate limits make a partial update the normal case.** 18 stocks, one request each, a 1.1s sleep for the
+  free tier - when the allowance runs out mid-run, some companies are fresh and some are days old.
+- **It was `hidden lg:table-cell`**, so it was absent on the phones these students mostly use.
 
-**Three states, never two.** Up green with an up arrow, down red with a down arrow, unchanged slate with no
-arrow - `ApplicationHelper#movement_class`, at green-700 and red-700 which measure **4.95:1** and **6.42:1**.
-The sign and the arrow carry the direction as well, so it is never colour alone. **And an archived company
-gets an em dash, not a figure**: its price is frozen, so a change for it is arithmetic on a stale number.
+And the change that matters to a student already exists, on the portfolio: **current value minus what was
+paid**, per holding, which needs no API for its baseline and is always true. Note the collision that had been
+sitting in the product - "Change" meant *since purchase* there and *since yesterday* on the floor.
 
-**The caution moved with the data, and it is better placed than it was.** "Prices update once a day. A big
-move does not make a company a better buy - open one to see what it does." On the trading floor that is read
-where the choice is made rather than on a launchpad the student passed through. It exists because a
-biggest-movers list put in front of eleven-year-olds teaches performance chasing, which is the opposite of
-what this app is for - and the reason it is one sentence in a page description rather than a band inside a
-card is the measure rule below.
+**What replaced it: the price's age.** A student places an order against that number, so its staleness bears
+on the transaction rather than on the browsing.
+
+- **Stale means "older than the freshest price on this page"**, not "older than today". That distinction is
+  load-bearing: the job runs at 02:00 for the *previous* close, so a perfectly fresh price normally carries
+  yesterday's date, and comparing against today would mark every row. `stocks.filter_map(&:last_trading_day).max`
+  needs no calendar knowledge and cannot be wrong about weekends or holidays.
+- **The page states the date once**; a row says something only when it is behind. When the whole page is
+  behind, no row is marked and the description carries it - "prices as of 3 August" is the fact, not "every
+  company is stale".
+- **`slate-600`, not amber or rose.** A price that has not been refreshed is a fact about the data, not an
+  error the student made or a warning about the company.
+- **"Not priced yet"** where a fetch has never succeeded, rather than a date or a dash.
+- One statement of the cadence, on the page. The Active stocks section used to say "Prices update every
+  school day" as well - a second claim about the same thing, and a wrong one, since the cron knows nothing
+  about school terms.
+
+**The failure mode this all came from.** A failed fetch used to write `yesterday_price_cents = price_cents`,
+so an API outage reported `0.00%` - identical to a flat market - and destroyed the real comparison point. The
+job writes nothing on failure now, and leaves `last_trading_day` alone, which is what makes the staleness
+visible at all. The test covering that path had asserted the bug, under the name "preserves yesterday price".
 
 **One icon per card, and it lives in the header.** The announcements card had `megaphone` twice: 16px in
 a 32x32 blue-50 tile in the header, and 20px bare slate-500 in the body's empty state. Bigger, a different

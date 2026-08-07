@@ -2791,3 +2791,37 @@ now, where it is read at the point of choosing.
   a frozen price. Any environment where the job has never run sees em dashes down the column, which is what
   development saw before three rows were given yesterday prices by hand.
 
+## The trading floor's Change column is removed (2026-08)
+
+**Third and final move for one figure.** The scrolling ticker became a home-page card, the card became a
+Change column, and the column is now gone in favour of stating how old each price is. Reasons in design.md;
+the short version is that the daily change is wrong two days a week by its own schedule, empty without an API
+key, partial under the free tier's rate limit, and hidden on phones - while the change a student cares about
+(gain or loss on what they own) is on the portfolio and needs no API.
+
+### What went
+
+- The `Change` `<th>` in `stocks/_stocks_table`, its `<td>` in `stocks/_index_row`, and the below-`lg` line
+  that restated it in the primary cell.
+- The empty row's `colspan` goes back to `show_holdings? ? 4 : 2`.
+- The trading floor's page description no longer cautions about a big move not making a company a better buy:
+  the figure it cautioned about is not on the screen.
+- `Stock.movers` and `home/_todays_movers` were already deleted with the card.
+
+### What arrived
+
+- `Last price` widens to `w-40` and carries a second line: `as of 4 Aug` when a row is behind the freshest
+  price on the page, `Not priced yet` when `last_trading_day` is nil, nothing when it is current.
+- The page description states the cadence and the date once, from
+  `@stocks.filter_map(&:last_trading_day).max`.
+- `ApplicationHelper#movement_class` **stays** - the portfolio's Change and Total return columns use it.
+
+### What this breaks
+
+- **Anything asserting a `Change` header or a percentage on the trading floor.** Two tests did; both are
+  rewritten in `price_change_test`.
+- **The staleness note depends on `last_trading_day` being maintained.** It is set only on a successful
+  fetch, which is exactly what makes it usable as an age - but it means a stock whose price is edited by hand
+  in the admin screens keeps whatever date it had. That is arguably right (the date describes the market
+  price, not the edit) and is worth knowing before anyone reads it as "last modified".
+

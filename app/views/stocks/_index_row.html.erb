@@ -36,20 +36,6 @@
             always on screen. As their own trailing columns they sat at left=370 in a viewport
             326px wide - the trading floor's only call to action was off the right edge of a
             horizontal scroll on a phone, which is the width most students are on. %>
-        <%# Below lg the Change column collapses in here, on its own line above the holdings, because it
-            belongs to the price rather than to what the student owns. Not shown for an archived company,
-            where the em dash in the column would be the whole of the information. %>
-        <% if !stock.archived? && stock.yesterday_price_cents.present? %>
-          <span class="mt-1 inline-flex items-center gap-1 text-xs lg:hidden <%= movement_class(stock.percentage_change) %>">
-            <% if stock.percentage_change.positive? %>
-              <%= lucide_icon("trending-up", class: "size-3.5 shrink-0") %>
-            <% elsif stock.percentage_change.negative? %>
-              <%= lucide_icon("trending-down", class: "size-3.5 shrink-0") %>
-            <% end %>
-            <%= stock.percentage_change_formatted %> since yesterday
-          </span>
-        <% end %>
-
         <% if policy(stock).show_holdings? %>
           <span class="mt-1 text-xs text-slate-600 lg:hidden">
             You own <%= share_count(@portfolio&.shares_owned(stock.id) || 0) %>
@@ -62,35 +48,31 @@
       </div>
     </div>
   </td>
+  <%# The price, and how old it is.
+  
+      **Stale means "older than the freshest price on this page"**, which needs no calendar knowledge - and
+      that matters, because the job runs at 02:00 for the *previous* close, so a perfectly fresh price
+      normally carries yesterday's date. Comparing against today would mark every row.
+
+      When the whole page is behind, no row is marked and the page's own description carries the date, which
+      is the honest way round: "prices as of 3 August" is the fact, not "every company is stale".
+
+      slate-600, not amber or rose: a price that has not been refreshed is a fact about the data, not an
+      error the student has made or a warning about the company. %>
   <td class="table-body-cell table-body-cell-right">
-    <span class="table-cell-content">
+    <span class="table-cell-content block">
       <%= number_to_currency(stock.current_price) %>
     </span>
-  </td>
 
-  <%# An archived company's price is frozen, so a change figure for it would be arithmetic on a stale
-      number. The em dash is this app's marker for "no value here", which is the honest answer. %>
-  <td class="table-body-cell table-body-cell-right hidden whitespace-nowrap lg:table-cell">
-    <% if stock.archived? || stock.yesterday_price_cents.blank? %>
-      <span class="text-slate-500">&mdash;</span>
-    <% else %>
-      <%# The arrow, which design.md specifies for this column and which the card that preceded it had - I
-          dropped it when moving the data across. It is also the glyph `_trade_actions` gives up: a vertical
-          arrow in a finance interface means the *price* moved that way, which is this column and not the
-          Buy and Sell buttons, so the two cannot both use it.
-
-          The sign already satisfies "never colour alone"; the arrow is what makes the direction readable
-          without reading, which is the point of a column you scan. No arrow when the change is zero. %>
-      <span class="inline-flex items-center justify-end gap-1 <%= movement_class(stock.percentage_change) %>">
-        <% if stock.percentage_change.positive? %>
-          <%= lucide_icon("trending-up", class: "size-4 shrink-0") %>
-        <% elsif stock.percentage_change.negative? %>
-          <%= lucide_icon("trending-down", class: "size-4 shrink-0") %>
-        <% end %>
-        <%= stock.percentage_change_formatted %>
+    <% if stock.last_trading_day.blank? %>
+      <span class="mt-0.5 block text-xs text-slate-600">Not priced yet</span>
+    <% elsif local_assigns[:freshest_price_on].present? && stock.last_trading_day < freshest_price_on %>
+      <span class="mt-0.5 block text-xs text-slate-600">
+        as of <%= stock.last_trading_day.strftime("%-d %b") %>
       </span>
     <% end %>
   </td>
+
   <%# Same condition as the header in _stocks_table, so the column counts cannot diverge. It used
       to be current_user.student? there and policy(stock).show_holdings? here - a student with no
       persisted portfolio got four header cells over two body cells. %>

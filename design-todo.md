@@ -631,31 +631,10 @@ before.
 
 ## Price staleness, and whether the Change column earns its place (2026-08)
 
-- [ ] **One of three: remove the Change column and add a price date; keep the column and add the date; or
-  stop.** Raised by asking what an API failure looks like. The job no longer fabricates a 0.00% change - that
-  part is fixed - but nothing tells a student that the price they are about to buy at is four days old.
+- [x] ~~**Remove the Change column and add a price date; keep the column and add the date; or stop.**~~
+  **Answered: option 1 - the column is removed and the price states its age.** Reasons in design.md, removal
+  mapped in migration.md.
 
-  **Preview: `/admin/component_demo/price_change`**, development only.
-
-  **The case against the daily change**, which is a reversal of what I shipped two commits earlier:
-
-  - **"Since yesterday" is wrong two days a week.** The job's cron is `0 2 * * 2-6`, Tuesday to Saturday, so
-    nothing covers Sunday or Monday: on a Monday the figure spans Friday to Saturday. Market holidays widen
-    the same gap.
-  - **Without an API key it is an em dash, always.** `fetch_quote` returns nil without one, and
-    `ALPHA_VANTAGE_API_KEY` is unset in development.
-  - **Rate limits make a partial update the normal case.** 18 stocks, one request each, a 1.1s sleep for the
-    free tier - when the allowance runs out mid-run, some companies are fresh and some are days old.
-  - **It is `hidden lg:table-cell`**, so it is absent on the phones these students mostly use.
-  - **And the change worth having already exists**, on the portfolio: current value minus what was paid, per
-    holding, which needs no API for its baseline and is always true. Note the collision - "Change" means
-    *since purchase* there and *since yesterday* on the floor.
-
-  **What to do instead:** show the price's date when it is not today's, in the column that already exists.
-  Measured on the preview: slate-600 at 7.58:1, "as of 3 Aug" under the figure, "Not priced yet" where there
-  has never been a successful fetch, and nothing at all when the price is today's. Visible at every width,
-  which the Change column is not.
-
-  **The argument for stopping**, which is real: this would be the third revision of one small feature, and
-  churn costs something. The column is honest now - it just says nothing most of the time.
-
+  Stale is defined as "older than the freshest price on this page" rather than "older than today", because the
+  job runs at 02:00 for the previous close and a fresh price normally carries yesterday's date. The page states
+  the cadence and the date once; a row speaks only when it is behind.

@@ -26,13 +26,22 @@
     <% end %>
   <% end %>
 
-  <%# The description is the caution that used to be the movers card's subtitle, and this is a better place
-      for it: it is read where a student is about to choose, not on the launchpad they passed through. Two
-      sentences, because "prices update once a day" is what makes the Change column legible at all. %>
+  <%# The page states how old its prices are, once, rather than every row repeating the same date. A row only
+      says anything when it is behind the freshest price here - see `_index_row`.
+
+      This replaces a sentence about a big move not making a company a better buy, which belonged to the
+      Change column that is now gone: the thing it cautioned against is no longer on the screen. What is on
+      the screen is a price a student can place an order against, and its age is the fact worth stating. %>
+  <% priced_on = @stocks.filter_map(&:last_trading_day).max %>
+  <% price_note = if priced_on
+                    "Prices are updated once a day, after the market closes. " \
+                      "These are as of #{l(priced_on, format: :long)}."
+                  else
+                    "Prices have not been updated yet."
+                  end %>
   <%= render layout: "components/ui/page_header",
              locals: { title: "Trading floor",
-                       description: "Prices update once a day. A big move does not make a company a " \
-                                    "better buy - open one to see what it does." } do %>
+                       description: price_note } do %>
     <%# show_holdings? on its own. The `|| current_user.student?` that used to be here widened this
         to students with no persisted portfolio, and stocks#index only sets @portfolio for a student
         who has one - so a student without a portfolio got a 500, not a degraded page. %>
@@ -47,9 +56,13 @@
   <% end %>
 
   <div class="space-y-6">
+    <%# No cadence in this section's description. The page description above states it once, with the date
+        the prices actually carry - this said "Prices update every school day", which was a second claim
+        about the same thing and a wrong one: the job's cron runs Tuesday to Saturday and knows nothing
+        about school terms. %>
     <%= render "stocks/stocks_table",
                title: "Active stocks",
-               description: "Companies you can buy shares in right now. Prices update every school day.",
+               description: "Companies you can buy shares in right now.",
                stocks: @stocks.active %>
 
     <%# Two relations, because the two halves answer to different rules. A stock you hold is listed

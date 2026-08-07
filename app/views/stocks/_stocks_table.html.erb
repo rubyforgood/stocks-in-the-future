@@ -36,18 +36,17 @@
   <thead>
     <tr class="table-header-row">
       <th scope="col" class="table-header-cell table-header-cell-left">Company (exchange)</th>
-      <th scope="col" class="table-header-cell table-header-cell-right w-32">Last price</th>
-      <%# Change belongs beside the price, which is where every brokerage list puts it - Robinhood,
-          Fidelity, Schwab, E*TRADE. It arrived here from a "Today's movers" card on the home page: the
-          data was right and the card was not, because it listed three of the companies that are in this
-          table anyway, and on the home page it pushed the balance, the announcements and the getting-
-          started steps down to make room. See design.md.
+      <%# w-40, not w-32: the cell carries a second line under the figure when the price is not the freshest
+          the page has - "as of 4 Aug", or "Not priced yet" where a fetch has never succeeded.
 
-          `hidden lg:table-cell` like the other secondary columns, with the figure restated in the primary
-          cell below lg - the collapse this table has used since the trade buttons were measured off the
-          right edge of a phone. Adding a third always-visible column would have put the table back into a
-          horizontal scroll at 375px, which `table_stacking_test` would catch. %>
-      <th scope="col" class="table-header-cell table-header-cell-right hidden w-28 lg:table-cell">Change</th>
+          A **Change** column lived here for three commits and is gone. The figure was honest after the job
+          stopped fabricating zeros, but it was worth little: the job's cron covers Tuesday to Saturday, so
+          "since yesterday" is wrong on a Monday; `fetch_quote` returns nil with no API key, so it is an em
+          dash by default; the free tier's rate limit makes a partial update the normal case; and it was
+          `hidden lg:table-cell`, so it was absent on the phones these students use. The change that matters
+          to a student - what their holding has gained or lost since they bought it - is on the portfolio and
+          needs no API for its baseline. See design.md. %>
+      <th scope="col" class="table-header-cell table-header-cell-right w-40">Last price</th>
       <%# policy(Stock).show_holdings?, not current_user.student?, so this agrees with the body
           row in _index_row. show_holdings? also requires a persisted portfolio. Both columns are
           hidden below lg, where their contents move into the primary cell. %>
@@ -60,9 +59,14 @@
     </tr>
   </thead>
   <tbody>
+    <%# The freshest price date on this table, which is what a row measures itself against. `.compact.max`
+        rather than a date calculation: the newest price we actually hold is the only defensible definition
+        of "up to date" when the job's schedule skips two days a week and can fail for any subset of rows. %>
+    <% freshest_price_on = stocks.filter_map(&:last_trading_day).max %>
+
     <% if stocks.any? %>
       <% stocks.each do |stock| %>
-        <%= render "stocks/index_row", stock: stock %>
+        <%= render "stocks/index_row", stock: stock, freshest_price_on: freshest_price_on %>
       <% end %>
     <% else %>
       <%# Five columns with holdings and actions, three without - the Change column counts. An empty row
@@ -73,7 +77,7 @@
           sentence onto the home page and once breaking this partial - which is why
           `no_leaked_template_syntax_test` exists and why it caught the second one. %>
       <%= render "admin/shared/empty_row",
-                 colspan: policy(Stock).show_holdings? ? 5 : 3,
+                 colspan: policy(Stock).show_holdings? ? 4 : 2,
                  icon: "chart-line",
                  title: local_assigns[:title].present? ? "No #{title.downcase} to show" : "Nothing to show",
                  body: "Stocks appear here once your teacher adds them." %>
