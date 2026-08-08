@@ -98,7 +98,18 @@
 
         <div class="grid grid-cols-1 gap-1 lg:grid-cols-2">
           <% Grade.where(level: Classroom::GRADE_RANGE).order(:level).each do |grade| %>
-            <label class="flex items-center gap-3 rounded-lg px-2 py-2 transition-colors hover:bg-slate-50">
+            <%# `py-2` for the row's height and its hover band, and **no `px-2`**: horizontal padding here
+                pushed the checkbox 8px right of the form's left edge, so the grades and teachers boxes sat
+                at 518 while the inputs above and the trading checkbox below sat at 510. Reported as the
+                teacher checkbox looking misaligned, and it was - against the form's gutter, not against its
+                own label.
+
+                Every control in a form shares one left edge; GOV.UK's checkbox item has no left padding for
+                exactly this reason, and an indent is reserved for a nested or dependent option. The
+                alternative - keeping the padding and pulling the row back with a negative margin - is the
+                thing this codebase has recorded three times as the wrong fix, because the hover fill goes
+                with it. %>
+            <label class="flex items-center gap-3 rounded-lg py-2 transition-colors hover:bg-slate-50">
               <%= check_box_tag "classroom[grade_ids][]",
                                 grade.id,
                                 classroom.persisted? && classroom.grades.include?(grade),
@@ -143,7 +154,7 @@
 
           <div class="grid grid-cols-1 gap-1">
             <% @teachers.each do |teacher| %>
-              <label class="flex items-start gap-3 rounded-lg px-2 py-2 transition-colors hover:bg-slate-50">
+              <label class="flex items-start gap-3 rounded-lg py-2 transition-colors hover:bg-slate-50">
                 <%# mt-0.5 on a 16px box beside a two-line block, so the checkbox's centre lands on the
                     name's first line rather than its top edge - design.md states that for a lone checkbox
                     and measures it as centre-to-centre. %>

@@ -1327,6 +1327,25 @@ by putting the grey strip back and watching it fail.
 all of it. A form's readable measure does not scale with the window. `max-w-2xl` (672px), which is what
 students#new and #edit already used - measured after: 672px at 1400px and at 1920px.
 
+**Every control in a form starts on one left edge, and a hover band must not move it.** Reported as the
+teacher checkbox looking misaligned. Measuring **both** axes found where: vertically all six checkboxes were
+already within 0.5px of their own label's first line, but the grades and teachers rows carried `px-2` for
+their hover band, so those boxes sat at **518** while the inputs above and the trading checkbox below sat at
+**510**. A checkbox 8px right of the field it follows reads as the checkbox being wrong.
+
+GOV.UK's checkbox item has **no left padding** for exactly this reason; an indent is reserved for a nested or
+dependent option, where it means something. Keep `py-*` for the row's height and its hover band and drop the
+`px-*`. The other repair - keeping the padding and pulling the row back with a negative margin - takes the
+hover fill with it, which this document records three times as the wrong fix.
+
+Measured after: inputs, legends and all six checkboxes at 510.
+
+**And the vertical rule is the outcome, not the mechanism.** A checkbox sits on its label's **first line**:
+`items-center` does that for a single-line label whatever its line-height, and a two-line label needs
+`items-start` plus a nudge sized to the line box. Both are correct and the classroom form uses both - so the
+test measures the offset rather than asserting a class, which is what lets them differ. Asserting the
+mechanism here would have failed a correct page.
+
 **A group's hint goes under its subheader, before the options.** Reported on the classroom form, where both
 groups had theirs below the checkboxes - which puts the instruction after the decision it governs, and leaves
 it floating between one group and the next. This document already stated the rule for filters: hint text

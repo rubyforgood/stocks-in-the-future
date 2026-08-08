@@ -302,4 +302,102 @@ class FormActionsTest < ApplicationSystemTestCase
                  "the hint starts under the checkbox rather than under its label's text"
     assert_operator layout["hintX"], :>, layout["checkboxX"]
   end
+
+  # Every control in a form shares one left edge.
+  #
+  # Reported as the teacher checkbox looking misaligned, and measuring both axes found where: vertically all
+  # six checkboxes were already 0.5px off their own label's first line, but the grades and teachers rows
+  # carried `px-2` for their hover band, so their boxes sat at 518 while the inputs above and the trading
+  # checkbox below sat at 510. A checkbox 8px right of the field it follows reads as the checkbox being
+  # wrong, which is how it was reported.
+  #
+  # GOV.UK's checkbox item has no left padding for exactly this reason; an indent is reserved for a nested or
+  # dependent option. The alternative - keeping the padding and pulling the row back with a negative margin -
+  # takes the hover fill with it, which this codebase records three times as the wrong fix.
+  test "every control on the classroom form starts at the same left edge" do
+    create(:school)
+    (Classroom::MIN_GRADE..Classroom::MAX_GRADE).each { |n| create(:grade, level: n, name: "#{n}th Grade") }
+    create(:teacher, name: "Terry Teacher")
+    sign_in create(:admin)
+
+    visit new_classroom_path
+
+    edges = page.evaluate_script(<<~JS)
+      (function () {
+        const left = (el) => Math.round(el.getBoundingClientRect().left);
+        const form = document.querySelector("main form");
+        const gutter = left(form.querySelector("input.tw-input-primary"));
+        const strays = [];
+
+        form.querySelectorAll("legend").forEach(function (el) {
+          if (left(el) !== gutter) strays.push("legend " + el.textContent.trim() + " at " + left(el));
+        });
+
+        // The first checkbox of each group only: a grid's later columns are legitimately indented.
+        const seen = {};
+        form.querySelectorAll("input[type=checkbox]").forEach(function (box) {
+          const group = box.closest("fieldset") || form;
+          const key = group.querySelector("legend") ? group.querySelector("legend").textContent.trim() : "form";
+          if (seen[key]) return;
+          seen[key] = true;
+          if (left(box) !== gutter) {
+            strays.push("first checkbox of " + key + " at " + left(box) + " against a gutter of " + gutter);
+          }
+        });
+
+        return { gutter: gutter, strays: strays };
+      })()
+    JS
+
+    assert_empty edges["strays"],
+                 "these do not start on the form's gutter (#{edges['gutter']}px): #{edges['strays'].join(', ')}"
+  end
+
+  # And the other axis, which was already right and should stay so: a checkbox sits on its label's first
+  # line - centred against a single-line label, nudged to the first line beside a two-line one. Both
+  # mechanisms are correct and the measurement is the same; asserting the outcome rather than the class is
+  # what lets them differ.
+  test "every checkbox sits on its own label's first line" do
+    create(:school)
+    (Classroom::MIN_GRADE..Classroom::MAX_GRADE).each { |n| create(:grade, level: n, name: "#{n}th Grade") }
+    create(:teacher, name: "Terry Teacher")
+    sign_in create(:admin)
+
+    visit new_classroom_path
+
+    offsets = page.evaluate_script(<<~JS)
+      (function () {
+        const firstLine = function (el) {
+          const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+          while (w.nextNode()) {
+            if (w.currentNode.textContent.trim()) {
+              const r = document.createRange();
+              r.selectNodeContents(w.currentNode);
+              const rect = r.getClientRects()[0];
+              if (rect) return rect;
+            }
+          }
+          return null;
+        };
+        const out = [];
+        document.querySelectorAll("main form input[type=checkbox]").forEach(function (box) {
+          const label = box.closest("label");
+          if (!label) return;
+          const text = Array.from(label.querySelectorAll("span")).find(s => s.textContent.trim()) || label;
+          const line = firstLine(text);
+          if (!line) return;
+          const b = box.getBoundingClientRect();
+          out.push({ label: text.textContent.replace(/\s+/g, " ").trim().slice(0, 18),
+                     off: Math.round(((b.top + b.height / 2) - (line.top + line.height / 2)) * 10) / 10 });
+        });
+        return out;
+      })()
+    JS
+
+    assert_operator offsets.size, :>=, 5
+    offsets.each do |row|
+      assert_in_delta 0, row["off"], 1,
+                      "\"#{row['label']}\" is #{row['off']}px off its label's first line"
+    end
+  end
 end
