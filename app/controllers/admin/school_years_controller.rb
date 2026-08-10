@@ -91,10 +91,7 @@ module Admin
     end
 
     def school_year_params
-      params.expect(
-        school_year: [:school_id, :year_id,
-                      { quarters_attributes: [%i[id school_days]] }]
-      )
+      params.expect(school_year: %i[school_id year_id])
     end
 
     def render_new_with_errors

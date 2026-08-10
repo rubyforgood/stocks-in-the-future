@@ -11,11 +11,6 @@ class SchoolYear < ApplicationRecord
 
   after_create :create_quarters
 
-  # So the admin form can set each quarter's teaching days - the denominator perfect attendance is
-  # derived from. Without a way to enter it the derivation could never switch on, and a feature that can
-  # only report that it did nothing is the shape this codebase keeps removing.
-  accepts_nested_attributes_for :quarters
-
   def name
     "#{school_name} (#{year_name})"
   end

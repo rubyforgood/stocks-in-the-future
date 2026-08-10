@@ -94,9 +94,6 @@ Rails.application.routes.draw do
       resources :component_demo, only: %i[index show] do
         collection do
           get :form
-          # A design preview: how the school-year form should warn that changing a quarter's teaching
-          # days changes what unfinalized grade books will pay. Deleted once decided.
-          get :school_days_impact
         end
       end
     end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_10_170606) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_10_180000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -200,7 +200,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_10_170606) do
     t.datetime "created_at", null: false
     t.string "name"
     t.integer "number", null: false
-    t.integer "school_days", comment: "Teaching days in the quarter. Perfect attendance is derived from it."
     t.bigint "school_year_id", null: false
     t.datetime "updated_at", null: false
     t.index ["school_year_id", "number"], name: "index_quarters_on_school_year_id_and_number", unique: true

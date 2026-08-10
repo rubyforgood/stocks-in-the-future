@@ -2038,37 +2038,32 @@ the work is where "how is this class doing?" is actually asked.
 The facade sums **cents** now. It summed `calculate_total_value`, which is already `cents / 100.0`, so it
 added a float per student - and integer cents are authoritative here.
 
-### Derive an answer the data already contains
-**Perfect attendance is arithmetic where the quarter says how many days there were.** A teacher typed a
-day count and was then asked, in the next cell, whether every day was attended. Nothing reconciled the
-two and the money followed the second answer: the seeds contained an entry flagged perfect with
-`attendance_days` nil, paid the bonus, and another treating 3 days as perfect.
+### A second field is not always a duplicate
+**Perfect attendance stays a checkbox the teacher ticks**, beside the day count they type. It looks like
+one fact answered twice and it is not: the app does not know how many teaching days a quarter had, so
+"did they attend every day" is **input**, from a teacher who may be taking the register in another system
+entirely. A field the app cannot compute is not redundant with one it can.
 
-`quarters.school_days` is the denominator that was missing, and it is **nullable on purpose**: where it is
-set the grade book shows a figure and asks nothing, where it is nil the control stays and the stored flag
-still decides. So nothing already graded changes meaning and no grade book stops working while the number
-is collected. The figure is entered on the school-year form - four numbers once, rather than four
-questions per student per quarter.
+This was built the other way first - a `quarters.school_days` column, derivation, and a freeze at
+finalize - and reverted. Both halves of the reasoning were wrong, and both are the kind of wrong worth
+recognising again:
 
-**A finalized grade book never re-derives, and finalizing writes down what it paid on.** This is the part
-that makes a derived figure safe to introduce at all, and it is a general rule, not a detail of
-attendance:
+- **The evidence was seed data.** An entry flagged perfect with nil days, another treating 3 days as
+  perfect. Presented as the app contradicting itself; they were fixtures. *Check whether a contradiction
+  exists in data a person actually entered before designing it away.*
+- **The cost compounded, and each piece fixed the previous piece's problem.** Deriving needed a
+  denominator, which needed an admin form, which created a dependency from outside the grade book, which
+  needed freezing at finalize, which left unfinalized books exposed, which needed an impact preview on
+  the school-year form. **When each new piece exists to contain the last one, the first piece is the
+  problem.** And the default state of all of it was identical to the checkbox, because nothing changed
+  until somebody entered four numbers per school year that nobody was being asked for.
 
-> **When a figure is displayed live but paid once, anything the calculation reads must be frozen at the
-> moment of payment - or the page and the ledger will disagree the first time somebody edits it.**
+What catches the one contradiction the app can actually see - a bonus claimed with no days recorded - is
+`GradeBookEarnings#unattended_bonus_entries`, which predates all of it, needs no new data, and puts the
+question in front of the person who can answer it at the moment they can answer it. **The app already had
+the answer**, which is the thing to look for before adding a column.
 
-A completed grade book locks its own inputs, so before this every input to its earnings was immutable and
-the live recalculation always matched the deposits. `school_days` lives on the **quarter**, outside the
-book, and an admin can change it at any time - so an edit to a school year would have moved the figures
-shown on books paid months ago while the money stayed where it was. `DistributeEarnings` writes the
-derived answer into `is_perfect_attendance` inside the same transaction as the deposits, and
-`GradeEntry#perfect_attendance?` reads that column once the book is completed.
-
-Pinned in `distribute_earnings_characterisation_test`, including the case that finds it: finalize, then
-change the quarter's school days, and assert the ledger and the displayed figure both hold. Verified by
-removing the guard and watching it fail.
-
-### An environment ribbon, on staging only
+### An environment ribbon, on staging only### An environment ribbon, on staging only
 **A strip above the header, never in the content**, because it describes the application and not the page
 - GitLab's environment ribbon and Shopify's development-store banner sit in the chrome for the same
 reason. No dismiss: only an *outcome* removes itself, and the environment is still true in a minute.

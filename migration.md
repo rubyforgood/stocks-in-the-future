@@ -3101,3 +3101,30 @@ the admin forms read better.
   between the header and the card - which is what design.md says filters do.
 - **A quarter factory's attributes are discarded**: its `to_create` swaps in the row `SchoolYear` already
   made, so `school_days` has to be set on the record afterwards. This cost two failing tests to find.
+
+## Reverted: deriving perfect attendance
+
+`quarters.school_days`, the derivation, the school-year fields and the freeze-at-finalize are all gone.
+The checkbox is the input again, unchanged from before any of it.
+
+### Why
+
+- **The evidence was seed data.** The contradictions cited - a flag with nil days, 3 days treated as
+  perfect - were fixtures, not a teacher's mistake.
+- **The checkbox is not redundant.** The app cannot know a quarter's length, so "did they attend every
+  day" is information only the teacher has, quite possibly from the system they take the register in.
+- **The cost compounded.** Deriving needed a denominator, which needed an admin form, which created a
+  dependency from outside the grade book, which needed a freeze at finalize, which left unfinalized books
+  exposed, which needed an impact preview. Each piece existed to contain the previous one.
+- **The app already caught the real case.** `GradeBookEarnings#unattended_bonus_entries` flags a bonus
+  claimed with no days recorded, per row and in the finalize warning, and predates all of this.
+
+### What this breaks
+
+- **Nothing.** `GradeEntry#perfect_attendance?`, `#perfect_attendance_derived?` and `#school_days` are
+  gone; every caller reads `is_perfect_attendance`, which is what they read before. The grade book always
+  shows the control. `SchoolYear` no longer accepts nested quarter attributes.
+- **The drop migration is `safety_assured`.** strong_migrations blocks a column drop because Active
+  Record caches attributes and a process from before the deploy would still select it. That does not
+  apply to a column added and removed on the same unreleased branch, and the justification is written
+  into the migration rather than left as a bare override.

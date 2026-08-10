@@ -511,7 +511,7 @@ computation. Both are better than the present state, which pays for the queries 
 Worth deciding with a teacher: "students who have traded" and "orders this week" are the two that
 sound like they'd change how a lesson is run.
 
-## Perfect attendance is entered by hand, and already contradicts the data (2026-08) - DONE
+## Perfect attendance is entered by hand (2026-08) - CLOSED: it stays a checkbox
 
 Reported as not adding value: a teacher ticks a box per student per quarter to say they attended every
 day, having already typed the day count into the cell beside it.
@@ -782,11 +782,9 @@ which is its own entry above.
 
 ## What the eight decisions left behind (2026-08)
 
-- **`quarters.school_days` is nil everywhere except where an admin has typed it.** Until it is filled in,
-  every grade book keeps asking a teacher to answer perfect attendance by hand, and the money still
-  follows that answer. The seeds do not set it deliberately: a default would switch the derivation on for
-  data nobody has checked.
-- **`is_perfect_attendance` is still written** by the control in that case. It should eventually stop
-  being a column, and that is a data migration once every quarter has a figure.
+- **Perfect attendance stays a checkbox**, and the derivation that replaced it is reverted - see
+  migration.md. If it is ever revisited, the question to answer first is whether a teacher entering a day
+  count *and* a perfect-attendance answer has ever actually produced a wrong payment, in data somebody
+  typed. It had not; the evidence was seeds.
 - **The staging ribbon has never been seen on staging** - the tests stub `Rails.env`, which is the only
   honest way to cover an environment the suite does not run in, and it is not the same as looking.

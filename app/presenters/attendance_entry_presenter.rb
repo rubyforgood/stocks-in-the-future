@@ -21,5 +21,7 @@ class AttendanceEntryPresenter < BasePresenter
     object.attendance_days || "—"
   end
 
-  delegate :perfect_attendance?, to: :object
+  def perfect_attendance?
+    object.is_perfect_attendance
+  end
 end
