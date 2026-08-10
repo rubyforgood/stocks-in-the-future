@@ -3218,3 +3218,19 @@ left an account nobody could sign in as. The README hands these four out as logi
 
 Only `db/seeds/development.rb` includes this partial - production and staging do not - so resetting a
 demo password here cannot touch a real one.
+
+## The six skipped tests
+
+Zero skips in either suite now. None of the six was flaky, and none needed the fix its message named.
+
+| skip | what it said | what it was |
+|---|---|---|
+| `admin_helper_test` x2 | "Broken due to routing issues" | `sort_link` calls `url_for(..., only_path: true)`, which builds a URL for the **current page** - a view test has no current page. The helper was fine; the test was in the wrong file. Moved to `admin/sort_link_test`, where a request exists, and grown from two commented-out stubs to five assertions including the toggle in both directions. |
+| `user_manages_orders_test` | "Number of shares field not visible - needs modal JavaScript fix" | The skip sat **after** `fill_in "Number of shares"` and a successful order, so the field was demonstrably visible. It stranded the three assertions that check the order is for the right stock and share count. |
+| `teacher_creates_student_test` x2 | "Flaky modal test - to be fixed in future PR" | Not flaky. The delete test passed as written. The reset test had three stale selectors: `p#notice` (the flash is a `div` now), `fill_in "Full name"` on the **sign-in** page, which asks only for a username and password, and an h1 of "WELCOME TO YOUR FINANCIAL JOURNEY!" that the sentence-case sweep retitled. |
+| `flash_dismiss_test` | "first-share callout did not render for this fixture" | A conditional skip, so the test passed whether or not the thing it described was on the page. It did not render because the `:with_portfolio` factory trait created a second portfolio row - fixed earlier this session - so the share was on a different record than the page loaded. It asserts the callout outright now. |
+
+### What this breaks
+
+- **Nothing was disabled to make them pass.** The suites are 879 and 322 with zero skips.
+- **`AdminHelperTest` no longer covers `sort_link`.** `Admin::SortLinkTest` does, on real routes.

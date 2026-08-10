@@ -247,15 +247,19 @@ class FlashDismissTest < ApplicationSystemTestCase
 
     visit user_portfolio_path(student, student.portfolio)
 
-    if has_selector?("[data-testid='first-share']", wait: 2)
-      within("[data-testid='first-share']") do
-        assert_not has_selector?("[data-action~='dismiss#now']", wait: 0),
-                   "the first-share dismiss must persist, not hide: a callout that vanishes " \
-                   "without a round trip is back on the next page load"
-        assert_selector "form"
-      end
-    else
-      skip "first-share callout did not render for this fixture"
+    # This used to be wrapped in `if has_selector?(...)` with a `skip` in the else - a test that quietly
+    # passed whether or not the thing it describes was on the page. It did not render because the
+    # `:with_portfolio` factory trait created a **second** portfolio row on top of the one
+    # `Student#ensure_portfolio` makes, so `student.portfolio` and the portfolio the page loaded were
+    # different records and the one with the share was not the one being rendered. The trait is
+    # idempotent now, so the callout renders and this can assert it outright.
+    assert_selector "[data-testid='first-share']"
+
+    within("[data-testid='first-share']") do
+      assert_not has_selector?("[data-action~='dismiss#now']", wait: 0),
+                 "the first-share dismiss must persist, not hide: a callout that vanishes " \
+                 "without a round trip is back on the next page load"
+      assert_selector "form"
     end
   end
 

@@ -43,7 +43,6 @@ class TeacherCreatesStudentTest < ApplicationSystemTestCase
   end
 
   test "teacher can reset student password" do
-    skip "Flaky modal test - to be fixed in future PR"
     username = "student_one"
     classroom = create(:classroom)
     student = create(:student, :with_portfolio, classroom:, username:)
@@ -57,19 +56,28 @@ class TeacherCreatesStudentTest < ApplicationSystemTestCase
       find("##{dom_id(student)} [data-testid='reset-password']").click
     end
 
+    # Three things in here were stale rather than flaky, which is why this was skipped as "flaky" and
+    # never looked at again:
+    #
+    #   - `p#notice` - the flash is a `<div id="notice">` and has been since it gained its icon and
+    #     `role="status"`;
+    #   - `fill_in "Full name"` on the **sign-in** page, which only asks for a username and a password;
+    #   - an h1 of "WELCOME TO YOUR FINANCIAL JOURNEY!", which the sentence-case sweep retitled.
+    #
+    # None of those is a race. A test skipped as flaky is a test nobody reads the failure of.
     assert_selector "#notice", text: "Password reset for #{username}"
-    notice_text = find("p#notice").text
-    new_password = notice_text.match(/New password: (.+)/)[1]
+    new_password = find("#notice").text.match(/New password: (\S+)/)[1]
 
     sign_out(teacher)
     visit new_user_session_path
 
-    fill_in "Full name", with: "Jordan Smith"
     fill_in "Username", with: username
     fill_in "Password", with: new_password
     click_button "Sign in"
 
-    assert_selector "h1", text: "WELCOME TO YOUR FINANCIAL JOURNEY!"
+    # The password the teacher was shown is the password that works - which is the whole point of the
+    # reset, and the assertion the skip was hiding.
+    assert_selector "h1", text: "Welcome to your financial journey"
   end
 
   test "teacher can edit student information" do
@@ -92,7 +100,6 @@ class TeacherCreatesStudentTest < ApplicationSystemTestCase
   end
 
   test "teacher can delete a student" do
-    skip "Flaky modal test - to be fixed in future PR"
     username = "student_one"
     classroom = create(:classroom)
     student = create(:student, :with_portfolio, classroom:, username:)

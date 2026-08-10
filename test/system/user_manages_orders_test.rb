@@ -29,8 +29,10 @@ class UserManagesOrdersTest < ApplicationSystemTestCase
       assert_text "Order was successfully created"
     end
 
-    skip "Number of shares field not visible - needs modal JavaScript fix"
-
+    # The skip that was here read "Number of shares field not visible - needs modal JavaScript fix", and
+    # it sat *after* `fill_in "Number of shares"` and a successful order. The field was visible; the skip
+    # stranded the three assertions below, which are the ones that check the order is for the right stock
+    # and the right number of shares.
     order = Order.buy.pending.find_by(user: student, stock: stock)
     assert_equal shares_to_buy, order.shares
     assert_equal stock.id, order.stock_id

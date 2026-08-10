@@ -78,24 +78,11 @@ class AdminHelperTest < ActionView::TestCase
     assert_equal "⇅", sort_icon(:name)
   end
 
-  # TODO: Fix sort_link routing issues in Admin - create separate ticket
-  # Error: No route matches {direction: "desc", sort: :name}
-  test "sort_link generates correct direction toggle" do
-    skip "Broken due to routing issues"
-    # params[:sort] = "name"
-    # params[:direction] = "asc"
-    # result = sort_link(:name, "Name")
-    # assert_match(/direction=desc/, result)
-    # assert_match(/Name/, result)
-  end
-
-  # TODO: Fix sort_link routing issues in Admin - create separate ticket
-  # Error: No route matches {direction: "asc", sort: :name}
-  test "sort_link defaults to asc for new sort" do
-    skip "Broken due to routing issues"
-    # params[:sort] = nil
-    # params[:direction] = nil
-    # result = sort_link(:name, "Name")
-    # assert_match(/direction=asc/, result)
-  end
+  # `sort_link`'s two tests were skipped as "broken due to routing issues", with their bodies commented
+  # out and the error kept in a comment: `No route matches {direction: "desc", sort: :name}`.
+  #
+  # Nothing was broken. The helper calls `url_for(sort:, direction:, only_path: true)`, which builds a URL
+  # **for the current page** - and an ActionView::TestCase has no current page, so there is no route for
+  # those two parameters to hang off. The behaviour only exists inside a request, which is where it is
+  # tested now: see `test/controllers/admin/sort_link_test.rb`.
 end
