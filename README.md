@@ -23,6 +23,11 @@ To understand the project better, read the [project documentation](docs/README.m
 
 Then follow our [contributing guide](CONTRIBUTING.md) to get started.
 
+## New here?
+
+[`ONBOARDING.md`](ONBOARDING.md) covers what the app is, what each role can do, the money rules with
+their constants, and — for maintainers — the setup, the architecture and the rules that bite first.
+
 # Local Development
 ## Requirements
 
