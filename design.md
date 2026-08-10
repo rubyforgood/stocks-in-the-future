@@ -4388,75 +4388,83 @@ fill is for.
    filters + a "Clear filters" action.
 
 ### Alerts, flashes & form errors
-**One alert card for everything** — flash banners and the form-error summary share a single token
-so they read as the same component, colored by severity. `alert_classes(:success | :warning |
-:danger | :info)` (in `design_system_helper`, sibling of `button_classes`) returns the card
-(`flex items-start gap-2.5 rounded-lg border px-4 py-3 text-sm` + a semantic border/bg/text) and
-`alert_icon(variant)` the leading `bi-*` (check-circle / exclamation-triangle / info-circle). Full
-class strings are written out so the Tailwind scanner compiles them. Colors follow the table
-(emerald success, amber warning, rose danger, brand info).
-- **Flash banners.** One partial, `shared/_flashes`, rendered by **every** layout (the app layout,
-  `stocks_in_the_future_auth`, `all_stocks_in_the_future_admin`) via `render "shared/flashes", wrapper_class: <layout padding>` — no
-  more per-layout copies that drift. `notice` → success, every other key → warning. Keeps the
-  `alert` + `<type>` classes (`.notice` SweetAlert specs, `.alert` not-authorized redirect), the
-  `header-flash` container (all-stocks-in-the-future spec), the a11y `role`, and the `notice_action` trusted
-  `{label, path}` link appended to a notice.
-- **Field level.** Every invalid field shows a rose border **and** a visible message, so the error
-  is never carried by color alone (WCAG 1.4.1). **This is automatic app-wide:** a global
-  `field_error_proc` (`config/initializers/field_error_proc.rb`) wraps each invalid field (keeping the
-  `.field_with_errors` rose border) and, for a text-like control (input / select / textarea; not
-  radio / checkbox / hidden), adds `aria-invalid` + the secondary-gray message beneath it -- skipping
-  any control that already has `aria-describedby` (placed by hand below), so nothing doubles, and new
-  forms get it for free. For hand-placed cases (radio/checkbox groups, a composed fieldset, custom
-  placement) `field_error(record, attr)` (in
-  `design_system_helper`) renders a secondary-gray, sentence-case message (`text-slate-500`) with a centered rose
-  `bi-exclamation-circle` icon right under the field;
-  `field_error_attrs(record, attr)` splats `aria-invalid` + `aria-describedby` onto the input (or,
-  via `tag.attributes(...)`, onto a radio/checkbox `<fieldset>`) so assistive tech ties the field to
-  its message. The rose border comes from both `.field_with_errors` (Rails' auto-wrap) and
-  `[aria-invalid="true"]` (`tailwind.css`, `#f43f5e`, 3.67:1 AA). Attribute errors show at the field;
-  even cross-field rules flag at the field -- the reimbursement mileage / mailing-address checks add
-  their error to a representative attribute (`:miles_driven` / `:volunteer_address`), not `:base`, so
-  the field (or fieldset) is marked, not only the summary. When a case has several volunteers and the
-  editor isn't one of them, the mailing address can't be inferred, so the form shows a **volunteer
-  picker** (`reimbursement_volunteer_id`) above the address fields instead of disabling them; choosing
-  one prefills + saves that volunteer's address (`case-contact-form#pickReimbursementVolunteer`). **Native HTML5
-  validation is disabled app-wide** so this (and the summary) can show — otherwise the browser's native bubbles
-  (`required`, `type`, `min`) fire first, block the submit, and can't be styled. A global handler in
-  `application.js` sets `form.noValidate` on every form on load / `turbo:load` / `turbo:frame-load`
-  (Turbo Drive is off, so it runs on each full page load); opt a form back in with
-  `data-native-validation`. An invalid submit then reaches the server and re-renders the
-  design-system errors. (The case-contact form also sets `novalidate` explicitly, server-rendered.)
-- **Required / optional markers.** `required_marker` (rose `*`, aria-hidden) marks a required label and
-  `optional_marker` (muted "Optional") marks an optional one on a form that mixes the two, so the split
-  is explicit per field rather than inferred from the lone `*`. Which fields are required comes from the
-  model validations (e.g. a `User` needs email + display name; phone / DOB / address are optional), not a
-  guess. The required input also carries `required` (a11y; harmless because native validation is disabled
-  app-wide, so it never pre-empts the server-rendered errors). Applied to the data-entry forms app-wide —
-  volunteers / admins / supervisors profiles, stocks_in_the_future_cases, court dates, and the settings CRUD forms. An
-  edit form gated on `can_edit` **suppresses** the markers when the profile is read-only (nothing is
-  editable, so they would be noise). Single-required-field forms (e.g. a settings name) just take the `*`.
-- **Summary.** `shared/_form_errors` — the **same alert card** (`alert_classes(:danger)` + icon),
-  `id="error_explanation"` + `role="alert"` + the `alert` class + the lead **"Unable to save"**
-  (spec hooks). It lists **every** error so the summary matches the per-field messages: a lone error
-  stays inline ("Unable to save: …"), several render as a `list-disc` list (no run-on `to_sentence`,
-  no doubled punctuation). Pass `order:` (attributes in form order) so the list reads top-to-bottom
-  like the page — unlisted attributes and `:base` fall to the end. It is the **only** error summary now — the legacy Bootstrap
-  `shared/_error_messages` (bulleted `<ul>`) and the bridge `stocks_in_the_future_admins/_errors` were deleted, their
-  all-stocks-in-the-future / stocks-in-the-future-admin pages migrated onto `_form_errors`.
-- **Message copy.** Validation messages are app-shipped copy: sentence case (fix the i18n attribute
-  labels — e.g. `case_contact.case_contact_contact_types` is "Contact type", not "Contact Type") and
-  **no trailing period** (a `:base` sentence like "Must enter miles driven…" ends without ".", so it
-  reads cleanly as a list item and never doubles into "…reimbursement., and …").
-- **Enabled + validate, not disabled-until-input.** A submit that would otherwise sit *disabled*
-  until a field/select is filled instead stays **enabled**; an invalid submit is blocked client-side
-  (`preventDefault` + `stopPropagation`) and shows an inline field-error (`bi-exclamation-circle` rose
-  icon + slate-500 text, matching `field_error`, toggled with a `hidden` class) and focuses the field
-  -- so the user can always click and learn why. Used by the CSV imports, the SMS opt-in "Continue",
-  copy-court-orders, volunteers bulk-assign, and the supervisor-assign row. Disabling a button
-  *during* submission (reports, court-report generate) is the correct, kept use of `disabled`. For a
-  TomSelect field the guard must **not** call `.focus()` on failure -- that re-opens the dropdown over
-  the error.
+
+There are four things here and they are not interchangeable. **Ask whether the sentence is still true
+in a minute**, and the right one falls out.
+
+- **Flash banners** (`layouts/_flash`, rendered by both layouts). A **notice** reports that something
+  you just did worked: `role="status"`, `aria-live="polite"`, and it **auto-hides after 6s**, because
+  it is worthless a minute later. An **alert** describes something that went wrong: `role="alert"`, and
+  it **stays**. That split is the whole convention and it is a property of what the message *is*, not
+  of how it looks. `test/system/flash_dismiss_test.rb` asserts it on the attribute, so a wrong one
+  fails by name.
+
+  **A banner is only as wide as the container it is in.** The flash was a bare child of `<main>`
+  while the content column was declared per page, so at 1920px a sign-in notice measured 1601px over
+  cards of 1280px. Anything the layout renders alongside `yield` has to share the page's column --
+  which is why the column now lives in the layout, around both. Constraining the flash instead would
+  have inverted the bug on the four pages that declare no column at all. Note that this is invisible
+  below about 1584px, where `<main>`'s content box is already narrower than the cap.
+
+  Two ways an auto-hiding element gets stuck on screen: fade with an **inline style**, because
+  Tailwind only emits classes it can see in the templates and an `opacity-0` added from JS may not be
+  in the build; and remove on **its own timer**, not `transitionend`, because a transition that never
+  fires -- skipped under reduced motion, interrupted by a display change -- leaves the message up
+  forever.
+
+- **Callouts** describe a state of the page that is true until somebody changes it -- "trading is
+  turned off for your classroom". They never auto-dismiss, and their dismiss is a **round trip, never
+  a Stimulus controller**: a client-side close brings the banner straight back on the next load,
+  because the condition still holds. Dismissals are one row per user per key in the `dismissals`
+  table, via `POST /dismissals`; `Dismissible` on `User` gives `dismissed?(key, since:)` and
+  `dismiss!(key)`. Adding one is a key in `Dismissal::KEYS` and a `button_to` -- no migration, no
+  route, no controller action.
+
+  **Pass `since:` or the dismissal is a mute button.** It defaults to nil, meaning permanent, and a
+  caller who forgets it fails *silently*: the banner simply never comes back. Permanent is correct for
+  something that happens once; it is wrong for any condition a teacher can turn off, on and off again,
+  which is why `classrooms.trading_disabled_at` exists and why `Classroom` clears it when trading
+  comes back on. Ask what the dismissal dismisses -- this message, or every future instance of it.
+
+  **A `button_to` dismiss cannot live in the component.** `button_to` renders a whole `<form>`, and a
+  callout inside another form would have the parser drop the nested form and the button silently
+  submit the outer one. The dismiss is passed as a block per call site for that reason.
+
+- **The form error summary** (`shared/_form_errors`): `id="error_explanation"`, `role="alert"`, the
+  red-200 / red-50 / red-700 card, a lone error inline and several as a `list-disc` list. It gets **no
+  close at all** -- it describes the form as it stands and is rebuilt on submit, so hiding it hides the
+  list of what is still wrong.
+
+- **Field level.** Every invalid field shows a rose border **and** a visible message, so the error is
+  never carried by colour alone (WCAG 1.4.1), and **this is automatic app-wide.** The global
+  `field_error_proc` (`config/initializers/field_error_proc.rb`) marks the control `aria-invalid`,
+  points `aria-describedby` at a message it renders beneath, and swaps `tw-input-primary` for
+  `tw-input-error`. It skips labels, hidden / checkbox / radio / submit inputs, and anything that
+  already carries `aria-describedby`, so nothing doubles and new forms get it for free. For the cases
+  it skips -- a `collection_check_boxes` group, a composed fieldset -- `field_error(record, attr)` and
+  `field_error_attrs(record, attr)` in `FormErrorsHelper` place the same message and attributes by
+  hand.
+
+  **Two errors for one field is the failure mode here**, and it shipped: the form builder rendered its
+  own message *and* the proc rendered one, so every invalid field said everything twice. There is one
+  producer per control now.
+
+  Two traps live in that initializer. **`ActionController::Base.helpers` does not have the app's
+  helpers** -- it carries Rails' own, so a call through it looks fine until it reaches an app helper
+  and then raises `NoMethodError` at render time, which here meant a 500 on every invalid submit;
+  `ApplicationController.helpers` has both. And **an initializer needs a boot**: code reloading covers
+  `app/`, not `config/initializers/`, so a running server keeps executing the previous version and will
+  report success on the very thing you just changed. If a change to an initializer appears to have done
+  nothing -- or appears to have worked -- restart before believing either.
+
+- **Native HTML5 validation is disabled app-wide** so the above can show. Otherwise the browser's own
+  bubbles fire first, block the submit, and cannot be styled. `application.js` sets `form.noValidate`
+  on every form. An invalid submit then reaches the server and re-renders the design-system errors.
+
+- **Message copy.** Validation messages are app-shipped copy: sentence case, including the
+  `activerecord.attributes` names in `config/locales/en.yml` that surface inside them, and no trailing
+  period, so a message reads cleanly as a list item and never doubles its punctuation.
+
 
 ### Dropdown / popover
 Menus (the header account menu, the cases-page "More" actions menu) are a native
@@ -4549,101 +4557,72 @@ query and resets rows).
 header, the text still names the content, and a state-swapping label there is well-precedented
 (GOV.UK's accordion does it for every section). Keep it; don't propagate it to section triggers.
 
-### Modal (native dialog)
-Built on the native `<dialog>` element driven by the `modal` Stimulus controller: `open`
-calls `showModal()` (focus-trapping, Escape-to-close, and an inert background for free),
-`close` closes it, a backdrop click closes it, and an `openOnConnect` value auto-opens on
-load (e.g. the case-show thank-you dialog on the `?success` redirect). Tailwind's reset zeroes
-the UA centering margin, so `tailwind.css` re-centers `dialog[data-modal-target="dialog"]`
-(fixed, horizontally centered, `top: 24vh`, and `18vh` under 640px).
+### Modal and confirmation dialog
 
-**One template for every task/confirm modal.** Panel: `w-[calc(100vw-2rem)] max-w-md
-overflow-hidden rounded-2xl p-0 shadow-xl backdrop:bg-slate-900/40`, then three regions:
-1. **Header** `flex items-center gap-3 border-b border-slate-100 px-5 py-4`: an optional 32px
-   status badge, the `<h2>` title (`flex-1`), then a 32px close button (`bi-x-lg`,
-   `text-slate-500`, `aria-label="Close"`).
-2. **Body** `px-5 py-4`.
-3. **Footer** `flex items-center justify-end gap-2 border-t border-slate-100 px-5 py-4`:
-   `button_classes(:secondary)` (Cancel) then the primary or `:danger` action, right-aligned.
+Two things, with different jobs. **A confirmation is a question about an action already chosen; a
+modal is a place to do work.**
 
-The template is the **`Dialog::` ViewComponent suite**: `Dialog::GroupComponent` (the
-<dialog> shell plus the trigger slot, size, aria label, and controller wiring) composed with
-`Dialog::HeaderComponent`, `Dialog::BodyComponent`, and `Dialog::FooterComponent`. Compose
-those (they work even inside a `form_with`) so the three regions cannot drift. This is the
-native-dialog replacement for the Bootstrap `Modal::*` suite.
+**The confirmation dialog** (`shared/_confirm_dialog`, `confirm_dialog_controller`) replaces the
+browser's native `window.confirm` for the whole app by overriding `Turbo.config.forms.confirm` -- not
+the deprecated `Turbo.setConfirmMethod`. It is a real `<dialog>` opened with `showModal()`, which
+brings focus trapping, Escape to close, an inert page behind it and the backdrop from the browser, so
+it is a fraction of the code of a hand-rolled overlay.
 
-Shipped instances: the court-report generator (form modal; submit posts via the
-`court-report` controller) and `shared/_confirm_button` (destructive confirm; the danger
-action posts via `button_to`, and the trigger, title, message, and labels are locals). A
-confirm can also be opened **programmatically** by a Stimulus controller instead of a trigger
-slot (the court-orders remove and copy-from-sibling, and the case-contact **topic-removal**
-(`contact-topics`) and **additional-expense removal** (`stocks-in-the-future-nested-form`) confirms — each replacing
-a `window.confirm()`): wrap the `<dialog>` in `<div data-controller="modal"
-class="contents">`, mark it `data-modal-target="dialog"` (for the centering rule) and a
-target of the owning controller, call `showModal()` from that controller's action, and wire
-the confirm button to the controller; Cancel / X / backdrop still use `modal#close`. A
-separate **status variant** (the success/thank-you dialog) centers a 48px hero badge + title
-+ single Close instead of a header bar. This replaces the legacy Bootstrap `Modal::*`
-components on Tailwind pages; do not restyle Bootstrap `.modal` markup (its CSS is not loaded
-on the app layout).
+Two geometry rules are non-obvious and both are invisible until measured. **A native `<dialog>` needs
+`m-auto` and `w-auto` under Tailwind:** Preflight resets `dialog { margin: 0 }`, killing the UA's
+centring, and the UA sets `width: fit-content`, so a panel is sized by its own text. Mine sat against
+the left edge at 301px wide.
 
-**`shared/_confirm_button` inside another `<form>`: pass `confirm_form:`.** By default it confirms via
-**`button_to`**, which renders its own `<form>`, and **nested forms are invalid HTML**: the browser
-drops the inner one, so the confirm button submits the OUTER form instead. On the case-contact form
-that sent `DELETE /case_contacts/:id/form/details` into a routing error, silently -- the dialog looked
-perfect. The Dialog components themselves are fine inside a form; it is `button_to` that is not.
+The message is split on the **first blank line**: the part before it is the question, in
+`text-base font-semibold`; the part after is the consequence, in `text-sm text-slate-600`. **Show what
+an irreversible action will do, in the confirmation.** Finalizing a grade book deposits real money into
+every student's portfolio and cannot be undone, and both the page and the dialog were once silent about
+the amount. When a preview and a payment must agree, **run the same object** -- `EarningsCalculator`
+here -- rather than reimplementing the rules beside it.
 
-Rather than exiling the control, give the partial **`confirm_form:`** -- the id of a **bodyless
-`form_with url:, method:, id:`** rendered outside the enclosing form. The confirm then renders as a
-plain submit owned by that form through HTML's `form` attribute, so the trigger and dialog can sit
-wherever the design wants while the request still goes to the right place. (Moving the control out of
-the row instead was the wrong call: a discard belongs with the actions it is an alternative to.)
+The question **never restates the button**: "Reset Ada's password?" tells a teacher nothing they did
+not already know. Cancel comes first in the DOM, which is the reading order the buttons are in, and
+the accept button's label is filled in from the control that was pressed, so it reads "Finalize
+grades" rather than "OK".
 
-**Placement of a destructive action in a form's action row:** same row as the submits, pushed to the
-**far end** (`sm:ml-auto`), not adjacent to the primary. That is the compose-toolbar shape -- Gmail
-puts Send at one end and discard at the other -- so it is grouped without sitting under a thumb aiming
-for Submit. Verify it is genuinely in the row and on the same line (compare `getBoundingClientRect`
-tops and the row's right edge), and that no nested `<form>` appeared:
-`document.querySelector('#case-contact-form form')` must be null.
+**Replacing a global browser primitive breaks whatever was driving the old one.** Styling the confirm
+took an afternoon; the 20 tests calling Capybara's `accept_confirm` -- which waits for a *native*
+dialog -- took longer. `accept_confirmation` / `dismiss_confirmation` drive the app's dialog now.
+**Before swapping a primitive, grep for what tests it**, not just what uses it.
 
-**Name the policy predicate after the action.** `authorize @case_contact, :destroy?` still resolved to
-`discard_draft?` and raised `NoMethodError`; alias it in the policy
-(`alias_method :discard_draft?, :destroy?`) and call a bare `authorize`, like every other alias in
-`CaseContactPolicy`.
+Note also what `turbo_confirm` is where the override does not reach: a **native OS dialog** with no
+styling available at all, so the string is the only thing that can be improved.
 
-**A control gated on `persisted?` will not appear on a lazily-created record.** The form persists on
-first save and the autosave **never re-renders the page**, so anything server-rendered on
-`persisted?` stays as it was at page load -- the Discard button was invisible until a manual reload,
-which reads as "the feature does not work". Render such a control **up front with `hidden`**, and let
-`case_contact_draft.js#adopt` reveal it and fill in its URL (the create response hands back
-`discard_path` beside `id` and `form_action`, so no route is rebuilt in JS). Drive this from the FORM
-when testing -- seeding a draft and visiting the wizard URL renders the persisted branch and proves
-nothing about the path a user takes. Note the rack_test consequence: a `hidden` block is still
-"visible" to rack_test, so assert the **class** in a non-`:js` example and visibility in a `:js` one.
+**The modal** (`shared/_modal`, `modal_controller`) is the trading floor's order form: a fixed
+`bg-black/50` scrim, a `bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 p-6` panel with
+`role="dialog"` and `aria-modal`, a close control at the top right, and a backdrop click to dismiss.
+Its close button is icon-only, so it carries its own visually hidden text -- `lucide_icon` renders
+`aria-hidden`, and an icon-only control otherwise has **no accessible name at all**.
 
-**Discarding a draft** (case-contact form): offered only when the draft actually exists --
-`persisted? && !active?`. A brand-new form has nothing to discard (nothing is inserted until the
-first save, so **Back** is the whole exit), and an active contact is a real record, deleted from the
-list instead. It **hard-deletes** through `CaseContact#discard!` -- the same path the expiry task
-uses -- because Paranoia's soft delete keeps the row and resurfaces it to StocksInTheFutureAdmins as a "[DELETE]"
-row, i.e. it would leave more clutter than it removed. Its own action (`#discard_draft`) exists so the
-redirect can return where the form was opened from; `#destroy` redirects to `request.referer`, which
-here is the form of the record just deleted.
+**A `button_to` cannot go inside another form.** It renders a whole `<form>`, and nested forms are
+invalid HTML: the browser drops the inner one during parsing, so the button silently submits the
+**outer** form to the outer form's action. It looks fine, renders fine, and passes a controller test
+that POSTs to the route directly -- only a system test that actually clicks it catches this. When an
+empty state needs an action, branch around the form rather than putting the empty state inside it.
 
-**Delete confirm in a table row.** For a per-row destructive confirm, reuse
-`shared/_confirm_button` (a visible-label trigger + the Dialog). When a **non-`:js` (rack_test)**
-spec drives the flow — click "Delete", assert the title, then a visible "Close"/"Confirm" — render
-the Dialog directly with a **visible** "Close" button (rack_test can't match the header X's
-`aria-label`, and `enable_aria_label` is off) and a `button_to` "Confirm" (the only element
-rack_test actually submits; the trigger + Close are `type="button"` no-ops, and the whole dialog
-sits in the DOM regardless of open state). The placements index is the reference — contrast the
-checklist-item delete, a `button_to` + `turbo_confirm` for specs that click Delete and expect an
-immediate submit with no in-page confirm text.
+**An unlayered CSS rule beats every layered one, whatever the specificity.** The `.tw-*` component
+files are imported after `@import "tailwindcss"`; until they were wrapped in `@layer components`,
+`.tw-btn-buy`'s `display: inline-flex` beat `.hidden`, so the order modal showed Cancel, Back, Review
+order and Buy shares simultaneously. `hidden` appeared in the markup and did nothing. Assert it: at
+375px, any element carrying `.hidden` whose computed `display` is not `none` is a cascade failure.
 
-**Status badge token** (the modal icon): one shape, `rounded-full`, two sizes: **32px**
-(`h-8 w-8`) inline in a header, **48px** (`h-12 w-12`) centered as a hero. Colored by intent
-(`bg-rose-100 text-rose-600` destructive, `bg-emerald-50 text-emerald-600` success). This is
-distinct from the stat/KPI **icon tile** (`rounded-xl`).
+**Proving that nothing happened needs a bounded wait.** `click` and `send_keys` do not block, so
+reading the database straight after a Cancel asserts against a request still in flight, and a "the
+action did *not* happen" test then passes whichever way it went. Mine passed with focus on the accept
+button, which is the exact opposite of what it claimed. There is no positive state to wait on when the
+correct outcome is nothing, so a short documented `sleep` is the honest instrument -- and verify the
+test by making the thing happen and watching it fail.
+
+**A destructive control with no test may never have worked.** "Delete account" posted to Devise's
+`registrations#destroy`, which calls `resource.destroy`, and `User` raises *"Hard delete attempted …
+Use #discard instead"*. It returned a 500 every time, for as long as it had existed. Before moving or
+restyling a destructive control, run it.
+
 
 ## App shell
 - **Sidebar** (256px, `border-r border-slate-200 bg-white`): org **name only** in the
