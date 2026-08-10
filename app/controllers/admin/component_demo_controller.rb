@@ -52,6 +52,17 @@ module Admin
     end
     # rubocop:enable Metrics/MethodLength
 
+    # Preview: every open question in design-todo.md that still needs a decision, with what the app does
+    # today beside what I would do. Real components and real numbers where they exist.
+    def open_questions
+      @classroom = Classroom.first
+      @stats = @classroom ? ClassroomFacade.new(@classroom).stats : {}
+      @breadcrumbs = [
+        { label: "Component demo", path: admin_component_demo_index_path },
+        { label: "Open questions" }
+      ]
+    end
+
     def show
       @user = User.find(params.expect(:id))
       @breadcrumbs = [

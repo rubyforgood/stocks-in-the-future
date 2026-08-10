@@ -94,6 +94,9 @@ Rails.application.routes.draw do
       resources :component_demo, only: %i[index show] do
         collection do
           get :form
+          # A design preview for the open questions in design-todo.md - current state beside a
+          # recommendation for each. Built to decide, deleted once decided.
+          get :open_questions
         end
       end
     end

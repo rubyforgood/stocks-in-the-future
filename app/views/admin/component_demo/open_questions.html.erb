@@ -1,0 +1,253 @@
+<% content_for :own_heading, true %>
+<div class="mx-auto max-w-7xl">
+  <%= render "admin/component_demo/environment_banner" %>
+
+  <%= admin_breadcrumbs(@breadcrumbs) %>
+
+  <% description = "Every question in design-todo.md that is still open, with what the app does today " \
+                   "beside what I would do. Built to decide, deleted once decided." %>
+  <%= render layout: "components/ui/page_header",
+             locals: { title: "Open questions", description: description } do %><% end %>
+
+  <div class="space-y-10">
+    <%# ---------------------------------------------------------------- 1 %>
+    <section data-testid="question-form-card">
+      <h2 class="text-base font-semibold text-slate-900">1. A form card's own heading</h2>
+      <p class="mt-1 mb-3 text-sm text-slate-600">
+        Ten admin form partials hand-roll <code>&lt;div class="tw-card"&gt;&lt;div class="p-5"&gt;</code>
+        rather than using <code>components/ui/_card</code>, and each opens with an
+        <code>h3</code> naming the record type. The surface is declared eleven times, which is the
+        mechanism that produced four different padding values before.
+      </p>
+
+      <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <div>
+          <p class="mb-2 text-xs font-semibold text-slate-500">Today</p>
+          <div class="tw-card">
+            <div class="p-5">
+              <h3 class="text-lg font-medium text-slate-900 mb-6">Teacher details</h3>
+              <p class="tw-label-primary">Email address</p>
+              <div class="tw-input-primary flex items-center text-slate-500">terry@example.com</div>
+            </div>
+          </div>
+          <p class="mt-2 text-xs text-slate-600">
+            Under a page header reading "Edit teacher". The card says the same thing again, in a
+            different size, 24px lower.
+          </p>
+        </div>
+
+        <div>
+          <p class="mb-2 text-xs font-semibold text-slate-500">Recommended</p>
+          <%= render layout: "components/ui/card", locals: {} do %>
+            <p class="tw-label-primary">Email address</p>
+            <div class="tw-input-primary flex items-center text-slate-500">terry@example.com</div>
+          <% end %>
+          <p class="mt-2 text-xs text-slate-600">
+            <code>components/ui/_card</code>, no heading. Polaris drops a card's header when the page
+            has one card; the page title already named the thing. A heading returns the moment a form
+            has two cards - <code>admin/students</code> does - because then it separates them.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <%# ---------------------------------------------------------------- 2 %>
+    <section data-testid="question-card-padding">
+      <h2 class="text-base font-semibold text-slate-900">2. Is a form card <code>p-5</code> or <code>p-6</code>?</h2>
+      <p class="mt-1 mb-3 text-sm text-slate-600">
+        design.md says <code>p-5</code> and the app now says <code>p-5</code> everywhere, so this is
+        settled as a consistency question. It is open as a value question: the admin half independently
+        chose 24px in ten places. shadcn's Card is 24px, Polaris is 16/20px.
+      </p>
+
+      <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <div>
+          <p class="mb-2 text-xs font-semibold text-slate-500">p-5 - today, and recommended</p>
+          <div class="tw-card p-5" data-testid="pad-5">
+            <p class="tw-label-primary">Classroom name</p>
+            <div class="tw-input-primary flex items-center text-slate-500">5B</div>
+          </div>
+        </div>
+        <div>
+          <p class="mb-2 text-xs font-semibold text-slate-500">p-6</p>
+          <div class="tw-card p-6" data-testid="pad-6">
+            <p class="tw-label-primary">Classroom name</p>
+            <div class="tw-input-primary flex items-center text-slate-500">5B</div>
+          </div>
+        </div>
+      </div>
+      <p class="mt-2 text-sm text-slate-600">
+        Keep <code>p-5</code>. The difference is 4px a side and the document has decided; the cost of
+        changing it is another app-wide sweep and a paragraph in design.md explaining why a form card is
+        special. If it ever changes, it changes because a form is measurably cramped at 375px - and it is
+        not: <code>p-5</code> leaves a field 286px wide there, <code>p-6</code> 278px.
+      </p>
+    </section>
+
+    <%# ---------------------------------------------------------------- 3 %>
+    <section data-testid="question-classroom-stats">
+      <h2 class="text-base font-semibold text-slate-900">3. Four figures computed and never rendered</h2>
+      <p class="mt-1 mb-3 text-sm text-slate-600">
+        <code>ClassroomsController#show</code> sets <code>@classroom_stats</code> for a teacher or admin -
+        four figures, four queries - and no template reads it. Separately, "how is 5B invested?" has no
+        answer anywhere. <strong>These are one question.</strong>
+      </p>
+
+      <div class="grid grid-cols-1 gap-4 lg:grid-cols-4">
+        <%= render "components/ui/stat", label: "Students", value: @stats[:total_students].to_s %>
+        <%= render "components/ui/stat",
+                   label: "Have traded",
+                   value: @stats[:active_students].to_s,
+                   hint: "Placed at least one order" %>
+        <%= render "components/ui/stat",
+                   label: "Class portfolio",
+                   value: number_to_currency((@stats[:total_portfolio_value] || 0) / 100.0) %>
+        <%= render "components/ui/stat",
+                   label: "Orders this week",
+                   value: @stats[:recent_orders_count].to_s %>
+      </div>
+
+      <p class="mt-3 text-sm text-slate-600">
+        Rendered above from the real facade, for <%= @classroom&.name || "no classroom" %>. Recommended:
+        <strong>render them, at the foot of <code>classrooms#show</code></strong>, not the top. Measured on
+        that page at 1366x768 - viewport 625px, Students at 168px, Grade books at 420px, page ends at
+        637px - a band above the roster once put the first student at 567px of 625px. Below the grade
+        books it is the summary you scroll to after the work, which is when the question is asked.
+        Deleting the four queries is the alternative and it is worse: the figures are the answer to a
+        question a teacher has.
+      </p>
+    </section>
+
+    <%# ---------------------------------------------------------------- 4 %>
+    <section data-testid="question-perfect-attendance">
+      <h2 class="text-base font-semibold text-slate-900">4. Perfect attendance, ticked by hand</h2>
+      <p class="mt-1 mb-3 text-sm text-slate-600">
+        A teacher types the day count, then answers a second control saying the student attended every
+        day. In the seeds one entry carries the flag with <code>attendance_days</code> nil and is paid the
+        <%= number_to_currency(GradeEntry::EARNINGS_FOR_PERFECT_ATTENDANCE / 100.0) %> bonus; another
+        treats 3 days as perfect. The two fields can disagree, and the money follows the flag.
+      </p>
+
+      <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <div>
+          <p class="mb-2 text-xs font-semibold text-slate-500">Today</p>
+          <div class="tw-card p-5">
+            <p class="text-sm text-slate-700">Days attended <span class="font-semibold">3</span></p>
+            <p class="mt-2 text-sm text-slate-700">Perfect attendance
+              <span class="font-semibold">Yes</span></p>
+            <%= render "components/ui/callout",
+                       tone: :warning,
+                       title: "Two answers, one fact",
+                       body: "Nothing reconciles them, and the bonus follows the flag." %>
+          </div>
+        </div>
+        <div>
+          <p class="mb-2 text-xs font-semibold text-slate-500">Recommended</p>
+          <div class="tw-card p-5">
+            <p class="text-sm text-slate-700">Days attended <span class="font-semibold">3</span></p>
+            <p class="mt-2 text-sm text-slate-700">
+              Perfect attendance
+              <span class="font-semibold">No</span>
+              <span class="text-slate-600">- derived from 3 of 45 school days</span>
+            </p>
+            <%= render "components/ui/callout",
+                       tone: :info,
+                       title: "One field, one fact",
+                       body: "The flag becomes a derived reading of days against the quarter's school days." %>
+          </div>
+          <p class="mt-2 text-xs text-slate-600">
+            Blocked on one thing: <code>quarters.school_days</code> does not exist, so there is no
+            denominator. That column is the whole change - after it, the flag is a method.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <%# ---------------------------------------------------------------- 5 %>
+    <section data-testid="question-archived-stocks">
+      <h2 class="text-base font-semibold text-slate-900">5. Should the archived stocks table exist?</h2>
+      <p class="mt-1 mb-3 text-sm text-slate-600">
+        It has a date, a 12-month window and an exemption for anything you hold, which makes it
+        defensible. The question was never asked: <em>who opens it, and to do what?</em>
+      </p>
+      <div class="tw-card p-5">
+        <p class="text-sm text-slate-700">
+          Recommended: <strong>keep the "Archived stocks you hold" table, drop the disclosure below it.</strong>
+          The first answers a real need - a student must be able to sell something that stopped trading. The
+          second is a list of companies nobody can buy, behind a
+          <code>&lt;details&gt;</code>, retained for a year. A teacher who wants the full catalogue has
+          <code>/admin/stocks</code>; a student has no use for it at all. Deleting it removes a table, a
+          scope, a retention constant and a test - and nothing on any page changes for anyone who was not
+          already scrolling past a closed disclosure.
+        </p>
+      </div>
+    </section>
+
+    <%# ---------------------------------------------------------------- 6 %>
+    <section data-testid="question-user-restore">
+      <h2 class="text-base font-semibold text-slate-900">6. An archived plain user has no way back</h2>
+      <p class="mt-1 mb-3 text-sm text-slate-600">
+        <code>admin/users</code> archives and nothing un-archives. <code>admin/students#restore</code> and
+        the teacher reactivation cover the two subclasses; a user who is neither has no route back, and
+        the row simply shows no action.
+      </p>
+      <div class="tw-card p-5">
+        <p class="text-sm text-slate-700">
+          Recommended: <strong>add <code>restore</code> to <code>admin/users</code></strong>. It is the same
+          shape as the students one, it covers every type at once - including the two that already have
+          their own - and it turns "no action on this row" into an action. The alternative, writing down
+          that a plain user is archived forever, is a policy nobody chose: the discard is reversible in the
+          data and irreversible only in the interface.
+        </p>
+      </div>
+    </section>
+
+    <%# ---------------------------------------------------------------- 7 %>
+    <section data-testid="question-environment-ribbon">
+      <h2 class="text-base font-semibold text-slate-900">7. A whole-app environment ribbon</h2>
+      <p class="mt-1 mb-3 text-sm text-slate-600">
+        The component demo names its environment because the page is not part of the product. A ribbon
+        answers a different question - <em>which deployment am I looking at</em> - and staging exists here
+        with no sign of it.
+      </p>
+
+      <div class="overflow-hidden rounded-xl border border-slate-200">
+        <div class="flex items-center gap-2 bg-amber-100 px-4 py-1.5 text-xs font-medium text-amber-900">
+          <%= lucide_icon "triangle-alert", class: "size-4 shrink-0" %>
+          Staging - this data is not real
+        </div>
+        <div class="bg-white px-4 py-3">
+          <p class="text-sm text-slate-600">The page, unchanged beneath it.</p>
+        </div>
+      </div>
+
+      <p class="mt-3 text-sm text-slate-600">
+        Recommended: <strong>build it for staging only, and not for development.</strong> A strip above the
+        header bar, not a callout in the content - it describes the whole application, not the page, which
+        is where GitLab and Shopify put theirs. No dismiss, by this app's own rule: the environment is still
+        true in a minute. In development the URL already says localhost, and a permanent stripe on every
+        page of every working day is noise that teaches you to stop seeing it - which is exactly what would
+        make it useless on staging.
+      </p>
+    </section>
+
+    <%# ---------------------------------------------------------------- 8 %>
+    <section data-testid="question-buy-sell-alignment">
+      <h2 class="text-base font-semibold text-slate-900">8. Buy and Sell sit below their row's first line</h2>
+      <p class="mt-1 mb-3 text-sm text-slate-600">
+        The trading floor's controls are 40px buttons in a row whose primary cell stacks a 40px logo over
+        two lines, so the row is 65px and the buttons' centre is 10.5px below the ticker. The
+        <code>pt-1.5</code> used for 32px row actions is the wrong number here.
+      </p>
+      <div class="tw-card p-5">
+        <p class="text-sm text-slate-700">
+          Recommended: <strong>align the cell, not the button</strong> - <code>align-top</code> on the
+          actions cell and let the 40px control sit at the top of the row, which is what design.md already
+          says for every other trailing cell. The alternative, a per-cell padding tuned to this row's
+          height, breaks the moment a company name wraps to three lines. Worth measuring the row again
+          first: the logo is what makes the row 65px, and it is decoration.
+        </p>
+      </div>
+    </section>
+  </div>
+</div>
