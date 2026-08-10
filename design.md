@@ -2724,11 +2724,11 @@ already handles it.
 **One primary CTA per page.** A view gets exactly ONE filled `:primary` button -- the page's main
 action (on a form page, its save: "Submit" / "Save changes"). Every *other* action is lower emphasis:
 `:secondary` for a clear standalone action, ghost for repeated row/toolbar actions. In particular an
-inline **"assign a new X" / "add note" sub-form submit** inside a management card (Assign case / Assign
-supervisor / Assign volunteer / Save note) is **`:secondary`, never `:primary`** -- it sits next to a
-full-height select/textarea (so a 40px `:secondary` aligns with the input) and must not compete with
-the page's save. Stacking a main-form Submit primary with several assign-form primaries is the
-recurring bug -- it read as 3-4 competing CTAs on the volunteer / supervisor / case edit pages. A
+inline sub-form submit inside a section card is **`:secondary`, never `:primary`** -- it sits next to
+a full-height select or textarea, so a 40px secondary aligns with the input, and it must not compete
+with the page's save. Stacking a main-form submit primary with several section-form primaries is the
+recurring bug; `grade_books#show` had two filled primaries at once, with Save grades outside the card
+and Finalize grades inside it, and neither said which came first. A
 **dialog keeps its own primary confirm** ("Yes, send reminder" / "Yes, copy"): that's the dialog's
 local primary, visible only while the modal is open, so it doesn't count against the page.
 
@@ -2742,32 +2742,35 @@ label/icon insets, not centered). Keep every child `pointer-events-none` if a cl
 `event.target` as the button (as `src/reports.js` does).
 
 **Concise CTA labels.** A button label is the *action*, not a restatement of context the page already
-supplies -- drop the page title and the file format. The Court reports page's primary CTA is
-**"Generate report"** (the h1 + card already say "court report" and ".docx"; the Word icon signals the
-format), not "Download court report as a .docx". Bonus: that trigger opens a config dialog, so
-"Download" was also inaccurate -- the download happens after "Generate". If the trigger and the dialog's
-confirm would collide (both "Generate report"), the dialog's `id` sits on the `<dialog>` so scoped
-specs (`within "#modal-id"`) still hit the confirm, and the trigger keeps a fuller dialog title
-("Generate court report").
+supplies -- drop the page title and anything the h1 already said. "Add student" on a classroom page,
+not "Add a new student to this classroom".
 
-**Feature-gated action** (an action that needs an org setting, e.g. "Send reactivation alert (SMS)"
-which requires Twilio): keep it a **real, clickable button in both states** -- the *same*
-`link_to`/element/variant as its enabled twin, only swapping in a struck icon (`bi-bell-slash`) and a
-`title` tooltip stating the prerequisite ("Enable Twilio in your organization settings..."). Do **not**
-render a `disabled` button: a disabled control sitting among live siblings reads as broken, gives no
-feedback on click, and won't line up (a `disabled <button>` next to `link_to` `<a>` siblings landed
-~4px low). Clicking when the feature is off is not a silent no-op -- the controller flashes its
-"<feature> is disabled" notice, which is the feedback. The label is always the action, never the config
-hint ("Enable Twilio to send reactivation alert (SMS)" both mislabels the action and buries the hint in
-the toolbar). Because it's the same element in both states, the toolbar doesn't reflow when the setting
-flips. The row itself is `flex flex-wrap items-center gap-2` so equal-height buttons align on one line.
+**And a label must be accurate about what the control does.** "Save and finalize" implied one action
+where there are two, on a page that autosaves and where finalizing pays real money. It is "Finalize
+grades", which is also what the confirmation's accept button reads, because that label is filled in
+from the control that was pressed.
 
-**Assigned-entity rows** (a volunteer's cases / supervisor, a supervisor's volunteers): one row per
-entity = **identifying label + inline status badges on the left, the Unassign/Remove action on the
-right** (`flex items-center justify-between`), never the action stacked *below* the badges. The
-standard "list item with a trailing action" (GitHub collaborators, Slack members): each entity reads
-as one scannable line. The action matches its context per the destructive-button rule (here it sits
-alone, so `:danger_outline`).
+**A gated action: remove it and say why, rather than disabling it.** When a classroom's trading is
+turned off, `StockPolicy` hides the Buy control outright and a dismissible callout states that trading
+is off for this classroom. A `disabled` button sitting among live siblings reads as broken, gives no
+feedback on click, and will not line up -- a `disabled <button>` next to `link_to` siblings landed ~4px
+low. The two honest options are a live control that explains the refusal, or no control plus a
+sentence; a greyed one is neither.
+
+**A control that can only report that it did nothing is not a control.** "Add new students" was
+offered on a fully populated grade book -- the normal state -- where it added nobody and flashed
+"Every student already has a row", which then auto-dismissed after 6s so even the explanation
+vanished. It renders only when somebody is actually missing an entry. Ask whether the affordance can
+ever do anything for this viewer, in this state.
+
+Disabling a button *during* submission is the correct, kept use of `disabled`.
+
+**List rows** (the grade books on a classroom page): one row per entity = **identifying label plus
+its status badge on the left, the action on the right** (`flex items-center justify-between`), never
+the action stacked below the badge. This is the standard "list item with a trailing action" -- GitHub
+collaborators, Slack members, Polaris's `ResourceList` -- and each entity reads as one scannable line.
+One card with `divide-y` between the rows, **not a card per row**: four grade books as four cards,
+plus the roster's table card and a setting card, put six surfaces on one page.
 
 - Tertiary (ghost): the **`ghost_class(:neutral | :danger)`** helper (design_system_helper.rb) --
   `inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-sm font-medium text-slate-600`. **Both
@@ -2782,32 +2785,26 @@ alone, so `:danger_outline`).
   among **bordered** buttons (a toolbar/section/header of `:secondary`/`:primary`/`:success`) use
   `button_classes(:danger_outline)` (redefined above: slate at rest like `:secondary`, rose on hover) so
   it matches its neighbours at rest. Never mix a ghost destructive next to bordered buttons -- it reads
-  as broken (a `stocks_in_the_future_cases#show`-adjacent regression: a ghost Deactivate/Unassign next to `:secondary`
-  Resend/Assign). Either way there is **no red-at-rest**. No border, fill, or shadow: the
+  as broken. Either way there is **no red-at-rest**. No border, fill, or shadow: the
   lowest-emphasis action, for repeated row / toolbar actions so they recede from brand links. It lives
-**No red-at-rest applies to the container too, not just the button.** The deactivate section on
-`stocks_in_the_future_cases#edit` was a white card with a `border-rose-200` outline -- the only rose-bordered white
-card in the app, and an always-on red of exactly the kind this section rules out. Every comparable
-section (`volunteers/_manage_active`, `supervisors/_manage_active`, `stocks_in_the_future_admins#edit`, the all-stocks-in-the-future
-admin edit) is a plain `border-slate-200` card, and it is now one too (verified: its border resolves to
-the same colour as a sibling card on the same page). A rose border belongs to an **alert message**
-panel, paired with `bg-rose-50` and rose ink -- `stocks_in_the_future_cases/_inactive_case` is the legitimate use,
-saying the case *is* inactive. Outlining a section in red to mean "the action in here is dangerous" is
-not a pattern; the danger lives in the button variant, its `bi-slash-circle` icon (the same one
-"Deactivate volunteer/supervisor" use -- this trigger was missing it), its label, and the confirm
-dialog whose single solid rose button is the only red at rest anywhere.
+**No red-at-rest applies to the container too, not just the button.** A destructive section is a
+plain `border-slate-200` card like every other section. A rose border belongs to an **alert message**
+panel, paired with a rose fill and rose ink, saying that a thing *is* in a bad state. Outlining a
+section in red to mean "the action in here is dangerous" is not a pattern; the danger lives in the
+button variant, its icon, its label, and the confirmation dialog, whose single solid rose button is
+the only red at rest anywhere.
 
   in a helper (not a `button_classes` variant -- it is a low-emphasis action at a shorter height, not a
   CTA) as the **single source of truth**, because copy-pasted inline strings drifted: case_groups sat
-  at `px-2.5 py-1.5`, and the stocks_in_the_future_org settings tables used bare `text-brand-600` / `text-rose-600`
-  text links instead of the ghost. **Call the helper; never hand-write the string.** Neutral ink stays
+  drifted to their own paddings, and some tables used bare coloured text links instead of the ghost.
+  **Call the helper; never hand-write the string.** Neutral ink stays
   at or above AA (slate-600 is about 7:1; never `slate-400` under visible text). Leading icon via
   `gap-1.5` plus a `bi-*` glyph (`bi-pencil` Edit, `bi-trash` Delete). Right-aligned in a table's
   trailing actions cell, give that cell extra end padding (`pr-6`) so the control clears the card edge
   rather than skewing the button's own padding. **Every table row action is this ghost** -- Edit
   (`ghost_class`) / Delete (`ghost_class(:danger)`, passed as the confirm dialog's `trigger_class` with
-  `trigger_icon: "bi bi-trash"` -- slate at rest, rose on hover) / Detail view / Impersonate / the per-court-date **Add to calendar** control (a `ghost_class` button whose `add-to-calendar` Stimulus controller builds and downloads an `.ics`, replacing the third-party `<add-to-calendar-button>` web component) AND a form-submit control like the
-  volunteers-without-supervisors "Assign supervisor" button -- **never a
+  a trash icon -- slate at rest, rose on hover) / View / Cancel, and a form-submit row control too --
+  **never a
   `button_classes(:primary/:secondary)` CTA**: a filled CTA over-emphasizes a repeated per-row action
   and breaks table-to-table consistency. Right-align the whole trailing column (`text-right` cell +
   `flex items-center justify-end` when it holds more than one control, e.g. a `<select>` + Assign).
@@ -2816,8 +2813,15 @@ dialog whose single solid rose button is the only red at rest anywhere.
 `button_tag` / `button_to` / `<button` / `<a`) carrying a hand-rolled button shape
 (`inline-flex` + `rounded-lg` + `px-`/`py-` + `bg-`/`border-`) and convert them to
 `button_classes`. A bespoke string at `py-1.5` next to a 40px token is the recurring drift
-bug; the only non-`button_classes` clickable is the tertiary ghost, which has its own `ghost_class`
-helper (call it -- do not re-derive the string). **This grep is necessary but not sufficient:** a status glyph emitted by a Ruby **model/decorator/helper method** (e.g. a court order's ✅/❌ from an `implementation_status_symbol`) or a **third-party web component / legacy CSS-class widget** (e.g. `<add-to-calendar-button>` / `.cal-btn`) is not a class-string button, so the grep cannot see it -- also scan Ruby methods that emit glyphs and non-`button_classes` interactive widgets, and pixel-check the rendered page.
+bug; the only non-token clickable is the tertiary ghost, which has its own helper (call it -- do not
+re-derive the string).
+
+**This grep is necessary but not sufficient.** A button defined in **Ruby** compiles and ships exactly
+like one in a template, because Tailwind scans `.rb` -- the admin form builder's submit backed eleven
+forms at `bg-blue-600 rounded-md px-4 py-2`, so every admin form's primary was generic blue and a
+different size from the primary in the page header above it, and no view grep could see it. Cover
+`app/helpers`, `app/form_builders` and `app/assets/stylesheets` as well as `app/views`, and pixel-check
+the rendered page.
 
 ### Button variants as implemented here
 
