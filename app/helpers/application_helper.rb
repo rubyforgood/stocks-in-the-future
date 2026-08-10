@@ -49,6 +49,14 @@ module ApplicationHelper
     number_with_precision(shares.to_d, precision: 2, strip_insignificant_zeros: true)
   end
 
+  # The figure and its noun, agreeing. `share_count` formats the number and nothing was pluralising the
+  # word beside it, so a single share read "1 shares". `pluralize` cannot be used directly: it would
+  # print the raw BigDecimal, losing the precision and the stripped zeros - and a fractional holding is
+  # plural, so only exactly one is singular.
+  def shares_label(shares)
+    "#{share_count(shares)} #{shares.to_d == 1 ? 'share' : 'shares'}"
+  end
+
   # Up, down, flat - three states, and the colour is never the only signal (the sign and the arrow carry
   # the direction as well). The ticker this replaced tested `>= 0`, so an unchanged price was green with an
   # upward arrow; in a database where nothing has a yesterday price that was every row.

@@ -43,7 +43,7 @@ class ClassHoldingsTest < ApplicationSystemTestCase
     assert_selector "td", text: "3 shares"
 
     # The sentence is the point: "1 of 2" is unreadable without knowing which two.
-    assert_text "Held by counts owners in your classrooms - 2 students with a portfolio"
+    assert_text "Held by shows how many of your students own each one."
     assert_text "Companies your students can buy shares in right now"
   end
 
@@ -60,7 +60,7 @@ class ClassHoldingsTest < ApplicationSystemTestCase
     # One holder of one investor, not two of two: the other classroom is outside ClassroomPolicy::Scope.
     assert_selector "td", text: "1 of 1"
     assert_no_selector "td", text: "2 of 2"
-    assert_text "in your classrooms - 1 student with a portfolio"
+    assert_text "Held by shows how many of your students own each one."
   end
 
   test "an admin reads the same column across every classroom" do
@@ -74,7 +74,38 @@ class ClassHoldingsTest < ApplicationSystemTestCase
 
     assert_selector "td", text: "2 of 2"
     assert_selector "td", text: "6 shares"
-    assert_text "Held by counts owners across 2 classrooms - 2 students with a portfolio"
+    assert_text "Held by shows how many students own each one, across every classroom."
+  end
+
+  test "an archived student is off the roster, so they are off this count too" do
+    classroom, stock = setup_classroom
+    owner = create(:student, :with_portfolio, classroom:)
+    leaver = create(:student, :with_portfolio, classroom:)
+    buy(owner.reload, stock, 1)
+    buy(leaver.reload, stock, 4)
+    leaver.discard
+
+    sign_in teaching(classroom)
+    visit stocks_path
+
+    # Classroom#students is scoped `-> { kept }`, so the roster shows one student. A denominator that
+    # counted portfolios instead showed "1 of 2" beside a roster of one, and the leaver's four shares
+    # were in the total - two numbers for one class, disagreeing.
+    assert_selector "td", text: "1 of 1"
+    assert_no_selector "td", text: "of 2"
+    assert_no_selector "td", text: "5 shares"
+  end
+
+  test "one share is one share" do
+    classroom, stock = setup_classroom
+    owner = create(:student, :with_portfolio, classroom:)
+    buy(owner.reload, stock, 1)
+
+    sign_in teaching(classroom)
+    visit stocks_path
+
+    assert_selector "td", text: "1 share"
+    assert_no_selector "td", text: "1 shares"
   end
 
   test "a stock nobody owns says so rather than leaving the cell blank" do
@@ -96,7 +127,7 @@ class ClassHoldingsTest < ApplicationSystemTestCase
     # A column that can only ever report "None" is not a column - the same rule that removed the
     # trailing column of dashes from a teacher's classrooms table.
     assert_no_selector "th", text: "Held by"
-    assert_no_text "Held by counts owners"
+    assert_no_text "Held by shows"
   end
 
   test "a student's page is unchanged" do
@@ -139,7 +170,7 @@ class ClassHoldingsTest < ApplicationSystemTestCase
 
       # The trailing columns are hidden at this width, so the figure moves into the cell that is always
       # on screen - the same move a student's holdings line already makes.
-      assert_text "Held by 1 of 1"
+      assert_text "Held by 1 of 1 \u00b7 3 shares"
 
       overflow = page.evaluate_script(
         "document.querySelector('main').scrollWidth - document.querySelector('main').clientWidth"

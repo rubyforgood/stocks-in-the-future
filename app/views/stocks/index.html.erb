@@ -68,9 +68,7 @@
         without knowing which three, and the three differ by role: every classroom for an admin, their
         own for a teacher. design.md puts a section's explanation under its heading and above its table,
         in the heading's own column. %>
-    <% stocks_description = active_stocks_description(
-         current_user, investors: @class_investors, classrooms: @class_classrooms
-       ) %>
+    <% stocks_description = active_stocks_description(current_user, students: @class_students) %>
     <%= render "stocks/stocks_table",
                title: "Active stocks",
                description: stocks_description,

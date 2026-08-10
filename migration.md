@@ -2935,3 +2935,17 @@ could measure, and two pages it could not.
   happened to return. This is what made the new column report "1 of 2" for a single student.
 - **The empty-row `colspan` is computed** rather than a two-way branch, because there are now three
   column counts: 4 for a student, 3 for staff with the column, 2 for anyone else.
+
+### Follow-up: the denominator, and the sentence
+
+- **`Held by` counts kept students, not portfolios.** `Student.kept.where(classroom_id:)`, with the
+  holders query filtered the same way. The first version counted portfolio rows, which disagreed with
+  the roster - `Classroom#students` is scoped `-> { kept }` - so a discarded student was off the roster
+  and still in the figure.
+- **The scope sentence carries no counts.** It was "Held by counts owners across 1 classroom - 3 students
+  with a portfolio"; it is "Held by shows how many of your students own each one" for a teacher and
+  "...how many students own each one, across every classroom" for an admin. `held_by_scope_note` takes
+  only the user now, and `active_stocks_description` takes `students:` solely to decide whether the
+  sentence appears at all.
+- **`ApplicationHelper#shares_label`** is new: `share_count` plus an agreeing noun. Anything rendering
+  "#{share_count(n)} shares" was printing "1 shares" for a single share.

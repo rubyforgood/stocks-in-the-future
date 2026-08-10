@@ -1935,18 +1935,37 @@ opens it. Which is what it was: a teacher's trading floor was two columns, becau
 the Buy/Sell cell were both removed. Nobody designed that page - it was the buy list with the buying
 taken out, and a teacher cannot open `/admin/stocks` to find a better one.
 
-**A relative figure needs its denominator named, in the section's description.** "2 of 3" is unreadable
-without knowing which three, and the three differ by role. The sentence goes under the section heading
-and above the table, where this document already puts a section's explanation - not in a tooltip, not in
-a legend, and not repeated in every row. The word goes in the header (`Held by`), the scope goes in the
-description, and the cell carries only the figure: "9 of 25 students" down twenty-five rows is
-twenty-five copies of the denominator.
+**A relative figure needs its denominator named, in the section's description.** "4 of 25" is unreadable
+without knowing which twenty-five, and the twenty-five differ by role. The sentence goes under the
+section heading and above the table, where this document already puts a section's explanation - not in a
+tooltip, not in a legend, and not repeated in every row. The word goes in the header (`Held by`), the
+scope goes in the description, and the cell carries only the figure: "9 of 25 students" down twenty-five
+rows is twenty-five copies of the denominator.
 
-**Derive the sentence from the counts.** `held_by_scope_note` interpolates the numbers and pluralises
-them rather than storing a string per role, so it cannot claim a scope the query does not use - the same
-reasoning as interpolating a retention window from its constant. An admin's classroom count is stated
-because "every classroom" is otherwise an unbounded claim; a teacher's is not, because "your classrooms"
-is already exact for them.
+**That sentence carries no numbers.** The first attempt read *"Held by counts owners across 1 classroom -
+3 students with a portfolio"*, and it is worth keeping as an example of three failures in one line:
+
+- **Three ideas.** What the column is, how wide the scope is, and how the denominator was derived. Two is
+  the limit for a line of helper text, and the cell already states the figure - so this only has to say
+  *whose* figure it is.
+- **A count that reads as a defect at one.** "across 1 classroom" is grammatical and looks like a bug.
+  Any interpolated count has to be checked at 0, 1 and many; the cheapest fix is usually not to state it.
+- **Vocabulary from the schema.** "students with a portfolio" is a phrase from `portfolios`, not from a
+  staffroom - and it was describing a distinction the model does not really have, since `Student` has
+  `after_create :ensure_portfolio`.
+
+It reads "Held by shows how many of your students own each one" for a teacher and "...how many students
+own each one, across every classroom" for an admin.
+
+**A count on one page must be the count on another.** The denominator was students *with a portfolio*,
+which disagreed with the roster a teacher would check it against: `Classroom#students` is scoped
+`-> { kept }`, so a discarded student is off the roster and their portfolio was still in this figure -
+the roster said 2 while the trading floor said "2 of 3". Count the thing the way the page that owns it
+counts it, and keep the numerator inside the denominator, or "3 of 2" is reachable.
+
+**A number and its noun have to agree.** `share_count` formats a figure and nothing pluralised the word
+beside it, so a single share read "1 shares" in every cell that showed one. `shares_label` does both -
+and only *exactly* one is singular, because a fractional holding is plural.
 
 **And a description addresses whoever is reading it.** This one was "Companies you can buy shares in
 right now" for everybody, including two roles that cannot buy anything. A description that addresses the

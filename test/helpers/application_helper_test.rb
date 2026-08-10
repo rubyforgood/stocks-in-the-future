@@ -78,4 +78,12 @@ class ApplicationHelperTest < ActionView::TestCase
 
     assert_nil result
   end
+
+  test "a single share is singular, and a fraction is not" do
+    assert_equal "1 share", shares_label(1)
+    assert_equal "2 shares", shares_label(2)
+    assert_equal "0 shares", shares_label(0)
+    assert_equal "1.5 shares", shares_label(1.5)
+    assert_equal "0.5 shares", shares_label(0.5)
+  end
 end

@@ -60,12 +60,12 @@
         <%# Below lg the Held by figure moves into this cell, exactly as a student's holdings line does -
             the trailing columns are `hidden` there, and a teacher on a phone would otherwise be back to
             the two-column page this column exists to fix. %>
-        <% if policy(stock).show_class_holdings? && @class_investors&.positive? %>
+        <% if policy(stock).show_class_holdings? && @class_students&.positive? %>
           <% held = @class_holdings&.dig(stock.id) %>
           <span class="mt-1 text-xs text-slate-600 lg:hidden">
             <% if held %>
-              Held by <%= held[:holders] %> of <%= @class_investors %> &middot;
-              <%= share_count(held[:shares]) %> shares
+              Held by <%= held[:holders] %> of <%= @class_students %> &middot;
+              <%= shares_label(held[:shares]) %>
             <% else %>
               Nobody owns this yet
             <% end %>
@@ -133,15 +133,15 @@
       denominator, so the word lives in the header and the section's description says which twenty-five.
       Zero is stated rather than left blank - nobody owning a stock is information, and an empty cell
       reads as missing data. %>
-  <% if policy(stock).show_class_holdings? && @class_investors&.positive? %>
+  <% if policy(stock).show_class_holdings? && @class_students&.positive? %>
     <% held = @class_holdings&.dig(stock.id) %>
     <td class="table-body-cell table-body-cell-right hidden lg:table-cell">
       <% if held %>
         <span class="table-cell-content block tabular-nums">
-          <%= held[:holders] %> of <%= @class_investors %>
+          <%= held[:holders] %> of <%= @class_students %>
         </span>
         <span class="mt-0.5 block text-xs text-slate-600 tabular-nums">
-          <%= share_count(held[:shares]) %> shares
+          <%= shares_label(held[:shares]) %>
         </span>
       <% else %>
         <span class="table-cell-content block text-slate-600">None</span>

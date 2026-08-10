@@ -25,25 +25,24 @@ class StocksController < ApplicationController
   # cannot count distinct holders without loading every join row.
   def load_class_holdings
     classroom_ids = policy_scope(Classroom).ids
-    @class_classrooms = classroom_ids.size
 
-    # The denominator is students with a portfolio, not students. A student without one cannot hold
-    # anything, so counting all of them would understate every row by the size of that gap, and the
-    # figure would drift as students are enrolled.
+    # The denominator is **students**, counted the way the roster counts them.
     #
-    # Distinct users, not portfolio rows: `portfolios` has no uniqueness constraint on user_id, and
-    # `has_one` does not add one - it only decides which row the association returns. A second row for
-    # one student would otherwise report "4 students with a portfolio" for three students, which is how
-    # this was caught: a factory trait was creating one on top of the one Student#ensure_portfolio makes.
-    @class_investors = Portfolio.joins(:user)
-      .where(users: { classroom_id: classroom_ids })
-      .distinct.count(:user_id)
+    # It was students *with a portfolio*, which is a distinction the model does not really have -
+    # `Student` has `after_create :ensure_portfolio`, so every student gets one - and which forced the
+    # description to explain itself with a phrase no teacher uses. Worse, it disagreed with the page a
+    # teacher would check it against: `Classroom#students` is scoped `-> { kept }`, so a discarded
+    # student is off the roster and their portfolio was still in this count. The roster said 2 and the
+    # trading floor said 3.
+    students = Student.kept.where(classroom_id: classroom_ids)
+    @class_students = students.count
 
-    # Holders counted the same way, for the same reason: the numerator and the denominator have to be
-    # counting the same kind of thing, or "4 of 3" is reachable.
+    # Holders filtered the same way, so the numerator is a subset of the denominator - otherwise a
+    # discarded student's holding is reachable as "3 of 2". A student without a portfolio simply cannot
+    # be a holder, which is the honest reading: they are in the class and do not own it.
     @class_holdings = PortfolioStock
       .joins(portfolio: :user)
-      .where(users: { classroom_id: classroom_ids })
+      .where(users: { classroom_id: classroom_ids, type: "Student", discarded_at: nil })
       .group(:stock_id)
       .pluck(Arel.sql("stock_id, COUNT(DISTINCT users.id), SUM(shares)"))
       .to_h { |stock_id, holders, shares| [stock_id, { holders:, shares: }] }

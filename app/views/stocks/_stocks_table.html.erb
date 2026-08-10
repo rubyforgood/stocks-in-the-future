@@ -57,7 +57,7 @@
         </th>
       <% end %>
 
-      <%# The staff half of that column. `@class_investors&.positive?` as well as the policy check,
+      <%# The staff half of that column. `@class_students&.positive?` as well as the policy check,
           because a column that can only ever say "None" is not a column - the same rule that removed
           the teacher's trailing column of dashes from classrooms#index. A teacher with no classrooms,
           or classrooms where nobody has a portfolio yet, sees the two-column table and no explanation
@@ -68,7 +68,7 @@
           a column present in one and absent in the other moves every other column and the page steps
           sideways at the boundary. An archived stock a student still holds is also exactly the row a
           teacher most wants this figure on. %>
-      <% if policy(Stock).show_class_holdings? && @class_investors&.positive? %>
+      <% if policy(Stock).show_class_holdings? && @class_students&.positive? %>
         <th scope="col" class="table-header-cell table-header-cell-right hidden w-44 lg:table-cell">Held by</th>
       <% end %>
     </tr>
@@ -95,7 +95,7 @@
           An empty row that spans the wrong number leaves a gap at the end of the table. %>
       <% columns = 2
          columns += 2 if policy(Stock).show_holdings?
-         columns += 1 if policy(Stock).show_class_holdings? && @class_investors&.positive? %>
+         columns += 1 if policy(Stock).show_class_holdings? && @class_students&.positive? %>
       <%= render "admin/shared/empty_row",
                  colspan: columns,
                  icon: "chart-line",

@@ -8,32 +8,30 @@ module StocksHelper
   # description that addresses the wrong person is worse than none, because it tells them the page is for
   # them and then does not behave that way.
   #
-  # Staff also get the scope of the Held by column stated here rather than in a tooltip or a legend: a
-  # figure like "2 of 3" is unreadable without knowing which three, and the denominator is different for
-  # an admin (every classroom) and a teacher (their own). The section's description is where design.md
-  # puts an explanation of the section, under the heading and above the table.
-  def active_stocks_description(user, investors: nil, classrooms: nil)
+  # Staff also get the Held by column explained here, because "4 of 25" is unreadable without knowing
+  # which twenty-five, and the twenty-five differ by role. The section's description is where design.md
+  # puts an explanation of the section: under the heading, above the table.
+  def active_stocks_description(user, students: nil)
     return "Companies you can buy shares in right now." unless user.teacher? || user.admin?
 
     opening = "Companies your students can buy shares in right now."
-    return opening unless investors.to_i.positive?
+    return opening unless students.to_i.positive?
 
-    "#{opening} #{held_by_scope_note(user, investors:, classrooms:)}"
+    "#{opening} #{held_by_scope_note(user)}"
   end
 
-  # The sentence that makes "2 of 3" mean something.
+  # The sentence that makes "4 of 25" mean something.
   #
-  # Derived from the counts rather than written out per role, so it cannot claim a scope the query does
-  # not use - the same reasoning as interpolating a retention window from its constant. An admin's
-  # classroom count is stated because "every classroom" is otherwise an unbounded claim; a teacher's is
-  # not, because "your classrooms" is already exact for them.
-  def held_by_scope_note(user, investors:, classrooms: nil)
-    people = "#{pluralize(investors, 'student')} with a portfolio"
-
+  # **It carries no numbers.** The first version read "Held by counts owners across 1 classroom - 3
+  # students with a portfolio", which is three ideas: what the column is, how wide the scope is, and how
+  # the denominator was arrived at. The cell already states the figure, so this only has to say *whose*
+  # figure it is - which also removes "1 classroom", a count that reads like a defect at one, and
+  # "students with a portfolio", a phrase from the schema rather than from a staffroom.
+  def held_by_scope_note(user)
     if user.admin?
-      "Held by counts owners across #{pluralize(classrooms.to_i, 'classroom')} - #{people}."
+      "Held by shows how many students own each one, across every classroom."
     else
-      "Held by counts owners in your classrooms - #{people}."
+      "Held by shows how many of your students own each one."
     end
   end
 
