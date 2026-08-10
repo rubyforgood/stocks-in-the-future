@@ -94,8 +94,6 @@ Rails.application.routes.draw do
       resources :component_demo, only: %i[index show] do
         collection do
           get :form
-          # A design preview: how the grade book's two actions should be structured. Deleted once decided.
-          get :grade_book_actions
         end
       end
     end

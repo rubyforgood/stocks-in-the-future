@@ -3128,3 +3128,25 @@ The checkbox is the input again, unchanged from before any of it.
   Record caches attributes and a process from before the deploy would still select it. That does not
   apply to a column added and removed on the same unreleased branch, and the justification is written
   into the migration rather than left as a bare override.
+
+## The grade book saves on blur, and only Save is an autosave target
+
+### What changed
+
+- **`autosave_controller` saves on `blur`** (a capturing listener, since blur does not bubble), guarded
+  by a `change` flag so tabbing through an untouched field does not post. The 30-second interval stays as
+  a backstop for a field left focused.
+- **The status target moved** from the page header to beside the Save button, and reads "All changes
+  saved" on load rather than being empty until the first save.
+- **`_finalize_button` is no longer `autosave_target: "button"`.** The turbo_stream still replaces it by
+  id, which is all it needed.
+- **Copy**: "Then finalize the quarter", plus "Uses your saved grades, above."
+
+### What this breaks
+
+- **Anything asserting an empty autosave status, or finding it in the page header.** It has a
+  `data-testid` now.
+- **Anything relying on the finalize button being an autosave target** - nothing did; it was the hazard.
+- **A test that types into a field and asserts nothing was saved** would now fail, because leaving the
+  field saves it. That is the point, and `grade_book_autosave_test` verifies the handler by removing it
+  and watching the assertion fail.

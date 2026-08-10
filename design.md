@@ -2038,6 +2038,38 @@ the work is where "how is this class doing?" is actually asked.
 The facade sums **cents** now. It summed `calculate_total_value`, which is already `cents / 100.0`, so it
 added a float per student - and integer cents are authoritative here.
 
+### Two actions on one page need an order, and the order has to be true
+The grade book has **Save grades** and **Finalize grades**, and it expressed no relationship between
+them. Reported as not knowing you had to do both, and as inconsistent that one sits inside a card and
+the other does not.
+
+**The placement was not the bug.** Each was following a rule that holds: a *form's* actions go on the
+leading edge below the card, on the page background, and Save is the grades form's submit; the finalize
+block is a decision panel and its button is that section's own action. Two correct rules can still
+produce a page that reads as arbitrary - and moving either one to match the other would have broken a
+rule to fix an appearance.
+
+**What was actually missing was sequence, and it was not only cosmetic.** Finalizing pays whatever is in
+the *database*. The page autosaved on a 30-second timer and nothing else, so a teacher could type a grade,
+press Finalize inside that window, and pay the previous one, with nothing on the page saying so.
+
+- **Close the window rather than warn about it.** Saving when a field loses focus means nothing typed is
+  unsaved by the time the hand reaches Finalize. The interval stays as a backstop for a field left
+  focused, which never blurs.
+- **Say the state, next to the control that changes it.** "All changes saved" sits beside the Save
+  button. It was in the page header 400px away and **blank until the first save** - which is precisely
+  what an unsaved page looks like.
+- **Two words carry the order**: "Then finalize the quarter", and one line under the consequence saying
+  "Uses your saved grades, above."
+- **Do not swap the emphasis.** Making the irreversible payment the page's filled primary reads as the
+  obvious fix and is backwards: on a page for entering grades the frequent action is saving, and a red
+  or bright terminal action at rest is the always-on alarm this document rules out.
+
+**And a timer must not be able to click a control that spends money.** Both buttons carried
+`autosave_target: "button"`; the autosave clicks `buttonTarget`, the *first* matching target in the DOM.
+That was Save only because the finalize card renders after the table - moving it above would have had a
+thirty-second timer pay the students. A single target now, asserted by name.
+
 ### A second field is not always a duplicate
 **Perfect attendance stays a checkbox the teacher ticks**, beside the day count they type. It looks like
 one fact answered twice and it is not: the app does not know how many teaching days a quarter had, so

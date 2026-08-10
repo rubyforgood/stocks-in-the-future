@@ -11,14 +11,18 @@
     what is available today; a styled confirm is in design-todo.
 
     No disabled variant: the block around this is not rendered for a completed grade book, which has
-    already paid out, so there is no dead control to grey. %>
+    already paid out, so there is no dead control to grey.
+
+    **Not an autosave target.** It carried `autosave_target: "button"`, and the autosave timer clicks
+    `buttonTarget` - the *first* matching target in the DOM. That was "Save grades" only because this card
+    renders after the table; moving it above would have had the timer pay the students every thirty
+    seconds. The turbo_stream still replaces this by id, which is all it needed. %>
 <% total = number_to_currency(earnings.total_cents / 100.0) %>
 <% students = pluralize(earnings.student_count, "student") %>
 
 <%= button_to "Finalize grades", finalize_classroom_grade_book_path(@classroom, @grade_book),
               class: "tw-btn-danger-outline",
               data: {
-                autosave_target: "button",
                 turbo_frame: "_top",
                 turbo_confirm: "Finalize and pay #{total} to #{students}? This cannot be undone."
               },

@@ -80,9 +80,6 @@
       </div>
 
       <div class="flex shrink-0 items-center gap-4">
-        <%# Announced politely so a screen reader hears "Saving" without losing focus. %>
-        <div data-autosave-target="status" role="status" aria-live="polite" class="text-sm text-slate-600"></div>
-
         <% if can_populate %>
           <%= render partial: "populate_button", locals: { label: "Add new students", button_class: "tw-btn-secondary" } %>
         <% end %>
@@ -131,9 +128,20 @@
         <%# Not rendered for a finalized book. It was a disabled primary that could never do anything -
             the rule this page already applies to "Add new students", and `assert_no_button` passed
             either way because Capybara does not match a disabled button. %>
+        <%# The save state sits **beside the button that does it**, not in the page header 400px away.
+            It was up there, and it was blank until the first save - so a page you had not touched said
+            nothing about whether it was safe to finalize, which is what an unsaved page looks like too.
+            It reads "All changes saved" from the moment it loads, because it is.
+
+            Announced politely so a screen reader hears it without losing focus. %>
         <% unless @grade_book.completed? %>
-          <div class="mt-6">
+          <div class="mt-6 flex flex-wrap items-center gap-3">
             <%= render partial: "submit_button" %>
+            <span data-autosave-target="status"
+                  role="status"
+                  aria-live="polite"
+                  class="text-sm text-slate-600"
+                  data-testid="autosave-status">All changes saved</span>
           </div>
         <% end %>
       <% end %>
@@ -163,8 +171,16 @@
           confirmation at the commitment. The split into attendance, math and reading is here rather
           than in the table because it is not a summary of the rows in the rows' own terms - it is what
           the payment is made of, and it is worth reading once, here, where somebody authorises it. %>
+      <%# **"Then"**, and a line saying what it reads.
+
+          The page has two actions and expressed no order between them: Save is the grades form's submit,
+          on the leading edge below the table where design.md puts a form's actions, and this is a
+          decision panel whose button is its own section's action. Both placements follow a rule; neither
+          said that one comes after the other, and finalizing pays what is in the database rather than
+          what is on screen. Two words in the heading and one line under it carry the sequence - the
+          window itself is closed by saving on blur, in autosave_controller. %>
       <section class="tw-card mt-6 p-5" aria-labelledby="finalize-heading">
-        <p id="finalize-heading" class="text-sm font-medium text-slate-900">Finalize this quarter</p>
+        <p id="finalize-heading" class="text-sm font-medium text-slate-900">Then finalize the quarter</p>
         <%# The possessive has to be built rather than pluralized: `pluralize` gives "1 student", and
             "1 student' portfolio" is what interpolating an apostrophe after it produces. %>
         <% recipients = earnings.student_count == 1 ? "student's portfolio" : "students' portfolios" %>
@@ -177,6 +193,7 @@
           <%= earnings.student_count %> <%= recipients %> and locks these entries.
           This cannot be undone.
         </p>
+        <p class="mt-1 text-sm text-slate-600">Uses your saved grades, above.</p>
 
         <%= render partial: "finalize_breakdown", locals: { earnings: earnings } %>
 

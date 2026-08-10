@@ -52,14 +52,6 @@ module Admin
     end
     # rubocop:enable Metrics/MethodLength
 
-    # Preview: Save grades and Finalize grades, and what makes their order legible.
-    def grade_book_actions
-      @breadcrumbs = [
-        { label: "Component demo", path: admin_component_demo_index_path },
-        { label: "Grade book actions" }
-      ]
-    end
-
     def show
       @user = User.find(params.expect(:id))
       @breadcrumbs = [
