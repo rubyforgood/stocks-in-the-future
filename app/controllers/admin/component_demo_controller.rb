@@ -52,6 +52,35 @@ module Admin
     end
     # rubocop:enable Metrics/MethodLength
 
+    # Preview: what the trading floor could show a teacher.
+    #
+    # The live page gives a teacher two columns - the buy list with the buying removed - because
+    # StockPolicy#show_holdings? requires a student with a persisted portfolio. This renders the three
+    # candidate additions against real records so the numbers are real ones.
+    def trading_floor_columns
+      @stocks = Stock.active.order(:ticker)
+
+      # The aggregate that does not exist anywhere in the app today: holdings grouped by stock, scoped
+      # to the classrooms the viewer can see. One query, no N+1 - the alternative, asking each stock for
+      # its portfolio_stocks, is 10 queries and cannot count distinct holders without loading them all.
+      @classroom_ids = Classroom.pluck(:id)
+      @holdings = PortfolioStock
+        .joins(portfolio: :user)
+        .where(users: { classroom_id: @classroom_ids })
+        .group(:stock_id)
+        .pluck(Arel.sql("stock_id, COUNT(DISTINCT portfolio_id), SUM(shares)"))
+        .to_h { |stock_id, holders, shares| [stock_id, { holders:, shares: }] }
+
+      # The denominator. A count of students is the wrong one: a student with no portfolio cannot hold
+      # anything, so "3 of 40" would understate every row by the size of the gap.
+      @investors = Portfolio.joins(:user).where(users: { classroom_id: @classroom_ids }).count
+
+      @breadcrumbs = [
+        { label: "Component demo", path: admin_component_demo_index_path },
+        { label: "Trading floor columns" }
+      ]
+    end
+
     def show
       @user = User.find(params.expect(:id))
       @breadcrumbs = [

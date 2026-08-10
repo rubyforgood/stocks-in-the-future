@@ -1,0 +1,144 @@
+<% content_for :own_heading, true %>
+<div class="mx-auto max-w-7xl">
+  <%= render "admin/component_demo/environment_banner" %>
+
+  <%= admin_breadcrumbs(@breadcrumbs) %>
+
+  <% description = "What a teacher could be shown on /stocks, against real records. " \
+                   "Built to decide something, and deleted once decided." %>
+  <%= render layout: "components/ui/page_header",
+             locals: { title: "Trading floor columns", description: description } do %><% end %>
+
+  <div class="space-y-8">
+    <section>
+      <h2 class="text-base font-semibold text-slate-900">Today, as a teacher</h2>
+      <p class="mt-1 text-sm text-slate-600">
+        Two columns. <code class="rounded bg-slate-100 px-1 py-0.5 text-xs">StockPolicy#show_holdings?</code>
+        requires a student with a persisted portfolio, so the holdings column and the Buy/Sell cell are both
+        removed and this is what is left. The header names an exchange the cell does not contain.
+      </p>
+
+      <div class="mt-3">
+        <%= render "shared/table_container", table_class: "table-fixed" do %>
+          <thead>
+            <tr class="table-header-row">
+              <th scope="col" class="table-header-cell table-header-cell-left">Company (exchange)</th>
+              <th scope="col" class="table-header-cell table-header-cell-right w-40">Last price</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @stocks.first(4).each do |stock| %>
+              <tr class="table-body-row">
+                <td class="table-body-cell">
+                  <div class="flex flex-col">
+                    <span class="tw-link"><%= stock.ticker %></span>
+                    <span class="text-sm text-slate-600"><%= stock.company_name %></span>
+                  </div>
+                </td>
+                <td class="table-body-cell table-body-cell-right">
+                  <span class="table-cell-content block"><%= number_to_currency(stock.current_price) %></span>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        <% end %>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="text-base font-semibold text-slate-900">Proposed</h2>
+      <p class="mt-1 text-sm text-slate-600">
+        Three additions, all in the columns a student's holdings and actions already occupy, so the table
+        gains no width for anyone and nothing changes at 375px.
+      </p>
+
+      <div class="mt-3">
+        <%= render "shared/table_container", table_class: "table-fixed" do %>
+          <thead>
+            <tr class="table-header-row">
+              <th scope="col" class="table-header-cell table-header-cell-left">Company</th>
+              <th scope="col" class="table-header-cell table-header-cell-left hidden w-44 lg:table-cell">
+                Industry
+              </th>
+              <th scope="col" class="table-header-cell table-header-cell-right w-40">Last price</th>
+              <th scope="col" class="table-header-cell table-header-cell-right hidden w-44 lg:table-cell">
+                Held by
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @stocks.each do |stock| %>
+              <% held = @holdings[stock.id] %>
+              <tr class="table-body-row">
+                <td class="table-body-cell">
+                  <div class="flex flex-col">
+                    <%# 2. The exchange, in the identity line - which is what the current header already
+                        promises. `KO . NYSE` is how Bloomberg, Yahoo Finance and Google Finance render a
+                        security's identity, and stock_exchange is populated on every active stock and shown
+                        only on stocks#show today. In the cell rather than a column of its own, so an
+                        archived stock without one leaves no gap. %>
+                    <span class="flex items-baseline gap-1.5">
+                      <span class="tw-link"><%= stock.ticker %></span>
+                      <% if stock.stock_exchange.present? %>
+                        <span class="text-xs text-slate-600">&middot; <%= stock.stock_exchange %></span>
+                      <% end %>
+                    </span>
+                    <span class="text-sm text-slate-600"><%= stock.company_name %></span>
+
+                    <%# Below lg the Held by figure moves into the primary cell, which is exactly what a
+                        student's holdings line already does - the two secondary columns are `hidden` there,
+                        and a teacher on a phone would otherwise be back to the two-column page this preview
+                        exists to fix. Industry does not follow it: three lines in one cell is a paragraph,
+                        and of the three additions it is the one a teacher can most afford to open the stock
+                        for. %>
+                    <span class="mt-1 text-xs text-slate-600 lg:hidden">
+                      <% if held %>
+                        Held by <%= held[:holders] %> of <%= @investors %> &middot;
+                        <%= share_count(held[:shares]) %> shares
+                      <% else %>
+                        Nobody owns this yet
+                      <% end %>
+                    </span>
+                  </div>
+                </td>
+
+                <%# 3. Industry. Populated on all ten active stocks and on none of the eight archived ones,
+                    so it goes on this table only - a column of dashes is not a column. %>
+                <td class="table-body-cell hidden lg:table-cell">
+                  <span class="table-cell-content"><%= stock.industry %></span>
+                </td>
+
+                <td class="table-body-cell table-body-cell-right">
+                  <span class="table-cell-content block"><%= number_to_currency(stock.current_price) %></span>
+                </td>
+
+                <%# 1. The one question nothing in the app answers: what is my class buying? A figure and
+                    the shares under it, not a sentence - the column is scanned down, and "9 of 25 students"
+                    repeated ten times is ten copies of the denominator. Zero is stated rather than left
+                    blank: "nobody owns this" is information, and an empty cell reads as missing data. %>
+                <td class="table-body-cell table-body-cell-right hidden lg:table-cell">
+                  <% if held %>
+                    <span class="table-cell-content block tabular-nums">
+                      <%= held[:holders] %> of <%= @investors %>
+                    </span>
+                    <span class="mt-0.5 block text-xs text-slate-600 tabular-nums">
+                      <%= share_count(held[:shares]) %> shares
+                    </span>
+                  <% else %>
+                    <span class="table-cell-content block text-slate-600">None</span>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        <% end %>
+      </div>
+
+      <p class="mt-3 text-sm text-slate-600">
+        The denominator is students with a <em>portfolio</em>, not students: a student without one cannot
+        hold anything, so counting all of them would understate every row by the size of that gap.
+        <%= @investors %> here, across <%= pluralize(@classroom_ids.size, "classroom") %>.
+      </p>
+    </section>
+  </div>
+</div>

@@ -692,3 +692,36 @@ whether it appears in development (where it is noise - the URL says localhost) a
 collapsed, given this app's rule that a message describing a *state* gets no dismiss. If it is built, it
 belongs in the layout beside the flash, inside the content column, and the demo's banner should then say
 only what the *page* is and let the ribbon name the environment.
+
+## Decide the teacher's trading floor, then delete the preview (2026-08)
+
+`/admin/component_demo/trading_floor_columns` is a preview, built to decide one question and to be deleted
+once decided - the same shape as `earnings_split`, `destructive_buttons`, `delight` and `stock_ticker`
+before it.
+
+**The question.** A teacher's `/stocks` is two columns: `StockPolicy#show_holdings?` requires a student
+with a persisted portfolio, so the holdings column and the Buy/Sell cell are both removed and what is left
+is the buy list with the buying taken out. Nobody designed that page; it is a residue. An admin does not
+care - `/admin/stocks` is the real stock list and carries more - but a teacher cannot open `/admin/stocks`
+at all, so this is their only view of the catalogue.
+
+**What the preview proposes**, all in the columns a student's holdings and actions already occupy, so the
+table gains no width and nothing changes at 375px:
+
+1. **Held by** - "2 of 3", with the share total under it, in the slot where a student sees their own
+   holdings. This is the only one that answers a question nothing in the app answers: *what is my class
+   buying?* There is no `group(:stock_id)` anywhere in `app/` today, and `PortfolioPolicy#show?` only lets
+   a teacher open one student's portfolio at a time. The denominator is students with a **portfolio**, not
+   students - a student without one cannot hold anything.
+2. **The exchange**, in the identity line. The live header already says "Company (exchange)" and the cell
+   has never contained one; `stock_exchange` is populated on all ten active stocks and rendered only on
+   `stocks#show`. Either render it or rename the header - the current state is a header naming a field its
+   column does not have.
+3. **Industry**, `hidden lg:table-cell`, on the active table only. Populated on 10 of 10 active stocks and
+   0 of 8 archived ones, so putting it on both makes the archived table a column of dashes.
+
+**What still needs deciding**: whether an admin sees the same thing (they have a better table already),
+whether "Held by" is scoped through Pundit to the classrooms the viewer teaches or is global, and whether
+this belongs on the trading floor at all rather than as a section on `classrooms#show`. The counter-argument
+is that "what is my class doing" is a classroom question; the argument for here is that "what exists to buy"
+is a catalogue question and the catalogue is here.

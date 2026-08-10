@@ -94,6 +94,9 @@ Rails.application.routes.draw do
       resources :component_demo, only: %i[index show] do
         collection do
           get :form
+          # A design preview, of the kind this page exists for: built to decide something, deleted
+          # once decided. See design-todo.md.
+          get :trading_floor_columns
         end
       end
     end
