@@ -20,8 +20,7 @@
 <% end %>
 
 <%= link_to delete_path,
-            data: { turbo_method: :delete,
-                    turbo_confirm: "Delete #{record.class.model_name.human.downcase} \"#{label}\"? This cannot be undone." },
+            data: { turbo_method: :delete, turbo_confirm: delete_confirm(record) },
             class: admin_danger_button_class do %>
   <%= lucide_icon("trash-2", class: "h-5 w-5 shrink-0") %>
   Delete

@@ -55,7 +55,7 @@
                     <%= ghost_action_link "Delete", admin_portfolio_transaction_path(transaction),
                                           icon: "trash-2", variant: :danger,
                                           data: { turbo_method: :delete,
-                                                  turbo_confirm: "Delete this #{transaction.transaction_type} of #{number_to_currency(transaction.amount_cents / 100.0)} for #{transaction.portfolio.username}? This cannot be undone." } %>
+                                                  turbo_confirm: transaction_delete_confirm(transaction) } %>
                 <% end %>
 
                 <td class="table-body-cell whitespace-nowrap hidden lg:table-cell">

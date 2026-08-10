@@ -3160,3 +3160,26 @@ The checkbox is the input again, unchanged from before any of it.
 - **A save is now silent**, so a test that edits a field has nothing in the status to wait on. Wait on
   `[data-testid='row-earnings']`, which the turbo_stream replaces - asserting the database straight after
   a blur races the request.
+
+## Every confirmation is two parts
+
+### What changed
+
+- **Twenty-nine `turbo_confirm` messages** are a question and a consequence, split on a blank line.
+- **Five new helpers** hold the messages that had several call sites: `classroom_toggle_confirm`,
+  `teacher_deactivate_confirm`, `teacher_reactivate_confirm`, `teacher_delete_confirm`, `delete_confirm`,
+  plus `transaction_delete_confirm` and `school_year_delete_confirm` for the two with real cascades.
+- **`orders.cancel.confirm`** is a YAML block scalar, so the blank line survives.
+- **`admin/classrooms#show` lost its Delete button.** It posted `DELETE` to `admin_classroom_path`, and
+  `resources :classrooms, except: [:destroy]` means that route does not exist - it 404'd every time it
+  was pressed, for as long as it had existed.
+- **`confirmation_copy_test`** reads every rendered `data-turbo-confirm` on the pages that carry one and
+  fails when a message has no body, has a body under 40 characters, or asks "are you sure".
+
+### What this breaks
+
+- **Anything asserting a confirmation's exact string.** The system tests drive the dialog rather than the
+  attribute, so none did.
+- **A new confirmation must carry a body**, or the guard fails by page and question.
+- **`i18n-tasks normalize` strips comments from `en.yml`**, so a note about a message has to live beside
+  its call site rather than in the locale file.

@@ -2039,6 +2039,31 @@ The facade sums **cents** now. It summed `calculate_total_value`, which is alrea
 added a float per student - and integer cents are authoritative here.
 
 ### A confirmation is a question and a consequence
+**Every one of them.** Twenty-nine call sites passed a single string, so the dialog's body stayed hidden
+and each was a one-line confirmation that could only restate the button - three of them said no more than
+"Are you sure?". They are all two parts now, and `confirmation_copy_test` reads the rendered attribute on
+every page that carries one, because most messages are built by a helper and a grep of the source cannot
+see them.
+
+Three rules came out of writing twenty of them:
+
+- **Say what is kept, not only what is lost.** "They lose access immediately and leave this list.
+  Everything attached to the account is kept, and an administrator can restore it" is a different decision
+  from the same sentence without its second half. Most of these actions are reversible and read as though
+  they were not.
+- **Name the real consequence, not the record.** Deleting a portfolio transaction does not delete a
+  record a student will never look at - a balance is **derived from** the transactions, so it says whose
+  balance will move, by how much, and in which direction.
+- **Distinguish the reversible from the irreversible in the words.** Deactivating a teacher discards;
+  `really_destroy!` does not, and only one action calls it. Both used to end "this cannot be undone",
+  which made the true one unremarkable.
+
+And **a message shared by several call sites belongs in a helper.** The classroom archive/activate pair
+was written twice and had already drifted into two wordings; the teacher actions were in three files with
+three; the generic delete in three shared partials with three. `classroom_toggle_confirm`,
+`teacher_*_confirm` and `delete_confirm` are one sentence each now.
+
+
 `shared/_confirm_dialog` splits its message on the first blank line: the question becomes the title, what
 follows becomes the body. **Passing one string means the body stays hidden**, and the dialog is then a
 one-line confirmation that can only restate the button - which is the shape its own note was written to

@@ -65,11 +65,13 @@
                     <% if classroom.archived? %>
                       <%= ghost_action_link "Activate", toggle_archive_admin_classroom_path(classroom),
                                             icon: "circle-check",
-                                            data: { turbo_method: :patch, turbo_confirm: "Activate #{classroom.name}?" } %>
+                                            data: { turbo_method: :patch,
+                                                    turbo_confirm: classroom_toggle_confirm(classroom) } %>
                     <% else %>
                       <%= ghost_action_link "Archive", toggle_archive_admin_classroom_path(classroom),
                                             icon: "archive", variant: :danger,
-                                            data: { turbo_method: :patch, turbo_confirm: "Archive #{classroom.name}? Teachers and students will no longer be able to access it, but all historical data is preserved." } %>
+                                            data: { turbo_method: :patch,
+                                                    turbo_confirm: classroom_toggle_confirm(classroom) } %>
                     <% end %>
                 <% end %>
 

@@ -12,7 +12,4 @@
 <%= ghost_action_link "Edit", [:edit, :admin, route_model(record)], icon: "pencil" %>
 <%= ghost_action_link "Delete", [:admin, route_model(record)],
                       icon: "trash-2", variant: :danger,
-                      data: { turbo_method: :delete,
-                              turbo_confirm: "Delete #{record.class.model_name.human.downcase} " \
-                                             "\"#{record.try(:name) || record.try(:username) || record.try(:title) || record.id}\"? " \
-                                             "This cannot be undone." } %>
+                      data: { turbo_method: :delete, turbo_confirm: delete_confirm(record) } %>

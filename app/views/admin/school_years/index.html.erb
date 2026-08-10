@@ -49,7 +49,7 @@
                     <%= ghost_action_link "Delete", admin_school_year_path(school_year),
                                           icon: "trash-2", variant: :danger,
                                           data: { turbo_method: :delete,
-                                                  turbo_confirm: "Delete #{school_year.name}? This cannot be undone." } %>
+                                                  turbo_confirm: school_year_delete_confirm(school_year) } %>
                 <% end %>
 
                 <td class="table-body-cell whitespace-nowrap hidden lg:table-cell">

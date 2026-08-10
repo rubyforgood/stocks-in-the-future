@@ -168,7 +168,11 @@ en:
         portfolio_path: Portfolio link
   orders:
     cancel:
-      confirm: Are you sure you want to cancel this order? This action cannot be undone.
+      confirm: |-
+        Cancel this order?
+
+        It will not be filled, and the cash it was holding goes back to your balance straight
+        away. You can place it again whenever you like.
       pending_only: Only pending orders can be canceled
       success: Order was successfully canceled
       unauthorized: You can only cancel your own orders

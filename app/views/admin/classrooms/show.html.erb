@@ -11,13 +11,15 @@
 
     <%= classroom_archive_toggle_button(@classroom) %>
 
-    <%= link_to admin_classroom_path(@classroom),
-                data: { turbo_method: :delete,
-                        turbo_confirm: "Delete classroom \"#{@classroom.name}\"? This cannot be undone." },
-                class: admin_danger_button_class do %>
-      <%= lucide_icon("trash-2", class: "h-5 w-5 shrink-0") %>
-      Delete
-    <% end %>
+    <%# **No Delete.** It posted `DELETE` to `admin_classroom_path`, and that route does not exist -
+        `resources :classrooms, except: [:destroy]` - so the button 404'd every time it was pressed, for
+        as long as it had existed. The same shape as the account deletion that returned a 500 for years:
+        a destructive control nothing tested may never have worked.
+
+        Nor should it: a classroom holds grade books and a roster, `Classroom#users` is `dependent:
+        :nullify`, and deleting one would cut every student in it loose from their class while leaving
+        their grades pointing at nothing. Archive is the reversible action that already exists, and it is
+        the one in this toolbar. %>
   <% end %>
 
   <div class="space-y-6">

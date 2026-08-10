@@ -259,7 +259,10 @@ module AdminHelper
     ghost_action_button "Restore", restore_path,
                         icon: "rotate-ccw",
                         method: :patch,
-                        data: { turbo_confirm: "Restore this #{resource_name.humanize.downcase}?" },
+                        data: { turbo_confirm: "Restore this #{resource_name.humanize.downcase}?\n\n" \
+                                               "They can sign in again and reappear in the lists " \
+                                               "they belong to. Nothing they did while archived " \
+                                               "has changed." },
                         form: { class: "inline-flex" }
   end
 
@@ -270,8 +273,10 @@ module AdminHelper
     ghost_action_link "Archive", resource_path,
                       icon: "archive", variant: :danger,
                       data: { turbo_method: :delete,
-                              turbo_confirm: "Archive this #{resource_name.humanize.downcase}? " \
-                                             "They will lose access, but their data is preserved." }
+                              turbo_confirm: "Archive this #{resource_name.humanize.downcase}?\n\n" \
+                                             "They lose access immediately and leave this list. " \
+                                             "Everything attached to the account is kept, and an " \
+                                             "administrator can restore it." }
   end
 
   # This and archive_button sit in the classrooms#show toolbar between a bordered Edit and a
@@ -282,9 +287,86 @@ module AdminHelper
   # glyph - an icon that was never once visible. They were also the only Font Awesome references
   # left in the app, and off-palette besides (green-300/yellow-300 borders, rounded-md at py-2
   # rather than the 40px h-10 token).
+  # A portfolio transaction is not a record of a balance - the balance is **derived from** the
+  # transactions, so deleting one moves a student's money. That is the consequence worth stating, and the
+  # old message ("Delete this deposit of $5.00 for ada? This cannot be undone.") did not.
+  def transaction_delete_confirm(transaction)
+    amount = number_to_currency(transaction.amount_cents / 100.0)
+    direction = transaction.transaction_type.in?(%w[deposit credit]) ? "fall" : "rise"
+
+    "Delete this #{transaction.transaction_type} of #{amount}?\n\n" \
+      "#{transaction.portfolio.username}'s cash balance is worked out from their transactions, so it " \
+      "will #{direction} by #{amount} as soon as this goes. This cannot be undone."
+  end
+
+  # A school year owns its four quarters, and those refuse to go while grade books hang off them
+  # (`Quarter has_many :grade_books, dependent: :restrict_with_error`), as does the school year itself
+  # while it has classrooms. So the honest message says what will happen *and* what will stop it.
+  def school_year_delete_confirm(school_year)
+    "Delete #{school_year.name}?\n\n" \
+      "Its four quarters go with it. A school year that still has classrooms, or quarters with grade " \
+      "books, cannot be deleted at all. This cannot be undone."
+  end
+
+  # The generic delete confirmation, for the three shared admin partials that each wrote their own -
+  # `_actions` said "Are you sure you want to delete this classroom?", which names no record and gives no
+  # basis for the decision, and the other two said the same thing in two more shapes.
+  #
+  # The body is deliberately about **what a delete is**, not about a particular model's cascade: this is
+  # rendered for schools, school years, stocks, announcements and transactions, and a sentence claiming to
+  # know what each one takes with it would be wrong somewhere. Where the cascade matters - a transaction
+  # moving a balance, a school year taking its quarters - the call site passes its own.
+  def delete_confirm(record)
+    label = record.try(:name) || record.try(:username) || record.try(:title) || record.id
+
+    "Delete #{record.class.model_name.human.downcase} \"#{label}\"?\n\n" \
+      "It is removed permanently, along with anything that depends on it. This cannot be undone, and " \
+      "there is no archived copy to restore from."
+  end
+
+  # The three teacher confirmations, written once - they appeared in three files with three different
+  # sentences for the same two actions, and the delete one said only "Are you sure you want to
+  # permanently delete this teacher?", which is the phrasing the confirmation dialog exists to replace.
+  #
+  # Deactivating **discards**: `User#destroy` is overridden to soft-delete, so nothing is lost.
+  # `really_destroy!` is the one that is not, and only the delete action calls it - which is why these two
+  # have to read differently rather than both saying "this cannot be undone".
+  def teacher_deactivate_confirm(teacher)
+    "Deactivate #{teacher.display_name}?\n\n" \
+      "They lose access immediately and leave the active list. Their classrooms, the grades they " \
+      "entered and everything else are kept, and you can reactivate them here."
+  end
+
+  def teacher_reactivate_confirm(teacher)
+    "Reactivate #{teacher.display_name}?\n\n" \
+      "They can sign in again and return to the active list, with the same classrooms they had."
+  end
+
+  def teacher_delete_confirm(teacher)
+    "Permanently delete #{teacher.display_name}?\n\n" \
+      "The account is removed for good, along with their assignment to any classroom. The classrooms " \
+      "themselves and the grades they entered stay. This cannot be undone - deactivating keeps the " \
+      "record and can be reversed."
+  end
+
+  # The archive/activate confirmations, written once. `activate_button` and `archive_button` render the
+  # bordered toolbar version on classrooms#show, and the classrooms index repeats the pair as ghost row
+  # actions - which is how the two came to carry differently worded copy for one action.
+  def classroom_toggle_confirm(classroom)
+    if classroom.archived?
+      "Activate #{classroom.name}?\n\n" \
+        "Its teachers and students can open it again, and trading returns to whatever the " \
+        "classroom's own setting says."
+    else
+      "Archive #{classroom.name}?\n\n" \
+        "Its teachers and students lose access immediately. Grades, portfolios and order history " \
+        "are kept, and you can activate it again from this page."
+    end
+  end
+
   def activate_button(classroom)
     link_to toggle_archive_admin_classroom_path(classroom),
-            data: { turbo_method: :patch, turbo_confirm: "Activate #{classroom.name}?" },
+            data: { turbo_method: :patch, turbo_confirm: classroom_toggle_confirm(classroom) },
             class: admin_secondary_button_class do
       safe_join(
         [
@@ -297,9 +379,7 @@ module AdminHelper
 
   def archive_button(classroom)
     link_to toggle_archive_admin_classroom_path(classroom),
-            data: { turbo_method: :patch,
-                    turbo_confirm: "Archive #{classroom.name}? Teachers and students will no " \
-                                   "longer be able to access it, but all historical data is preserved." },
+            data: { turbo_method: :patch, turbo_confirm: classroom_toggle_confirm(classroom) },
             class: admin_danger_button_class do
       safe_join(
         [

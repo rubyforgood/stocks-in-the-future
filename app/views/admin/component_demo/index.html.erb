@@ -248,7 +248,15 @@
           <%= lucide_icon("square-pen", class: "h-5 w-5 shrink-0 text-slate-500") %>
           Edit
         <% end %>
-        <%= link_to "#", data: { turbo_method: :delete, turbo_confirm: "Are you sure?" }, class: "tw-btn-danger-outline" do %>
+        <%# The gallery teaches whoever copies it, so its example is the two-part shape: a question,
+            a blank line, then what the action does. It said "Are you sure?", which is the phrasing
+            shared/_confirm_dialog exists to replace. %>
+        <% demo_delete = "Delete stock \"Coca-Cola\"?\n\n" \
+                         "It is removed permanently, along with anything that depends on it. This " \
+                         "cannot be undone." %>
+        <% demo_opts = { data: { turbo_method: :delete, turbo_confirm: demo_delete },
+                         class: "tw-btn-danger-outline" } %>
+        <%= link_to "#", **demo_opts do %>
           <%= lucide_icon("trash-2", class: "h-5 w-5 shrink-0") %>
           Delete
         <% end %>
@@ -266,7 +274,10 @@
           <%= lucide_icon("mail", class: "h-5 w-5 shrink-0") %>
           Send email
         <% end %>
-        <%= link_to "#", data: { turbo_confirm: "Archive this user?" }, class: "tw-btn-secondary" do %>
+        <% demo_archive = "Archive this user?\n\n" \
+                          "They lose access immediately and leave this list. Everything attached to " \
+                          "the account is kept, and an administrator can restore it." %>
+        <%= link_to "#", data: { turbo_confirm: demo_archive }, class: "tw-btn-secondary" do %>
           <%= lucide_icon("archive", class: "h-5 w-5 shrink-0") %>
           Archive
         <% end %>

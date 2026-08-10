@@ -72,7 +72,7 @@
     <% if @teacher.discarded? %>
       <%= link_to "Permanently delete",
                   admin_teacher_path(@teacher),
-                  data: { turbo_method: :delete, turbo_confirm: "Are you sure you want to permanently delete this teacher? This action cannot be undone." },
+                  data: { turbo_method: :delete, turbo_confirm: teacher_delete_confirm(@teacher) },
                   class: admin_danger_button_class %>
     <% end %>
   </div>

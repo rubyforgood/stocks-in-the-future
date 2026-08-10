@@ -66,11 +66,13 @@
                     <% if teacher.discarded? %>
                       <%= ghost_action_link "Reactivate", admin_teacher_reactivation_path(teacher),
                                             icon: "circle-check",
-                                            data: { turbo_method: :post, turbo_confirm: "Reactivate #{teacher.display_name}?" } %>
+                                            data: { turbo_method: :post,
+                                                    turbo_confirm: teacher_reactivate_confirm(teacher) } %>
                     <% else %>
                       <%= ghost_action_link "Deactivate", admin_teacher_deactivation_path(teacher),
                                             icon: "ban", variant: :danger,
-                                            data: { turbo_method: :post, turbo_confirm: "Deactivate #{teacher.display_name}? They will lose access, but their data is preserved." } %>
+                                            data: { turbo_method: :post,
+                                                    turbo_confirm: teacher_deactivate_confirm(teacher) } %>
                     <% end %>
                 <% end %>
 
