@@ -1,0 +1,147 @@
+<% content_for :own_heading, true %>
+<div class="mx-auto max-w-4xl">
+  <%= render "admin/component_demo/environment_banner" %>
+
+  <%= admin_breadcrumbs(@breadcrumbs) %>
+
+  <% description = "Two things on the grade book: an autosave label that moves too much, and a heading " \
+                   "that does not read." %>
+  <%= render layout: "components/ui/page_header",
+             locals: { title: "Save indicator", description: description } do %><% end %>
+
+  <div class="space-y-10">
+    <section data-testid="si-measured">
+      <h2 class="text-base font-semibold text-slate-900">1. How much it actually moves</h2>
+      <p class="mt-1 mb-3 text-sm text-slate-600">
+        Measured by watching the element while editing: <strong>three text changes per edit</strong> -
+        "Saving&hellip;", then "All changes saved", then a new timestamp. A 25-student book has about 100
+        cells, so filling one in redraws that label roughly 300 times, each redraw pulling the eye to a
+        place where nothing has happened.
+      </p>
+      <%= render layout: "components/ui/card", locals: {} do %>
+        <p class="font-mono text-xs text-slate-700">
+          ["Saving…", "All changes saved · 07:44 PM", "Saving…", "All changes saved · 07:44 PM", …]
+        </p>
+        <p class="mt-3 text-sm text-slate-700">
+          Two separate faults. The <strong>timestamp</strong> changes on every save and answers a question
+          nobody asks - a teacher wants to know their work is safe, not the minute it was written. And
+          <strong>"Saving…"</strong> flashes for a request that takes a few hundred milliseconds, so the
+          transient state is on screen about as often as the steady one.
+        </p>
+      <% end %>
+    </section>
+
+    <section data-testid="si-field">
+      <h2 class="text-base font-semibold text-slate-900">2. What the field does</h2>
+      <%= render layout: "components/ui/card", locals: {} do %>
+        <dl class="space-y-2 text-sm">
+          <div><dt class="font-medium text-slate-900">Google Docs and Sheets</dt>
+            <dd class="text-slate-700">One steady line in the toolbar - "All changes saved in Drive" -
+              which does not tick. No per-save timestamp.</dd></div>
+          <div><dt class="font-medium text-slate-900">Notion</dt>
+            <dd class="text-slate-700">"Edited just now" in the header, low contrast, coarse-grained.</dd></div>
+          <div><dt class="font-medium text-slate-900">Figma</dt>
+            <dd class="text-slate-700">A small cloud icon. Text appears only while pending or on failure.</dd></div>
+          <div><dt class="font-medium text-slate-900">Linear</dt>
+            <dd class="text-slate-700">Nothing at all. Saving is assumed.</dd></div>
+        </dl>
+        <p class="mt-3 text-sm text-slate-700">
+          The pattern is consistent: <strong>the steady state is quiet and does not change</strong>, the
+          transient state is brief or suppressed, and nothing counts saves at the user.
+        </p>
+      <% end %>
+    </section>
+
+    <section data-testid="si-option-a">
+      <h2 class="text-base font-semibold text-slate-900">A. Steady, and silent about the routine &mdash; recommended</h2>
+      <%= render layout: "components/ui/card", locals: {} do %>
+        <div class="flex flex-wrap items-center gap-3">
+          <span class="tw-btn-primary">Save grades</span>
+          <span class="text-sm text-slate-600">All changes saved</span>
+        </div>
+        <ul class="mt-4 list-disc space-y-1 pl-5 text-sm text-slate-700">
+          <li>No timestamp, ever. It is the churn, and "when" is not the question.</li>
+          <li>"Saving&hellip;" appears only if a save is still running after <strong>800ms</strong>, so an
+            ordinary edit changes nothing on screen at all.</li>
+          <li>A failure says so and stays: <span class="font-medium text-red-700">Not saved &mdash; check
+            your connection</span>. Nothing handles that today, and it is the only state a teacher has to
+            act on.</li>
+        </ul>
+        <p class="mt-3 text-sm text-slate-700">
+          Net effect while grading a class: the label is written <strong>once</strong>, not three hundred
+          times.
+        </p>
+      <% end %>
+    </section>
+
+    <section data-testid="si-option-b">
+      <h2 class="text-base font-semibold text-slate-900">B. Say nothing when it works</h2>
+      <%= render layout: "components/ui/card", locals: {} do %>
+        <div class="flex flex-wrap items-center gap-3">
+          <span class="tw-btn-primary">Save grades</span>
+        </div>
+        <p class="mt-3 text-sm text-slate-700">
+          <strong>Rejected, narrowly.</strong> Figma and Linear do this and it is the quietest possible
+          answer. But a teacher about to press a button that pays real money has a reasonable question -
+          <em>is what I typed in there?</em> - and an empty space is the same thing an unsaved page shows.
+          One quiet sentence answers it for the whole session.
+        </p>
+      <% end %>
+    </section>
+
+    <section data-testid="si-option-c">
+      <h2 class="text-base font-semibold text-slate-900">C. Remove the Save button instead</h2>
+      <%= render layout: "components/ui/card", locals: {} do %>
+        <p class="text-sm text-slate-700">
+          <strong>Rejected, and worth saying why.</strong> With save-on-blur the button is nearly
+          vestigial, and Docs, Notion and Linear all ship without one. But it is also the <em>only</em>
+          way to save if JavaScript does not run - autosave is a Stimulus controller - so removing it
+          makes the page depend on JS to keep a teacher's work. It stays.
+        </p>
+      <% end %>
+    </section>
+
+    <section data-testid="si-heading">
+      <h2 class="text-base font-semibold text-slate-900">3. The finalize card's heading</h2>
+      <p class="mt-1 mb-3 text-sm text-slate-600">
+        "Then finalize the quarter" does not read, and it is wrong twice: <strong>"Then"</strong> opens a
+        heading with a sentence fragment, and <strong>"the quarter"</strong> names something the button
+        does not - the button says "Finalize grades". Two names for one action is the drift this codebase
+        keeps finding.
+      </p>
+
+      <div class="space-y-3">
+        <%= render layout: "components/ui/card", locals: {} do %>
+          <p class="text-sm font-medium text-slate-900">Finalize grades <span class="text-slate-500">&mdash; recommended</span></p>
+          <p class="mt-1 text-sm text-slate-600">
+            Pays $12.40 into 2 students' portfolios and locks these entries. This cannot be undone.
+          </p>
+          <p class="mt-1 text-sm text-slate-600">Uses your saved grades, above.</p>
+          <p class="mt-3 text-sm text-slate-700">
+            The heading is the button's words, so the section and its control have one name. The sequence
+            lives in the line beneath, where it was already doing the work - a heading is a label, not a
+            step in a sentence.
+          </p>
+        <% end %>
+
+        <%= render layout: "components/ui/card", locals: {} do %>
+          <p class="text-sm font-medium text-slate-900">Now finalize these grades</p>
+          <p class="mt-3 text-sm text-slate-700">
+            The runner-up, and a real pattern: GOV.UK's check-your-answers page heads its final section
+            "Now send your application". "Now" carries the sequence without the fragment. Worth taking if
+            you want the order stated at the heading rather than under it.
+          </p>
+        <% end %>
+
+        <%= render layout: "components/ui/card", locals: {} do %>
+          <p class="text-sm font-medium text-slate-900">Pay these earnings <span class="text-slate-500">&mdash; rejected</span></p>
+          <p class="mt-3 text-sm text-slate-700">
+            Leads with the consequence, which is tempting for an irreversible action. But the control says
+            Finalize, so this puts a third word on one thing, and "pay" reads like the button will move
+            money the instant you press it rather than after a confirmation.
+          </p>
+        <% end %>
+      </div>
+    </section>
+  </div>
+</div>
