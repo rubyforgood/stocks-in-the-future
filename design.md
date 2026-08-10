@@ -1966,12 +1966,30 @@ in the repo.
 `text-slate-700` idle, `hover:bg-slate-100`. The selected row is a brand tint plus a 3px
 leading indicator: `bg-sitf-primary/10 text-sitf-primary-dark` with
 `border-l-[3px] border-sitf-primary`. Measured **7.78:1**. **Ten rows is the ceiling, and it is exact.** Measured on a 1366x768 Chromebook, the ten product rows
-fill 561px of 561px of available height - no slack at all. An eleventh row scrolls the sidebar, which is
-how the `Development` section cost 67px and why the component demo is a **top-bar link** now, beside
-`View site`. That is the second time this has been decided the same way: a footer row in this sidebar
-was rejected earlier for pushing the nav 68px past the same viewport. A non-product destination that
-does not fit goes in the top bar; a product section that does not fit means the sections need rethinking,
-not loosening. `spacing_test` asserts both the fit and that every row is the same height.
+fill 561px of 561px of available height - no slack at all, so any structural addition needs a structural
+removal. Measured against that ceiling:
+
+| | sidebar | overflow |
+|---|---|---|
+| ten product rows | 561 of 561 | 0 |
+| a `Development` section with one row | 628 of 561 | 67px |
+| a group of two under a subheader, with `View site` moved down beside it | 668 of 561 | 107px |
+| that group, with Students / Teachers / Users collapsed to one row | 588 of 561 | 27px |
+| and the one-item `Content` subheader dropped as well | 568 of 561 | 7px |
+
+A footer row here was rejected earlier on the same measurement, at 68px. **A product section that does
+not fit means the sections need rethinking, not loosening** - three of those rows are one table and two
+STI subtypes of it, and one filtered list is what the field ships for that.
+
+**A developer tool does not go in the navigation at all** - not the sidebar, and not the top bar either.
+Storybook is a separate application; Polaris, Primer, Lightning, Material and Carbon are separate
+documentation sites; Rails' own `/rails/info` and `/rails/mailers` are live routes that nothing links to.
+The component gallery is reached by URL, documented in `README.md` and `design-instructions.md`. **A
+destination out of the product is a different class of thing** and does belong in the top bar, which is
+where WordPress, Django, Shopify and Craft all put `View site`. Grouping the two under one `Development`
+subheader - the intuitive proposal - mislabels the most-used link in an admin as a development tool.
+
+`spacing_test` asserts both the fit and that every row is the same height.
 
 `NavHelper` holds the treatment -
 `nav_row_class`, `nav_indicator_class`, `nav_icon_class` - so the app nav and the admin nav

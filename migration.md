@@ -2875,8 +2875,16 @@ could measure, and two pages it could not.
   for any admin - the index listing ten real users and their email addresses under a heading reading
   "Component demo", the show page rendering `User.find(params[:id])`. Nothing beyond an admin's existing
   rights, but the page claimed to be development-only and was not.
-- **The nav row moved to the admin top bar**, beside `View site`, and lost its purple. The sidebar has
-  no room: ten product rows are 561px in 561px on a Chromebook, and the `Development` section cost 67px.
+- **The nav row is gone, from the sidebar and from the top bar.** It first moved to the top bar beside
+  `View site`, because the sidebar has no room - ten product rows are 561px in 561px on a Chromebook and
+  the `Development` section cost 67px. It then came out of the chrome entirely: a component gallery is a
+  developer tool, and the field keeps those outside the product (Storybook, Polaris, Primer, Lightning,
+  and Rails' own `/rails/info`). The gallery is reached by URL. `View site` stays in the top bar, being a
+  different class of thing.
+- **`README.md` gained a `## Component gallery` section** under Local Development, and
+  `design-instructions.md` now states the URL, the admin login and the `Rails.env.local?` guard beside
+  both of its existing references - which named the *view directory* and never the URL, so a developer
+  following the instruction to "register new components there" had no stated way to look at the result.
 - **All three demo pages carry an environment banner** (`admin/component_demo/_environment_banner`),
   which is what says "not part of the product" now. It replaced two hand-rolled `bg-blue-50` panels.
 - The demo controller's breadcrumbs read `Component demo` rather than `Components / Demo`, which also

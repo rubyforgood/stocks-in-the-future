@@ -117,7 +117,17 @@ Reusable partials live in `app/views/components/ui/`: `_button`, `_checkbox`, `_
 - **Extend this set rather than restyling inline.** If a page needs a card, badge,
   table wrapper, or empty state, add it to `components/ui/` so the next page inherits it.
 - `admin/component_demo` is the existing component gallery. Register new components
-  there so they are visually reviewable in one place.
+  there so they are visually reviewable in one place. It renders at
+  **`/admin/component_demo`**, signed in as **admin**, and exists in development and test
+  only - `config/routes.rb` guards it with `Rails.env.local?`. Nothing in the app links to
+  it: a component gallery is a developer tool, and the field keeps those outside the product
+  (Storybook is a separate app; Polaris, Primer and Lightning are separate sites; Rails'
+  own `/rails/info` is reached by URL). `bin/rails routes | grep component_demo` finds it.
+
+  **It is currently behind.** It renders three of the eleven partials in
+  `components/ui/` - `_callout`, `_page_header`, and `_badge` via `boolean_badge` - so it is
+  not a reliable index of what exists. Read `app/views/components/ui/` as well until that is
+  closed out.
 
 ### Custom CSS
 
@@ -227,7 +237,8 @@ Run these steps for each page. Do not batch several pages into one unreviewed ch
 2. **Inventory the debt**: hardcoded hex values, inline one-off styling, missing labels,
    `div`-as-button, absent focus states, non-responsive tables.
 3. **Check for an existing component** in `app/views/components/ui/`. Use it. If the page
-   needs a new primitive, build it there first and register it in `admin/component_demo`.
+   needs a new primitive, build it there first and register it in `admin/component_demo`
+   (`/admin/component_demo`, as admin, development and test only).
 4. **Rewrite** the markup against `design.md`'s type scale, spacing, and component
    patterns - using tokens, and only `base`/`lg:` tiers.
 5. **Run the accessibility gate** above.

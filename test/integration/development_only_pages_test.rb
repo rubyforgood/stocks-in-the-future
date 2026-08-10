@@ -7,8 +7,14 @@ require "test_helper"
 # It used to be a purple row in a sidebar section headed `Development`, which put a second meaning into a
 # navigation whose colour already means "you are here" - and because the row was hand-rolled it also kept a
 # 44px height after NavHelper moved a desktop row to 36px. It did not fit either: the ten product rows are
-# 561px in 561px of Chromebook, so the section scrolled the sidebar by 67px. It is a top-bar link now, beside
-# `View site`, which is where this app put its other non-product destination for exactly that reason.
+# 561px in 561px of Chromebook, so the section scrolled the sidebar by 67px.
+#
+# It is not in the navigation at all now, and not in the top bar either. A component gallery is a developer
+# tool, and the field keeps those outside the product: Storybook is a separate application, Polaris, Primer,
+# Lightning, Material and Carbon are separate documentation sites, and Rails' own /rails/info and
+# /rails/mailers are live routes that nothing links to. It is reached by URL, documented in README.md and
+# design-instructions.md. `View site` stays in the top bar because it is a different class of thing - a way
+# out to the product, which WordPress, Django, Shopify and Craft all put in that bar.
 #
 # Nothing caught any of it, because the guard was `Rails.env.development?` and the suite runs in the test
 # environment: the row and the page were invisible to every test in the repo. The guard is `Rails.env.local?`
@@ -42,16 +48,32 @@ class DevelopmentOnlyPagesTest < ActionDispatch::IntegrationTest
                  "the admin nav rows carry a hue that is neither slate nor the brand: #{hues.inspect}"
   end
 
-  test "the component demo is a top-bar link, not a sidebar row" do
+  test "nothing in the product links to the component demo" do
     get admin_root_path
 
     assert_response :success
-    body = response.parsed_body
+    assert_empty response.parsed_body.css("a[href^='#{admin_component_demo_index_path}']"),
+                 "an admin page links to the component demo - it is reached by URL, and a link to a " \
+                 "gallery that renders three of eleven components implies it is the index of them"
+  end
 
-    assert_empty body.css("nav[aria-label='Admin'] a").select { |a| a.text.include?("Component demo") },
-                 "the component demo is back in the sidebar, which does not fit an eleventh row"
-    assert body.css("a[href='#{admin_component_demo_index_path}']").any?,
-           "the component demo link is missing from the admin top bar"
+  test "the component demo is still reachable by URL, and only by an admin" do
+    get admin_component_demo_index_path
+
+    assert_response :success
+
+    sign_in(create(:teacher))
+    get admin_component_demo_index_path
+
+    assert_redirected_to root_path
+  end
+
+  test "the demo pages link back to themselves, so one URL reaches all three" do
+    get form_admin_component_demo_index_path
+
+    assert_response :success
+    assert response.parsed_body.css("a[href='#{admin_component_demo_index_path}']").any?,
+           "the form page has no way back to the gallery index, which is the only documented entry point"
   end
 
   test "no sidebar section is marked while the component demo is open" do
@@ -90,7 +112,7 @@ class DevelopmentOnlyPagesTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "the demo pages are the only place the environment banner appears" do
+  test "the environment banner appears only on the demo pages" do
     get admin_root_path
 
     assert_response :success
