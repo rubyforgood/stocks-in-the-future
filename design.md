@@ -3616,85 +3616,27 @@ What survives, because it is a decision this app has actually taken: **a checkbo
 control for a short, fully known set of options**, and beyond roughly ten it should become a searchable
 multi-select with chips - GitHub's assignees picker, Linear's, Jira's. That threshold is the trigger, and
 it is recorded on the classroom form, where it will be met first.
-### Nested sub-form (repeatable rows)
-The court-orders sub-form (`stocks_in_the_future_cases/_court_orders` + `_court_order_fields`) is the
-pattern: repeatable `.nested-form-wrapper` entry rows, an **Add** button that clones a
-`<template>` (`court-order-form#add`), and a per-row **Delete**.
+### Repeatable rows: not in this app
 
-**An entry follows "Form layout" above -- it is not exempt for being repeatable.** The order text
-is a wide field, so it takes the **full width on its own line**; the implementation status is a
-status select, which that section names explicitly as a **one-column** field, so it sits on the
-**line below** with Delete beside it (`flex flex-wrap items-end gap-3`; below `sm` the select goes
-full width and Delete wraps under it). Entries are separated by a **hairline**
-(`border-t border-slate-100 pt-4 first:border-t-0 first:pt-0`) -- **not** a box each. The add row gets
-**no rule of its own**: a second hairline of the same weight reads as another entry rather than a
-section break, so space separates it (`mt-6`), which is also what GOV.UK "add another" does. Measured
-with two entries: entry rules `0px, 1px`, rule above the add row `0px`.
+There is no repeatable sub-form here. The one `fields_for` is `grade_books/_grade_entry`, which
+renders a **fixed** row per student -- the set is the roster, not something the user adds to -- and
+the only `accepts_nested_attributes_for` is a portfolio, created by a model callback.
 
-This entry previously described the opposite -- all three controls side by side in a
-`flex-col sm:flex-row` bordered card -- and that wording was then used to justify keeping the
-cramped row through two rounds of fixes, including one where the three controls were carefully
-measured into alignment at 881px without anyone asking whether they belonged on one line at all.
-Squeezing the main content field into a fraction of the width to fit a select and a button beside it
-is the thing "Form layout" exists to prevent, and a per-entry bordered box is a card inside a card.
-**A note here does not override a rule above; if they disagree, the note is the drift.**
+Two rules from the sub-form spec are worth keeping, because they are about forms in general:
 
-**Copy-from-sibling lives in a Dialog, not in the card.** It used to be a labelled select plus a
-Copy button inside a **grey bordered panel** in the card body -- a filled nested surface inside the
-card (card-in-card) and a *second* input cluster competing with the real one (Court order type +
-Add), on top of the heading, the youth-names note, the order rows and a divider. Reported as too
-busy, and the grey panel is not a design-system surface.
+**A repeatable entry follows "Form layout" -- it is not exempt for being repeatable.** A wide field
+takes the full width on its own line even inside a row that repeats; squeezing the main content field
+into a fraction of the width to fit a select and a button beside it is the thing that section exists
+to prevent, and a per-entry bordered box is a card inside a card. Separate entries with a **hairline**,
+not a box each, and give the add row **no rule of its own** -- a second hairline of the same weight
+reads as another entry rather than a section break, so space separates it, which is also what GOV.UK's
+"add another" does.
 
-Now: one **secondary action in the section header** ("Copy from another case"), and the case picker
-moves inside the existing Dialog with the confirmation copy and the inline error. That picker is a
-**searchable-select**, not a plain `<select>`: an org can hold hundreds of cases, so scrolling a native
-dropdown to find one is unusable -- and this app already had the typeahead for exactly that (see
-"Typeahead audit"). Reaching for a plain select while *rebuilding* the control was the miss. Two
-details: pass only `class: "block w-full"` (the tom-select theme owns the border/padding and copies
-these classes onto `.ts-wrapper`, so a bordered input class double-borders), and do **not** set
-`dropdownParent: body` inside a `<dialog>` -- the menu would leave the dialog's top layer and paint
-behind it. Specs must drive it as a user does; `select ... from:` cannot reach the clipped native
-select. Validation moves
-with it -- opening the dialog cannot validate a choice that has not been made, so
-`copy-court-orders#confirm` checks the select and `#open` just opens. The card body is then only the
-order rows plus one add row, so **one** labelled cluster and **one** divider (measured: 2 label
-clusters -> 1, tinted panels -> 0). This is the general rule for a form card: an occasional bulk
-shortcut belongs behind a single control, not permanently expanded beside the primary input.
+**A note does not override a rule above it; if they disagree, the note is the drift.** That spec once
+described the opposite arrangement, and the wording was then used to justify keeping it through two
+rounds of fixes -- including one where three cramped controls were carefully measured into alignment
+without anyone asking whether they belonged on one line at all.
 
-(An earlier version of this section said rows "stay bordered and unfilled" because only a *fill*
-inside a card is wrong. That is not right either: an outlined box per entry is still a nested card.
-Separate repeated entries with a hairline, the same rule as the dashboard worklist.)
-
-**Every field in a repeatable row gets a real `<label>` -- a placeholder is not a label.** The court
-order row named its textarea with `placeholder: "Describe the court order"` and its select with the
-blank option, plus `aria-label`s on both. That passes axe (there *is* an accessible name), which is
-exactly why it survived an audit: placeholder-as-label is not machine-detectable. It fails the user --
-the placeholder disappears the moment you type, so the field loses its identity precisely when you
-are checking your work. Use the **compact label token** (`mb-1 block text-xs font-medium
-text-slate-500`) so a repeated row does not get heavy, drop the now-duplicate placeholder, and drop
-the `aria-label` -- with a real label it only risks the visible and announced names drifting apart.
-
-Two geometry rules when adding labels to such a row, both measured rather than eyeballed:
-- The label goes **outside** the `relative` wrapper that positions a select's chevron. The chevron is
-  `top-1/2` against that wrapper, so a label inside re-centres it against label+select and drops it
-  below the control (verified: chevron mid == select mid, delta 0px).
-- A trailing action (`Delete`) on the same line as a select is **centred on the control**
-  (`items-center`), and the way to get that is structural: put the **label above the flex line**, so
-  the line holds only the select and the button. While the label sits *inside* the line, every
-  alignment is measured against label+select and the button can never centre on the field -- two
-  earlier attempts (`sm:mt-5`, then `items-end`) only made an edge agree, and "select bottom ==
-  Delete bottom" is a measurement that confirms the choice rather than testing it. Measured now:
-  select mid == Delete mid, delta 0px.
-
-**New rows append to the end of the list, directly above the Add control, and focus moves into them.**
-That position is the convention (GOV.UK "add another", Material, Polaris): the control that adds sits
-after the collection, so anything else would put the button in the middle of the list. What was
-missing is the second half -- `@stimulus-components/rails-nested-form#add` inserts `beforebegin` the
-target and leaves focus on the button, so a keyboard user has to hunt for the field they just made.
-`court-order-form#add` now focuses the new textarea and puts the caret after any prefilled
-standard-order text. Note the last row is **not** `:last-of-type` -- the rows share a parent with the
-insertion target div, so that selector returns the target (no textarea) and silently breaks the
-prefill.
 
 ### Autosave
 The **grade book** (`grade_books#show`) is the app's one autosaving form, and it is the reference.
@@ -3759,15 +3701,18 @@ of inputs is a table of unnamed controls. Give each an `aria-label` naming the f
 because the row is identified visually only.
 
 
-### Sharing a partial with Bootstrap
-When a partial is still rendered by legacy Bootstrap pages (e.g. `shared/_court_order_list`
-on the court-date pages, `shared/_edit_form` / `_invite_login` on the stocks_in_the_future_admin edit page), do
-**not** restyle it in place: Tailwind classes render unstyled on Bootstrap and the reverse. Add a
-**the app layout-specific Tailwind twin** (`stocks_in_the_future_cases/_court_orders`, `stocks_in_the_future_cases/_volunteer_assignment`,
-`supervisors/_manage_volunteers`) that preserves every JS hook (ids, classes, data-actions, field names, and any DOM
-adjacency the JS relies on). A legacy global-jQuery flow (copy-from-sibling) can instead be
-reimplemented as a small Stimulus controller on the twin, leaving the jQuery and the shared
-partial untouched for the Bootstrap pages.
+### There is no Bootstrap here
+
+The spec this document came from was mid-migration, and several rules exist to keep Tailwind and
+Bootstrap apart -- twin partials, JS hooks preserved across both, classes that render unstyled on the
+other side. **None of that applies.** This app has one stylesheet system: Tailwind v4, plus the
+`.tw-*` component classes in `app/assets/tailwind/`.
+
+What transfers is the reason those twins existed: **a style written in two places survives every
+sweep of one of them.** That has bitten here without any framework split at all -- the grey table
+header lived in a shared class *and* in an inline `<thead>` on fourteen admin tables; the button base
+existed in `buttons.css` *and* as a Ruby constant. Two definitions of one thing is the drift
+mechanism.
 
 ### Card / panel
 `rounded-2xl border border-slate-200 bg-white shadow-sm` (pad `p-5`).
@@ -3796,10 +3741,10 @@ instead of a border throughout admin, and two one-off variants in student-facing
 of them matched this spec. Naming it once is what stops that recurring - a class string
 copied 27 times cannot be held consistent by attention.
 
-A **content card with a leading icon** (the case-contact card) puts the icon **in the header
+A **content card with a leading icon** puts the icon **in the header
 row** next to the title (`card-title flex flex-wrap items-center gap-2` + a 32px `h-8 w-8`
 rounded-xl icon tile), **not** as a full-height gutter beside the whole body. An `items-start`
-icon column indents *every* body line behind it — the case-contact card read as pushed ~48px
+icon column indents *every* body line behind it — one card read as pushed ~48px
 right, with the answers/notes hanging off the icon instead of the card edge. With the icon in
 the header, the body (secondary text, answer list, actions) spans the card's full width,
 left-aligned to the `p-5` edge (measured: body indent 48px -> 0). Decorative status glyphs are
@@ -3809,7 +3754,7 @@ number), per the Tables note.
 element; every supporting / detail line is `text-sm`, and **no body line may out-weigh the
 title** (a detail line once rendered `text-base font-bold` and made the body shout over the
 title). Confirm the title (16px / 600) stays the sole anchor with computed style, not by eye.
-**Progressive disclosure, not per-line truncation:** collapsible detail (the case-contact card's
+**Progressive disclosure, not per-line truncation:** collapsible detail (a card's
 topic answers + notes) goes in **one** native `<details>` "Show details" toggle that reveals the
 whole block at full length — a `dl` of `text-xs font-semibold text-slate-500` `dt` +
 `text-sm text-slate-700 whitespace-pre-line` `dd`, matching the new-design table's expandable
@@ -3841,7 +3786,7 @@ it) and reword derived text to be self-explanatory ("In care for over 8 years", 
 "(over 8 years ago)").
 
 **A label with nothing after it is a bug, not an empty state.** Omit the whole `dt`/`dd` pair when
-the value **cannot exist yet** -- the volunteer-assignment card rendered "Unassigned:" with an empty
+the value **cannot exist yet** -- one card rendered "Unassigned:" with an empty
 `dd` on every *active* assignment, leaving a hanging colon (and duplicating what the "Assigned" pill
 already said). Use the muted **"Not set"** value only where the field genuinely applies but is unfilled
 (as `stocks_in_the_future_cases#show` does for a youth's date in care). Guard it by asserting no `dd` is blank, not by
@@ -3864,11 +3809,11 @@ role (measured on one row: 6 size/weight/colour combinations, each mapping to ex
 **Inline vs stacked:** an inline `dt: dd` pair keeps ONE size for label and value -- 12px against 14px
 on a shared baseline reads as ragged. The 12px label belongs to the **stacked** variant, where it sits
 *above* its value (`dt text-xs text-slate-500` / `dd mt-0.5 text-sm text-slate-700`, as in the
-volunteers-index mobile cards); there the size step is the hierarchy cue. Either way the value stays at
+a mobile card list); there the size step is the hierarchy cue. Either way the value stays at
 `text-sm` (see Typography: 12px is chrome, not content).
 
 What made this card unparseable was not the *number* of styles but that two different roles shared
-one: the "Enable reimbursement" checkbox label sat at `text-xs font-medium text-slate-600` while the
+one: a checkbox label sat at `text-xs font-medium text-slate-600` while the
 fact values were `text-xs font-medium text-slate-700` -- visually the same thing, so an actionable
 control read as another piece of metadata. Measured before/after on one row: 7 size/weight/colour
 combinations -> 6, but every remaining one now maps to a single role. **Give a control the control
@@ -3898,7 +3843,7 @@ cell.
 sum to exactly **one**, and `tbody` is always `divide-y divide-slate-50`. Swept app-wide: 15 tables
 carried `divide-y divide-slate-200` on the table (a darker rule than the token, and a second one
 wherever a header row also had a border), 7 still had the forbidden `thead` fill, one
-(`users/_languages`) had **no** separator at all, and `reimbursements` was on `divide-slate-100` rows.
+had **no** separator at all, and another was on `divide-slate-100` rows.
 All 41 tables now satisfy the invariant -- re-check with a static audit over
 `app/views/**/*.erb`, not by sampling pages, and note that a `thead` fill hides behind longer class
 strings (`class="bg-slate-50 text-left text-xs ..."` survived a grep for the exact attribute).
@@ -3906,9 +3851,8 @@ strings (`class="bg-slate-50 text-left text-xs ..."` survived a grep for the exa
 **Exactly ONE rule above the column headers.** A card with a title block
 (`border-b border-slate-100 p-4`) already has its separator, so the `thead`'s `<tr>` must **not** add
 a second -- two hairlines ~40px apart read as a mistake. Absent a title block (the cases /
-supervisors / volunteers index tables), the `thead`'s `border-b` *is* the separator and stays. Audited
-app-wide: the doubling was in all three dashboard worklists and, pre-existing, in the supervisor "Your
-volunteers", volunteer "Your cases" and `volunteers/_notes` tables -- 6 sites, all fixed. It got there
+most index tables here), the `thead`'s `border-b` *is* the separator and stays. Audit this app-wide
+rather than page by page: when it was last done the doubling was in six places at once. It got there
 by copying a neighbouring table instead of checking this section, which propagates drift rather than
 catching it: **match the pattern, not the nearest sibling.**
 
@@ -3984,47 +3928,50 @@ only once `data-table-scrolled` is set, so a table that fits or has not been scr
 rule with nothing behind it.
 
 
-### Charts (data viz)
-Charts are **bespoke server-rendered SVG** (no canvas, no Chart.js), built in `MetricsHelper`
-and rendered on the all-stocks-in-the-future **Metrics** console (platform-wide) and the per-chapter **Analytics**
-page (org-scoped) -- both reuse the shared `metrics/_dashboard` partial and get their numbers from
-`MetricsReport` (scope-parameterized: global by default, `stocks_in_the_future_org:` for one chapter). Validated
-with the data-viz method:
-- **Series identity is never color alone.** Each line carries a distinct **line style**
-  (solid, dashed, dotted, dash-dot) **and marker shape** (circle, square, triangle, diamond)
-  on top of a validated categorical palette (indigo, emerald, amber, rose; worst adjacent
-  CVD deltaE 31.3, all AA on white). The legend shows the line + marker key, not a swatch.
-- **A table twin per chart:** a `<details>` "View as table" with a real `<table>` (scope
-  headers); the SVG carries `role="img"` + `<title>` / `<desc>`; no value is color-only.
-- **Heatmaps are accessible tables:** a day x hour grid as a `<table>` with a sequential
-  single-hue background and the count in every cell (color plus number).
-- **Marks:** 2px lines, hairline solid gridlines, markers with a 2px surface ring, direct
-  end-value labels, muted axis ink (slate-500 / 600, AA).
-- **Totals live in stat tiles, never a row sum.** Correct range totals only (sums for
-  additive metrics, a distinct count for unique loggers, footnoted). Never sum
-  non-additive columns.
-- **States:** a genuine zero shows a muted `0`; a missing value shows "No data" (never a
-  fake 0); a section with no data swaps in an empty state; loading uses skeletons; error is
-  distinct with a retry.
-- Palette checked with the data-viz skill's `validate_palette.js`. Dark mode is deferred
-  (off-the-shelf Tailwind steps miss the dark lightness band; needs hand-tuned OKLCH).
+### Charts
+
+There is **one** chart in this app: portfolio value over time on `portfolios#show`, a Chart.js line
+chart on a `<canvas>` in a `relative h-75` box, driven by the `portfolio-chart` Stimulus controller
+from `Portfolio#chart_data`. It shows an empty state until two months of value have been recorded,
+rather than drawing a single point.
+
+**This is a deliberate divergence from the spec it inherited**, which called for bespoke
+server-rendered SVG and named Chart.js as the thing not to use. One line chart does not justify a
+hand-built SVG toolchain; if a second and third chart appear, that trade-off is worth revisiting, and
+the reason it was written that way was accessibility -- everything below is what a canvas does not
+give you for free and has to be supplied.
+
+- **Series identity is never colour alone.** With more than one series, each carries a distinct line
+  style and marker shape on top of the palette, and the legend shows that key rather than a swatch.
+- **A table twin per chart:** a `<details>` "View as table" holding a real `<table>` with scope
+  headers. A canvas is opaque to assistive tech, so this is not optional -- it is the accessible
+  version of the data.
+- **A genuine zero shows a muted `0`; a missing value shows "No data"**, never a fake zero.
+- **Totals live in stat tiles, never a row sum**, and never sum a non-additive column.
+- Money on a chart follows the money rules like anywhere else: integer cents are authoritative, and
+  the display value is derived once.
 
 ### KPI stat card
 Semantic icon tile (`grid h-9 w-9 place-items-center rounded-xl bg-{hue}-50 text-{hue}-600`) ->
 number (`text-3xl font-bold tracking-tight text-slate-900`) -> label (`text-sm text-slate-500`) ->
 optional meta (`text-xs text-slate-500`, not slate-400 -- the contrast audit bumped readable
-slate-400 to AA slate-500). One shared token across the admin/supervisor/volunteer dashboards and
-the Analytics page. **The number is ALWAYS `text-slate-900`** — one numeral style on every card, in
+slate-400 to AA slate-500). `components/ui/_stat` and `components/ui/_icon_tile` are the
+implementation, shared by the admin dashboard, the portfolio page and `classrooms#show`.
+**The number is ALWAYS `text-slate-900`** — one numeral style on every card, in
 every state. The state is carried by the icon tile, and for the danger cards by a `ring-1
-ring-rose-100` on the card: **danger** (unassigned cases, volunteers needing follow-up) = rose tile +
-rose ring; **attention** (cases needing contact) = amber tile (`bg-amber-50 text-amber-600`) when
-positive, emerald when zero. This entry used to prescribe a **rose number** for the danger variant,
+ring-rose-100` on the card: **danger** = rose tile + rose ring; **attention** = amber tile
+(`bg-amber-50 text-amber-600`) when positive, emerald when zero. This entry used to prescribe a **rose number** for the danger variant,
 and it was wrong twice over: the coloured numeral read as an error rather than a count, and it made
 one card in four change colour while the rest held still — reported as "the number is in Red font.
-This does not match the design system". Same correction as the supervisor roster's counts, where red
-numerals were removed for the same reason: **never colour a numeral to signal state.** A
-**trend delta** (Analytics "contacts this month") is the meta line, colored emerald/rose/slate for
-up/down/flat with a direction arrow + signed number + "vs last month" (never color-only).
+This does not match the design system". Same correction as the count columns above, where red
+numerals were removed for the same reason: **never colour a numeral to signal state.** A **trend
+delta** belongs on the meta line, coloured emerald/rose/slate for up/down/flat with a direction arrow
+and a signed number, never colour-only.
+
+**A stat band is 134px, and that is not free.** Four across the top of `classrooms#show` put the
+roster's first row at 567px of a 625px viewport. Measure the primary content's first row before and
+after adding one; on that page the figures moved to the foot for exactly this reason. And use one card
+holding four figures rather than four cards -- `_stat` takes `surface: false` for that.
 
 ### Status pill
 Base: `inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium`
