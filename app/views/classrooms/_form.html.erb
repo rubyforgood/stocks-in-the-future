@@ -37,7 +37,7 @@
 <% url = local_assigns.fetch(:url, nil) %>
 <% cancel_path = local_assigns.fetch(:cancel_path) { classroom.persisted? ? classroom : classrooms_path } %>
 
-<%= form_with(model: classroom, url: url, class: "contents") do |form| %>
+<%= form_with(model: classroom, url: url, builder: Ui::FormBuilder, class: "contents") do |form| %>
   <%= render "shared/form_errors", record: classroom, subject: "classroom" %>
 
   <%# No `mt-*`. It carried `mt-4`, which did nothing in the ordinary case: adjacent vertical margins collapse
@@ -47,152 +47,64 @@
       the rest of the page uses 24. The summary spaces itself now. %>
   <div class="tw-card p-5">
     <div class="space-y-5">
-      <div>
-        <%= form.label :name, class: "tw-label-primary" do %>
-          Name<span class="required-indicator">*</span>
-        <% end %>
-        <%= form.text_field :name, class: "tw-input-primary", required: true %>
-      </div>
+      <%= form.text_field :name,
+                          label: "Name",
+                          required: true,
+                          hint: "What a teacher and their students will see it called." %>
 
+      <%# **School** and **Year**, which are what `SchoolYearFields` accepts - the model resolves the pair
+          into a SchoolYear on validation. The view used to reach through `classroom.school_year.school.id`
+          to preselect each one; the model's readers do that now, so `form.select` finds its own value.
+
+          The labels match the attributes they validate. "School name" here produced "School can't be
+          blank" in the summary, naming something the reader could not find on the page - which is the
+          whole reason the validation moved onto these two fields. %>
       <% if admin_fields %>
-        <%# Held in a local because a three-link safe-navigation chain is one link past what rubocop
-            allows, and both selects need it. %>
-        <% school_year = classroom&.school_year %>
+        <%= form.select :school_id,
+                        options_from_collection_for_select(@schools, :id, :name, classroom.school_id),
+                        { label: "School", prompt: "Select a school" },
+                        { required: true } %>
 
-        <div>
-          <%= form.label :school_id, "School name", class: "tw-label-primary" %>
-          <% selected_school = school_year&.school&.id %>
-          <%= form.select(
-                :school_id,
-                options_from_collection_for_select(@schools, :id, :name, selected_school),
-                { prompt: "Select a school" },
-                { class: "tw-input-primary" }
-              ) %>
-        </div>
-
-        <div>
-          <%= form.label :year_id, "Year", class: "tw-label-primary" %>
-          <% selected_year = school_year&.year&.id %>
-          <%= form.select(
-                :year_id,
-                options_from_collection_for_select(@years, :id, :name, selected_year),
-                { prompt: "Select a year" },
-                { class: "tw-input-primary" }
-              ) %>
-        </div>
+        <%= form.select :year_id,
+                        options_from_collection_for_select(@years, :id, :name, classroom.year_id),
+                        { label: "Year", prompt: "Select a year" },
+                        { required: true } %>
       <% end %>
 
-      <%# A group of checkboxes is a fieldset, and its legend is the group's name - the one thing a
-          `<label for>` cannot be, since there is no single control to point at. GOV.UK, Polaris and
-          Primer all use a fieldset here.
+      <%# The builder renders the fieldset, the legend, the hint under it and the group's error - all of
+          which this did by hand, because the builder used to emit a `<label>` over a group with no single
+          control to point at. That fix lives in `Ui::FormBuilder` now, so every group in the app gets it
+          rather than the one form that was rebuilt.
 
-          `mb-2` on the legend rather than `mt-*` on what follows: a legend's default rendering already
-          sits it on the border box, and design.md records that a fieldset's inline margin needs resetting
-          rather than compensating for. %>
-      <%# The group's error goes on the fieldset, not on whichever checkbox Rails renders first. The
-          field_error_proc handles every text-like control automatically and skips checkboxes for exactly
-          this reason - see FormErrorsHelper. %>
-      <%= tag.fieldset(**field_error_attrs(classroom, :grades)) do %>
-        <legend class="tw-label-primary">
-          Grades<span class="required-indicator">*</span>
-        </legend>
-
-        <%# **Under the subheader, before the options.** It sat below the grid, which put the instruction
-            after the decision it governs and left it floating between this group and the next - design.md
-            says hint text goes "under the group's subheader ... not floating between two field groups",
-            because a hint between groups is ambiguous about which one it modifies. GOV.UK puts a fieldset's
-            hint between the legend and the inputs for the same reason.
-
-            It used to open with a red "* Required:", which was a third statement of one fact - the asterisk
-            on the legend and the browser's own validation being the other two - in the colour this app
-            reserves for errors. %>
-        <p class="mt-1 mb-3 text-sm text-slate-600">Select at least one grade that applies to this classroom.</p>
-
-        <%# One empty value, so unchecking everything submits an empty list rather than omitting the key
-            and leaving the old grades in place. `id: nil` because it would otherwise take the same
-            derived id as every checkbox below it. %>
-        <%= hidden_field_tag "classroom[grade_ids][]", "", id: nil %>
-
-        <div class="grid grid-cols-1 gap-1 lg:grid-cols-2">
-          <% Grade.where(level: Classroom::GRADE_RANGE).order(:level).each do |grade| %>
-            <%# `py-2` for the row's height and its hover band, and **no `px-2`**: horizontal padding here
-                pushed the checkbox 8px right of the form's left edge, so the grades and teachers boxes sat
-                at 518 while the inputs above and the trading checkbox below sat at 510. Reported as the
-                teacher checkbox looking misaligned, and it was - against the form's gutter, not against its
-                own label.
-
-                Every control in a form shares one left edge; GOV.UK's checkbox item has no left padding for
-                exactly this reason, and an indent is reserved for a nested or dependent option. The
-                alternative - keeping the padding and pulling the row back with a negative margin - is the
-                thing this codebase has recorded three times as the wrong fix, because the hover fill goes
-                with it. %>
-            <label class="flex items-center gap-3 rounded-lg py-2 transition-colors hover:bg-slate-50">
-              <%= check_box_tag "classroom[grade_ids][]",
-                                grade.id,
-                                classroom.persisted? && classroom.grades.include?(grade),
-                                id: "classroom_grade_#{grade.id}",
-                                class: "size-4 shrink-0 rounded-sm border-slate-300 accent-sitf-primary " \
-                                       "focus-visible:outline-2 focus-visible:outline-offset-2 " \
-                                       "focus-visible:outline-sitf-primary" %>
-              <span class="text-sm font-medium text-slate-900"><%= grade.name %></span>
-            </label>
-          <% end %>
-        </div>
-
-        <%= field_error(classroom, :grades) %>
-      <% end %>
+          `Classroom::GRADE_RANGE`, not `Grade.all`: the admin half queried the latter straight from its
+          view, which is how the two forms came to offer different grades. %>
+      <%= form.collection_check_boxes :grade_ids,
+                                      Grade.where(level: Classroom::GRADE_RANGE).order(:level),
+                                      :id, :name,
+                                      label: "Grades",
+                                      required: true,
+                                      errors_on: :grades,
+                                      hint: "Select at least one grade that applies to this classroom." %>
 
       <% if admin_fields %>
         <%# Checkboxes, and no avatars.
 
             **The control is right for the volume.** A checkbox list is what GOV.UK, Polaris and Primer all
-            use for a short, fully known set of options, and there is one teacher in this database. Beyond
-            roughly ten it should become a searchable multi-select with chips - GitHub's assignees picker,
-            Linear's, Jira's - because a list you have to scroll to find a name in is a list you should be
-            able to type into. That threshold is the trigger, not a redesign for its own sake.
+            use for a short, fully known set of options. Beyond roughly ten it should become a searchable
+            multi-select with chips - GitHub's assignees picker, Linear's, Jira's - because a list you have
+            to scroll to find a name in is a list you should be able to type into. That threshold is the
+            trigger, not a redesign for its own sake.
 
-            **The avatar is gone.** An avatar earns its place by making a person recognisable at a glance,
-            and a 32px disc containing one letter does not: two teachers whose names begin with T get the
-            same disc, so it identified nobody while taking the widest column in the row. The name and the
-            email do the identifying, and the email is what disambiguates. Reported as not making sense,
-            which it did not.
-
-            The email is the secondary line under the name - design.md's primary-identifier shape, and what
-            GitHub's collaborator lists and Google Workspace's member pickers show for exactly this. %>
-        <%= tag.fieldset(**field_error_attrs(classroom, :teachers)) do %>
-          <legend class="tw-label-primary">Teachers</legend>
-
-          <%# Under the subheader, before the options, like the grades hint. %>
-          <p class="mt-1 mb-3 text-sm text-slate-600">
-            Teachers you select can see this classroom and edit its grades and trading setting.
-          </p>
-
-          <%= hidden_field_tag "classroom[teacher_ids][]", "", id: nil %>
-
-          <div class="grid grid-cols-1 gap-1">
-            <% @teachers.each do |teacher| %>
-              <label class="flex items-start gap-3 rounded-lg py-2 transition-colors hover:bg-slate-50">
-                <%# mt-0.5 on a 16px box beside a two-line block, so the checkbox's centre lands on the
-                    name's first line rather than its top edge - design.md states that for a lone checkbox
-                    and measures it as centre-to-centre. %>
-                <%= check_box_tag "classroom[teacher_ids][]",
-                                  teacher.id,
-                                  classroom.persisted? && classroom.teachers.include?(teacher),
-                                  id: "classroom_teacher_ids_#{teacher.id}",
-                                  class: "mt-0.5 size-4 shrink-0 rounded-sm border-slate-300 " \
-                                         "accent-sitf-primary focus-visible:outline-2 " \
-                                         "focus-visible:outline-offset-2 focus-visible:outline-sitf-primary" %>
-
-                <span class="min-w-0">
-                  <span class="block truncate text-sm font-medium text-slate-900"><%= teacher.display_name %></span>
-                  <span class="block truncate text-xs text-slate-600"><%= teacher.email %></span>
-                </span>
-              </label>
-            <% end %>
-          </div>
-
-          <%= field_error(classroom, :teachers) %>
-        <% end %>
+            **The avatar is gone.** A 32px disc containing one letter makes nobody recognisable: two
+            teachers whose names begin with T get the same disc, so it identified no one while taking the
+            widest column in the row. The name and the email do the identifying, and the email is what
+            disambiguates - which is why the label is a callable rendering two lines rather than a single
+            `display_name`. %>
+        <%= form.collection_check_boxes :teacher_ids, @teachers, :id, teacher_option_label,
+                                        label: "Teachers",
+                                        errors_on: :teachers,
+                                        hint: "Teachers you select can see this classroom and edit its " \
+                                              "grades and trading setting." %>
       <% end %>
 
       <%# **Last in the form**, after what the classroom *is* and who can see it.
@@ -204,23 +116,10 @@
 
           A single checkbox is the right control and not a switch: GOV.UK reserves a lone checkbox for
           opting in, which is what this is, and a switch implies the change takes effect as you flip it -
-          which it does on the classroom page, and does not here, where nothing happens until you save.
-
-          The hint is indented to the label's text column rather than starting under the checkbox, so it
-          reads as belonging to that option. GOV.UK indents a checkbox's hint the same way. `pl-7` is the
-          16px box plus the 12px gap. %>
-      <div>
-        <label class="flex items-center gap-3">
-          <%= form.check_box :trading_enabled,
-                             class: "size-4 shrink-0 rounded-sm border-slate-300 accent-sitf-primary " \
-                                    "focus-visible:outline-2 focus-visible:outline-offset-2 " \
-                                    "focus-visible:outline-sitf-primary" %>
-          <span class="tw-label-primary mb-0">Enable trading</span>
-        </label>
-        <p class="mt-1 pl-7 text-sm text-slate-600">
-          When enabled, students in this classroom can place buy and sell orders.
-        </p>
-      </div>
+          which it does on the classroom page, and does not here, where nothing happens until you save. %>
+      <%= form.boolean_field :trading_enabled,
+                             label: "Enable trading",
+                             hint: "Students in this classroom can place buy and sell orders." %>
     </div>
   </div>
 

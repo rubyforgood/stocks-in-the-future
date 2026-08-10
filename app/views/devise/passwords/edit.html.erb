@@ -8,33 +8,22 @@
              locals: { title: "Change your password" } do %><% end %>
 
   <div class="tw-card p-5">
-    <%= form_for(
-          resource,
-          as: resource_name,
-          url: password_path(resource_name),
-          html: { method: :put },
-          class: "space-y-5"
-        ) do |f| %>
+    <% opts = { as: resource_name, url: password_path(resource_name), builder: Ui::FormBuilder,
+                html: { method: :put } } %>
+    <%= form_for(resource, **opts) do |f| %>
       <%= render "devise/shared/error_messages", resource: resource %>
       <%= f.hidden_field :reset_password_token %>
 
-      <div>
-        <%= f.label :password, "New password", class: "tw-label-primary mb-1" %>
-        <%= f.password_field :password,
-                             autofocus: true,
-                             autocomplete: "new-password",
-                             class: "tw-input-primary" %>
-        <% if @minimum_password_length %>
-          <p class="tw-field-hint"><%= @minimum_password_length %> characters minimum</p>
-        <% end %>
-      </div>
+      <% length_hint = "#{@minimum_password_length} characters minimum" if @minimum_password_length %>
+      <%= f.password_field :password,
+                           label: "New password",
+                           autofocus: true,
+                           autocomplete: "new-password",
+                           hint: length_hint %>
 
-      <div>
-        <%= f.label :password_confirmation, "Confirm new password", class: "tw-label-primary mb-1" %>
-        <%= f.password_field :password_confirmation,
-                             autocomplete: "new-password",
-                             class: "tw-input-primary" %>
-      </div>
+      <%= f.password_field :password_confirmation,
+                           label: "Confirm new password",
+                           autocomplete: "new-password" %>
 
       <%= f.submit "Change password", class: "tw-btn-primary w-full" %>
     <% end %>

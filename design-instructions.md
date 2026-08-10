@@ -111,8 +111,18 @@ Do not write `bg-[#00698c]`. Use the brand token.
 
 ### Components
 
-Reusable partials live in `app/views/components/ui/`: `_button`, `_checkbox`, `_input`,
-`_label`, `_textarea`, plus `app/views/components/_action_icon_button`.
+Reusable partials live in `app/views/components/ui/`: `_badge`, `_button`, `_callout`, `_card`,
+`_checkbox`, `_data_table`, `_empty_state`, `_icon_tile`, `_label`, `_page_header`, `_stat`. This list
+previously named `_input`, `_textarea` and `app/views/components/_action_icon_button`, none of which
+exist - so it sent a reader looking for three files and omitted five that are there.
+
+**Fields come from `Ui::FormBuilder`** (`app/form_builders/ui/form_builder.rb`), not from partials and
+not by hand: `form_with ... builder: Ui::FormBuilder`, then `f.text_field :name, label: "Name",
+hint: "...", required: true`. It renders label, hint, input and - through
+`config/initializers/field_error_proc.rb` - the error, in that order, which is the shape GOV.UK,
+Polaris, Carbon and Material all specify. A checkbox group is `f.collection_check_boxes`, which emits a
+real `<fieldset>` and `<legend>`; pass `errors_on:` when the group's errors are on a different attribute
+than the one it posts.
 
 - **Extend this set rather than restyling inline.** If a page needs a card, badge,
   table wrapper, or empty state, add it to `components/ui/` so the next page inherits it.

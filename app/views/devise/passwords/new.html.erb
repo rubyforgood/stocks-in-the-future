@@ -12,14 +12,17 @@
     <h1 class="text-center text-2xl/9 font-bold tracking-tight text-slate-900 pb-4">Forgot your password?</h1>
     <p class="text-center text-sm text-slate-600 pb-4">Enter your email and we'll send you reset instructions.</p>
 
-    <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post }) do |f| %>
+    <% opts = { as: resource_name, url: password_path(resource_name), builder: Ui::FormBuilder,
+                html: { method: :post } } %>
+    <%= form_for(resource, **opts) do |f| %>
       <%= render "devise/shared/error_messages", resource: resource %>
 
-      <div class="space-y-4">
-        <div>
-          <%= f.label :email, "Email address", class: "tw-label-primary mb-1" %>
-          <%= f.email_field :email, autofocus: true, autocomplete: "email", required: true, class: "tw-input-primary" %>
-        </div>
+      <div>
+        <%= f.email_field :email,
+                          label: "Email address",
+                          autofocus: true,
+                          autocomplete: "email",
+                          required: true %>
 
         <%= f.submit "Send reset link", class: "tw-btn-primary w-full" %>
       </div>

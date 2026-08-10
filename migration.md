@@ -2982,3 +2982,82 @@ could measure, and two pages it could not.
 - **`Admin::FormBuilder` is now unusable for a form with no error summary**, in the sense that an
   invalid field will show its message and nothing will tell the reader at the top. Every current form
   has one; a new admin form needs the render call.
+
+## Migration map: one form builder for both halves
+
+**Written before any code moves**, per the standing instruction. Current structure, target, order, and
+what each step breaks.
+
+### Current structure
+
+| built with | forms |
+|---|---|
+| `Admin::FormBuilder` | the nine `admin/*/_form` partials, plus the component demo |
+| hand-written fields | `classrooms/_form`, `students/new`, `students/edit`, `profiles/edit` (2) |
+| Devise's `form_for`, hand-written fields | `sessions/new`, `registrations/new`, `passwords/new`, `passwords/edit` |
+| not entity forms, out of scope | `orders/_form` (a modal), `grade_books/show` (a table of inputs), `classrooms/_trading_setting` (a switch), the two filter bars |
+
+The two sets agree on tokens - `tw-input-primary`, `tw-label-primary`, 44px, `p-5` - and disagree on
+construction. That is the drift mechanism this repo keeps rediscovering: `px-6 py-6` against four card
+paddings, two button bases, two field-message definitions.
+
+### Target
+
+One builder, `Ui::FormBuilder` in `app/form_builders/ui/form_builder.rb`, named for
+`app/views/components/ui/` rather than for a namespace it is no longer confined to. Every entity form on
+both halves is built from it. The hand-written forms convert *to* the builder, not the reverse: its
+shape - label, hint, input, error - is what GOV.UK, Polaris, Carbon and Material specify, and it is why
+the admin forms read better.
+
+### Order, and what each step breaks
+
+1. **Bring the builder up to what the hand-written forms reached.** It has no required indicator and its
+   `collection_check_boxes` renders a `<label>` over a group rather than a `<fieldset>` with a
+   `<legend>` - which `classrooms/_form` fixed by hand, because a label pointing at nothing was the
+   accessibility bug that form was rebuilt to remove. Converting first would lose that.
+   *Breaks:* nothing; both are additions.
+2. **Rename to `Ui::FormBuilder`,** converting all ten call sites in the same change - a shared class
+   with one caller drifts as surely as no class at all.
+   *Breaks:* anything referencing `Admin::FormBuilder` by name. Ten call sites and no tests do.
+3. **Convert `classrooms/_form`,** the form both halves already share, so one change covers two pages.
+   *Breaks:* selectors for hand-written markup. `classroom_form_consistency_test` clicks labels, so it
+   survives; anything matching `div > label + input` would not.
+4. **Convert `students/new` and `students/edit`.** These put their hint *below* the input; the builder
+   puts it above, which is the standard. That is a visible change to two pages.
+   *Breaks:* `teacher_creates_student_test`, which drives these by label.
+5. **Convert `profiles/edit`.** Two forms, both `scope: :user` - load-bearing, because `User` is an STI
+   base and `form_with model:` would derive `student[...]` from the record's class.
+   *Breaks:* the profile controller tests, if the scope is lost. Assert rendered field names.
+6. **Devise last, or not at all.** These four are `form_for` on a different layout, and Devise ships its
+   own error partial. They are the least shared and the most likely to fight the framework.
+
+### What changed
+
+- **`app/form_builders/admin/form_builder.rb` is `app/form_builders/ui/form_builder.rb`**, and
+  `Admin::FormBuilder` is `Ui::FormBuilder`. All ten call sites moved in the same change.
+- **`Shadcn::FormBuilder` and `Components::FormsHelper` are deleted.** They backed a *third* shape,
+  reached through `render_form_for`, on the four Devise pages - which is why sign in and sign up kept a
+  40px `rounded-md` field while every other form moved to 44px `rounded-lg`. Measured after: 44px and
+  8px radius on sign in, both classroom pages, the profile forms and the admin forms.
+- **The builder grew four things the hand-written forms had and it did not**: a required indicator, a
+  `<fieldset>` with a `<legend>` for a checkbox group, the hidden empty value that makes unchecking
+  everything submit an empty list, and `errors_on:` for a group whose errors are on a different
+  attribute than the one it posts (`grade_ids` posts, `grades` validates).
+- **A checkbox row is a `<label>` wrapping its box**, not a `for=` across two sibling divs. Both are
+  valid; wrapping makes the whole row a hit target and it is the shape the app's geometry tests measure.
+- **`classrooms/_form`, `students/new`, `students/edit`, `profiles/edit` and all four Devise views** are
+  built from the builder. The hint moved above the input on the ones that had it below.
+
+### What this breaks
+
+- **Anything naming `Admin::FormBuilder`, `Shadcn::FormBuilder`, `render_form_for` or
+  `render_form_with`.** Nothing does; the constants are gone, so a stale reference is a NameError at
+  render time rather than a silent fallback.
+- **Selectors written against hand-written field markup.** Three tests in `form_actions_test` measured
+  `input.closest("label")` and `span.font-medium`; the first two now pass because the row wraps, and the
+  third needed the weight moved off the wrapper onto the name - a `font-medium` wrapper made the email
+  fight back with `font-normal`, a rule whose only job was undoing another rule.
+- **A checkbox group that does not pass `errors_on:`** silently renders no message when its errors are
+  on a different attribute. `validation_errors_test` catches the classroom case by name.
+- **The hint's position changed on `students/new`, `students/edit` and `profiles/edit`** - it is above
+  the input now, which is where GOV.UK, Polaris, Carbon and Material put it.

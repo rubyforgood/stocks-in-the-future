@@ -24,62 +24,53 @@
                        description: "How your name appears, and your password." } do %><% end %>
 
   <%= render layout: "components/ui/card", locals: { title: "Your details" } do %>
-    <%= form_with model: @user, scope: :user, url: profile_path, method: :patch, class: "space-y-5" do |f| %>
+    <%# `scope: :user` survives the builder, and it is load-bearing: `User` is an STI base, so
+        `form_with model:` alone derives the param key from the record's class and a Student would post
+        `student[name]` to a controller expecting `user`. That is a 400 on every submit, and a controller
+        test that hand-writes its params cannot see it. %>
+    <% email_hint = current_user.email_required? ? "Used to reset your password." : "Optional. Used to reset your password if you have one." %>
+    <%= form_with model: @user, scope: :user, url: profile_path, method: :patch,
+                  builder: Ui::FormBuilder, class: "contents" do |f| %>
       <%= render "profiles/errors", user: @user, on: %i[name email] %>
 
-      <div>
-        <%= f.label :name, "Display name", class: "tw-label-primary mb-1" %>
-        <%= f.text_field :name, autocomplete: "name", class: "tw-input-primary" %>
-        <p class="tw-field-hint">
-          Shown on your portfolio and in the account menu. Leave it blank to use your username.
-        </p>
-      </div>
+      <%= f.text_field :name,
+                       label: "Display name",
+                       autocomplete: "name",
+                       hint: "Shown on your portfolio and in the account menu. Leave it blank to use " \
+                             "your username." %>
 
-      <div>
-        <%= f.label :email, "Email address", class: "tw-label-primary mb-1" %>
-        <%= f.email_field :email, autocomplete: "email", class: "tw-input-primary" %>
-        <p class="tw-field-hint">
-          <%= current_user.email_required? ? "Used to reset your password." : "Optional. Used to reset your password if you have one." %>
-        </p>
-      </div>
+      <%= f.email_field :email, label: "Email address", autocomplete: "email", hint: email_hint %>
 
-      <div>
-        <%# Read-only rather than disabled: a disabled field is skipped by keyboard navigation, so
-            the value a student needs to remember becomes unreachable. %>
-        <%= f.label :username, "Username", class: "tw-label-primary mb-1" %>
-        <%= f.text_field :username, readonly: true, class: "tw-input-primary bg-slate-50 text-slate-600" %>
-        <p class="tw-field-hint">You sign in with this. Ask your teacher if it needs to change.</p>
-      </div>
+      <%# Read-only rather than disabled: a disabled field is skipped by keyboard navigation, so the
+          value a student needs to remember becomes unreachable. %>
+      <%= f.text_field :username,
+                       label: "Username",
+                       readonly: true,
+                       class: "bg-slate-50 text-slate-600",
+                       hint: "You sign in with this. Ask your teacher if it needs to change." %>
 
       <%= f.submit "Save details", class: "tw-btn-primary" %>
     <% end %>
   <% end %>
 
   <%= render layout: "components/ui/card", locals: { title: "Password" } do %>
-    <%= form_with model: @user, scope: :user, url: password_profile_path, method: :patch, class: "space-y-5" do |f| %>
+    <% length_hint = "#{@minimum_password_length} characters minimum" if @minimum_password_length %>
+    <%= form_with model: @user, scope: :user, url: password_profile_path, method: :patch,
+                  builder: Ui::FormBuilder, class: "contents" do |f| %>
       <%= render "profiles/errors", user: @user, on: %i[current_password password password_confirmation] %>
 
-      <div>
-        <%= f.label :current_password, "Current password", class: "tw-label-primary mb-1" %>
-        <%= f.password_field :current_password,
-                             autocomplete: "current-password",
-                             class: "tw-input-primary" %>
-      </div>
+      <%= f.password_field :current_password,
+                           label: "Current password",
+                           autocomplete: "current-password" %>
 
-      <div>
-        <%= f.label :password, "New password", class: "tw-label-primary mb-1" %>
-        <%= f.password_field :password, autocomplete: "new-password", class: "tw-input-primary" %>
-        <% if @minimum_password_length %>
-          <p class="tw-field-hint"><%= @minimum_password_length %> characters minimum</p>
-        <% end %>
-      </div>
+      <%= f.password_field :password,
+                           label: "New password",
+                           autocomplete: "new-password",
+                           hint: length_hint %>
 
-      <div>
-        <%= f.label :password_confirmation, "Confirm new password", class: "tw-label-primary mb-1" %>
-        <%= f.password_field :password_confirmation,
-                             autocomplete: "new-password",
-                             class: "tw-input-primary" %>
-      </div>
+      <%= f.password_field :password_confirmation,
+                           label: "Confirm new password",
+                           autocomplete: "new-password" %>
 
       <%# Secondary, not primary: design.md allows one filled primary per page and "Save details"
           above is this page's main action. A second card's submit is the sub-form case. %>

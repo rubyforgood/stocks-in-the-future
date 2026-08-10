@@ -4,14 +4,14 @@ require "application_system_test_case"
 
 # One field shape across every form in the app.
 #
-# There were seven. `Admin::FormBuilder` backed nine forms with `rounded-md`, a border faked from
+# There were seven. `Ui::FormBuilder` backed nine forms with `rounded-md`, a border faked from
 # `ring-1 ring-inset ring-gray-300`, an off-brand `blue-600` focus ring, an `sm:` tier this app does
 # not use, and **`placeholder:text-gray-400` at 2.54:1** - a straight AA failure on every placeholder
 # it rendered. The grade book's selects focused `indigo-500`. The two student forms, the admin search
 # filter and two devise pages each wrote their own. `tw-input-primary` existed the whole time and one
 # view used it.
 #
-# The subtle one: passing `tw-input-primary` to `Shadcn::FormBuilder` looked like it worked and did
+# The subtle one: passing `tw-input-primary` to the old shadcn builder looked like it worked and did
 # not. That builder prepends its own shadcn base, so the field carried both strings - and because
 # utilities beat component classes, the shadcn ones won. Sign in and sign up, the two pages every
 # user sees first, kept a 40px `rounded-md` field while everything else moved.

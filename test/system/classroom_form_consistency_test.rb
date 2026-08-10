@@ -49,7 +49,7 @@ class ClassroomFormConsistencyTest < ApplicationSystemTestCase
 
     visit new_admin_classroom_path
     fill_in "Name", with: "5B"
-    select "Oak Primary", from: "School name"
+    select "Oak Primary", from: "School"
     select "2026", from: "Year"
     check "5th Grade"
 
@@ -76,7 +76,7 @@ class ClassroomFormConsistencyTest < ApplicationSystemTestCase
 
     visit new_admin_classroom_path
     fill_in "Name", with: "5C"
-    select School.first.name, from: "School name"
+    select School.first.name, from: "School"
     select Year.first.name, from: "Year"
     check "5th Grade"
     check teacher.display_name

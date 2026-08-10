@@ -3,7 +3,7 @@
              locals: { title: "Edit student",
                        description: "Changes apply everywhere this student appears." } do %><% end %>
 
-  <%= form_with model: [@classroom, @student] do |f| %>
+  <%= form_with model: [@classroom, @student], builder: Ui::FormBuilder do |f| %>
     <%= render "shared/form_errors", record: @student, subject: "student" %>
 
     <%# `.tw-card`, not a hand-rolled surface. This was `bg-white shadow-sm overflow-hidden lg:rounded-md`:
@@ -16,36 +16,25 @@
         capped at 672px. A single-column stack is what GOV.UK, Polaris and Tailwind UI use for a short
         form, and one field per row is what makes a form scannable. %>
     <div class="tw-card p-5">
-      <div class="space-y-5">
+      <div>
         <%# `users.name` has existed the whole time and `User#display_name` prefers it, but nothing ever
             collected it - so every student's name was nil and every screen fell back to a lowercased
             username. Reported as "why are all the student names lowercase": they were not names. Required
             here, on the form, rather than on every create: bulk CSV import takes a username and a
             classroom id and nothing else, so a model-wide requirement would fail every row of a class
             being onboarded. See Student. %>
-        <div>
-          <%= f.label :name, class: "tw-label-primary" do %>
-            Full name<span class="required-indicator">*</span>
-          <% end %>
-          <%= f.text_field :name,
-                           class: "tw-input-primary",
-                           required: true,
-                           placeholder: "e.g., Jordan Smith" %>
-          <p class="mt-2 text-sm text-slate-600">
-            Shown instead of the username wherever this student appears. A roster of usernames alone is
-            hard to read.
-          </p>
-        </div>
+        <%# The hint sits under the label, above the input - see the note in students/new. %>
+        <%= f.text_field :name,
+                         label: "Full name",
+                         required: true,
+                         placeholder: "e.g., Jordan Smith",
+                         hint: "Shown instead of the username wherever this student appears. A roster " \
+                               "of usernames alone is hard to read." %>
 
-        <div>
-          <%= f.label :username, class: "tw-label-primary" do %>
-            Username<span class="required-indicator">*</span>
-          <% end %>
-          <%= f.text_field :username, class: "tw-input-primary", required: true %>
-          <p class="mt-2 text-sm text-slate-600">
-            What the student signs in with. Changing it changes how they sign in.
-          </p>
-        </div>
+        <%= f.text_field :username,
+                         label: "Username",
+                         required: true,
+                         hint: "What the student signs in with. Changing it changes how they sign in." %>
       </div>
     </div>
 

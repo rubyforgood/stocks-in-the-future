@@ -1,6 +1,17 @@
 # frozen_string_literal: true
 
-module Admin
+# The app's form builder, for both halves of the product.
+#
+# It was `Ui::FormBuilder`, and the name was the problem: the nine admin forms were built from it while
+# the app half wrote its fields out by hand. The two agreed on tokens - tw-input-primary, tw-label-primary,
+# 44px, p-5 - and disagreed on construction, which is the drift mechanism this codebase keeps
+# rediscovering: four card paddings, two button bases, two definitions of a field message.
+#
+# Named for `app/views/components/ui/`, which is where the rest of the shared UI lives.
+#
+# The shape is label, hint, input, error - what GOV.UK, Polaris, Carbon and Material all specify, and the
+# reason the admin forms read better than the hand-written ones.
+module Ui
   # rubocop:disable Metrics/ClassLength
   class FormBuilder < ActionView::Helpers::FormBuilder
     # The named classes from forms.css, not a second set of strings. These were the app's
@@ -15,6 +26,8 @@ module Admin
     CHECKBOX_CLASSES = "size-4 shrink-0 rounded-sm border-slate-300 accent-sitf-primary " \
                        "focus-visible:outline-2 focus-visible:outline-offset-2 " \
                        "focus-visible:outline-sitf-primary"
+
+    LABEL_TEXT_CLASSES = "min-w-0 text-sm font-medium text-slate-900"
 
     INPUT_ERROR_CLASSES = "tw-input-error"
     LABEL_CLASSES = "tw-label-primary"
@@ -115,21 +128,22 @@ module Admin
     end
 
     # Boolean field (checkbox) with proper styling
+    # A lone checkbox - an opt-in, which is what GOV.UK reserves a single checkbox for.
+    #
+    # Same wrapped-label row as a group's item, so the two read alike, with the hint indented to the
+    # label's text column rather than starting under the box: `pl-7` is the 16px box plus the 12px gap.
+    # GOV.UK indents a checkbox's hint the same way, and it is what makes the sentence belong to that
+    # option rather than to the form.
     def boolean_field(attribute, options = {})
       hint = options.delete(:hint)
       label_text = options.delete(:label) || attribute.to_s.humanize
 
-      @template.content_tag(:div, class: "relative flex items-start py-4") do
-        @template.content_tag(:div, class: "flex h-6 items-center") do
-          check_box(
-            attribute,
-            class: CHECKBOX_CLASSES
-          )
+      @template.content_tag(:div, class: "mb-6") do
+        @template.content_tag(:label, class: "flex items-center gap-3") do
+          check_box(attribute, class: CHECKBOX_CLASSES) +
+            @template.content_tag(:span, label_text, class: "#{LABEL_CLASSES} mb-0")
         end +
-          @template.content_tag(:div, class: "ml-3 text-sm leading-6") do
-            label(attribute, label_text, class: "font-medium text-slate-900") +
-              (hint ? @template.content_tag(:p, hint, class: HINT_CLASSES) : "".html_safe)
-          end
+          (hint ? @template.content_tag(:p, hint, class: "mt-1 pl-7 text-sm text-slate-600") : "".html_safe)
       end
     end
 
@@ -143,10 +157,22 @@ module Admin
       # belongs to the group and Rails would otherwise attach it to whichever box it rendered first. This is
       # `FormErrorsHelper#field_error`, the same call `classrooms/_form` makes for its fieldsets, so a group's
       # message and a field's are one component rather than two that drift.
+      required = options.delete(:required)
+      # The attribute the *errors* are on, which is not always the one the field posts. A classroom's
+      # grades come in as `grade_ids` and the validation is on `grades`, so without this the fieldset is
+      # never marked invalid and the group's message never renders - which is exactly what happened, and
+      # what the hand-written fieldset it replaced got right by naming both.
+      errors_on = options.delete(:errors_on) || attribute
+      error_attrs = @template.field_error_attrs(object, errors_on)
+
+      # `<fieldset>` with `aria-invalid` / `aria-describedby` from FormErrorsHelper, so assistive tech ties
+      # the group to its message - the same call the hand-written fieldsets make.
       @template.content_tag(:div, class: "mb-6 #{wrapper_class}") do
-        build_checkbox_collection_label(label_text, hint) +
-          build_checkbox_collection_items(attribute, collection, value_method, text_method) +
-          (@template.field_error(object, attribute) || "".html_safe)
+        @template.tag.fieldset(**error_attrs) do
+          build_checkbox_collection_label(label_text, hint, required:) +
+            build_checkbox_collection_items(attribute, collection, value_method, text_method) +
+            (@template.field_error(object, errors_on) || "".html_safe)
+        end
       end
     end
 
@@ -257,50 +283,69 @@ module Admin
     end
 
     # Build checkbox collection label and hint
-    def build_checkbox_collection_label(label_text, hint)
-      @template.content_tag(:label, label_text, class: LABEL_CLASSES) +
-        (hint ? @template.content_tag(:p, hint, class: HINT_CLASSES) : "".html_safe)
+    # A `<legend>`, not a `<label>`.
+    #
+    # A label has to point at one control, and a group of checkboxes has no single control to point at -
+    # so this rendered a label naming nothing, and the group had no accessible name at all. That is the
+    # bug `classrooms/_form` was rebuilt to fix, by hand; it belongs here, where every group gets it.
+    # GOV.UK, Polaris and Primer all use a fieldset for this.
+    def build_checkbox_collection_label(label_text, hint, required: false)
+      @template.content_tag(:legend, class: LABEL_CLASSES) do
+        @template.safe_join([label_text, required_indicator(required)])
+      end + (hint ? @template.content_tag(:p, hint, class: "#{HINT_CLASSES} mb-3") : "".html_safe)
     end
 
     # Build checkbox collection items
     def build_checkbox_collection_items(attribute, collection, value_method, text_method)
-      @template.content_tag(:div, class: "mt-2 space-y-2") do
-        collection.map do |item|
-          build_single_checkbox(attribute, item, value_method, text_method)
-        end.join.html_safe # rubocop:disable Rails/OutputSafety
-      end
+      # One empty value ahead of the boxes, so unchecking everything submits an empty list rather than
+      # omitting the key - without it the parameter is simply absent and the record keeps what it had, so
+      # clearing a group silently does nothing and reports a save that worked. `id: nil` because it would
+      # otherwise take the same derived id as every checkbox below it.
+      @template.hidden_field_tag("#{object_name}[#{attribute}][]", "", id: nil) +
+        @template.content_tag(:div, class: "mt-2 space-y-2") do
+          collection.map do |item|
+            build_single_checkbox(attribute, item, value_method, text_method)
+          end.join.html_safe # rubocop:disable Rails/OutputSafety
+        end
     end
 
     # Build a single checkbox item
+    # `text_method` may be a symbol or a callable, the same latitude `build_select_choice` already gives a
+    # select's label. A callable lets an item be more than one line - the teacher picker shows a name over
+    # an email, because two teachers whose names begin with T are told apart by the email and nothing else
+    # - without that group having to be written out by hand, which is how it came to be the one group in
+    # the app with its own fieldset markup.
+    # `text_method` may be a symbol or a callable, the same latitude `build_select_choice` already gives a
+    # select's label. A callable lets an item be more than one line - the teacher picker shows a name over
+    # an email, because two teachers whose names begin with T are told apart by the email and nothing else.
+    #
+    # **The whole row is the `<label>`**, with the box inside it, rather than a `for=` pointing across two
+    # sibling divs. Both are valid, and GOV.UK does the latter - but wrapping makes the row's whole width a
+    # hit target, which matters for students on phones, and it is the shape the app's own geometry tests
+    # measure. No `px-*`: horizontal padding here pushes the box off the form's left edge, which was
+    # reported once as the teacher checkbox looking misaligned - against the gutter, not its own label.
     def build_single_checkbox(attribute, item, value_method, text_method)
       value = item.send(value_method)
-      text = item.send(text_method)
-      checkbox_id = "#{object_name}_#{attribute}_#{value}"
+      text = text_method.respond_to?(:call) ? text_method.call(item) : item.send(text_method)
       checked = Array(object.send(attribute)).include?(value)
 
-      @template.content_tag(:div, class: "relative flex items-start") do
-        build_checkbox_input(attribute, value, checked, checkbox_id) +
-          build_checkbox_label(checkbox_id, text)
-      end
-    end
+      # The weight goes on a plain label and **not** on a custom one. A callable supplies its own markup -
+      # the teacher picker's name over an email - and a `font-medium` wrapper around both makes the email
+      # fight it back with `font-normal`, a rule whose only job is to undo another rule. It also makes the
+      # wrapper the thing that reads as "the label", when the label is its first line.
+      text_class = text_method.respond_to?(:call) ? "min-w-0 text-sm text-slate-900" : LABEL_TEXT_CLASSES
 
-    # Build checkbox input element
-    def build_checkbox_input(attribute, value, checked, checkbox_id)
-      @template.content_tag(:div, class: "flex h-6 items-center") do
+      @template.content_tag(
+        :label,
+        class: "flex items-start gap-3 rounded-lg py-2 transition-colors " \
+               "hover:bg-slate-50"
+      ) do
         @template.check_box_tag(
-          "#{object_name}[#{attribute}][]",
-          value,
-          checked,
-          id: checkbox_id,
-          class: CHECKBOX_CLASSES
-        )
-      end
-    end
-
-    # Build checkbox label element
-    def build_checkbox_label(checkbox_id, text)
-      @template.content_tag(:div, class: "ml-3 text-sm leading-6") do
-        @template.label_tag(checkbox_id, text, class: "font-medium text-slate-900")
+          "#{object_name}[#{attribute}][]", value, checked,
+          id: "#{object_name}_#{attribute}_#{value}",
+          class: "mt-0.5 #{CHECKBOX_CLASSES}"
+        ) +
+          @template.content_tag(:span, text, class: text_class)
       end
     end
 
@@ -317,17 +362,35 @@ module Admin
       # A select is a text-like control as far as the proc is concerned, so it gets its message from there
       # too - see the note in field_wrapper. This is the second of the two places that appended one.
       @template.content_tag(:div, class: "mb-6 #{wrapper_class}") do
-        build_label(attribute, label_text) +
+        build_label(attribute, label_text, required: remaining_html_options[:required]) +
           build_hint(hint) +
           build_select_field(attribute, choices, select_options, remaining_html_options, &)
       end
     end
 
     # Build label element
-    def build_label(attribute, label_text)
+    def build_label(attribute, label_text, required: false)
       return "".html_safe unless label_text
 
-      label(attribute, label_text, class: LABEL_CLASSES)
+      decorated_label(attribute, label_text, required:)
+    end
+
+    # The label, and the asterisk that says the field is required.
+    #
+    # design.md asks for a visible required marker, and the hand-written forms carried one while the nine
+    # forms built here did not - so on the admin half nothing distinguished a field you must fill from one
+    # you may. `aria-hidden` on the mark: it is a visual convention, and the control's own `required`
+    # attribute is what assistive tech reads.
+    def decorated_label(attribute, label_text, required: false)
+      label(attribute, class: LABEL_CLASSES) do
+        @template.safe_join([label_text, required_indicator(required)])
+      end
+    end
+
+    def required_indicator(required)
+      return "".html_safe unless required
+
+      @template.content_tag(:span, "*", class: "required-indicator", "aria-hidden": "true")
     end
 
     # Build hint element
@@ -361,6 +424,7 @@ module Admin
       label_text = options.delete(:label) || attribute.to_s.humanize
       hint = options.delete(:hint)
       wrapper_class = options.delete(:wrapper_class) || ""
+      required = options[:required]
 
       # No error message here. `config/initializers/field_error_proc.rb` renders one for every text-like
       # control and every select - which is all of them, since the checkbox builders below do not use this
@@ -370,7 +434,7 @@ module Admin
       # The proc's version is the one to keep: it carries the attribute's name, so the field and the summary
       # say the same thing, and it is the same component the app half uses.
       @template.content_tag(:div, class: "mb-6 #{wrapper_class}") do
-        label(attribute, label_text, class: LABEL_CLASSES) +
+        decorated_label(attribute, label_text, required:) +
           (hint ? @template.content_tag(:p, hint, class: HINT_CLASSES) : "".html_safe) +
           @template.content_tag(:div, class: "mt-2", &)
       end

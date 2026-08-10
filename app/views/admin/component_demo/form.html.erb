@@ -14,10 +14,10 @@
 
       The panel had to go regardless: with an environment banner at the top of the page, a second tinted
       panel immediately under it is two banners stacked, and the second one was describing the subject of
-      the page rather than warning about anything. `Admin::FormBuilder` keeps its capitals - a class name. %>
+      the page rather than warning about anything. `Ui::FormBuilder` keeps its capitals - a class name. %>
   <%= render layout: "components/ui/page_header",
              locals: { title: "Form builder demo",
-                       description: "Admin::FormBuilder renders every field type with consistent " \
+                       description: "Ui::FormBuilder renders every field type with consistent " \
                                     "styling, inline errors, associations, currency fields and rich " \
                                     "text." } do %><% end %>
 
@@ -26,7 +26,7 @@
     <div class="p-5">
       <h2 class="text-xl font-semibold text-slate-900 mb-6">Sample form</h2>
 
-      <%= form_with model: @user, url: "#", builder: Admin::FormBuilder, class: "space-y-6" do |f| %>
+      <%= form_with model: @user, url: "#", builder: Ui::FormBuilder, class: "space-y-6" do |f| %>
         <%# Text Fields %>
         <div class="border-b border-slate-200 pb-6">
           <h3 class="text-lg font-medium text-slate-900 mb-4">Text fields</h3>
@@ -144,7 +144,7 @@
       <div class="space-y-6">
         <div>
           <h3 class="text-sm font-semibold text-slate-900 mb-3">Basic form setup</h3>
-          <pre class="text-xs bg-slate-50 p-4 rounded border border-slate-200 overflow-x-auto"><code>&lt;%= form_with model: @resource, builder: Admin::FormBuilder do |f| %>
+          <pre class="text-xs bg-slate-50 p-4 rounded border border-slate-200 overflow-x-auto"><code>&lt;%= form_with model: @resource, builder: Ui::FormBuilder do |f| %>
   &lt;%= f.text_field :name, label: "Name", hint: "Enter the resource name" %>
   &lt;%= f.submit_button "Save" %>
 &lt;% end %></code></pre>

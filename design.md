@@ -2005,6 +2005,40 @@ different geometry, which moves every column at the boundary. In a cell an absen
 from the day it was written and never rendered an exchange, while `stock_exchange` sat populated on every
 active stock and was shown only on `stocks#show`.
 
+### One builder, and the shape it enforces
+**Every entity form on both halves is `Ui::FormBuilder`.** It was `Admin::FormBuilder`, and the name was
+the problem: nine admin forms were built from it while the app half wrote its fields out by hand and the
+four Devise pages used a third builder entirely. All three agreed on tokens and disagreed on
+construction - which is the drift mechanism this document keeps recording, and it had already produced
+its result: sign in and sign up kept a 40px `rounded-md` field while every other form moved to 44px
+`rounded-lg`, because a builder that prepends its own base to whatever `class:` it is handed wins on
+utility order. Measured after the conversion: 44px and an 8px radius on every form in the app.
+
+**The shape is label, hint, input, error.** GOV.UK, Polaris, Carbon and Material all order it that way -
+the hint tells you what to type *before* you type it. Two app-side forms had the hint below the control;
+that is the hand-written shape and it is gone.
+
+Four things the builder had to learn from the forms it replaced, all of which a conversion would
+otherwise have quietly dropped:
+
+- **A required indicator.** The hand-written forms marked required fields and the nine admin forms did
+  not, so on that half nothing distinguished a field you must fill from one you may.
+- **A `<fieldset>` with a `<legend>` for a group.** A `<label>` has to point at one control and a group
+  has none, so the group had no accessible name at all. `errors_on:` goes with it: a group's errors are
+  often on a different attribute than the one it posts - `grade_ids` posts, `grades` validates - and
+  without naming both, the fieldset is never marked invalid and its message never renders.
+- **The hidden empty value ahead of the boxes.** Without it, unchecking everything omits the parameter
+  and the record keeps what it had: clearing a group silently does nothing and reports a save that
+  worked.
+- **A checkbox row is a `<label>` wrapping its box**, not a `for=` across two sibling divs. Both are
+  valid HTML and GOV.UK does the latter; wrapping makes the row's whole width a hit target, which
+  matters for students on phones.
+
+**A custom label owns its own typography.** `collection_check_boxes` accepts a callable for the label
+text - the teacher picker renders a name over an email - and the builder does not impose `font-medium`
+on it. A weight on the wrapper made the email fight back with `font-normal`, a rule whose only job is to
+undo another rule, and it made the wrapper rather than the first line read as "the label".
+
 ### One form per model, not one per namespace
 **A model gets one form, rendered wherever it is needed.** `/classrooms/new` and
 `/admin/classrooms/new` were two forms for one model and had drifted into two products: one asked for a
@@ -2021,6 +2055,23 @@ because a shared partial only works if both sides agree about what it posts.
 **The industry-standard field shape is label, hint, input, error** - GOV.UK, Polaris, Carbon and Material
 all order it that way, and the admin builder already did. That is why the admin form read better: the
 hint sat under its label, above the control it governs, and every field had one. It is the shape to keep.
+
+### Validate the fields the form has
+**An error must land on a control the reader can see.** `Classroom` belongs to a SchoolYear and no form
+asks for one - both halves offer a **School** and a **Year**, and the pair is found-or-created - so
+every failure reported "School year must exist" with neither select marked. The reader was told about
+something that is not on the page.
+
+`SchoolYearFields` accepts what the forms post: `school_id` and `year_id` are virtual attributes,
+resolved into the association on validation, and the validation is on them. Three details are decisions:
+
+- **The readers fall back to the association only when nothing was assigned.** Falling back always means
+  an empty select silently keeps the old value and reports a save that worked.
+- **The association satisfies the check when it was assigned directly** - a seed, a factory, a console.
+  Those hand over a SchoolYear whole, and it may be unsaved, so checking its ids rather than its presence
+  would fail a valid `build`.
+- **`find_or_initialize_by` with `autosave`,** not find-or-create before the save. The controllers used
+  to resolve it eagerly, which left an orphan SchoolYear behind every failed submit.
 
 ### One field-level message, from one place
 **A field shows one message.** Every invalid admin field showed **two**: "Name can't be blank" from

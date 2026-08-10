@@ -2,14 +2,14 @@
 
 module Admin
   module FormHelper
-    # Creates a form using the Admin::FormBuilder
+    # Creates a form using the Ui::FormBuilder
     # Usage: admin_form_for @resource do |f|
     #          f.text_field :name
     #          f.email_field :email
     #          f.submit_button
     #        end
     def admin_form_for(record, options = {}, &)
-      options[:builder] = Admin::FormBuilder
+      options[:builder] = Ui::FormBuilder
       options[:html] ||= {}
       options[:html][:class] = "space-y-6 #{options[:html][:class]}"
 

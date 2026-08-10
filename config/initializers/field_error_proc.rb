@@ -2,9 +2,10 @@
 
 # Every invalid field shows a rose border **and** a visible message, so the error is never carried by
 # colour alone (WCAG 1.4.1). design.md specifies this as automatic app-wide rather than per call site,
-# which is the only way the hand-written forms get it: `Admin::FormBuilder` and `Shadcn::FormBuilder`
-# already swap `tw-input-primary` for `tw-input-error` themselves, but `classrooms/_form`,
-# `students/new` and `students/edit` write their inputs by hand and had no error treatment at all.
+# which is the only way a hand-written field gets it. Every entity form is on `Ui::FormBuilder` now, which
+# swaps `tw-input-primary` for `tw-input-error` itself, but this still covers anything written by hand -
+# and it is the **only** thing that renders a field-level *message*: the builder used to append one too,
+# which put two under every invalid admin field.
 #
 # Rails calls this for the **label** as well as the field, and for hidden, checkbox and radio inputs.
 # Only a text-like control is touched: a message under a hidden field would appear from nowhere, and a

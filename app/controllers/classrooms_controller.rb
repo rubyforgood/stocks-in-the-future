@@ -32,9 +32,7 @@ class ClassroomsController < ApplicationController
   end
 
   def create
-    @classroom = Classroom.new(classroom_attributes)
-    assign_school_year_to_classroom
-
+    @classroom = Classroom.new(classroom_params)
     if @classroom.save
       redirect_to classroom_url(@classroom), notice: t(".notice")
     else
@@ -44,9 +42,7 @@ class ClassroomsController < ApplicationController
   end
 
   def update
-    assign_school_year_to_classroom
-
-    if @classroom.update(classroom_attributes)
+    if @classroom.update(classroom_params)
       redirect_to classroom_url(@classroom), notice: t(".notice")
     else
       classroom_form_data

@@ -40,8 +40,7 @@ module Admin
     end
 
     def create
-      @classroom = Classroom.new(classroom_attributes)
-      assign_school_year_to_classroom
+      @classroom = Classroom.new(classroom_params)
 
       if @classroom.save
         redirect_to admin_classroom_path(@classroom), notice: t(".notice")
@@ -55,9 +54,7 @@ module Admin
     end
 
     def update
-      assign_school_year_to_classroom
-
-      if @classroom.update(classroom_attributes)
+      if @classroom.update(classroom_params)
         redirect_to admin_classroom_path(@classroom), notice: t(".notice")
       else
         @breadcrumbs = [

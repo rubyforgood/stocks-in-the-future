@@ -5,7 +5,8 @@ class Classroom < ApplicationRecord
   MAX_GRADE = 8
   GRADE_RANGE = (MIN_GRADE..MAX_GRADE).to_a.freeze
 
-  belongs_to :school_year
+  include SchoolYearFields
+
   has_one :school, through: :school_year
   has_one :year, through: :school_year
 

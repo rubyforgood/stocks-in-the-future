@@ -751,19 +751,12 @@ and adding a band there once put the first student at 567px of 625px. So it goes
 and the question to answer first is whether a teacher would scroll to it, or whether it wants its own
 page.
 
-## The remaining form drift, and one error that points at no field (2026-08)
+## The remaining form drift, and one error that points at no field (2026-08) - DONE
 
 The classroom pair is unified. Two things it surfaced and did not finish:
 
-**Nine admin forms still use `Admin::FormBuilder` while the app half writes its fields by hand.** The
-builder's shape - label, hint, input - is the standard one, and the hand-written forms should be built
-from it rather than the reverse. That is a rename (it is not admin-only any more) plus a conversion of
-`students/new`, `students/edit`, `profile` and the Devise forms, and it should carry a migration map
-before any code moves. Until then the two halves agree on tokens and disagree on construction, which is
-exactly how `px-6 py-6` and four card paddings happened.
+**Both are done.** `Ui::FormBuilder` builds every entity form on both halves - the map is in
+migration.md - and `SchoolYearFields` moved the validation onto the two fields the forms actually have.
 
-**"School year must exist" names a field the form does not have.** The form asks for a School and a
-Year, and the error lands on the association. Nothing is marked, and the reader is told about a thing
-that is not on the page. The fix is a message naming the two fields, or errors copied onto `school_id`
-and `year_id`, or a form object - not obviously any one of them, which is why it is written down rather
-than guessed at.
+What is left, and deliberately not done: the component gallery still renders three of eleven partials,
+which is its own entry above.

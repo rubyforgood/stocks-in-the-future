@@ -1,4 +1,4 @@
-<%= form_with model: portfolio_transaction, url: portfolio_transaction.persisted? ? admin_portfolio_transaction_path(portfolio_transaction) : admin_portfolio_transactions_path, builder: Admin::FormBuilder, class: "space-y-6" do |f| %>
+<%= form_with model: portfolio_transaction, url: portfolio_transaction.persisted? ? admin_portfolio_transaction_path(portfolio_transaction) : admin_portfolio_transactions_path, builder: Ui::FormBuilder, class: "space-y-6" do |f| %>
   <%= render "shared/form_errors", record: portfolio_transaction, subject: "transaction" %>
 
   <div class="tw-card">
