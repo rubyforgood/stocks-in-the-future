@@ -176,9 +176,12 @@ written against them renders no colour at all.
   (`space-y-6` on the wrapper, which is what `classrooms#show` uses -- note that `mt-6` on the first
   child of a header block collapses against the header's own `mb-6` and measures nothing).
 
-  **There is no pagination.** Every index renders its whole collection, so no page has a table footer;
-  a classroom is ~25 students and the stock list is curated. Adding one is a real change, not a
-  styling decision -- it needs the sort links to survive the page parameter.
+  **Nothing paginates.** `admin/shared/_pagination` exists and `admin/shared/_table` renders it as an
+  in-card footer, but it is guarded on `collection.total_pages > 1` and **no controller paginates**, so
+  it has never appeared: every index renders its whole collection. A classroom is ~25 students and the
+  stock list is curated, so that is fine today. Turning it on is a controller change rather than a
+  styling one, and the thing to check is that `sort_link` and any filter params survive the page
+  parameter.
 
   Verify these gaps at the pixel level (filter-bottom -> table-top), not by reading tokens;
   `test/system/spacing_test.rb` and `test/system/page_rhythm_test.rb` do exactly that.
@@ -3894,8 +3897,9 @@ Money and counts are **right-aligned with `tabular-nums`** so digits line up dow
 satisfied that by accident because every other one ends in actions; the one that does not was the one
 that looked wrong.
 
-Sorting is **server-side** (`sort_link`, params). There is no pagination and no bulk select --
-see the page-rhythm note above. Keep the `thead` even when a table is empty and put an empty-state
+Sorting is **server-side** (`sort_link`, params). There is no bulk select, and nothing paginates --
+the footer partial exists but no controller ever gives it a paginated collection, so see the note
+under page rhythm before assuming a table has one. Keep the `thead` even when a table is empty and put an empty-state
 row in the `tbody` (`admin/shared/_empty_row` wraps `_empty_state` for this), and remember its
 `colspan` when a column is added or removed.
 
@@ -4462,39 +4466,46 @@ restyling a destructive control, run it.
   page end).
 - **Sidebar nav order** (**not** alphabetical -- alphabetical is arbitrary vs. how people work):
   **Dashboard first (ungrouped), Settings pinned to the bottom** (`mt-auto` + its own divider), the
-  middle **grouped by domain, ordered by frequency** -- Records (Volunteers, Supervisors, Cases) /
-  Activity (Case contacts, Court reports, Learning hours, Other duties, Reimbursements) / Reporting
-  (Reports, Analytics). **Court reports sits in Activity, not Reporting**: it is a per-case document a
-  volunteer or supervisor produces as part of casework, next to the contacts it summarises -- Reporting
-  is the org-wide, cross-case view (Reports, Analytics). Each middle group wears an **uppercase section
-  label** (`text-xs
-  font-semibold uppercase tracking-wide text-slate-500`, `mt-4` above); the label does the separating,
-  so there are **no between-group dividers** -- the only divider sits above the pinned Settings. Each
-  group is a `role="group"` with an **`aria-label`** (the visible label is `aria-hidden` so it isn't
-  announced twice); a group whose every item is policy-gated out **renders nothing -- no orphan
-  label**. Built from a `nav_groups` array + the `layouts/_nav_link` partial in `layouts/the app layout`.
+  middle **grouped by domain, ordered by frequency**. The admin sidebar's groups are Academic
+  (Classrooms, Schools, School years) / Users (Students, Teachers, Users) / Portfolio (Stocks,
+  Transactions) / Content (Announcements), with Dashboard ungrouped at the top. The app side is a
+  short flat list -- Portfolio, Transactions, Trading floor -- and needs no groups at all.
+
+  Each group wears a section label at `text-xs font-semibold text-slate-500`. **Not uppercase**, which
+  is where this diverges from the spec it inherited: the copy rule here forbids the `uppercase`
+  transform on labels and says to use size, weight and colour for hierarchy, and a nav heading is not
+  exempt. The label does the separating, so there are **no between-group dividers**. A group whose
+  every item is policy-gated out **renders nothing -- no orphan label**. It is built from an array in
+  `admin/shared/_navigation` plus a shared row partial, which is what makes "apply it to both sides"
+  mechanical rather than a sweep.
+
+  **A nav is not a catalogue.** Trading floor was a `<details>` disclosure listing every active stock,
+  which put the contents of a page into the navigation of it. It is one row now.
 - **Top bar** (`border-b border-slate-200 bg-white/80 backdrop-blur`): mobile nav
   toggle, notifications, and the avatar **account menu** — the single place for identity
   + account actions (no duplicate identity block in the sidebar). Its header shows name,
-  email, and a **role badge** — `current_role` as a soft pill colour-coded by role
-  (Volunteer = sky, Supervisor = violet, Stocks in the Future Admin = amber) — the single place the
-  user's role is surfaced.
-- **Content**: `bg-slate-50`, generous padding, cards. Org announcement banners render
-  at the top of the content area (`layouts/_stocks_in_the_future_banner`). Full org logo is reserved for
-  contexts with room (sign-in, court reports / exports), not the shell.
-- **Impersonation banner** (`layouts/_impersonation_banner`, above the top bar): when
-  `current_user != true_user`, a full-width amber-400 bar (amber-950 ink, ~8:1) whose whole
-  surface is the "stop impersonating" link. It carries a `.header` hook because the volunteer
-  edit spec asserts the banner text `within(".header")` after impersonating lands on a
-  an app-layout page.
-- **Flash strip parity**: each flash div carries a base `alert` class **plus** the flash key
-  (`.notice` / `.alert` / ...) *and* the a11y `role` (`status`/`alert`). This mirrors the Bootstrap
-  `_flash_messages` mapping (`flash_class` -> `"alert notice ..."`, so every flash box is an
-  `.alert`), which lets both legacy hooks match on the app layout: `.notice` for the SweetAlert-notifier
-  specs (e.g. a create that redirects to a migrated edit page), and `.alert` for the shared
-  not-authorized redirect — that message is delivered as `flash[:notice]` (locked by ~dozens of
-  request specs, so the key can't change), and only reads as an alert because the base class is
-  always present. The classes are no-ops on Tailwind (styling is by role/type).
+  email, and the user's **role**, which is the single place it is surfaced.
+- **Content**: `bg-slate-50`, cards, and **one content column declared by the layout** around both
+  `yield` and the flash -- not per page. Announcements render at the top of the content area. The full
+  logo is reserved for contexts with room, like sign-in, not the shell.
+
+  Read the actual `<main>` before removing a page's padding: there are three of them here and they
+  disagreed. The signed-in layout was `px-4 lg:px-6 ... mt-16 pb-6` -- sides and bottom only, with the
+  `mt-16` clearing the fixed nav rather than padding anything -- while the signed-out branch and
+  admin's inner wrapper both had `p-4 lg:p-6`. Removing per-page padding citing "main's `p-4 lg:p-6`"
+  was right for two of the three and put every signed-in page's title flush against the nav.
+
+  Wrapping `yield` also **moves every selector that reaches through `main`**. `main > div` used to be
+  the page and is now the content column, so a spacing test reading `main > div > *` got a single
+  element, never entered its comparison loop, and **passed while asserting nothing** -- the only signal
+  was the assertion count dropping from 21 to 19.
+- **Environment ribbon** (`layouts/_environment_ribbon`, above the top bar): on staging, a
+  full-width bar naming the environment. Its geometry lives in one place, `EnvironmentHelper`, because
+  a fixed header, the drawer and `<main>`'s offset all have to move by exactly the ribbon's height and
+  three files disagreeing about that is a layout bug per page. There is no impersonation here.
+- **Flash parity across the two layouts**: one partial, `layouts/_flash`, rendered by both, so the
+  key-to-role mapping and the auto-dismiss rule cannot diverge between the app and admin. A flash
+  carries its id (`#notice` / `#alert`) and its a11y `role`; styling is by role, not by class hook.
 - **Stacking order (z-index).** The top bar is `relative z-[25]` so its account / notification
   dropdowns (absolute panels *inside* the header) always paint above page content. Relying on the
   header's `backdrop-blur` stacking context alone was fragile: any page element that makes its own
@@ -4566,24 +4577,24 @@ restyling a destructive control, run it.
 
 The *why* behind the system, so choices aren't re-litigated or lost.
 
-- **Tailwind v4 runs alongside legacy Bootstrap, migrated page-by-page.** A big-bang
-  rewrite is too risky for a volunteer-run app; each page is moved wholesale onto one
-  system so the two CSS resets never collide. A page is "migrated" only when it renders
-  on a Tailwind layout with no Bootstrap classes doing layout work.
-- **Pages opt in to the new UI at the controller.** Render with `the app layout`
-  (in-app shell) or set `the signed-out layout` (split auth). The default
-  `ApplicationController` layout stays the Bootstrap `application` layout, so untouched
-  screens are unaffected. Set `@active_nav` to the sidebar key (e.g. `"volunteers"`) to
-  light up the matching nav item. There is no global flag — the switch is
-  per-controller-action and reversible.
-- **Brand = indigo, neutrals = slate.** Calm, professional, high-contrast and
-  accessible; visibly distinct from the old teal/lineicons look so progress is legible.
-- **Figtree** as the typeface — a warm humanist sans that reads friendly but credible,
-  and is free via Google Fonts.
-- **Bootstrap Icons (`bi-*`), loaded by CDN — temporary.** They match the approved
-  mockups and were fast to adopt, but MUST be vendored into the asset pipeline before
-  production (tracked in `design-todo.md`). Font Awesome (`fas fa-*`) is **not** loaded
-  on Tailwind pages — using it renders nothing. Use `bi-*`.
+- **Two layouts, `application` and `admin`, and they are one product.** Every rule here applies to
+  both. A fix applied to one half creates exactly the inconsistency the rule was meant to remove, so
+  prefer changing a shared helper or partial -- `NavHelper`, `_page_header`, `_card`, `_badge`, the
+  `.tw-btn-*` classes, `Ui::FormBuilder` -- over changing call sites.
+- **Brand = `sitf-primary` (`#00698c`), neutrals = slate.** White on it is 6.18:1. The accent lime
+  is **fill only** at 1.37:1 against white -- never a foreground.
+- **Figtree** as the typeface — a warm humanist sans that reads friendly but credible, and is free via
+  Google Fonts.
+- **Icons come from `lucide_icon`**, vendored through the gem rather than a CDN. It renders
+  `aria-hidden` by default, so an **icon-only control needs its own visually hidden text** or it has
+  no accessible name at all.
+- **Only `base` and `lg:`.** No `sm:`, `md:`, `xl:` or `2xl:`. The users are students on school
+  Chromebooks at 1366x768 and phones at 375px, so those are the two widths to check -- plus one above
+  ~1584px, because a layout width bug is invisible at every width below it.
+- **No `dark:` variant.** There is no dark mode here, and Tailwind v4 compiles `dark:` to
+  `@media (prefers-color-scheme: dark)`, so it goes live on any dark-OS device regardless. One
+  `dark:text-slate-400` was audited as "justified, 6.99:1 on dark" while rendering **2.45:1** over a
+  background that stays light.
 - **Icon tiles for status, initial-avatars for people — never mixed.** A soft colored
   rounded tile behind an icon means "a stat/status"; a colored initials circle means
   "a person". Keeping these disjoint avoids visual ambiguity.
@@ -4597,7 +4608,7 @@ The *why* behind the system, so choices aren't re-litigated or lost.
   `display_name` is **never** mutated — it must round-trip raw input for security.
 - **Landing pages use the triage pattern.** Greeting -> KPI row -> "needs your attention"
   -> roster/table. Lead with what needs action, not vanity metrics; push power tools into
-  a "More" menu. (See the supervisor dashboard for the reference implementation.)
+  a "More" menu.
 - **Every screen designs its empty state** using one of the three patterns (cold-start /
   all-caught-up / no-results). Never ship all-zero stat cards or a blank section.
 - **Accessibility is part of "done".** Skip link, `aria-current` on the active nav,
