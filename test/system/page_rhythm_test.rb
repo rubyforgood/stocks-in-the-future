@@ -162,7 +162,13 @@ class PageRhythmTest < ApplicationSystemTestCase
       "new stock" => new_admin_stock_path,
       "new announcement" => new_admin_announcement_path,
       "new teacher" => new_admin_teacher_path,
-      "new user" => new_admin_user_path }
+      "new user" => new_admin_user_path,
+      # The component demo, which exists in development and test only. Its form page carried the header
+      # block inside a `<div class="mb-6">` - a wrapper whose margin collapsed with the header's own, so it
+      # measured nothing while reading as load-bearing, and which hid this seam from measurement entirely.
+      "component demo" => admin_component_demo_index_path,
+      "component demo form" => form_admin_component_demo_index_path,
+      "component demo show" => admin_component_demo_path(student) }
       .each { |label, path| assert_page_rhythm(label, path) }
   end
 end

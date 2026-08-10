@@ -48,26 +48,28 @@
     </div>
   <% end %>
 
-  <%# Development only, and deliberately off the shared treatment so it is obviously not a
-      production destination. %>
-  <% if Rails.env.development? %>
-    <div>
-      <h2 class="px-3 mb-1 text-xs font-semibold text-slate-500">Development</h2>
-      <div class="space-y-1">
-        <% active = nav_section_active?(admin_component_demo_index_path) %>
-        <% demo_class = "flex min-h-11 w-full items-center gap-3 rounded-lg py-2 pr-3 text-sm " \
-                        "font-medium text-purple-700 transition-colors hover:bg-purple-50 " \
-                        "focus-visible:outline-2 focus-visible:outline-offset-2 " \
-                        "focus-visible:outline-purple-700 #{'bg-purple-50' if active}" %>
-        <%= link_to admin_component_demo_index_path,
-                    aria: { current: ("page" if active) },
-                    class: demo_class do %>
-          <span class="h-5 shrink-0 border-l-[3px] <%= active ? 'border-purple-600' : 'border-transparent' %>" aria-hidden="true"></span>
-          <%= lucide_icon("flask-conical", class: "h-5 w-5 shrink-0 text-purple-600") %>
-          <span>Component demo</span>
-        <% end %>
-      </div>
-    </div>
-  <% end %>
+  <%# The component demo is **not here**, and that is the second time this sidebar has run out of room.
 
+      It was a `Development` section with one purple row. Two problems, and the second is why it moved
+      rather than just losing the colour:
+
+      **A hand-rolled row drifts.** It kept `min-h-11 py-2` with no `lg:` step after NavHelper moved a
+      desktop row to 36px, so it rendered 44px against every neighbour's 36px. Nothing caught it, because
+      the guard was `Rails.env.development?` and the suite runs in the test environment - the row was
+      invisible to every test in this repo.
+
+      **And it did not fit.** Measured on a 1366x768 Chromebook, the ten product rows are 561px in 561px of
+      available height: exact, with no slack at all. The section cost 67px, so in development this sidebar
+      has always scrolled, and `spacing_test`'s "fits a Chromebook" assertion passed only because it could
+      not see the row. A non-product destination that does not fit the sidebar goes in the **top bar** -
+      which is a decision this app already made, for `View site`, after a footer row here pushed the nav
+      68px past the same viewport. Same problem, same answer, and it is in `layouts/admin` now.
+
+      The purple is worth recording as its own mistake. It was explained as "deliberately off the shared
+      treatment so it is obviously not a production destination", but the sidebar has one colour vocabulary
+      and it means "you are here": measured, purple-700's chroma is 0.265 against slate-700's 0.044, so the
+      idle demo row was about six times more saturated than the ten real rows and read louder than the
+      *selected* row of the section you were actually in. Contrast was never the problem - 7.07:1 idle,
+      5.54:1 on the icon, 6.58:1 on the active tint. Colour was the wrong instrument: a page can say "this
+      is not the product" in a sentence, which is what the environment banner does. %>
 </div>

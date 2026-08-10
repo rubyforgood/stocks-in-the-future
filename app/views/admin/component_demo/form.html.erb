@@ -1,27 +1,25 @@
 <% content_for :own_heading, true %>
-<div class="max-w-7xl mx-auto">
-  <%# Page Header %>
+<div class="mx-auto max-w-7xl">
+  <%= render "admin/component_demo/environment_banner" %>
+
   <%= admin_breadcrumbs(@breadcrumbs) %>
 
-  <div class="mb-6">
-    <%= render layout: "components/ui/page_header",
-               locals: { title: "Form builder demo" } do %><% end %>
-    <p class="text-slate-600">Showcase of Admin::FormBuilder with all field types</p>
-  </div>
+  <%# One description, in the header block's own slot.
 
-  <%# Alert Box %>
-  <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-    <div class="flex items-start">
-      <%= lucide_icon("info", class: "text-blue-600 mt-1 mr-3 w-4 h-4 shrink-0") %>
-      <div>
-        <h3 class="font-semibold text-blue-900 mb-1">Form builder features</h3>
-        <p class="text-sm text-blue-800">
-          This form builder provides consistent Tailwind styling, automatic error display,
-          and support for all common field types including associations, currency fields, and rich text.
-        </p>
-      </div>
-    </div>
-  </div>
+      There were three things saying what this page is: a `<p class="text-slate-600">` sitting *outside* the
+      header inside a `<div class="mb-6">` wrapper, and a hand-rolled blue panel headed "Form builder
+      features" listing the same capabilities in longer form. The wrapper's margin also collapsed with the
+      header's own and so measured nothing, which is the shape two index pages carried too - and a wrapper
+      is what hides this seam from measurement, since the 24px gap is a relationship between siblings.
+
+      The panel had to go regardless: with an environment banner at the top of the page, a second tinted
+      panel immediately under it is two banners stacked, and the second one was describing the subject of
+      the page rather than warning about anything. `Admin::FormBuilder` keeps its capitals - a class name. %>
+  <%= render layout: "components/ui/page_header",
+             locals: { title: "Form builder demo",
+                       description: "Admin::FormBuilder renders every field type with consistent " \
+                                    "styling, inline errors, associations, currency fields and rich " \
+                                    "text." } do %><% end %>
 
   <%# Form Demo %>
   <div class="tw-card mb-6">

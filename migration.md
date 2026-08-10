@@ -2864,3 +2864,33 @@ could measure, and two pages it could not.
   `form_with class: "contents"` generates no box, so `nextElementSibling` finds an element with no
   geometry; the walk recurses into its children. A future audit of any seam next to a form needs the
   same treatment or it will report the content as absent.
+
+## The component demo stops existing outside development and test
+
+### What changed
+
+- **`config/routes.rb` wraps the `component_demo` routes in `if Rails.env.local?`.** They were declared
+  unconditionally while only the *nav row* was guarded by `Rails.env.development?`, so on production
+  `/admin/component_demo`, `/admin/component_demo/form` and `/admin/component_demo/:id` were live pages
+  for any admin - the index listing ten real users and their email addresses under a heading reading
+  "Component demo", the show page rendering `User.find(params[:id])`. Nothing beyond an admin's existing
+  rights, but the page claimed to be development-only and was not.
+- **The nav row moved to the admin top bar**, beside `View site`, and lost its purple. The sidebar has
+  no room: ten product rows are 561px in 561px on a Chromebook, and the `Development` section cost 67px.
+- **All three demo pages carry an environment banner** (`admin/component_demo/_environment_banner`),
+  which is what says "not part of the product" now. It replaced two hand-rolled `bg-blue-50` panels.
+- The demo controller's breadcrumbs read `Component demo` rather than `Components / Demo`, which also
+  fixes a document title of "Demo | Admin | Stocks in the Future".
+
+### What this breaks
+
+- **`admin_component_demo_index_path` raises `NameError` outside development and test.** Every caller is
+  behind the same `Rails.env.local?` guard: the top-bar link and the controller's own breadcrumbs. Any
+  new reference needs the guard, or production boots and then 500s on the admin layout.
+- **The suite now renders the demo pages and the top-bar link**, which is the point - but it means the
+  test environment's admin chrome is not identical to production's. `spacing_test`'s "the sidebar fits a
+  Chromebook" assertion is now measuring the same sidebar a developer sees; it failed by 67px the moment
+  the guard changed, which is how the overflow was found.
+- **`Rails.env.local?` excludes staging**, which has its own `config/environments/staging.rb` here. If
+  the demo is ever wanted on staging that is a deliberate change, and the banner will name it correctly
+  without being touched, because it interpolates `Rails.env`.

@@ -86,6 +86,40 @@ class SpacingTest < ApplicationSystemTestCase
              "36px at lg, so this usually means rows or sections were added or loosened"
     end
   end
+  # Every row the same height, which is what "one row treatment" has to mean in pixels.
+  #
+  # The component demo row was hand-rolled rather than built from NavHelper, so it kept `min-h-11 py-2` with
+  # no `lg:` step and rendered 44px against every neighbour's 36px at 1366px. It was invisible to this file
+  # until its guard moved from `Rails.env.development?` to `local?`, at which point the test above - the
+  # sidebar fits a Chromebook - failed by 67px, because ten rows are 561px in 561px and there is no room for
+  # an eleventh. The row is a top-bar link now; this asserts the ten that remain agree with each other.
+  test "every admin nav row is the same height, at both widths" do
+    sign_in(create(:admin))
+
+    heights = <<~JS
+      (function () {
+        const rows = [...document.querySelectorAll("#admin-navigation a")];
+        return rows.map(function (a) {
+          return { label: a.textContent.trim(), h: Math.round(a.getBoundingClientRect().height) };
+        });
+      })()
+    JS
+
+    { chromebook: 36, phone: 44 }.each do |viewport, expected|
+      method(:"in_#{viewport == :chromebook ? 'chromebook' : 'phone'}_viewport").call do
+        visit admin_root_path
+        rows = page.evaluate_script(heights)
+
+        assert_operator rows.size, :>=, 10, "expected the ten product section rows"
+        rows.each do |row|
+          assert_equal expected, row["h"],
+                       "the #{row['label']} nav row is #{row['h']}px on a #{viewport}, not #{expected}px - " \
+                       "a row built by hand instead of from NavHelper is the usual cause"
+        end
+      end
+    end
+  end
+
   # Admin tables hand-wrote their cell padding as px-3 py-4 while their headers used the shared
   # table-header-cell at px-4 py-3, so every column's header text sat 4px off its own data. Both
   # sides use the shared classes now; this asserts a column actually lines up.

@@ -55,6 +55,26 @@
               pushed the admin nav 68px past a 1366x768 Chromebook, which spacing_test caught. The
               label is hidden below lg, where the bar holds a trigger, a wordmark and an avatar
               already - the icon and its accessible name carry it there. %>
+          <%# The component demo, in development and test only.
+
+              It was a purple row in the sidebar, in a section headed `Development`. It is here for the same
+              reason `View site` is: the sidebar has no room. Measured on a 1366x768 Chromebook the ten
+              product rows are 561px in 561px, exact, so any eleventh row scrolls - the section cost 67px,
+              and `spacing_test`'s "fits a Chromebook" assertion only passed because the row's
+              `Rails.env.development?` guard made it invisible to the test environment. A footer row in that
+              sidebar was rejected once before on the same measurement.
+
+              Least prominent position in the bar, furthest from the account menu. The page itself carries an
+              environment banner, which is what says "not part of the product" now - in words, rather than
+              by being the most saturated thing in the navigation. %>
+          <% if Rails.env.local? %>
+            <%= link_to admin_component_demo_index_path, class: ghost_class, title: "Component demo" do %>
+              <%= lucide_icon("flask-conical", class: "size-4 shrink-0") %>
+              <span class="hidden lg:inline">Component demo</span>
+              <span class="sr-only lg:hidden">Component demo</span>
+            <% end %>
+          <% end %>
+
           <%= link_to root_path, class: ghost_class, title: "View site" do %>
             <%= lucide_icon("house", class: "size-4 shrink-0") %>
             <span class="hidden lg:inline">View site</span>

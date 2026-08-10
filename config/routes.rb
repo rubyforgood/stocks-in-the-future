@@ -84,9 +84,17 @@ Rails.application.routes.draw do
   namespace :admin do
     root "dashboard#index"
 
-    resources :component_demo, only: %i[index show] do
-      collection do
-        get :form
+    # The component demo is a developer reference, not a product destination, and until now only its
+    # *link* was guarded - the routes were declared unconditionally, so on production /admin/component_demo
+    # was a live page for any admin, listing ten real users and their email addresses under a heading
+    # saying "Component demo". `local?` is development and test, which excludes staging as well as
+    # production, and it lets the suite render the page - the previous guard was `development?`, so no test
+    # could see the page or its nav row, which is how the row kept a 44px height after NavHelper moved to 36.
+    if Rails.env.local?
+      resources :component_demo, only: %i[index show] do
+        collection do
+          get :form
+        end
       end
     end
 

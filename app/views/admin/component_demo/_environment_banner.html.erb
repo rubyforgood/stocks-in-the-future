@@ -1,0 +1,38 @@
+<%# The environment banner, on every page of the component demo.
+
+    This is what replaced the purple nav row. The signal both are carrying is "this is not part of the
+    product", and a nav row has nothing but colour to say it with, which is why it ended up as the loudest
+    thing in a sidebar whose colour already means "you are here". A page can use a sentence.
+
+    That is where the field puts it: Stripe's test mode banners the page rather than recolouring the
+    navigation, GitLab's environment ribbon sits on the page chrome, and GOV.UK's phase banner - the closest
+    documented match, since it exists to say "this thing is not the finished product and here is what that
+    means for you" - sits above the page's own heading. So does this one.
+
+    Three decisions in it:
+
+    - **It names the environment rather than hard-coding one.** In the test suite it reads "Test
+      environment", which is true, and it cannot go stale if the guard changes. Same reasoning as deriving a
+      summary from its contents rather than restating it.
+    - **`:warning`, not `:info`.** Amber is the field's colour for "you are not in the real thing" - Stripe's
+      test mode, GitLab's non-production ribbon - and one line here is a genuine caution rather than a fact:
+      the examples are real records out of this database. Measured on its own tint, amber-900 is 8.75:1 and
+      amber-800 6.84:1.
+    - **No dismiss, and no auto-hide.** The environment is still true in a minute. This repo's rule is that
+      only an *outcome* removes itself; a banner describing the state of the page does not.
+
+    It replaced a hand-rolled blue panel on the index page - `bg-blue-50 border border-blue-200 rounded-lg`
+    with its own icon sizing - which said the components "will be used across all admin resource pages",
+    written when they were new and long since true. Hand-rolling this panel is what `components/ui/_callout`
+    was extracted to stop, and the index was the third instance. %>
+<% body = "This page is a reference for the admin components, not part of the product. Its route exists " \
+          "only in development and test, and the examples below are rendered from real records in this " \
+          "database." %>
+
+<%= render "components/ui/callout",
+           tone: :warning,
+           icon: "flask-conical",
+           title: "#{Rails.env.capitalize} environment",
+           body: body,
+           testid: "environment-banner",
+           class: "mb-6" %>

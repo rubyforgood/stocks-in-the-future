@@ -1,22 +1,12 @@
 <% content_for :own_heading, true %>
-<div class="max-w-7xl mx-auto">
+<div class="mx-auto max-w-7xl">
+  <%= render "admin/component_demo/environment_banner" %>
+
+  <%# The description was "Showcase of all reusable admin components", which restated the title in
+      different words. It says what the list is for instead. %>
   <%= render layout: "components/ui/page_header",
              locals: { title: "Admin components demo",
-                       description: "Showcase of all reusable admin components" } do %><% end %>
-
-  <%# Alert Box %>
-  <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-    <div class="flex items-start">
-      <%= lucide_icon("info", class: "text-blue-600 mt-1 mr-3 w-4 h-4 shrink-0") %>
-      <div>
-        <h3 class="font-semibold text-blue-900 mb-1">Component demo page</h3>
-        <p class="text-sm text-blue-800">
-          This page demonstrates all the reusable components created for the Admin V2 interface.
-          These components will be used across all admin resource pages.
-        </p>
-      </div>
-    </div>
-  </div>
+                       description: "Every shared admin component, rendered, with the call that produces it." } do %><% end %>
 
   <%# Quick Links %>
   <div class="tw-card mb-6 p-5">

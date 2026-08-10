@@ -1925,11 +1925,55 @@ One rule caught while sweeping: the student show page still coloured its stat **
 (`text-blue-900`, `text-green-900`, `text-purple-900`). The KPI entry is explicit that a numeral
 is always `slate-900` and never carries state; the tile carries it. Fixed.
 
+### Environment banner
+**A destination that is not part of the product says so on the page, in a sentence - never by
+recolouring its nav row.** The component demo was a purple row in a sidebar section headed
+`Development`, explained as "deliberately off the shared treatment so it is obviously not a production
+destination". Three things were wrong with that, and only the first is about colour:
+
+- **The sidebar has one colour vocabulary and it means "you are here".** A second meaning competes with
+  it. Measured, purple-700's chroma is 0.265 against slate-700's 0.044, so the idle demo row was about
+  six times more saturated than the ten real rows and read louder than the *selected* row of the section
+  you were actually in - the loudest thing in the admin nav was a link that does nothing in production.
+  Contrast was never the failure: 7.07:1 idle, 5.54:1 on the icon, 6.58:1 on the active tint.
+- **A hand-rolled row drifts.** It kept `min-h-11 py-2` with no `lg:` step after `NavHelper` moved a
+  desktop row to 36px, so it rendered 44px against every neighbour's 36px.
+- **A nav row has only colour to say it with.** A page can use words, which is where the field puts
+  this: Stripe banners the page in test mode rather than recolouring the navigation, GitLab's
+  environment ribbon sits on the page chrome, and GOV.UK's phase banner - the closest documented match,
+  since it exists to say "this is not the finished product and here is what that means for you" - sits
+  above the page's own heading.
+
+The banner is `components/ui/_callout`, `tone: :warning`, first element in the page, `mb-6` above the
+header block. Three rules in it:
+
+- **It names the environment rather than hard-coding one**, so it reads "Test environment" in the suite
+  and cannot go stale if the guard changes.
+- **Amber, not blue.** Amber is the field's colour for "you are not in the real thing", and one line of
+  it is a genuine caution: the examples are real records out of this database.
+- **No dismiss and no auto-hide.** The environment is still true in a minute, and this document's rule
+  is that only an *outcome* removes itself.
+
+**And guard the route, not just the link.** The demo's routes were declared unconditionally while only
+its nav row was wrapped in `Rails.env.development?`, so on production `/admin/component_demo` was a live
+page for any admin, listing ten real users and their email addresses. `Rails.env.local?` on both - which
+is development and test, excluding staging - makes the claim true *and* lets the suite render the page.
+The old guard is why none of this was caught: the row and all three pages were invisible to every test
+in the repo.
+
 ### Sidebar navigation
 **One light sidebar, both sides of the app.** `bg-white` with a `border-r border-slate-200`,
 `text-slate-700` idle, `hover:bg-slate-100`. The selected row is a brand tint plus a 3px
 leading indicator: `bg-sitf-primary/10 text-sitf-primary-dark` with
-`border-l-[3px] border-sitf-primary`. Measured **7.78:1**. `NavHelper` holds the treatment -
+`border-l-[3px] border-sitf-primary`. Measured **7.78:1**. **Ten rows is the ceiling, and it is exact.** Measured on a 1366x768 Chromebook, the ten product rows
+fill 561px of 561px of available height - no slack at all. An eleventh row scrolls the sidebar, which is
+how the `Development` section cost 67px and why the component demo is a **top-bar link** now, beside
+`View site`. That is the second time this has been decided the same way: a footer row in this sidebar
+was rejected earlier for pushing the nav 68px past the same viewport. A non-product destination that
+does not fit goes in the top bar; a product section that does not fit means the sections need rethinking,
+not loosening. `spacing_test` asserts both the fit and that every row is the same height.
+
+`NavHelper` holds the treatment -
 `nav_row_class`, `nav_indicator_class`, `nav_icon_class` - so the app nav and the admin nav
 cannot drift apart.
 

@@ -23,11 +23,9 @@ module Admin
         created_at: Time.current
       )
 
-      # Demo breadcrumbs
-      @breadcrumbs = [
-        { label: "Components", path: admin_component_demo_index_path },
-        { label: "Demo" }
-      ]
+      # The trail read "Components / Demo" on the page that *is* the component index, which also made the
+      # document title "Demo | Admin | ...", since the layout derives the title from the last crumb.
+      @breadcrumbs = [{ label: "Component demo" }]
 
       # Demo table columns
       @columns = [
@@ -57,7 +55,7 @@ module Admin
     def show
       @user = User.find(params.expect(:id))
       @breadcrumbs = [
-        { label: "Components", path: admin_component_demo_index_path },
+        { label: "Component demo", path: admin_component_demo_index_path },
         { label: "User details" }
       ]
     end
@@ -72,7 +70,7 @@ module Admin
       end
 
       @breadcrumbs = [
-        { label: "Components", path: admin_component_demo_index_path },
+        { label: "Component demo", path: admin_component_demo_index_path },
         { label: "Form builder demo" }
       ]
     end

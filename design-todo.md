@@ -675,3 +675,20 @@ consistency question. It is open as a *value* question: the admin side had chose
 ten places, which is some evidence that a dense form wants more room than a stat card, and shadcn's Card
 (`p-6`) agrees while Polaris (16/20px) does not. If it changes it changes in `design.md` and in one
 sweep, not per call site.
+
+## Should the whole app carry an environment banner, not just the demo? (2026-08)
+
+The component demo's banner names the environment because that is the honest way to write it, but it is
+scoped to three pages, and the thing it is really signalling is "this page is not part of the product".
+
+The other half of the field's pattern is a **whole-app environment ribbon** - GitLab's, Stripe's test
+mode, Shopify's development store banner - which answers a different question: *which* deployment am I
+looking at. This repo has `config/environments/staging.rb` and a `deploy-staging.yml` workflow, so the
+question is live: an admin on staging has nothing on screen telling them the data they are editing is
+not real.
+
+Not done here because it touches both layouts on every page and because it needs two decisions first:
+whether it appears in development (where it is noise - the URL says localhost) and whether it can be
+collapsed, given this app's rule that a message describing a *state* gets no dismiss. If it is built, it
+belongs in the layout beside the flash, inside the content column, and the demo's banner should then say
+only what the *page* is and let the ribbon name the environment.
