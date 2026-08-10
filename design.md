@@ -12,15 +12,23 @@
 > supervisors, court dates, placements, chapters — and its Bootstrap migration do
 > **not** apply here.
 >
-> Reconciliation is partial and deliberate. The three sections specifying controls this app has no
-> equivalent of (TomSelect multiselect, searchable single-select, the twenty-control type-ahead audit)
-> are **deleted**, with their transferable rules kept in
-> [`docs/type-ahead-and-multiselect.md`](docs/type-ahead-and-multiselect.md). Elsewhere, a CASA noun in
-> an example is being replaced as each area is touched — but **only by an example that exists here**.
-> A mechanical find-and-replace was tried and reverted: it turned CASA's history into false claims about
-> this app (`classrooms#edit was a white card with a rose outline`, a `classrooms/_month_year_select`
-> that does not exist), which is worse than an obviously foreign noun. It is also what produced the
-> `stocks_in_the_future_cases` identifiers still visible in a few places.
+> **Reconciliation is complete**, section by section. Sections specifying controls this app has no
+> equivalent of — TomSelect multiselect, a searchable single-select, repeatable sub-forms, the
+> Bootstrap-coexistence rules — are **deleted or replaced by a short "not in this app" note**, with
+> their transferable rules kept: the picker ones in
+> [`docs/type-ahead-and-multiselect.md`](docs/type-ahead-and-multiselect.md), the rest inline. Every
+> other section keeps its rule and gets an example **that exists here**.
+>
+> The method matters, because the shortcut fails. A mechanical find-and-replace was tried and
+> reverted: it turned CASA's history into false claims about this app — `classrooms#edit was a white
+> card with a rose outline`, a `classrooms/_month_year_select` that does not exist — which is worse
+> than an obviously foreign noun, because a false claim is indistinguishable from a true one. Where a
+> rule's original example could not be replaced by a real one, the example was dropped and the rule
+> kept.
+>
+> Two sections record a **deliberate divergence** from what was inherited, rather than a translation:
+> the one chart here is Chart.js on a canvas where the spec called for bespoke SVG, and the sidebar's
+> group labels are not uppercase, because this document's own copy rule forbids that transform.
 
 ## Status & approach
 
@@ -84,13 +92,13 @@ a card reads flat, change the role mapping — weight and colour — not the siz
 ### Sentence case
 All UI copy — page titles, section headings, subtitles, table headers, field labels,
 buttons, badges and nav — uses **sentence case**: capitalise only the first word and
-proper nouns (Stocks in the Future, Twilio, people's names). So "Track volunteer progress", not "Track
-Volunteer Progress" and never the shouty all-caps "TRACK…".
+proper nouns (Stocks in the Future, people's names). So "Add a student", not "Add A Student", and
+never the shouty all-caps "ADD…".
 
 **The sweep is done, and grepping views is not enough to keep it done.** A scan of headings,
 labels, buttons and `<th>`s in `app/views` came back nearly clean while these were still Title
 Case, because copy lives in five places a view grep misses: **`content_for :page_title`**,
-**decorators** (`"Reimbursement Complete"`, `"Send CC to Supervisor and Admin"`), **`config/locales`**
+**decorators**, **`config/locales`**
 (`activerecord.attributes` names, Devise mail subjects) and **mailer subjects**. Two more traps: text
 inside a `link_to ... do` block is on its own line, so a `link_to "..."` pattern never sees it, and a
 Title Case string can be *correct* — a ticker, a company name ("Coca-Cola"), an industry classification
@@ -107,9 +115,8 @@ labels, not UI copy — the student importer's `classroom_id`, `username`, `name
 label. Do **not** apply the
 `uppercase` CSS transform to labels; use size, weight and colour for hierarchy instead.
 
-**No trailing colon on a heading or subtitle** (`Assigned volunteers`, not `Assigned
-Volunteers:`; `Current placement`, not `Current Placement:`). A colon belongs only on an
-inline key:value **fact label** (a `dt` such as `Court report status:`), never on a section
+**No trailing colon on a heading or subtitle** (`Grade books`, not `Grade Books:`). A colon belongs
+only on an inline key/value **fact label** — a `dt` such as `Held by:` — never on a section
 title. Audit the views you touch: `grep '<h[123][^>]*>[^<]*:</h'` should return nothing on a
 an app-layout page.
 
@@ -2506,10 +2513,10 @@ on the **page background** under a page title, a heading rule immediately above 
 the only thing stating a real boundary, which is what a card header is.
 
 ### Iconography
-- **Bootstrap Icons** (`bi-*`), self-hosted: font binaries under `public/vendor/bootstrap-icons/`,
-  CSS vendored at `app/assets/stylesheets/vendor/bootstrap-icons.css` and `@import`ed by
-  `tailwind.css` (no CDN). Vendored from the `bootstrap-icons` (icons) + `@fontsource/figtree`
-  (font) npm packages via `npm i --no-save`, with `url()` rewritten to the `public/vendor/` paths.
+- **Lucide**, through the `lucide-rails` gem's `lucide_icon` helper — inline SVG, no icon font and no
+  CDN. It renders `aria-hidden` by default, which is right for a decorative glyph and wrong for an
+  icon-only control: that needs its own visually hidden text, or it has **no accessible name at all**.
+  A `bi-*` class name anywhere in this document is inherited prose; there are no Bootstrap Icons here.
 - **Icon tile pattern** — icons representing a *stat or status* sit on a soft
   colored rounded background. It is a component: **`components/ui/_icon_tile`**, with
   `icon`, `tone` and `sm`. Do not write it longhand; it existed longhand in six places
@@ -2581,7 +2588,7 @@ Everything ships to **WCAG 2.1 AA** — it's part of "done", not a follow-up.
   real lists, and `<caption>` + `scope` on tables.
 - **Forms**: every control has a real `<label>`; the error summary uses `role="alert"`
   and names the field; invalid/required state is never colour-only. A control with an
-  **overridden id** or a **JS-enhanced widget** (a TomSelect multiselect, the month/year
+  **overridden id** or a **JS-enhanced widget** (the month/year
   `select_tag`s) needs an explicit accessible name — point the `<label for>` at the *actual*
   rendered id, or set `aria-label` — because the default `for` no longer matches and axe's
   `select-name` rule then fails. Guarded by `spec/system/accessibility/axe_spec.rb`.
@@ -3391,12 +3398,12 @@ the browser's; specs compare against `browser_today` (`spec/support/browser_time
 
 **A prefilled default that depends on another field can't be server-rendered.** Carry the per-record
 value on each `<option>` as a `data-` attribute and let the controller copy it across on `change`, reading
-the native `<select>` (which TomSelect keeps in sync) rather than TomSelect's internal option data -- as
+the native `<select>` rather than any widget's internal option data -- as
 a date-range modal does for a "Starting from" default. Re-apply on every change, so
 switching records does not leave the previous record's default behind.
 
 ### Select
-A native `<select>`, but the browser's arrow is replaced with a Bootstrap-icon chevron so it
+A native `<select>`, but the browser's arrow is replaced with a lucide chevron so it
 looks the same across browsers and matches the app's other dropdowns (the cases-index filter
 is the reference). Wrap the select in a `relative` div and overlay the chevron:
 
@@ -3411,7 +3418,7 @@ is the reference). Wrap the select in a `relative` div and overlay the chevron:
 `appearance-none` hides the native arrow, and **`pr-9` is required** so the value never
 crowds the chevron: a plain `<select>` with `px-3` collides the text with the native arrow.
 Chevron ink is `slate-500` (AA). Month/year pickers reuse this through
-`stocks_in_the_future_cases/_month_year_select` (it keeps Rails' `_1i`/`_2i` date-part field names).
+a month/year select pair (keeping Rails' `_1i`/`_2i` date-part field names).
 The cases-index filter is the reference for the **chevron**, not for the padding above: a
 *filter* control is one step more compact than a *form* field (see "Filter bar").
 
@@ -3420,7 +3427,7 @@ The cases-index filter is the reference for the **chevron**, not for the padding
 Enter, so a filter bar wired only to `change` looks broken: typing does nothing. Worse, the
 unsubmitted text is still in the form, so it applies itself the moment the user touches any *other*
 filter -- which reads as "the search box keeps letters I typed". Reported exactly that way on the
-volunteers roster; the cases index had it too.
+one roster; another index had it too.
 
 `auto-submit` handles both: selects stay on `change->auto-submit#submit`, the search field gets
 `input->auto-submit#search`.
@@ -3548,7 +3555,7 @@ the heading `mb-3` (12px) so it hugs the fields it introduces, and put the field
 (e.g. case number) in its own block with `mb-6` (24px) for section separation. A heading
 left as a grid child floats with equal 20px above and below and reads as detached.
 
-**Simple settings CRUD forms** (the org-settings long-tail — judges, languages, placement types,
+**Simple CRUD forms** (the admin long-tail — schools, school years, stocks,
 learning-hour types/topics, and other name(+active) resources) share one partial,
 `shared/_settings_form` (locals: `model`, `title`, `show_active`, `description`). It renders the
 app layout's page shell + a card with a required name field, an optional `Active?` checkbox, an
@@ -3589,36 +3596,6 @@ option's subtext nil - are kept in
 [`docs/type-ahead-and-multiselect.md`](docs/type-ahead-and-multiselect.md), with the command that
 retrieves the full original from git. They are not repeated here: a specification for a control this app
 does not have belongs outside the document that describes the one it does.
-### Type-ahead and multiselect: not in this app
-Three sections lived here specifying TomSelect - a rich multiselect component, a searchable
-single-select used by six person-assignment pickers, and an audit of twenty such controls. **This app
-has none of them**: no TomSelect, no type-ahead, no multiselect, and its one long list of people (the
-classroom form's teacher picker) is a checkbox group.
-
-They were inherited with the rest of this document from Ruby for Good's CASA project, and they were
-deleted rather than translated. A rule needs an example, but a *specification* for a control nobody has
-built is not a rule - it is an instruction to build one, and the next person to need a searchable picker
-would have implemented CASA's.
-
-What survives, because it is a decision this app has actually taken: **a checkbox group is the right
-control for a short, fully known set of options**, and beyond roughly ten it should become a searchable
-multi-select with chips - GitHub's assignees picker, Linear's, Jira's. That threshold is the trigger, and
-it is recorded on the classroom form, where it will be met first.
-### Type-ahead and multiselect: not in this app
-Three sections lived here specifying TomSelect - a rich multiselect component, a searchable
-single-select used by six person-assignment pickers, and an audit of twenty such controls. **This app
-has none of them**: no TomSelect, no type-ahead, no multiselect, and its one long list of people (the
-classroom form's teacher picker) is a checkbox group.
-
-They were inherited with the rest of this document from Ruby for Good's CASA project, and they were
-deleted rather than translated. A rule needs an example, but a *specification* for a control nobody has
-built is not a rule - it is an instruction to build one, and the next person to need a searchable picker
-would have implemented CASA's.
-
-What survives, because it is a decision this app has actually taken: **a checkbox group is the right
-control for a short, fully known set of options**, and beyond roughly ten it should become a searchable
-multi-select with chips - GitHub's assignees picker, Linear's, Jira's. That threshold is the trigger, and
-it is recorded on the classroom form, where it will be met first.
 ### Repeatable rows: not in this app
 
 There is no repeatable sub-form here. The one `fields_for` is `grade_books/_grade_entry`, which
@@ -3792,7 +3769,7 @@ it) and reword derived text to be self-explanatory ("In care for over 8 years", 
 the value **cannot exist yet** -- one card rendered "Unassigned:" with an empty
 `dd` on every *active* assignment, leaving a hanging colon (and duplicating what the "Assigned" pill
 already said). Use the muted **"Not set"** value only where the field genuinely applies but is unfilled
-(as `stocks_in_the_future_cases#show` does for a youth's date in care). Guard it by asserting no `dd` is blank, not by
+where one exists. Guard it by asserting no `dd` is blank, not by
 eye.
 
 **Keep a card to the type scale: two sizes, two weights, and let colour carry the role.** A person /
@@ -4623,13 +4600,13 @@ The *why* behind the system, so choices aren't re-litigated or lost.
 - **Tables are bespoke, not jQuery DataTables (reversed).** Theming DataTables couldn't
   match the dashboard tables or meet WCAG — its generated chrome fights the design system.
   Build tables in Tailwind instead (matching the dashboard): server-side filtering +
-  **Pagy** pagination + optional sortable header links, with **Turbo Drive** smoothing the
+  sortable header links via `sort_link`, with **Turbo** smoothing the
   GET navigations. Reuse each `*Datatable` class's query logic server-side; retire the
   DataTables JS as each page migrates. See the cases index for the reference pattern.
 
 ## Migrating a page (playbook)
 
-Repeatable steps for moving one screen off Bootstrap:
+Repeatable steps for bringing one screen onto the system:
 
 1. **Read first** — this doc, plus the page's existing specs (know what behavior is
    pinned before you touch markup). Confirm each column / field you plan to keep still has a
