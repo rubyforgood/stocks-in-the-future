@@ -3611,285 +3611,51 @@ the measure script surfaces the contained button row like a scrolling table). Gi
 design-system chrome via `class: "trix-content rounded-lg border border-slate-300 shadow-sm"`.
 The banner form is the reference.
 
-### Multiselect
-Both the rich `Form::MultipleSelectComponent` (select-all + filterable list) and the basic
-`multiple-select` Stimulus controller render TomSelect, themed in `tailwind.css` (stocks_in_the_future_app
-only; Bootstrap pages keep the tom-select.bootstrap5 theme):
-- **Loads blank**: it defaults to an empty field with a placeholder (`Select or search
-  <term>`), **never pre-selected with every option**. `show_all_option` still offers
-  `Select/Unselect all` in the menu. (Contact types is required, so blank plus the "at least
-  one contact type" validation is the correct required-field UX; it is not a reason to
-  default-select everything.) The **basic** `multiple-select` controller takes an optional
-  **`data-multiple-select-placeholder-value`** -- use the **`Select or search <term>`** phrasing
-  (matching the rich component; e.g. the report filters, one per line), **never `All <term>`**:
-  `All supervisors` read as a *selectable option* users tried to pick, not an empty-state prompt.
-  If a blank filter means "include everything", say so in **hint text under the group's subheader**
-  (e.g. a "Filters" heading), not in the placeholder and **not floating between two field groups** --
-  a hint sandwiched between groups is ambiguous about which group it modifies. When a placeholder is set the controller also passes **`hidePlaceholder: true`**, so the
-  prompt disappears once a chip is present (a placeholder lingering next to selected chips reads as
-  unfinished -- verify by selecting an item and checking the input's `placeholder` attribute is empty).
-- **Chevron**: the Bootstrap-Icons `chevron-down` shape as a `.ts-wrapper::after` **base64-SVG**,
-  sized (`text-xs`) and placed (`right-3`) to **match the single-select chevrons**, with
-  **`z-index: 2`**. The z-index is the crux: TomSelect's opaque `.ts-control` paints over a plain `::after`, so the caret is
-  present but hidden without it (that stacking, not a missing rule, is why the chevron read as
-  "missing" for so long). Do not use a CSS `content` glyph escape (the minifier drops it), a
-  raw non-base64 `data:` URI (broke in the build), or an injected CDN icon-font element (never
-  painted). **Verify a chevron at the pixel level** -- never by computed style, which reports the
-  element as present even when nothing paints. **Compare the SHAPE, not the darkest pixel**: dump the
-  ink bounding box + ink-pixel count for the caret and for a native `<i class="bi bi-chevron-down">`
-  in the *same* screenshot -- `bin/caret-map.rb` does exactly this. Darkest-pixel alone is a colour check
-  and it has already produced a false pass -- it read "matches" on a region that actually held the
-  clear **x** (7x7, two crossing diagonals) rather than a caret, because the probe left the control
-  focused. A real match is identical extent and coverage: 10x6 ink, 20 ink pixels, mean lum 251.4 vs
-  251.2. Blur the control before the screenshot, or you are measuring the hover/focus state.
-- **The option tick is a SHAPE, never a checkbox.** tom-select's `checkbox_options` plugin injects a
-  real `<input type="checkbox">` into each `role="option"` row: axe **`label` (critical)** (no name) +
-  **`nested-interactive` (serious)** (a control nested in an option is unreachable to a screen reader),
-  and axe rejects the mitigations in as many words -- *"a negative tabindex on an element inside an
-  interactive control does not prevent assistive technologies from focusing the element (even with
-  aria-hidden)"*. So the controller **keeps the plugin for its behaviour** -- it is what makes a click on
-  a selected row *deselect* it, and it owns `hideSelected` -- and swaps the injected input for an inert
-  `<span aria-hidden>` carrying the same classes (the row's own `aria-selected` is the state). Wrap
-  `render.option` **after** the constructor, since the plugin installs its own wrapper during
-  `setupTemplates`. Two traps found by measuring: tom-select **caches rendered rows**, so a re-render
-  does not restate the tick -- sync it on `item_add`/`item_remove`; and sync it from **`items`**, not the
-  row's `selected` class, which lands later than those events (Select-all cascades one `item_add` per
-  option, and a DOM read measured wrong in both directions). Nothing styled `.form-check-input` after
-  Bootstrap left, so the tick is drawn in `tailwind.css` and finally looks like the design system.
-- **Chips** are brand-100 pills, brand-700 text (6.4:1), each with a visible × (the
-  component's LineIcons X and grey divider are overridden for stocks_in_the_future_app).
-- **Clear-all inside the field, always visible once there is something to clear.** `remove_button`
-  alone gives only a per-chip ×, which is a chip-at-a-time chore, so **both** controller paths
-  (`createBasicMultiSelect` and `createMultiSelectWithOptionGroups`) also load
-  **`clear_button: { title: 'Clear all selections' }`**, matching the searchable single-select.
-  **The plugin's own CSS is the catch:** it ships the × at `opacity: 0` and reveals it only on
-  `:hover` / `.focus`, so a control full of chips shows no way to empty it -- undiscoverable with a
-  mouse and unreachable by hover on touch, and it leaves a `tabindex=0` control at zero opacity. So
-  `tailwind.css` forces `.ts-wrapper.multi.plugin-clear_button.has-items .clear-button { opacity: 1 }`
-  and hides the chevron unconditionally at `.multi.has-items` (they share the right edge).
-  **Single-select keeps** tom-select's hover/focus reveal -- there the × *replaces* the chevron.
-  Ink is **slate-500** (4.76:1; the theme's old slate-400 was 2.56:1, under the 3:1 icon floor), the
-  hit area is forced to **1.5rem square** (tom-select's × measures 23×22, just under the 24×24 target
-  minimum), and it gets a `:focus-visible` ring since it is `role=button tabindex=0`. Assert with
-  Capybara `find(".clear-button")`, which matches only a **visible** element -- that is what catches a
-  re-gated reveal. **Audited: all 10 instances** carry it (case-contacts index + new_design ×2,
-  reports ×4, case groups, and the rich component on the case-contact form).
-- **Menu group headers are a header, not a short option.** tom-select ships `.optgroup-header` at the
-  options' own **13px/400** with **4px LESS left padding**, so a dark line sat one notch out from the
-  items and read as misaligned text rather than a group label. Theme it with the **same token as the
-  sidebar group labels** -- `12px`, `600`, `uppercase`, `0.025em` tracking, **slate-500** -- padded to
-  the options' `0.75rem` so the left column edge is straight, plus a `slate-100` top border between
-  groups. Verify by comparing the header's and an option's computed `paddingLeft` and `fontWeight`,
-  not by eye.
-- **A grouped multiselect must actually be told to group.** `optgroupField` alone is not enough:
-  without **`optgroups:`** (the list of groups) TomSelect uses the option's `group` for **search only**
-  and renders a flat list. The rich component carried `group` on every option and still showed 25
-  ungrouped rows, while the filter's grouped `<optgroup>` markup showed headers -- the same data, two
-  different menus. Pass `optgroups` + `optgroupField: 'group'` + `lockOptgroupOrder: true`.
-  **Then audit every option builder that sets `group`.** While groups were search-only, a `group` that
-  was not a human label went unnoticed; the moment they render, it is drawn as a header.
-  `StocksInTheFutureCaseDecorator#hash_for_multi_select` set `group: stocks_in_the_future_org_id`, so the relevant-cases dropdown
-  grew a stray, unclickable **org id** above the cases. Cases are already org-scoped, so they carry no
-  group at all now; contact types keep theirs because it is a real name.
-- **Never re-render the page on each pick.** A multiselect wired to the `filter-input` change-submit
-  fired a **full page render per chip**, which tore down the open menu: picking N types cost N page
-  loads and N reopenings of the dropdown (confirmed by tagging `window` and watching the tag vanish).
-  `closeAfterSelect` is a red herring -- it already defaults to false. Instead **leave `filter-input`
-  off** and set **`data-multiple-select-submit-on-close-value="true"`**: the controller holds the
-  submit while `select.isOpen` and fires it once on `dropdown_close`, so one menu session is one
-  render. A change with the menu already shut (the clear-all ×) still submits immediately, so clearing
-  stays instant. All the natural exits close the menu and apply the selection -- Escape, clicking
-  another control, blur -- verified; note a Capybara click on a non-focusable element (an `h1`) does
-  **not** close it, which will make a test look broken when the feature works.
-- **Placeholder ink** in the tom-select theme is **slate-500**. Note
-  `.ts-wrapper .ts-control input::placeholder` **outranks** a bare `.ts-control input::placeholder`,
-  so set the colour in the `.ts-wrapper` rule only -- a second, lower rule silently loses (the theme
-  carried both, and the slate-400 one won).
-- **Flip-up**: the controller's `onDropdownOpen` adds `.ts-flip-up` when the control is near
-  the viewport bottom, so the menu opens above and stays on screen.
-- **Accessible name**: like the single-select, the controller sets an `aria-label` on TomSelect's
-  control input from the native `<select>`'s name (its `aria-label` or associated `<label>`, read
-  before init) **and stamps that name back onto the native `<select>` after init**. A `<label for>`
-  picker (the report filters, case groups) is **not** already safe -- that was a wrong call here, and
-  it cost the axe suite a critical `select-name` violation on the reports page: TomSelect repoints the
-  label at its own input, so the label names the input and the `<select>` behind it ends up nameless.
-  See "Searchable single-select -> Accessible name" for the full mechanism.
-- Override tom-select at `.ts-wrapper.multi` specificity (and `!important` where it uses it);
-  its default grey theme wins otherwise.
+### Type-ahead and multiselect: not in this app
+Three sections lived here specifying TomSelect - a rich multiselect component, a searchable
+single-select used by six person-assignment pickers, and an audit of twenty such controls. **This app
+has none of them**: no TomSelect, no type-ahead, no multiselect, and its one long list of people (the
+classroom form's teacher picker) is a checkbox group.
 
-**Option subtext: no "never", and never nil.** The contact-type options carry a recency hint
-("Last logged 3 days ago"). A type that has never been logged shows **no subtext** -- a bare "never"
-repeated down the list is noise, not information. Two decorator methods had answered the same question
-differently (`last_time_used_with_cases` returned "never", `last_logged_hint_with_cases` returned nil
-for exactly this reason), and only the checkbox form used the fixed one, so the multi-select on
-`stocks_in_the_future_cases#edit` kept showing "never" long after it was removed elsewhere. Consolidated onto the one
-method; the divergent twin is gone.
+They were inherited with the rest of this document from Ruby for Good's CASA project, and they were
+deleted rather than translated. A rule needs an example, but a *specification* for a control nobody has
+built is not a rule - it is an instruction to build one, and the next person to need a searchable picker
+would have implemented CASA's.
 
-The subtext must be `""`, **not nil**: the option template substitutes it through TomSelect's
-`escape()`, which stringifies nil to the literal **"null"** -- a worse bug than the one being fixed.
-`stocks_in_the_future_cases#new` additionally passes `render_option_subtext: false` (no case exists yet, so there is no
-recency to show).
+What survives, because it is a decision this app has actually taken: **a checkbox group is the right
+control for a short, fully known set of options**, and beyond roughly ten it should become a searchable
+multi-select with chips - GitHub's assignees picker, Linear's, Jira's. That threshold is the trigger, and
+it is recorded on the classroom form, where it will be met first.
+### Type-ahead and multiselect: not in this app
+Three sections lived here specifying TomSelect - a rich multiselect component, a searchable
+single-select used by six person-assignment pickers, and an audit of twenty such controls. **This app
+has none of them**: no TomSelect, no type-ahead, no multiselect, and its one long list of people (the
+classroom form's teacher picker) is a checkbox group.
 
-### Typeahead audit (all 20 TomSelect controls)
-**A multiselect must clear the query when an item is picked.** TomSelect does not do this for you:
-without `onItemAdd: function () { this.setTextboxValue(''); this.refreshOptions() }` the typed letters
-stay in the control next to the new chip. `multiple_select_controller` has **two** init paths and only
-the grouped one had it, so every plain multiselect was affected -- contact types on the case-contacts
-filter, case_groups#new, and all four report filters -- while the single-selects were fine. Reported as
-"the letters the user types stay even after they have made a selection". Guarded by
-`spec/system/typeahead_controls_spec.rb`, which drives all 20 controls (type -> filter -> select ->
-query cleared, chip rendered, native `<select>` updated) and asserts the count, so a new control has
-to be added to it.
+They were inherited with the rest of this document from Ruby for Good's CASA project, and they were
+deleted rather than translated. A rule needs an example, but a *specification* for a control nobody has
+built is not a rule - it is an instruction to build one, and the next person to need a searchable picker
+would have implemented CASA's.
 
-**Filtering is asserted by a decoy's ABSENCE, never by reading the menu.** The audit long skipped the
-"does it filter" half because every read proved racy -- and a read is the wrong tool: a count taken
-straight after the keystrokes sees the **pre-filter** DOM, which is how a probe reported "typing does
-nothing" on a control that in fact filtered 31 options down to 1. Name a fixture that must NOT match
-and use Capybara's waiting `have_no_css`, which retries until the filter lands (13 of the 20 controls
-have a distinct decoy; the rest have a one-entry list). Same lesson as the caret: **A/B a suspected bug
-against the old code before calling it one.**
+What survives, because it is a decision this app has actually taken: **a checkbox group is the right
+control for a short, fully known set of options**, and beyond roughly ten it should become a searchable
+multi-select with chips - GitHub's assignees picker, Linear's, Jira's. That threshold is the trigger, and
+it is recorded on the classroom form, where it will be met first.
+### Type-ahead and multiselect: not in this app
+Three sections lived here specifying TomSelect - a rich multiselect component, a searchable
+single-select used by six person-assignment pickers, and an audit of twenty such controls. **This app
+has none of them**: no TomSelect, no type-ahead, no multiselect, and its one long list of people (the
+classroom form's teacher picker) is a checkbox group.
 
-**Finding a TomSelect control in a spec:** address it through its native `<select>`
-(`select.tomselect.wrapper`), never by `.ts-wrapper` position. Positions lie -- the court-report page's
-first `.ts-wrapper` belongs to a control inside a **closed `<dialog>`** (`display: none`, 0x0), and
-several pages hold four. Also note what does *not* mean "broken": controls inside a collapsed
-disclosure panel (the case-contact filters) or a modal (the court-report case picker) need opening
-first; `learning_hours` / `other_duties` list only names that already appear in the data, so they need
-rows before they have options; and `emancipation_checklists` is **volunteer-only** and redirects an
-admin to the dashboard.
+They were inherited with the rest of this document from Ruby for Good's CASA project, and they were
+deleted rather than translated. A rule needs an example, but a *specification* for a control nobody has
+built is not a rule - it is an instruction to build one, and the next person to need a searchable picker
+would have implemented CASA's.
 
-### Searchable single-select
-**Every "assign a person / a case" picker is a type-ahead.** There are **six**, and they are siblings:
-supervisors#index per-row assign supervisor, `stocks_in_the_future_cases/_volunteer_assignment` (volunteer -> this case),
-`supervisors/_manage_volunteers` (volunteer -> this supervisor), `volunteers/_manage_cases` (case -> this
-volunteer), `volunteers/_manage_supervisor` (supervisor -> this volunteer), `stocks_in_the_future_cases/new` (volunteer at
-case creation). **Five** of them were still native `<select>`s a full turn *after* this rule was written
-and after the copy-court-orders picker was converted, and the user had to report it twice ("there are too
-many cases for the user to scroll through", then "the assigned volunteer to this case drop-down should be
-a Type ahead select field"). **When you convert one instance of a pattern, grep for its siblings in the
-same turn** -- `grep -rn "<select\|\.select \|select_tag" app/views` and check every hit whose options are
-a person or a case list. Short fixed lists (a 3-option status filter, org config like judges / hearing
-types / languages) stay native.
-
-**A filter-bar picker over a person list is searchable too** (reimbursements#index Volunteer, the
-volunteers bar's Supervisor), and it needs three things a *form* picker doesn't. Mark it `ts-filter` on
-the `<select>` -- TomSelect copies the select's classes onto `.ts-wrapper`, which is what the rules hang
-off:
-- **The "All ..." row carries a non-empty value (`"all"`), never `""`.** The theme hides empty-valued
-  options in a menu (`.ts-dropdown .option[data-value=""] { display: none }`, there so a label-less blank
-  option isn't an empty row), so as `value=""` the row that *clears the filter* would be missing from the
-  very menu the user opens to clear it. The controller reads `"all"` as no filter (`volunteers_controller`
-  already did; `reimbursements_controller` now does). It also means a filter, unlike a form picker,
-  **states its current state including "All"** -- so no `placeholder-value` here: the "All ..." option is
-  the selected item on load, exactly as in the native select.
-- **Height matches the bar, not the form.** Filter fields are native `py-2` selects and date inputs at
-  **38px**, while `.ts-control`'s min-height is the 42px form-input height -- so an unmarked control stood
-  4px taller than every field beside it (bottoms aligned by `items-end`, tops 4px out). Measured 38 == 38,
-  tops and bottoms equal, after `.ts-wrapper.ts-filter .ts-control { min-height: 2.375rem }`.
-- **No clear x; keep the caret.** A filter always has a value, so the wrapper is permanently
-  `.has-items` and the clear-button rules would swap its caret for an x on every hover/focus while the
-  native selects beside it keep theirs -- and "clear" on *All supervisors* means nothing. The reset is
-  the "All ..." row.
-
-The `volunteers/index` bulk **Assign a supervisor** modal was the last native one, and converting it
-meant **swapping its sentinels** — worth knowing before you convert anything with a "None" row.
-`value=""` used to mean *None* (unassign) while `"unselected"` meant *nothing chosen*, which a
-placeholder picker cannot express: the blank option is the not-chosen state, and the theme hides
-empty-valued options in the menu, so **None would have vanished from the very menu that unassigns**.
-So None is now an explicit `value="none"`, blank is not-chosen, and `disable-form`'s unallowed value is
-`""`. That also closed a hazard the old scheme carried: blank *meant* unassign, so a blank submit
-slipping past the client-side guard quietly stripped the supervisor from every selected volunteer.
-Blank is a **no-op with an alert** server-side now. Inside a native `<dialog>`, **do not** set
-dropdownParent: body — the top layer paints over a body-parented menu.
-
-For a single-select whose options are **unbounded / potentially long** (e.g. every active supervisor
-in the org, on the "assign supervisor" per-row picker), use a **type-ahead**, not a native `<select>`:
-the `searchable-select` Stimulus controller (TomSelect single-select). A native dropdown is fine only
-for a short, fixed list (the 3-option status filter stays native). The supervisor/admin **volunteer
-search** (the learning-hours roster and the other-duties log) uses this control as a *filter*
-(`name="search"` + `auto-submit`) over a **Pagy-paginated table** -- the standard "review the time my
-volunteers logged" shape; a per-person card/table stack (the old other-duties layout) doesn't scale
-past a handful of people.
-- **Width:** a standalone search/filter control is sized to **one form column** -- `sm:max-w-xs`
-  (~320px) on the block `<form>`, so it's **full-width on mobile** (a two-column form's single column
-  collapses to full width below `sm`) and one field wide on desktop. Applied uniformly on the
-  learning-hours, other-duties, and emancipation searches; don't hand-pick `max-w-sm`/etc. per page.
-  (Multi-field **filter bars** -- volunteers / cases / reimbursements -- are a separate responsive
-  grid and set their own per-field widths.)
-- **Inside an overflow container** (a table with `overflow-x-auto`, a card with `overflow-hidden`),
-  pass **`data-searchable-select-dropdown-parent-value="body"`** so the menu renders on `<body>` and
-  isn't clipped. Verify the open menu isn't clipped (it should sit just below/above the control).
-- **Fallback class stays minimal** (`block w-full`): the theme owns the border/padding/shadow on
-  `.ts-control`, and TomSelect copies the `<select>`'s classes onto `.ts-wrapper`, so a bordered class
-  **double-borders** the control (measured: `.ts-control` 1px + `.ts-wrapper` 1px). Drop the manual
-  chevron too -- the `.ts-wrapper::after` caret handles it.
-- **Accessible name**: the controller sets an **`aria-label`** on TomSelect's control input, copied from
-  the native `<select>`'s accessible name (its `aria-label`, or its associated `<label>` text, read
-  *before* init). TomSelect wires a `<label for=...>` to its input via `aria-labelledby`, but **ignores
-  an `aria-label` on the `<select>`** -- so a picker that labels itself that way (the roster / case /
-  supervisor search filters) would otherwise render an input named only by its placeholder. Verify with
-  the **accessibility tree** (the input's computed name is non-empty), not the mere presence of an
-  attribute -- a `<label for>` picker (court report) already resolves to a name via `aria-labelledby`
-  even with no `aria-label` on the input.
-- **Name the NATIVE `<select>` too, after init.** Naming the control input is only half of it:
-  TomSelect **repoints the `<label for=...>` at its own input**, which empties `select.labels` and
-  leaves the original `<select>` with **no accessible name** -- and `.ts-hidden-accessible` *clips*
-  that select rather than `display:none`-ing it, so it stays in the accessibility tree and trips
-  axe's **`select-name` (critical)**. Both controllers stamp the pre-init name back on as an
-  `aria-label` on the `<select>` itself. This is why a `<label for>` picker is **not** automatically
-  safe: the label resolves for TomSelect's input, never for the select behind it. The symptom is
-  slippery -- axe flags only the selects that have finished initialising, so the violation count
-  moves between runs (the report filters showed 3 nodes one run and 2 the next).
-- **A `prompt:` option is not a substitute for `placeholder-value`.** With a prompt and no placeholder
-  the controller leaves `allowEmptyOption` true, so TomSelect takes "Select case number" as a selected
-  **item** -- and an item at rest means `.input-hidden` (the search input parked at `left: -10000px`),
-  **no placeholder and no magnifier**. The control still searched perfectly once clicked, but nothing
-  said so: it was indistinguishable from a native dropdown, over *every active case in the chapter*.
-  Reported as "how many case numbers could there be in the case dropdown, should it be a typeahead
-  select field?" -- about a control that already was one. Keep the prompt for the no-JS render; add the
-  placeholder so the blank option is neither an item nor a menu row.
-- **One option? Preselect it.** A picker whose list has exactly one entry (a volunteer with one case)
-  should choose it, so nothing is left for the user to fill. Anything that keys off the selection must
-  then also run **on connect** -- `change` does not fire for a server-rendered `selected` option, so a
-  dependent date field would otherwise sit empty next to a chosen record.
-- **Loads blank with an affordance**, never a pre-selected default: pass **`placeholder-value="Search …"`**
-  (signals it's typeable AND is the empty state) plus a leading blank `<option value="">` (defaults the
-  native `<select>` to empty for submit + no-JS). **A placeholder picker MUST also set
-  `allowEmptyOption: false`** (the controller keys this off `placeholder-value`): otherwise TomSelect
-  treats the blank option as a *selected item*, hides the input + its placeholder off-screen
-  (`left:-10000px`) and shows an empty item -- the field then reads as blank with the caret pushed ~1/3
-  in. With it false the empty option is neither an item (input stays on-screen showing the placeholder,
-  caret right after the icon) nor a menu row.
-- **An empty picker must LOOK disabled.** Put `disabled` on the `<select>` itself, not only on an
-  ancestor `<fieldset disabled>`: the fieldset makes every descendant inert but does **not** set the
-  select's own `disabled` property, which is what TomSelect reads at init to add `.disabled` to the
-  wrapper. tom-select ships no styling for that class either, so `tailwind.css` mirrors the native
-  `disabled:bg-slate-100 disabled:text-slate-500` (`.ts-wrapper.disabled .ts-control`, plus a
-  half-opacity caret). Without both, an "assign a volunteer" card with nothing to assign renders a
-  white, live-looking control that silently does nothing. Don't add `cursor: not-allowed` -- tom-select
-  forces `cursor: default !important` on a disabled control and wins.
-- **Disable the submit until a choice is made** (it now loads blank): pass **`toggle-submit-value="true"`**
-  -- the controller disables the closest form's `[type=submit]` until an option is picked and re-disables
-  on clear. Add `disabled:opacity-50 disabled:cursor-not-allowed` to that button.
-- **Clear (x)**: the `clear_button` plugin shows an x on focus/hover once a value is set. stocks in the future doesn't load
-  the bundled bootstrap clear-button theme, so **hide the chevron while the x shows**
-  (`.ts-wrapper.has-items.focus::after` / `:hover::after { opacity: 0 }`) -- the x sits where the chevron
-  was, so they never overlap (idle: chevron shown, x hidden; focus/hover: x shown, chevron hidden).
-- **Reads as a search field**: a leading **magnifier** (base64-SVG background) plus the slate-400
-  placeholder makes it obviously a type-ahead. The magnifier is a **resting affordance only** -- scoped
-  to `.ts-wrapper.single:not(.focus):not(.has-items) .ts-control` (+ `padding-left: 2rem`). The moment
-  the user focuses (types) or a value is selected it's a plain field: **no icon, caret/text at the
-  normal left** (`px-3.5` / 14px, matching the design-system text inputs). A persistent leading icon
-  pushed the caret in on focus and lingered after a pick -- not standard type-ahead behavior.
-  **Vertically center the content** (`align-items: center` on the single `.ts-control`; `align-self:
-  center` on the item/input) -- otherwise the selected item stretches to the full content box and the
-  text rides high (uneven top/bottom). Size the wrapper to fit icon + placeholder + insets (~`w-48`,
-  192px), not wider.
-- **One line, always** (single-select): `flex-wrap: nowrap` + input `min-width: 0 !important` + item
-  `overflow:hidden; text-overflow:ellipsis; white-space:nowrap`. TomSelect's default input
-  `min-width: 7rem` otherwise wraps a selected name + the input onto a 2nd line in a narrow field
-  (growing the field's height), which also pushes the caret in -- abnormal for a single-select.
-
+What survives, because it is a decision this app has actually taken: **a checkbox group is the right
+control for a short, fully known set of options**, and beyond roughly ten it should become a searchable
+multi-select with chips - GitHub's assignees picker, Linear's, Jira's. That threshold is the trigger, and
+it is recorded on the classroom form, where it will be met first.
 ### Nested sub-form (repeatable rows)
 The court-orders sub-form (`stocks_in_the_future_cases/_court_orders` + `_court_order_fields`) is the
 pattern: repeatable `.nested-form-wrapper` entry rows, an **Add** button that clones a
