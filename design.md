@@ -3489,136 +3489,46 @@ names a period the query does not apply.
   ("January 1, 2026").
 
 ### Filter bar
-Controls in a filter bar are **one step more compact than form fields** -- filters are
-chrome above the data, not the primary task. Two sizes, both measured, don't mix them:
 
-| | form field | filter control |
-|---|---|---|
-| select | `py-2.5 pl-3.5 pr-9` (42px) | `py-2 pl-3 pr-9` (**38px**) |
-| text/date input | `px-3.5 py-2.5` (42px) | `px-3 py-2` (**38px**) |
-| label | `mb-1.5 block text-sm font-medium text-slate-700` | `mb-1 block text-xs font-medium text-slate-500` (**12px slate-500**) |
+Two shapes here, and the difference between them is the point of the page-rhythm rule above.
 
-Cases / volunteers / supervisors / reimbursements / case-contacts all converge on the filter
-column; a filter built from the form tokens sits 4px taller with 14px slate-700 labels and
-reads as a form embedded in the page (this was the case-contacts bug). Verify by measuring
-control height against a sibling roster filter, not by reading tokens.
+**The search filter** (`admin/shared/_search_filter`) is a `tw-card mb-6 p-5` holding one search
+field, any number of selects, a Filter submit and a Clear link -- a bordered card, so it is a
+*section* and keeps the 24px gap. **The discard tabs** (`admin/shared/_discard_filter_tabs`) are a
+plain `mb-4 flex gap-1 border-b` row of Active / Archived tabs -- borderless, so 16px.
 
-**Layout: one toolbar row, not a titled panel.** The list-toolbar standard (GitHub issues, Linear,
-Jira, Notion, Polaris, Stripe) is a single horizontal row directly above the list, and the roster
-bars follow it. Specifics, all measured on case-contacts:
-- **No visible "Filters" heading.** The controls say what they are; a heading costs a whole row and
-  reads as redundant next to a `More filters` trigger. Keep it as `<h2 class="sr-only">Filters</h2>`
-  so the section stays named for AT and the heading outline survives. (Before: a 45px heading
-  marooned **767px** from its trigger on a 960px card.)
-- **A single high-traffic boolean goes inline in the row, beside the overflow trigger** -- not inside
-  the panel. `Hide drafts` sits next to `More filters`. It also removes an alignment hack: in a row of
-  *labelled* fields a bare checkbox has to fake a baseline (`pb-2.5`, measured 1px off); beside the
-  trigger it just centres.
-- **Bottom-aligning a bare control group against a labelled field lands it low.** The row is
-  `items-end`, so a 28px action group bottom-aligns **5px below** the 38px control's centre. Give the
-  group **`min-h-[38px]` + `items-center`** and the centres coincide. Verify by comparing centre-y of
-  the sort control, the checkbox and the trigger -- `index_spec` "keeps Hide drafts on one line with
-  the overflow trigger" asserts all three are equal.
-- **Clear renders exactly when a FILTER is applied**, never at the defaults, where it is dead chrome
-  (Polaris and Jira both gate it this way). `filters_applied?` is the predicate, and the awkward
-  cases are why it exists: a checkbox always posts (`no_drafts=0` when unchecked) and array filters
-  arrive as `[""]`, so neither can be judged by bare presence. It is a **ghost** action, not a 40px
-  `:secondary`: as a bordered button it was the heaviest thing in the card, louder than the filters.
-- **A sort is not a filter.** A non-default sort must not put a control labelled *Clear filters* on
-  screen, and clearing must not silently reorder the list. So `clear_filters_path`, **not**
-  `reset_filterrific_url` -- filterrific's reset drops the sort along with everything else. Both that
-  link and every chip's remove link **always send a `filterrific` hash carrying `sorted_by`**:
-  filterrific restores its *session-persisted* filters whenever the submitted hash is blank, so an
-  empty one would hand the filters straight back. Case scope (`stocks_in_the_future_case_id`) and panel state
-  (`filters_open`) ride along too -- neither is a filter.
-- **Do NOT gate Clear on the panel being open.** It is tempting (filters open the panel, so surely
-  Clear belongs to the open panel) but it removes the escape hatch in the one state that needs it
-  most: a filter applied while the panel is collapsed, where the user cannot see what is narrowing
-  the list. Polaris / Jira / Linear / GitHub all keep the clear affordance independent of the
-  popover's state.
-- **No applied-filter chips here.** They were built and then removed. The count badge plus Clear is
-  the treatment for this bar: the panel auto-opens when a hidden filter is active, so the filters are
-  already on screen in the normal case, and chips duplicated that while doubling the surface that has
-  to stay in sync. Chips remain the right pattern for a bar whose filters are *never* visible (Polaris
-  / Linear / Jira), but that is not this one. If they ever come back, the × needs a **`title`** as well
-  as an `aria-label` -- `aria-label` alone is invisible to Capybara's `click_on`, which matches
-  text/title/id.
-- **Never mix submit mechanisms on one filter bar.** This is what made the bar behave two ways at
-  once. The legacy `.filter-input` inputs submit through a **jQuery** handler, which bypasses Turbo and
-  does a **native full-page** submit; the multiselect's deferred submit used **`requestSubmit()`**,
-  which fires a real submit event that Turbo intercepts and -- because the form carries
-  `data-turbo-frame` -- scopes to the **results frame only**. Everything in the card lives *outside*
-  that frame, so the Clear action and the count silently went stale after a contact-type change while
-  every other control updated them. Use **`form.submit()`** (native) for the deferred submit so all of
-  them agree. The trap when testing this: a frame update **preserves the document**, so tagging
-  `window` and finding the tag still there proves nothing about whether a submit fired -- it only
-  proves no *full* navigation happened. Assert on the chrome that must change (the count badge), not
-  on document identity.
+**Layout: one toolbar row, not a titled panel.** The list-toolbar standard -- GitHub issues, Linear,
+Jira, Notion, Polaris, Stripe -- is a single horizontal row directly above the list. There is **no
+visible "Filters" heading**: the controls say what they are, and a heading costs a whole row. Each
+control keeps an `sr-only` label so it is still named for assistive tech; a placeholder is not a
+label.
 
-- **A sort control is labelled `Sort by`** (Jira / Polaris / Amazon; GitHub shortens to `Sort`), not
-  Rails' auto-humanised `Sorted by`. It is **not** `Filter by` even though it sits in the filter card:
-  it changes the order, not which rows show, so `Filter by` over a list of `(newest first)` /
-  `(A-z)` orderings mislabels it. The card's own name is carried by the sr-only `Filters` heading.
+**Clear renders exactly when a filter is applied**, never at the defaults, where it is dead chrome --
+Polaris and Jira both gate it this way. Judging that is fiddlier than it looks: a checkbox always
+posts a value even when unchecked, and array filters can arrive as `[""]`, so neither can be decided
+by bare presence.
 
-**Same control, or same language?** "Pick contact types" appears three times and does not need one
-control everywhere -- it needs one **grouping language**. The *filter* is a searchable multiselect
-(chrome, must stay compact). `stocks_in_the_future_cases` new/edit is the rich multiselect, now grouped to match. The
-**case-contact form keeps its exposed grouped checkbox fieldset**: contact types is that page's
-primary *required* input and each row carries a per-type recency hint ("2 days ago") that cannot
-survive collapsing into chips, so forcing the filter's control there would cost real information on
-the page where it matters most. What *is* unified is the **group label token** -- `text-xs
-font-semibold uppercase tracking-wide text-slate-500` on the fieldset, the menu headers and the
-sidebar alike. Consistency of the pattern, not of the widget.
+**A sort is not a filter.** A non-default sort must not put a control labelled *Clear filters* on
+screen, and clearing must not silently reorder the list. Sorting here is `sort_link`, which carries
+the current filter params through, and Clear returns to `request.path`, which keeps nothing -- so if a
+sort ever needs to survive a clear, that is the thing to change.
 
-**Past ~10 options, a filter is a searchable multiselect -- never an exposed checkbox grid.** The
-case-contacts contact-type filter was ~25 checkboxes in ~10 groups: **502px** on desktop and **954px**
-on mobile, i.e. **taller than the results list it filters**, so opening the panel pushed the data off
-screen (the whole card hit 1599px on a 390px-wide phone). As one `multiple-select` TomSelect it is
-**42px**, and the card drops to 415px desktop / 679px mobile. Groups become **`<optgroup>`s**, and the
-chips are the "which ones are on" readout, so nothing is lost. Jira / Linear / GitHub / Polaris all
-put long option sets behind a searchable control for the same reason. Keep `filter-input` on the
-`<select>`: TomSelect's `change` is dispatched with `initEvent(name, true, false)`, so it **bubbles**
-and the delegated auto-submit still fires (verify -- a non-bubbling change would silently make the
-filter inert).
+**Label a sort control `Sort by`** (Jira, Polaris, Amazon; GitHub shortens it to `Sort`), not Rails'
+auto-humanised "Sorted by", and never `Filter by`: it changes the order, not which rows show.
 
-**`select_tag "name[]"` does not get the id you think.** Rails sanitises it to `name_` (trailing
-underscore), so a `label_tag :name` pointing at `for="name"` matches **nothing** -- the control is
-unlabelled, and the multiselect controller then finds no accessible name to copy, which is the
-`select-name` violation again. Pass an explicit **`id:`**. (This was live on the prototype's Cases
-filter.)
+**A native `<select>` arrow cannot be inset.** Chrome draws it against the edge of the field's
+padding, so it always reads tighter than the rest of the field's contents. `appearance-none` plus our
+own chevron, styled on `select.tw-input-primary`, so every select in the app is fixed at once rather
+than call site by call site.
 
-**Active-filter count: a tinted pill on the overflow trigger.**
+**Never mix submit mechanisms on one filter bar**, or it behaves two ways at once. A native
+`form.submit()` does a full-page submit; `requestSubmit()` fires a real submit event that Turbo
+intercepts and, if the form carries `data-turbo-frame`, scopes to that frame only -- so anything in
+the bar that lives outside the frame goes stale while everything inside it updates. The trap when
+testing this: a frame update **preserves the document**, so tagging `window` and finding the tag still
+there proves only that no *full* navigation happened, not that a submit fired. Assert on the chrome
+that must change.
 
-```
-[Sorted by ▾]        [☑ Hide drafts]  [Clear filters]  [More filters (2) ▾]
-                                                                    ^^^
-                                        sitf-primary/10 bg / sitf-primary-dark text,
-                                        rounded-full, px-1.5 py-0.5 text-xs font-semibold
-```
-
-A **pill**, not a parenthetical in the label: a bare number inside the text reads as part of the
-label and is easy to miss, where a tinted pill signals "something is on" at a glance (Jira, Notion,
-Airtable all tint the control when filters are active). It **counts fields, not values** -- three
-contact types picked is `1` -- and it **excludes the filters visible in the row** (sort, Hide drafts),
-which would otherwise be double-reported. `hidden_filter_count` is the helper; it renders only when
-positive, with an `sr-only` "N filters applied" beside it since the digit alone is not a sentence.
-The richer version of this pattern is a **removable chip per active filter** (Polaris / Linear /
-Jira), which says *which* filters rather than how many; the count is the cheap 90%.
-
-**The unfiltered option is `All`** (`["All", ""]`, or `All <term>` -- `All volunteers`,
-`All supervisors` -- when the field needs naming). Never `Display all`: it instructs the UI
-instead of naming the scope, and it does not match any other filter on any other page. The
-blank value means "no filter", which every filter scope must treat as a no-op
-(`if value.present?`), so picking `All` genuinely clears that filter.
-
-**`f.select` trap.** `f.select(method, choices, options, html_options)` -- `class:` belongs in
-the **fourth** argument. Passing `{include_blank: "All", class: select_class}` as one hash puts
-`class` in `options`, where Rails silently drops it: the select renders with **no class at all**,
-so it is both unstyled *and* missing behavioural hooks (on case-contacts it lost `filter-input`,
-the class the form auto-submits on, leaving three filters inert). Also pass the **current value**
-to `options_from_collection_for_select(..., selected)`: when `choices` is pre-rendered option
-HTML, `f.select` cannot mark the selection, so the control reads `All` while its filter is
-active. `spec/system/case_contacts/index_spec.rb` "other filters" guards all three.
 
 ### Form layout
 Forms use a **two-column responsive grid**: `grid grid-cols-1 gap-5 sm:grid-cols-2`, which
@@ -4124,13 +4034,29 @@ Base: `inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-me
   slate-500: on the slate-100 tint slate-500 is only 4.34:1, below AA; slate-600 is 6.92:1)
 - In progress / partial: `bg-amber-50 text-amber-700` + clock icon
 
-Volunteer assignment reuses these three: Assigned (emerald), Unassigned (rose),
-Deactivated volunteer (slate). Court-order implementation status uses the
-`court_order_status_pill` helper (presentation lives in the helper, NOT the model):
-Implemented (emerald + check), Partially implemented (amber + clock), Not implemented
-(rose + x-circle), Not specified (slate + minus) -- **never OS emoji** (it replaced a
-model `implementation_status_symbol` that returned literal ✅/🕗/❌, which render
-inconsistently across platforms and are invisible to a class-string button audit). Court orders render as a compact 2-column **table** (`Court order` | `Status`, design.md table tokens: sentence-case `text-xs font-semibold text-slate-600` header, `align-top` cells, `divide-y`; pill in a left-aligned `whitespace-nowrap` status column). NOT a leading badge (variable widths make the directive text start at a ragged left edge) and NOT a right-floating badge (it hovers at the top-right of multi-line directive text) -- both were tried and read wrong; the directive text is a paragraph, so it needs a real column.
+`components/ui/_badge` is the implementation and its tones are exactly these:
+`:neutral` `:success` `:warning` `:danger` `:info`. It is a light tint with a dark foreground and
+**no ring and no border** -- it carried `ring-1 ring-inset` for a while, which the spec does not
+specify, and sweeping fourteen badges onto it standardised that drift instead of removing it.
+
+Uses here: an order is pending (amber) / executed (emerald) / cancelled (slate), a grade book is
+draft (slate) or finalized (emerald), a person or a stock is active (emerald) or archived (slate).
+Presentation lives in a helper, never in the model, and **never OS emoji** -- literal ✅/❌ render
+inconsistently across platforms and are invisible to any class-string audit.
+
+Where a status belongs to the *page's* subject rather than a row, it goes **beside the title**, not
+in the actions slot: `_page_header` takes a `badge` local for exactly this, because the block is the
+actions slot and a status is not an action. The grade book's Draft pill floated in the top-right
+corner among "Add student" and "Edit classroom" until it moved. Linear, Stripe and GitHub all put an
+entity's state beside its name.
+
+**A pill never prefixes a sentence, and a switch is never labelled with a verb.** Polaris, Primer and
+Carbon all place a pill against a *title* or on its own line; a pill beside a sentence that already
+says the state is a third copy of one fact. And a switch's position *is* its state, so iOS, Material
+and Polaris all pair a switch with a **noun** -- Polaris's "Turn on" verb goes on a button.
+
+**A badge is never the control.** It has no editing affordance, so a yes/no answer is a segmented
+control on native radios, not a badge that happens to be clickable.
 
 **A pill carries a status, never a quantity.** Counts belong in their own right-aligned numeric
 column (`text-right` + **`tabular-nums`**), with the label in the column header and the cell
@@ -4138,17 +4064,16 @@ holding just the numeral. Every major system draws this line the same way -- Pol
 Atlassian lozenges, Carbon tags are all for categorical state -- and GOV.UK and Material both
 specify right alignment for numbers so digits line up and a column can be compared top to bottom.
 
-The supervisor roster had three count pills stacked in one "Volunteers" cell
-(`N attempting` / `N not attempting` / `N transition-aged`), the first two omitted at zero. Two
-things went wrong, and they are what to watch for:
+The case that established this had three count pills stacked in one cell, the first two omitted at
+zero. Two things went wrong, and they are what to watch for:
 - **Ragged metrics.** Because the leading pills were conditional, the *same* metric landed at a
-  different x-offset on every row -- measured 787 / 651 / 673px for `transition-aged` across three
-  rows. Nothing could be scanned down the column. As columns, all four right-align exactly.
+  different x-offset on every row -- measured 787 / 651 / 673px across three rows. Nothing could be
+  scanned down the column. As columns, they right-align exactly.
 - **Omitting a zero breaks comparison.** Show `0` (muted `text-slate-500`), don't drop the cell;
   a missing number is not the same as zero, and dropping it is what made the row shift.
-Counts are also **dead ends unless they link**: point each one at the filtered list where a filter
-exists (`volunteers_path(supervisor:)`, `volunteers_path(supervisor:, transition: "yes")`). Colour
-and weight stay as *reinforcement* only -- the header names the column, so nothing is colour-only.
+Counts are also **dead ends unless they link**: point each one at the filtered list where such a
+filter exists. Colour and weight stay as *reinforcement* only -- the header names the column, so
+nothing is colour-only.
 
 **Every figure in a numeric column gets the SAME style -- one colour, one weight, zeros included.**
 Use the table body colour (`text-slate-700`) + `tabular-nums` + `text-right` and vary nothing per
@@ -4165,10 +4090,9 @@ fighting in the one place whose whole purpose is comparing figures down and acro
 tell whether blue-vs-grey encodes magnitude, status, or navigability.
 
 So: **no per-cell emphasis, and never put the drill-through on the numeral.** Where the row needs to
-link somewhere, make it **one row-level action** in the actions column (`ghost_class`, alongside
-Edit -- the two-ghost-action shape the cases table already uses). That also stops the styling from
-advertising an asymmetry in the data model: only two of the roster's four counts could link at all,
-because `volunteers#index` filters by supervisor and transition age but not by contact activity.
+link somewhere, make it **one row-level action** in the actions column, alongside Edit -- the
+two-ghost-action shape every table here uses. That also stops the styling from advertising an
+asymmetry in the data model, where some counts have a filtered destination and others have none.
 If a count genuinely needs a status treatment, that is a pill in its own status column -- in the
 numeric column it would break the digit alignment the column exists for.
 
@@ -4176,30 +4100,26 @@ numeric column it would break the digit alignment the column exists for.
 record links in a links-only cell, so the brand colour is the cue: use
 `"font-medium #{record_link_class}"` and **not** a hand-rolled string with a persistent underline
 (that treatment is reserved for a record link sitting inline in body text, and hand-rolling it also
-loses the helper's focus ring). Drilling from a roster into a filtered list is a **flow trap** unless
-the destination offers a return -- the rule already stated under Names, and easy to miss because the
-destination here (`volunteers#index`) is itself a top-level nav page, so it must show the back link
-**only** when it was actually reached from somewhere:
-- Mark the origin with `from:` on the drill-through link -- the app's existing convention
-  (`volunteers/edit` already reads `from=other_duties` / `from_case_id`).
-- Render the documented chevron only when `params[:from]` says so. A page with top-right actions uses
-  the "title + actions" shape (back link + `h1 mt-2` as the left column), not `shared/_page_header`.
+loses the helper's focus ring). Drilling from one list into a filtered list is a **flow trap** unless
+the destination offers a return, and it is easy to miss when the destination is itself a top-level nav
+page, because then the back link must appear **only** when the page was actually reached from
+somewhere:
+- Mark the origin with `from:` on the drill-through link.
+- Render the back affordance only when `params[:from]` says so.
 - **Carry the origin through anything that re-renders the page**: a filter bar submits only its own
   fields, so without a hidden `from` the back link vanishes the moment the user filters.
-  `shared/_pagination` is already safe (it merges `request.query_parameters`).
 - **Carry it one hop further**, onto the per-row links, or the next page returns to the *unfiltered*
-  list and strands the user again. Verified end to end: roster -> filtered list -> volunteer -> back
-  to the filtered list -> back to the roster, with the link absent when arriving from the nav.
+  list and strands the user again. Verify the whole path, including that the link is absent when
+  arriving from the nav.
 
 **Trade-off to check when converting pills to columns:** wrapping pills fit a narrow viewport;
-fixed columns do not. The roster table measured 341px (no scroll) as pills and 616px in a 341px
-viewport as six columns, i.e. the change *introduced* horizontal scrolling on mobile. A data table
-is the documented WCAG 1.4.10 Reflow exception and axe stays clean either way, so this will not show
-up in an audit -- measure it. The fix is this page's existing pattern: desktop table
-`hidden md:block` plus a `md:hidden` card list repeating the figures in a labelled `dl` grid. Hoist
-the counts into one array first (`no_attempt_for_two_weeks` walks every volunteer's contacts, so
-rendering both copies would double that), and keep ids and `[data-stat]` hooks on the table only so
-the two copies never collide.
+fixed columns do not. One roster measured 341px with no scroll as pills and 616px in a 341px viewport
+as six columns -- the change *introduced* horizontal scrolling on mobile. A data table is the
+documented WCAG 1.4.10 Reflow exception and axe stays clean either way, so this will not show up in an
+audit; measure it. The fix here is `shared/_stacked_row_fields`: the extra columns are
+`hidden lg:table-cell` and come back as a labelled `dl` inside the primary cell. Hoist any expensive
+count into one array first rather than computing it per rendering. One `<tr>` serves both widths, so
+there is no second copy whose ids could collide with the first.
 
 ### Person avatar (initials)
 `grid place-items-center h-9 w-9 rounded-full text-xs font-semibold` with a soft color
