@@ -586,7 +586,8 @@ before.
 
 ## An archived plain user cannot be restored (2026-08) - DONE
 
-- [ ] **`admin/users` archives, and nothing un-archives.** Found while making the destructive
+- [x] ~~**`admin/users` archives, and nothing un-archives.**~~ **Done**: `restore`, the discarded
+  filter tabs, and a Restore row action that replaces Archive on an archived row. Found while making the destructive
   confirmations tell the truth. The action discards - it used to call `destroy`, which raised outside
   production - and `admin/students#restore` and the teachers' reactivation cover the two subclasses, so a
   user who is neither a student nor a teacher has no route back. Either add `restore` to `admin/users`,
@@ -641,7 +642,9 @@ before.
 
 ## The trading floor's Buy/Sell sit 10.5px below the row's first line (2026-08) - DONE
 
-- [ ] **Same class of misalignment as the row actions, different geometry.** Found while fixing those. The
+- [x] ~~**Same class of misalignment as the row actions, different geometry.**~~ **Done**:
+  `align-top` on the actions cell, so a 40px control sits on the row's first line rather than a padding
+  tuned to one row's height. Found while fixing those. The
   trading floor's Buy and Sell are **40px** buttons, not 32px ghosts, and its primary cell stacks a 40px logo
   over a ticker and a company name - so the row is 65px and the control's centre is 10.5px below the ticker's
   line. Its actions cell does not carry `table-actions-pinned`, so the `pt-1.5` correction does not reach it
@@ -789,7 +792,7 @@ which is its own entry above.
 - **The staging ribbon has never been seen on staging** - the tests stub `Rails.env`, which is the only
   honest way to cover an environment the suite does not run in, and it is not the same as looking.
 
-## 20 of 23 confirmations are one-line (2026-08)
+## 20 of 23 confirmations are one-line (2026-08) - DONE, all 29 rewritten
 
 `shared/_confirm_dialog` takes a question and a consequence, split on the first blank line. Only three
 call sites pass both - the two archive actions and the new user restore - and the finalize one, fixed
