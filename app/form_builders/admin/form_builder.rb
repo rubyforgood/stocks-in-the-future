@@ -18,7 +18,6 @@ module Admin
 
     INPUT_ERROR_CLASSES = "tw-input-error"
     LABEL_CLASSES = "tw-label-primary"
-    ERROR_CLASSES = "tw-field-error"
     HINT_CLASSES = "tw-field-hint"
 
     # Override text_field to include Tailwind styling and error handling
@@ -140,10 +139,14 @@ module Admin
       hint = options.delete(:hint)
       wrapper_class = options.delete(:wrapper_class) || ""
 
+      # A group *does* need its own message: the proc skips checkboxes deliberately, because a group's error
+      # belongs to the group and Rails would otherwise attach it to whichever box it rendered first. This is
+      # `FormErrorsHelper#field_error`, the same call `classrooms/_form` makes for its fieldsets, so a group's
+      # message and a field's are one component rather than two that drift.
       @template.content_tag(:div, class: "mb-6 #{wrapper_class}") do
         build_checkbox_collection_label(label_text, hint) +
           build_checkbox_collection_items(attribute, collection, value_method, text_method) +
-          error_message(attribute)
+          (@template.field_error(object, attribute) || "".html_safe)
       end
     end
 
@@ -235,18 +238,6 @@ module Admin
       @template.link_to(text, url, options)
     end
 
-    # Displays base errors (errors not tied to a specific attribute)
-    def base_errors
-      return "".html_safe unless object&.errors && object.errors[:base].any?
-
-      @template.content_tag(:div, class: "mb-6 p-4 bg-red-50 border border-red-200 rounded-lg") do
-        @template.content_tag(:p, class: "text-sm text-red-600") do
-          @template.lucide_icon("circle-alert", class: "mr-1 inline size-4 shrink-0") +
-            object.errors[:base].join(", ")
-        end
-      end
-    end
-
     private
 
     def build_select_choice(item, label_method, value_method)
@@ -323,11 +314,12 @@ module Admin
       select_options = extract_select_options(options)
       remaining_html_options = html_options.merge(options)
 
+      # A select is a text-like control as far as the proc is concerned, so it gets its message from there
+      # too - see the note in field_wrapper. This is the second of the two places that appended one.
       @template.content_tag(:div, class: "mb-6 #{wrapper_class}") do
         build_label(attribute, label_text) +
           build_hint(hint) +
-          build_select_field(attribute, choices, select_options, remaining_html_options, &) +
-          error_message(attribute)
+          build_select_field(attribute, choices, select_options, remaining_html_options, &)
       end
     end
 
@@ -370,11 +362,17 @@ module Admin
       hint = options.delete(:hint)
       wrapper_class = options.delete(:wrapper_class) || ""
 
+      # No error message here. `config/initializers/field_error_proc.rb` renders one for every text-like
+      # control and every select - which is all of them, since the checkbox builders below do not use this
+      # wrapper - so appending a second put **two** messages under every invalid admin field: "Name can't be
+      # blank" from the proc and "can't be blank" from here, in different colours, each with its own icon.
+      #
+      # The proc's version is the one to keep: it carries the attribute's name, so the field and the summary
+      # say the same thing, and it is the same component the app half uses.
       @template.content_tag(:div, class: "mb-6 #{wrapper_class}") do
         label(attribute, label_text, class: LABEL_CLASSES) +
           (hint ? @template.content_tag(:p, hint, class: HINT_CLASSES) : "".html_safe) +
-          @template.content_tag(:div, class: "mt-2", &) +
-          error_message(attribute)
+          @template.content_tag(:div, class: "mt-2", &)
       end
     end
 
@@ -394,16 +392,6 @@ module Admin
     end
 
     # Displays validation error for an attribute
-    def error_message(attribute)
-      return "".html_safe unless object&.errors && object.errors[attribute].any?
-
-      @template.content_tag(:p, class: ERROR_CLASSES, id: "#{attribute}-error") do
-        @template.lucide_icon("circle-alert", class: "mr-1 inline size-4 shrink-0") +
-          object.errors[attribute].first
-      end
-    end
-
-    # Yes/No were two hand-rolled pills, one of them the only bg-green-100 in the app.
     def badge(label, tone)
       @template.render("components/ui/badge", label: label, tone: tone)
     end

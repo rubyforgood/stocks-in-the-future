@@ -50,11 +50,16 @@ module Admin
     test "create" do
       grade = create(:grade, level: 7)
       school_year = create(:school_year)
+      # `school_id` and `year_id`, which is what the form posts: they are fields, not columns, and the
+      # pair is found-or-created into a SchoolYear. This posted `school_year_id`, which the admin
+      # controller used to permit and the form never sent - a test agreeing with the controller rather
+      # than with the browser.
       params = {
         classroom: {
           name: "Abc123",
           grade_ids: [grade.id],
-          school_year_id: school_year.id
+          school_id: school_year.school_id,
+          year_id: school_year.year_id
         }
       }
       admin = create(:admin, admin: true, classroom: nil)

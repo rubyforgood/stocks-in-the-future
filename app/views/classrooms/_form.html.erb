@@ -22,10 +22,22 @@
     attributes. A teacher who saw these would be filling in fields whose values are dropped on submit,
     which is worse than not offering them: the page would look like it saved and quietly would not. The
     check is the same policy the parameter filter uses, so the two cannot drift apart. %>
-<% admin_fields = policy(classroom).permitted_attributes.include?(:school_id) %>
-<% cancel_path = classroom.persisted? ? classroom : classrooms_path %>
+<%# **One classroom form, for both halves of the product.**
 
-<%= form_with(model: classroom, class: "contents") do |form| %>
+    `/classrooms/new` and `/admin/classrooms/new` were two different forms for one model, and they had
+    drifted into two different products: this one asks for a school and a year and offers the teacher
+    assignment; the admin one asked for a single school year, offered no teachers, wrapped every field in a
+    `mb-6` and led with an `h3` restating the page title. An admin creating a classroom got different
+    fields depending on which URL they came in through.
+
+    They render the same partial now, so the two cannot diverge again. What varies is what has to vary: the
+    URL it posts to and where Cancel goes. Everything else - which fields exist, in what order, with what
+    validation - is one decision made once. %>
+<% admin_fields = policy(classroom).permitted_attributes.include?(:school_id) %>
+<% url = local_assigns.fetch(:url, nil) %>
+<% cancel_path = local_assigns.fetch(:cancel_path) { classroom.persisted? ? classroom : classrooms_path } %>
+
+<%= form_with(model: classroom, url: url, class: "contents") do |form| %>
   <%= render "shared/form_errors", record: classroom, subject: "classroom" %>
 
   <%# No `mt-*`. It carried `mt-4`, which did nothing in the ordinary case: adjacent vertical margins collapse

@@ -88,7 +88,10 @@ module Admin
       end
 
       assert_response :unprocessable_content
-      assert_select "p.text-red-600", /already exists/
+      # In the error summary, which is where every admin form lists its errors now - including the ones
+      # on :base. This asserted `p.text-red-600`, the markup of a builder method that existed only to
+      # render base errors and was a second copy of the same list.
+      assert_select "[data-testid=?] li", "form-errors", /already exists/
     end
 
     test "edit" do

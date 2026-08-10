@@ -2005,6 +2005,45 @@ different geometry, which moves every column at the boundary. In a cell an absen
 from the day it was written and never rendered an exchange, while `stock_exchange` sat populated on every
 active stock and was shown only on `stocks#show`.
 
+### One form per model, not one per namespace
+**A model gets one form, rendered wherever it is needed.** `/classrooms/new` and
+`/admin/classrooms/new` were two forms for one model and had drifted into two products: one asked for a
+school and a year, the other for a single school year; one offered the teacher assignment, the other had
+none; one led with an `h3` restating the page title. An admin got different fields depending which URL
+they arrived through, and the admin half - the one whose job is administration - was the half that could
+not assign a teacher, because its hand-written parameter filter had never permitted `teacher_ids`.
+
+They render `classrooms/_form` now. **What varies is only what must vary**: the URL it posts to and where
+Cancel goes, both passed as locals. Everything else - which fields exist, in what order, with what
+validation - is one decision. The controllers share a concern for the data and the parameter handling,
+because a shared partial only works if both sides agree about what it posts.
+
+**The industry-standard field shape is label, hint, input, error** - GOV.UK, Polaris, Carbon and Material
+all order it that way, and the admin builder already did. That is why the admin form read better: the
+hint sat under its label, above the control it governs, and every field had one. It is the shape to keep.
+
+### One field-level message, from one place
+**A field shows one message.** Every invalid admin field showed **two**: "Name can't be blank" from
+`config/initializers/field_error_proc.rb` and "can't be blank" from `Admin::FormBuilder`'s own
+`error_message`, in different colours, each with its own icon. The builder's is gone; the proc's is kept,
+because it carries the attribute's name - so the field and the summary say the same thing - and because
+it is the component the other half of the app uses.
+
+The exception is a **checkbox group**, which the proc skips deliberately: a group's error belongs to the
+group, and Rails would otherwise attach it to whichever box it rendered first. Those call
+`FormErrorsHelper#field_error`, the same call the hand-written fieldsets make.
+
+`.tw-field-error` went with it. It was the second definition of a field message - red text, no icon -
+and once nothing referenced it, an unused class is indistinguishable from a supported one.
+
+**One problem produces one error.** `Classroom` had a custom `school_year_presence` adding a `:blank`
+error on `school_year_id` for the thing `belongs_to :school_year` already reports on `school_year`, so a
+summary listed "School year must exist" and "School year can't be blank" for one empty field.
+
+**Every form has an error summary.** Nine admin forms had none: a failed submit marked the fields and
+said nothing at the top, so on a long form the reader had to hunt. `shared/_form_errors` is on all of
+them now, which also retired `Admin::FormBuilder#base_errors` - a second list of the same errors.
+
 ### Environment banner
 **A destination that is not part of the product says so on the page, in a sentence - never by
 recolouring its nav row.** The component demo was a purple row in a sidebar section headed

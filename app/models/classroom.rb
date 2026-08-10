@@ -23,7 +23,6 @@ class Classroom < ApplicationRecord
   has_many :grade_books, dependent: :destroy
 
   validates :name, presence: true
-  validate :school_year_presence
   validate :grade_level
 
   # One place keeps `trading_disabled_at` true to the flag, the same shape Stock uses for
@@ -147,7 +146,8 @@ class Classroom < ApplicationRecord
     errors.add(:grades, "must have at least one grade") if grades.empty?
   end
 
-  def school_year_presence
-    errors.add(:school_year_id, :blank) if school_year_id.blank? && school_year.nil?
-  end
+  # `school_year_presence` is gone. It added a second `:blank` error, on `school_year_id`, for the one
+  # thing `belongs_to :school_year` already reports on `school_year` - so a classroom saved without one
+  # listed "School year must exist" and "School year can't be blank" in the same error summary, which is
+  # the same defect as a field carrying two messages. One problem, one error.
 end

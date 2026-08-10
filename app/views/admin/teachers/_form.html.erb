@@ -1,4 +1,6 @@
 <%= form_with model: @teacher, url: @teacher.persisted? ? admin_teacher_path(@teacher) : admin_teachers_path, builder: Admin::FormBuilder, class: "space-y-6" do |f| %>
+  <%= render "shared/form_errors", record: @teacher, subject: "teacher" %>
+
   <div class="tw-card">
     <div class="p-5">
       <h3 class="text-lg font-medium text-slate-900 mb-6">Teacher details</h3>

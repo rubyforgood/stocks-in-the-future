@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class ClassroomsController < ApplicationController
+  include ClassroomFormFields
+
   before_action :set_classroom, only: %i[show edit update toggle_trading]
   before_action :authorize_classroom, except: %i[edit update toggle_trading]
   before_action :authorize_classroom_instance, only: %i[edit update toggle_trading]
@@ -22,21 +24,21 @@ class ClassroomsController < ApplicationController
 
   def new
     @classroom = Classroom.new
-    dropdown_data
+    classroom_form_data
   end
 
   def edit
-    dropdown_data
+    classroom_form_data
   end
 
   def create
-    @classroom = Classroom.new(classroom_params.except(:school_id, :year_id))
+    @classroom = Classroom.new(classroom_attributes)
     assign_school_year_to_classroom
 
     if @classroom.save
       redirect_to classroom_url(@classroom), notice: t(".notice")
     else
-      dropdown_data
+      classroom_form_data
       render :new, status: :unprocessable_content
     end
   end
@@ -44,10 +46,10 @@ class ClassroomsController < ApplicationController
   def update
     assign_school_year_to_classroom
 
-    if @classroom.update(classroom_params.except(:school_id, :year_id))
+    if @classroom.update(classroom_attributes)
       redirect_to classroom_url(@classroom), notice: t(".notice")
     else
-      dropdown_data
+      classroom_form_data
       render :edit, status: :unprocessable_content
     end
   end
@@ -88,21 +90,6 @@ class ClassroomsController < ApplicationController
   # asked about even though this policy's answer depends on the user alone.
   def classroom_params
     permitted_attributes(@classroom || Classroom.new)
-  end
-
-  def dropdown_data
-    @schools = School.order(:name)
-    @years = Year.order(:name)
-    @teachers = Teacher.all.sort_by(&:display_name)
-  end
-
-  def assign_school_year_to_classroom
-    return unless classroom_params[:school_id].present? && classroom_params[:year_id].present?
-
-    school = School.find(classroom_params[:school_id])
-    year = Year.find(classroom_params[:year_id])
-    school_year = SchoolYear.find_or_create_by!(school: school, year: year)
-    @classroom.school_year = school_year
   end
 
   def check_classroom_eligibility

@@ -2,7 +2,10 @@
 
 module Admin
   class ClassroomsController < BaseController
+    include ClassroomFormFields
+
     before_action :set_classroom, only: %i[show edit update toggle_archive]
+    before_action :classroom_form_data, only: %i[new edit create update]
 
     def index
       @classrooms = apply_sorting(Classroom.all, default: "name")
@@ -37,7 +40,8 @@ module Admin
     end
 
     def create
-      @classroom = Classroom.new(classroom_params)
+      @classroom = Classroom.new(classroom_attributes)
+      assign_school_year_to_classroom
 
       if @classroom.save
         redirect_to admin_classroom_path(@classroom), notice: t(".notice")
@@ -51,7 +55,9 @@ module Admin
     end
 
     def update
-      if @classroom.update(classroom_params)
+      assign_school_year_to_classroom
+
+      if @classroom.update(classroom_attributes)
         redirect_to admin_classroom_path(@classroom), notice: t(".notice")
       else
         @breadcrumbs = [
@@ -76,8 +82,11 @@ module Admin
       @classroom = Classroom.find(params.expect(:id))
     end
 
+    # Pundit's list, the same one the app half uses. This wrote its own, and it had drifted: it permitted
+    # `school_year_id` and never `teacher_ids`, so the admin screens - the half whose whole job is
+    # administration - were the half that could not assign a teacher to a classroom.
     def classroom_params
-      params.expect(classroom: [:name, :trading_enabled, :school_year_id, { grade_ids: [] }])
+      permitted_attributes(@classroom || Classroom.new)
     end
   end
 end

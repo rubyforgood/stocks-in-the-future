@@ -1,4 +1,6 @@
 <%= form_with model: @stock, url: @stock.persisted? ? admin_stock_path(@stock) : admin_stocks_path, builder: Admin::FormBuilder, class: "space-y-6" do |f| %>
+  <%= render "shared/form_errors", record: @stock, subject: "stock" %>
+
   <div class="tw-card">
     <div class="p-5">
       <h3 class="text-lg font-medium text-slate-900 mb-6">Basic information</h3>

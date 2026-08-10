@@ -36,12 +36,13 @@
     @apply block w-full min-h-11 rounded-lg bg-white px-3 py-2 text-base text-slate-900 border border-red-600 placeholder:text-slate-500 focus:outline-2 focus:-outline-offset-2 focus:outline-red-700 lg:text-sm/6
   }
 
-  /* The message under a field, and the hint above it. Both were slate-500/red-600 written inline in
-     four different places. */
-  .tw-field-error {
-    @apply mt-2 text-sm text-red-700
-  }
+  /* The hint above a field. It was slate-500 written inline in four different places.
 
+     `.tw-field-error` used to sit here and is gone: a field-level message is built by
+     `FormErrorsHelper#field_error_message`, which is one component with an icon in it, and this token was
+     the second definition - red text with no icon, which is how an admin field ended up with two messages
+     under it in two colours. An unused class is indistinguishable from a supported one until someone
+     adopts it. */
   .tw-field-hint {
     @apply mt-1 text-sm text-slate-600
   }

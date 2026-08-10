@@ -1,8 +1,12 @@
-<div class="max-w-7xl mx-auto">
+<div class="mx-auto max-w-2xl">
   <%= admin_breadcrumbs(@breadcrumbs) %>
 
   <%= render layout: "components/ui/page_header",
-             locals: { title: "Edit classroom", description: @classroom.name } do %><% end %>
+             locals: { title: "Edit classroom",
+                       description: "Changes apply to everyone who can see this classroom." } do %><% end %>
 
-  <%= render "form" %>
+  <%= render "classrooms/form",
+             classroom: @classroom,
+             url: admin_classroom_path(@classroom),
+             cancel_path: admin_classroom_path(@classroom) %>
 </div>

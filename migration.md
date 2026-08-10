@@ -2952,3 +2952,33 @@ could measure, and two pages it could not.
   escapes it by hand, or matches it with a plain-string regex, needs `strip_tags` - the helper test does.
 - **`ApplicationHelper#shares_label`** is new: `share_count` plus an agreeing noun. Anything rendering
   "#{share_count(n)} shares" was printing "1 shares" for a single share.
+
+## One classroom form, and one field-level message
+
+### What changed
+
+- **`app/views/admin/classrooms/_form.html.erb` is deleted.** Both halves render `classrooms/_form`,
+  which now takes `url:` and `cancel_path:` locals.
+- **`ClassroomFormFields`** (a controller concern) holds `classroom_form_data`,
+  `assign_school_year_to_classroom` and `classroom_attributes`. Both classroom controllers include it.
+- **`Admin::ClassroomsController#classroom_params` uses Pundit's `permitted_attributes`.** Its own list
+  permitted `school_year_id` and never `teacher_ids`.
+- **`Admin::FormBuilder` no longer renders field-level errors.** `field_wrapper` and
+  `render_select_with_wrapper` dropped `error_message`; the method and `ERROR_CLASSES` are gone, as is
+  `.tw-field-error` in `forms.css`. `collection_check_boxes` calls `FormErrorsHelper#field_error`.
+- **`Admin::FormBuilder#base_errors` is gone**, with its one caller, replaced by the summary.
+- **All nine admin form partials render `shared/_form_errors`.**
+- **`Classroom#school_year_presence` is gone** - `belongs_to :school_year` already reports it.
+
+### What this breaks
+
+- **Anything posting `classroom[school_year_id]` to the admin controller.** It is not permitted; the
+  form posts `school_id` and `year_id`, which are found-or-created into a SchoolYear. A controller test
+  hand-wrote the old params and passed against a controller that agreed with it and not with the form -
+  which is why `classroom_form_consistency_test` clicks the real form instead.
+- **Anything asserting `p.text-red-600`, `.tw-field-error`, or two messages under an admin field.** One
+  test did, on the school-year duplicate error; it asserts the summary now.
+- **Anything asserting `Classroom` reports an error on `school_year_id`.** It reports on `school_year`.
+- **`Admin::FormBuilder` is now unusable for a form with no error summary**, in the sense that an
+  invalid field will show its message and nothing will tell the reader at the top. Every current form
+  has one; a new admin form needs the render call.
