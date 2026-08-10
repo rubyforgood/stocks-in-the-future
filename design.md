@@ -4147,59 +4147,31 @@ there was no header at all when signed out.
 Test it by clicking. A request-level test cannot tell an open disclosure from a closed one,
 because the links are in the DOM either way.
 
-### Contact medium (card meta line)
-A case contact's medium (in person / video / voice / text / letter) is **how** the contact happened --
-a fact peer to date, duration, and miles. Show it as **plain text in the card meta line**
-(`CaseContactDecorator#subheading`, e.g. "July 21, 2026 | In person | 30 minutes"), NOT as an icon.
-An icon-only medium is a poor signifier: the glyphs are ambiguous (an envelope is text OR a letter?),
-undiscoverable behind a hover, invisible on touch, and read as decoration -- reviewers couldn't tell
-what it meant. Plain text beside the other facts is self-evident, needs no hover, and works everywhere;
-`subheading` omits the medium when unset, like the other conditional facts. Both the index card
-(`case_contacts/_case_contact`) and the case-show card (`stocks_in_the_future_cases/_case_contact_card`) render
-`subheading`, so they stay in sync. (History: this replaced a hover-tooltip icon badge. If a future
-compact view really wants an at-a-glance glyph, pair the icon WITH its visible text label -- never
-icon-alone -- and note that Tailwind v4 gates `hover:`/`group-hover:` behind `@media (hover: hover)`,
-so a hover-only reveal silently fails on touch / hybrid-pointer devices.)
-Medium names are **sentence case** ("Voice only", "Text/email") everywhere: `medium_label` and
-`contact_mediums` (the medium dropdown / radios + the index filter) both derive it via
-`medium_type.tr("-", " ").humanize`, so they don't drift back to Title Case.
+### Card meta line
 
-### Names
-User names render **without honorific prefixes** (Mrs./Mr./…), first + last only, on
-**every page**. Use `display_person(user)` (new UI) or `formatted_name(name)` (existing `.display_name`
-call sites) for the name, and `avatar_initials` for initials (all backed by
-`NamePresentation`). This is presentation-only — the
-stored `display_name` is never mutated (it must round-trip raw input for security).
+A record's secondary facts -- date, amount, count, state -- go in **one plain-text meta line** beneath
+the primary name, joined by a separator, with any fact omitted when it is unset. Build it in one place
+(a helper or a decorator) and render that from every card, so two views of the same record cannot
+drift apart.
 
-A person's name is **identifying text, not a nav link**: render it `font-medium
-text-slate-800` (dark), the same whether or not it is clickable, so it reads as a name rather
-than a generic hyperlink. When it does link to that person's record, keep it dark but give it a
-**persistent** underline (`underline underline-offset-2 hover:text-brand-700`, NOT `hover:underline`)
-so it's discoverably clickable: a name that only underlines on hover reads as plain text and users
-don't know to click it. The underline is a non-color cue (WCAG 1.4.1), slate-800 on white is 14.7:1
-(1.4.3), + a focus ring (2.4.7). Use the **`name_link_class`** helper (callers prepend the font
-size/weight, e.g. `"font-medium #{name_link_class}"`) so every clickable name matches app-wide. Dark +
-underline stays distinct from the brand-colored **record links** (a case number or court date), which
-use the counterpart **`record_link_class`** helper (brand-600 + hover underline + focus ring): the brand
-color is the link cue in a links-only cell, so add a persistent `underline` only when a record link
-sits inline within body text (brand-on-text is under 3:1, WCAG 1.4.1). The two helpers are the only
-two in-content link treatments -- dark `name_link_class` for people, brand `record_link_class` for
-records -- so links read consistently everywhere. Prefer not to send the user out of the current flow via a name;
-if a name must link away, its destination needs a clear path back (an unmigrated edit page
-with no return is a flow trap).
+**Plain text, not an icon.** An icon-only fact is a poor signifier: the glyphs are ambiguous, the
+meaning is undiscoverable behind a hover, and a hover reveal is invisible on touch. Reviewers could not
+tell what one meant. If a compact view really wants a glyph, pair the icon **with** its visible text
+label -- never icon-alone -- and remember that Tailwind v4 gates `hover:` and `group-hover:` behind
+`@media (hover: hover)`, so a hover-only reveal silently fails on touch and hybrid-pointer devices.
+(That same media query is why you cannot verify a `hover:` style from a system test here: headless
+Chromium reports `(hover: none)`, so assert hover as a class contract in a helper test and assert the
+resting state as rendered pixels.)
 
-### Tag
-**Use `components/ui/_badge`.** There is no separate tag treatment here.
-
-This entry used to prescribe `rounded bg-brand-50 px-1.5 py-0.5 text-[10px] font-bold uppercase
-tracking-wide text-brand-600`, which is wrong three ways for this app: `brand-*` is not defined, 10px is
-below the 12px legibility floor set above, and `uppercase` is ruled out by the copy rules - size, weight
-and colour carry hierarchy instead.
+Meta-line values are **sentence case** like every other label, and derived rather than written out --
+`humanize` on an enum value, `number_to_currency` on money -- so they cannot drift back to Title Case
+or to `$15.0`.
 
 ### Dashboard worklist ("Needs your attention")
-A prioritised list of things to act on. **One container: the section card** -- and inside it, the
-same desktop-table + `md:hidden`-divided-list pair the sibling tables on these pages already use
-(`hidden overflow-x-auto md:block` table, then `divide-y divide-slate-100 md:hidden` rows).
+A prioritised list of things to act on. The admin dashboard's two are "Orders awaiting execution"
+and "Recent transactions". **One container: the section card**, holding a table built from the shared
+`.table-*` tokens, with the secondary columns `hidden lg:table-cell` and `shared/_stacked_row_fields`
+bringing them back inside the primary cell below `lg`.
 
 **Pick table vs list by the row's width, not by taste.** A divided list is right in a narrow column
 and wrong in a wide card: `justify-between` pins two small items to opposite edges, and at a ~918px
@@ -4207,15 +4179,12 @@ card that measured a **645px void** per row -- which reads as an empty table, th
 tinted boxes had been hiding. Columns spend that width on data instead (largest inter-column gap after
 the fix: 0px). So:
 - **Wide card (a full-width dashboard section): a table.** Give it at least two data columns, or the
-  same void reappears in table clothing -- the admin worklist only had a case number, so it gained a
-  **Next court date** column, which is also what you triage on. Use the sibling table's tokens:
-  `thead` `text-left text-xs font-semibold text-slate-500`, `th`/`td` `px-4 py-3`, `tbody`
-  `divide-y divide-slate-50`, `tr` `hover:bg-slate-50/70`, `<caption class="sr-only">`, `scope="col"`.
-- **Narrow column or below `md`: the divided list**, with the context on a second
-  `text-xs text-slate-500` line.
-If a new column needs data the service does not have, **batch it** -- `AdminDashboard` documents
-"no per-case queries", so `next_court_dates` is one grouped `minimum(:date)` lookup, not
-`StocksInTheFutureCase#next_court_date` per row (3 queries total for the section, verified).
+  same void reappears in table clothing. Give it a second column that is also what you triage on.
+  Use the shared table tokens rather than hand-writing them.
+- **Narrow column, or below `lg`: the divided list**, with the context on a second
+  `text-xs text-slate-600` line.
+If a new column needs data the query object does not have, **batch it**: one grouped lookup in
+`AdminDashboard`, never a query per row.
 
 Each row is primary text (a record link, or a person's name as identifying `font-medium
 text-slate-800` + the initials avatar), and **one** action.
@@ -4234,18 +4203,15 @@ Two things go wrong and both get worse with length:
 ResourceList). A table only when rows carry several comparable attributes worth scanning or sorting
 column-wise -- then use the numeric-column rules above. These worklists are the former.
 
-**One action button per row.** The supervisor dashboard had *two adjacent ghost buttons with the
-same href* -- "Send reminder" and "View", both the volunteer page. Two controls styled alike, sitting
-side by side, doing the same thing. Keep the verb (deep-linking it to the page where the action lives
-is fine and is what these dashboards do: "Assign a volunteer" -> the case page) and drop the second.
+**One action button per row.** A dashboard once had *two adjacent ghost buttons with the same href*
+-- two controls styled alike, side by side, doing the same thing. Keep the verb, since deep-linking it
+to the page where the action lives is fine, and drop the second.
 
 A record link in the row text *plus* one action button is **not** the same defect, even when both
 resolve to the same page: they are different affordances in different positions, and the row reads
-"here is the case / here is what to do". So the dashboards differ on purpose -- a case number is a
-record link (`record_link_class`), while a person's name is identifying text
-(`font-medium text-slate-800`), because design.md prefers not to route users out of a flow via a
-name. Admin/volunteer rows therefore carry a record link + an action; supervisor rows carry a name +
-an action.
+"here is the case / here is what to do". So worklists differ on purpose: a record identifier is a
+record link, while a person's name is identifying text (`font-medium text-slate-900`), because this
+document prefers not to route users out of a flow via a name.
 
 The empty state keeps its single tinted panel -- that is one message, which is exactly what alert
 fill is for.
@@ -4357,9 +4323,7 @@ directly in the menu.
 
 **Header action pattern.** A page header shows **one primary CTA plus a `More` overflow
 disclosure**, not a flat row of equal buttons. Keep frequently-used, core actions visible and
-overflow only the occasional ones: the cases index overflows admin navigation (Case Groups,
-Bulk Court Date); the case show keeps New Case Contact and Edit visible and overflows
-Generate Court Report, Emancipation, and New Fund Request. Do not bury a core action in `More`, it
+overflow only the occasional ones. Do not bury a core action in `More`: it
 is both a UX cost (an extra click on a common action) and a testability cost (rack_test
 cannot open a native `<details>`, so non-JS specs that click it break).
 
@@ -4378,8 +4342,7 @@ test-reachable.
 **The trigger label names the CONTENT, never the action.** This is the WAI-ARIA APG disclosure
 rule (the button's accessible name describes the content it controls; `aria-expanded` carries the
 state) and it is what Material, USWDS, Polaris and Primer all ship. `Expand / Hide` named the
-action twice, described nothing, and duplicated `aria-expanded` -- and the two case-contacts
-filter panels had already drifted to different casings of it. So:
+action twice, described nothing, and duplicated `aria-expanded`. So:
 
 | trigger | label |
 |---|---|
@@ -4388,45 +4351,37 @@ filter panels had already drifted to different casings of it. So:
 | form section | the section name -- `Change password`, `Change email`, `Filter columns` |
 | icon-only row expander | content name as `aria-label` -- **`Contact details`**, not `Toggle contact details` ("Toggle" duplicates `aria-expanded`) |
 
-On case-contacts the sticky filters (Sorted by / Hide drafts / Reset filters) sit *above* the
-panel, so a bare `Filters` on the trigger would misdescribe what it controls -- hence
-`More filters`, the label Jira / Linear / Polaris use for exactly this split.
+Where some filters sit *outside* the panel, a bare `Filters` on the trigger would misdescribe what
+it controls -- hence `More filters`, the label Jira, Linear and Polaris use for exactly this split.
 
 **State is `aria-expanded` + a chevron that rotates -- never the label text.** Put `group` on the
 trigger and `transition-transform group-aria-[expanded=true]:rotate-180` on the chevron
 (`group-open:rotate-180` inside a native `<details>`). **Tailwind v4 emits `rotate-180` as the
 standalone `rotate` property**, so verify with `getComputedStyle(el).rotate` (`none` ->
 `180deg`): `.transform` reads `none` in *both* states and will tell you a working rotation is
-broken. Verified rotating: the case-contacts + new-design filter panels, users/edit change
-password + change email, all-stocks-in-the-future-admins change password, reports "Filter columns".
+broken.
 
-**A disclosure inside a form that re-renders must carry its open state across the render.** Otherwise
-the server re-derives it and the panel snaps shut under the user. Two shapes of this, both were live:
-- **Auto-submitting filter bar** (case-contacts index + new_design). The open state was
-  `expand_filters?`, i.e. "is a hidden filter active", re-evaluated on every submit -- so the panel
-  closed itself whenever a change left no hidden filter on: **clearing** the contact types, setting a
-  select back to **All**, and even just ticking **Hide drafts** while the panel was open (the user had
-  not touched a hidden filter at all). Fix: the `disclosure` controller takes an optional **`field`
-  target** -- a `hidden_field_tag :filters_open` inside the form -- and writes `1`/`''` into it on
-  toggle. The view reads `filters_open?`, which honours that param when present and falls back to
-  `expand_filters?` only on first load (so a URL with filters still arrives open). Check **both
-  directions**: a panel the user *closed* must stay closed even while a filter is active, which
-  deriving-from-params also got wrong.
-- **Validation re-render** (users/edit change password + change email, all-stocks-in-the-future-admins change
-  password). `update_password` / `update_email` fail with `render :edit`, and the panels hardcoded
-  `hidden` + `aria-expanded="false"` -- so the error rendered at the top of the page while the form it
-  referred to collapsed out of sight, losing the user's input. No round-trip needed here: **`action_name`
-  is still the failed action** inside `render :edit`, so open exactly that panel
-  (`password_open = action_name == "update_password"`) and leave its sibling shut.
+The live instance of this in the app is the **mobile nav drawer**, whose trigger carries
+`aria-expanded` from `drawer_controller` -- it previously carried none at all, in either layout, and
+the two halves signalled their open state in different ways.
 
-Not affected: the reports column-filter `<details>` (its form native-submits a CSV download, so the
-page never re-renders) and the new-design row expanders (a filter change legitimately re-runs the
-query and resets rows).
+**A disclosure inside a form that re-renders must carry its open state across the render**, or the
+server re-derives it and the panel snaps shut under the user. Two shapes:
 
-**Deliberate exception:** the case-contact card's inline `<details>` swaps `Show details` /
-`Hide details` via `group-open:`. That is an inline "more of this item" reveal, not a section
-header, the text still names the content, and a state-swapping label there is well-precedented
-(GOV.UK's accordion does it for every section). Keep it; don't propagate it to section triggers.
+- **A panel whose open state is derived from the data.** "Open if a hidden filter is active",
+  re-evaluated on every submit, closes itself the moment a change leaves no hidden filter on -- even
+  when the user did not touch a hidden filter at all. Carry the state explicitly in a hidden field and
+  fall back to the derived value only on first load. Check **both directions**: a panel the user
+  *closed* must stay closed even while a filter is active, which deriving-from-params also gets wrong.
+
+- **A validation re-render.** A failed `update` that does `render :edit` will re-render a panel
+  hardcoded shut, so the error appears at the top of the page while the form it refers to collapses out
+  of sight, losing the user's input. No round trip is needed for this one: **`action_name` is still the
+  failed action** inside `render :edit`, so open exactly that panel and leave its siblings closed.
+
+**Deliberate exception:** an inline "more of this item" reveal may swap `Show details` / `Hide
+details`, because it is not a section trigger, the text still names the content, and GOV.UK's
+accordion does exactly this. Do not propagate it to section triggers.
 
 ### Modal and confirmation dialog
 
