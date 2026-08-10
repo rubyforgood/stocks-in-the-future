@@ -3183,3 +3183,38 @@ The checkbox is the input again, unchanged from before any of it.
 - **A new confirmation must carry a body**, or the guard fails by page and question.
 - **`i18n-tasks normalize` strips comments from `en.yml`**, so a note about a message has to live beside
   its call site rather than in the locale file.
+
+## The admin authorization question, answered with a test
+
+### What changed
+
+- **`Admin::PortfolioTransactionsController` lost six commented-out `authorize` calls** and the TODOs
+  asking whether they were needed. They are not: authorization in that namespace is
+  `Admin::BaseController#authenticate_admin`, every one of the ten admin controllers relies on it, and
+  the single `authorize` elsewhere under `admin/` (`classrooms#toggle_archive`) is meaningful only
+  because `ClassroomPolicy` exists and teachers reach classroom actions on the app side.
+- **`test/controllers/admin/admin_access_test.rb`** derives every id-less admin GET route from the route
+  table and asserts a teacher, a student and a signed-out visitor are each turned away, and that an admin
+  reaches them all. 244 assertions across about sixty routes; before it, `base_controller_test` covered
+  `/admin` and two controller tests covered one action each.
+
+### What this breaks
+
+- **A new admin controller that does not inherit from `Admin::BaseController` fails immediately**, which
+  is the point. Verified by removing the `before_action` and watching four routes let a student in.
+- **A new admin GET route with no id is covered automatically** - including one that is not ready to be
+  opened by an admin, which will fail the last test until it is.
+
+## The seeded logins keep their promise
+
+`db/seeds/partials/users.rb` ends by restoring any of the four demo accounts that has been archived, and
+resetting its password to the documented one.
+
+Every block above it assigns attributes **only when the record is new**, and `find_or_initialize_by`
+finds a discarded record perfectly well - Discard adds no default scope, only the explicit `.kept` calls
+filter. So once `student` had been archived and had its password reset while somebody exercised those
+actions against a development database, every later `db:seed` printed "Student user already exists" and
+left an account nobody could sign in as. The README hands these four out as logins.
+
+Only `db/seeds/development.rb` includes this partial - production and staging do not - so resetting a
+demo password here cannot touch a real one.

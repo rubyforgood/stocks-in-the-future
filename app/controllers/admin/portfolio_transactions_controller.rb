@@ -1,6 +1,21 @@
 # frozen_string_literal: true
 
 module Admin
+  # **No per-record `authorize` here, and that is the answer to the six TODOs this used to carry.**
+  #
+  # Authorization in this namespace is `Admin::BaseController#authenticate_admin`, which redirects anyone
+  # who is not an admin before an action runs. Every one of the ten admin controllers relies on it; the
+  # single `authorize` elsewhere in `admin/` is `classrooms#toggle_archive`, and that one is meaningful
+  # because `ClassroomPolicy` exists and teachers reach classroom actions on the app side too.
+  #
+  # Adding calls here would need a `PortfolioTransactionPolicy` whose every method returned `user.admin?`
+  # - a policy that restates the before_action, for one controller out of ten, implying the other nine
+  # were missing something they are not. Six commented-out `authorize` lines said the opposite for as long
+  # as they sat there.
+  #
+  # What makes the guarantee real is a test rather than a call: `admin_access_test` walks every admin
+  # route and asserts a teacher, a student and a signed-out visitor are all turned away. A `before_action`
+  # in a superclass is only as good as the proof that nothing bypasses it.
   class PortfolioTransactionsController < BaseController
     before_action :set_portfolio_transaction, only: %i[show edit update destroy]
 
@@ -13,9 +28,6 @@ module Admin
     end
 
     def show
-      # TODO: FIX
-      # authorize @portfolio_transaction
-
       @breadcrumbs = [
         { label: "Portfolio transaction ##{@portfolio_transaction.id}" }
       ]
@@ -23,8 +35,6 @@ module Admin
 
     def new
       @portfolio_transaction = PortfolioTransaction.new
-      # TODO: FIX
-      # authorize @portfolio_transaction
 
       @breadcrumbs = [
         { label: "Portfolio transactions", path: admin_portfolio_transactions_path },
@@ -33,9 +43,6 @@ module Admin
     end
 
     def edit
-      # TODO: Determine if explicit authorization is needed since BaseController already restricts to admins
-      # authorize @portfolio_transaction
-
       @breadcrumbs = [
         { label: "Portfolio transaction ##{@portfolio_transaction.id}",
           path: admin_portfolio_transaction_path(@portfolio_transaction) },
@@ -45,8 +52,6 @@ module Admin
 
     def create
       @portfolio_transaction = PortfolioTransaction.new(portfolio_transaction_params)
-      # TODO: Determine if explicit authorization is needed since BaseController already restricts to admins
-      # authorize @portfolio_transaction
 
       if @portfolio_transaction.save
         redirect_to admin_portfolio_transaction_path(@portfolio_transaction),
@@ -61,9 +66,6 @@ module Admin
     end
 
     def update
-      # TODO: Determine if explicit authorization is needed since BaseController already restricts to admins
-      # authorize @portfolio_transaction
-
       if @portfolio_transaction.update(portfolio_transaction_params)
         redirect_to admin_portfolio_transaction_path(@portfolio_transaction),
                     notice: t(".notice")
@@ -78,8 +80,6 @@ module Admin
     end
 
     def destroy
-      # TODO: Determine if explicit authorization is needed since BaseController already restricts to admins
-      # authorize @portfolio_transaction
       @portfolio_transaction.destroy
 
       redirect_to admin_root_path, notice: t(".notice")

@@ -86,3 +86,28 @@ unless mike.persisted?
 else
   puts "Mike already exists: #{mike.email}"
 end
+
+# The seeded accounts have to be able to sign in, which is the whole of what they are for - the README
+# hands these four out as logins with the password "password".
+#
+# Every block above only assigns attributes when the record is **new**, and `find_or_initialize_by` finds
+# a discarded record perfectly well: Discard adds no default scope, and only the explicit `.kept` calls
+# filter. So once one of these had been archived, or had its password reset, while somebody was exercising
+# those actions against a development database, every later `db:seed` printed "Student user already
+# exists" and left an account nobody could sign in as. That is what had happened to `student`.
+#
+# This partial is only run by db/seeds/development.rb - production and staging do not include it - so
+# resetting a demo password here cannot touch a real one.
+SEED_LOGINS = %w[teacher@example.com student@example.com admin@example.com mike@example.com].freeze
+
+User.with_discarded.where(email: SEED_LOGINS).find_each do |seeded|
+  if seeded.discarded?
+    seeded.undiscard
+    puts "Restored archived seed user: #{seeded.email}"
+  end
+
+  next if seeded.valid_password?("password")
+
+  seeded.update!(password: "password", password_confirmation: "password")
+  puts "Reset seed password for: #{seeded.email}"
+end
