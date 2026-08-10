@@ -1322,6 +1322,24 @@ edge. Reported as the grey background behind the buttons. So, everywhere:
 40px height, and the card's own radius and border - on both sides of the product and at 375px. Verified
 by putting the grey strip back and watching it fail.
 
+**Whatever appears between the header and the card spaces itself.** Asked whether the gap above the card was
+consistent: without an error summary it was, 24px on all three form pages - but the classroom card carried an
+inert `mt-4`. **Adjacent vertical margins collapse to the larger**, and the header's own `mb-6` is bigger, so
+that declaration did nothing at all until a summary appeared between the two, at which point it became live
+and gave that state 16px. On the student forms the summary sat **flush against the card, 0px**. Three forms,
+three different gaps in the error state, none of them the page's rhythm.
+
+`shared/_form_errors` carries `mb-6` now, which is the only place that can be right for all three, and the
+card carries no top margin. **An inert declaration is worse than none**: it reads as load-bearing, and this
+one became load-bearing in exactly the state nobody checks.
+
+**A page description says what the reader cannot already see.** "You can add students once it exists" was
+reported as unhelpful and it was: adding students is the obvious next step and the classroom page offers it,
+so the sentence spent itself on the one thing the reader would have found anyway. The non-obvious part is that
+`after_create :create_gradebooks_for_quarters` produces **four grade books, one per quarter** - so the
+description says that. Consequence-shaped, like its siblings: "They can sign in as soon as you save",
+"Changes apply everywhere this student appears".
+
 **A form's measure is a `max-w-*`, never a fraction of the viewport.** `classrooms#new` and `#edit` were
 `mx-auto lg:w-2/3`, so on a 1920px monitor the form was 1280px wide with the name field stretched across
 all of it. A form's readable measure does not scale with the window. `max-w-2xl` (672px), which is what

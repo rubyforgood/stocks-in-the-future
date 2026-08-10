@@ -28,7 +28,12 @@
 <%= form_with(model: classroom, class: "contents") do |form| %>
   <%= render "shared/form_errors", record: classroom, subject: "classroom" %>
 
-  <div class="tw-card mt-4 p-5 lg:p-6">
+  <%# No `mt-*`. It carried `mt-4`, which did nothing in the ordinary case: adjacent vertical margins collapse
+      to the larger, and the page header's own `mb-6` is bigger - measured, the gap was 24px with it and 24px
+      without. An inert declaration is worse than none, because it reads as load-bearing and it *became*
+      load-bearing the moment an error summary appeared between the two, giving that state a 16px gap where
+      the rest of the page uses 24. The summary spaces itself now. %>
+  <div class="tw-card p-5 lg:p-6">
     <div class="space-y-5">
       <div>
         <%= form.label :name, class: "tw-label-primary" do %>

@@ -400,4 +400,63 @@ class FormActionsTest < ApplicationSystemTestCase
                       "\"#{row['label']}\" is #{row['off']}px off its label's first line"
     end
   end
+
+  # One vertical rhythm above the card, with or without an error summary.
+  #
+  # Asked whether the gap between the header's helper text and the top of the card was consistent. Without a
+  # summary it was - 24px on all three form pages - but the classroom card carried an inert `mt-4`: adjacent
+  # margins collapse to the larger, and the header's own `mb-6` is bigger, so it did nothing until a summary
+  # appeared between the two and gave that state 16px. On the student forms the summary sat **flush against
+  # the card at 0px**. Three forms, three different gaps in the error state.
+  #
+  # The summary spaces itself now, which is the only place that can be right for all three.
+  test "the gap above the card is the same on every form, with errors and without" do
+    classroom = create(:classroom, :with_trading, name: "Rhythm Class",
+                                                  grades: [create(:grade, level: 5, name: "5th Grade")])
+    student = create(:student, :with_portfolio, classroom:, name: "Ada Lovelace")
+    teacher = create(:teacher)
+    create(:teacher_classroom, teacher:, classroom:)
+    sign_in teacher
+
+    gap = <<~JS
+      (function () {
+        const main = document.querySelector("main");
+        const card = main.querySelector(".tw-card");
+        const summary = main.querySelector("[data-testid='form-errors']");
+        const above = summary || Array.from(main.querySelectorAll("p")).find(function (p) {
+          return p.getBoundingClientRect().bottom <= card.getBoundingClientRect().top;
+        });
+        return Math.round(card.getBoundingClientRect().top - above.getBoundingClientRect().bottom);
+      })()
+    JS
+
+    { "students#new" => new_classroom_student_path(classroom),
+      "students#edit" => edit_classroom_student_path(classroom, student),
+      "classrooms#edit" => edit_classroom_path(classroom) }.each do |label, path|
+      visit path
+
+      assert_equal 24, page.evaluate_script(gap), "#{label}: the gap above the card is not 24px"
+    end
+
+    # And the error state, where the three forms used to disagree by 24px.
+    visit edit_classroom_path(classroom)
+    fill_in "Name", with: ""
+    click_on "Update classroom"
+    assert_selector "[data-testid='form-errors']"
+
+    assert_equal 24, page.evaluate_script(gap),
+                 "with a summary showing, the gap above the card is not 24px"
+  end
+
+  # The description says something the reader cannot already see. "You can add students once it exists" spent
+  # itself on the obvious next step; the four grade books are the part nobody would guess.
+  test "the new classroom page says what creating one does" do
+    create(:school)
+    sign_in create(:admin)
+
+    visit new_classroom_path
+
+    assert_text "Creating it adds a grade book for each quarter of the school year."
+    assert_no_text "You can add students once it exists"
+  end
 end

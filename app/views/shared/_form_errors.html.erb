@@ -29,8 +29,12 @@
 
     red-700 on this panel's red-50 measures 5.87:1. The field-level icon is red-600 on white at 4.77:1,
     matching the invalid field's own border rather than this panel's darker ink. %>
+<%# `mb-6`, the page's own rhythm, because this panel is the thing that appears between the header and the
+    card and so it is the thing that must space itself. Measured before: on students#new and #edit the summary
+    sat **flush against the card at 0px**, and on classrooms#new it was 16px - three forms, three gaps, all of
+    them different from the 24px everything else on the page uses. %>
 <div id="error_explanation"
-     class="flex items-start gap-2.5 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-red-700"
+     class="mb-6 flex items-start gap-2.5 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-red-700"
      role="alert"
      tabindex="-1"
      data-testid="form-errors">

@@ -1,10 +1,23 @@
 <%# max-w-2xl, which is what every other form page in the app uses. This was `lg:w-2/3`, a
     *fraction* of the viewport - on a 1920px monitor that is a 1280px-wide single-column form, with a
     name field stretched across all of it. A form's measure does not scale with the window. %>
+<%# "You can add students once it exists" was reported as unhelpful, and it was: adding students is the
+    obvious next step and the classroom page offers it, so the sentence spent itself on the one thing the
+    reader would have found anyway.
+
+    `after_create :create_gradebooks_for_quarters` is the part nobody would guess - four grade books appear,
+    one per quarter of the school year - and it is consequence-shaped like the sibling pages' descriptions
+    ("They can sign in as soon as you save", "Changes apply everywhere this student appears").
+
+    Held in a local because a comment tag cannot sit inside the render tag's argument list. I have now made
+    that mistake four times; `test/views/no_nested_erb_tags_test.rb` caught this one in 30ms, which is what it
+    is for. %>
+<% description = "Creating it adds a grade book for each quarter of the school year." %>
+
 <div class="mx-auto max-w-2xl">
   <%= render layout: "components/ui/page_header",
              locals: { title: "New classroom",
-                       description: "You can add students once it exists." } do %><% end %>
+                       description: description } do %><% end %>
 
   <%= render "form", classroom: @classroom %>
 </div>
