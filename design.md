@@ -2056,11 +2056,25 @@ press Finalize inside that window, and pay the previous one, with nothing on the
 - **Close the window rather than warn about it.** Saving when a field loses focus means nothing typed is
   unsaved by the time the hand reaches Finalize. The interval stays as a backstop for a field left
   focused, which never blurs.
-- **Say the state, next to the control that changes it.** "All changes saved" sits beside the Save
-  button. It was in the page header 400px away and **blank until the first save** - which is precisely
-  what an unsaved page looks like.
-- **Two words carry the order**: "Then finalize the quarter", and one line under the consequence saying
-  "Uses your saved grades, above."
+- **Say the state, next to the control that changes it - and then stop saying it.** "All changes saved"
+  sits beside the Save button. It was in the page header 400px away and blank until the first save, which
+  is precisely what an unsaved page looks like.
+
+  **An autosave indicator that reports every save is noise.** Measured, this changed three times per
+  edit - "Saving…", "All changes saved", then a new timestamp - which on a 25-student book is about three
+  hundred redraws in one spot while a teacher works, each pulling the eye to a place where nothing
+  happened. Docs, Notion and Figma all keep the steady state quiet and unchanging, and none of them counts
+  saves at the user. So: **no timestamp ever** - "when" is not the question and it was the churn;
+  **"Saving…" only after 800ms**, so an ordinary save changes nothing on screen; and **a failure that says
+  so and stays**, which is the only state a teacher must act on and the one thing this never handled.
+  Measured after: **zero** redraws per edit.
+
+  The same rule applies to any `aria-live` region: assigning the same string still replaces the text node,
+  so it re-announces. Compare before writing.
+- **The section's heading is its button's words.** This read "Then finalize the quarter" while the button
+  said "Finalize grades" - two names for one action, and "Then" opens a heading with a sentence fragment.
+  A heading is a label, not a step in a sentence; the sequence lives in the line under the consequence,
+  which is where it was already doing the work.
 - **Do not swap the emphasis.** Making the irreversible payment the page's filled primary reads as the
   obvious fix and is backwards: on a page for entering grades the frequent action is saving, and a red
   or bright terminal action at rest is the always-on alarm this document rules out.

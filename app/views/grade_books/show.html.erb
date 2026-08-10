@@ -171,16 +171,20 @@
           confirmation at the commitment. The split into attendance, math and reading is here rather
           than in the table because it is not a summary of the rows in the rows' own terms - it is what
           the payment is made of, and it is worth reading once, here, where somebody authorises it. %>
-      <%# **"Then"**, and a line saying what it reads.
+      <%# **The button's own words.**
 
-          The page has two actions and expressed no order between them: Save is the grades form's submit,
-          on the leading edge below the table where design.md puts a form's actions, and this is a
-          decision panel whose button is its own section's action. Both placements follow a rule; neither
-          said that one comes after the other, and finalizing pays what is in the database rather than
-          what is on screen. Two words in the heading and one line under it carry the sequence - the
-          window itself is closed by saving on blur, in autosave_controller. %>
+          This read "Then finalize the quarter", which was wrong twice: "Then" opens a heading with a
+          sentence fragment, and "the quarter" names something the control does not - the button says
+          "Finalize grades". Two names for one action is the drift this codebase keeps finding, and a
+          heading is a label rather than a step in a sentence.
+
+          The sequence has not gone anywhere; it is the line under the consequence, where it was already
+          doing the work. The page has two actions and expressed no order between them - Save is the
+          grades form's submit, on the leading edge below the table, and this is a decision panel whose
+          button is its own section's action. Both placements follow a rule; neither said one comes after
+          the other. The window itself is closed by saving on blur, in autosave_controller. %>
       <section class="tw-card mt-6 p-5" aria-labelledby="finalize-heading">
-        <p id="finalize-heading" class="text-sm font-medium text-slate-900">Then finalize the quarter</p>
+        <p id="finalize-heading" class="text-sm font-medium text-slate-900">Finalize grades</p>
         <%# The possessive has to be built rather than pluralized: `pluralize` gives "1 student", and
             "1 student' portfolio" is what interpolating an apostrophe after it produces. %>
         <% recipients = earnings.student_count == 1 ? "student's portfolio" : "students' portfolios" %>

@@ -52,13 +52,6 @@ module Admin
     end
     # rubocop:enable Metrics/MethodLength
 
-    def save_indicator
-      @breadcrumbs = [
-        { label: "Component demo", path: admin_component_demo_index_path },
-        { label: "Save indicator" }
-      ]
-    end
-
     def show
       @user = User.find(params.expect(:id))
       @breadcrumbs = [

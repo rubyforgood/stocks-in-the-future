@@ -65,7 +65,8 @@ class GradeBookAutosaveTest < ApplicationSystemTestCase
     sign_in create(:admin)
     visit classroom_grade_book_path(classroom, book)
 
-    assert_text "Then finalize the quarter"
+    # The heading is the button's own words - it named "the quarter" while the button said "grades".
+    assert_selector "#finalize-heading", text: "Finalize grades"
     assert_text "Uses your saved grades, above."
   end
 
@@ -84,5 +85,70 @@ class GradeBookAutosaveTest < ApplicationSystemTestCase
 
     assert_equal ["Save grades"], targets,
                  "an autosave target other than Save can be clicked by the timer"
+  end
+
+  # **The status line barely moves.** It used to change three times per edit - "Saving…", "All changes
+  # saved", then a new timestamp - which on a 25-student book is about three hundred redraws in one spot
+  # while a teacher works. Reported as distracting, and it was.
+  test "an ordinary edit does not redraw the save status at all" do
+    classroom, book, = a_grade_book
+    teacher = create(:teacher)
+    create(:teacher_classroom, teacher:, classroom:)
+    sign_in teacher
+    visit classroom_grade_book_path(classroom, book)
+
+    page.execute_script(<<~JS)
+      window.__redraws = 0;
+      new MutationObserver(() => { window.__redraws += 1; })
+        .observe(document.querySelector("[data-testid='autosave-status']"),
+                 { childList: true, characterData: true, subtree: true });
+    JS
+
+    find("[data-testid='attendance-days-input']").set("12")
+    find("h1").click
+
+    # The point of this change is that a save is now *silent*, so there is no status text to wait on -
+    # which means the assertion below would otherwise race the request. The earnings cell is what does
+    # change (0 days to 12 is $2.40), and Capybara waits on it.
+    assert_selector "[data-testid='row-earnings']", text: "$2.40", wait: 5
+    assert_equal 12, book.grade_entries.first.reload.attendance_days, "the edit did not save"
+    assert_equal 0, page.evaluate_script("window.__redraws"),
+                 "the save status was rewritten for a routine save"
+  end
+
+  test "a save that is still running after a moment says so" do
+    classroom, book, = a_grade_book
+    teacher = create(:teacher)
+    create(:teacher_classroom, teacher:, classroom:)
+    sign_in teacher
+    visit classroom_grade_book_path(classroom, book)
+
+    # The pending state is time-based, so it is driven directly rather than by hoping a request is slow.
+    page.execute_script(
+      "document.querySelector('form[data-autosave-target=\"form\"]')" \
+      ".dispatchEvent(new CustomEvent('turbo:submit-start', { bubbles: true }))"
+    )
+
+    assert_selector "[data-testid='autosave-status']", text: "Saving"
+  end
+
+  # The one state a teacher has to act on, and the one this never handled.
+  test "a failed save says so and stays said" do
+    classroom, book, = a_grade_book
+    teacher = create(:teacher)
+    create(:teacher_classroom, teacher:, classroom:)
+    sign_in teacher
+    visit classroom_grade_book_path(classroom, book)
+
+    page.execute_script(<<~JS)
+      document.querySelector('form[data-autosave-target="form"]').dispatchEvent(
+        new CustomEvent("turbo:submit-end", { bubbles: true, detail: { success: false } })
+      );
+    JS
+
+    assert_selector "[data-testid='autosave-status']", text: "Not saved"
+    assert page.evaluate_script(
+      "document.querySelector(\"[data-testid='autosave-status']\").classList.contains('text-red-700')"
+    ), "a failure is not distinguished from the resting state"
   end
 end

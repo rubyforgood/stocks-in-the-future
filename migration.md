@@ -3150,3 +3150,13 @@ The checkbox is the input again, unchanged from before any of it.
 - **A test that types into a field and asserts nothing was saved** would now fail, because leaving the
   field saves it. That is the point, and `grade_book_autosave_test` verifies the handler by removing it
   and watching the assertion fail.
+
+### Follow-up: the save indicator, and the finalize heading
+
+- **No timestamp**, `Saving…` only after 800ms, and a failure state (`Not saved — check your connection`,
+  red, persistent). `setStatus` compares before assigning, so an unchanged message never replaces the
+  text node - which matters on an `aria-live` region, where it would re-announce.
+- **The finalize card is headed "Finalize grades"**, matching its button.
+- **A save is now silent**, so a test that edits a field has nothing in the status to wait on. Wait on
+  `[data-testid='row-earnings']`, which the turbo_stream replaces - asserting the database straight after
+  a blur races the request.

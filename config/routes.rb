@@ -94,8 +94,6 @@ Rails.application.routes.draw do
       resources :component_demo, only: %i[index show] do
         collection do
           get :form
-          # A design preview: the save indicator's churn, and what the finalize card should be called.
-          get :save_indicator
         end
       end
     end
