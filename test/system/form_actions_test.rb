@@ -411,8 +411,10 @@ class FormActionsTest < ApplicationSystemTestCase
   #
   # The summary spaces itself now, which is the only place that can be right for all three.
   test "the gap above the card is the same on every form, with errors and without" do
-    classroom = create(:classroom, :with_trading, name: "Rhythm Class",
-                                                  grades: [create(:grade, level: 5, name: "5th Grade")])
+    classroom = create(
+      :classroom, :with_trading,
+      name: "Rhythm Class", grades: [create(:grade, level: 5, name: "5th Grade")]
+    )
     student = create(:student, :with_portfolio, classroom:, name: "Ada Lovelace")
     teacher = create(:teacher)
     create(:teacher_classroom, teacher:, classroom:)
