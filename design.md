@@ -4700,98 +4700,62 @@ distinct from the stat/KPI **icon tile** (`rounded-xl`).
   Keep page-content z-index ≤ 20; verify overlays with `elementFromPoint`, not by eye.
 
 ## Key patterns
-- **Settings (master-detail)** (`stocks_in_the_future_org#edit` is the reference): a `max-w-7xl` two-pane — a
-  sticky grouped **sub-nav rail** (`hidden lg:block lg:w-48`; **text-only** (icons are noise in a dense grouped list, and a repeated one reads as clutter; the primary sidebar keeps its icons); quiet slate-500 group labels; active
-  item `bg-sitf-primary/10 text-sitf-primary-dark`) beside a content column that shows **one section at a
-  time**.
-  The `settings-nav` Stimulus controller drives it as **progressive enhancement**: with JS off every
-  `[data-settings-nav-target="section"]` stays visible (a plain scroll — so no-JS users and rack_test
-  view/request specs see everything); on connect it collapses to one panel, hiding inactive sections
-  on desktop (`lg:hidden` on the section, always one panel) while the mobile accordion is a
-  **separate concern on a different class** -- the body toggles `max-lg:hidden` (hidden only below lg)
-  with its own openKey -- so a mobile collapse never blanks the desktop panel and vice-versa. It
-  defaults the desktop panel to the first section (or the URL hash, so deep links keep working -- the
-  case-contact form links to `#case-contact-topics`); the mobile accordion starts collapsed. Mobile is
-  a grouped accordion (the rail's clusters repeat as `lg:hidden` labels): each section is **one card**
-  whose header (title + chevron) toggles the body **open or closed** -- zero or one open, and tapping
-  the open header collapses it (the earlier controller could only open, never close). Section **order is by task
-  frequency + setup flow, not alphabetical**. **One card per section, responsively:** the `<section>` carries the card chrome on mobile
-  (`sec` = overflow-hidden rounded/border/shadow, reset to transparent below `lg`), `acc_btn` is a
-  flush header row (not its own card), a `panel_body` adds the under-header divider, and the inner
-  panels -- the `card` local and every entity partial -- drop their card chrome below `lg`
-  (`p-5 sm:p-6 lg:rounded-2xl lg:border lg:bg-white lg:shadow-sm`) so they read as the card body, not
-  a second nested card. Each single-section partial's title `<h3>` is `hidden lg:block` (the accordion
-  header is the title on mobile; the `<h3>` is the panel title on desktop; multi-card sections keep
-  their sub-headings). Verify by geometry: on mobile the `<section>` owns the border/radius and the
-  inner panel has none; on desktop it flips. Tables/anchor ids are unchanged; the page heading is
-  **"Settings"** (matching the sidebar nav label -- the app-wide convention is h1 == nav label), the
-  "Manage …" section headings stay, and the **Court** group splits into Hearing types / Judges / Sent
-  emails. The **Administration** group is **direct links** to the standalone admin pages (admins,
-  mileage rates, banners, imports) -- not an in-page panel -- shown in the rail on desktop and, on
-  mobile, **tappable text-only cards that match the section headers** (same card chrome + bold label;
-  a `chevron-right` for navigate vs the sections' `chevron-down` for expand -- no leading icons, since
-  the rest of the settings nav is text-only), so each page is one click away (no panel-of-cards detour). Those
-  standalone pages **share the settings frame**: `stocks_in_the_future_org/_settings_frame` renders the same header +
-  persistent rail (their item highlighted) + content at `max-w-7xl`, and `stocks_in_the_future_org/_settings_rail` is
-  the one rail used by both edit (`panels: true`, JS panel-switch) and the admin pages (`panels:
-  false`, hash-nav to a section). On mobile the rail is hidden, so a **"Back to settings"** link is
-  the return path.
-- **Back navigation on sub-pages.** Every the app layout page reached *from* another page (a form, detail,
-  or action destination -- not a sidebar/top-level nav item) has a way back: either a **breadcrumb**
-  (a brand-600 parent link at the top -- "Cases", "Cases / CINA-1", or a bare "Case number: ->case")
-  or the **chevron** "Back to X" (`inline-flex items-center gap-1 text-sm font-medium text-slate-500
-  hover:text-slate-700` + `bi-chevron-left`). Top-level destinations (Dashboard, Cases, Settings, etc.)
-  don't need one. Add a back affordance to every new sub-page -- it's a recurring gap (bulk court
-  dates, case groups, the emancipation-checklists index, and the **case-contact form** were dead-ends
-  until audited). On the case-contact form the back link points at the existing **`#leave`** action
-  (`redirect_back_to_referer`, falling back to the list), so Back lands exactly where a successful
-  Submit would -- that action was already routed and nothing linked to it. Its label is a bare
-  **`Back`**, not `Back to X`, because the destination is the referer and so varies; and it is **not
-  `Cancel`** -- the form autosaves, so on an existing contact the changes are already saved and
-  offering to cancel them would be a lie.
-  **Spacing/placement (verified 8px gap, pixel-identical across pages).** The back link + title are
-  one header block with an **8px gap** below the link -- `mt-2` on the title when they share a wrapper,
-  `mb-2` when the link is its own block. Never leave the link as a **bare child of a `space-y-*`
-  container**: the 6-unit rhythm (24px) then lands between the link and the title and shoves everything
-  down (the `stocks_in_the_future_cases#show` regression measured 32px vs. the correct 9px). Three shapes:
-  - **h1-only:** one `<div>` = back link + `<h1 class="mt-2 ...">` (+ optional subtitle).
-  - **title + actions, no subtitle** (`stocks_in_the_future_cases#show`, `learning_hours#show`): the back link +
-    `<h1 class="mt-2 ...">` are the **left column** of a `flex items-end justify-between` row; the
-    actions are the right column and **bottom-align to the title** (matches the index-page headers).
-  - **title + actions, with a subtitle** (`case_groups#index`): the back link is a `mb-2` block
-    **above** a `flex items-start justify-between` row, so the actions top-align with the title, not
-    the bottom of the (tall) subtitle -- putting the link inside the left column with `items-end` here
-    would sink the buttons to the subtitle's bottom.
-  - **`shared/_page_header` is the single implementation** (2026-07-27): `render "shared/page_header",
-    back: {path:, label:}, title:, subtitle:` (optional `wrapper_class:`, e.g. "mb-6" when the header is not
-    a `space-y-*` child). It renders the ONE correct header block (back link + `h1 mt-2` + optional
-    subtitle), so the spacing can't drift per page. **Use it for every new sub-page.** Audited all 19
-    header pages: the 16 simple back+title(+subtitle) headers were converted to it (`volunteers/new` had
-    regressed to the bare-`space-y-6` anti-pattern -> 24px, which triggered this); pixel-verified 9px
-    across the space-y / `mb-6` / with-subtitle variants; view spec at `spec/views/shared/_page_header...`.
-    The 3 person-edit pages (`volunteers/edit`, `supervisors/edit`, `stocks_in_the_future_admins/edit`) keep bespoke
-    headers -- identity name/email subtitle + volunteers/edit's Impersonate/reminder actions, shapes the
-    partial deliberately doesn't cover. Root cause of the recurrence was per-page hand-written headers +
-    this checkout's working-tree reverts reintroducing stale ones; the partial removes the per-page copy.
-- **Triage dashboard** (supervisor landing): greeting -> KPI row -> "Needs your
-  attention" list -> roster table. Lead with what needs action; power tools live in a
-  "More" menu.
-- **Person edit page** (`volunteers#edit` is the reference): one `max-w-4xl` column of cards —
-  back link, an identity header (honorific-free name + email, with **Impersonate** as a
-  `:secondary` action and **no** top primary, since a fill-then-save page's primary Submit
-  lives at the form bottom), then Profile (two-column field grid), Account (`dl` metadata
-  grid), Status (activation controls), Cases (card list, not a wide table, in a narrow
-  column), Supervisor, and Notes. Fields are editable vs read-only per `update_user_setting?`
-  (the read-only branch omits the field id so the policy view-specs still pass). A person's
-  supervisor renders as dark identifying text, not a link (a valid honorific-free name treatment;
-  now that supervisors/edit is migrated too, linking it is an available polish rather than a flow
-  trap). A destructive link that a `:js` spec drives with `accept_confirm`/`dismiss_confirm` keeps
-  the **UJS `data: {confirm:}`** (native `window.confirm`), *not* the Dialog confirm — the Capybara
-  confirm helpers can only operate a native confirm. **`supervisors#edit` follows this same shape**
-  (Profile / Account / Status / Volunteers). The `manage_active` partial *name* is shared by both
-  edit pages, so each role keeps its own Tailwind twin (`volunteers/_manage_active`,
-  `supervisors/_manage_active`); likewise `supervisors/_manage_volunteers` is the the app layout twin of
-  the shared Bootstrap `manage_volunteers`.
+
+- **Back navigation on sub-pages.** Every page reached *from* another page -- a form, a detail page,
+  an action destination, anything that is not a top-level nav item -- has a way back. On the admin
+  side that is the **breadcrumb trail** (`admin_breadcrumbs`, whose labels live in the controllers and
+  also feed the layout's visually hidden `h1`); on the app side it is a `tw-btn-secondary` "Back to X"
+  in the page header's action slot, as `stocks#show` and `announcements#show` do. Top-level
+  destinations need neither.
+
+  The trail **wraps** (`flex flex-wrap`, not `inline-flex`). As one unbreakable line it pushed
+  `<main>` sideways on six admin pages -- a school year's crumb reads "School name (2024-2025)" and
+  took the page 130px past a 375px viewport, which carried the row actions off screen with it.
+
+  Never leave a back link as a **bare child of a `space-y-*` container**: the 24px rhythm then lands
+  between the link and the title and shoves everything down. Back link and title are one header block.
+
+- **Admin dashboard**: a KPI stat row, then the worklists -- orders awaiting execution, then recent
+  transactions. Lead with what needs action. The figures come from `AdminDashboard`, and each card is
+  `tw-card p-5` with an `icon_tile`, a `text-3xl tabular-nums` value and its label beneath.
+
+- **Entity detail page** (`classrooms#show` is the reference): page header, then the entity's related
+  collections as full-width stacked `<section>`s with `h2`s, then a summary at the foot. Two things
+  were learned here and both are counter-intuitive.
+
+  **Two collections side by side is a two-column layout used wrong.** A narrow secondary column is for
+  metadata -- status, tags, counts -- which is what Polaris says and what Stripe, GitHub and Linear do.
+  This page put a 765px roster beside a 256px grade-book rail, so one collection read as subordinate and
+  the other had less room than it needed. Stack them and let the order say which is primary.
+
+  **Adding to the top of a page costs the thing the page is for.** A four-across stat band is 134px;
+  with a setting card above it, the roster's first row landed at 567px of a 625px viewport. So the
+  figures sit at the **foot**, which is where "how is this class doing?" is actually asked. Measure the
+  first row before and after anything added above the primary content.
+
+  **A setting is not a page action.** The trading switch sat in the page header beside "Add student",
+  carried its state only in the track's colour, and said nothing about what it did. A setting states
+  its state **in words**, and it belongs on its **section's** header line -- Polaris's card header
+  action, Primer's `Subhead`, Stripe's list sections.
+
+  **A card per list item is card soup.** Four grade books as four card links, plus the roster's table
+  card and a setting card, put six surfaces on one page. A row with a name and a status is a **list
+  row**: one card, `divide-y` between rows, which is Polaris's `ResourceList`. A card earns its edges
+  for a summary figure, a person or a preview.
+
+- **Person edit page** (`admin/students#edit`, `admin/teachers#edit`, `profiles#edit`): one
+  `max-w-2xl` column, the shared page header, then the form in a single card. No top primary -- a
+  fill-then-save page's primary lives at the form's bottom. Fields are editable per policy, and
+  **the form hides what the policy filter drops**: a field whose value is silently discarded looks
+  like a save that worked. `ClassroomPolicy#permitted_attributes` is the worked example, where a
+  teacher may edit the name, grades and trading flag while `school_id`, `year_id` and `teacher_ids`
+  stay admin-only.
+
+- **Gate the action, not the information.** The grade book's earnings summary sat inside an
+  `if current_user.admin?` block with the finalize button, so the teacher entering the grades could
+  not see what they added up to while the admin who only presses the button could. A summary is for
+  whoever can open the page; only the irreversible action is administrative.
+
 
 ## Design decisions (rationale)
 
@@ -4874,59 +4838,28 @@ Repeatable steps for moving one screen off Bootstrap:
 
 ## Migration status
 
-High-level progress; the granular, prioritized backlog lives in
-[`design-todo.md`](design-todo.md).
+This app was already Tailwind when the design work started, so there is no framework migration to
+track. What this document records instead is the sweep that brought both halves of the product onto
+one system.
 
-- [x] Tailwind v4 foundation + design tokens
-- [x] Typeface: Figtree
-- [x] Auth pages (sign-in, forgot/reset password, invitation accept)
-- [x] App shell — sidebar + top bar (the app layout layout)
-- [x] Supervisor dashboard (triage-pattern reference)
-- [x] Notifications
-- [x] Edit profile
-- [x] Other app-shell leaf pages (impersonation banner + flash parity + footer shipped — the the app layout
-  footer restores parity with the all-stocks-in-the-future shell: Built by Ruby For Good / Report a site issue (the
-  help/support link) / SMS Terms & Conditions, `border-t px-4 py-5 text-xs text-slate-500`, after `<main>`.
-  `py-5` (not py-4) makes the footer 57px so its top rule lands on the same y as the sidebar's pinned
-  Settings divider (the sticky h-screen sidebar puts that 57px block at the viewport bottom too) — verified aligned)
-- [x] Volunteer dashboard (triage: cases, follow-ups, hours)
-- [x] Admin dashboard (org triage: unassigned & stale cases)
-- [x] Cases index (bespoke table + server-side filter selects + Pagy pagination)
-- [x] Case workflows: cases index/show/new/edit + case contacts index + drafts + the multi-step
-  **form** all shipped (filterrific kept, disclosure collapse; the form is an autosave Wicked
-  wizard on the app layout). The opt-in `case_contacts_new_design` table is now a bespoke
-  server-rendered the app layout table too (retired its jQuery serverSide DataTable; server-side filter
-  scopes + ?sort= + Pagy; disclosure filter panel; expandable rows + inline row actions) — the case
-  area is fully migrated.
-- [x] Management (Phase 4): volunteers + supervisors index/edit, learning hours, case assignments,
-  reimbursements, the reports hub, and **organization settings** all shipped (bespoke Tailwind
-  tables + Pagy; reimbursements retired its serverSide DataTable; the reports hub keeps its
-  `.report-form-submit` CSV-download JS + native `<select multiple>` filters; settings uses a
-  `twilio` Stimulus controller that reveals the credential fields + toggles their required/disabled
-  from the enable checkbox, replacing the jQuery + Bootstrap-collapse `src/stocks_in_the_future_org.js`).
-- [x] Court report generator (`case_court_reports#index`): a Dialog + the reused `court-report`
-  controller, with a searchable single-select TomSelect case picker (the `searchable-select`
-  controller) that preserves the select2 volunteer-name search.
-- [x] Phase 5 admin CRUD long-tail (complete): judges/languages/placement-types/learning-hour-types+topics,
-  contact types/groups/topics, hearing types + checklist items, custom org links, mileage rates,
-  banners, placements, **court dates + bulk court dates** (shared court-order twin), **imports**
-  (server-side link tabs + inline SMS-opt-in keeping src/import.js), and **emancipation** (checklist
-  show keeps the src/case_emancipation.js AJAX/collapse hooks; index retires its DataTable). Banners
-  brought `trix/dist/trix.css` into the the app layout tailwind bundle; placements/court-dates use
-  Dialog / UJS deletes that satisfy non-`:js` specs.
-- [x] Phase 6 (complete): the all-stocks-in-the-future-admin area on its own Tailwind shell (dashboard, stocks_in_the_future_orgs,
-  stocks_in_the_future_admins, edit/new, patch notes — the jQuery clone-CRUD kept, its bundle + notifier wired in)
-  + its auth pages on the stocks_in_the_future_auth shell; and the public `static#index` landing page rebuilt on
-  the brand palette (compiled tailwind, no CDN/Alpine). Regular-user Devise pages shipped in the
-  foundation phase.
-- [x] **Metrics & Analytics**: the platform activity charts were extracted from HealthController
-  into a scope-parameterized `MetricsReport` and surfaced in two authenticated homes -- an all-stocks-in-the-future
-  **Metrics** console (platform-wide, in the all_stocks_in_the_future_admin sidebar) and a per-chapter **Analytics**
-  page (org-scoped, admin+supervisor, with chapter KPI cards; beside Reports in the the app layout sidebar).
-  Both share `metrics/_dashboard` + the `metric_*` helpers + the `chart-hover` controller (already in
-  the app bundle). `/health` was slimmed to a minimal self-contained ops status page + deploy-time
-  JSON, taking the cross-org charts off the public surface; the dead `metrics` JS bundle/layout and
-  the unused legacy `/health` JSON graph endpoints were retired.
+**The history lives in [`migration.md`](migration.md)** -- every change with a long-term blast radius,
+in the order it happened, never rewritten. **The backlog lives in
+[`design-todo.md`](design-todo.md).** This section is only the shape of the work.
+
+Both halves are covered: the student- and teacher-facing app and everything under `/admin`. They are
+one product, and a fix applied to one half creates exactly the inconsistency the sweep was meant to
+remove -- a teal sidebar against a white one, a page background that changed at the `/admin`
+boundary, `slate-50` here and `sitf-surface` there. The mechanism is shared: `NavHelper`,
+`components/ui/_page_header`, `_card`, `_badge`, the `.tw-btn-*` classes and one `Ui::FormBuilder`.
+Prefer changing those over changing call sites.
+
+Two things that keep re-appearing, both recorded at length below: **a style written in two places
+survives every sweep of one of them** (the grey table header was a shared class *and* an inline
+`<thead>` on fourteen admin tables; the button base was `buttons.css` *and* `ADMIN_BUTTON_BASE` in
+Ruby), and **a named class with one caller drifts as surely as no class at all** (`tw-input-primary`
+existed for months, with a comment describing the exact placeholder failure it fixed, while the admin
+form builder rendered nine forms at 2.54:1).
+
 
 ## Workflow
 - On the `stocksdesign` branch: **commit and push at every checkpoint.**
