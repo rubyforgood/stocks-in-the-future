@@ -1,25 +1,18 @@
-<%# Archived stocks.
+<%# Archived stocks a student still holds.
 
-    What this section was: every archived stock, in a table identical to the active one, with no date,
-    no explanation, and an **empty actions column** - because StockPolicy#show_trading_link? withholds
-    trading on an archived stock unless the viewer holds it. So for almost every reader it was a price
-    list of things they cannot buy, sitting under the list of things they can.
+    **A student who holds an archived stock must be able to sell it.** That is the only action the data
+    supports on a closed company, and it is the whole of this section.
 
-    What it is actually for: **a student who holds an archived stock has to be able to sell it.** That
-    is the only action the data supports, and it is the only part worth putting on screen by default.
-    The rest is oversight, so it goes behind a native disclosure - open it and it costs nothing until
-    then. A teacher keeps access, which matters because a teacher is not an admin and has no other
-    view of archived stocks.
+    What went: a `<details>` listing every archived stock inside `Stock::LIST_RETENTION`, for any reader.
+    It was defensible - it had a date, a window and an exemption - without ever answering who opened it
+    and to do what. A student cannot buy any of them; a teacher who wants the catalogue has
+    `/admin/stocks`, which carries more. A list nobody can act on is not oversight, it is a list.
 
-    Nothing deletes these and nothing should: orders.stock_id and portfolio_stocks.stock_id are both
-    NOT NULL with foreign keys, and both associations are `dependent: :restrict_with_error`, so a
-    stock a student has ever traded cannot be removed without destroying that student's trade
-    history. So the retention rule is about the *list*: Stock::LIST_RETENTION drops a closed company
-    off it after a school year, unless you hold shares in it. %>
+    Nothing deletes these rows and nothing should: `orders.stock_id` and `portfolio_stocks.stock_id` are
+    both NOT NULL with foreign keys and `dependent: :restrict_with_error`, so a stock a student has ever
+    traded cannot be removed without destroying that student's trade history. `Stock::LIST_RETENTION`
+    still governs the admin list; what changed is only who is shown one they cannot use. %>
 <% held = stocks.select { |stock| current_user.holding?(stock) } %>
-<%# `listed` is already narrowed to Stock::LIST_RETENTION; a stock you hold is exempt from it, so
-    the two collections are read separately rather than subtracted from one. %>
-<% rest = listed.reject { |stock| held.include?(stock) } %>
 
 <% if held.any? %>
   <%= render "stocks/stocks_table",
@@ -27,29 +20,4 @@
              description: "You still own shares in these. They cannot be bought any more, " \
                           "but you can sell whenever you like.",
              stocks: held %>
-<% end %>
-
-<% if rest.any? %>
-  <%# A native <details>, which design.md names as the disclosure pattern here - it opens with no
-      JavaScript, and the marker is hidden because the chevron carries the state. %>
-  <%# Held by is on this table too, and the scope sentence is not repeated - the active table above
-      states it once, and a disclosure that restates the same denominator is a second copy of one fact.
-      What this description says is what makes *these* rows different. %>
-  <details class="group" data-testid="archived-stocks">
-    <summary class="inline-flex min-h-11 cursor-pointer list-none items-center gap-2 rounded-lg text-base font-semibold text-slate-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary [&::-webkit-details-marker]:hidden">
-      <%= lucide_icon "chevron-right", class: "size-4 shrink-0 text-slate-600 transition-transform group-open:rotate-90" %>
-      Archived stocks (<%= rest.size %>)
-    </summary>
-
-    <div class="mt-3">
-      <%# The window is interpolated from Stock::LIST_RETENTION rather than written out, so the
-          sentence cannot end up claiming one period while the scope enforces another. %>
-      <%= render "stocks/stocks_table",
-                 description: "These companies have stopped trading here, so they cannot be " \
-                              "bought. They stay listed for #{Stock::LIST_RETENTION.inspect} " \
-                              "after they close, and a company you own shares in stays until " \
-                              "you sell it.",
-                 stocks: rest %>
-    </div>
-  </details>
 <% end %>

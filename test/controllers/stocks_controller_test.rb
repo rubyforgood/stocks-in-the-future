@@ -52,11 +52,10 @@ class StocksControllerTest < ActionDispatch::IntegrationTest
   # sidebar list. The nav no longer carries a catalogue (migration.md, Map A), and this page is
   # where the stocks are - it also separates active from archived rather than hiding archived,
   # so the coverage is closer to the real behaviour than it was in the nav.
-  # The archived list is a collapsed disclosure rather than a second titled table. It carried no
-  # date, no explanation and an empty actions column for anything the viewer did not hold - which is
-  # everything, for an admin - so it was a price list of things nobody on this page can buy, sitting
-  # under the list of things they can. Still reachable, and still linking each stock to its page.
-  test "index lists active stocks, and archived ones behind a disclosure" do
+  # An archived stock appears only to someone who holds it, because selling it is the only action the
+  # data supports. It used to be listed for every reader behind a disclosure - a price list of companies
+  # nobody on the page can buy, retained for a year, which never answered who opened it or to do what.
+  test "index lists active stocks, and no archived ones for a reader who holds none" do
     active = create(:stock, archived: false, ticker: "AAPL")
     archived = create(:stock, archived: true, ticker: "DEAD")
     sign_in create(:admin)
@@ -65,8 +64,21 @@ class StocksControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "h2", text: "Active stocks"
-    assert_select "details[data-testid=?] summary", "archived-stocks", text: /Archived stocks \(1\)/
     assert_select "a[href=?]", stock_path(active), text: active.ticker
+    assert_select "a[href=?]", stock_path(archived), count: 0
+    assert_select "details[data-testid=?]", "archived-stocks", count: 0
+  end
+
+  test "a student who holds an archived stock still sees it, so they can sell" do
+    archived = create(:stock, archived: true, ticker: "DEAD", price_cents: 100)
+    student = create(:student, :with_portfolio, classroom: create(:classroom, :with_trading))
+    student.reload
+    student.portfolio.portfolio_stocks.create!(stock: archived, shares: 2, purchase_price: 1)
+    sign_in student
+
+    get stocks_url
+
+    assert_select "h2", text: "Archived stocks you hold"
     assert_select "a[href=?]", stock_path(archived), text: archived.ticker
   end
 
@@ -81,10 +93,6 @@ class StocksControllerTest < ActionDispatch::IntegrationTest
     # asserted the student sentence while signed in as an admin, and passed for as long as every role
     # was handed the same string.
     assert_select "p", text: /Companies your students can buy shares in right now/
-    assert_select "details[data-testid=?]", "archived-stocks" do
-      assert_select "p", text: /stopped trading here, so they cannot be bought/
-      assert_select "p", text: /stay listed for #{Stock::LIST_RETENTION.inspect}/
-    end
   end
 
   test "a student is the one told they can buy" do
@@ -96,16 +104,21 @@ class StocksControllerTest < ActionDispatch::IntegrationTest
     assert_select "p", text: /Companies you can buy shares in right now/
   end
 
-  # Stock::LIST_RETENTION is a display rule, not a purge - orders and portfolio_stocks reference
-  # stocks by id and restrict deletion, so the rows stay forever and the list is what ages.
-  test "an archived stock past the retention window drops off the list" do
-    old = create(:stock, archived: true, ticker: "GONE")
+  # Stock::LIST_RETENTION is a display rule, not a purge - orders and portfolio_stocks reference stocks
+  # by id and restrict deletion, so the rows stay forever and the list is what ages. It governs the admin
+  # list now; the trading floor shows an archived stock only to a holder, however long ago it closed,
+  # because they must always be able to sell it.
+  test "a holder keeps seeing a stock archived long past the retention window" do
+    old = create(:stock, archived: true, ticker: "GONE", price_cents: 100)
     old.update!(archived_at: (Stock::LIST_RETENTION + 1.day).ago)
-    sign_in create(:admin)
+    student = create(:student, :with_portfolio, classroom: create(:classroom, :with_trading))
+    student.reload
+    student.portfolio.portfolio_stocks.create!(stock: old, shares: 1, purchase_price: 1)
+    sign_in student
 
     get stocks_url
 
-    assert_select "a[href=?]", stock_path(old), count: 0
+    assert_select "a[href=?]", stock_path(old), text: old.ticker
   end
 
   test "a stock you hold stays listed however long ago it was archived" do
@@ -122,14 +135,18 @@ class StocksControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "an archived row says why it is there" do
-    create(:stock, archived: true, ticker: "DEAD", last_trading_day: Date.new(2026, 3, 12))
-    sign_in create(:admin)
+    dead = create(
+      :stock, archived: true, ticker: "DEAD", last_trading_day: Date.new(2026, 3, 12),
+              price_cents: 100
+    )
+    student = create(:student, :with_portfolio, classroom: create(:classroom, :with_trading))
+    student.reload
+    student.portfolio.portfolio_stocks.create!(stock: dead, shares: 1, purchase_price: 1)
+    sign_in student
 
     get stocks_url
 
-    assert_select "details[data-testid=?]", "archived-stocks" do
-      assert_select "span", text: /No longer trading . last priced 12 Mar 2026/
-    end
+    assert_select "span", text: /No longer trading . last priced 12 Mar 2026/
   end
 
   test "a student who holds an archived stock gets it surfaced with a sell action" do

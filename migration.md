@@ -3061,3 +3061,40 @@ the admin forms read better.
   on a different attribute. `validation_errors_test` catches the classroom case by name.
 - **The hint's position changed on `students/new`, `students/edit` and `profiles/edit`** - it is above
   the input now, which is where GOV.UK, Polaris, Carbon and Material put it.
+
+## The eight open questions, decided and built
+
+### What changed
+
+- **`quarters.school_days`** (nullable integer). `GradeEntry#perfect_attendance?` derives the answer from
+  it where it is set and falls back to the stored `is_perfect_attendance` where it is nil. The grade book
+  shows a figure instead of a control in the derived case; the school-year form has the four fields.
+- **`classrooms#show` renders `@classroom_stats`**, at the foot, in one card of four `_stat`s with
+  `surface: false`. `ClassroomFacade#stats` returns **`total_portfolio_value_cents`** now, not
+  `total_portfolio_value` - it summed a float per student.
+- **`components/ui/_stat` takes `surface:`**, default true.
+- **Seven admin form partials render `components/ui/_card`** and lost their `h3`.
+  `admin/students` and `admin/school_years` keep theirs: they have two cards.
+- **`admin/users` has `restore`, a discarded filter and a Restore row action**, and includes
+  `SoftDeletableFiltering`.
+- **The trading floor's archived disclosure is gone.** `stocks/_archived_stocks` takes only `stocks:`.
+- **`EnvironmentHelper` and `layouts/_environment_ribbon`** - a staging-only strip, with the offsets for
+  the header, the admin drawer and `main` derived from one constant.
+- **`.rubocop.yml` teaches `Rails/UnknownEnv` about staging.**
+- The trading floor's actions cell is `align-top`.
+
+### What this breaks
+
+- **Anything reading `is_perfect_attendance` directly.** The column is still written by the control where
+  a quarter has no `school_days`, but the *answer* is `perfect_attendance?`. Four call sites moved; a
+  fifth would silently disagree with the money.
+- **Money changes for any entry whose flag and day count disagree, once its quarter has a figure.** That
+  is the point, and both paths are pinned as literals in `grade_entry_test`. Nothing changes until a
+  `school_days` is entered.
+- **`ClassroomFacade#stats[:total_portfolio_value]` no longer exists.**
+- **Anything asserting the archived disclosure**, or two tables on the trading floor for a reader who
+  holds nothing. Four tests moved.
+- **`spacing_test`'s h1-to-card measurement had to leave `admin/users`**, which now has filter tabs
+  between the header and the card - which is what design.md says filters do.
+- **A quarter factory's attributes are discarded**: its `to_create` swaps in the row `SchoolYear` already
+  made, so `school_days` has to be set on the record afterwards. This cost two failing tests to find.

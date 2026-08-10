@@ -30,13 +30,19 @@ class SpacingTest < ApplicationSystemTestCase
     JS
   end
 
+  # admin/schools, not admin/users: the users list gained the discard filter tabs when `restore` was
+  # added, and design.md is explicit that filters sit *between* the header and the card. So the h1-to-card
+  # distance there is the header gap plus the tabs, and measuring it would be measuring the wrong thing.
+  # `page_rhythm_test` asserts the header block's own 24px on every page including that one; this checks
+  # the case where the card is genuinely the next thing.
   test "a title-only page header leaves 24px above the content" do
     sign_in(create(:admin))
-    visit admin_users_path
+    create(:school)
+    visit admin_schools_path
 
     gap = distance("main h1", ".tw-card")
 
-    assert_not_nil gap, "expected an h1 and a card on the admin users index"
+    assert_not_nil gap, "expected an h1 and a card on the admin schools index"
     assert_in_delta HEADER_GAP, gap, TOLERANCE,
                     "title to card measured #{gap}px; a 40px action beside a 32px h1 in an " \
                     "items-start row is the usual cause"

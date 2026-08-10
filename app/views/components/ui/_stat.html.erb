@@ -19,8 +19,16 @@
       testid - optional data-testid, for tests targeting a specific stat %>
 <%# .tw-card, not its own rounded-xl / shadow-xs surface. This was a fourth card treatment: the
     portfolio page put three of these beside a .tw-card chart, a .tw-card summary and a
-    hand-rolled h-[150px] panel, so four radii and three shadows shared one screen. %>
-<%= tag.div class: "tw-card p-5",
+    hand-rolled h-[150px] panel, so four radii and three shadows shared one screen.
+
+    `surface: false` renders the figure with no card of its own, for a group of them **inside** one card.
+    A strip of separate cards is right where the figures are the page's summary and stand alone - the
+    portfolio does that - and wrong where they are one section among several: four cards for four
+    figures on `classrooms#show` took that page from two surfaces to six, which is the card-soup shape
+    its own test forbids. One component either way, because the alternative is a second way to render a
+    figure and this document has watched that happen four times. %>
+<% surface = local_assigns.fetch(:surface, true) %>
+<%= tag.div class: (surface ? "tw-card p-5" : ""),
             data: { testid: local_assigns[:testid] } do %>
   <%# A leading icon goes on the label's line, at the 32px size - the same place and size as the
       home page's balance card and _card's header. best_month used to hang its tile off the right

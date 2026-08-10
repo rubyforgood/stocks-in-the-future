@@ -156,22 +156,36 @@ class ClassroomPageTest < ApplicationSystemTestCase
     assert_equal "2px", outline, "the track shows no focus ring when its input is focused"
   end
 
+  # **One surface per section, never one per item.**
+  #
   # Six card surfaces on one page was reported as too many: the trading card, the roster's table card,
   # and one per grade book. Four quarters with a name and a status are list rows in one card, which is
   # what Polaris's ResourceList and Primer's Box rows are.
-  test "the page carries two surfaces, not six" do
+  #
+  # This asserted a bare `<= 2`, which was the count on the day it was written rather than the rule. A
+  # third section - the class summary - is not card soup, and four `_stat` cards inside it would have
+  # been; they are one card of four figures, via `surface: false`. Counting against the sections keeps
+  # the assertion true as the page grows and still fails the moment a list starts putting a card per row.
+  test "the page carries one surface per section, never one per item" do
     classroom = create(:classroom, :with_trading)
     2.times { create(:student, :with_portfolio, classroom:) }
     teacher_viewing(classroom)
 
     visit classroom_path(classroom)
 
-    surfaces = page.evaluate_script(
-      'document.querySelectorAll("main .tw-card, main .table-wrapper").length'
-    )
+    counts = page.evaluate_script(<<~JS)
+      (function () {
+        return {
+          surfaces: document.querySelectorAll("main .tw-card, main .table-wrapper").length,
+          sections: document.querySelectorAll("main section").length
+        };
+      })()
+    JS
 
-    assert_operator surfaces, :<=, 2,
-                    "#{surfaces} card surfaces on one page; a card per list item is card soup"
+    assert_operator counts["sections"], :>=, 3, "expected the roster, the grade books and the summary"
+    assert_operator counts["surfaces"], :<=, counts["sections"],
+                    "#{counts['surfaces']} card surfaces across #{counts['sections']} sections; " \
+                    "a card per list item is card soup"
   end
 
   # A setting is not a page action. The header carries navigation and the primary action; a control that
@@ -233,5 +247,48 @@ class ClassroomPageTest < ApplicationSystemTestCase
       assert_text "Not finalized"
       assert_no_text "Draft"
     end
+  end
+
+  # ClassroomFacade#stats computed four figures on every teacher's and admin's visit and no template read
+  # them. They are at the foot of the page rather than the top, which is measured rather than chosen: a
+  # four-across band above the roster once put the first student at 567px of a 625px screen.
+  test "the class summary is rendered, and below the roster" do
+    classroom = create(:classroom, :with_trading)
+    student = create(:student, :with_portfolio, classroom:)
+    student.reload
+    create(:portfolio_transaction, :deposit, portfolio: student.portfolio, amount_cents: 100_00)
+    teacher = create(:teacher)
+    create(:teacher_classroom, teacher:, classroom:)
+    sign_in teacher
+
+    in_chromebook_viewport do
+      visit classroom_path(classroom)
+
+      assert_selector "h2", text: "How this class is doing"
+      assert_selector "[data-testid='stat-students']", text: "1"
+      assert_selector "[data-testid='stat-portfolio-value']", text: "$100.00"
+
+      order = page.evaluate_script(<<~JS)
+        (function () {
+          const y = (sel) => document.querySelector(sel).getBoundingClientRect().top + window.scrollY;
+          return {
+            roster: Math.round(y("table")),
+            summary: Math.round(y("[data-testid='stat-students']"))
+          };
+        })()
+      JS
+
+      assert_operator order["summary"], :>, order["roster"],
+                      "the summary is above the roster, which is what this page is for"
+    end
+  end
+
+  test "a student sees no class summary" do
+    classroom = create(:classroom, :with_trading)
+    student = create(:student, :with_portfolio, classroom:)
+    sign_in student
+    visit classroom_path(classroom)
+
+    assert_no_selector "h2", text: "How this class is doing"
   end
 end

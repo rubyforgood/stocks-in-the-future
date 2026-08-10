@@ -2005,6 +2005,76 @@ different geometry, which moves every column at the boundary. In a cell an absen
 from the day it was written and never rendered an exchange, while `stock_exchange` sat populated on every
 active stock and was shown only on `stocks#show`.
 
+### A card's header, and when a page has one card
+**A single-card form has no card heading.** Ten admin forms opened with an `h3` naming the record type -
+"Teacher details" under a page header reading "Edit teacher", 24px apart, in two sizes. Polaris drops a
+card's header when the page has one card, and the page title has already named the thing. **A heading
+earns its place the moment there are two**, where it is what separates them - `admin/students` and the
+school-year form both have two, and both keep theirs.
+
+Those ten also hand-rolled the surface as `<div class="tw-card"><div class="p-5">`, so it was declared
+eleven times. They render `components/ui/_card`. The value stays `p-5`: the document decided it, the app
+is consistent with it, and the case for `p-6` would have to be that a form is measurably cramped - it is
+not, `p-5` leaves a field 286px wide at 375px against `p-6`'s 278px.
+
+### A figure inside a card, or as one
+**`_stat` renders its own card by default and takes `surface: false` when it should not.** A strip of
+separate cards is right where the figures *are* the summary and stand alone - the portfolio page. It is
+wrong where they are one section among several: four `_stat` cards on `classrooms#show` took that page
+from two surfaces to six, which is the card-soup shape its own test forbids. Four figures in one card
+instead.
+
+That test now asserts the rule rather than the number it happened to be: **one surface per section, never
+one per item.** A bare `<= 2` fails when a legitimate third section arrives, which teaches you to raise
+the number rather than to ask the question.
+
+### Where a class summary goes
+**At the foot of `classrooms#show`, under the grade books.** `ClassroomFacade#stats` computed four
+figures on every teacher's and admin's visit and no template read them. They are not at the top, and that
+is measured: the viewport is 625px on the target Chromebook, the roster's first row starts at 270px, and
+a four-across band is 134px - one above the roster once put the first student at 567px of 625px. Below
+the work is where "how is this class doing?" is actually asked.
+
+The facade sums **cents** now. It summed `calculate_total_value`, which is already `cents / 100.0`, so it
+added a float per student - and integer cents are authoritative here.
+
+### Derive an answer the data already contains
+**Perfect attendance is arithmetic where the quarter says how many days there were.** A teacher typed a
+day count and was then asked, in the next cell, whether every day was attended. Nothing reconciled the
+two and the money followed the second answer: the seeds contained an entry flagged perfect with
+`attendance_days` nil, paid the bonus, and another treating 3 days as perfect.
+
+`quarters.school_days` is the denominator that was missing, and it is **nullable on purpose**: where it is
+set the grade book shows a figure and asks nothing, where it is nil the control stays and the stored flag
+still decides. So nothing already graded changes meaning and no grade book stops working while the number
+is collected. The figure is entered on the school-year form - four numbers once, rather than four
+questions per student per quarter.
+
+### An environment ribbon, on staging only
+**A strip above the header, never in the content**, because it describes the application and not the page
+- GitLab's environment ribbon and Shopify's development-store banner sit in the chrome for the same
+reason. No dismiss: only an *outcome* removes itself, and the environment is still true in a minute.
+
+**Not in development.** The URL already says localhost there, and a permanent stripe on every page of
+every working day is noise that teaches you to stop seeing it - which is exactly what would make it
+useless on staging, where it is seen rarely and has to register.
+
+Its geometry lives in `EnvironmentHelper` and nowhere else: the ribbon is 32px, so the fixed header, the
+admin drawer and `main` each read their offset from it. Two copies of that arithmetic is the drift this
+document keeps recording.
+
+### A list nobody can act on
+**The trading floor shows an archived stock only to someone who holds it.** It used to list every
+archived stock inside `Stock::LIST_RETENTION` behind a disclosure, for every reader - a price list of
+companies nobody on that page can buy. Retention made it defensible; it never made it useful. A student
+who holds one must be able to sell it, which is the only action the data supports, and a teacher who
+wants the catalogue has `/admin/stocks`.
+
+**And a reversible action needs its reverse.** `admin/users` archived and nothing un-archived: the
+students and teachers lists have their own restore, so a user who is neither had no way back, and the
+list had no archived filter to find them in. Both now, which is also what turns a row with no action into
+a row with one.
+
 ### One builder, and the shape it enforces
 **Every entity form on both halves is `Ui::FormBuilder`.** It was `Admin::FormBuilder`, and the name was
 the problem: nine admin forms were built from it while the app half wrote its fields out by hand and the

@@ -1,10 +1,15 @@
 <%= form_with model: portfolio_transaction, url: portfolio_transaction.persisted? ? admin_portfolio_transaction_path(portfolio_transaction) : admin_portfolio_transactions_path, builder: Ui::FormBuilder, class: "space-y-6" do |f| %>
   <%= render "shared/form_errors", record: portfolio_transaction, subject: "transaction" %>
 
-  <div class="tw-card">
-    <div class="p-5">
-      <h3 class="text-lg font-medium text-slate-900 mb-6">Transaction details</h3>
+  <%# `components/ui/_card`, and no heading of its own.
 
+      The surface was hand-rolled in ten form partials - `<div class="tw-card"><div class="p-5">` - so it
+      was declared eleven times, which is the mechanism that produced four different padding values before
+      anyone noticed. And each opened with an `h3` naming the record type, under a page header that had
+      just named it: "Teacher details" below "Edit teacher", 24px apart, in two sizes. Polaris drops a
+      card's header when the page has one card. A heading returns the moment a form has two - see
+      admin/students, where it separates them. %>
+  <%= render layout: "components/ui/card", locals: {} do %>
       <%= f.association_select :portfolio_id,
                                collection: Portfolio.includes(:user).order("users.username"),
                                label: "Portfolio",
@@ -33,8 +38,7 @@
                       label: "Description",
                       hint: "Optional description for this transaction",
                       rows: 4 %>
-    </div>
-  </div>
+  <% end %>
 
   <div class="flex flex-wrap items-center gap-3">
     <%= f.submit_button portfolio_transaction.persisted? ? "Update portfolio transaction" : "Create portfolio transaction" %>

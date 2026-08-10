@@ -1,10 +1,15 @@
 <%= form_with model: @school_year, url: @school_year.persisted? ? admin_school_year_path(@school_year) : admin_school_years_path, builder: Ui::FormBuilder, class: "space-y-6" do |f| %>
   <%= render "shared/form_errors", record: @school_year, subject: "school year" %>
 
-  <div class="tw-card">
-    <div class="p-5">
-      <h3 class="text-lg font-medium text-slate-900 mb-6">School year details</h3>
+  <%# `components/ui/_card`, and no heading of its own.
 
+      The surface was hand-rolled in ten form partials - `<div class="tw-card"><div class="p-5">` - so it
+      was declared eleven times, which is the mechanism that produced four different padding values before
+      anyone noticed. And each opened with an `h3` naming the record type, under a page header that had
+      just named it: "Teacher details" below "Edit teacher", 24px apart, in two sizes. Polaris drops a
+      card's header when the page has one card. A heading returns the moment a form has two - see
+      admin/students, where it separates them. %>
+  <%= render layout: "components/ui/card", locals: {} do %>
       <%= f.select :school_id,
                    options_from_collection_for_select(
                      School.order(:name),
@@ -27,16 +32,46 @@
                    hint: "Select the year for this school year",
                    include_blank: "Select a year" %>
 
+      <%# Only on #new: on #edit the quarters exist and the next card sets their teaching days. %>
       <% if @school_year.new_record? %>
         <div class="mt-6 pt-6 border-t border-slate-200">
           <p class="text-sm text-slate-600">
             <%= lucide_icon("info", class: "mr-1 w-4 h-4 shrink-0") %>
-            Four quarters will be automatically created for this school year.
+            Four quarters are created for this school year automatically. Come back here afterwards to
+            say how many teaching days each one has.
           </p>
         </div>
       <% end %>
-    </div>
-  </div>
+  <% end %>
+
+  <%# Teaching days per quarter - the denominator perfect attendance is derived from.
+
+      A teacher used to type a day count into the grade book and then answer a second control claiming
+      every day was attended; nothing reconciled the two and the money followed the second answer. With a
+      figure here that column becomes arithmetic. Left blank, the grade book keeps asking, so a school
+      year nobody has filled in still works exactly as it did.
+
+      A second card, so it gets a heading: the rule is that a card's header is dropped when the page has
+      one card and earns its place the moment there are two. On this form because a school year is where a
+      quarter is configured, and because it is four numbers entered once rather than four questions per
+      student per quarter. %>
+  <% if @school_year.persisted? %>
+    <%= render layout: "components/ui/card", locals: { title: "Teaching days" } do %>
+      <p class="mb-4 text-sm text-slate-600">
+        How many days each quarter runs. Perfect attendance is worked out from it, so a teacher enters the
+        days a student attended and nothing else. Leave a quarter blank and its grade book asks instead.
+      </p>
+
+      <div class="grid grid-cols-1 gap-5 lg:grid-cols-4">
+        <%= f.fields_for :quarters, @school_year.quarters.order(:number) do |quarter_fields| %>
+          <%= quarter_fields.number_field :school_days,
+                                          label: quarter_fields.object.name,
+                                          min: 1,
+                                          placeholder: "e.g. 45" %>
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
 
   <div class="flex flex-wrap items-center gap-3">
     <%= f.submit_button @school_year.persisted? ? "Update school year" : "Create school year" %>

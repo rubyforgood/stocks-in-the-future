@@ -28,8 +28,36 @@ class GradeEntry < ApplicationRecord
     grade_based_earnings(reading_grade)
   end
 
+  # **Derived where the quarter says how many days there were, stored where it does not.**
+  #
+  # A teacher typed the day count and then answered a second control claiming every day was attended, and
+  # nothing reconciled them: the seeds contain an entry flagged perfect with `attendance_days` nil, paid
+  # the bonus, and another treating 3 days as perfect. Two fields for one fact, with the money following
+  # the one nobody could check.
+  #
+  # `quarters.school_days` is the denominator that was missing. Where it is set the answer is arithmetic
+  # and the teacher is not asked; where it is nil - every quarter until the figure is collected - the
+  # stored flag still decides, so nothing that has already been graded changes meaning and no grade book
+  # stops working while the number is being filled in.
+  def perfect_attendance?
+    days = school_days
+    return is_perfect_attendance if days.blank?
+
+    attendance_days.present? && attendance_days >= days
+  end
+
+  # Whether this entry's answer is arithmetic or a teacher's. The grade book asks, so it can show a
+  # figure instead of a control.
+  def perfect_attendance_derived?
+    school_days.present?
+  end
+
+  def school_days
+    grade_book&.quarter&.school_days
+  end
+
   def attendance_perfect_earnings
-    return 0 unless is_perfect_attendance
+    return 0 unless perfect_attendance?
 
     EARNINGS_FOR_PERFECT_ATTENDANCE
   end

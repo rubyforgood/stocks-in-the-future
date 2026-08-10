@@ -118,7 +118,13 @@
         <%= share_count(@portfolio&.shares_owned(stock.id) || 0) %>
       </span>
     </td>
-    <td class="table-body-cell table-body-cell-right hidden whitespace-nowrap lg:table-cell">
+    <%# `align-top`, so a 40px control sits on the row's first line instead of on its centre.
+        Measured before: the primary cell stacks a 40px logo over a ticker and a company name, so the row
+        is 65px and the buttons' centre landed 10.5px below the ticker. The `pt-1.5` used for a 32px row
+        action is the wrong number here and any number would be - it is tuned to one row's height and
+        breaks the moment a company name wraps to a third line. design.md already asks for top alignment
+        on every other trailing cell. %>
+    <td class="table-body-cell table-body-cell-right hidden whitespace-nowrap align-top lg:table-cell">
       <% if policy(stock).show_trading_link? %>
         <%= render "stocks/trade_actions", stock: stock, class: "justify-end" %>
       <% end %>

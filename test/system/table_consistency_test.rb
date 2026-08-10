@@ -131,7 +131,13 @@ class TableConsistencyTest < ApplicationSystemTestCase
     student.reload
     create(:portfolio_transaction, :deposit, portfolio: student.portfolio, amount_cents: 100_000)
     create(:stock, ticker: "KO", company_name: "Coca-Cola Company", price_cents: 15_000)
-    create(:stock, ticker: "ZZZZ", company_name: "Archived Co.", price_cents: 900, archived: true)
+    # Held, because an archived stock is listed only to someone who owns it now - the disclosure of
+    # companies nobody can buy is gone, and a holder is the only reader with an action on one.
+    archived = create(
+      :stock, ticker: "ZZZZ", company_name: "Archived Co.", price_cents: 900,
+              archived: true
+    )
+    student.portfolio.portfolio_stocks.create!(stock: archived, shares: 1, purchase_price: 9)
     sign_in(student)
 
     in_chromebook_viewport do

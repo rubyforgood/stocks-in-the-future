@@ -78,5 +78,54 @@
     </section>
 
     <%= render "grade_books_list", grade_books: @classroom.grade_books %>
+
+    <%# **At the foot, not the top.** `ClassroomFacade#stats` has computed these four figures on every
+        teacher's and admin's visit to this page and no template has ever read them - four queries whose
+        result went nowhere.
+
+        They belong here rather than above the roster, and that is a measured decision: at 1366x768 this
+        viewport is 625px, the roster's first row starts at 270px, and a four-across `_stat` band is
+        134px. Putting one above the roster once pushed the first student to 567px of 625px, which is the
+        page's own recorded mistake. Below the grade books it is the summary you scroll to *after* the
+        work, which is when "how is this class doing?" is actually asked.
+
+        Deleting the four queries was the alternative. It is worse: the figures answer a question a
+        teacher has and nothing else in the app answers - the trading floor's Held by column says what is
+        being bought, not how this class is doing. %>
+    <% if @classroom_stats.present? %>
+      <section aria-labelledby="classroom-summary-heading">
+        <h2 id="classroom-summary-heading" class="text-base font-semibold text-slate-900">
+          How this class is doing
+        </h2>
+        <p class="mt-1 text-sm text-slate-600">Across every student on the roster.</p>
+
+        <%# One card holding four figures, not four cards. `surface: false` on each - see the note in
+            `_stat`. Four `_stat` cards here took the page from two surfaces to six, which is exactly the
+            shape this page was rebuilt to remove and which `classroom_page_test` asserts against. %>
+        <div class="tw-card mt-3 grid grid-cols-1 gap-5 p-5 lg:grid-cols-4">
+          <%= render "components/ui/stat",
+                     label: "Students",
+                     value: @classroom_stats[:total_students].to_s,
+                     testid: "stat-students",
+                     surface: false %>
+          <%= render "components/ui/stat",
+                     label: "Have traded",
+                     value: @classroom_stats[:active_students].to_s,
+                     hint: "Placed at least one order",
+                     testid: "stat-active-students",
+                     surface: false %>
+          <%= render "components/ui/stat",
+                     label: "Class portfolio",
+                     value: number_to_currency(@classroom_stats[:total_portfolio_value_cents].to_i / 100.0),
+                     testid: "stat-portfolio-value",
+                     surface: false %>
+          <%= render "components/ui/stat",
+                     label: "Orders this week",
+                     value: @classroom_stats[:recent_orders_count].to_s,
+                     testid: "stat-recent-orders",
+                     surface: false %>
+        </div>
+      </section>
+    <% end %>
   </div>
 </div>

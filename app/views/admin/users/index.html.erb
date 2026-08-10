@@ -5,6 +5,12 @@
     <%= link_to "New user", new_admin_user_path, class: admin_primary_button_class %>
   <% end %>
 
+  <%= render "admin/shared/discard_filter_tabs",
+             current: current_discard_filter,
+             tabs: [["Active", :active, admin_users_path],
+                    ["Archived", :discarded, admin_users_path(discarded: true)],
+                    ["All", :all, admin_users_path(all: true)]] %>
+
   <div class="tw-card">
     <div class="overflow-x-auto">
       <table class="table-base">
@@ -64,6 +70,18 @@
                         and `User#destroy` raises rather than hard-delete a person. The old label and its
                         "This cannot be undone" were both false - and the same string on the students
                         list already reads "They will lose access, but their data is preserved". %>
+                    <%# Restore on a discarded row, Archive on a live one - never both, and never neither.
+                      There was no Restore at all: `admin/students#restore` and the teachers'
+                      reactivation cover the two subclasses, so a user who is neither had no way back,
+                      and the discard is reversible in the data and was irreversible only here. %>
+                  <% if user.discarded? %>
+                    <%= ghost_action_link "Restore", restore_admin_user_path(user),
+                                          icon: "rotate-ccw",
+                                          data: { turbo_method: :patch,
+                                                  turbo_confirm: "Restore #{user.username}?\n\n" \
+                                                                 "They can sign in again and reappear " \
+                                                                 "in the lists they belong to." } %>
+                  <% else %>
                     <%= ghost_action_link "Archive", admin_user_path(user),
                                           icon: "archive", variant: :danger,
                                           data: { turbo_method: :delete,
@@ -72,6 +90,7 @@
                                                                  "leave this list. Nothing is deleted: " \
                                                                  "the account and everything attached " \
                                                                  "to it are kept." } %>
+                  <% end %>
                 <% end %>
 
                 <td class="table-body-cell whitespace-nowrap hidden lg:table-cell">

@@ -48,7 +48,7 @@ class GradeBookEarnings
   # the number this app does not store. It is not hypothetical: the development seeds contain one, paid
   # a bonus with no attendance at all.
   def unattended_bonus_entries
-    entries.select { |entry| entry.is_perfect_attendance && entry.attendance_days.to_i.zero? }
+    entries.select { |entry| entry.perfect_attendance? && entry.attendance_days.to_i.zero? }
   end
 
   def unattended_bonus?

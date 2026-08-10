@@ -447,7 +447,7 @@ stateful, and the 20 unreferenced palette values.
   `discard`, and someone has to decide whether a child may lock themselves out of their coursework.
   Admin Deactivate / Reactivate covers the adult-administered case today.
 
-## Decide whether the archived stocks table should exist at all
+## Decide whether the archived stocks table should exist at all - DECIDED: only for holders
 
 **Status: open. Needs a product decision, not a design one.**
 
@@ -495,7 +495,7 @@ replaces it.
   migration map is in `migration.md`; steps 4 and 6 (the admin checkbox, and ~30 tests setting
   `archived: true`) are the work.
 
-## `@classroom_stats` is computed and never rendered (2026-08)
+## `@classroom_stats` is computed and never rendered (2026-08) - DONE
 
 `ClassroomsController#show` sets `@classroom_stats = facade.stats` for a teacher or admin — four
 figures, four queries — and no template reads it. It has presumably never been rendered.
@@ -511,7 +511,7 @@ computation. Both are better than the present state, which pays for the queries 
 Worth deciding with a teacher: "students who have traded" and "orders this week" are the two that
 sound like they'd change how a lesson is run.
 
-## Perfect attendance is entered by hand, and already contradicts the data (2026-08)
+## Perfect attendance is entered by hand, and already contradicts the data (2026-08) - DONE
 
 Reported as not adding value: a teacher ticks a box per student per quarter to say they attended every
 day, having already typed the day count into the cell beside it.
@@ -584,7 +584,7 @@ before.
   The preview at `/admin/component_demo/earnings_split` is deleted - it existed to decide this. In
   `5cc9fb4` if it is ever wanted back.
 
-## An archived plain user cannot be restored (2026-08)
+## An archived plain user cannot be restored (2026-08) - DONE
 
 - [ ] **`admin/users` archives, and nothing un-archives.** Found while making the destructive
   confirmations tell the truth. The action discards - it used to call `destroy`, which raised outside
@@ -639,7 +639,7 @@ before.
   job runs at 02:00 for the previous close and a fresh price normally carries yesterday's date. The page states
   the cadence and the date once; a row speaks only when it is behind.
 
-## The trading floor's Buy/Sell sit 10.5px below the row's first line (2026-08)
+## The trading floor's Buy/Sell sit 10.5px below the row's first line (2026-08) - DONE
 
 - [ ] **Same class of misalignment as the row actions, different geometry.** Found while fixing those. The
   trading floor's Buy and Sell are **40px** buttons, not 32px ghosts, and its primary cell stacks a 40px logo
@@ -652,7 +652,7 @@ before.
   rows should be 65px at all. Worth measuring against the stacked cell rather than guessing a padding.
 
 
-## The admin form partials still each render their own card (2026-08)
+## The admin form partials still each render their own card (2026-08) - DONE
 
 The card-body padding sweep unified the *value* (`p-5`, from design.md) but left the *shape*: ten admin
 form partials open with `<div class="tw-card"><div class="p-5">`, hand-rolled, rather than
@@ -687,7 +687,7 @@ What was done, in the three phases costed above:
 3. **`component_gallery_test`**, which derives the list from the directory. Verified by adding a
    throwaway partial and watching it fail by name - the failure tells you the testid to add.
 
-## Should a form card be `p-5` or `p-6`? (2026-08)
+## Should a form card be `p-5` or `p-6`? (2026-08) - DECIDED: p-5
 
 design.md says `p-5` and the app now says `p-5` everywhere, so this is consistent and closed as a
 consistency question. It is open as a *value* question: the admin side had chosen 24px independently in
@@ -695,7 +695,7 @@ ten places, which is some evidence that a dense form wants more room than a stat
 (`p-6`) agrees while Polaris (16/20px) does not. If it changes it changes in `design.md` and in one
 sweep, not per call site.
 
-## Should the whole app carry an environment banner, not just the demo? (2026-08)
+## Should the whole app carry an environment banner, not just the demo? (2026-08) - DONE, staging only
 
 The component demo's banner names the environment because that is the honest way to write it, but it is
 scoped to three pages, and the thing it is really signalling is "this page is not part of the product".
@@ -756,7 +756,7 @@ table gains no width and nothing changes at 375px:
 **Still open**: "how is 5B invested?" - a portfolio summary with totals and cash, on the classroom page -
 is a different and real question. Worth building later. It is not this.
 
-## "How is 5B invested?" is still unanswered (2026-08)
+## "How is 5B invested?" is still unanswered (2026-08) - DONE
 
 Shipped: the trading floor's `Held by` column, which answers *of the things available, what is being
 bought* - a catalogue question, next to the catalogue.
@@ -779,3 +779,14 @@ migration.md - and `SchoolYearFields` moved the validation onto the two fields t
 
 What is left, and deliberately not done: the component gallery still renders three of eleven partials,
 which is its own entry above.
+
+## What the eight decisions left behind (2026-08)
+
+- **`quarters.school_days` is nil everywhere except where an admin has typed it.** Until it is filled in,
+  every grade book keeps asking a teacher to answer perfect attendance by hand, and the money still
+  follows that answer. The seeds do not set it deliberately: a default would switch the derivation on for
+  data nobody has checked.
+- **`is_perfect_attendance` is still written** by the control in that case. It should eventually stop
+  being a column, and that is a data migration once every quarter has a figure.
+- **The staging ribbon has never been seen on staging** - the tests stub `Rails.env`, which is the only
+  honest way to cover an environment the suite does not run in, and it is not the same as looking.

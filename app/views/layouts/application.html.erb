@@ -20,7 +20,9 @@
           while the header was the same colour as the page. %>
       <%# px-4 lg:px-6 matches <main> below. As px-6 at every width the header's contents sat 24px in
           while the cards sat at 16px on a phone, so the chrome and the content did not share an edge. %>
-      <header class="fixed top-0 left-0 w-full z-50 flex h-16 items-center justify-between border-b border-slate-200 bg-white px-4 py-4 lg:px-6">
+      <%= render "layouts/environment_ribbon" %>
+
+      <header class="fixed <%= header_top_class %> left-0 w-full z-50 flex h-16 items-center justify-between border-b border-slate-200 bg-white px-4 py-4 lg:px-6">
         <div class="flex items-center gap-4">
           <%# A button, not a label driving a hidden checkbox: a label is announced as a
               checkbox rather than as a control that opens navigation.
@@ -68,7 +70,7 @@
           edge of the fixed 64px nav on every signed-in page. mt-16 clears that nav and is not
           padding, which is what made the gap easy to miss - and design.md asserted this element was
           `p-4 lg:p-6` while only the signed-out branch was. %>
-      <main id="main-content" class="min-h-screen p-4 lg:p-6 ml-0 lg:ml-64 mt-16 bg-slate-50">
+      <main id="main-content" class="min-h-screen p-4 lg:p-6 ml-0 lg:ml-64 <%= main_offset_class(:margin) %> bg-slate-50">
         <%# The content column lives here, around the flash *and* the page, because the flash has to
             be the same width as the thing it sits above and only the layout can guarantee that.
             It used to be per-page: home, stock#show and portfolio wrapped themselves in

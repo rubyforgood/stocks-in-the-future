@@ -75,20 +75,38 @@
     </td>
 
     <td class="table-body-cell whitespace-nowrap">
-      <%# A span, not a label: the control is two radios, each already labelled Yes or No, and a
-          `<label for>` pointing at one of them would name the group after one of its options. %>
       <span class="table-stacked-label lg:hidden">Perfect attendance</span>
-      <span class="tw-segmented" data-testid="perfect-attendance-control">
-        <% { true => "Yes", false => "No" }.each do |value, label| %>
-          <%= f.radio_button :is_perfect_attendance, value,
-                             class: "sr-only",
-                             disabled:,
-                             aria: { label: "Perfect attendance bonus for #{who}: #{label}" } %>
-          <%= f.label :is_perfect_attendance, label,
-                      value: value,
-                      class: "tw-segmented-option" %>
-        <% end %>
-      </span>
+
+      <%# **A figure where the quarter knows how many days there were, a control where it does not.**
+          A teacher typed the day count in the cell beside this one and was then asked to answer the same
+          fact again; nothing reconciled the two and the money followed the answer, not the count. Where
+          `quarters.school_days` is set this is arithmetic, and asking would be asking someone to restate
+          what they just typed - and to be wrong.
+
+          Where it is nil the control stays, because until the figure is collected the teacher's answer
+          is the only one there is. See `GradeEntry#perfect_attendance?`. %>
+      <% if entry.perfect_attendance_derived? %>
+        <span class="table-cell-content block" data-testid="perfect-attendance-derived">
+          <%= entry.perfect_attendance? ? "Yes" : "No" %>
+        </span>
+        <span class="mt-0.5 block text-xs text-slate-600">
+          <%= entry.attendance_days.to_i %> of <%= entry.school_days %> days
+        </span>
+      <% else %>
+        <%# A span, not a label: the control is two radios, each already labelled Yes or No, and a
+            `<label for>` pointing at one of them would name the group after one of its options. %>
+        <span class="tw-segmented" data-testid="perfect-attendance-control">
+          <% { true => "Yes", false => "No" }.each do |value, label| %>
+            <%= f.radio_button :is_perfect_attendance, value,
+                               class: "sr-only",
+                               disabled:,
+                               aria: { label: "Perfect attendance bonus for #{who}: #{label}" } %>
+            <%= f.label :is_perfect_attendance, label,
+                        value: value,
+                        class: "tw-segmented-option" %>
+          <% end %>
+        </span>
+      <% end %>
     </td>
 
     <%= render "entry_earnings", entry: entry, earnings: grade_book_earnings %>

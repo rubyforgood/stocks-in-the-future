@@ -30,8 +30,11 @@ class ClassroomFacade
     {
       total_students: students.count,
       active_students: students.joins(:orders).distinct.count,
-      total_portfolio_value: students.includes(:portfolio).sum do |student|
-        student.portfolio&.calculate_total_value || 0
+      # Cents, summed as integers and divided once by whoever displays it. This summed
+      # `calculate_total_value`, which is already `cents / 100.0` - so it added a float per student and
+      # the repo's own rule is that integer cents are authoritative and the round trip loses value.
+      total_portfolio_value_cents: students.includes(:portfolio).sum do |student|
+        student.portfolio&.calculate_total_value_cents || 0
       end,
       recent_orders_count: Order.joins(:user).where(users: { classroom: classroom }).where(
         "orders.created_at > ?",

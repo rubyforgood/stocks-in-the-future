@@ -74,11 +74,9 @@
                description: stocks_description,
                stocks: @stocks.active %>
 
-    <%# Two relations, because the two halves answer to different rules. A stock you hold is listed
-        however long ago it was archived - you must always be able to sell it - while the rest are
-        subject to Stock::LIST_RETENTION. %>
-    <%= render "stocks/archived_stocks",
-               stocks: @stocks.archived,
-               listed: @stocks.archived_recently %>
+    <%# A stock you hold is listed however long ago it was archived - you must always be able to sell it.
+        `listed:` is gone with the disclosure it fed: `Stock::LIST_RETENTION` governed a list of companies
+        nobody could act on, and it still governs the admin one. %>
+    <%= render "stocks/archived_stocks", stocks: @stocks.archived %>
   </div>
 </div>

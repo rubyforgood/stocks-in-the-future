@@ -1,0 +1,9 @@
+<%# See EnvironmentHelper for why this is staging-only and why it is chrome rather than content. %>
+<% if environment_ribbon? %>
+  <div class="fixed top-0 left-0 z-50 flex h-8 w-full items-center justify-center gap-2 bg-amber-100 px-4 text-xs font-medium text-amber-900"
+       role="status"
+       data-testid="environment-ribbon">
+    <%= lucide_icon "triangle-alert", class: "size-4 shrink-0", aria: { hidden: true } %>
+    <span>Staging &mdash; this is not the real site, and nothing here affects real students</span>
+  </div>
+<% end %>

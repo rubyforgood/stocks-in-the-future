@@ -94,9 +94,6 @@ Rails.application.routes.draw do
       resources :component_demo, only: %i[index show] do
         collection do
           get :form
-          # A design preview for the open questions in design-todo.md - current state beside a
-          # recommendation for each. Built to decide, deleted once decided.
-          get :open_questions
         end
       end
     end
@@ -124,7 +121,14 @@ Rails.application.routes.draw do
       resource :deactivation, only: [:create], controller: "teachers/deactivations"
       resource :reactivation, only: [:create], controller: "teachers/reactivations"
     end
-    resources :users
+    # `restore`, so a discarded user has a way back. admin/students#restore and the teachers'
+    # reactivation cover the two subclasses; a user who is neither had no route at all - the discard is
+    # reversible in the data and was irreversible only in the interface.
+    resources :users do
+      member do
+        patch :restore
+      end
+    end
     # index was excluded, which left transactions reachable only if you already had an id:
     # every other CRUD action existed, the sidebar had no entry, and the dashboard listed
     # "Portfolio transactions" as dead grey text because there was nothing to link to.

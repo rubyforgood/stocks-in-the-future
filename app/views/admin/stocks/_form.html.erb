@@ -1,10 +1,15 @@
 <%= form_with model: @stock, url: @stock.persisted? ? admin_stock_path(@stock) : admin_stocks_path, builder: Ui::FormBuilder, class: "space-y-6" do |f| %>
   <%= render "shared/form_errors", record: @stock, subject: "stock" %>
 
-  <div class="tw-card">
-    <div class="p-5">
-      <h3 class="text-lg font-medium text-slate-900 mb-6">Basic information</h3>
+  <%# `components/ui/_card`, and no heading of its own.
 
+      The surface was hand-rolled in ten form partials - `<div class="tw-card"><div class="p-5">` - so it
+      was declared eleven times, which is the mechanism that produced four different padding values before
+      anyone noticed. And each opened with an `h3` naming the record type, under a page header that had
+      just named it: "Teacher details" below "Edit teacher", 24px apart, in two sizes. Polaris drops a
+      card's header when the page has one card. A heading returns the moment a form has two - see
+      admin/students, where it separates them. %>
+  <%= render layout: "components/ui/card", locals: {} do %>
       <%= f.text_field :ticker,
                        label: "Ticker symbol",
                        hint: "Stock ticker symbol (e.g., AAPL, GOOGL)",
@@ -118,8 +123,7 @@
                             label: "Archived",
                             hint: "Mark this stock as archived (hidden from active listings)" %>
       </div>
-    </div>
-  </div>
+  <% end %>
 
   <div class="flex flex-wrap items-center gap-3">
     <%= f.submit_button @stock.persisted? ? "Update stock" : "Create stock" %>
