@@ -2902,3 +2902,36 @@ could measure, and two pages it could not.
 - **`Rails.env.local?` excludes staging**, which has its own `config/environments/staging.rb` here. If
   the demo is ever wanted on staging that is a deliberate change, and the banner will name it correctly
   without being touched, because it interpolates `Rails.env`.
+
+## The trading floor answers a teacher
+
+### What changed
+
+- **`StockPolicy#show_class_holdings?`** is new: true for a teacher or an admin. It is the staff half of
+  `show_holdings?` - that one answers "do you own this", this one "who owns this, among the people you
+  can see" - and it deliberately does not decide *which* classrooms. `ClassroomPolicy::Scope` already
+  does, and duplicating that rule is how two definitions of one thing start.
+- **`StocksController#index` loads two grouped aggregates** for staff: holders per stock and the number
+  of students with a portfolio, both scoped by `policy_scope(Classroom)`. Nothing in the app aggregated
+  holdings by stock before - there was no `group(:stock_id)` anywhere.
+- **The `Held by` column** renders on every stocks table for staff, with the figure moving into the
+  primary cell below `lg`, exactly as a student's holdings line does.
+- **The active table's description is role-aware** and states what `Held by` counts. It was "Companies
+  you can buy shares in right now" for every role, including two that cannot buy.
+- **The identity cell carries the exchange and the industry.** `stock_exchange` had never rendered here
+  despite the header naming it.
+- **`/admin/component_demo/trading_floor_columns` is deleted** - route, action, view and its two query
+  helpers. It existed to decide this and it did.
+
+### What this breaks
+
+- **Any test asserting a teacher or admin sees exactly two columns on `/stocks`.** None did.
+- **`Portfolio.joins(:user).count` is no longer a count of students** anywhere this matters - use
+  `.distinct.count(:user_id)`. `portfolios` has no uniqueness constraint on `user_id` and `has_one` does
+  not add one; it only decides which row the association returns.
+- **The `:with_portfolio` factory trait is now idempotent**, and was creating a *second* portfolio row on
+  top of the one `Student#ensure_portfolio` makes. Any test that counted portfolios was reading double,
+  and any test that deposited into `student.portfolio` was writing to whichever row the association
+  happened to return. This is what made the new column report "1 of 2" for a single student.
+- **The empty-row `colspan` is computed** rather than a two-way branch, because there are now three
+  column counts: 4 for a student, 3 for staff with the column, 2 for anyone else.

@@ -693,7 +693,7 @@ collapsed, given this app's rule that a message describing a *state* gets no dis
 belongs in the layout beside the flash, inside the content column, and the demo's banner should then say
 only what the *page* is and let the ribbon name the environment.
 
-## Decide the teacher's trading floor, then delete the preview (2026-08)
+## Decide the teacher's trading floor, then delete the preview (2026-08) - DONE, preview deleted
 
 `/admin/component_demo/trading_floor_columns` is a preview, built to decide one question and to be deleted
 once decided - the same shape as `earnings_split`, `destructive_buttons`, `delight` and `stock_ticker`
@@ -736,3 +736,17 @@ table gains no width and nothing changes at 375px:
 
 **Still open**: "how is 5B invested?" - a portfolio summary with totals and cash, on the classroom page -
 is a different and real question. Worth building later. It is not this.
+
+## "How is 5B invested?" is still unanswered (2026-08)
+
+Shipped: the trading floor's `Held by` column, which answers *of the things available, what is being
+bought* - a catalogue question, next to the catalogue.
+
+Not shipped, and a different question: a **portfolio summary for a classroom** - total invested, cash
+uninvested, the class's largest positions, gain or loss. That belongs on `classrooms#show`, and the
+measurement that kept it off the trading floor applies to it: on that page at 1366x768 the Students
+section starts at 168px, Grade books at 420px, and the whole page ends at 637px in a 625px viewport, so
+a third section starts around 700px. It cannot go above the roster - the roster is what the page is for,
+and adding a band there once put the first student at 567px of 625px. So it goes below the grade books,
+and the question to answer first is whether a teacher would scroll to it, or whether it wants its own
+page.

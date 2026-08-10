@@ -60,9 +60,20 @@
         the prices actually carry - this said "Prices update every school day", which was a second claim
         about the same thing and a wrong one: the job's cron runs Tuesday to Saturday and knows nothing
         about school terms. %>
+    <%# The description addresses whoever is reading, and for staff it also says what the Held by column
+        counts. It was one string - "Companies you can buy shares in right now" - shown to teachers and
+        admins too, neither of whom can buy anything.
+
+        The scope belongs here rather than in a tooltip or a legend because "2 of 3" is unreadable
+        without knowing which three, and the three differ by role: every classroom for an admin, their
+        own for a teacher. design.md puts a section's explanation under its heading and above its table,
+        in the heading's own column. %>
+    <% stocks_description = active_stocks_description(
+         current_user, investors: @class_investors, classrooms: @class_classrooms
+       ) %>
     <%= render "stocks/stocks_table",
                title: "Active stocks",
-               description: "Companies you can buy shares in right now.",
+               description: stocks_description,
                stocks: @stocks.active %>
 
     <%# Two relations, because the two halves answer to different rules. A stock you hold is listed

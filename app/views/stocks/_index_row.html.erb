@@ -18,8 +18,29 @@
         <%# text-lg font-semibold made the ticker the largest text on the page after the h1,
           in a cell whose neighbours are text-sm. A table's primary identifier is body size with
           medium weight - Tailwind UI, Polaris and Primer all render it that way. %>
-        <%= link_to stock.ticker, stock_path(stock), class: "tw-link" %>
-        <span class="text-sm text-slate-600"><%= stock.company_name %></span>
+        <%# Line one is the security: the ticker and the market it trades on. The header above has said
+            "Company (exchange)" since it was written and this cell had never contained an exchange -
+            `stock_exchange` is populated on every active stock and was rendered only on stocks#show. A
+            ticker without its market is ambiguous, which is why Bloomberg, Yahoo Finance and Google
+            Finance all render the pair. %>
+        <span class="flex flex-wrap items-baseline gap-x-1.5">
+          <%= link_to stock.ticker, stock_path(stock), class: "tw-link" %>
+          <% if (market = stock_market_note(stock)) %>
+            <span class="text-xs text-slate-600">&middot; <%= market %></span>
+          <% end %>
+        </span>
+
+        <%# Line two is the company: its name, and what it does.
+            **Industry is here rather than in a column of its own**, which is a change from the preview,
+            and the reason is measurable. It is populated on all ten active stocks and none of the eight
+            archived ones, so a column would be empty on every archived row - and worse, a column present
+            on one table and absent on the other gives the two stacked tables different geometry, which
+            moves every column at the boundary and steps the page sideways. In the cell it costs nothing
+            when absent, needs no width, and reads as what it is: a fact about the company, on the
+            company's line. %>
+        <span class="text-sm text-slate-600">
+          <%= stock.company_name %><% if stock.industry.present? %> &middot; <%= stock.industry %><% end %>
+        </span>
 
         <%# What "archived" means, for the one table where it is not obvious. There is no
             archived_at column - `archived` is a bare boolean - so the date shown is
@@ -36,6 +57,21 @@
             always on screen. As their own trailing columns they sat at left=370 in a viewport
             326px wide - the trading floor's only call to action was off the right edge of a
             horizontal scroll on a phone, which is the width most students are on. %>
+        <%# Below lg the Held by figure moves into this cell, exactly as a student's holdings line does -
+            the trailing columns are `hidden` there, and a teacher on a phone would otherwise be back to
+            the two-column page this column exists to fix. %>
+        <% if policy(stock).show_class_holdings? && @class_investors&.positive? %>
+          <% held = @class_holdings&.dig(stock.id) %>
+          <span class="mt-1 text-xs text-slate-600 lg:hidden">
+            <% if held %>
+              Held by <%= held[:holders] %> of <%= @class_investors %> &middot;
+              <%= share_count(held[:shares]) %> shares
+            <% else %>
+              Nobody owns this yet
+            <% end %>
+          </span>
+        <% end %>
+
         <% if policy(stock).show_holdings? %>
           <span class="mt-1 text-xs text-slate-600 lg:hidden">
             You own <%= share_count(@portfolio&.shares_owned(stock.id) || 0) %>
@@ -85,6 +121,30 @@
     <td class="table-body-cell table-body-cell-right hidden whitespace-nowrap lg:table-cell">
       <% if policy(stock).show_trading_link? %>
         <%= render "stocks/trade_actions", stock: stock, class: "justify-end" %>
+      <% end %>
+    </td>
+  <% end %>
+
+  <%# Who owns this, among the people this viewer can see. Same condition as the header in
+      _stocks_table, so the column counts cannot diverge - that has happened here before, when one used
+      current_user.student? and the other a policy.
+
+      A figure, not a sentence: "9 of 25 students" repeated down a column is twenty-five copies of the
+      denominator, so the word lives in the header and the section's description says which twenty-five.
+      Zero is stated rather than left blank - nobody owning a stock is information, and an empty cell
+      reads as missing data. %>
+  <% if policy(stock).show_class_holdings? && @class_investors&.positive? %>
+    <% held = @class_holdings&.dig(stock.id) %>
+    <td class="table-body-cell table-body-cell-right hidden lg:table-cell">
+      <% if held %>
+        <span class="table-cell-content block tabular-nums">
+          <%= held[:holders] %> of <%= @class_investors %>
+        </span>
+        <span class="mt-0.5 block text-xs text-slate-600 tabular-nums">
+          <%= share_count(held[:shares]) %> shares
+        </span>
+      <% else %>
+        <span class="table-cell-content block text-slate-600">None</span>
       <% end %>
     </td>
   <% end %>

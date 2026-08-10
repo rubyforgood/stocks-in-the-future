@@ -1925,6 +1925,51 @@ One rule caught while sweeping: the student show page still coloured its stat **
 (`text-blue-900`, `text-green-900`, `text-purple-900`). The KPI entry is explicit that a numeral
 is always `slate-900` and never carries state; the tile carries it. Fixed.
 
+### A column whose meaning is fixed and whose scope is stated
+**One column, one meaning; the viewer decides only the denominator.** The trading floor's `Held by`
+answers *who owns this, among the people you can see* - and `ClassroomPolicy::Scope` decides who that
+is, resolving to every classroom for an admin and to their own for a teacher. The alternative, a column
+that exists for one role and not another, is two rules and a page that changes shape depending on who
+opens it. Which is what it was: a teacher's trading floor was two columns, because
+`StockPolicy#show_holdings?` requires a student with a persisted portfolio, so the holdings column and
+the Buy/Sell cell were both removed. Nobody designed that page - it was the buy list with the buying
+taken out, and a teacher cannot open `/admin/stocks` to find a better one.
+
+**A relative figure needs its denominator named, in the section's description.** "2 of 3" is unreadable
+without knowing which three, and the three differ by role. The sentence goes under the section heading
+and above the table, where this document already puts a section's explanation - not in a tooltip, not in
+a legend, and not repeated in every row. The word goes in the header (`Held by`), the scope goes in the
+description, and the cell carries only the figure: "9 of 25 students" down twenty-five rows is
+twenty-five copies of the denominator.
+
+**Derive the sentence from the counts.** `held_by_scope_note` interpolates the numbers and pluralises
+them rather than storing a string per role, so it cannot claim a scope the query does not use - the same
+reasoning as interpolating a retention window from its constant. An admin's classroom count is stated
+because "every classroom" is otherwise an unbounded claim; a teacher's is not, because "your classrooms"
+is already exact for them.
+
+**And a description addresses whoever is reading it.** This one was "Companies you can buy shares in
+right now" for everybody, including two roles that cannot buy anything. A description that addresses the
+wrong person is worse than none: it tells them the page is for them and then does not behave that way.
+
+**Zero is stated, and no-one-to-count removes the column.** A stock nobody owns reads `None`, because an
+empty cell reads as missing data while "nobody owns this" is a fact. But a viewer whose scope contains
+no portfolios at all loses the column and the sentence entirely - a column that can only ever report
+`None` is not a column, which is the rule that removed a teacher's trailing column of dashes from
+`classrooms#index`.
+
+**Secondary facts about an entity go in its identity cell, not in new columns.** The exchange and the
+industry are both in the primary cell - line one is the security (`KO . NYSE`), line two the company and
+what it does (`The Coca-Cola Company . Beverages`), which is how Bloomberg, Yahoo Finance and Google
+Finance render an identity block. Industry was previewed as a column and moved for two measured reasons:
+it is populated on 10 of 10 active stocks and 0 of 8 archived ones, so a column would be empty on every
+archived row; and a column present on one of two stacked tables and absent on the other gives them
+different geometry, which moves every column at the boundary. In a cell an absent value costs nothing.
+
+**A header that names a field its column does not contain is a bug.** This one said "Company (exchange)"
+from the day it was written and never rendered an exchange, while `stock_exchange` sat populated on every
+active stock and was shown only on `stocks#show`.
+
 ### Environment banner
 **A destination that is not part of the product says so on the page, in a sentence - never by
 recolouring its nav row.** The component demo was a purple row in a sidebar section headed

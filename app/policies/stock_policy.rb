@@ -13,6 +13,19 @@ class StockPolicy < ApplicationPolicy
     user.present? && user.student? && portfolio_present?
   end
 
+  # The staff half of the same column. `show_holdings?` answers "do you own this"; this answers "who
+  # owns this, among the people you can see" - one meaning, and the viewer decides only the
+  # denominator. Which classrooms count is ClassroomPolicy::Scope's job, not this one: it already
+  # resolves to every classroom for an admin and to their own for a teacher, and duplicating that rule
+  # here is how two definitions of one thing start.
+  #
+  # A teacher's trading floor was two columns before this - the buy list with the buying removed,
+  # because show_holdings? requires a student with a portfolio. Nobody designed that page; it was a
+  # residue. And a teacher cannot open /admin/stocks, so it was their only view of the catalogue.
+  def show_class_holdings?
+    user.present? && (user.teacher? || user.admin?)
+  end
+
   def index?
     user.present?
   end

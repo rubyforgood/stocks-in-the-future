@@ -19,9 +19,13 @@ FactoryBot.define do
     sequence(:username) { |n| "student_#{n}" }
     sequence(:email) { |n| "student_#{n}@example.com" }
 
+    # Idempotent, because `Student` has `after_create :ensure_portfolio` - so this trait was creating a
+    # **second** portfolio row for the same student. `has_one` does not prevent that; it only decides
+    # which row the association returns, which means a test could deposit into one and read the other.
+    # It also doubled any count of portfolios: three students measured as six.
     trait :with_portfolio do
       after(:create) do |student|
-        create(:portfolio, user: student)
+        create(:portfolio, user: student) if student.portfolio.blank?
       end
     end
 

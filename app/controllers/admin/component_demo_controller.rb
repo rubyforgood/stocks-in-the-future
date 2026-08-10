@@ -52,36 +52,6 @@ module Admin
     end
     # rubocop:enable Metrics/MethodLength
 
-    # Preview: what the trading floor could show a teacher.
-    #
-    # The live page gives a teacher two columns - the buy list with the buying removed - because
-    # StockPolicy#show_holdings? requires a student with a persisted portfolio. This renders the three
-    # candidate additions against real records so the numbers are real ones.
-    def trading_floor_columns
-      @stocks = Stock.active.order(:ticker)
-
-      # "Does an admin see the same thing?" and "scoped or global?" have one answer: scope it through the
-      # policy the app already has. ClassroomPolicy::Scope resolves to everything for an admin and to
-      # their own classrooms for a teacher, so the column carries one meaning - who owns this, among the
-      # people you can see - and the viewer's role decides the denominator rather than deciding whether
-      # the column exists at all.
-      @classroom_ids = Classroom.pluck(:id)
-      @holdings = holdings_for(@classroom_ids)
-      @investors = investors_for(@classroom_ids)
-
-      # The same rule resolved for a real teacher, so this shows the code path rather than describing it.
-      # This database has one classroom, so the two figures coincide.
-      @teacher = Teacher.joins(:classrooms).first
-      @teacher_classroom_ids = @teacher ? ClassroomPolicy::Scope.new(@teacher, Classroom).resolve.ids : []
-      @teacher_holdings = holdings_for(@teacher_classroom_ids)
-      @teacher_investors = investors_for(@teacher_classroom_ids)
-
-      @breadcrumbs = [
-        { label: "Component demo", path: admin_component_demo_index_path },
-        { label: "Trading floor columns" }
-      ]
-    end
-
     def show
       @user = User.find(params.expect(:id))
       @breadcrumbs = [
@@ -103,25 +73,6 @@ module Admin
         { label: "Component demo", path: admin_component_demo_index_path },
         { label: "Form builder demo" }
       ]
-    end
-
-    private
-
-    # One grouped query rather than asking each stock for its portfolio_stocks, which is a query per row
-    # and still cannot count distinct holders without loading every join row.
-    def holdings_for(classroom_ids)
-      PortfolioStock
-        .joins(portfolio: :user)
-        .where(users: { classroom_id: classroom_ids })
-        .group(:stock_id)
-        .pluck(Arel.sql("stock_id, COUNT(DISTINCT portfolio_id), SUM(shares)"))
-        .to_h { |stock_id, holders, shares| [stock_id, { holders:, shares: }] }
-    end
-
-    # The denominator is students with a portfolio, not students: a student without one cannot hold
-    # anything, so counting all of them understates every row by the size of that gap.
-    def investors_for(classroom_ids)
-      Portfolio.joins(:user).where(users: { classroom_id: classroom_ids }).count
     end
   end
 end

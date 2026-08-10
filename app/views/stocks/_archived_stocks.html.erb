@@ -32,6 +32,9 @@
 <% if rest.any? %>
   <%# A native <details>, which design.md names as the disclosure pattern here - it opens with no
       JavaScript, and the marker is hidden because the chevron carries the state. %>
+  <%# Held by is on this table too, and the scope sentence is not repeated - the active table above
+      states it once, and a disclosure that restates the same denominator is a second copy of one fact.
+      What this description says is what makes *these* rows different. %>
   <details class="group" data-testid="archived-stocks">
     <summary class="inline-flex min-h-11 cursor-pointer list-none items-center gap-2 rounded-lg text-base font-semibold text-slate-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary [&::-webkit-details-marker]:hidden">
       <%= lucide_icon "chevron-right", class: "size-4 shrink-0 text-slate-600 transition-transform group-open:rotate-90" %>

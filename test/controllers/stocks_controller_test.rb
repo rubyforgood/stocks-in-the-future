@@ -77,11 +77,23 @@ class StocksControllerTest < ActionDispatch::IntegrationTest
 
     get stocks_url
 
-    assert_select "p", text: /Companies you can buy shares in right now/
+    # An admin cannot buy anything, so the list is not described to them in a buyer's voice. This
+    # asserted the student sentence while signed in as an admin, and passed for as long as every role
+    # was handed the same string.
+    assert_select "p", text: /Companies your students can buy shares in right now/
     assert_select "details[data-testid=?]", "archived-stocks" do
       assert_select "p", text: /stopped trading here, so they cannot be bought/
       assert_select "p", text: /stay listed for #{Stock::LIST_RETENTION.inspect}/
     end
+  end
+
+  test "a student is the one told they can buy" do
+    create(:stock, archived: false, ticker: "AAPL")
+    sign_in create(:student, :with_portfolio, classroom: create(:classroom, :with_trading))
+
+    get stocks_url
+
+    assert_select "p", text: /Companies you can buy shares in right now/
   end
 
   # Stock::LIST_RETENTION is a display rule, not a purge - orders and portfolio_stocks reference

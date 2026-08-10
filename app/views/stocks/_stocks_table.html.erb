@@ -56,6 +56,21 @@
           <span class="sr-only">Actions</span>
         </th>
       <% end %>
+
+      <%# The staff half of that column. `@class_investors&.positive?` as well as the policy check,
+          because a column that can only ever say "None" is not a column - the same rule that removed
+          the teacher's trailing column of dashes from classrooms#index. A teacher with no classrooms,
+          or classrooms where nobody has a portfolio yet, sees the two-column table and no explanation
+          of a figure that is not there.
+
+          It is on **every** stocks table, not only the active one, which is what keeps the two stacked
+          tables to one column geometry: separate <table> elements size their columns independently, so
+          a column present in one and absent in the other moves every other column and the page steps
+          sideways at the boundary. An archived stock a student still holds is also exactly the row a
+          teacher most wants this figure on. %>
+      <% if policy(Stock).show_class_holdings? && @class_investors&.positive? %>
+        <th scope="col" class="table-header-cell table-header-cell-right hidden w-44 lg:table-cell">Held by</th>
+      <% end %>
     </tr>
   </thead>
   <tbody>
@@ -76,8 +91,13 @@
           ends at the first closing delimiter it meets. I did that twice in one sitting - once leaking a
           sentence onto the home page and once breaking this partial - which is why
           `no_leaked_template_syntax_test` exists and why it caught the second one. %>
+      <%# 4 for a student (holdings and actions), 3 for staff with a Held by column, 2 for anyone else.
+          An empty row that spans the wrong number leaves a gap at the end of the table. %>
+      <% columns = 2
+         columns += 2 if policy(Stock).show_holdings?
+         columns += 1 if policy(Stock).show_class_holdings? && @class_investors&.positive? %>
       <%= render "admin/shared/empty_row",
-                 colspan: policy(Stock).show_holdings? ? 4 : 2,
+                 colspan: columns,
                  icon: "chart-line",
                  title: local_assigns[:title].present? ? "No #{title.downcase} to show" : "Nothing to show",
                  body: "Stocks appear here once your teacher adds them." %>
