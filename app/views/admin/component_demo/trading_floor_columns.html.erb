@@ -140,5 +140,95 @@
         <%= @investors %> here, across <%= pluralize(@classroom_ids.size, "classroom") %>.
       </p>
     </section>
+
+    <section>
+      <h2 class="text-base font-semibold text-slate-900">Recommendation 1 &mdash; one column, scoped by policy</h2>
+      <p class="mt-1 text-sm text-slate-600">
+        The two open questions - does an admin see this too, and is it their classrooms or everyone's -
+        have one answer, and the app already contains it. <code class="rounded bg-slate-100 px-1 py-0.5 text-xs">ClassroomPolicy::Scope</code>
+        resolves to every classroom for an admin and to their own for a teacher. Run the column through it
+        and the meaning stays fixed - <em>who owns this, among the people you can see</em> - while the
+        viewer decides the denominator. The alternative, a column that exists for one role and not the
+        other, is two rules and a page that changes shape depending on who opens it.
+      </p>
+
+      <div class="mt-3 grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <% [["As an admin", @classroom_ids, @holdings, @investors],
+            ["As #{@teacher&.display_name || 'a teacher'}", @teacher_classroom_ids, @teacher_holdings,
+             @teacher_investors]].each do |label, ids, holdings, investors| %>
+          <div class="tw-card p-5">
+            <p class="text-sm font-semibold text-slate-900"><%= label %></p>
+            <p class="mt-1 text-xs text-slate-600">
+              <%= pluralize(ids.size, "classroom") %> in scope &middot;
+              <%= pluralize(investors, "student") %> with a portfolio
+            </p>
+            <dl class="mt-3 space-y-1">
+              <% @stocks.first(4).each do |stock| %>
+                <% held = holdings[stock.id] %>
+                <div class="flex items-baseline justify-between gap-3 text-sm">
+                  <dt class="text-slate-700"><%= stock.ticker %></dt>
+                  <dd class="tabular-nums text-slate-900">
+                    <%= held ? "#{held[:holders]} of #{investors}" : "None" %>
+                  </dd>
+                </div>
+              <% end %>
+            </dl>
+          </div>
+        <% end %>
+      </div>
+
+      <p class="mt-3 text-sm text-slate-600">
+        Both panels read the same here because this database has one classroom - the figures coincide, the
+        code path does not. With a second classroom the admin denominator grows and the teacher's does not,
+        which is the whole behaviour: an admin reads adoption across the programme, a teacher reads their
+        own class, and neither is looking at a number that means something else.
+      </p>
+    </section>
+
+    <section>
+      <h2 class="text-base font-semibold text-slate-900">Recommendation 2 &mdash; here, not the classroom page</h2>
+      <p class="mt-1 text-sm text-slate-600">
+        The third question was whether this belongs on the trading floor at all, or as a section on
+        <code class="rounded bg-slate-100 px-1 py-0.5 text-xs">classrooms#show</code>. Measured on that
+        page at 1366x768:
+      </p>
+
+      <div class="mt-3 tw-card p-5">
+        <dl class="space-y-1 text-sm">
+          <div class="flex items-baseline justify-between gap-3">
+            <dt class="text-slate-700">Viewport height</dt>
+            <dd class="tabular-nums text-slate-900">625px</dd>
+          </div>
+          <div class="flex items-baseline justify-between gap-3">
+            <dt class="text-slate-700">Students section, top</dt>
+            <dd class="tabular-nums text-slate-900">168px</dd>
+          </div>
+          <div class="flex items-baseline justify-between gap-3">
+            <dt class="text-slate-700">Grade books section, top</dt>
+            <dd class="tabular-nums text-slate-900">420px</dd>
+          </div>
+          <div class="flex items-baseline justify-between gap-3">
+            <dt class="text-slate-700">Whole page ends at</dt>
+            <dd class="tabular-nums text-slate-900">637px</dd>
+          </div>
+          <div class="flex items-baseline justify-between gap-3 border-t border-slate-200 pt-2">
+            <dt class="font-medium text-slate-900">A holdings section would start at</dt>
+            <dd class="tabular-nums font-semibold text-slate-900">~700px</dd>
+          </div>
+        </dl>
+      </div>
+
+      <p class="mt-3 text-sm text-slate-600">
+        Third in line, below the fold, on a page that currently ends 12px past the viewport. It cannot go
+        higher: the roster is what that page is for, and this codebase has already recorded what happens
+        when a band is added above it - the first student moved to 567px of a 625px screen. Here the same
+        information is a column in a table already on screen, and it answers the question at the moment it
+        is asked, while you are looking at the thing being bought.
+      </p>
+      <p class="mt-2 text-sm text-slate-600">
+        &ldquo;How is 5B invested?&rdquo; is a different question - a portfolio summary, with totals and
+        cash - and a real one. It is worth building, on the classroom page, later. It is not this.
+      </p>
+    </section>
   </div>
 </div>

@@ -60,20 +60,21 @@ module Admin
     def trading_floor_columns
       @stocks = Stock.active.order(:ticker)
 
-      # The aggregate that does not exist anywhere in the app today: holdings grouped by stock, scoped
-      # to the classrooms the viewer can see. One query, no N+1 - the alternative, asking each stock for
-      # its portfolio_stocks, is 10 queries and cannot count distinct holders without loading them all.
+      # "Does an admin see the same thing?" and "scoped or global?" have one answer: scope it through the
+      # policy the app already has. ClassroomPolicy::Scope resolves to everything for an admin and to
+      # their own classrooms for a teacher, so the column carries one meaning - who owns this, among the
+      # people you can see - and the viewer's role decides the denominator rather than deciding whether
+      # the column exists at all.
       @classroom_ids = Classroom.pluck(:id)
-      @holdings = PortfolioStock
-        .joins(portfolio: :user)
-        .where(users: { classroom_id: @classroom_ids })
-        .group(:stock_id)
-        .pluck(Arel.sql("stock_id, COUNT(DISTINCT portfolio_id), SUM(shares)"))
-        .to_h { |stock_id, holders, shares| [stock_id, { holders:, shares: }] }
+      @holdings = holdings_for(@classroom_ids)
+      @investors = investors_for(@classroom_ids)
 
-      # The denominator. A count of students is the wrong one: a student with no portfolio cannot hold
-      # anything, so "3 of 40" would understate every row by the size of the gap.
-      @investors = Portfolio.joins(:user).where(users: { classroom_id: @classroom_ids }).count
+      # The same rule resolved for a real teacher, so this shows the code path rather than describing it.
+      # This database has one classroom, so the two figures coincide.
+      @teacher = Teacher.joins(:classrooms).first
+      @teacher_classroom_ids = @teacher ? ClassroomPolicy::Scope.new(@teacher, Classroom).resolve.ids : []
+      @teacher_holdings = holdings_for(@teacher_classroom_ids)
+      @teacher_investors = investors_for(@teacher_classroom_ids)
 
       @breadcrumbs = [
         { label: "Component demo", path: admin_component_demo_index_path },
@@ -102,6 +103,25 @@ module Admin
         { label: "Component demo", path: admin_component_demo_index_path },
         { label: "Form builder demo" }
       ]
+    end
+
+    private
+
+    # One grouped query rather than asking each stock for its portfolio_stocks, which is a query per row
+    # and still cannot count distinct holders without loading every join row.
+    def holdings_for(classroom_ids)
+      PortfolioStock
+        .joins(portfolio: :user)
+        .where(users: { classroom_id: classroom_ids })
+        .group(:stock_id)
+        .pluck(Arel.sql("stock_id, COUNT(DISTINCT portfolio_id), SUM(shares)"))
+        .to_h { |stock_id, holders, shares| [stock_id, { holders:, shares: }] }
+    end
+
+    # The denominator is students with a portfolio, not students: a student without one cannot hold
+    # anything, so counting all of them understates every row by the size of that gap.
+    def investors_for(classroom_ids)
+      Portfolio.joins(:user).where(users: { classroom_id: classroom_ids }).count
     end
   end
 end

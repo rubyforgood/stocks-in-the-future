@@ -720,8 +720,19 @@ table gains no width and nothing changes at 375px:
 3. **Industry**, `hidden lg:table-cell`, on the active table only. Populated on 10 of 10 active stocks and
    0 of 8 archived ones, so putting it on both makes the archived table a column of dashes.
 
-**What still needs deciding**: whether an admin sees the same thing (they have a better table already),
-whether "Held by" is scoped through Pundit to the classrooms the viewer teaches or is global, and whether
-this belongs on the trading floor at all rather than as a section on `classrooms#show`. The counter-argument
-is that "what is my class doing" is a classroom question; the argument for here is that "what exists to buy"
-is a catalogue question and the catalogue is here.
+**Recommended answers**, both now rendered in the preview:
+
+- **One column, scoped through `ClassroomPolicy::Scope`.** "Does an admin see it too" and "scoped or
+  global" are one question. That scope already resolves to every classroom for an admin and to their own
+  for a teacher, so the column's meaning stays fixed - who owns this, among the people you can see - and
+  the viewer decides only the denominator. A column that exists for one role and not the other is two
+  rules and a page that changes shape depending on who opens it.
+- **Here, not `classrooms#show`.** Measured on that page at 1366x768: viewport 625px, Students at 168px,
+  Grade books at 420px, page ends at 637px - a holdings section would start around 700px, third in line
+  and below the fold. It cannot go higher, because the roster is what the page is for and this repo has
+  already recorded what happens when a band goes above it (first student at 567px of 625px). On the
+  trading floor the same information is a column in a table already on screen, next to the thing being
+  bought.
+
+**Still open**: "how is 5B invested?" - a portfolio summary with totals and cash, on the classroom page -
+is a different and real question. Worth building later. It is not this.
