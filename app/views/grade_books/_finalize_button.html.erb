@@ -3,12 +3,22 @@
     grades"), turning rose only on hover. Revealing danger at the point of action is the industry
     affordance; a red button at rest is an always-on alarm.
 
-    **The confirmation names the amount.** It read "Are you sure you want to finalize these grades?",
-    which is the one place the figure reaches the person committing to it and it did not carry it -
-    Stripe's "Pay $X", Amazon's order summary and AWS's typed confirmations all state the consequence
-    there. Note what this dialog actually is: `turbo_confirm` has no override in this app, so it is a
-    **native OS dialog** with OK and Cancel and cannot be styled. Giving it the number is the whole of
-    what is available today; a styled confirm is in design-todo.
+    **The confirmation is two parts, which is what the dialog is built for.** It passed one string -
+    "Finalize and pay $12.00 to 2 students? This cannot be undone." - so the whole sentence landed in the
+    title and the body stayed hidden. `shared/_confirm_dialog` splits a message on its first blank line
+    into the question and the consequence, and its own note says why: a one-line confirmation can only
+    restate the button, and macOS, Polaris and GOV.UK all put the consequence in the body.
+
+    The consequence comes from `finalize_consequence`, the same helper the card above renders, so the
+    preview and the confirmation cannot describe one payment two ways.
+
+    **The accept button stays the brand primary, not `.tw-btn-danger`.** Finalizing is irreversible and it
+    is not destructive: it pays students and locks entries, and nothing is lost. Stripe's "Pay $X" is a
+    primary button, and design.md reserves the rose fill for a destructive confirmation. The
+    irreversibility is carried by the sentence and by Cancel holding `autofocus`.
+
+    An earlier note here claimed `turbo_confirm` had no override and was a native OS dialog. That stopped
+    being true when `confirm_dialog_controller` took over `Turbo.config.forms.confirm`.
 
     No disabled variant: the block around this is not rendered for a completed grade book, which has
     already paid out, so there is no dead control to grey.
@@ -17,13 +27,11 @@
     `buttonTarget` - the *first* matching target in the DOM. That was "Save grades" only because this card
     renders after the table; moving it above would have had the timer pay the students every thirty
     seconds. The turbo_stream still replaces this by id, which is all it needed. %>
-<% total = number_to_currency(earnings.total_cents / 100.0) %>
-<% students = pluralize(earnings.student_count, "student") %>
+<%# The blank line is the channel: Turbo copies exactly five data attributes onto the form it builds for
+    a link and passes no submitter for one, so a second attribute would reach nothing. See the dialog. %>
+<% confirm = "Finalize these grades?\n\n#{finalize_consequence(earnings)}" %>
 
 <%= button_to "Finalize grades", finalize_classroom_grade_book_path(@classroom, @grade_book),
               class: "tw-btn-danger-outline",
-              data: {
-                turbo_frame: "_top",
-                turbo_confirm: "Finalize and pay #{total} to #{students}? This cannot be undone."
-              },
+              data: { turbo_frame: "_top", turbo_confirm: confirm },
               form: { id: "finalize-button" } %>

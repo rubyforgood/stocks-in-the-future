@@ -185,18 +185,14 @@
           the other. The window itself is closed by saving on blur, in autosave_controller. %>
       <section class="tw-card mt-6 p-5" aria-labelledby="finalize-heading">
         <p id="finalize-heading" class="text-sm font-medium text-slate-900">Finalize grades</p>
-        <%# The possessive has to be built rather than pluralized: `pluralize` gives "1 student", and
-            "1 student' portfolio" is what interpolating an apostrophe after it produces. %>
-        <% recipients = earnings.student_count == 1 ? "student's portfolio" : "students' portfolios" %>
-        <%# No measure cap. At 87 characters this is one line at the card's width, so `max-w-2xl` never
+        <%# `finalize_consequence`, which the confirmation dialog also renders - so the card and the
+            dialog cannot come to describe the same payment differently.
+
+            No measure cap. At 87 characters this is one line at the card's width, so `max-w-2xl` never
             shortened a line - it only left 369px of the card empty to the right of it. A cap earns its
             place when the text wraps several times against it, or when something sits beside it; neither
             is true here. See design.md. %>
-        <p class="mt-1 text-sm text-slate-600">
-          Pays <%= number_to_currency(earnings.total_cents / 100.0) %> into
-          <%= earnings.student_count %> <%= recipients %> and locks these entries.
-          This cannot be undone.
-        </p>
+        <p class="mt-1 text-sm text-slate-600"><%= finalize_consequence(earnings) %></p>
         <p class="mt-1 text-sm text-slate-600">Uses your saved grades, above.</p>
 
         <%= render partial: "finalize_breakdown", locals: { earnings: earnings } %>

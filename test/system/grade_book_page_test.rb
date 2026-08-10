@@ -698,4 +698,30 @@ class GradeBookPageTest < ApplicationSystemTestCase
     # Capybara does not match a disabled button, so it passed while a dead primary was on screen.
     assert_no_selector "#submit-button"
   end
+
+  # The confirmation is two parts, which is what shared/_confirm_dialog is built for: a question, and
+  # under it what the action does. It used to pass one string, so the whole sentence landed in the title
+  # and the body stayed hidden - a one-line confirmation that can only restate the button.
+  test "finalizing asks a question and states the consequence separately" do
+    classroom, grade_book = a_grade_book_with_entries
+    sign_in create(:admin)
+    visit classroom_grade_book_path(classroom, grade_book)
+
+    body = nil
+
+    # The helper takes the block that triggers the dialog, so the assertions go inside it.
+    dismiss_confirmation do
+      click_on "Finalize grades"
+
+      assert_selector "#confirm-dialog[open]"
+      assert_selector "#confirm-dialog-message", text: "Finalize these grades?"
+      assert_selector "#confirm-dialog-body", text: "locks these entries"
+      assert_no_selector "#confirm-dialog-body.hidden"
+
+      # The card and the dialog describe one payment with one sentence - both call finalize_consequence.
+      body = find("#confirm-dialog-body").text
+    end
+
+    assert_selector "section[aria-labelledby='finalize-heading']", text: body
+  end
 end

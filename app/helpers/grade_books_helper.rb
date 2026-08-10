@@ -40,4 +40,20 @@ module GradeBooksHelper
 
     render "components/ui/badge", label: status[:label], tone: status[:tone], **
   end
+
+  # What finalizing does, in one sentence, for **both** the card and the confirmation.
+  #
+  # It was written out in the card and again, differently, inside the `turbo_confirm` - "Finalize and pay
+  # $12.00 to 2 students? This cannot be undone." against "Pays $12.00 into 2 students' portfolios and
+  # locks these entries." Two sentences for one consequence is how a preview and the thing it previews
+  # come to disagree, which this codebase has recorded for the figures themselves.
+  #
+  # The possessive is built rather than pluralized: `pluralize` gives "1 student", and interpolating an
+  # apostrophe after that produces "1 student' portfolio".
+  def finalize_consequence(earnings)
+    recipients = earnings.student_count == 1 ? "student's portfolio" : "students' portfolios"
+
+    "Pays #{number_to_currency(earnings.total_cents / 100.0)} into #{earnings.student_count} " \
+      "#{recipients} and locks these entries. This cannot be undone."
+  end
 end

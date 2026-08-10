@@ -2038,6 +2038,22 @@ the work is where "how is this class doing?" is actually asked.
 The facade sums **cents** now. It summed `calculate_total_value`, which is already `cents / 100.0`, so it
 added a float per student - and integer cents are authoritative here.
 
+### A confirmation is a question and a consequence
+`shared/_confirm_dialog` splits its message on the first blank line: the question becomes the title, what
+follows becomes the body. **Passing one string means the body stays hidden**, and the dialog is then a
+one-line confirmation that can only restate the button - which is the shape its own note was written to
+prevent. Finalizing did exactly that: "Finalize and pay $12.00 to 2 students? This cannot be undone." all
+in the title. It is "Finalize these grades?" with the consequence beneath it now.
+
+**The consequence is one sentence, rendered in both places.** `finalize_consequence` is called by the
+card and by the confirmation, so a preview and the thing it previews cannot come to describe one payment
+two ways - the same rule this document already applies to the figures themselves.
+
+**An irreversible action is not automatically a destructive one.** The accept button stays the brand
+primary: finalizing pays students and locks entries, and nothing is lost. Stripe's "Pay $X" is a primary
+button, and the rose `.tw-btn-danger` is reserved for a confirmation that destroys something. The
+irreversibility is carried by the sentence, and by Cancel holding `autofocus`.
+
 ### Two actions on one page need an order, and the order has to be true
 The grade book has **Save grades** and **Finalize grades**, and it expressed no relationship between
 them. Reported as not knowing you had to do both, and as inconsistent that one sits inside a card and

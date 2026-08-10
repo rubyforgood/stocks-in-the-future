@@ -788,3 +788,19 @@ which is its own entry above.
   typed. It had not; the evidence was seeds.
 - **The staging ribbon has never been seen on staging** - the tests stub `Rails.env`, which is the only
   honest way to cover an environment the suite does not run in, and it is not the same as looking.
+
+## 20 of 23 confirmations are one-line (2026-08)
+
+`shared/_confirm_dialog` takes a question and a consequence, split on the first blank line. Only three
+call sites pass both - the two archive actions and the new user restore - and the finalize one, fixed
+when it was reported. The other twenty put everything in the title, and **three say nothing at all**:
+
+- `admin/shared/_actions`: "Are you sure you want to delete this classroom?"
+- `admin/teachers/_form`: "Are you sure you want to permanently delete this teacher? This action cannot
+  be undone."
+- the component demo's example, which teaches the wrong shape to whoever copies it.
+
+"Are you sure?" is the phrasing the dialog was built to replace: it restates the button and tells the
+reader nothing they did not know when they clicked. Each of these needs a verb in the question and the
+real consequence underneath - what is lost, what is kept, who is affected - which is a copy pass over
+about twenty call sites and worth doing in one sitting rather than one at a time.
