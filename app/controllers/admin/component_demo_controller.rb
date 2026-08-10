@@ -52,6 +52,20 @@ module Admin
     end
     # rubocop:enable Metrics/MethodLength
 
+    # Preview: four ways of telling an admin that a teaching-day change moves money, and which to build.
+    def school_days_impact
+      @school_year = SchoolYear.includes(quarters: { grade_books: :grade_entries }).first
+      @exposure = (@school_year&.quarters&.order(:number) || []).to_h do |quarter|
+        open_books = quarter.grade_books.reject(&:completed?)
+        [quarter, { books: open_books.size, entries: open_books.sum { |b| b.grade_entries.size } }]
+      end
+
+      @breadcrumbs = [
+        { label: "Component demo", path: admin_component_demo_index_path },
+        { label: "School day impact" }
+      ]
+    end
+
     def show
       @user = User.find(params.expect(:id))
       @breadcrumbs = [
