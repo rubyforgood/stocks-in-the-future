@@ -111,7 +111,7 @@ label. Do **not** apply the
 Volunteers:`; `Current placement`, not `Current Placement:`). A colon belongs only on an
 inline key:value **fact label** (a `dt` such as `Court report status:`), never on a section
 title. Audit the views you touch: `grep '<h[123][^>]*>[^<]*:</h'` should return nothing on a
-stocks_in_the_future_app page.
+an app-layout page.
 
 Sentence case also covers **app-shipped content**, not just view copy: seed defaults and
 constants (e.g. `ContactTypeGroup::DEFAULT_CONTACT_TYPE_GROUPS`, whose names render as the
@@ -161,23 +161,27 @@ written against them renders no colour at all.
 - **Page vertical rhythm** (index / list pages): the content wrapper carries **vertical** rhythm
   only (`py-6`) -- the layout owns the horizontal gutter, so a page never adds `px-*` of its own
   (see "Content gutter and width" below);
-  header block `mb-6` (24px); the header **row** is `flex flex-wrap items-{end|start} justify-between gap-3`: **`items-end`** for an **h1-only** header (the 40px CTA aligns to the h1 baseline) and **`items-start`** when the h1 carries a **subtitle** (CTA top-aligns to the title so the subtitle can't push it down -- measured, `items-end`+subtitle drops the 40px CTA ~16px too low to the subtitle baseline, which was the dashboards' bug: `ctaTop==h1Top` after the fix, matching reimbursements). h1-only volunteers/supervisors/cases use `items-end`; subtitle pages reimbursements/placements/banners/dashboards use `items-start`. a plain (borderless) filter bar gets `mb-4` so it sits **16px**
-  above the table — every roster filter converges on this (cases / volunteers / supervisors /
-  reimbursements all measure 16px; `mb-5` or `mb-6` on a *plain* filter is drift). A filter
-  wrapped in its own bordered `rounded-2xl` card (case-contacts) is a *section*, so it keeps the
-  24px (`mb-6`) section gap instead. Stacked sections/cards separate by 24px (`mt-6` / `mb-6`);
-  the metrics dashboard (range filter + three chart cards) is one uniform 24px column, and the
-  range filter carries `mt-6` so it clears the KPI row / subtitle above it (it butted flush at
-  0px before). A **bulk-action trigger** that reveals on selection (the volunteers Manage button)
-  puts `mb-4` **on the button**, **never a reserved `min-h` band** — a reserved band leaves a
-  persistent ~68px empty gap above the table while nothing is selected; let the button push the
-  table down only once a row is picked (the `select-all` controller toggles `hidden!` on the
-  button, which collapses its margin too). Pagination is the `shared/_pagination` **footer rendered INSIDE the table card** (its last child) -- a
-  compact `border-t` + `px-4` + `py-3`, the industry-standard table footer (like learning-hours). On
-  responsive pages whose desktop card is `hidden md:block`, ALSO render a `md:hidden` copy below the
-  mobile card list. Never a detached below-card bar -- an external `mt-4` gap + divider + padding reads
-  as too much scroll. Verify these gaps at the pixel level (filter-bottom -> table-top), not
-  by reading tokens.
+  header block `mb-6` (24px); the header **row** is
+  `flex flex-col gap-3 lg:flex-row lg:items-{end|start} lg:justify-between`, and `_page_header` picks the
+  alignment from whether a `description` was passed: **`items-end`** for a **title-only** header, so the
+  40px action lands on the h1's baseline, and **`items-start`** when the title carries a **subtitle**, so
+  the action top-aligns to the title rather than sinking to the subtitle. Both directions have been
+  measured wrong here: `items-start` on a title-only header leaves 8px of dead space under the 32px h1
+  inside a 40px row, which renders the 24px gap as 32px.
+
+  A **plain (borderless) filter bar** gets `mb-4` so it sits **16px** above the table --
+  `admin/shared/_discard_filter_tabs` is the instance, and `mb-5` or `mb-6` on a plain filter is drift. A
+  filter wrapped in its own **bordered card** is a *section*, so it keeps the 24px section gap instead:
+  `admin/shared/_search_filter` is `tw-card mb-6 p-5`. Stacked sections and cards separate by 24px
+  (`space-y-6` on the wrapper, which is what `classrooms#show` uses -- note that `mt-6` on the first
+  child of a header block collapses against the header's own `mb-6` and measures nothing).
+
+  **There is no pagination.** Every index renders its whole collection, so no page has a table footer;
+  a classroom is ~25 students and the stock list is curated. Adding one is a real change, not a
+  styling decision -- it needs the sort links to survive the page parameter.
+
+  Verify these gaps at the pixel level (filter-bottom -> table-top), not by reading tokens;
+  `test/system/spacing_test.rb` and `test/system/page_rhythm_test.rb` do exactly that.
 
 ### Measure the rendered box
 
@@ -528,8 +532,8 @@ making the panel taller - measured 56px with the button and 56px without.
 
 Note the flash section further down this document, under Accessibility, describes a `shared/_flashes`
 partial with an `auto-dismiss` controller and a `notice_action` link. **That partial does not exist in
-this app** - its neighbours reference `StocksInTheFutureCasesController`, `CourtDatesController` and
-`case_contacts`, so that block came from another codebase. Its ~6s figure is where this 6s comes from,
+this app** - its neighbours name controllers that do not exist here, so that block came from another
+codebase. Its ~6s figure is where this 6s comes from,
 but this entry is the one describing code that is here.
 
 **Notices go through `components/ui/_callout`**, which is why it exists. `admin/teachers/_form` had a
@@ -983,7 +987,7 @@ indents *every* body line behind it, so the content hangs off the icon instead o
 |---|---|---|
 | Earnings to invest (home) | **77px** | flush |
 | My earnings to invest (trading floor) | 61px | flush |
-| case-contact card (recorded earlier) | ~48px | 0 |
+| a card with a leading icon | ~48px | 0 |
 
 The home figure is the worst case, because the indented line was the cash balance — the one number
 a student opens the app to read. `icon_tile_test.rb` asserts the balance sits at the card's padding
@@ -2616,19 +2620,19 @@ same weight.
 
 **Heading order** (axe `heading-order`, and one `h1` per page above):
 - A **subtitle/caption under the page `h1` is a `<p>`**, never a small heading. An `<h6>`
-  used for "Case number: X" or "Create a court date for all cases in a group." skips h2–h5
+  used for a key-value fact or a sentence of instruction skips h2–h5
   and fails. Small-and-grey is a type decision (`text-sm text-slate-500`), not a level.
 - A **`<dt>` is already the term** — never nest a heading inside it. `<dt><h6>Judge:</h6></dt>`
   both skipped levels and doubled the semantics.
 - A **card partial shared by a grouped index and a flat list needs a caller-controlled
-  level**. `case_contacts/_case_contact` takes `heading_level` (default 3): `#index` nests
+  level**. A card partial rendered at more than one depth takes a `heading_level` (default 3): an index nests
   cards under an `<h2>` case-number section, `#drafts` has no grouping level and passes 2.
 
 **A `<label for>` does not name a custom element.** `label`/`for` only associates with
 form-associated elements, so `<trix-editor role="textbox">` (and any custom element with an
 ARIA input role) is left nameless — axe `aria-input-field-name` — even with a perfectly
 correct visible `<label>` next to it. Set `aria: {label: …}` on the element itself. Same
-remedy where a real `<label for>` would be actively wrong: the emancipation checklist inputs
+remedy where a real `<label for>` would be actively wrong: a checklist's inputs
 are driven by JS that sets checked state after an AJAX save, so associating a label would
 toggle natively on top of it — they carry `aria-label` and keep the label unassociated.
 
@@ -2641,7 +2645,7 @@ underline-offset-2` (axe `link-in-text-block`).
 focusable (axe `scrollable-region-focusable`). `tailwind.css` overrides it to wrap instead.
 
 **Auditing caveat:** axe only sees the **rendered** DOM, so a page with an empty collection
-audits clean and hides real defects — a first whole-app pass missed unlabelled emancipation
+audits clean and hides real defects — a first whole-app pass missed unlabelled
 checkboxes and both org-settings status chips purely because no categories/contact topics
 were seeded. Seed at least one row of every repeating region before believing a clean result.
 Likewise, a page that 500s reports `document-title` + `html-has-lang` + `landmark-one-main` +
@@ -2684,10 +2688,10 @@ not white: measure against the actual background.
 - Because the partial keys off the flash type (`notice` -> green success, anything else -> amber
   warning), **an error must not be sent as `flash[:notice]`**, or it renders green *and* now
   auto-dismisses. Authorization failures use `flash[:alert]`: `ApplicationController#not_authorized`
-  plus the cross-org `RecordNotFound` rescues in `StocksInTheFutureCasesController` and `CourtDatesController`.
+  plus any `RecordNotFound` rescues.
 
 Sweep at **390 / 768 / 1400** before calling a page clean. Also note a route-walking audit
-silently skips **Flipper-gated** pages (it just follows the redirect): `/case_contacts/new_design`
+silently skips **feature-flagged** pages (it just follows the redirect)
 was missed that way and had two failing status colours behind the flag.
 
 ## Components
@@ -3381,7 +3385,7 @@ the browser's; specs compare against `browser_today` (`spec/support/browser_time
 **A prefilled default that depends on another field can't be server-rendered.** Carry the per-record
 value on each `<option>` as a `data-` attribute and let the controller copy it across on `change`, reading
 the native `<select>` (which TomSelect keeps in sync) rather than TomSelect's internal option data -- as
-the court-report modal does for "Starting from" (each case's last hearing). Re-apply on every change, so
+a date-range modal does for a "Starting from" default. Re-apply on every change, so
 switching records does not leave the previous record's default behind.
 
 ### Select
@@ -3461,7 +3465,7 @@ Rules for any "total over a period" figure:
   range to `beginning_of_day..end_of_day`; note `DateTime` subclasses `Date` in Ruby, so the check is
   `instance_of?(Date)` and an explicit time range is left alone.
 - **One definition of "this year" per app.** The roster defaults to calendar year to date
-  (`beginning_of_year..today`), so the volunteer profile's "Learning hours this year" had to stop being
+  (`beginning_of_year..today`), so a figure labelled "this year" had to stop being
   `occurred_at > 1.year.ago` — a rolling 12 months, which on 31 July counted the previous August. It is
   `learning_hours_spent_in_current_year` now, through the same scope, and the label **names the year**
   ("Learning hours in 2026") rather than saying "this year".
@@ -3619,9 +3623,9 @@ collapses to one column below `sm`. Wide fields (case number, a multiselect) get
 column. Keep to just two widths, full and one-column, so it does not look loose. The submit
 is a single primary button at the **bottom** (no top CTA on a fill-then-save form), verb-first
 and sentence case ("Create case", "Save changes"). Month/year pickers use
-`stocks_in_the_future_cases/_month_year_select`.
+a month/year select pair.
 
-A **section heading** inside a form card (e.g. "Court details") lives **outside** the
+A **section heading** inside a form card (e.g. "Classroom details") lives **outside** the
 grid, not as a grid child, so it does not inherit the uniform `gap-5` on every side. Give
 the heading `mb-3` (12px) so it hugs the fields it introduces, and put the field above it
 (e.g. case number) in its own block with `mb-6` (24px) for section separation. A heading
@@ -3630,16 +3634,16 @@ left as a grid child floats with equal 20px above and below and reads as detache
 **Simple settings CRUD forms** (the org-settings long-tail — judges, languages, placement types,
 learning-hour types/topics, and other name(+active) resources) share one partial,
 `shared/_settings_form` (locals: `model`, `title`, `show_active`, `description`). It renders the
-stocks_in_the_future_app page shell + a card with a required name field, an optional `Active?` checkbox, an
+app layout's page shell + a card with a required name field, an optional `Active?` checkbox, an
 optional intro paragraph, and a Submit button; `form_with model:` infers the url + param key.
-The resource's `_form` is a one-line `render`, and its controller sets `layout "stocks_in_the_future_app"` +
+The resource's `_form` is a one-line `render`, and its controller sets `the app layout` +
 `@active_nav = "settings"`. No breadcrumb (keeps it free of `current_organization`, so the
 no-layout view specs render it standalone); save redirects back to the settings page.
 
 ### Rich text (Trix)
-ActionText `rich_text_area` fields work on stocks_in_the_future_app because `tailwind.css` `@import`s
+ActionText `rich_text_area` fields work on the app layout because `tailwind.css` `@import`s
 `trix/dist/trix.css` alongside `tailwindcss` + tom-select. Trix's styles otherwise ship only in
-the legacy `application` bundle, which stocks_in_the_future_app does not load — without the import the toolbar is
+the legacy `application` bundle, which the app layout does not load — without the import the toolbar is
 unstyled and blows the page width to ~900px on every screen. Trix's default `.trix-button-row`
 is `overflow-x: auto`, so once loaded the toolbar self-scrolls on narrow screens (the page fits;
 the measure script surfaces the contained button row like a scrolling table). Give the editor
@@ -3801,7 +3805,7 @@ database before its own 2s debounce has elapsed -- which reads as "checkboxes do
 do. Wait on the alert (`within "#contact-form-notes" { find 'small[role=alert]', text: "Saved!" }`),
 then assert the record.
 The case-contact form (`case_contacts/form/details`, a Wicked single-step wizard) is the
-reference for a long **autosave** form on the shell. Render it by setting `layout "stocks_in_the_future_app"` on
+reference for a long **autosave** form on the shell. Render it by setting `the app layout` on
 the controller — `render_wizard` / `render step` pick it up, while the autosave JSON responses
 skip the layout automatically. Structure: Tailwind card sections (Details / Notes / Reimbursement)
 in one `max-w-3xl` column, plus a bottom action bar (a "Create Another" checkbox + the primary
@@ -3892,7 +3896,7 @@ first in the DOM so Enter submits it and `click_on "Submit"` (Capybara `:smart`)
 plus secondary **Submit & add another**, which carries `name="case_contact[metadata][create_another]"`
 so `finish_editing` reopens a fresh form for the same case(s). Since there's no per-contact show
 page, the create-another success flash gets a **trusted action link** via
-`flash[:notice_action] = {"label", "path"}` — the stocks_in_the_future_app flash partial renders it as a `link_to`
+`flash[:notice_action] = {"label", "path"}` — the the app layout flash partial renders it as a `link_to`
 inside the notice (not raw HTML; the `:json` cookie serializer drops `html_safe`), pointing at
 `case_contacts_path` so the user can find what they just created. Reusable for any notice.
 **Structured mailing address:** captured as discrete parts (line 1 / line 2 / city / state / zip),
@@ -3917,7 +3921,7 @@ case-contact form (details/notes/reimbursement/expenses) passes the axe (WCAG 2 
 When a partial is still rendered by legacy Bootstrap pages (e.g. `shared/_court_order_list`
 on the court-date pages, `shared/_edit_form` / `_invite_login` on the stocks_in_the_future_admin edit page), do
 **not** restyle it in place: Tailwind classes render unstyled on Bootstrap and the reverse. Add a
-**stocks_in_the_future_app-specific Tailwind twin** (`stocks_in_the_future_cases/_court_orders`, `stocks_in_the_future_cases/_volunteer_assignment`,
+**the app layout-specific Tailwind twin** (`stocks_in_the_future_cases/_court_orders`, `stocks_in_the_future_cases/_volunteer_assignment`,
 `supervisors/_manage_volunteers`) that preserves every JS hook (ids, classes, data-actions, field names, and any DOM
 adjacency the JS relies on). A legacy global-jQuery flow (copy-from-sibling) can instead be
 reimplemented as a small Stimulus controller on the twin, leaving the jQuery and the shared
@@ -4514,7 +4518,7 @@ so they read as the same component, colored by severity. `alert_classes(:success
 `alert_icon(variant)` the leading `bi-*` (check-circle / exclamation-triangle / info-circle). Full
 class strings are written out so the Tailwind scanner compiles them. Colors follow the table
 (emerald success, amber warning, rose danger, brand info).
-- **Flash banners.** One partial, `shared/_flashes`, rendered by **every** layout (`stocks_in_the_future_app`,
+- **Flash banners.** One partial, `shared/_flashes`, rendered by **every** layout (the app layout,
   `stocks_in_the_future_auth`, `all_stocks_in_the_future_admin`) via `render "shared/flashes", wrapper_class: <layout padding>` — no
   more per-layout copies that drift. `notice` → success, every other key → warning. Keeps the
   `alert` + `<type>` classes (`.notice` SweetAlert specs, `.alert` not-authorized redirect), the
@@ -4704,7 +4708,7 @@ the confirm button to the controller; Cancel / X / backdrop still use `modal#clo
 separate **status variant** (the success/thank-you dialog) centers a 48px hero badge + title
 + single Close instead of a header bar. This replaces the legacy Bootstrap `Modal::*`
 components on Tailwind pages; do not restyle Bootstrap `.modal` markup (its CSS is not loaded
-on `stocks_in_the_future_app`).
+on the app layout).
 
 **`shared/_confirm_button` inside another `<form>`: pass `confirm_form:`.** By default it confirms via
 **`button_to`**, which renders its own `<form>`, and **nested forms are invalid HTML**: the browser
@@ -4786,7 +4790,7 @@ distinct from the stat/KPI **icon tile** (`rounded-xl`).
   so there are **no between-group dividers** -- the only divider sits above the pinned Settings. Each
   group is a `role="group"` with an **`aria-label`** (the visible label is `aria-hidden` so it isn't
   announced twice); a group whose every item is policy-gated out **renders nothing -- no orphan
-  label**. Built from a `nav_groups` array + the `layouts/_nav_link` partial in `layouts/stocks_in_the_future_app`.
+  label**. Built from a `nav_groups` array + the `layouts/_nav_link` partial in `layouts/the app layout`.
 - **Top bar** (`border-b border-slate-200 bg-white/80 backdrop-blur`): mobile nav
   toggle, notifications, and the avatar **account menu** — the single place for identity
   + account actions (no duplicate identity block in the sidebar). Its header shows name,
@@ -4800,11 +4804,11 @@ distinct from the stat/KPI **icon tile** (`rounded-xl`).
   `current_user != true_user`, a full-width amber-400 bar (amber-950 ink, ~8:1) whose whole
   surface is the "stop impersonating" link. It carries a `.header` hook because the volunteer
   edit spec asserts the banner text `within(".header")` after impersonating lands on a
-  stocks_in_the_future_app page.
+  an app-layout page.
 - **Flash strip parity**: each flash div carries a base `alert` class **plus** the flash key
   (`.notice` / `.alert` / ...) *and* the a11y `role` (`status`/`alert`). This mirrors the Bootstrap
   `_flash_messages` mapping (`flash_class` -> `"alert notice ..."`, so every flash box is an
-  `.alert`), which lets both legacy hooks match on stocks_in_the_future_app: `.notice` for the SweetAlert-notifier
+  `.alert`), which lets both legacy hooks match on the app layout: `.notice` for the SweetAlert-notifier
   specs (e.g. a create that redirects to a migrated edit page), and `.alert` for the shared
   not-authorized redirect — that message is delivered as `flash[:notice]` (locked by ~dozens of
   request specs, so the key can't change), and only reads as an alert because the base class is
@@ -4855,7 +4859,7 @@ distinct from the stat/KPI **icon tile** (`rounded-xl`).
   the one rail used by both edit (`panels: true`, JS panel-switch) and the admin pages (`panels:
   false`, hash-nav to a section). On mobile the rail is hidden, so a **"Back to settings"** link is
   the return path.
-- **Back navigation on sub-pages.** Every stocks_in_the_future_app page reached *from* another page (a form, detail,
+- **Back navigation on sub-pages.** Every the app layout page reached *from* another page (a form, detail,
   or action destination -- not a sidebar/top-level nav item) has a way back: either a **breadcrumb**
   (a brand-600 parent link at the top -- "Cases", "Cases / CINA-1", or a bare "Case number: ->case")
   or the **chevron** "Back to X" (`inline-flex items-center gap-1 text-sm font-medium text-slate-500
@@ -4909,7 +4913,7 @@ distinct from the stat/KPI **icon tile** (`rounded-xl`).
   confirm helpers can only operate a native confirm. **`supervisors#edit` follows this same shape**
   (Profile / Account / Status / Volunteers). The `manage_active` partial *name* is shared by both
   edit pages, so each role keeps its own Tailwind twin (`volunteers/_manage_active`,
-  `supervisors/_manage_active`); likewise `supervisors/_manage_volunteers` is the stocks_in_the_future_app twin of
+  `supervisors/_manage_active`); likewise `supervisors/_manage_volunteers` is the the app layout twin of
   the shared Bootstrap `manage_volunteers`.
 
 ## Design decisions (rationale)
@@ -4920,8 +4924,8 @@ The *why* behind the system, so choices aren't re-litigated or lost.
   rewrite is too risky for a volunteer-run app; each page is moved wholesale onto one
   system so the two CSS resets never collide. A page is "migrated" only when it renders
   on a Tailwind layout with no Bootstrap classes doing layout work.
-- **Pages opt in to the new UI at the controller.** Render with `layout: "stocks_in_the_future_app"`
-  (in-app shell) or set `layout "stocks_in_the_future_auth"` (split auth). The default
+- **Pages opt in to the new UI at the controller.** Render with `the app layout`
+  (in-app shell) or set `the signed-out layout` (split auth). The default
   `ApplicationController` layout stays the Bootstrap `application` layout, so untouched
   screens are unaffected. Set `@active_nav` to the sidebar key (e.g. `"volunteers"`) to
   light up the matching nav item. There is no global flag — the switch is
@@ -4973,8 +4977,8 @@ Repeatable steps for moving one screen off Bootstrap:
 1. **Read first** — this doc, plus the page's existing specs (know what behavior is
    pinned before you touch markup). Confirm each column / field you plan to keep still has a
    live data source; don't carry blank legacy columns forward (see Tables, above).
-2. **Opt the action into a Tailwind layout** — `render ..., layout: "stocks_in_the_future_app"` (or
-   `layout "stocks_in_the_future_auth"`), and set `@active_nav` when it maps to a sidebar item.
+2. **Opt the action into a Tailwind layout** — `render ..., the app layout` (or
+   `the signed-out layout`), and set `@active_nav` when it maps to a sidebar item.
 3. **Rebuild the view with the components above.** Wrap page content in `py-6` and let the
    layout supply the horizontal gutter; use the h1/section-title scale; reuse the card, button,
    input, pill, KPI, and empty-state patterns instead of inventing new ones.
@@ -4999,11 +5003,11 @@ High-level progress; the granular, prioritized backlog lives in
 - [x] Tailwind v4 foundation + design tokens
 - [x] Typeface: Figtree
 - [x] Auth pages (sign-in, forgot/reset password, invitation accept)
-- [x] App shell — sidebar + top bar (`stocks_in_the_future_app` layout)
+- [x] App shell — sidebar + top bar (the app layout layout)
 - [x] Supervisor dashboard (triage-pattern reference)
 - [x] Notifications
 - [x] Edit profile
-- [x] Other app-shell leaf pages (impersonation banner + flash parity + footer shipped — the stocks_in_the_future_app
+- [x] Other app-shell leaf pages (impersonation banner + flash parity + footer shipped — the the app layout
   footer restores parity with the all-stocks-in-the-future shell: Built by Ruby For Good / Report a site issue (the
   help/support link) / SMS Terms & Conditions, `border-t px-4 py-5 text-xs text-slate-500`, after `<main>`.
   `py-5` (not py-4) makes the footer 57px so its top rule lands on the same y as the sidebar's pinned
@@ -5013,8 +5017,8 @@ High-level progress; the granular, prioritized backlog lives in
 - [x] Cases index (bespoke table + server-side filter selects + Pagy pagination)
 - [x] Case workflows: cases index/show/new/edit + case contacts index + drafts + the multi-step
   **form** all shipped (filterrific kept, disclosure collapse; the form is an autosave Wicked
-  wizard on stocks_in_the_future_app). The opt-in `case_contacts_new_design` table is now a bespoke
-  server-rendered stocks_in_the_future_app table too (retired its jQuery serverSide DataTable; server-side filter
+  wizard on the app layout). The opt-in `case_contacts_new_design` table is now a bespoke
+  server-rendered the app layout table too (retired its jQuery serverSide DataTable; server-side filter
   scopes + ?sort= + Pagy; disclosure filter panel; expandable rows + inline row actions) — the case
   area is fully migrated.
 - [x] Management (Phase 4): volunteers + supervisors index/edit, learning hours, case assignments,
@@ -5031,7 +5035,7 @@ High-level progress; the granular, prioritized backlog lives in
   banners, placements, **court dates + bulk court dates** (shared court-order twin), **imports**
   (server-side link tabs + inline SMS-opt-in keeping src/import.js), and **emancipation** (checklist
   show keeps the src/case_emancipation.js AJAX/collapse hooks; index retires its DataTable). Banners
-  brought `trix/dist/trix.css` into the stocks_in_the_future_app tailwind bundle; placements/court-dates use
+  brought `trix/dist/trix.css` into the the app layout tailwind bundle; placements/court-dates use
   Dialog / UJS deletes that satisfy non-`:js` specs.
 - [x] Phase 6 (complete): the all-stocks-in-the-future-admin area on its own Tailwind shell (dashboard, stocks_in_the_future_orgs,
   stocks_in_the_future_admins, edit/new, patch notes — the jQuery clone-CRUD kept, its bundle + notifier wired in)
@@ -5041,7 +5045,7 @@ High-level progress; the granular, prioritized backlog lives in
 - [x] **Metrics & Analytics**: the platform activity charts were extracted from HealthController
   into a scope-parameterized `MetricsReport` and surfaced in two authenticated homes -- an all-stocks-in-the-future
   **Metrics** console (platform-wide, in the all_stocks_in_the_future_admin sidebar) and a per-chapter **Analytics**
-  page (org-scoped, admin+supervisor, with chapter KPI cards; beside Reports in the stocks_in_the_future_app sidebar).
+  page (org-scoped, admin+supervisor, with chapter KPI cards; beside Reports in the the app layout sidebar).
   Both share `metrics/_dashboard` + the `metric_*` helpers + the `chart-hover` controller (already in
   the app bundle). `/health` was slimmed to a minimal self-contained ops status page + deploy-time
   JSON, taking the cross-org charts off the public surface; the dead `metrics` JS bundle/layout and
