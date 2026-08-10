@@ -1,10 +1,16 @@
-<div class="flex flex-col h-full w-full">
+<%# A plain block, like every other index page.
+
+    This was `flex flex-col h-full w-full` wrapping the page header in a bare `<div>` and the content in
+    `flex-1 pb-6` - a shell only this page and classrooms#index used, for no layout this page needs: there
+    is nothing here to stretch to the viewport's height, and `pb-6` duplicates padding `<main>` already
+    provides. It also hid the one relationship design.md states about this seam - the header block's `mb-6`
+    against whatever follows it - because the header was not a sibling of the content. `display: contents`
+    does not fix that either: `nextElementSibling` walks the DOM, not the layout tree. %>
+<div>
+
+  <%= render layout: "components/ui/page_header", locals: { title: "Transactions" } do %><% end %>
 
   <div>
-    <%= render layout: "components/ui/page_header", locals: { title: "Transactions" } do %><% end %>
-  </div>
-
-  <div class="flex-1 pb-6">
     <%= render "shared/table_container" do %>
       <thead>
         <tr class="table-header-row min-w-full">

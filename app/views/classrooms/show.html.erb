@@ -40,8 +40,13 @@
       collections full width and let the order say which is primary.
 
       space-y-6 is the section rhythm this document sets, and it is on the wrapper so each child is a
-      top-level section - which is also why the grade books partial emits a single <section>. %>
-  <div class="mt-6 space-y-6">
+      top-level section - which is also why the grade books partial emits a single <section>.
+
+      No `mt-6` on it. Adjacent vertical margins collapse to the larger, and the page header's own `mb-6`
+      is the same 24px, so it measured nothing - and an inert margin is worse than none, because it reads
+      as load-bearing and becomes load-bearing the moment anything is inserted above it. The header block
+      owns this gap, everywhere. %>
+  <div class="space-y-6">
     <%# No four-across stat band here, deliberately, and this is the one place the page departs from
         what the field does. Stripe leads a customer with its figures and the portfolio page in this app
         uses exactly that strip - but measured at 1366x768 it is 134px tall, and with the setting card

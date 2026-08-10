@@ -2825,3 +2825,42 @@ key, partial under the free tier's rate limit, and hidden on phones - while the 
   in the admin screens keeps whatever date it had. That is arguably right (the date describes the market
   price, not the edit) and is worth knowing before anyone reads it as "last modified".
 
+
+## One card-body padding value, and every page on `_page_header`
+
+Both halves of a sweep of the page's vertical rhythm. The measurement is
+`test/system/page_rhythm_test.rb`, which walks 38 pages across the three roles and asserts the rendered
+gap between the page header block and the first element that follows it. It found 24px everywhere it
+could measure, and two pages it could not.
+
+### What changed
+
+- **`admin/portfolio_transactions#new` and `#edit` now render `components/ui/_page_header`.** They were
+  the only two pages in the app that never adopted it: the title was a `text-2xl font-bold` `h2` inside
+  a card wrapping a form that renders its own card. Each page loses an outer `.tw-card`, gains a real
+  `h1`, and stops nesting two surfaces around one form.
+- **`Edit Portfolio Transaction #<id>` became `Edit portfolio transaction`.** Sentence case, and the id
+  is in the breadcrumb, where every other admin edit page puts the record's identifier.
+- **Twenty-two card bodies moved to `p-5`**, from four different values: `px-6 py-6` on the ten admin
+  form partials, `p-4` and `p-6` on the component demo, `p-4` on the shared search-filter bar, and
+  `p-5 lg:p-6` on three app-side form cards. design.md's Card / panel section states `p-5`.
+- **`flex flex-col h-full w-full` is gone from `orders#index` and `classrooms#index`**, along with the
+  bare `<div>` it wrapped the page header in and the `flex-1 pb-6` on the content.
+- **`classrooms#show` lost `mt-6`** from its section wrapper and `classrooms/_form` lost `mt-4` from its
+  card; both collapsed against the header's own `mb-6` and measured nothing.
+- **Two admin breadcrumbs pointing at `"#"`** now point at `admin_portfolio_transactions_path`.
+
+### What this breaks
+
+- **Anything selecting `main > div > div` on the two index pages.** The header is one level shallower
+  than it was, which is the same class of change as wrapping `yield` in the layout - and that one made a
+  spacing test pass while asserting nothing. Check the assertion *count*, not just the pass.
+- **Any test or audit asserting `px-6 py-6`, or a 24px card body.** None did; the sweep looked.
+- **A new page that omits `_page_header` now fails a test rather than looking slightly wrong.**
+  `page_rhythm_test` fails by name when a page's only `h1` is the admin layout's visually hidden
+  fallback, because a page with no header has no header rhythm to measure. That is deliberate: the
+  previous version of this audit measured from the clipped 1px `h1` and reported a meaningless 0px.
+- **The form pages are measurable only because the instrument descends through `display: contents`.**
+  `form_with class: "contents"` generates no box, so `nextElementSibling` finds an element with no
+  geometry; the walk recurses into its children. A future audit of any seam next to a form needs the
+  same treatment or it will report the content as absent.

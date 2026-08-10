@@ -27,7 +27,7 @@ module Admin
       # authorize @portfolio_transaction
 
       @breadcrumbs = [
-        { label: "Portfolio transactions", path: "#" },
+        { label: "Portfolio transactions", path: admin_portfolio_transactions_path },
         { label: "New" }
       ]
     end
@@ -53,7 +53,7 @@ module Admin
                     notice: t(".notice")
       else
         @breadcrumbs = [
-          { label: "Portfolio transactions", path: "#" },
+          { label: "Portfolio transactions", path: admin_portfolio_transactions_path },
           { label: "New" }
         ]
         render :new, status: :unprocessable_content

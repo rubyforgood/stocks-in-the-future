@@ -244,6 +244,29 @@ rule beneath it, the padding held content off that rule; once the rule went, the
 was left stacking 20px on top of 24px of margin. If a gap looks too big, check for
 padding left behind by something that was removed.
 
+**Three things had to be true before that gap could be relied on**, and each was found by measuring
+all 38 pages rather than by reading markup. The test is `test/system/page_rhythm_test.rb`, which
+asserts the *rendered* distance from the header block to the first thing that follows it.
+
+1. **The header block is a sibling of the content.** `orders#index` and `classrooms#index` wrapped it
+   in a bare `<div>` inside a `flex flex-col h-full w-full` shell no other page used, so the 24px
+   relationship did not exist to measure: an outer flex column separates the two by whatever the shell
+   says. Wrapping it in `display: contents` does not fix this either - the box disappears but the DOM
+   does not, and any measurement or `+`/`~` selector still walks the DOM.
+2. **No margin on the content, even one that measures nothing.** `classrooms#show` carried `mt-6` on
+   its section wrapper and `classrooms/_form` carried `mt-4` on its card. Both rendered exactly 24px,
+   because adjacent vertical margins collapse to the larger and the header's own `mb-6` is at least as
+   big - so both read as load-bearing while doing nothing. The `mt-4` then *became* load-bearing the
+   moment an error summary appeared between the two, giving that one state a 16px gap. **An inert margin
+   is worse than no margin**: it is indistinguishable from a working one until something moves.
+3. **Every page uses this partial.** `admin/portfolio_transactions#new` and `#edit` were the only two
+   pages in the app that never adopted it. They carried a `text-2xl font-bold` **`h2`** inside a card,
+   which cost them three separate things: no `h1` at all (the admin layout's visually hidden fallback
+   named the page "New"), a **card inside a card** because `_form` renders its own, and a gap above the
+   card of **0px**, since the card was the first element after the breadcrumb. A page with no header has
+   no header rhythm, which is why the audit could not see the defect until it was told to fail on the
+   sr-only fallback by name.
+
 **Filters and tabs go above the card as well.** A filter is chrome above the data, so a
 plain borderless filter bar or tab rail sits on the page background, `mb-4` (16px) above
 the table — not on the card's surface. `admin/shared/_discard_filter_tabs` is the shared
@@ -3699,6 +3722,14 @@ Box and Primer's `Box.Header` use. A card with no header keeps the full `p-5`.
 including the ones holding tables; `components/ui/_card` wraps it. Padding is deliberately
 not part of the class, because a card holding a flush table needs none - callers add `p-5`,
 or pass `padded:` to the partial.
+
+**`p-5` means `p-5`, at every width, and it was written four ways.** Swept: the ten admin form
+partials were `tw-card > div.px-6 py-6`, the component demo used `p-4` and `p-6`, the search filter
+bar `p-4`, and three app-side form cards had picked up an undocumented `lg:p-6`. Twenty-two card
+bodies, four values, one token. The visible cost was on a phone: 24px of padding either side leaves
+a field 278px wide at 375px against `p-5`'s 286px, so the half of the product with the *denser*
+forms was also the more cramped one. This is the two-definitions failure again - the value is stated
+here, so a call site that restates it can only agree by luck.
 
 The surface had drifted into four treatments across seven distinct class strings in 22
 files: `rounded-xl`/`shadow-xs` in the component, `rounded-lg` with `ring-1 ring-slate-900/5`

@@ -651,3 +651,27 @@ before.
   ticker's line or the whole stacked block is what a 40px pair should align to, and on whether that table's
   rows should be 65px at all. Worth measuring against the stacked cell rather than guessing a padding.
 
+
+## The admin form partials still each render their own card (2026-08)
+
+The card-body padding sweep unified the *value* (`p-5`, from design.md) but left the *shape*: ten admin
+form partials open with `<div class="tw-card"><div class="p-5">`, hand-rolled, rather than
+`components/ui/_card`. So the surface and its padding are declared eleven times - which is the mechanism
+that produced four different padding values in the first place, and it will produce a fifth.
+
+Each of those cards also carries an `h3 text-lg font-medium` section title ("Stock details", "Teacher
+details", ...) that `_card`'s `title:` local already renders, with the 16px header seam design.md
+specifies instead of the current `mb-6`.
+
+Not done here because it is eleven files of partial surgery with no visible change on any of them, and
+because the section titles are worth a separate question: on a single-card form page, a card titled
+"Teacher details" under an h1 reading "Edit teacher" states the same thing twice. Polaris drops the card
+header when the page has one card. Worth answering before converting, or the conversion preserves it.
+
+## Should a form card be `p-5` or `p-6`? (2026-08)
+
+design.md says `p-5` and the app now says `p-5` everywhere, so this is consistent and closed as a
+consistency question. It is open as a *value* question: the admin side had chosen 24px independently in
+ten places, which is some evidence that a dense form wants more room than a stat card, and shadcn's Card
+(`p-6`) agrees while Polaris (16/20px) does not. If it changes it changes in `design.md` and in one
+sweep, not per call site.

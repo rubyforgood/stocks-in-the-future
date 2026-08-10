@@ -1,11 +1,14 @@
-<div class="max-w-3xl mx-auto">
+<%# See the note in #new: both pages carried their title as an `h2` inside a card that wrapped a form which
+    renders its own card.
+
+    The title is "Edit portfolio transaction", not "Edit Portfolio Transaction #215". Sentence case, per the
+    copy rule - and the id moves to the breadcrumb, where the other admin edit pages already put the record's
+    identifier. A heading is not the place to state a database id twice. %>
+<div class="mx-auto max-w-3xl">
   <%= admin_breadcrumbs(@breadcrumbs) %>
 
-  <div class="tw-card mb-6">
-    <div class="px-6 py-6">
-      <h2 class="text-2xl font-bold text-slate-900 mb-6">Edit Portfolio Transaction #<%= @portfolio_transaction.id %></h2>
+  <%= render layout: "components/ui/page_header",
+             locals: { title: "Edit portfolio transaction" } do %><% end %>
 
-      <%= render "form", portfolio_transaction: @portfolio_transaction %>
-    </div>
-  </div>
+  <%= render "form", portfolio_transaction: @portfolio_transaction %>
 </div>

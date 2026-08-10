@@ -1,14 +1,14 @@
-<div class="flex flex-col h-full w-full">
+<%# A plain block, like every other index page - see the note in orders#index, which carried the same
+    `flex flex-col h-full w-full` shell around a bare header wrapper. %>
+<div>
 
-  <div>
-    <%# The button was bg-blue-500 with white bold text: off-brand, and 3.68:1, which fails the
-        4.5:1 gate for label text. tw-btn-primary is the brand teal at 6.18:1. %>
-    <%= render layout: "components/ui/page_header", locals: { title: "Classrooms" } do %>
-      <% if policy(Classroom).new? %>
-        <%= link_to "New classroom", new_classroom_path, class: "tw-btn-primary" %>
-      <% end %>
+  <%# The button was bg-blue-500 with white bold text: off-brand, and 3.68:1, which fails the
+      4.5:1 gate for label text. tw-btn-primary is the brand teal at 6.18:1. %>
+  <%= render layout: "components/ui/page_header", locals: { title: "Classrooms" } do %>
+    <% if policy(Classroom).new? %>
+      <%= link_to "New classroom", new_classroom_path, class: "tw-btn-primary" %>
     <% end %>
-  </div>
+  <% end %>
 
   <%# Whether the actions column can ever hold anything for this viewer.
 
@@ -22,7 +22,7 @@
       to ignore the record today, and asking per record is what keeps this correct if it stops. %>
   <% actions_column = @classrooms.any? { |classroom| policy(classroom).edit? } %>
 
-  <div class="flex-1 pb-6">
+  <div>
     <%= render "shared/table_container" do %>
       <thead>
         <tr class="table-header-row">
