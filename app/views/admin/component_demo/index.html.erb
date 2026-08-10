@@ -19,6 +19,171 @@
     </div>
   </div>
 
+  <%# ---------------------------------------------------------------------------------------------
+      Shared UI components. Everything in app/views/components/ui/ appears here, and
+      `component_gallery_test` fails by name when a partial is added and this page is not - which is how
+      it came to render three of eleven while design-instructions.md said twice to register them.
+
+      Constructed data, not database records: a gallery should not depend on what happens to be seeded,
+      and a component's states are the point rather than any particular row.
+  --------------------------------------------------------------------------------------------- %>
+  <div class="tw-card mb-6 p-5" data-testid="component-badge">
+    <h2 class="text-xl font-semibold text-slate-900 mb-1">Badge</h2>
+    <p class="mb-4 text-sm text-slate-600">
+      A status, on the thing it describes. Five tones; <code>boolean_badge</code> wraps the first two.
+    </p>
+    <div class="flex flex-wrap items-center gap-2">
+      <% { neutral: "Draft", success: "Finalized", warning: "Pending", danger: "Archived",
+           info: "Scheduled" }.each do |tone, label| %>
+        <%= render "components/ui/badge", label: label, tone: tone %>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="tw-card mb-6 p-5" data-testid="component-card">
+    <h2 class="text-xl font-semibold text-slate-900 mb-1">Card</h2>
+    <p class="mb-4 text-sm text-slate-600">
+      A surface. The body pads <code>p-5</code>; a titled card pads its seam at 16px instead, which is
+      what stops a <code>py-4</code> header stacking on a <code>p-5</code> body.
+    </p>
+    <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
+      <%= render layout: "components/ui/card", locals: {} do %>
+        <p class="text-sm text-slate-700">Body only. No header, so the body keeps the full padding.</p>
+      <% end %>
+
+      <%= render layout: "components/ui/card", locals: { title: "With a title" } do %>
+        <p class="text-sm text-slate-700">A header rule, and a smaller seam beneath it.</p>
+      <% end %>
+
+      <%= render layout: "components/ui/card",
+                 locals: { title: "With an icon", subtitle: "And a subtitle under it",
+                           icon: "chart-line", icon_tone: :success } do %>
+        <p class="text-sm text-slate-700">The icon is a 32px tile on the title's line.</p>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="tw-card mb-6 p-5" data-testid="component-stat">
+    <h2 class="text-xl font-semibold text-slate-900 mb-1">Stat</h2>
+    <p class="mb-4 text-sm text-slate-600">
+      One figure and what it is. The numeral is always <code>slate-900</code> - the tile carries the tone,
+      never the number.
+    </p>
+    <div class="grid grid-cols-1 gap-4 lg:grid-cols-4">
+      <%= render "components/ui/stat", label: "Cash to invest", value: "$1,204.50" %>
+      <%= render "components/ui/stat",
+                 label: "Portfolio value",
+                 value: "$8,317.02",
+                 icon: "wallet",
+                 icon_tone: :info %>
+      <%= render "components/ui/stat",
+                 label: "Total return",
+                 value: "$412.19",
+                 change: "+5.2% this month",
+                 change_up: true %>
+      <%= render "components/ui/stat",
+                 label: "Total return",
+                 value: "-$88.40",
+                 change: "-1.1% this month",
+                 change_up: false,
+                 hint: "Since you started" %>
+    </div>
+  </div>
+
+  <div class="tw-card mb-6 p-5" data-testid="component-icon-tile">
+    <h2 class="text-xl font-semibold text-slate-900 mb-1">Icon tile</h2>
+    <p class="mb-4 text-sm text-slate-600">
+      The hue-coded square a KPI or a section header leads with. 32px beside a label, 36px on its own
+      line. It is never the marker on a message - a callout uses a bare glyph.
+    </p>
+    <div class="flex flex-wrap items-center gap-3">
+      <% %i[neutral success warning danger info].each do |tone| %>
+        <%= render "components/ui/icon_tile", icon: "chart-line", tone: tone %>
+      <% end %>
+      <%= render "components/ui/icon_tile", icon: "wallet", tone: :info, compact: true %>
+      <%= render "components/ui/icon_tile", label: "4", tone: :neutral, compact: true %>
+    </div>
+  </div>
+
+  <div class="tw-card mb-6 p-5" data-testid="component-empty-state">
+    <h2 class="text-xl font-semibold text-slate-900 mb-1">Empty state</h2>
+    <p class="mb-4 text-sm text-slate-600">
+      What appears here, and what to do about it. <code>compact</code> is the section-level version; the
+      default leads with an icon.
+    </p>
+    <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <div class="tw-card p-5">
+        <%= render "components/ui/empty_state",
+                   title: "No classrooms yet",
+                   body: "Create one and it will appear here with a grade book per quarter.",
+                   icon: "presentation" %>
+      </div>
+      <div class="tw-card p-5">
+        <%= render "components/ui/empty_state",
+                   title: "Nothing to show",
+                   body: "Stocks appear here once your teacher adds them.",
+                   compact: true %>
+      </div>
+    </div>
+  </div>
+
+  <div class="tw-card mb-6 p-5" data-testid="component-data-table">
+    <h2 class="text-xl font-semibold text-slate-900 mb-1">Data table</h2>
+    <p class="mb-4 text-sm text-slate-600">
+      The wrapper that gives a table its surface, its scroll container and a caption for assistive tech.
+      The caption is required: a table with no accessible name is one nobody can find.
+    </p>
+    <%= render layout: "components/ui/data_table", locals: { caption: "Example holdings" } do %>
+      <thead>
+        <tr class="table-header-row">
+          <th scope="col" class="table-header-cell table-header-cell-left">Company</th>
+          <th scope="col" class="table-header-cell table-header-cell-right">Shares</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% { "Coca-Cola" => "12", "Ford" => "3" }.each do |company, shares| %>
+          <tr class="table-body-row">
+            <td class="table-body-cell"><span class="table-cell-content"><%= company %></span></td>
+            <td class="table-body-cell table-body-cell-right">
+              <span class="table-cell-content tabular-nums"><%= shares %></span>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    <% end %>
+  </div>
+
+  <div class="tw-card mb-6 p-5" data-testid="component-callout">
+    <h2 class="text-xl font-semibold text-slate-900 mb-1">Callout</h2>
+    <p class="mb-4 text-sm text-slate-600">
+      An inline notice, which the layout's flash is not. A bare tone-coloured glyph beside the text, never
+      an icon tile.
+    </p>
+    <div class="space-y-3">
+      <%= render "components/ui/callout",
+                 title: "Trading is turned off for your classroom",
+                 body: "You cannot buy or sell right now. Your teacher can turn it back on." %>
+      <%= render "components/ui/callout",
+                 tone: :info,
+                 title: "Prices update once a day",
+                 body: "They are fetched after the market closes, so a price can be a day old." %>
+    </div>
+  </div>
+
+  <div class="tw-card mb-6 p-5" data-testid="component-page-header">
+    <h2 class="text-xl font-semibold text-slate-900 mb-1">Page header</h2>
+    <p class="mb-4 text-sm text-slate-600">
+      The page's single <code>h1</code>, its optional description and its actions. <code>mb-6</code> and
+      nothing else - the 24px under it is the page rhythm, asserted in <code>page_rhythm_test</code>.
+    </p>
+    <div class="rounded-xl border border-dashed border-slate-300 p-4">
+      <%= render layout: "components/ui/page_header",
+                 locals: { title: "Classrooms", description: "Every classroom you teach." } do %>
+        <span class="tw-btn-primary">New classroom</span>
+      <% end %>
+    </div>
+  </div>
+
   <%# Breadcrumbs Demo %>
   <div class="mb-6">
     <h2 class="text-xl font-semibold text-slate-900 mb-4">Breadcrumbs component</h2>

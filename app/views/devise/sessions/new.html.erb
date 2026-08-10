@@ -27,8 +27,11 @@
                              required: true %>
 
         <div class="mb-6 flex flex-wrap items-center justify-between gap-2">
+          <%# The builder, like every other control in the app. This was `render_checkbox`, the last caller
+              of a shadcn-era partial chain - `components/ui/_checkbox` rendering `components/ui/_label`
+              through a `tw()` class merge - which existed to style one checkbox on one page. %>
           <% if devise_mapping.rememberable? %>
-            <%= render_checkbox name: "user[remember_me]", label: "Remember me" %>
+            <%= f.boolean_field :remember_me, label: "Remember me", wrapper_class: "" %>
           <% end %>
 
           <%= link_to "Forgot your password?", new_password_path(resource_name), class: "tw-link-tap" %>

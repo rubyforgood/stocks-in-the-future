@@ -668,6 +668,25 @@ because the section titles are worth a separate question: on a single-card form 
 "Teacher details" under an h1 reading "Edit teacher" states the same thing twice. Polaris drops the card
 header when the page has one card. Worth answering before converting, or the conversion preserves it.
 
+## The component gallery, brought current (2026-08) - DONE
+
+It rendered three of eleven partials - `_callout`, `_page_header`, and `_badge` only incidentally
+through `boolean_badge` - while `design-instructions.md` said twice to register new components there.
+Eight had been built and none registered.
+
+What was done, in the three phases costed above:
+
+1. **`_button`, `_checkbox` and `_label` deleted.** `_button` had no callers and required its caller to
+   precompute `button_classes`, which is not how anything else here works. The other two were a
+   shadcn-era chain whose last use was one checkbox on the sign-in page; it is `f.boolean_field` now.
+   Eight partials remain, every one with real callers.
+2. **A section for each**, built from constructed data rather than database records, showing the states
+   that differ: five badge tones, a card with and without a header, four stat shapes, both icon-tile
+   sizes across five tones, both empty-state variants, the data-table wrapper, two callout tones, and
+   the page header with a description and an action.
+3. **`component_gallery_test`**, which derives the list from the directory. Verified by adding a
+   throwaway partial and watching it fail by name - the failure tells you the testid to add.
+
 ## Should a form card be `p-5` or `p-6`? (2026-08)
 
 design.md says `p-5` and the app now says `p-5` everywhere, so this is consistent and closed as a

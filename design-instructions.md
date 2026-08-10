@@ -111,10 +111,15 @@ Do not write `bg-[#00698c]`. Use the brand token.
 
 ### Components
 
-Reusable partials live in `app/views/components/ui/`: `_badge`, `_button`, `_callout`, `_card`,
-`_checkbox`, `_data_table`, `_empty_state`, `_icon_tile`, `_label`, `_page_header`, `_stat`. This list
-previously named `_input`, `_textarea` and `app/views/components/_action_icon_button`, none of which
-exist - so it sent a reader looking for three files and omitted five that are there.
+Reusable partials live in `app/views/components/ui/`: `_badge`, `_callout`, `_card`, `_data_table`,
+`_empty_state`, `_icon_tile`, `_page_header`, `_stat`. Every one of them is rendered at
+`/admin/component_demo`, and `component_gallery_test` fails when a partial is added and the gallery is
+not - so this list cannot go stale the way it had: it previously named `_input`, `_textarea` and
+`app/views/components/_action_icon_button`, none of which existed, and omitted five that did.
+
+`_button`, `_checkbox` and `_label` are gone. `_button` had no callers at all, and the other two were a
+shadcn-era chain - a checkbox partial rendering a label partial through a `tw()` class merge - whose
+only remaining use was one checkbox on the sign-in page, now `f.boolean_field` like every other control.
 
 **Fields come from `Ui::FormBuilder`** (`app/form_builders/ui/form_builder.rb`), not from partials and
 not by hand: `form_with ... builder: Ui::FormBuilder`, then `f.text_field :name, label: "Name",

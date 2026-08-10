@@ -137,8 +137,11 @@ module Ui
     def boolean_field(attribute, options = {})
       hint = options.delete(:hint)
       label_text = options.delete(:label) || attribute.to_s.humanize
+      # Overridable like every other wrapper here, because a lone checkbox is not always a row in a
+      # stack of fields - sign in puts one beside a link, on one line.
+      wrapper_class = options.delete(:wrapper_class) || "mb-6"
 
-      @template.content_tag(:div, class: "mb-6") do
+      @template.content_tag(:div, class: wrapper_class) do
         @template.content_tag(:label, class: "flex items-center gap-3") do
           check_box(attribute, class: CHECKBOX_CLASSES) +
             @template.content_tag(:span, label_text, class: "#{LABEL_CLASSES} mb-0")
