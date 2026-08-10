@@ -3782,140 +3782,68 @@ standard-order text. Note the last row is **not** `:last-of-type` -- the rows sh
 insertion target div, so that selector returns the target (no textarea) and silently breaks the
 prefill.
 
-### Autosave wizard form (case-contact)
+### Autosave
+The **grade book** (`grade_books#show`) is the app's one autosaving form, and it is the reference.
+Everything else is explicit save.
 
-**Bind the autosave on the FORM, never per field.** `data-action="input->autosave#save"` on the
-`<form>`: `input` bubbles and fires for every control type -- text, number, date, select, checkbox,
-radio -- so one action covers the whole form and cannot be forgotten when a field is added. Per-field
-triggers produced a genuinely confusing form: only notes, topic answers and expense descriptions saved
-themselves, so an edit to duration or medium was **silently dropped** when the user navigated away --
-*unless* they also happened to touch one of those three, because an autosave posts the **entire** form
-and therefore committed everything. Whether your work persisted depended on which field you touched
-last. Measured before the fix: edit the duration, wait past the debounce, leave -> the old value; edit
-the duration then type one character in notes -> both saved.
+**Save on blur, with a timer as the backstop -- not a timer alone.** Finalizing pays whatever is in
+the database, so anything typed and not yet saved is money that will not be paid. With a 30-second
+interval as the only trigger there was a window in which a teacher could enter a grade, press
+Finalize, and pay the previous one, with nothing on the page saying so. Saving when a field loses
+focus closes that window at the root; the interval stays for the field left focused, because somebody
+typing in the last cell and walking away never blurs it.
 
-Because the form autosaves in full, it needs **no Cancel and no unsaved-changes warning** -- the two
-coherent models are "everything autosaves" (Google Docs / Notion / Linear: navigation is the exit) and
-"explicit save" (GitHub / Jira: Cancel plus a `beforeunload` + `turbo:before-visit` guard when dirty).
-This form is the first. A partially-autosaving form is neither, and is the state to avoid.
+`blur` does not bubble, so the listener is **capturing**, and a `change` flag stops a save firing for
+a field somebody only tabbed through -- which is most of them.
 
-**Testing an autosave: one interaction per example.** The "Saved!" alert lingers ~3s, so a second
-interaction in the same example will match the PREVIOUS save's alert and let the assertion read the
-database before its own 2s debounce has elapsed -- which reads as "checkboxes don't autosave" when they
-do. Wait on the alert (`within "#contact-form-notes" { find 'small[role=alert]', text: "Saved!" }`),
-then assert the record.
-The case-contact form (`case_contacts/form/details`, a Wicked single-step wizard) is the
-reference for a long **autosave** form on the shell. Render it by setting `the app layout` on
-the controller — `render_wizard` / `render step` pick it up, while the autosave JSON responses
-skip the layout automatically. Structure: Tailwind card sections (Details / Notes / Reimbursement)
-in one `max-w-3xl` column, plus a bottom action bar (a "Create Another" checkbox + the primary
-Submit). Three Stimulus contracts must survive a restyle **verbatim**:
-- **autosave** — `data-controller="autosave"` on a wrapper *outside* the `<form>`;
-  `data-autosave-target="form"` on the form; `data-action="input->autosave#save"` on each text
-  field that should autosave (notes, topic answers, expense descriptions — *not* the whole form);
-  and a `<small role="alert" data-autosave-target="alert">No changes have been saved.</small>`
-  status line per section (that literal text is asserted by a non-JS spec; the JS swaps in
-  "Autosaving…" / "Saved!" and toggles `invisible` / `visible`, both real Tailwind utilities).
-- **stocks-in-the-future-nested-form** (repeatable rows; extends stimulus-rails-nested-form) — each row is a
-  `.nested-form-wrapper` with `data-stocks-in-the-future-nested-form-target="wrapper"`, `data-new-record`,
-  `data-child-index`, and hidden `id` + `_destroy` fields; the container holds a `<template>`
-  target, the existing `fields_for` rows, an empty `target` div (new rows insert *before* it), and
-  an **Add** button (`stocks-in-the-future-nested-form#addAndCreate`). Rows autosave-create on add and
-  autosave-destroy on delete. (This differs from the court-orders `court-order-form#add`, which
-  only clones client-side.)
-- **case-contact-form** — reveals the reimbursement sub-form by toggling Tailwind **`hidden`** (the
-  controller was switched off Bootstrap `d-none`, which Tailwind does not define; safe because only
-  this form uses the controller). Keep it initially `hidden` so the non-JS `have_no_field` specs
-  pass and rack_test (ignores CSS) can still reach the fields.
+**Bind on the form, never per field.** One listener on the `<form>` covers every control type and
+cannot be forgotten when a field is added. Per-field triggers produce a genuinely confusing form:
+only the fields that carry the trigger save themselves, so an edit elsewhere is *silently dropped*
+when the user navigates away -- unless they also happen to touch one that does, because an autosave
+posts the entire form and therefore commits everything. Whether your work persisted would depend on
+which field you touched last.
 
-Required/optional field markers come from the `required_marker` / `optional_marker` helpers
-(`design_system_helper`), **not** hand-written `.html_safe` string literals (erb_lint rejects those as
-unsafe interpolation). `required_marker` is a rose `*` (`text-rose-600`, `aria-hidden` — the input's
-`required` attribute carries the state to assistive tech); on a form that mixes required and optional
-inputs, pair it with `optional_marker` (a muted "Optional", `text-xs font-normal text-slate-500`) on the
-optional labels, so the split is explicit on every field rather than inferred from the lone `*`. This is
-the app-wide convention for data-entry forms (see the forms-section bullet). Shared bits stay shared:
-relevant-case picking is `Form::MultipleSelectComponent` (TomSelect) and errors use
-`shared/form_errors`; only the form-private partials (`_contact_topic_answer`,
-`shared/_additional_expense_form`) are restyled in place. Duration is an inline Tailwind twin, like
-learning hours (`Form::HourMinuteDurationComponent` is now dead).
+**Keep the steady state quiet.** The status line used to change three times per edit -- "Saving…",
+"All changes saved", then a new timestamp -- which on a 25-student book is about three hundred
+redraws in one spot while a teacher works. Docs, Notion and Figma all leave the resting state
+unchanging and none of them counts saves at the user. So: no timestamp ever, since "when" is not the
+question being asked and it was the churn; "Saving…" only if a save is still running after 800ms, so
+an ordinary edit changes nothing on screen at all; and a **failure says so and stays**, because it is
+the one state a teacher has to act on. Assign the text only when the words actually change --
+rewriting the same string still replaces the text node, which the eye catches and which an
+`aria-live` region re-announces.
 
-**Relevant case(s) is read-only when editing an active contact** (`@case_contact.active?`): the
-model requires `draft_case_ids`, and on edit the picker only ever offered the one case the contact
-belongs to, so a removable multiselect there just lets the user dismiss a required, fixed parent.
-On edit, show the case number(s) as a **badge beside the `Details` heading** (fixed context, not a
-faux form field) plus hidden `draft_case_ids`, and left-align the lone date field below it; keep
-the `#draft-case-id-selector` id for the JS/spec contract. Keep the TomSelect multiselect (paired
-with the date in the 2-col grid) only for new / draft contacts. The per-contact-type recency hint
-under each checkbox reads **"Last logged N ago"** and is **omitted when never logged** — a bare,
-unlabeled "never" under every unused type read as a mystery state; `ContactTypeDecorator`
-exposes `#last_logged_hint_with_cases` (nil for never) for the form while `#last_time_used_with_cases`
-still returns "never"/"N ago" for the contact-type multiselect subtext. **Notes is a fixed-topic checklist**
-(`_contact_topic_answer`): every org topic is a `border-t`-divided row of a checkbox + the topic
-question, with a full-width notes textarea revealed on check — no dropdown, no nested cards, no
-"Add another" button. The `contact-topics` controller **creates** the answer on check (POST
-`/contact_topic_answers`, storing the returned id) and **destroys** it on uncheck (a confirm if
-notes exist); the 2s autosave then only *updates* the value via that id. Because create/destroy is
-explicit, `CaseContact` rejects id-less topic-answer attrs (`reject_if: id blank`) so a slow
-autosave can't create a duplicate, and `form_controller#prepare_form` must NOT seed a blank answer
-(it would orphan a nil-topic row). Associate each checkbox's label with `for` (not by wrapping),
-or a click double-fires `change` and creates the answer twice. This replaced the old dropdown +
-per-row Delete: the dropdown was redundant against a fixed topic set, and **unchecking is a clearer
-"remove"** than a Delete button (which read as clearing the field).
-**Collapsible section padding:** a section's autosave status line goes *inside* the collapsible
-body it reports on (the Reimbursement form), so the collapsed/empty state is just heading +
-checkbox and doesn't reserve a blank `invisible` line at the bottom — that reserved line made the
-empty reimbursement card look over-padded vs the others (same `p-6`, ~40px of dead space). The
-autosave status is also toggled by **display** (`hidden` ⇄ `block`, not `invisible`/visibility), so
-an idle card reserves no line and Notes/Reimbursement match the Details card's bottom padding.
-**Nested expense rows** are separated by a **divider** (`border-t border-slate-200 py-4`); the
-fields **stack with visible labels** and are **full width** (amount, then description -- **both
-required on submit**: a positive amount + a description, enforced only once the contact is being
-submitted (`active_or_details?`) so the blank "Add another expense" row and draft autosaves are not
-blocked. An incomplete or empty row blocks submit -- fill it in or **remove** it; a blank row is
-never silently dropped (the volunteer may have just forgotten it)), with a small **"Remove" action**
-(`.remove-expense-button`, the **destructive tertiary ghost** `ghost_class(:danger)` -- slate at rest, rose on hover; the old *always*-rose read as too jarring) on the amount label's line
-(`flex justify-between`) — top-right, so it adds no extra row and doesn't narrow the fields (a side
-icon narrowed them; a bottom ghost button added a row + whitespace; a grey `bg-slate-50` box read as
-a nested card). **Space the two groups with `mt-4` on the description, NOT `space-y-4` on the row:**
-the trailing hidden `id`/`_destroy` inputs make `space-y` put a bottom margin on the description
-group, which doubled the gap down to the Add button (measured 48px). The **Add another expense**
-button then sits at the row's own `py-4` (16px, no extra `mt`) — measure it, don't eyeball.
-**Tailwind v4 `space-y-*` is zero-specificity** (`:where(& > :not(:last-child))`), so a child's own
-`m-0`/`m-*` overrides it and collapses the gap. Reset a `<fieldset>`'s default inline margin with
-`mx-0`, never `m-0`, inside a `space-y` stack -- `m-0` had silently removed the 24px gap after the
-contact-medium / duration fieldsets (measured 0px). Likewise a **card root's own `mb-*` collapses a
-card stack**: `_case_contact`'s leftover `mb-1` cut the index/drafts `space-y-4` gap from 16px to 4px
-(pixel-measured) until removed -- a card in a `space-y` list carries **no** bottom margin; the stack
-owns the gap (`.container-fluid` stays the inert spec hook, just without the margin).
-Expenses are free-form (arbitrary count), so the notes check-to-add pattern doesn't apply. The wrapper keeps
-`.nested-form-wrapper` + its data hooks. Deleting a **saved** expense goes through the design-system
-confirm dialog (new/unsaved rows remove without a prompt).
-**Case-contact form actions:** two submit buttons, not a mode checkbox — primary **Submit** (kept
-first in the DOM so Enter submits it and `click_on "Submit"` (Capybara `:smart`) still hits it)
-plus secondary **Submit & add another**, which carries `name="case_contact[metadata][create_another]"`
-so `finish_editing` reopens a fresh form for the same case(s). Since there's no per-contact show
-page, the create-another success flash gets a **trusted action link** via
-`flash[:notice_action] = {"label", "path"}` — the the app layout flash partial renders it as a `link_to`
-inside the notice (not raw HTML; the `:json` cookie serializer drops `html_safe`), pointing at
-`case_contacts_path` so the user can find what they just created. Reusable for any notice.
-**Structured mailing address:** captured as discrete parts (line 1 / line 2 / city / state / zip),
-not one free-text field. `Address` keeps `content` as the canonical composed one-line string every
-reader still uses (reimbursement table, mileage CSV, case-contact prefill): `Address.compose(...)`
-plus a `before_save` that runs only when `structured?`, so legacy content-only rows and the factory
-stay untouched. The reimbursement card reuses the same parts as five virtual attrs on `CaseContact`
-that compose into the `volunteer_address` snapshot (`compose_volunteer_address`, skipped when all
-parts are nil so the legacy single-string path — request specs, factory — still sets it directly;
-a blank submit yields `""` so the reimbursement-wanted validation still fires). Prefill the fields
-from the volunteer's structured Address (`decorate.volunteer_address_parts`) and give each a
-`volunteerAddress` Stimulus target so `clearMileage` empties them all on uncheck. Layout (all three
-structured-address forms): line 1 / line 2 full-width, then a `sm:grid-cols-6` row of city
-(`col-span-3`, ½) · state (`col-span-2`, ⅓) · ZIP (`col-span-1`, ⅙) — state wider than ZIP because
-a state name is longer; stacks full-width on mobile. Every part has a **visible label** (persistent —
-not placeholder-only, since a placeholder vanishes on input); line 2 keeps an "Apartment, suite,
-unit" placeholder hint. Miles driven sits in a **half-width** `sm:grid-cols-2` cell (aligns with the
-details section's 2-col grid rhythm rather than an arbitrary max-width). The whole
-case-contact form (details/notes/reimbursement/expenses) passes the axe (WCAG 2 A/AA) spec.
+**Replace the derived cells by id, never the table.** A derived figure must refresh with whatever
+derives it, so the response updates the Earns column -- but the cursor is in an input, and replacing
+the table takes the focus and any half-typed value with it. An element also has to *exist* to be
+replaced, so a conditional block needs an always-rendered container carrying the id.
+
+**"Derived" includes the warnings, not just the figures.** Correcting the Earns column in one commit
+while leaving both halves of a warning out of the same turbo\_stream fixed the numbers and left the
+notification still accusing. When you find one stale derivation, list every derived thing on the page
+before moving on: figures, totals, summaries, warnings, counts.
+
+**The autosave clicks a button, so mind which one.** The finalize button briefly carried
+`autosave_target: "button"`, which would have had the timer press an irreversible action on a schedule.
+Only the save button is a target.
+
+**Testing an autosave: prove the save, not the keystroke.** `click` and `send_keys` do not block, so
+reading the database straight after asserts against a request still in flight. Wait on the status
+line reaching its settled text, then assert the record. And when the correct outcome is that
+*nothing* happened there is no positive state to wait on, so a short documented `sleep` is the honest
+instrument -- verify such a test by making the thing happen and watching it fail.
+`test/system/grade_book_autosave_test.rb` is the worked example.
+
+Because the form autosaves in full it needs **no Cancel and no unsaved-changes warning**. The two
+coherent models are "everything autosaves" (Google Docs, Notion, Linear: navigation is the exit) and
+"explicit save" (GitHub, Jira: Cancel plus a `beforeunload` guard when dirty). This form is the first.
+A partially-autosaving form is neither, and is the state to avoid.
+
+**An input in a table cell is sized to its content**, not `w-full`, and **a `<th>` does not name a
+form control** -- an input inside a cell takes no accessible name from its column header, so a table
+of inputs is a table of unnamed controls. Give each an `aria-label` naming the field *and* the row,
+because the row is identified visually only.
+
 
 ### Sharing a partial with Bootstrap
 When a partial is still rendered by legacy Bootstrap pages (e.g. `shared/_court_order_list`
@@ -4070,128 +3998,77 @@ volunteers", volunteer "Your cases" and `volunteers/_notes` tables -- 6 sites, a
 by copying a neighbouring table instead of checking this section, which propagates drift rather than
 catching it: **match the pattern, not the nearest sibling.**
 
-### Tables (bespoke) + pagination
-Hand-built Tailwind (dashboard tables + cases index), not DataTables. `overflow-hidden
-rounded-2xl` card (+ `pt-2` inset -- top only; a bottom inset would stack under an in-card pagination
-footer and unbalance it, so use `pt-2`, not `py-2`, on a footered table card), full-bleed table, `thead th` = `text-xs font-semibold
-text-slate-600` — **never an `uppercase`/`tracking-wide` transform** (column headers are sentence
-case like every other label; an ALL-CAPS `text-slate-500` eyebrow header is a recurring drift — it
-had crept into the reimbursements / settings / court-date / placements / all-stocks-in-the-future tables — converge
-every `<th>` on this one token, matching what `sortable_header` emits). The `thead` itself is **unfilled** -- a `border-b border-slate-100` under the header row is the only separator, **never a `bg-slate-50` fill**, which clashes with the card's white `pt-2` inset and leaves a white strip above the grey header (a reimbursements-table drift). Header and body cells share the same `px-4 py-3` padding (so columns line up), and every `<th>`
-is `align-top` — a column whose header wraps to two lines then anchors all headers to one top line
-instead of vertically-centring the single-line neighbours (the browser `vertical-align: middle`
-default, which reads as stray space). The **`sortable_header` sort caret** must likewise pin to the
-header's *first line*: the header link is `inline-flex items-start` and the caret rides in a
-one-line-tall `h-4 items-center` box (`sort_caret`). Plain `items-center` on the link re-centres the
-caret on a *wrapped* label, so single- vs. two-line columns leave the row of carets jagged (measured:
-the caret dropped 8px on wrapped headers at 1024px; after the fix every column's caret shares one
-`svgTop` — verify by geometry, not by eye).
+### Tables
+Hand-built Tailwind, on the `.table-*` component classes in `app/assets/tailwind/tables.css`. Every
+table renders through `shared/_table_container`, which supplies the surface: `.table-wrapper` is
+`overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm` -- the same surface as
+`.tw-card`, because a table card is a panel and the radius token for a panel is `rounded-2xl`. It was
+briefly a near-duplicate that differed only in radius and shadow, which put a 12px-cornered table
+directly under four 16px-cornered cards on the portfolio page.
 
-**Body cells, action buttons, and checkboxes all top-align to the row's first line -- never the
-`vertical-align: middle` default** (which floats them centered whenever any cell in the row wraps to
-two lines -- a recurring bug). Give every body `<td>` `align-top` (bake it into the shared `td` token)
-**including the trailing actions cell**: a hardcoded action `<td>` (e.g. `px-4 py-3 text-right`) that
-omits it leaves Edit/Delete floating centered while the data top-aligns -- the cases-index "button in
-the wrong spot" bug, which had also drifted into the supervisors / stocks_in_the_future_admins / other_duties /
-org-settings / dashboard tables. A checkbox **alone** in a cell (bulk-select) gets the align-top cell
-**plus `mt-0.5`** so its 16px box sits on the adjacent column's first text line (measured: checkbox
-center == the name's first-line center, not just top==top). A checkbox **with its label in the same
-cell** instead lives in `<label class="inline-flex items-center gap-2 whitespace-nowrap">`, which
-self-aligns (no nudge) -- but keep that label **one line** (`whitespace-nowrap`): if the label text
-wraps, `items-center` centers the box across both lines and the whole control drops ~10px below the
-row's first line (the reimbursement queue "Mark complete" bug -- a checkbox-with-label cell is NOT
-auto-safe; verify it too).
-The **select-all header** is a *bare* checkbox (`aria-label` + `title` "Select all", `mt-0.5`) --
-industry standard (Gmail/GitHub/Linear); never visible column-header text, which widens the narrow
-column (put persistent bulk-action text in a toolbar above the table instead). Pixel-verify the
-checkbox/button center against the first line, not computed style. `divide-y divide-slate-50`, `hover:bg-slate-50/70`.
-Keep the `thead` even when empty and put an empty-state row in the `tbody`. Filtering /
-sort / pagination are **server-side** (params + Pagy); the filter bar is plain selects that
-submit on change (`auto-submit` controller). Pagination: render `shared/_pagination` as a **footer INSIDE the table card** (its last child) —
-compact `border-t` + `px-4` + `py-3`, "Showing X–Y of Z" left, page controls right (`nav` +
-`aria-label`, `aria-current`, `rel=prev/next`), preserving filter params — the industry-standard table
-footer. On responsive pages whose desktop table card is `hidden md:block`, ALSO render a `md:hidden`
-copy below the mobile card list (a card-list page like case-contacts renders it below the list). NOT a
-detached below-card bar (external gap + divider + padding reads as too much scroll); verified in-card,
-one visible nav, on learning-hours / reimbursements / volunteers / cases. **The card holding an
-in-card footer uses `pt-2` (top inset only), NOT `py-2`:** a bottom card inset stacks under the
-footer's `pb-3` and pushes the numbers closer to the divider than to the card edge; `pt-2` keeps the
-footer symmetric (verified 13px above == 13px below the numbers). Don't render
-decorative emoji as data (e.g. the 🦋/🐛 transition-aged icons) — use a plain label or pill.
-Verify a column's data source before carrying one forward: the legacy cases index kept
-Hearing Type / Judge columns that had rendered blank for every case since a 2023 migration
-moved that data onto court dates — drop dead columns or re-source them (the migrated index
-shows "Next court date" instead).
+`thead th` is `.table-header-cell`: `align-top px-4 py-3 text-xs font-semibold text-slate-600
+whitespace-nowrap` -- **never an `uppercase` / `tracking-wide` transform**. Column headers are
+sentence case like every other label, and hierarchy comes from size, weight and colour. The `thead`
+itself is **unfilled**: `.table-header-row`'s `border-b` is the only separator, never a `bg-slate-50`
+band. That fill was written in two places at once -- this class on the app side and an inline
+`<thead class="bg-slate-50">` on fourteen admin and teacher tables -- so it survived three sweeps
+that each fixed one of them. **When you find a token in a shared class, grep for the inline form
+too.**
 
-**Responsive:** render the full table in `hidden md:block` and a stacked-card list below `md`
-(`md:hidden`, one card per row with a `<dl>` of labeled fields). A data table never relies on
-horizontal scroll alone. When a spec asserts a table hook (e.g. `.notes .table tbody tr` on the
-volunteer edit page), keep the `<table>` in the DOM as `hidden md:block` rather than dropping it
-below `md`: rack_test ignores the `hidden` class, so the hook holds at every width while the
-`md:hidden` card twin serves phones. The exception is a density **matrix** (the contact-timing heatmap on Metrics/Analytics), which keeps
-horizontal scroll with a sticky axis column (`sticky left-0 z-10 bg-white`); stacking a 2D matrix
-into cards would destroy the visualization.
+Header and body cells share `px-4 py-3` so columns line up, and every `<th>` is `align-top`: a column
+whose header wraps to two lines otherwise anchors against neighbours the browser has vertically
+centred, which reads as stray space. Every header computed to `middle` before this was fixed.
 
-The **org-settings / checklist admin tables** (rendered inside a white section card) use a
-**compact** `md:hidden` twin — `rounded-xl border border-slate-200 p-4` cards (lighter than the
-top-level `card`): the primary column as a `font-medium text-slate-800` line, other columns in a
-`<dl>` (`flex justify-between` rows; multi-line values like Details / URL stacked with
-`whitespace-pre-line` / `break-all`), then Edit / Delete in a `border-t` footer. Keep the `<tr id>`
-and per-row `shared/_confirm_button` on the **table only** — the card omits the id (it's a `<dl>`,
-not a row) and a duplicate confirm_button is safe (each Dialog is scoped by its own
-`data-controller="modal"` wrapper, id nil, so nothing collides). A table already narrow enough to fit
-a phone with no horizontal scroll (the 2-column emancipation-checklists index, measured W360/375)
-keeps its plain table — the rule targets scroll, not tables.
+**A cell that carries its own `py-*` is a bug, not a tweak.** `tables.css` is layered, so a utility
+on the cell outspecifies `.table-body-cell` -- a class list reading `table-body-cell py-4` looks like
+the shared padding is in force and it is not. One classrooms cell sat 14px below every other column
+and made the row 69px against the app's 48px. The same applies to any wrapper inside the cell.
 
-When the container is **narrow** and each row has many fields (e.g. the volunteer assignment
-list inside the edit column), use a **card list at all widths** (one `<li>` per record: name +
-status pill on the first line, a `<dl>` of labeled meta, then the row actions) instead of
-squeezing a wide table into a narrow column.
+**Body cells top-align to the row's first line**, never the `vertical-align: middle` default, which
+floats content centred whenever any cell in the row wraps -- **including the trailing actions cell**,
+where a hand-written `<td class="px-4 py-3 text-right">` that omits `align-top` leaves Edit and Delete
+floating while the data top-aligns. Match cells on the class list rather than an exact string when
+auditing this: half the hand-written cells here read `whitespace-nowrap px-3 py-2 text-sm ...`, with
+the padding in the middle, and were missed by a search anchored at the front.
 
-**Retiring a jQuery DataTable** (cases index, volunteers index): reuse the page's `*Datatable`
-query **server-side** rather than its JSON protocol. The volunteers index maps its plain GET
-filters into the DataTables param shape and calls `VolunteerDatatable#index_relation` /
-`#index_count` (the count strips the custom `SELECT`/`ORDER` aliases AR's `COUNT` can't wrap and
-counts `DISTINCT users.id`). Crucially, **don't reuse the id `dashboard.js` targets**: it runs
-`$('table#volunteers').DataTable(...)` on DOM-ready and would re-init a server-side DataTable
-over the migrated markup (its `ajax.url` is undefined → a stray `POST` to the index). Put the
-spec's `#volunteers` hook on the table's **wrapper `<div>`**, not the `<table>`, so the legacy
-selector misses and the block no-ops (the filter handlers key off the old checkbox classes and
-no-op too). The unused JSON action + dashboard.js block are then dead (queue for cleanup).
+Money and counts are **right-aligned with `tabular-nums`** so digits line up down the column, and
+**the last column right-aligns whatever it holds** -- actions, a number or a checkbox. Every table
+satisfied that by accident because every other one ends in actions; the one that does not was the one
+that looked wrong.
 
-**Roster with bulk actions** (volunteers index): a hidden **Manage** trigger (`select-all`
-controller) reveals on selection, opens a native-dialog modal (`modal` controller) whose submit
-is gated by the `disable-form` controller. Put the row checkboxes in the **desktop table only**
-(one `data-select-all-target="checkbox"` per record, so counts/`find` stay unambiguous); bulk
-editing is a desktop tool. To hide a `button_classes` trigger, toggle **`hidden!`** (Tailwind v4
-important), not `hidden`: a plain `hidden` loses to the button's `inline-flex` in the cascade
-(the display utilities have equal specificity, so order decides and `inline-flex` wins).
+Sorting is **server-side** (`sort_link`, params). There is no pagination and no bulk select --
+see the page-rhythm note above. Keep the `thead` even when a table is empty and put an empty-state
+row in the `tbody` (`admin/shared/_empty_row` wraps `_empty_state` for this), and remember its
+`colspan` when a column is added or removed.
 
-**Expandable rows + inline row actions** (the case-contacts new-design table, the third
-bespoke-table reference). A row that reveals detail (topic answers + notes) is a **separate
-`<tbody>` per row** (valid HTML — a table may have many) wearing `data-controller="disclosure"`:
-the main `<tr>` holds the toggle (`disclosure#toggle` + a `trigger` target, a chevron that spins via
-`group-aria-[expanded=true]:rotate-180`) and a hidden detail `<tr data-disclosure-target="panel">`
-holds the `<td colspan>` panel. Give the `<table>` `border-collapse` so the per-`<tr>` `border-t`
-separators render across the multiple tbodies. **Row actions stay inline** (icon ghost buttons +
-the native Dialog:: suite for the delete confirm / set-reminder note), **never a per-row
-`<details>` dropdown**: an absolutely-positioned dropdown is clipped by the table's
-`overflow-x-auto` (which also forces `overflow-y: auto`), whereas a native `<dialog>` opens in the
-top layer and escapes the clip. Render the actions once as an `_actions` partial with `layout: :row`
-(desktop icon buttons) / `:bar` (the mobile card's labeled buttons); duplicate Dialog instances
-across the two twins are safe (each is scoped by its own `modal` controller). A row-level state
-indicator (the amber `bell-fill` "Reminder set") lives in a data cell, independent of the
-permission-gated action. The card reminder **control** ("Set reminder" -> Dialog / "Resolve reminder" -> `:secondary`, never
-filled `:success`) and the pending-follow-up **indicator** (an amber `alert_classes(:warning)` callout
-with the note + who set it + when) are **shared partials** -- `case_contacts/_reminder_control` and
-`case_contacts/_reminder_indicator` -- reused by the **case-show contact card** and the **case-contacts
-index card**, so a reminder behaves identically everywhere (do not re-inline a per-page variant or a
-SweetAlert prompt). The control renders **only for `active?` (finalized) contacts** -- a case contact stays a
-draft with a nil `stocks_in_the_future_case` until finalized, so a reminder on a draft would 500 on the redirect
-(`stocks_in_the_future_case_path(nil)`); it is gated at each card's render site. Creating or resolving one emails **both** the volunteer (the contact's creator)
-and the setter via Noticed `deliver_by :email` -> `UserMailer`, gated on `receive_email_notifications`;
-the new-design table keeps its own compact `:row`/`:bar` Dialog + bell indicator. Set/Resolve reminder and delete return via `redirect_back_or_to` /
-`redirect_to request.referer`, so the action stays on the list rather than jumping to the case page.
+Verify a column's data source before carrying one forward, and **ask whether any row can act**: a
+column of `table-no-permission` dashes is not a column. The dash means "no action on this row", which
+only says something when other rows have one; when no row does, drop the header, the cells, and one
+from the empty state's `colspan`.
+
+**Two stacked tables need one column geometry.** Separate `<table>` elements size their columns
+independently, so a wider actions column in one shifts every column relative to the other and the page
+steps sideways at the boundary. Give every column but the first an explicit width.
+
+**Responsive:** no card twin and no `md:` breakpoint -- this app has only `base` and `lg:`. Secondary
+columns are `hidden lg:table-cell`, and their values come back inside the primary cell through
+`shared/_stacked_row_fields`, which renders them as a `<dl>` of labelled lines below the row's name
+and puts the row actions beneath. One `<tr>` serves both widths, so there is no second copy to drift.
+
+Wide tables scroll horizontally inside `.table-wrapper`'s inner `overflow-x-auto` div, and the actions
+cell **pins** (`table-actions-pinned`) so it stays reachable. Two traps live here. **Measure the
+element that actually scrolls** -- `.table-wrapper` is `overflow-hidden` and can never report
+scrolling, so measuring it concludes "this table never scrolls at any width"; `closest("[class*='overflow-x']")`
+from the cell finds the real scroller. And **"present in the DOM" is not "on screen"**: the trading
+floor's Buy and Sell buttons sat at `left=370` inside a 326px-wide scroller at 375px, past the right
+edge, while `assert_selector` found them and `click_on` clicked them, because Capybara's visibility
+check knows nothing about an ancestor having scrolled an element out of view. Compare the control's
+box against the scroll container's box at 375px, and `scrollWidth` against `clientWidth`.
+
+The pinned cell's left separator is **conditional on scroll state**, not on a breakpoint: it draws
+only once `data-table-scrolled` is set, so a table that fits or has not been scrolled does not show a
+rule with nothing behind it.
+
 
 ### Charts (data viz)
 Charts are **bespoke server-rendered SVG** (no canvas, no Chart.js), built in `MetricsHelper`
