@@ -112,6 +112,27 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
     )
   end
 
+  # Switching users needs the UI, not `sign_out`.
+  #
+  # Devise's `sign_out` is `Warden::Test::Helpers#logout`, which *queues* the logout for the next
+  # request the Warden middleware handles. In a request test that is the next request you make; in a
+  # system test it is whichever request arrives first, and a queued block can also fire later and sign
+  # the previous user back in. Measured on `teacher_creates_student_test`: signing out, signing in as
+  # the student and then reading the account menu found the **teacher** there in 4 of 10 full runs.
+  # Clearing the browser cookies and calling `Warden.test_reset!` did not fix it; going through the
+  # account menu did, 10 runs out of 10.
+  #
+  # The old assertion could not see any of this, because it checked for the home page's h1 - and the
+  # teacher's home page has the same h1. The test passed while signed in as the wrong user.
+  #
+  # `sign_out` is left alone and is fine where a test only signs out: nothing after it depends on the
+  # session having ended by a particular moment.
+  def sign_out_through_the_ui
+    find("[data-testid='account-menu'] summary").click
+    click_on "Sign out"
+    assert_field "Username"
+  end
+
   def wait_until(timeout: Capybara.default_max_wait_time)
     deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + timeout
 

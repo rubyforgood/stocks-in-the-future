@@ -68,16 +68,24 @@ class TeacherCreatesStudentTest < ApplicationSystemTestCase
     assert_selector "#notice", text: "Password reset for #{username}"
     new_password = find("#notice").text.match(/New password: (\S+)/)[1]
 
-    sign_out(teacher)
-    visit new_user_session_path
+    # Through the UI, not `sign_out`: switching users is the one thing Warden's test-mode helpers
+    # cannot do reliably here. See ApplicationSystemTestCase#sign_out_through_the_ui.
+    sign_out_through_the_ui
 
     fill_in "Username", with: username
     fill_in "Password", with: new_password
     click_button "Sign in"
 
     # The password the teacher was shown is the password that works - which is the whole point of the
-    # reset, and the assertion the skip was hiding.
-    assert_selector "h1", text: "Welcome to your financial journey"
+    # reset, and the assertion the skip was hiding. Assert that we are signed in **as this student**,
+    # not that we landed on a particular page.
+    #
+    # This used to assert the home page's h1, and that couples the test to Devise's post-sign-in
+    # destination: `after_sign_in_path_for` honours a stored location, so when one had been recorded
+    # the student landed on their portfolio instead and the test failed while the password worked
+    # perfectly. The account menu names the signed-in user and renders on every signed-in page, so it
+    # asserts the claim this test actually makes.
+    assert_selector "[data-testid='account-menu']", text: student.display_name
   end
 
   test "teacher can edit student information" do

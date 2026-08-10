@@ -3234,3 +3234,32 @@ Zero skips in either suite now. None of the six was flaky, and none needed the f
 
 - **Nothing was disabled to make them pass.** The suites are 879 and 322 with zero skips.
 - **`AdminHelperTest` no longer covers `sort_link`.** `Admin::SortLinkTest` does, on real routes.
+
+## `sign_out` cannot switch users in a system test
+
+`teacher_creates_student_test`'s password-reset test signs out the teacher, signs back in as the
+student with the password the teacher was shown, and asserts the student is signed in. It failed
+about **4 runs in 10** of the full system suite, and passed 6/6 on its own.
+
+Devise's `sign_out` is `Warden::Test::Helpers#logout`, which *queues* the logout for the next request
+the Warden middleware handles. In a request test that is the next request you make. In a system test
+it is whichever request arrives first, and a queued block can also fire later and sign the previous
+user back in — the measured end state was the **teacher** in the account menu after the student had
+signed in successfully.
+
+Two attempted fixes did not work and are recorded so they are not retried: a 10-second
+`assert_field` wait (nothing was ever going to arrive), and clearing the browser cookies plus
+`Warden.test_reset!` inside a `sign_out` override (still 6 pass / 4 fail over ten runs). Going
+through the account menu fixed it: **10 runs out of 10**, then 5 more.
+
+`ApplicationSystemTestCase#sign_out_through_the_ui` is the helper. Use it whenever a test signs back
+in as somebody else. Plain `sign_out` is fine where a test only signs out, because nothing after it
+depends on the session having ended by a particular moment.
+
+### What this breaks
+
+- **Nothing.** One test switched helpers; the other ten `sign_out` call sites are unchanged, and the
+  suite is 322 runs with zero failures across fifteen consecutive full runs.
+- **The test now asserts a different thing**, and this is the point. It used to assert the home
+  page's `h1` — and the teacher's home page has the *same* `h1`, so it passed while signed in as the
+  wrong user. It asserts the account menu names the student, which is the claim the test makes.

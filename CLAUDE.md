@@ -67,6 +67,15 @@ makes it fail even when the code is clean.
 real Chromium and cover the buy/sell flow — run them for anything touching
 orders, money or the modal.
 
+**`sign_out` cannot switch users in a system test.** Devise's `sign_out` queues Warden's logout for the
+next request the middleware handles, which in a browser test is whichever request arrives first - and a
+queued block can fire later and sign the *previous* user back in. Measured: sign out the teacher, sign in
+the student, and the account menu named the **teacher** in 4 of 10 full runs. A 10s wait does not help,
+and neither does deleting the cookies plus `Warden.test_reset!`. Use `sign_out_through_the_ui`, which
+clicks the account menu. And note how it hid: the assertion was the home page's `h1`, which is the *same*
+string for a teacher, so the test passed while signed in as the wrong user. **Assert who is signed in,
+not where you landed.**
+
 **Do not run two `bin/rails test` invocations at once.** Parallel workers share ten
 numbered databases (`stocks_in_the_future_test_0` … `_9`), so a second run collides
 with the first and both fill with `PG::TRDeadlockDetected` across unrelated tests. It
