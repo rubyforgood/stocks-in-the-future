@@ -158,8 +158,10 @@ the inset. **If a control's position carries meaning, make it a real element.** 
 money into every student's portfolio and cannot be undone, and both the page and the dialog were silent
 about the amount. `EarningsCalculator` had existed for this since it was extracted - its docstring says
 so - and nothing used it. **When a preview and a payment must agree, run the same object**, do not
-reimplement. And note what `turbo_confirm` is here: a **native OS dialog** with no override in this app,
-so the string is the only thing available to improve.
+reimplement. And note what `turbo_confirm` is here: **not** the browser's dialog.
+`confirm_dialog_controller` takes over `Turbo.config.forms.confirm`, so it renders `shared/_confirm_dialog`
+- which splits the message on its **first blank line** into a question and the consequence beneath it.
+Pass one string and the body stays hidden, which is how twenty-nine confirmations came to be one-liners.
 
 **"Derived" includes the warnings, not just the figures.** I wrote the rule below, fixed the Earns
 column with it, and in the same commit left both halves of a warning out of the same turbo_stream - so
@@ -499,10 +501,21 @@ reverted: `John Doe` and `DateTime`.
 
 ## Components
 
-Build on `app/views/components/ui/`: `_card`, `_page_header`, `_badge`,
-`_empty_state`, `_data_table`, plus `_button`, `_input`, `_label`, `_checkbox`,
-`_textarea`. `admin/shared/_empty_row` wraps `_empty_state` for use inside a
-table body.
+Build on `app/views/components/ui/`: `_badge`, `_callout`, `_card`, `_data_table`,
+`_empty_state`, `_icon_tile`, `_page_header`, `_stat`. `admin/shared/_empty_row`
+wraps `_empty_state` for use inside a table body.
+
+That list used to name `_input`, `_textarea` and `_action_icon_button`, none of
+which ever existed, and `_button`, `_checkbox` and `_label`, which were shadcn
+scaffolding and are deleted. Every one of the eight is rendered at
+`/admin/component_demo`, and `component_gallery_test` fails when a partial is
+added and the gallery is not - so the list cannot go stale again.
+
+**Form fields do not come from partials.** They come from `Ui::FormBuilder`
+(`app/form_builders/ui/form_builder.rb`), which every entity form on both halves
+uses: `form_with ... builder: Ui::FormBuilder`, then `f.text_field :name,
+label: "Name", hint: "...", required: true`. It renders label, hint, input and -
+through `config/initializers/field_error_proc.rb` - the error, in that order.
 
 Partials rendered with `render layout:` must check whether the yielded content is
 present rather than calling `block_given?` — that is unreliable inside a partial
@@ -559,15 +572,16 @@ view. I then wrote a design.md rule *about* those buttons without ever rendering
 control lives in a table's trailing column, measure its box against the scroll container's box at
 375px, and check `scrollWidth` against `clientWidth`.
 
-**A class you pass can be silently overridden by the thing you pass it to.** `Shadcn::FormBuilder`
-prepends its own base to whatever `class:` it is given, so a field handed `tw-input-primary` carried
+**A class you pass can be silently overridden by the thing you pass it to.** The shadcn form builder
+prepended its own base to whatever `class:` it was given, so a field handed `tw-input-primary` carried
 both strings - and since utilities beat component classes, the shadcn ones won. Sign in and sign up
 kept a 40px `rounded-md` field while every other form moved to 44px `rounded-lg`, and the markup read
-as if it were fixed. Check the rendered element, not the argument.
+as if it were fixed. That builder is deleted and all four Devise views are on `Ui::FormBuilder`, but
+the lesson is not: check the rendered element, not the argument.
 
 **A named class with one caller drifts as surely as no class at all.** `tw-input-primary` existed for
-months with a comment describing the exact placeholder failure it fixed, while `Admin::FormBuilder`
-rendered nine forms with `placeholder:text-gray-400` at 2.54:1. Same for `.tw-btn-*` before the
+months with a comment describing the exact placeholder failure it fixed, while the admin form builder
+(`Ui::FormBuilder` now) rendered nine forms with `placeholder:text-gray-400` at 2.54:1. Same for `.tw-btn-*` before the
 button sweep. When you write a shared class, convert every caller in the same change, or it becomes
 documentation of a fix nobody got.
 
@@ -722,10 +736,10 @@ for the whole design migration - invisible to every sweep, because every sweep u
 it. It now holds nothing but a font import and a comment saying why.
 
 That last one was missing and it hid the biggest colour divergence in the app:
-`Admin::FormBuilder#submit_button` backs eleven admin forms and was `bg-blue-600`
+`Ui::FormBuilder#submit_button` (then `Admin::FormBuilder`) backs eleven admin forms and was `bg-blue-600`
 at `rounded-md px-4 py-2`, so every admin form's primary button was generic blue
 and a different size from the primary button in the page header above it.
-`Shadcn::FormBuilder#submit` delegated to the shadcn `render_button`, whose
+The shadcn builder's `submit` delegated to the shadcn `render_button`, whose
 `--primary` is a near-black navy - the sign-up button was the only off-brand
 primary in the product. **Tailwind scans `.rb`, so a button defined in Ruby
 compiles and ships exactly like one in a template.**

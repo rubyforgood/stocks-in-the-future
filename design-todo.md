@@ -171,7 +171,15 @@ with "Log in" against ten "Sign in"s. **Four of its six branches were dead** - t
 - [x] **Clickable divs** - **done**. Zero `onclick` handlers and zero `<div data-action="click...">` remain in `app/views`.
 - [x] Audit the trading modal (`shared/_modal`) for focus trap, restore, and Esc. **done**: Esc already worked; trap and restore were both absent and are now implemented in `modal_controller.js`.
 - [x] **Primitives** - **done**. `components/ui/` holds eleven: `_card`, `_page_header`, `_badge`, `_empty_state`, `_data_table`, `_stat`, `_callout`, `_icon_tile`, `_button`, `_input`, `_label`, `_checkbox`, `_textarea`.
-- [ ] Reconcile `design.md` with this codebase (see blockers in design-instructions.md).
+- [ ] Reconcile `design.md` with this codebase (see blockers in design-instructions.md). **Partly done.**
+      The *code names* are reconciled: `design.md` and `CLAUDE.md` no longer refer to
+      `Admin::FormBuilder`, `Shadcn::FormBuilder`, `.tw-field-error`, `components/ui/_button`,
+      `_checkbox`, `_label`, `_input` or `_textarea`, none of which exist, and `CLAUDE.md` no longer
+      claims `turbo_confirm` is a native OS dialog. What remains is the **CASA content**: about 130 of
+      5,350 lines still illustrate rules with court orders, case contacts and supervisors, mostly under
+      `## Components`. Those rules are sound; it is the examples that are from another product, so the
+      work is to rewrite them in this app's domain rather than to delete them - a rule with no example
+      is a rule nobody applies.
 - [x] **Untrack the `.DS_Store` files** - **done**; `git ls-files` finds none.
 
 ## Deferred / noted

@@ -580,7 +580,9 @@ a second screen inside the same modal, easy to miss - and the import dialog.
 ### Form fields: one shape, one class
 
 Every field in the app is `tw-input-primary` with a `tw-label-primary` label, `tw-input-error` when
-invalid, and `tw-field-error` / `tw-field-hint` for the messages around it. Measured across the auth
+invalid, `tw-field-hint` for the hint above it, and `FormErrorsHelper#field_error_message` for the
+message below - a component with an icon in it, not a class. (`.tw-field-error` was that class; it was a
+second definition of the message, red text with no icon, and it is gone.) Measured across the auth
 pages, four admin forms, the grade book and the teacher forms: **1px border, 8px radius, 14px text,
 44px tall, slate-300** - the only variation being a textarea's height, which is rows.
 
@@ -588,7 +590,7 @@ There were **seven** treatments before, for one control:
 
 | Where | What |
 |---|---|
-| `Admin::FormBuilder` (9 forms) | `rounded-md`, border faked with `ring-1 ring-inset ring-gray-300`, `focus:ring-blue-600`, an `sm:` tier, **`placeholder:text-gray-400` at 2.54:1** |
+| `Admin::FormBuilder` (9 forms; `Ui::FormBuilder` now) | `rounded-md`, border faked with `ring-1 ring-inset ring-gray-300`, `focus:ring-blue-600`, an `sm:` tier, **`placeholder:text-gray-400` at 2.54:1** |
 | `grade_books/_grade_entry` | `rounded-md shadow-sm focus:border-indigo-500` |
 | `students/new`, `students/edit` | `mt-1 shadow-xs border-slate-300 rounded-md` |
 | `admin/shared/_search_filter` | two variants of `rounded-md border-0 ring-1 ring-inset` |
@@ -600,12 +602,13 @@ There were **seven** treatments before, for one control:
 failure survived: the class that fixed it existed, and its own comment said so, and the builder that
 rendered nine forms never adopted it.
 
-**Passing a class to a builder that prepends its own does nothing, and looks like it worked.**
-`Shadcn::FormBuilder` prepends a shadcn base (`h-10 rounded-md border-input`, ring focus). Given
+**Passing a class to a builder that prepends its own does nothing, and looks like it worked.** The
+shadcn form builder prepended its own base (`h-10 rounded-md border-input`, ring focus). Given
 `tw-input-primary` too, the field carried both - and **utilities beat component classes**, so the
 shadcn ones won. Sign in and sign up, the two pages every user meets first, kept a 40px `rounded-md`
-field while every other form moved. Its field methods render plain Rails fields on the token now,
-which is the same fix its `submit` needed for the same reason. **Check the rendered element, not the
+field while every other form moved. That builder and its helper are deleted; the four Devise views are
+on `Ui::FormBuilder` like everything else, and all of them measure 44px at an 8px radius.
+**Check the rendered element, not the
 argument you passed.**
 
 ### A balance is a numeral on a plain surface, not a tinted panel with an illustration
@@ -1765,8 +1768,8 @@ one block with the actions beside it, `items-start` so the action stays level wi
 **A warning gets a summary and a note in place**, which is this app's own form-error shape. An entry
 claiming the perfect-attendance bonus with no days recorded is incoherent whatever the quarter's length,
 so it can be flagged without the school-days figure the app does not store - and it is not hypothetical,
-the seeds contain one. Amber, not `tw-field-error`: that token is red and this is something to check, not
-a failure.
+the seeds contain one. Amber, not the red of a validation message: this is something to check before
+finalizing, not a failure.
 
 `grade_book_page_test.rb` measures the surface, the keyboard region, the input widths, the segmented
 control, the status, the action alignment and position, the primary count, the chevron inset, the
@@ -2112,7 +2115,7 @@ press Finalize inside that window, and pay the previous one, with nothing on the
 
   The same rule applies to any `aria-live` region: assigning the same string still replaces the text node,
   so it re-announces. Compare before writing.
-- **The section's heading is its button's words.** This read "Then finalize the quarter" while the button
+- **The section's heading is its button's words** - "Finalize grades". It read "Then finalize the quarter" while the button
   said "Finalize grades" - two names for one action, and "Then" opens a heading with a sentence fragment.
   A heading is a label, not a step in a sentence; the sequence lives in the line under the consequence,
   which is where it was already doing the work.
@@ -2245,7 +2248,7 @@ resolved into the association on validation, and the validation is on them. Thre
 
 ### One field-level message, from one place
 **A field shows one message.** Every invalid admin field showed **two**: "Name can't be blank" from
-`config/initializers/field_error_proc.rb` and "can't be blank" from `Admin::FormBuilder`'s own
+`config/initializers/field_error_proc.rb` and "can't be blank" from the form builder's own
 `error_message`, in different colours, each with its own icon. The builder's is gone; the proc's is kept,
 because it carries the attribute's name - so the field and the summary say the same thing - and because
 it is the component the other half of the app uses.
@@ -2263,7 +2266,7 @@ summary listed "School year must exist" and "School year can't be blank" for one
 
 **Every form has an error summary.** Nine admin forms had none: a failed submit marked the fields and
 said nothing at the top, so on a long form the reader had to hunt. `shared/_form_errors` is on all of
-them now, which also retired `Admin::FormBuilder#base_errors` - a second list of the same errors.
+them now, which also retired the builder's `base_errors` - a second list of the same errors.
 
 ### Environment banner
 **A destination that is not part of the product says so on the page, in a sentence - never by
@@ -2836,7 +2839,7 @@ email" - a page teaching the drift that everything else had just been cleaned of
 classes now.
 
 **The shadcn button helper is deleted.** `Components::ButtonHelper#render_button` had no callers
-left once `Shadcn::FormBuilder#submit` stopped delegating to it, and it was a second button system
+left once the shadcn builder's `submit` stopped delegating to it, and it was a second button system
 with its own tokens - its `--primary` being the near-black navy that made the sign-up button the one
 off-brand primary in the product.
 
@@ -2848,7 +2851,7 @@ Buttons section names explicitly:
 
 - **`admin/students#edit`** stacked "Update student" with a second card's "Add transaction". That is
   the sub-form case: an inline submit inside a management card is `:secondary`, never `:primary`.
-  `Admin::FormBuilder#submit_button` takes `variant: :secondary` for it.
+  `Ui::FormBuilder#submit_button` takes `variant: :secondary` for it.
 - **`portfolios#show`** rendered a filled "Trade" in **every holdings row** - a per-row filled CTA,
   exactly what the row-action rule exists to prevent, in a table the earlier ghost sweep missed. It
   is `ghost_action_link` with an `arrow-up-down` icon now, and a non-student viewer gets the
