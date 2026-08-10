@@ -40,6 +40,19 @@ class GradeEntry < ApplicationRecord
   # stored flag still decides, so nothing that has already been graded changes meaning and no grade book
   # stops working while the number is being filled in.
   def perfect_attendance?
+    # **A completed grade book keeps the answer it was paid on.**
+    #
+    # Its inputs are locked - the fields are disabled and the controller refuses the write - so before
+    # this derivation existed, the figures a completed book displayed always equalled the deposits in the
+    # ledger. `quarters.school_days` lives *outside* the grade book and an admin can change it at any
+    # time, so without this an edit to a school year would silently move the earnings shown on books paid
+    # months ago while the money stayed where it was. A page disagreeing with the ledger is worse than
+    # either number being wrong on its own.
+    #
+    # `is_perfect_attendance` is what was paid on, because `DistributeEarnings` freezes the derived
+    # answer into it inside the same transaction that deposits.
+    return is_perfect_attendance if grade_book&.completed?
+
     days = school_days
     return is_perfect_attendance if days.blank?
 

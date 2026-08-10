@@ -2050,6 +2050,24 @@ still decides. So nothing already graded changes meaning and no grade book stops
 is collected. The figure is entered on the school-year form - four numbers once, rather than four
 questions per student per quarter.
 
+**A finalized grade book never re-derives, and finalizing writes down what it paid on.** This is the part
+that makes a derived figure safe to introduce at all, and it is a general rule, not a detail of
+attendance:
+
+> **When a figure is displayed live but paid once, anything the calculation reads must be frozen at the
+> moment of payment - or the page and the ledger will disagree the first time somebody edits it.**
+
+A completed grade book locks its own inputs, so before this every input to its earnings was immutable and
+the live recalculation always matched the deposits. `school_days` lives on the **quarter**, outside the
+book, and an admin can change it at any time - so an edit to a school year would have moved the figures
+shown on books paid months ago while the money stayed where it was. `DistributeEarnings` writes the
+derived answer into `is_perfect_attendance` inside the same transaction as the deposits, and
+`GradeEntry#perfect_attendance?` reads that column once the book is completed.
+
+Pinned in `distribute_earnings_characterisation_test`, including the case that finds it: finalize, then
+change the quarter's school days, and assert the ledger and the displayed figure both hold. Verified by
+removing the guard and watching it fail.
+
 ### An environment ribbon, on staging only
 **A strip above the header, never in the content**, because it describes the application and not the page
 - GitLab's environment ribbon and Shopify's development-store banner sit in the chrome for the same

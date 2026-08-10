@@ -197,4 +197,72 @@ class DistributeEarningsCharacterisationTest < ActiveSupport::TestCase
     assert_equal 200, transactions.find_by!(reason: :reading_earnings).amount_cents
     assert grade_book.reload.completed?
   end
+
+  # **A completed grade book's figures never move again.**
+  #
+  # Its inputs are locked, so before perfect attendance was derived, what the page showed always equalled
+  # what the ledger held. `quarters.school_days` lives outside the grade book and an admin can change it
+  # at any time - so this pins the guarantee that keeps the page and the money in agreement.
+  test "changing a quarter's school days does not move a finalized book's earnings" do
+    classroom = create(:classroom)
+    student = create(:student, :with_portfolio, classroom:)
+    book = classroom.grade_books.first
+    book.quarter.update!(school_days: 45)
+    entry = create(
+      :grade_entry, grade_book: book, user: student,
+                    attendance_days: 45, is_perfect_attendance: false
+    )
+
+    book.verified!
+    DistributeEarnings.execute(book)
+    paid = student.portfolio.reload.portfolio_transactions.sum(:amount_cents)
+
+    # The derivation earned the bonus, and finalizing wrote that answer down.
+    assert_predicate entry.reload, :is_perfect_attendance
+    assert_equal GradeEntry::EARNINGS_FOR_PERFECT_ATTENDANCE,
+                 entry.attendance_perfect_earnings
+
+    # Now somebody corrects the quarter. The ledger cannot change, and neither can the figure shown.
+    book.quarter.update!(school_days: 90)
+
+    assert_predicate entry.reload, :perfect_attendance?
+    assert_equal GradeEntry::EARNINGS_FOR_PERFECT_ATTENDANCE, entry.attendance_perfect_earnings
+    assert_equal paid, student.portfolio.reload.portfolio_transactions.sum(:amount_cents)
+  end
+
+  test "finalizing writes down the answer it paid on, including a bonus it withdrew" do
+    classroom = create(:classroom)
+    student = create(:student, :with_portfolio, classroom:)
+    book = classroom.grade_books.first
+    book.quarter.update!(school_days: 45)
+    # The shape the seeds contained: flagged perfect, three days attended.
+    entry = create(
+      :grade_entry, grade_book: book, user: student,
+                    attendance_days: 3, is_perfect_attendance: true
+    )
+
+    book.verified!
+    DistributeEarnings.execute(book)
+
+    assert_not entry.reload.is_perfect_attendance,
+               "the book was finalized without the bonus, so the column has to say so"
+    assert_equal 0, entry.attendance_perfect_earnings
+  end
+
+  test "a draft book still derives, so a corrected school-day count takes effect before payment" do
+    classroom = create(:classroom)
+    student = create(:student, :with_portfolio, classroom:)
+    book = classroom.grade_books.first
+    book.quarter.update!(school_days: 45)
+    entry = create(
+      :grade_entry, grade_book: book, user: student,
+                    attendance_days: 40, is_perfect_attendance: true
+    )
+
+    assert_not_predicate entry, :perfect_attendance?
+
+    book.quarter.update!(school_days: 40)
+
+    assert_predicate entry.reload, :perfect_attendance?
+  end
 end

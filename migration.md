@@ -3088,9 +3088,12 @@ the admin forms read better.
 - **Anything reading `is_perfect_attendance` directly.** The column is still written by the control where
   a quarter has no `school_days`, but the *answer* is `perfect_attendance?`. Four call sites moved; a
   fifth would silently disagree with the money.
-- **Money changes for any entry whose flag and day count disagree, once its quarter has a figure.** That
-  is the point, and both paths are pinned as literals in `grade_entry_test`. Nothing changes until a
-  `school_days` is entered.
+- **Money changes for any entry whose flag and day count disagree, once its quarter has a figure** - but
+  only on a grade book that has **not** been finalized. A completed book reads the stored flag, and
+  `DistributeEarnings` freezes the derived answer into that column in the same transaction as the
+  deposits, so what a finalized page shows is what was paid whatever `school_days` becomes later. Without
+  that, editing a school year would have moved the earnings displayed on books paid months ago while the
+  ledger stayed put. Both paths are pinned as literals.
 - **`ClassroomFacade#stats[:total_portfolio_value]` no longer exists.**
 - **Anything asserting the archived disclosure**, or two tables on the trading floor for a reader who
   holds nothing. Four tests moved.
