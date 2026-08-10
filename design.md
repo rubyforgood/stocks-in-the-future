@@ -1957,6 +1957,22 @@ rows is twenty-five copies of the denominator.
 It reads "Held by shows how many of your students own each one" for a teacher and "...how many students
 own each one, across every classroom" for an admin.
 
+**A UI label inside prose is set off from it.** Unmarked, "Held by shows how many..." is read as a
+preposition and then re-read as a label - a stumble on every visit. Microsoft's and Google's style guides
+both say to bold the name of a UI element in running text; this is the first place in the app that names
+one, so it is the convention here now:
+
+- **`tag.b`, never `<strong>`.** The HTML spec reserves strong for *importance*, which a screen reader
+  stresses; `b` is for "stylistically offset" text, and its own examples are product names and keywords.
+  A UI label is exactly that, and assistive tech needs no help here anyway - the label is a real `<th>`
+  on the column it names.
+- **`font-medium text-slate-700`, not bold.** This is `text-sm text-slate-600` helper text and a full
+  bold shouts in it. One step of weight and one of colour offsets the label and nothing more. Measured:
+  weight 500 against the prose's 400, and 10.36:1 on the page.
+- **No colon after it.** The weight already marks the label, and a colon turns the clause into a glossary
+  entry - "Held by: how many of your students own each one" - which is right for a list of definitions
+  and wrong as the tail of a sentence. Use one signal.
+
 **A count on one page must be the count on another.** The denominator was students *with a portfolio*,
 which disagreed with the roster a teacher would check it against: `Classroom#students` is scoped
 `-> { kept }`, so a discarded student is off the roster and their portfolio was still in this figure -

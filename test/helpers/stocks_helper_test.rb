@@ -16,21 +16,36 @@ class StocksHelperTest < ActionView::TestCase
   test "a teacher is addressed as someone who cannot buy, and told whose figure it is" do
     note = active_stocks_description(build(:teacher), students: 25)
 
-    assert_match(/Companies your students can buy shares in right now\./, note)
-    assert_match(/Held by shows how many of your students own each one\./, note)
+    assert_equal "Companies your students can buy shares in right now. Held by shows how many of " \
+                 "your students own each one.",
+                 strip_tags(note)
   end
 
   test "an admin is told the figure spans every classroom" do
     note = active_stocks_description(build(:admin), students: 40)
 
-    assert_match(/Held by shows how many students own each one, across every classroom\./, note)
+    assert_equal "Companies your students can buy shares in right now. Held by shows how many " \
+                 "students own each one, across every classroom.",
+                 strip_tags(note)
+  end
+
+  test "the column's name is set off from the prose, and marked as offset rather than important" do
+    note = active_stocks_description(build(:teacher), students: 25)
+
+    assert_predicate note, :html_safe?
+    assert_includes note, "<b class=\"font-medium text-slate-700\">Held by</b>"
+    # <strong> means importance and is announced; <b> is stylistically offset text, which a UI label is.
+    assert_not_includes note, "<strong"
   end
 
   test "the sentence carries no counts, so it cannot read wrongly at one" do
     [1, 2, 40].each do |n|
-      note = active_stocks_description(build(:teacher), students: n)
+      note = strip_tags(active_stocks_description(build(:teacher), students: n))
 
-      assert_no_match(/\d/, note, "the scope sentence states a number, which has to be pluralised")
+      assert_no_match(
+        /\d/, note,
+        "the scope sentence states a number, which then has to read correctly at one"
+      )
     end
   end
 

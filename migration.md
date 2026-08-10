@@ -2947,5 +2947,8 @@ could measure, and two pages it could not.
   "...how many students own each one, across every classroom" for an admin. `held_by_scope_note` takes
   only the user now, and `active_stocks_description` takes `students:` solely to decide whether the
   sentence appears at all.
+- **The scope sentence returns a `SafeBuffer`, not a `String`.** It sets the column's name off from the
+  prose with `tag.b`, so `active_stocks_description` is composed with `safe_join`. Any caller that
+  escapes it by hand, or matches it with a plain-string regex, needs `strip_tags` - the helper test does.
 - **`ApplicationHelper#shares_label`** is new: `share_count` plus an agreeing noun. Anything rendering
   "#{share_count(n)} shares" was printing "1 shares" for a single share.
