@@ -23,18 +23,28 @@
 
 <% subject = local_assigns.fetch(:subject, record.class.model_name.human.downcase) %>
 
+<%# The leading icon is the app's alert shape, matching `components/ui/_callout`: a bare tone-coloured glyph
+    at `mt-0.5 size-5 shrink-0`, never an icon tile. It was missing here and from the field-level messages,
+    which left both looking like helper text - reported that way.
+
+    red-700 on this panel's red-50 measures 5.87:1. The field-level icon is red-600 on white at 4.77:1,
+    matching the invalid field's own border rather than this panel's darker ink. %>
 <div id="error_explanation"
-     class="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-red-700"
+     class="flex items-start gap-2.5 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-red-700"
      role="alert"
      tabindex="-1"
      data-testid="form-errors">
-  <p class="text-sm font-semibold">
-    <%= pluralize(record.errors.count, "error") %> stopped this <%= subject %> being saved
-  </p>
+  <%= lucide_icon "circle-alert", class: "mt-0.5 size-5 shrink-0 text-red-700" %>
 
-  <ul class="mt-1 list-disc space-y-0.5 pl-5 text-sm">
-    <% record.errors.each do |error| %>
-      <li><%= error.full_message %></li>
-    <% end %>
-  </ul>
+  <div class="min-w-0">
+    <p class="text-sm font-semibold">
+      <%= pluralize(record.errors.count, "error") %> stopped this <%= subject %> being saved
+    </p>
+
+    <ul class="mt-1 list-disc space-y-0.5 pl-5 text-sm">
+      <% record.errors.each do |error| %>
+        <li><%= error.full_message %></li>
+      <% end %>
+    </ul>
+  </div>
 </div>

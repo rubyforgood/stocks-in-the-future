@@ -571,6 +571,16 @@ rendered nine forms with `placeholder:text-gray-400` at 2.54:1. Same for `.tw-bt
 button sweep. When you write a shared class, convert every caller in the same change, or it becomes
 documentation of a fix nobody got.
 
+**`ActionController::Base.helpers` does not have the app's helpers.** It carries Rails' own - `tag`,
+`lucide_icon` from the gem's railtie - so a call through it *looks* fine until it reaches an app helper, and
+then raises NoMethodError at render time. `ApplicationController.helpers` has both. This bit inside
+`field_error_proc`, where the consequence was a 500 on every invalid form submit.
+
+**And a new initializer needs a boot, which is how that shipped.** Code reloading covers `app/`, not
+`config/initializers/`, so the running server kept executing the previous version of the proc and reported
+success on the very thing I had just changed. Twice now. If a change to an initializer appears to have done
+nothing - or appears to have worked - restart before believing either.
+
 **Reading a transitioned property in the same instant as the state change measures the value it is
 leaving.** `.tw-btn-*` transitions `outline-color`, so a computed read taken immediately after Tab returns
 the *interpolated start* - `currentColor`, which is white on a filled primary. I measured the app's main

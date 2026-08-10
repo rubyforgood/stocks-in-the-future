@@ -1420,6 +1420,29 @@ fields were a `grid grid-cols-6` with `col-span-6 lg:col-span-4` - a twelve-colu
 which at `lg` made the inputs two thirds of a container already capped at 672px. One field per row in a
 `space-y-5` stack is what GOV.UK, Polaris and Tailwind UI use for a short form.
 
+**A validation message carries a red icon before it, or it reads as helper text.** Reported as the message
+being "simply grey text", which is exactly what it was: slate under a field with no mark on it, which is the
+shape of advice rather than of an error. `FormErrorsHelper#field_error_message` is the one definition, used by
+the field-level proc, by a group's message and matched by the summary - the markup had even been carrying
+`flex items-start gap-1.5`, which is the fingerprint of an icon the container was built for and that was never
+added.
+
+It matters past recognition: the input's border, the icon and the words are three channels, and a reader who
+cannot see the border has only the last two. **red, not rose.** The inherited text in the Validation section
+says rose, which is this app's *destructive-action* family - `.tw-btn-danger`, the confirm dialog's accept.
+Validation here is red: `.tw-input-error` is `border-red-600` with a `focus:outline-red-700`, and the summary
+is red-50 / red-200 / red-700. Using rose would put a second error hue in the product. Measured: the field
+icon is red-600 on white at **4.77:1**, matching the invalid field's own border; the summary's is red-700 on
+its red-50 at **5.87:1**, matching its own ink. Both clear 1.4.11's 3:1 for a non-text mark and the 4.5:1 text
+threshold as well. `circle-alert`, `size-4` at a field and `size-5` in the summary, which is the callout's
+shape.
+
+**`ApplicationController.helpers`, never `ActionController::Base.helpers`, when an initializer reaches an app
+helper.** The base proxy carries Rails' own helpers and none of the app's, so the call raised NoMethodError at
+render time - a **500 on every invalid submit**, not a missing icon. And nothing showed it until the server was
+restarted, because a new initializer is not picked up by code reloading: the running process was still
+executing the previous, iconless proc and reporting success.
+
 **Validation errors appear when the user clicks save, and this app now implements the pattern the
 Validation section specifies.** It did not, and could not: every required input carried `required` and no
 form set `noValidate`, so the browser's native bubble fired first and blocked the submit. The server never

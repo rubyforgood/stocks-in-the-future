@@ -15,15 +15,40 @@ module FormErrorsHelper
     { "aria-invalid" => "true", "aria-describedby" => field_error_id(record, attribute) }
   end
 
-  # The message, under the group. Same shape as the one the proc generates - the full message, so the
-  # field and the summary read the same - with the id `field_error_attrs` points at.
+  # The message, under the group, with the id `field_error_attrs` points at.
   def field_error(record, attribute)
     messages = record.errors.full_messages_for(attribute)
     return if messages.empty?
 
-    tag.p messages.join(", ").delete_suffix("."),
-          id: field_error_id(record, attribute),
-          class: "mt-2 text-sm text-slate-700"
+    field_error_message(
+      messages.join(", ").delete_suffix("."),
+      id: field_error_id(record, attribute),
+      margin: "mt-2"
+    )
+  end
+
+  # **One definition of what a field-level validation message looks like**, called from here for a group and
+  # from `config/initializers/field_error_proc.rb` for every text-like control. Two definitions of one thing
+  # is how the field and the group would come to disagree.
+  #
+  # **The icon is the point.** Without it the message is grey text under a field, which is what helper text
+  # looks like - reported as exactly that. design.md's Validation section calls for a leading icon on a
+  # field-level message, and it is also what stops the error being carried by the input's border colour alone
+  # (WCAG 1.4.1): the border, the icon and the words are three channels, and only the last two survive a
+  # reader who cannot see the first.
+  #
+  # **red, not rose.** The inherited text in design.md says rose, which is this app's *destructive-action*
+  # family - `.tw-btn-danger`, the confirm dialog's accept. Validation here is red: `.tw-input-error` is
+  # `border-red-600` with a `focus:outline-red-700`, and `shared/_form_errors` is red-50 / red-200 / red-700.
+  # Using rose would put a second error hue in the product. red-600 matches the invalid field's own border,
+  # and measured on white it is 4.77:1 - past AA for text and well past 1.4.11's 3:1 for a non-text mark.
+  #
+  # `aria-hidden` comes from `lucide_icon` by default, which is right: the words carry the meaning and the
+  # message is already tied to the control by `aria-describedby`.
+  def field_error_message(text, id: nil, margin: "mt-1")
+    tag.p id: id, class: "#{margin} flex items-start gap-1.5 text-sm text-slate-700" do
+      safe_join([lucide_icon("circle-alert", class: "mt-0.5 size-4 shrink-0 text-red-600"), tag.span(text)])
+    end
   end
 
   private

@@ -21,7 +21,7 @@ ActiveSupport.on_load(:action_view) do
     # proc replaces that too. It is kept: the class is a marker the suite already selects on - a test
     # asserting `.field_with_errors` containing "Username" is matching the wrapped *label* - and dropping
     # it turned that test red for a reason that had nothing to do with what it was testing.
-    wrap = ->(content) { ActionController::Base.helpers.tag.div(content, class: "field_with_errors") }
+    wrap = ->(content) { ApplicationController.helpers.tag.div(content, class: "field_with_errors") }
 
     skip = node.nil? ||
            node.name == "label" ||
@@ -47,12 +47,16 @@ ActiveSupport.on_load(:action_view) do
       node["class"] = node["class"].to_s.sub("tw-input-primary", "tw-input-error")
       node["class"] = "#{node['class']} tw-input-error".strip unless node["class"].include?("tw-input-error")
 
+      # `FormErrorsHelper#field_error_message`, so a per-field message and a group's message are the same
+      # thing. This used to build its own `tag.p` with `flex items-start gap-1.5` and no icon in it - the gap
+      # was the fingerprint of an icon I had made room for and never added, and the result was grey text
+      # under a field, which is what helper text looks like.
+      #
+      # **`ApplicationController.helpers`, not `ActionController::Base.helpers`.** The base proxy carries
+      # Rails' own helpers and none of the app's, so a call to an app helper through it raises NoMethodError
+      # at render time - which is a 500 on every invalid submit, not a missing icon.
       message = Nokogiri::HTML5.fragment(
-        ActionController::Base.helpers.tag.p(
-          text,
-          id: message_id,
-          class: "mt-1 flex items-start gap-1.5 text-sm text-slate-700"
-        )
+        ApplicationController.helpers.field_error_message(text, id: message_id)
       )
 
       wrap.call((fragment.to_html + message.to_html).html_safe) # rubocop:disable Rails/OutputSafety
