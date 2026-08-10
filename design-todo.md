@@ -171,7 +171,23 @@ with "Log in" against ten "Sign in"s. **Four of its six branches were dead** - t
 - [x] **Clickable divs** - **done**. Zero `onclick` handlers and zero `<div data-action="click...">` remain in `app/views`.
 - [x] Audit the trading modal (`shared/_modal`) for focus trap, restore, and Esc. **done**: Esc already worked; trap and restore were both absent and are now implemented in `modal_controller.js`.
 - [x] **Primitives** - **done**. `components/ui/` holds eleven: `_card`, `_page_header`, `_badge`, `_empty_state`, `_data_table`, `_stat`, `_callout`, `_icon_tile`, `_button`, `_input`, `_label`, `_checkbox`, `_textarea`.
-- [ ] Reconcile `design.md` with this codebase (see blockers in design-instructions.md). **Partly done.**
+- [ ] Reconcile `design.md` with this codebase (see blockers in design-instructions.md). **Partly done,
+      in three passes so far.**
+
+      **Pass 3 (this one) did the foundations and every copyable snippet.** The palette table named a
+      `brand-*` indigo scale that this app does not define - anything written against it renders no
+      colour - and it is the real `sitf-*` tokens with their measured contrast now. The five class lists
+      a reader could have copied (two field snippets, the primary button variant, a tag, two nav link
+      states) name real tokens. About twelve `brand-*` mentions remain in *prose* in sections not yet
+      touched, and the palette section now states the mapping for them.
+
+      **What is left is the CASA nouns in examples**, roughly 200 lines across Buttons, Accessibility,
+      Filter bar, Tables, Alerts, App shell, Key patterns and Modal. **Do not run a find-and-replace**:
+      it was tried and reverted, because it converts CASA's history into false claims about this app
+      ("`classrooms#edit` was a white card with a rose outline", a `classrooms/_month_year_select` that
+      does not exist) - which is worse than an obviously foreign noun, and is what produced the
+      `stocks_in_the_future_cases` identifiers in the first place. Each passage needs the rule kept and
+      the example either dropped or replaced with one verified to exist here.
       The *code names* are reconciled: `design.md` and `CLAUDE.md` no longer refer to
       `Admin::FormBuilder`, `Shadcn::FormBuilder`, `.tw-field-error`, `components/ui/_button`,
       `_checkbox`, `_label`, `_input` or `_textarea`, none of which exist, and `CLAUDE.md` no longer

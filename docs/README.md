@@ -17,6 +17,7 @@ app is built and evolves.
 - [Schema](schema.md)
 - [Orders And Transactions](orders-and-transactions.md)
 - [GradeBook Earnings](gradebook-earnings.md)
+- [Type-ahead and multiselect](type-ahead-and-multiselect.md) — not implemented, and what to keep
 - [Old site](old-site/README.md)
 
 ---

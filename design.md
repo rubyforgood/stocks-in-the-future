@@ -10,7 +10,17 @@
 > **CASA** project (`rubyforgood/casa`) and was adapted for Stocks in the Future.
 > Credit to that team. Sections describing CASA's own domain — volunteers,
 > supervisors, court dates, placements, chapters — and its Bootstrap migration do
-> **not** apply here and are being replaced as each area is reconciled.
+> **not** apply here.
+>
+> Reconciliation is partial and deliberate. The three sections specifying controls this app has no
+> equivalent of (TomSelect multiselect, searchable single-select, the twenty-control type-ahead audit)
+> are **deleted**, with their transferable rules kept in
+> [`docs/type-ahead-and-multiselect.md`](docs/type-ahead-and-multiselect.md). Elsewhere, a CASA noun in
+> an example is being replaced as each area is touched — but **only by an example that exists here**.
+> A mechanical find-and-replace was tried and reverted: it turned CASA's history into false claims about
+> this app (`classrooms#edit was a white card with a rose outline`, a `classrooms/_month_year_select`
+> that does not exist), which is worse than an obviously foreign noun. It is also what produced the
+> `stocks_in_the_future_cases` identifiers still visible in a few places.
 
 ## Status & approach
 
@@ -62,9 +72,10 @@ glanceable strings. Anything the user actually *reads or transcribes* — an ema
 person's name, a note — stays at `text-sm`, even inside a dense row. WCAG sets **no** minimum font
 size, so 12px `slate-500` is not a conformance failure (4.77:1, passes 1.4.3 at any size); this is a
 legibility floor, and it is where the major systems put theirs (Material reserves 12px for
-captions/labels, Polaris uses `bodySm` sparingly, GOV.UK warns off anything under 16px). Reported as
-"the volunteer email font looks too small … very difficult to read" one turn after an email was
-shrunk from `text-sm` to `text-xs`.
+captions/labels, Polaris uses `bodySm` sparingly, GOV.UK warns off anything under 16px). Reported, on the app this document came from, as "the email font looks too small … very difficult to
+read" one turn after an email was shrunk from `text-sm` to `text-xs`. The same shape exists here: the
+teacher picker on the classroom form puts a name over an email, and the email is what tells two
+teachers apart.
 
 **Fewer type sizes is not the goal — one treatment per role is.** Shrinking *content* to dedupe sizes
 trades a real problem (a control that read as metadata) for a worse one (content nobody can read). When
@@ -80,15 +91,20 @@ Volunteer Progress" and never the shouty all-caps "TRACK…".
 labels, buttons and `<th>`s in `app/views` came back nearly clean while these were still Title
 Case, because copy lives in five places a view grep misses: **`content_for :page_title`**,
 **decorators** (`"Reimbursement Complete"`, `"Send CC to Supervisor and Admin"`), **`config/locales`**
-(`activerecord.attributes` names, Devise mail subjects), **mailer subjects**, and **app-shipped seed
-data** (`PatchNoteType` names). Two more traps: text inside a `link_to ... do` block is on its own
-line, so a `link_to "..."` pattern never sees it, and a Title Case string can be *correct* — `SID`,
-`ZIP`, "Ansell Casey Assessment", an org's own name, and "Please" starting a second sentence all
-tripped the scan. Renaming shipped seed names needs an **after_party task** as well (seeds
-`first_or_create` by name, so an existing database keeps the old row and a reseed adds a second one) —
-`20260731000000_sentence_case_patch_note_types` follows `20260721000000_sentence_case_default_contact_types`.
+(`activerecord.attributes` names, Devise mail subjects) and **mailer subjects**. Two more traps: text
+inside a `link_to ... do` block is on its own line, so a `link_to "..."` pattern never sees it, and a
+Title Case string can be *correct* — a ticker, a company name ("Coca-Cola"), an industry classification
+("Consumer Electronics"), a CamelCase class name, and "Please" starting a second sentence all tripped
+the scan here.
+
+**Renaming a shipped seed name needs a data task as well**, wherever this app grows one: seeds
+`first_or_create` by name, so an existing database keeps the old row and a reseed adds a second. Nothing
+in `db/seeds/` is user-visible copy today, so there is nothing to rename — the trap is recorded for when
+there is.
+
 Leave **CSV export headers** alone: they come from `titleize` on column symbols and are interchange
-labels, not UI copy. Do **not** apply the
+labels, not UI copy — the student importer's `classroom_id`, `username`, `name` are the format, not a
+label. Do **not** apply the
 `uppercase` CSS transform to labels; use size, weight and colour for hierarchy instead.
 
 **No trailing colon on a heading or subtitle** (`Assigned volunteers`, not `Assigned
@@ -109,18 +125,33 @@ only case-variants of a shipped default and leaves org-renamed / custom names al
 (`20260721000000_sentence_case_default_contact_types`).
 
 ### Color
-Brand = indigo. Neutrals = slate. Semantic colors below.
+Brand = **teal**, not indigo. Neutrals = slate. Semantic colours below.
 
-| Token | Value | Use |
+| Token | Where it comes from | Use |
 |---|---|---|
-| brand-50…900 | indigo `#eef2ff`…`#312e81` | primary actions, active nav, accents |
-| slate-50…900 | neutrals | text, borders, surfaces |
-| emerald | — | success / "on track" |
-| amber | — | warning / notices |
-| rose | — | danger / "needs follow-up" |
-| sky, violet, teal | — | avatar / accent variety |
+| `sitf-primary` | `--sitf-primary-chart1` | primary actions, active nav, links |
+| `sitf-primary-dark` | `--sitf-primary-dark` | hover and focus on the above; inline links |
+| `sitf-on-primary` | — | label on a filled primary |
+| `sitf-surface` | `--sitf-background` | the page behind the content |
+| `sitf-accent`, `sitf-accent-soft` | `--sitf-accent1-chart3` | **fill only**, never text or icons |
+| `sitf-warning`, `sitf-danger` | `--sitf-accent2-chart5`, `--sitf-status-destructive` | semantic fills |
+| slate-50…900 | Tailwind | text, borders, surfaces |
+| emerald / amber / rose | Tailwind | success / warning / danger, one step darker than instinct |
 
-Brand scale lives in `tailwind.css` `@theme` as `--color-brand-*`.
+Measured against `--sitf-background` (#f7f9f3): **`sitf-primary` 5.82:1**, **`sitf-primary-dark` 8.50:1**,
+**`sitf-accent` 1.37:1 — fill only, never a foreground.**
+
+The values live once in `shadcn.css`; `tailwind.config.css`'s `@theme` block only exposes them as
+utilities, so a view never hardcodes a hex.
+
+**There is no `brand-*` scale.** This table used to name one - `brand-50…900`, indigo, from a
+`--color-brand-*` block - and it was CASA's. Nothing in this app defines those tokens, so anything
+written against them renders no colour at all.
+
+**A dozen `brand-*` mentions survive in prose below**, in sections not yet reconciled. Read them as:
+`brand-600` / `brand-700` -> **`sitf-primary`** / **`sitf-primary-dark`**, `brand-50` / `brand-100` ->
+**`sitf-primary/10`**. Every *copyable* class list has been corrected; what remains is descriptive
+("a brand-600 parent link"), and it is listed in `design-todo.md` rather than left to be discovered.
 
 ### Spacing, radius, elevation
 - 4px spacing base (Tailwind default).
@@ -2665,7 +2696,8 @@ was missed that way and had two failing status colours behind the flag.
 Use the **`button_classes(:variant)`** helper (`DesignSystemHelper`) as the single source of
 truth. Never hand-write button class strings in views; they drift (that is how the variants
 ended up mismatched). Variants:
-- `:primary` (filled brand): `bg-brand-600 text-white font-semibold hover:bg-brand-700`
+- `:primary` (filled brand): `bg-sitf-primary text-sitf-on-primary font-semibold hover:bg-sitf-primary-dark`,
+  focus ring `sitf-primary-dark`
 - `:secondary` (outlined): `border border-slate-200 bg-white text-slate-700 font-medium hover:bg-slate-50`
 - `:danger` (filled rose): `bg-rose-700 text-white font-semibold hover:bg-rose-800`, focus ring
   `rose-800`. **For the accept button of a destructive confirmation, and nothing else** - see "No red at
@@ -3318,7 +3350,9 @@ off-brand primary button in the product. **Add `app/form_builders` and `app/comp
 sweep.**
 
 ### Inputs
-`block w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-slate-900 shadow-sm placeholder:text-slate-500 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 focus:outline-none`
+`tw-input-primary` (see `forms.css`). Do not hand-write the class list: this used to prescribe one, in
+a `brand-500` this app does not define, and the token exists precisely because nine forms had drifted
+apart writing their own
 
 Placeholder ink is **`slate-500`**, like every other muted string -- `slate-400` is 2.63:1 and a
 placeholder is text. All 50 placeholder sites in `app/` already use `slate-500`; this token was the
@@ -3357,7 +3391,8 @@ is the reference). Wrap the select in a `relative` div and overlay the chevron:
 
 ```erb
 <div class="relative">
-  <%= form.select :field, options, {}, class: "block w-full appearance-none rounded-lg border border-slate-300 bg-white py-2.5 pl-3.5 pr-9 text-sm text-slate-900 shadow-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 focus:outline-none" %>
+  <%= form.select :field, options, { label: "Field" }, { class: "tw-input-primary" } %>
+  <%# Or, in an entity form, `f.select` on `Ui::FormBuilder`, which supplies the class itself. %>
   <i class="bi bi-chevron-down pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-500" aria-hidden="true"></i>
 </div>
 ```
@@ -3549,8 +3584,8 @@ filter.)
 ```
 [Sorted by ▾]        [☑ Hide drafts]  [Clear filters]  [More filters (2) ▾]
                                                                     ^^^
-                                        brand-100 bg / brand-700 text, rounded-full,
-                                        px-1.5 py-0.5 text-xs font-semibold
+                                        sitf-primary/10 bg / sitf-primary-dark text,
+                                        rounded-full, px-1.5 py-0.5 text-xs font-semibold
 ```
 
 A **pill**, not a parenthetical in the label: a bare number inside the text reads as part of the
@@ -3626,6 +3661,13 @@ What survives, because it is a decision this app has actually taken: **a checkbo
 control for a short, fully known set of options**, and beyond roughly ten it should become a searchable
 multi-select with chips - GitHub's assignees picker, Linear's, Jira's. That threshold is the trigger, and
 it is recorded on the classroom form, where it will be met first.
+
+The four rules from those sections that would apply to **any** picker - clear the query on select, address
+the native `<select>` rather than the widget, assert filtering by a decoy's absence, and never leave an
+option's subtext nil - are kept in
+[`docs/type-ahead-and-multiselect.md`](docs/type-ahead-and-multiselect.md), with the command that
+retrieves the full original from git. They are not repeated here: a specification for a control this app
+does not have belongs outside the document that describes the one it does.
 ### Type-ahead and multiselect: not in this app
 Three sections lived here specifying TomSelect - a rich multiselect component, a searchable
 single-select used by six person-assignment pickers, and an audit of twenty such controls. **This app
@@ -4395,7 +4437,12 @@ if a name must link away, its destination needs a clear path back (an unmigrated
 with no return is a flow trap).
 
 ### Tag
-"mine" etc.: `rounded bg-brand-50 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-brand-600`.
+**Use `components/ui/_badge`.** There is no separate tag treatment here.
+
+This entry used to prescribe `rounded bg-brand-50 px-1.5 py-0.5 text-[10px] font-bold uppercase
+tracking-wide text-brand-600`, which is wrong three ways for this app: `brand-*` is not defined, 10px is
+below the 12px legibility floor set above, and `uppercase` is ruled out by the copy rules - size, weight
+and colour carry hierarchy instead.
 
 ### Dashboard worklist ("Needs your attention")
 A prioritised list of things to act on. **One container: the section card** -- and inside it, the
@@ -4720,7 +4767,7 @@ distinct from the stat/KPI **icon tile** (`rounded-xl`).
 ## App shell
 - **Sidebar** (256px, `border-r border-slate-200 bg-white`): org **name only** in the
   header (no logo/brand mark — not a value-add at this size, and avoids image/variant
-  infrastructure), then nav links (active = `bg-brand-50 text-brand-700`, idle =
+  infrastructure), then nav links (active = `bg-sitf-primary/10 text-sitf-primary-dark`, idle =
   `text-slate-600 hover:bg-slate-100`). Nav visibility follows Pundit policies. On desktop the aside is
   **`lg:sticky lg:top-0 lg:h-screen`** (exactly viewport height, stays put as the page scrolls); below
   `lg` it collapses to an off-canvas drawer. That viewport height is what lets a **bottom-pinned item**
@@ -4774,7 +4821,8 @@ distinct from the stat/KPI **icon tile** (`rounded-xl`).
 ## Key patterns
 - **Settings (master-detail)** (`stocks_in_the_future_org#edit` is the reference): a `max-w-7xl` two-pane — a
   sticky grouped **sub-nav rail** (`hidden lg:block lg:w-48`; **text-only** (icons are noise in a dense grouped list, and a repeated one reads as clutter; the primary sidebar keeps its icons); quiet slate-500 group labels; active
-  item `bg-brand-50 text-brand-700`) beside a content column that shows **one section at a time**.
+  item `bg-sitf-primary/10 text-sitf-primary-dark`) beside a content column that shows **one section at a
+  time**.
   The `settings-nav` Stimulus controller drives it as **progressive enhancement**: with JS off every
   `[data-settings-nav-target="section"]` stays visible (a plain scroll — so no-JS users and rack_test
   view/request specs see everything); on connect it collapses to one panel, hiding inactive sections
