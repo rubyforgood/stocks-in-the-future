@@ -94,14 +94,36 @@
         The title carries the **consequence**, not the state, because the pill beside the h1 already
         states the state and design.md forbids a third copy of one fact. Not dismissible: this is
         permanently true of the page, and a callout that removes itself would be lying about it. %>
+    <%# The reopen sits in the callout's action slot, which is where a control belongs when it acts on what
+        the callout is describing - and it is passed per call site rather than built into the component,
+        because `button_to` renders a form and this page has one. %>
     <% if @grade_book.completed? %>
+      <%= render layout: "components/ui/callout",
+                 locals: { tone: :info,
+                           title: "These grades have been paid and can no longer be changed",
+                           body: finalized_payment_sentence(@grade_book),
+                           class: "mb-4",
+                           testid: "finalized-notice" } do %>
+        <% if policy(@grade_book).reopen? %>
+          <%= button_to "Reopen to correct",
+                        reopen_classroom_grade_book_path(@classroom, @grade_book),
+                        class: "tw-btn-secondary",
+                        data: { testid: "reopen-grade-book",
+                                turbo_confirm: reopen_consequence(@grade_book) } %>
+        <% end %>
+      <% end %>
+    <% end %>
+
+    <%# A book that has paid and is editable again. The sentence has to state both halves - what is already
+        paid, and that a correction tops up rather than repays - because otherwise the page looks like it is
+        about to pay everybody twice, which is exactly what it used to do. %>
+    <% if !@grade_book.completed? && @grade_book.paid? %>
       <%= render "components/ui/callout",
-                 tone: :info,
-                 title: "These grades have been paid and can no longer be changed",
-                 body: "Finalizing paid each student's earnings into their portfolio. " \
-                       "The total below is what was paid.",
+                 tone: :warning,
+                 title: "Reopened for corrections",
+                 body: reopened_payment_sentence(@grade_book),
                  class: "mb-4",
-                 testid: "finalized-notice" %>
+                 testid: "reopened-notice" %>
     <% end %>
 
     <%# The populate buttons stay outside this form. A form cannot be nested inside
@@ -185,14 +207,8 @@
           the other. The window itself is closed by saving on blur, in autosave_controller. %>
       <section class="tw-card mt-6 p-5" aria-labelledby="finalize-heading">
         <p id="finalize-heading" class="text-sm font-medium text-slate-900">Finalize grades</p>
-        <%# `finalize_consequence`, which the confirmation dialog also renders - so the card and the
-            dialog cannot come to describe the same payment differently.
-
-            No measure cap. At 87 characters this is one line at the card's width, so `max-w-2xl` never
-            shortened a line - it only left 369px of the card empty to the right of it. A cap earns its
-            place when the text wraps several times against it, or when something sits beside it; neither
-            is true here. See design.md. %>
-        <p class="mt-1 text-sm text-slate-600"><%= finalize_consequence(earnings) %></p>
+        <%= render partial: "finalize_consequence",
+                   locals: { earnings: earnings, grade_book: @grade_book } %>
         <p class="mt-1 text-sm text-slate-600">Uses your saved grades, above.</p>
 
         <%= render partial: "finalize_breakdown", locals: { earnings: earnings } %>

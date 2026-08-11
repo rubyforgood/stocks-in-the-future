@@ -5,11 +5,45 @@ class GradeBook < ApplicationRecord
   belongs_to :classroom
   has_many :grade_entries, dependent: :destroy
 
+  # The deposits this book has made. `dependent: :nullify` rather than `:destroy`: a paid transaction is a
+  # ledger entry and deleting a grade book must not remove money from a portfolio. The link is provenance,
+  # not ownership.
+  has_many :portfolio_transactions, dependent: :nullify
+
   enum :status, {
     draft: "draft",
     verified: "verified",
     completed: "completed"
   }
+
+  # **"Has this paid?" is not the same question as "is this completed?"** - and after a reopen the status
+  # says draft while the money is still out there. So it is derived from the ledger rather than from a
+  # second column, which is also the only answer that cannot drift from what was actually deposited.
+  #
+  # A book where nobody earned anything creates no transactions and so reads as unpaid. That is harmless:
+  # the only thing this gates is paying a difference, and the difference there is zero either way.
+  def paid?
+    portfolio_transactions.exists?
+  end
+
+  def paid_on
+    portfolio_transactions.minimum(:created_at)
+  end
+
+  def amount_paid_cents
+    portfolio_transactions.sum(:amount_cents)
+  end
+
+  # What this book has already paid one student, split by the reason it was paid for. The difference is
+  # computed per reason because that is how the deposits are written - one row per reason - so a correction
+  # to a maths grade tops up the maths reason and leaves the others alone.
+  def paid_cents_by_reason_for(user)
+    portfolio_transactions
+      .where(portfolio: user.portfolio)
+      .group(:reason)
+      .sum(:amount_cents)
+      .transform_keys(&:to_sym)
+  end
 
   # The same student's entry in the previous quarter, keyed by user_id. Improvement earnings are paid
   # by comparing against it, so anything that shows a student what they will earn needs the same

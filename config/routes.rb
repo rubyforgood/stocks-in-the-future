@@ -65,6 +65,7 @@ Rails.application.routes.draw do
       member do
         post :finalize
         post :populate
+        post :reopen
       end
     end
     resources :students, except: %i[index show] do

@@ -42,7 +42,7 @@
     seconds. The turbo_stream still replaces this by id, which is all it needed. %>
 <%# The blank line is the channel: Turbo copies exactly five data attributes onto the form it builds for
     a link and passes no submitter for one, so a second attribute would reach nothing. See the dialog. %>
-<% confirm = "Finalize these grades?\n\n#{finalize_consequence(earnings)}" %>
+<% confirm = "Finalize these grades?\n\n#{finalize_consequence(earnings, @grade_book)}" %>
 
 <%= button_to "Finalize grades", finalize_classroom_grade_book_path(@classroom, @grade_book),
               class: "tw-btn-secondary",

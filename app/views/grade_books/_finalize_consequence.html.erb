@@ -1,0 +1,16 @@
+<%# The sentence stating what finalizing will do, in a partial **because it is derived from the entries and
+    therefore goes stale on save**. It did: with a reopened book paid $0.60, correcting a grade from C to A
+    took the Earns column and the total to $3.60 while this line still read "nothing more is owed: these
+    grades earn exactly the $0.60 already paid". Found by rendering the flow rather than by any test - which
+    is the third time on this branch that a derived thing was missed when its neighbours were replaced.
+
+    An id on an always-rendered element, so there is something for the stream to target.
+
+    `finalize_consequence`, which the confirmation dialog also renders - so the card and the dialog cannot
+    come to describe the same payment differently.
+
+    No measure cap. At 87 characters this is one line at the card's width, so `max-w-2xl` never shortened a
+    line - it only left 369px of the card empty to the right of it. See design.md. %>
+<p id="finalize-consequence" class="mt-1 text-sm text-slate-600">
+  <%= finalize_consequence(earnings, grade_book) %>
+</p>

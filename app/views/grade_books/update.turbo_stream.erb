@@ -34,3 +34,9 @@
     replaced too. %>
 <%= turbo_stream.replace "finalize-breakdown", partial: "grade_books/finalize_breakdown",
                          locals: { earnings: earnings } %>
+
+<%# And the sentence above it, which is the same figure in words. It was the one derived thing on this page
+    not in this list, and on a reopened book it told the admin nothing more was owed while the total beside
+    it said $3.60. %>
+<%= turbo_stream.replace "finalize-consequence", partial: "grade_books/finalize_consequence",
+                         locals: { earnings: earnings, grade_book: @grade_book } %>

@@ -17,6 +17,11 @@ class PortfolioTransaction < ApplicationRecord
   }, allow_nil: true
 
   belongs_to :portfolio
+
+  # Which grade book paid this, for an earnings deposit. Optional, and nil for every purchase, sale and
+  # fee - and for every earnings deposit made before the column existed, which is why a difference
+  # calculation has to treat nil as "not paid by this book" rather than as "unknown".
+  belongs_to :grade_book, optional: true
   has_one :order, dependent: :destroy
 
   scope :deposits, -> { where(transaction_type: :deposit) }

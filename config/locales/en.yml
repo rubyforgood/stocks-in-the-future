@@ -158,7 +158,11 @@ en:
       notice:
         one: Added 1 student to this grade book.
         other: Added %{count} students to this grade book.
+    reopen:
+      not_completed: That grade book is not finalized, so there is nothing to reopen.
+      notice: Grade book reopened for corrections. The payment already made is unchanged.
     update:
+      completed: This grade book is finalized. An admin can reopen it to make corrections.
       notice: Grades saved.
   helpers:
     label:

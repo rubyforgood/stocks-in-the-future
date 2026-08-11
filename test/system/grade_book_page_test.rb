@@ -286,6 +286,41 @@ class GradeBookPageTest < ApplicationSystemTestCase
     assert_includes confirm, "cannot be undone"
   end
 
+  # **A reopened book's consequence sentence is derived, so it goes stale on save.** It did, and only
+  # rendering the flow found it: with $0.60 already paid, correcting a grade from C to A took the Earns
+  # column and the total to $3.60 while the sentence still read "nothing more is owed: these grades earn
+  # exactly the $0.60 already paid". The turbo_stream replaced every other derived thing on the page and not
+  # this one, which is the third time on this branch a neighbour was missed.
+  test "the top-up sentence refreshes with the figures it describes" do
+    classroom = create(:classroom)
+    student = create(:student, :with_portfolio, classroom:)
+    book = classroom.grade_books.first
+    create(
+      :grade_entry, grade_book: book, user: student, math_grade: "C", reading_grade: nil,
+                    attendance_days: 3, is_perfect_attendance: false
+    )
+    book.verified!
+    DistributeEarnings.execute(book)
+    book.draft!
+    sign_in create(:admin)
+
+    visit classroom_grade_book_path(classroom, book)
+
+    assert_selector "#finalize-consequence", text: "Nothing more is owed"
+
+    within("tbody tr:first-child") { all("select").first.select("A") }
+    click_on "Save grades"
+
+    # The figure the stream does replace, waited on first - there is no flash on a turbo_stream response.
+    assert_selector "#earnings-footer", text: "$3.60"
+
+    assert_selector "#finalize-consequence", text: "Pays the difference of $3.00"
+    assert_selector "#finalize-consequence", text: "on top of the $0.60 already paid"
+
+    # And the dialog cannot disagree with the card, which is why they share one helper.
+    assert_includes find("#finalize-button button")["data-turbo-confirm"], "difference of $3.00"
+  end
+
   # **Irreversible is not destructive.** Finalizing sat on `:danger_outline` and turned rose under the
   # pointer, which is the affordance for an action that takes something away - delete, deactivate,
   # archive. This one pays money into student portfolios. Reported as "lights up like a destructive

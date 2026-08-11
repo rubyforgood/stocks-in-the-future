@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_10_180000) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_11_171337) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -182,10 +182,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_10_180000) do
     t.integer "amount_cents", null: false
     t.datetime "created_at", null: false
     t.text "description"
+    t.bigint "grade_book_id"
     t.bigint "portfolio_id", null: false
     t.integer "reason"
     t.integer "transaction_type", null: false
     t.datetime "updated_at", null: false
+    t.index ["grade_book_id"], name: "index_portfolio_transactions_on_grade_book_id"
     t.index ["portfolio_id"], name: "index_portfolio_transactions_on_portfolio_id"
   end
 
@@ -428,6 +430,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_10_180000) do
   add_foreign_key "portfolio_snapshots", "portfolios"
   add_foreign_key "portfolio_stocks", "portfolios"
   add_foreign_key "portfolio_stocks", "stocks"
+  add_foreign_key "portfolio_transactions", "grade_books"
   add_foreign_key "portfolio_transactions", "portfolios"
   add_foreign_key "portfolios", "users"
   add_foreign_key "quarters", "school_years", on_delete: :cascade

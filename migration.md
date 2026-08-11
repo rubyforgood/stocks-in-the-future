@@ -3862,3 +3862,69 @@ anything reopens a book. Three problems, all measured or read off the schema:
 the payment stated on the page are the visible record; if accountability for the funds needs a name
 against the action, that is a `reopened_by`/`reopened_at` pair and it is the obvious next step rather than
 something to guess at now.
+
+## Built: an admin-only reopen that pays the difference
+
+Follows the map above. All five moves are in.
+
+**1. `update` refuses a completed book.** The hole was real and measured: a teacher PATCHed a finalized
+book and moved a grade from C to A, days 3 to 40, and the perfect-attendance flag to true. The money did
+not move, which is the worse half - the record and the ledger then disagree, and every figure on the page
+is derived from the record. The view had never offered the inputs, so nothing that checks what a page
+*offers* could have caught it.
+
+**2. `portfolio_transactions.grade_book_id`**, nullable and not backfilled. Backfilling the historical
+earnings deposits was considered and rejected: a guess about which quarter paid a row would be
+indistinguishable from a fact, and the only reader is a difference calculation that must treat "unknown"
+as "not paid by this book". Added as an unvalidated foreign key then validated, and the index built
+concurrently, both because strong_migrations asks for it.
+
+**3-4. `DistributeEarnings` pays the difference per user per reason.** Owed now, minus what this book has
+already paid for that reason. On a first finalize the second term is zero, so behaviour is unchanged and
+`distribute_earnings_characterisation_test`'s literals still pass untouched. Per reason rather than per
+student, because that is how the deposits are written, so a corrected maths grade tops up the maths reason
+and leaves attendance alone.
+
+**A negative difference is never taken back.** `overpaid_cents` reports it and nothing acts on it: the
+student may have bought shares with the money, so a portfolio may not cover a reversal, and a balance that
+drops is a pedagogical event rather than a bookkeeping one.
+
+**`GradeBook#paid?` derives from the ledger** - the existence of linked transactions - rather than a
+second column, because after a reopen the status says `draft` while the money is still out there. One
+source for "has this paid", and it cannot drift from what was deposited.
+
+**5. `reopen`, admin-only**, with `GradeBookPolicy#reopen?` aliased to `finalize?`: reopening a paid book
+is the other half of releasing the money, so whoever is trusted with one is trusted with the other. It
+returns the book to `draft`, not `verified`, since a book being corrected is neither checked nor ready.
+
+The page states the money at every step - what was paid and when, that a reopened book's payment stays
+paid, and what finalizing again will actually move. Four sentences from one helper, so the card and the
+confirmation dialog cannot describe one payment two ways.
+
+### A stale derivation, found by rendering the flow
+
+With $0.60 paid and a grade corrected from C to A, the Earns column and the total went to $3.60 while the
+consequence sentence still read *"nothing more is owed: these grades earn exactly the $0.60 already
+paid"*. The `update` turbo_stream replaced every other derived thing on that page - the cells, the
+warnings, the footer, the breakdown, the button - and not the sentence, because it had no id.
+
+**Third time on this branch.** The rule was already written after the second: when you find one stale
+derivation, list every derived thing on the page before moving on. It is `_finalize_consequence` with an
+id now, in the stream, and a system test asserts the figure refreshes and that the dialog agrees with the
+card.
+
+Two of my own waits were vacuous while chasing it, both worth noting: `assert_text "Grades saved"` never
+matches, because a turbo_stream response renders no flash; and waiting for the autosave status to read
+"All changes saved" proves nothing, since that is its text on load - which this repo already records as
+the reason the status only changes when the words change.
+
+### What this breaks
+
+- **Anything PATCHing a finalized grade book** now gets a redirect and an alert. Nothing legitimate did.
+- **`DistributeEarnings.execute` returns the service**, not the grade book, so `overpaid_cents` can be
+  read. Nothing depended on the old return value.
+- **A `grade_book` is no longer safely destroyable in a test without its deposits surviving** -
+  `dependent: :nullify`, on purpose: deleting a grade book must not remove money from a portfolio.
+- **Not built, deliberately:** no `reopened_by`/`reopened_at`. The status change and the payment stated on
+  the page are the visible record. If accountability for the funds needs a name against the action, that
+  pair is the obvious next step.
