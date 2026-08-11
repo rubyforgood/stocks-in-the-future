@@ -136,7 +136,10 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
     assert_no_difference("Classroom.count") do
       patch toggle_archive_admin_classroom_path(@classroom)
     end
-    assert_redirected_to admin_classroom_path(@classroom)
+    # The list, not the record. Archiving is a row action on the index, and being moved to a page you
+    # did not ask for is the cost of one click on a row. With no Referer this is the fallback; the
+    # test below covers the case where there is one.
+    assert_redirected_to admin_classrooms_path
     assert @classroom.reload.archived?
     assert_equal "Classroom has been archived.", flash[:notice]
   end
@@ -145,7 +148,10 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
     sign_in(@admin)
     @classroom.update!(archived: true)
     patch toggle_archive_admin_classroom_path(@classroom)
-    assert_redirected_to admin_classroom_path(@classroom)
+    # The list, not the record. Archiving is a row action on the index, and being moved to a page you
+    # did not ask for is the cost of one click on a row. With no Referer this is the fallback; the
+    # test below covers the case where there is one.
+    assert_redirected_to admin_classrooms_path
     assert_not @classroom.reload.archived?
     assert_equal "Classroom has been activated.", flash[:notice]
   end

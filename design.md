@@ -4540,6 +4540,20 @@ restyling a destructive control, run it.
   Never leave a back link as a **bare child of a `space-y-*` container**: the 24px rhythm then lands
   between the link and the title and shoves everything down. Back link and title are one header block.
 
+- **A row action returns you to the list you took it from.** Archiving a classroom from the index
+  redirected to that classroom's page, which is a destination nobody asked for: the click was on a row,
+  and the answer to "did it work" is the list plus a message. Gmail, GitHub, Linear, Stripe and Polaris
+  all keep you in place. `redirect_back_or_to(list_path)` rather than the list outright, because the same
+  action is usually offered on the record's own page too, and from there the right destination is that
+  page showing its new state. **Create and update are the opposite** - you have just made or edited a
+  thing, so the record's page is where you see the result.
+
+- **One way back per page, and on the admin side it is the breadcrumb.** Nine admin show pages carried a
+  "Back to X" button at the foot as well, which is the same journey twice, and the footer copy is the one
+  a reader has to scroll to find. Delete the wrapper with the button: each of those was the only control
+  in an `mt-6` row, and leaving the row behind leaves 24px of dead space - the same rule as deleting a
+  rule and leaving its padding.
+
 - **Admin dashboard**: a KPI stat row, then the worklists -- orders awaiting execution, then recent
   transactions. Lead with what needs action. The figures come from `AdminDashboard`, and each card is
   `tw-card p-5` with an `icon_tile`, a `text-3xl tabular-nums` value and its label beneath.

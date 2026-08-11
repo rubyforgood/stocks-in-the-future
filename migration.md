@@ -3741,3 +3741,34 @@ documented reflow exception.
   because the collapsed row had no hook of its own. The lesson generalises: a test that selects by tag
   inside a row is asserting about whatever else lands there later.
 - Any test or bookmark that clicked `View` in a row: the name is the link now.
+
+## A row action returns you to the list, and the admin back buttons are gone
+
+Two reported on `admin/classrooms`: archiving a classroom took the user to that classroom's page, and the
+"Back to classrooms" button at the foot duplicated the breadcrumb.
+
+**Archive redirected to the record.** It was the odd one out - every other row action in the admin half
+already returned to its list - and it is not the convention: Gmail, GitHub, Linear, Stripe and Polaris all
+keep you where you were and report what happened in a message. The click was on a row; the answer to "did
+it work" is the list. It is `redirect_back_or_to(admin_classrooms_path)` rather than the index outright,
+because the same action is offered on the classroom's own page through `archive_button`, and from there
+the right destination is that page showing its new state.
+
+Auditing the rest turned up **one more**: `portfolio_transactions#destroy` redirected to the
+**dashboard**. Now the transactions list. Create and update are deliberately unchanged - after editing a
+thing, its page is where you see the result.
+
+**The back buttons.** Nine admin show pages carried a footer "Back to X" while every admin page already
+has a breadcrumb - the same journey twice, and the footer copy is the one you have to scroll to find. The
+component demo's page-header "Back to list" went with them. The wrapper went too: each button was the only
+control in an `mt-6 flex gap-3` row, and leaving an empty row behind leaves 24px of dead space, which is
+the rule about deleting a rule and keeping its padding.
+
+### What this breaks
+
+- **Five assertions pinned the old archive destination** and now expect the list. A sixth test is new: with
+  a `Referer` the action returns to the page it was called from, which the fallback would otherwise hide -
+  the same shape as a negative test that passes because the endpoint is broken.
+- One assertion expected the dashboard after deleting a transaction.
+- **A caution from doing it:** my first edit replaced the redirect assertion in `update` as well, which
+  correctly goes to the record. A mechanical replace across a test file catches the tests you did not mean.

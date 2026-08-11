@@ -70,7 +70,16 @@ module Admin
       authorize @classroom, :toggle_archive?
       @classroom.update!(archived: !@classroom.archived)
       flash[:notice] = @classroom.archived? ? "Classroom has been archived." : "Classroom has been activated."
-      redirect_to admin_classroom_path(@classroom)
+
+      # Back where the action was taken, not off to the record's page. Archiving is a *list* action here -
+      # it is a row action on the index - and every other row action in this half already returns to its
+      # list. Gmail, GitHub, Linear, Stripe and Polaris all keep you in place and report what happened in
+      # a message; being moved to a page you did not ask for is the cost of one click on a row.
+      #
+      # `redirect_back_or_to` rather than the index path outright, because the same action is offered on the
+      # classroom's own page through `archive_button`, and from there the right destination is that page,
+      # showing its new state.
+      redirect_back_or_to(admin_classrooms_path)
     end
 
     private

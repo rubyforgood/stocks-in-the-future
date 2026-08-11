@@ -16,14 +16,10 @@
     <%= admin_actions(
           @user,
           actions: %i[edit delete],
-          custom_actions: [
-            {
-              label: "Back to list",
-              path: admin_component_demo_index_path,
-              icon: "arrow-left",
-              class: "text-slate-700 bg-white hover:bg-slate-50 border-slate-300"
-            }
-          ]
+          # No "Back to list": the breadcrumb at the top of every admin page is the way back, and a
+          # second one in the actions row is the same journey twice - which is also why the nine show
+          # pages lost their footer button.
+          custom_actions: []
         ) %>
   </div>
 </div>

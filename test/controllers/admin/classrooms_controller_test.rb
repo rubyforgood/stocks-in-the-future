@@ -105,6 +105,8 @@ module Admin
 
       patch(admin_classroom_path(classroom), params:)
 
+      # The record, which is right after an *update*: you have just edited this thing and the show page is
+      # where you see the result. Only the row actions return you to the list.
       assert_redirected_to admin_classroom_path(classroom)
       assert_equal "Classroom updated successfully.", flash[:notice]
       assert_equal name, classroom.reload.name
@@ -129,7 +131,10 @@ module Admin
       patch toggle_archive_admin_classroom_path(classroom)
       classroom.reload
 
-      assert_redirected_to admin_classroom_path(classroom)
+      # The list, not the record. Archiving is a row action on the index, and being moved to a page you
+      # did not ask for is the cost of one click on a row. With no Referer this is the fallback; the
+      # test below covers the case where there is one.
+      assert_redirected_to admin_classrooms_path
       assert_equal "Classroom has been archived.", flash[:notice]
       assert classroom.archived?
     end
@@ -142,9 +147,25 @@ module Admin
       patch toggle_archive_admin_classroom_path(classroom)
       classroom.reload
 
-      assert_redirected_to admin_classroom_path(classroom)
+      # The list, not the record. Archiving is a row action on the index, and being moved to a page you
+      # did not ask for is the cost of one click on a row. With no Referer this is the fallback; the
+      # test below covers the case where there is one.
+      assert_redirected_to admin_classrooms_path
       assert_equal "Classroom has been activated.", flash[:notice]
       assert_not classroom.archived?
+    end
+
+    # `redirect_back_or_to`, so archiving from the classroom's own page stays there and shows the new
+    # state. Without this test the fallback would pass while the referer branch was never exercised - the
+    # same shape as a negative test that passes because the endpoint is broken.
+    test "toggle_archive returns to the page it was called from" do
+      classroom = create(:classroom)
+      sign_in(create(:admin, admin: true, classroom: nil))
+
+      patch toggle_archive_admin_classroom_path(classroom),
+            headers: { "HTTP_REFERER" => admin_classroom_url(classroom) }
+
+      assert_redirected_to admin_classroom_url(classroom)
     end
 
     test "index when teacher" do

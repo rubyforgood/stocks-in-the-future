@@ -82,7 +82,9 @@ module Admin
     def destroy
       @portfolio_transaction.destroy
 
-      redirect_to admin_root_path, notice: t(".notice")
+      # The transactions list, not the dashboard. This was the only other row action in the admin half
+      # that did not return you to the list you acted from.
+      redirect_to admin_portfolio_transactions_path, notice: t(".notice")
     end
 
     private

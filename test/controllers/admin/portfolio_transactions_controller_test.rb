@@ -126,7 +126,8 @@ module Admin
         delete admin_portfolio_transaction_path(portfolio_transaction)
       end
 
-      assert_redirected_to admin_root_path
+      # The transactions list, not the dashboard: a row action returns you to the list you acted from
+      assert_redirected_to admin_portfolio_transactions_path
       assert_equal "Portfolio transaction deleted successfully.", flash[:notice]
     end
   end
