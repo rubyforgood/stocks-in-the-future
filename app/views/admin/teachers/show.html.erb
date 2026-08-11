@@ -45,7 +45,7 @@
   <div class="space-y-6">
     <%= admin_show_attributes(
           @teacher,
-          attributes: %i[id username email name created_at updated_at]
+          attributes: %i[username email name]
         ) %>
 
     <%= render layout: "components/ui/card", locals: { title: "Classrooms" } do %>

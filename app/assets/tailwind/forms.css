@@ -157,37 +157,29 @@
 }
 
 @layer components {
-  /* A form's action row, stuck to the bottom of the viewport while the form is longer than it.
+  /* A form's action row. In normal flow until something changes, then pinned to the bottom of the viewport.
    *
-   * Reported on `admin/schools#edit`, where a fourteen-year checkbox group put the submit at y=1094 in a
-   * 625px Chromebook viewport. **Shortening the list is not enough**, which is the measurement that decided
-   * this: at two columns the submit is still at 786, at three 698, at four 654 - because the breadcrumb, the
-   * page header, the card padding, the name field and the hints take ~486px before the years begin. A form's
-   * primary action should not depend on the form's length.
+   * **Conditional, because a permanent bar for a form you are only reading is not what anybody ships.**
+   * Polaris's ContextualSaveBar appears when there are unsaved changes; Shopify admin slides it in the moment
+   * a field goes dirty; Stripe reveals its save the same way. This carried `sticky` unconditionally for two
+   * commits and was reported twice - once for the rule it drew, once for hovering on a page whose only form
+   * field is a name nobody was editing.
    *
-   * `position: sticky` with `bottom: 0` needs no JavaScript and no unsaved-changes state: on a form shorter
-   * than the viewport the row simply sits where it always did, because sticky only offsets an element that
-   * would otherwise leave the scrollport. Measured on that page: submit at y=585 of 625 unscrolled, and it
-   * holds while scrolling.
+   * It cannot simply come off, either: measured against a 625px Chromebook viewport, the submit would sit at
+   * y=3298 on `admin/stocks#edit`, 1043 on `students#new`, 910 on `classrooms#new`, 772 on `teachers#edit`
+   * and 694 on `students#edit`. Five forms need it; the three school pages do not.
    *
-   * This is Polaris's ContextualSaveBar and Stripe's sticky form footer, minus the state machine.
+   * **Progressive enhancement, deliberately.** The base is a plain row at the end of the form, which is what
+   * the app had before any of this - so with no JavaScript nothing is unreachable, it just needs a scroll on
+   * a long form. `form-dirty` sets the attribute on first input, and only then does it pin.
    *
-   * **The page-coloured background does the work, and there is no rule.** This carried a
-   * `border-t border-slate-200` for one commit, on nine forms, and it was wrong twice over. design.md's
-   * Dividers section says "no extra dividers anywhere" and then lists the four that stay - a tab rail's
-   * baseline, the fixed app bar's edge, a table's row separators, and field-group separators inside a form
-   * card. A form's action row is not one of them, and nothing else in the app draws that line.
-   *
-   * It was also a rule with nothing behind it most of the time: the border only means anything while the row
-   * is actually overlapping content, so on every short form, and on any form scrolled to its end, it drew a
-   * hairline against nothing. That is the same conditional-affordance error as a pinned table cell's
-   * separator, which this codebase fixed by making it depend on scroll state rather than drawing it always.
-   *
-   * The opaque background is what stops text showing through the buttons, and it needs no border to do it.
-   *
-   * `-mx-*` is deliberately absent: a negative margin drags paint past the content edge, which this
-   * codebase has recorded three times. */
+   * No border: design.md's Dividers section rules out an extra rule, and the page-coloured background is
+   * what stops content showing through when it is pinned. */
   .tw-form-actions {
-    @apply sticky bottom-0 z-10 flex flex-wrap items-center gap-3 bg-slate-50 py-4;
+    @apply flex flex-wrap items-center gap-3 py-4;
+  }
+
+  [data-form-dirty="true"] .tw-form-actions {
+    @apply sticky bottom-0 z-10 bg-slate-50;
   }
 }

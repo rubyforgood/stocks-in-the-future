@@ -25,7 +25,7 @@
   <div class="space-y-6">
     <%= admin_show_attributes(
           @classroom,
-          attributes: %i[id name grades_display archived trading_enabled school_year created_at updated_at]
+          attributes: %i[name grades_display archived trading_enabled school_year]
         ) %>
 
     <%= render layout: "components/ui/card",

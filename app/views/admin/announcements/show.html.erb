@@ -14,7 +14,7 @@
   <div class="space-y-6">
     <%= admin_show_attributes(
           @announcement,
-          attributes: %i[id title featured created_at updated_at]
+          attributes: %i[title featured]
         ) %>
 
     <%= render layout: "components/ui/card", locals: { title: "Content" } do %>

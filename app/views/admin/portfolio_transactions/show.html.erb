@@ -13,10 +13,6 @@
   <%# dt labels are slate-700, matching admin/shared/_show_attributes: slate-500 read as
       muted metadata rather than as the key half of a key/value pair. %>
   <div class="space-y-6">
-    <%= admin_show_attributes(
-          @portfolio_transaction,
-          attributes: %i[id created_at updated_at]
-        ) %>
 
     <%= render layout: "components/ui/card", locals: { title: "Portfolio" } do %>
       <dl class="grid grid-cols-1 gap-4">
@@ -50,6 +46,16 @@
         <div>
           <dt class="text-sm font-medium text-slate-700">Reason</dt>
           <dd class="mt-1 text-sm text-slate-900"><%= @portfolio_transaction.reason&.humanize || "—" %></dd>
+        </div>
+        <%# The date belongs with the amount, not in a metadata card. `created_at` is *content* here - it is
+            when the money moved - which is why this is the one page where dropping the id-and-timestamps card
+            had to move something rather than just delete it. Everywhere else those three are metadata about a
+            row and nobody acts on them. %>
+        <div>
+          <dt class="text-sm font-medium text-slate-700">Date</dt>
+          <dd class="mt-1 text-sm text-slate-900" data-testid="created_at">
+            <%= l(@portfolio_transaction.created_at.to_date, format: :long) %>
+          </dd>
         </div>
       </dl>
     <% end %>

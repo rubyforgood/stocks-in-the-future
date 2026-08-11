@@ -149,13 +149,17 @@ module Admin
       assert_response :unprocessable_content
     end
 
-    test "edit" do
+    # PREVIEW: `/edit` renders the record page, so its heading is the school's name rather than "Edit school".
+    # In the merged shape there is no separate edit page at all; this keeps every existing Edit link working
+    # while the design is under review.
+    test "edit renders the record page" do
       school = create(:school, name: "Test School")
 
       get edit_admin_school_path(school)
 
       assert_response :success
-      assert_select "h1", "Edit school"
+      assert_select "h1", "Test School"
+      assert_select "[data-testid='school-years']"
     end
 
     test "update" do

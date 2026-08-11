@@ -13,7 +13,7 @@
   <div class="space-y-6">
     <%= admin_show_attributes(
           @stock,
-          attributes: %i[id ticker company_name company_website stock_exchange archived created_at updated_at]
+          attributes: %i[ticker company_name company_website stock_exchange archived]
         ) %>
 
     <% if @stock.description.present? %>

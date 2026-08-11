@@ -50,9 +50,26 @@ class FormActionsTest < ApplicationSystemTestCase
     assert_includes ["rgba(0, 0, 0, 0)", g["pageBackground"]], g["rowBackground"],
                     "#{label}: the action row is #{g['rowBackground']} against a page of " \
                     "#{g['pageBackground']} - it may match the page or be transparent, not contrast"
-    assert_equal "sticky", g["rowPosition"],
-                 "#{label}: the action row is #{g['rowPosition']}, so a long form puts its submit " \
-                 "below the fold"
+    # **Static until something changes, then pinned.** An always-sticky row was reported twice - once for the
+    # rule it drew, once for hovering over a page whose only field is a name nobody was editing - and Polaris,
+    # Shopify admin and Stripe all reveal the save affordance on change rather than parking it there. It
+    # cannot simply be static either: measured, the submit would sit at y=3298 on admin/stocks#edit.
+    assert_equal "static", g["rowPosition"],
+                 "#{label}: the action row is pinned before anything has changed"
+
+    # Dirty it the way a person does - an `input` event on the first field - and it should pin.
+    page.execute_script(<<~JS)
+      (function () {
+        const field = document.querySelector("main form input[type=text], main form input[type=email], " +
+                                             "main form textarea, main form select");
+        if (!field) return;
+        field.dispatchEvent(new Event("input", { bubbles: true }));
+      })()
+    JS
+
+    assert_equal "sticky", page.evaluate_script(GEOMETRY)["rowPosition"],
+                 "#{label}: the action row did not pin once the form had unsaved changes, so a long form " \
+                 "leaves its submit below the fold"
 
     # **And no rule.** This carried a `border-t` for one commit, on nine forms, and design.md's Dividers
     # section rules it out by name: "no extra dividers anywhere", followed by an exhaustive list of the four

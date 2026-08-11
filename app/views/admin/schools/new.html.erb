@@ -1,8 +1,28 @@
-<div class="max-w-7xl mx-auto">
+<%# PREVIEW - create, on the same shape as the record page.
+
+    **`max-w-3xl`, not `max-w-7xl`.** Measured at 1366px: this form was 1062px wide while the same school's
+    edit page was 768px, for the same single name field. design.md already records that defect on
+    `classrooms#edit` - "a form's measure does not scale with the window" - and this page had it.
+
+    **One section, and it says why.** A school that does not exist yet cannot have school years: there is no
+    id to attach a `SchoolYear` to. So create shows the attributes only, and names what comes next rather
+    than leaving the difference unexplained. That is the create-then-configure flow Stripe and Shopify admin
+    both use - a minimal create, then the record's own page. %>
+<div class="mx-auto max-w-3xl">
   <%= admin_breadcrumbs(@breadcrumbs) %>
 
   <%= render layout: "components/ui/page_header",
-             locals: { title: "New school" } do %><% end %>
+             locals: { title: "New school",
+                       description: "You will add its school years after it exists." } do %><% end %>
 
-  <%= render "form" %>
+  <div class="space-y-6">
+    <section aria-labelledby="details-heading">
+      <h2 id="details-heading" class="text-base font-semibold text-slate-900">Details</h2>
+      <p class="mt-1 text-sm text-slate-600">The only thing a new school needs.</p>
+
+      <div class="mt-3">
+        <%= render "form" %>
+      </div>
+    </section>
+  </div>
 </div>

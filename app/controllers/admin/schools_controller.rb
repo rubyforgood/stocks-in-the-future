@@ -33,6 +33,9 @@ module Admin
       ]
     end
 
+    # PREVIEW: `edit` renders the record page, so /admin/schools/:id and /admin/schools/:id/edit are the same
+    # screen. In the merged shape there is no separate edit page at all - this keeps every existing Edit link
+    # working while the design is being looked at.
     def edit
       set_form_data
       @breadcrumbs = [
@@ -40,6 +43,10 @@ module Admin
         { label: @school.name, path: admin_school_path(@school) },
         { label: "Edit" }
       ]
+
+      # After the breadcrumbs, not before: the template renders them, and returning early left them nil and
+      # blew up in the partial with `undefined method 'each_with_index' for nil`.
+      render :show
     end
 
     def create

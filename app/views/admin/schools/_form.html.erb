@@ -26,7 +26,13 @@
   <% end %>
 
   <div class="tw-form-actions">
-    <%= f.submit_button @school.persisted? ? "Update school" : "Create school" %>
-    <%= f.cancel_button "Cancel", url: @school.persisted? ? admin_school_path(@school) : admin_schools_path %>
+    <%# PREVIEW: on a detail page the submit names what it saves, and there is nothing to cancel *to* -
+        you are already on the record. On `new` it still needs both. %>
+    <% if @school.persisted? %>
+      <%= f.submit_button "Save details" %>
+    <% else %>
+      <%= f.submit_button "Create school" %>
+      <%= f.cancel_button "Cancel", url: admin_schools_path %>
+    <% end %>
   </div>
 <% end %>

@@ -24,7 +24,7 @@
         slate-500 labels rather than the slate-700 the shared partial uses. %>
     <%= admin_show_attributes(
           @student,
-          attributes: %i[id username classroom created_at updated_at]
+          attributes: %i[username classroom]
         ) %>
 
     <% if @student.portfolio.present? %>
