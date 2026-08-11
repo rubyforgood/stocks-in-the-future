@@ -59,7 +59,12 @@
             where every brokerage list puts a price change, and beside the price it is actually about. It
             spent one commit as a card on the home page, where it pushed the balance, the announcements and
             the getting-started steps down to list three of the companies the trading floor lists anyway. %>
-        <%= render 'layouts/account_menu' %>
+        <%# The badge and the account menu share a group, so the badge sits with the other chrome
+            rather than floating between the logo and the avatar. %>
+        <div class="flex shrink-0 items-center gap-2">
+          <%= render "layouts/environment_badge" %>
+          <%= render 'layouts/account_menu' %>
+        </div>
       </header>
 
       <%= render 'layouts/navbar' %>
@@ -95,9 +100,13 @@
           <%= image_tag "SITF-Horz-no-tag-logo.svg", class: "h-8 w-auto", alt: "Stocks in The Future" %>
         <% end %>
 
-        <% unless request.path == new_user_session_path %>
-          <%= link_to "Sign in", new_user_session_path, class: "tw-btn-primary" %>
-        <% end %>
+        <div class="flex shrink-0 items-center gap-2">
+          <%= render "layouts/environment_badge" %>
+
+          <% unless request.path == new_user_session_path %>
+            <%= link_to "Sign in", new_user_session_path, class: "tw-btn-primary" %>
+          <% end %>
+        </div>
       </header>
 
       <main id="main-content" class="min-h-screen p-4 lg:p-6 bg-slate-50">

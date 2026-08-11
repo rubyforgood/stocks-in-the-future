@@ -54,7 +54,8 @@
         <%# Was the email as plain text plus two bare links, one of them "Sign out" in
             red-600 on white - 4.0:1, under the gate. Same account menu as the main app, so
             there is one place to see who is signed in and one way to leave. %>
-        <div class="flex shrink-0 items-center gap-1">
+        <div class="flex shrink-0 items-center gap-2">
+          <%= render "layouts/environment_badge" %>
           <%# The way back to the student-facing app. It was an item inside the account menu, which
               is wrong twice over: it is a destination rather than an account action, and a
               destination behind an avatar is not discoverable - which was the report.

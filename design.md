@@ -4248,6 +4248,21 @@ in a minute**, and the right one falls out.
   callout inside another form would have the parser drop the nested form and the button silently
   submit the outer one. The dismiss is passed as a block per call site for that reason.
 
+- **The staging band** is the one thing here that describes neither the page nor an outcome but the
+  *deployment*, and it is the exception to "a message that removes itself must be an outcome". It is
+  dismissible, and that reverses an earlier decision in this document. The reasoning that produced the
+  earlier one was sound about the sentence -- "you are on staging" is still true in a minute -- and
+  wrong about the strip, which was a 32px band across every page on every visit and was reported as
+  "very distracting, and it pushes everything down".
+
+  Two properties make the exception safe, and a dismissible chrome-level notice needs both:
+  **it comes back**, on every login, through a session flag cleared by a Warden `after_authentication`
+  hook rather than a `dismissals` row -- a permanent dismissal is the mute button warned about above,
+  and its failure mode is somebody acting on staging months later believing it is real. And
+  **something stays**: a compact badge in the header, at zero vertical cost, so the question the band
+  answered is still answered. Exactly one of the two is on screen, never both. Stripe's persistent
+  "Test mode" pill is the same trade.
+
 - **The form error summary** (`shared/_form_errors`): `id="error_explanation"`, `role="alert"`, the
   red-200 / red-50 / red-700 card, a lone error inline and several as a `list-disc` list. It gets **no
   close at all** -- it describes the form as it stands and is rebuilt on submit, so hiding it hides the

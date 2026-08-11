@@ -12,15 +12,27 @@
 #
 # It is a strip above the header rather than a callout in the content, because it describes the whole
 # application and not the page - GitLab's environment ribbon and Shopify's development-store banner sit
-# in the chrome for the same reason. And it has no dismiss: this app's rule is that only an *outcome*
-# removes itself, and the environment is still true in a minute.
+# in the chrome for the same reason.
 #
-# This used to carry five methods handing out Tailwind classes - `header_top_class`,
-# `main_offset_class`, `drawer_top_class`, `drawer_height_class`, `sidebar_top_class` - so that the
-# ribbon's 32px was written down in six places. Two things went wrong with that and both are recorded
-# in chrome.css: one layout did not use them, and a hardcoded height cannot survive 200% text. The
-# offsets are CSS now, driven by the ribbon's measured height, and this is back to one question.
+# **It is dismissible for the rest of the login, and it leaves a badge behind.** This reverses the
+# original decision, which was that only an *outcome* removes itself and the environment is still true
+# in a minute. That reasoning is sound about the *sentence* and wrong about the strip: reported in use as
+# "very distracting, and it pushes everything down", which a 32px band across every page on every visit
+# is.
+#
+# Two things keep the reversal safe, and neither is optional:
+#
+#   - **It comes back on every login.** The dismissal is a flag in the session, cleared by a Warden
+#     `after_authentication` hook, so the band is unmissable at the start of every visit and quiet after
+#     that. A permanent dismissal is the mute button this codebase already warns about, and its failure
+#     mode is somebody months later acting on staging in the belief that it is real.
+#   - **A badge replaces it**, in the header, at zero vertical cost. The question the ribbon answers is
+#     still answered; only the 32px band goes. Stripe keeps a persistent "Test mode" pill for the same
+#     reason, and a collapsed Salesforce sandbox banner leaves a marker rather than nothing.
+#
 module EnvironmentHelper
+  # Am I on a deployment that should say so at all?
+  #
   # Set `PREVIEW_STAGING_CHROME=1` to see it locally. Chrome that only exists in one environment is
   # chrome nobody looks at until it is deployed, which is how it reached staging with the app side's
   # sidebar 32px behind the header and its text unreachable at 200%. Refused in production, where the
@@ -29,5 +41,15 @@ module EnvironmentHelper
     return true if ENV["PREVIEW_STAGING_CHROME"] == "1" && !Rails.env.production?
 
     Rails.env.staging?
+  end
+
+  # The full band, unless it has been put away since this login.
+  def show_environment_ribbon?
+    environment_ribbon? && !session[StagingRibbonDismissal::SESSION_KEY]
+  end
+
+  # The badge is what is left after dismissing, so exactly one of the two shows.
+  def show_environment_badge?
+    environment_ribbon? && !show_environment_ribbon?
   end
 end

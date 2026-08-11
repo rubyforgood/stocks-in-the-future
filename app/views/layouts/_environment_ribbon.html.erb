@@ -1,5 +1,6 @@
-<%# See EnvironmentHelper for why this is staging-only and why it is chrome rather than content. %>
-<% if environment_ribbon? %>
+<%# See EnvironmentHelper for why this is staging-only, why it is chrome rather than content, and why
+    it became dismissible after being deliberately not. %>
+<% if show_environment_ribbon? %>
   <%# `fixed: false` for the signed-out layout, whose header is in normal flow: a fixed ribbon there
       would cover it, and a static one needs no offsets at all, so it also skips the controller. %>
   <% fixed = local_assigns.fetch(:fixed, true) %>
@@ -13,12 +14,13 @@
       and the rest covered the header.
 
       Its height is published as `--sitf-ribbon-h` by `ribbon-offset`, and everything fixed below it
-      is expressed against that; see chrome.css.
+      is expressed against that; see chrome.css. That is also what makes the dismissal reclaim the
+      space for free: with no ribbon rendered the variable falls back to its 0px default.
 
       z-60, above the z-50 drawers. Measured, not assumed: at z-50 it already stayed on top of an open
       mobile drawer, because it is later in the DOM. That is the tie design.md's stacking section calls
       fragile, and the remedy it gives is an explicit rank. %>
-  <div class="<%= position %> flex min-h-8 w-full items-center justify-center gap-2 bg-amber-100 px-4 py-1 text-center text-xs leading-tight font-medium text-amber-900"
+  <div class="<%= position %> flex min-h-8 w-full flex-wrap items-center justify-center gap-x-2 gap-y-1 bg-amber-100 px-4 py-1 text-center text-xs leading-tight font-medium text-amber-900"
        <%# tag.attributes, not an interpolated string: an interpolated optional attribute renders
            **unquoted**, and neither CSS nor Capybara will match it. %>
        <%= tag.attributes(data: { controller: ("ribbon-offset" if fixed) }) %>
@@ -43,8 +45,27 @@
         It is also the field's idiom - Stripe's "test data", Shopify's "Development store" - and the
         shortest of the candidates measured, at 148px against a 249px budget on a 320px phone, where
         "Does not contain any real data" needs 236px and "Nothing here affects the live site" 250px.
-        The last of those wraps at 320px; this one has room at every width. The ribbon grows to fit
-        either way - see above - but a phone should not need two lines to say this. %>
+        The last of those wraps at 320px; this one has room at every width. %>
     <span>Staging site. Test data only.</span>
+
+    <%# A `button_to`, not a Stimulus controller: "you are on staging" is page state that is still
+        true, so a client-side hide would bring it straight back on the next load. The round trip
+        writes the session flag, and - because the band is then absent from the render rather than
+        hidden in it - `--sitf-ribbon-h` falls back to 0px and the 32px is genuinely reclaimed.
+
+        No `current_user` check: the flag is in the session, so the sign-in page can put it away too,
+        and authenticating clears it again.
+
+        `button_to` renders its own `<form>`, which is safe here because the layout renders this in
+        the chrome and never inside another form. An underlined text control rather than a ghost
+        button: at 12px in a 32px band there is no room for something with padding, and this has to
+        stay on one line at 320px. %>
+    <%= button_to staging_ribbon_dismissal_path,
+                  class: "shrink-0 cursor-pointer rounded-sm underline underline-offset-2 " \
+                         "hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 " \
+                         "focus-visible:outline-amber-900",
+                  data: { testid: "dismiss-environment-ribbon" } do %>
+      Hide until next login
+    <% end %>
   </div>
 <% end %>

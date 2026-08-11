@@ -1,0 +1,19 @@
+<%# What is left after the band is dismissed: the same fact, at zero vertical cost.
+
+    The ribbon answers "which deployment am I looking at". Dismissing the band should not stop that
+    question being answered - it should stop a 32px stripe pushing every page down. So exactly one of
+    the two shows, and this one lives inside the header that already exists.
+
+    Stripe keeps a persistent "Test mode" pill for the same reason, and a collapsed Salesforce sandbox
+    banner leaves a marker behind rather than nothing.
+
+    `title` as well as the visible text, because at this size the word is the whole affordance and a
+    reader who wants the detail has nowhere else to get it. %>
+<% if show_environment_badge? %>
+  <span class="inline-flex shrink-0 items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-900"
+        title="Staging site. Test data only. The full banner returns at your next login."
+        data-testid="environment-badge">
+    <%= lucide_icon "triangle-alert", class: "size-3 shrink-0", aria: { hidden: true } %>
+    Staging
+  </span>
+<% end %>

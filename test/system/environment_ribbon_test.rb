@@ -62,17 +62,81 @@ class EnvironmentRibbonTest < ApplicationSystemTestCase
     end
   end
 
-  test "the ribbon does not offer to be dismissed, because the environment is still true in a minute" do
+  # This replaces a test asserting the ribbon had **no** dismiss, and the reversal is deliberate: a 32px
+  # band on every page of every visit was reported as "very distracting, and it pushes everything down".
+  # What makes it safe is that it is not permanent - see the next test - and that a badge takes its
+  # place, so the question "which deployment is this" is still answered.
+  test "the ribbon can be put away, and the space is genuinely reclaimed" do
     sign_in create(:admin)
 
     in_staging do
       visit admin_root_path
 
-      within "[data-testid='environment-ribbon']" do
-        assert_no_selector "button"
-        assert_no_selector "a"
-      end
+      # Admin's main clears the chrome with padding rather than margin, so its own box starts at 0 and
+      # the figure that matters is where its content begins.
+      content_top = "Math.round(document.querySelector('main').firstElementChild.getBoundingClientRect().top)"
+      assert_equal 96, page.evaluate_script(content_top),
+                   "the band should be pushing content down to start with"
+
+      click_on "Hide until next login"
+
+      assert_no_selector "[data-testid='environment-ribbon']"
+      assert_selector "[data-testid='environment-badge']", text: "Staging"
+
+      assert_equal 64, page.evaluate_script(content_top), "the 32px should be back, not merely hidden"
+
+      # The variable is what reclaims it, and it has to fall back rather than keep a stale value.
+      assert_equal "0px", page.evaluate_script(
+        "getComputedStyle(document.documentElement).getPropertyValue('--sitf-ribbon-h').trim()"
+      )
     end
+  end
+
+  # The whole safety of making it dismissible rests on this. A permanent dismissal is the mute button
+  # this codebase warns about, and its failure mode is somebody acting on staging months later believing
+  # it is real.
+  test "it comes back on the next login" do
+    admin = create(:admin)
+    sign_in admin
+
+    in_staging do
+      visit admin_root_path
+      click_on "Hide until next login"
+      assert_no_selector "[data-testid='environment-ribbon']"
+
+      sign_out_through_the_ui
+      fill_in "Username", with: admin.username
+      fill_in "Password", with: "password"
+      click_button "Sign in"
+
+      assert_selector "[data-testid='environment-ribbon']", text: "Staging"
+      assert_no_selector "[data-testid='environment-badge']"
+    end
+  end
+
+  # Exactly one of the two, never both and never neither: two amber markers saying the same thing is the
+  # third-copy-of-one-fact problem, and none at all is what the reversal had to avoid.
+  test "the band and the badge are alternatives" do
+    sign_in create(:admin)
+
+    in_staging do
+      visit admin_root_path
+      assert_selector "[data-testid='environment-ribbon']"
+      assert_no_selector "[data-testid='environment-badge']"
+
+      click_on "Hide until next login"
+      assert_no_selector "[data-testid='environment-ribbon']"
+      assert_selector "[data-testid='environment-badge']"
+    end
+  end
+
+  # Neither appears anywhere else, which is the point of the whole feature.
+  test "no badge outside staging either" do
+    sign_in create(:admin)
+    visit admin_root_path
+
+    assert_no_selector "[data-testid='environment-ribbon']"
+    assert_no_selector "[data-testid='environment-badge']"
   end
 
   test "the student side gets it too, since one product means one chrome" do

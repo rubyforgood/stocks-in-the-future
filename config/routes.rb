@@ -150,6 +150,11 @@ Rails.application.routes.draw do
   # banner - which is a route, a controller action and a column for each new thing a reader can close.
   # The key identifies what was dismissed and is checked against Dismissal::KEYS.
   resources :dismissals, only: :create
+
+  # The staging ribbon's dismiss. Not a `dismissals` row: that table is one persistent row per user
+  # per key, and this has to come back on the next login, so the session is the correct store and
+  # there is nothing to migrate.
+  resource :staging_ribbon_dismissal, only: :create
   resources :stocks, only: %i[show index]
   resources :announcements, only: :show
 end

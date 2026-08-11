@@ -3461,3 +3461,48 @@ does `overflow-wrap` get to break it. Any "why won't this wrap" inside a flex ro
 - **Nothing.** 882 unit and 330 system runs pass, and the system suite was run three times to be sure.
 - Four shared partials changed — `_page_header`, `_callout`, `_account_menu`, `_discard_filter_tabs` —
   plus the admin layout's header. All of them widen what already worked; none narrows it.
+
+## The staging band becomes dismissible, per login, and leaves a badge
+
+This **reverses a decision recorded earlier in this document**, so the reversal is recorded rather than
+the earlier entry rewritten.
+
+The original reasoning was that only an *outcome* removes itself, and "you are on staging" is still
+true in a minute. That is sound about the sentence and wrong about the strip: a 32px band across every
+page on every visit was reported in use as "very distracting, and it pushes everything down". Both
+halves of that are accurate — it *is* on every page, and before the chrome refactor it pushed the
+header, the drawer and the content down by a hardcoded 32px.
+
+Two properties make the reversal safe, and a dismissible chrome-level notice needs both:
+
+- **It comes back on every login.** The dismissal is a flag in the **session**, not a `dismissals` row.
+  That table holds one persistent row per user per key, which is right for "I have seen the first-share
+  celebration" and wrong here. A Warden `after_authentication` hook clears the flag, which is the only
+  moment that reliably means "a new login" — signing out and back in during the same browser session
+  brings the band back too, and Devise's logout does not reliably clear unrelated session keys.
+- **A badge takes its place.** `layouts/_environment_badge`, in the header both halves already have, at
+  zero vertical cost. The question the band answers is still answered; only the strip goes. Exactly one
+  of the two is on screen, never both and never neither. Stripe's persistent "Test mode" pill is the
+  same trade, and a collapsed Salesforce sandbox banner leaves a marker rather than nothing.
+
+The dismiss is a `button_to`, for the reason already recorded for callouts: a client-side hide of page
+state that is still true comes straight back on the next load. Here the round trip does more than
+persist — because the band is then **absent from the render** rather than hidden inside it,
+`--sitf-ribbon-h` falls back to its 0px default and the 32px is genuinely reclaimed. The test asserts
+that number rather than the band's visibility, because "hidden but still occupying space" is exactly the
+outcome that would look correct.
+
+There is no `authenticate_user!` on the controller: the sign-in page shows the band too, the flag is in
+the reader's own session, and signing in clears it. Nothing is authorised because nothing is shared.
+
+### What this breaks
+
+- **A test asserting the ribbon had no dismiss is gone**, replaced by four: that the space is reclaimed
+  and not merely hidden, that it returns on the next login, that band and badge are alternatives, and
+  that neither appears outside staging.
+- **`design.md`'s "a message that removes itself must be an outcome" now has a stated exception.** The
+  rule stands for flashes, callouts and error summaries; the deployment band is the one thing that
+  describes neither the page nor an outcome.
+- Adds `StagingRibbonDismissal` (a session-key holder, not a record), one controller, one route, and one
+  initializer. `Dismissal::KEYS` is unchanged — briefly adding a key there was the wrong store and was
+  reverted before it shipped.
