@@ -4634,9 +4634,14 @@ The *why* behind the system, so choices aren't re-litigated or lost.
   Every "this broke somewhere else" bug here has been a component sized against the viewport while
   living in a narrower box.
 
-  Also standard now, and cheap: **logical properties** (`ms-`, `pe-`, `text-end`) over physical ones,
-  **`clamp()`** where a size step is arbitrary rather than a token, **`dvh`** over `vh`, and
-  **`prefers-reduced-motion`** on anything that moves.
+  Also standard now: **logical properties** (`ms-`, `pe-`, `text-end`) over physical ones, **`clamp()`**
+  where a size step is arbitrary rather than a token, **`dvh`** over `vh`, and **`prefers-reduced-motion`**
+  on anything that moves. The last of those is live - `motion.css` restricts which properties may
+  transition, so a drawer stops sliding while a button still fades. The first two are conventions for new
+  markup rather than a sweep, and container queries have no caller yet **on purpose**: measured, nothing
+  in this app currently misbehaves in a narrow container, and every case that has come up was fixed by
+  wrapping or `min-w-0` instead. The guidelines record the trigger for each, so a rule with no caller does
+  not quietly become a rule nobody applies.
 
   [`docs/responsive-design-guidelines.md`](docs/responsive-design-guidelines.md) is the long form and
   wins on anything responsive.

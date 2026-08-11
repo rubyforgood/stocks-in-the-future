@@ -1,0 +1,32 @@
+/* Motion, for people who have asked for less of it.
+ *
+ * `prefers-reduced-motion: reduce` is a real setting on every major OS, and before this the app honoured
+ * it in exactly one place - `auto_dismiss_controller`, for the flash fade - while both nav drawers slid
+ * 256px on a 300ms transform.
+ *
+ * **It restricts which properties may transition rather than zeroing every duration.** The blanket
+ * snippet that sets `transition-duration: 0.01ms` on everything is the common one, and it is blunter than
+ * the setting asks for: the query is about *motion*, and a colour or opacity fade is not motion in the
+ * sense that causes trouble. So transforms stop moving and animations collapse, while a button still
+ * fades on hover. Overriding `transition-property` is what expresses that.
+ *
+ * `!important` because these have to beat utilities, and a utility is what declares the transition on
+ * every one of these elements. It is the one place in this stylesheet where that is the right tool - and
+ * note the deliberate limit: this file adds no rule that changes layout, only which properties animate.
+ *
+ * One thing that made this safe to do at all: nothing here waits on `transitionend`. That was already a
+ * rule - "remove on its own timer, because a transition that never fires leaves the message up forever" -
+ * and it is exactly the trap a reduced-motion override sets for a careless listener. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    /* Everything except transform, and the list is explicit rather than a negation because CSS has no
+       way to say "all but one". */
+    transition-property: color, background-color, border-color, outline-color, text-decoration-color,
+      fill, stroke, opacity, box-shadow !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}

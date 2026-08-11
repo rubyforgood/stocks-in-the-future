@@ -171,31 +171,31 @@ with "Log in" against ten "Sign in"s. **Four of its six branches were dead** - t
 - [x] **Clickable divs** - **done**. Zero `onclick` handlers and zero `<div data-action="click...">` remain in `app/views`.
 - [x] Audit the trading modal (`shared/_modal`) for focus trap, restore, and Esc. **done**: Esc already worked; trap and restore were both absent and are now implemented in `modal_controller.js`.
 - [x] **Primitives** - **done**. `components/ui/` holds eleven: `_card`, `_page_header`, `_badge`, `_empty_state`, `_data_table`, `_stat`, `_callout`, `_icon_tile`, `_button`, `_input`, `_label`, `_checkbox`, `_textarea`.
-- [ ] Reconcile `design.md` with this codebase (see blockers in design-instructions.md). **Partly done,
-      in three passes so far.**
+- [x] **Reconcile `design.md` with this codebase** - **done**, in four passes.
 
-      **Pass 3 (this one) did the foundations and every copyable snippet.** The palette table named a
-      `brand-*` indigo scale that this app does not define - anything written against it renders no
-      colour - and it is the real `sitf-*` tokens with their measured contrast now. The five class lists
-      a reader could have copied (two field snippets, the primary button variant, a tag, two nav link
-      states) name real tokens. About twelve `brand-*` mentions remain in *prose* in sections not yet
-      touched, and the palette section now states the mapping for them.
+      Pass 3 did the foundations and every copyable snippet: the palette table named a `brand-*` indigo
+      scale this app does not define, so anything written against it rendered no colour, and it is the real
+      `sitf-*` tokens with measured contrast now.
 
-      **What is left is the CASA nouns in examples**, roughly 200 lines across Buttons, Accessibility,
-      Filter bar, Tables, Alerts, App shell, Key patterns and Modal. **Do not run a find-and-replace**:
-      it was tried and reverted, because it converts CASA's history into false claims about this app
-      ("`classrooms#edit` was a white card with a rose outline", a `classrooms/_month_year_select` that
-      does not exist) - which is worse than an obviously foreign noun, and is what produced the
-      `stocks_in_the_future_cases` identifiers in the first place. Each passage needs the rule kept and
-      the example either dropped or replaced with one verified to exist here.
-      The *code names* are reconciled: `design.md` and `CLAUDE.md` no longer refer to
-      `Admin::FormBuilder`, `Shadcn::FormBuilder`, `.tw-field-error`, `components/ui/_button`,
-      `_checkbox`, `_label`, `_input` or `_textarea`, none of which exist, and `CLAUDE.md` no longer
-      claims `turbo_confirm` is a native OS dialog. What remains is the **CASA content**: about 130 of
-      5,350 lines still illustrate rules with court orders, case contacts and supervisors, mostly under
-      `## Components`. Those rules are sound; it is the examples that are from another product, so the
-      work is to rewrite them in this app's domain rather than to delete them - a rule with no example
-      is a rule nobody applies.
+      **Pass 4 finished the examples, section by section.** Foreign-domain lines went from 236 to 6, and the
+      6 are deliberate: the provenance note, the two "not in this app" notes, and one citation of Bootstrap
+      5's flash duration as field evidence. Rewritten around this app: Tables, Autosave, Key patterns,
+      Migration status, Alerts, Modal, Buttons, Filter bar, Status pill, Charts, the worklist, the card meta
+      line, Disclosure, App shell and Design decisions, plus two sections that now say the control does not
+      exist here.
+
+      Three findings from that pass, since the point of the exercise was to make the document true:
+      the type-ahead "not in this app" note had shipped **three times over** (one replacement applied to
+      three sections); Iconography claimed self-hosted Bootstrap Icon font binaries when the app has
+      `lucide-rails` and inline SVG; and two sections now record a **deliberate divergence** rather than a
+      translation - the one chart here is Chart.js on a canvas where the spec forbade it, and the sidebar's
+      group labels are not uppercase, because the copy rule forbids that transform.
+
+      **The method is the transferable part.** A find-and-replace was tried and reverted: it converts CASA's
+      history into false claims about this app, which is worse than an obviously foreign noun, and is what
+      produced the `stocks_in_the_future_cases` identifiers in the first place. Each passage kept its rule
+      and either dropped its example or took one verified to exist here.
+
 - [x] **Untrack the `.DS_Store` files** - **done**; `git ls-files` finds none.
 
 ## Deferred / noted
@@ -831,3 +831,30 @@ when it was reported. The other twenty put everything in the title, and **three 
 reader nothing they did not know when they clicked. Each of these needs a verb in the question and the
 real consequence underneath - what is lost, what is kept, who is affected - which is a copy pass over
 about twenty call sites and worth doing in one sitting rather than one at a time.
+
+## Reduced motion, and three rules with no callers (2026-08)
+
+`prefers-reduced-motion` was honoured in exactly one place - `auto_dismiss_controller`, for the flash
+fade - while both nav drawers slid 256px on a 300ms transform. `app/assets/tailwind/motion.css` now
+restricts which properties may transition, rather than zeroing every duration: the query is about motion,
+and a colour fade is not motion in the sense that causes trouble, so transforms stop and animations
+collapse while a button still fades on hover. `reduced_motion_test` drives it through CDP media
+emulation, which is the only way this browser can be put in that state, and it was verified by
+un-importing the stylesheet - both examples fail without it.
+
+**Three rules added to `docs/responsive-design-guidelines.md` have no callers, and after checking, that
+is the right state for two of them and a documented wait for the third.** The guidelines now record the
+trigger for each, so none of them is a rule nobody applies.
+
+- **Container queries - no caller, on purpose.** A caller was looked for and not invented.
+  `components/ui/_stat` was the obvious candidate, rendering both in a four-across band and inside a card;
+  measured on `classrooms#show` it is 151px wide at 1024px and 236px at 1366px, with no overflow and no
+  label wrap. `reflow_test` passes at 320px and 200% text. Every case that has actually come up was fixed
+  by `flex-wrap`, `min-w-0` or `min-h-*`. The rule stands for when a component must change *layout*
+  because of its own width; that has not happened yet.
+- **Logical properties** - a convention for new and rebuilt markup. Converting several hundred existing
+  utilities for a single-language app would be churn with no reader on the other end; the cost of not
+  starting is that the pile grows.
+- **`clamp()`** - unused because nearly every size here **is** a token from design.md's scale, which is
+  exactly the case `clamp()` is wrong for. It would earn its keep on a display figure meant to grow with
+  the page.

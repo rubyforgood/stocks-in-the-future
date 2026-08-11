@@ -3772,3 +3772,42 @@ the rule about deleting a rule and keeping its padding.
 - One assertion expected the dashboard after deleting a transaction.
 - **A caution from doing it:** my first edit replaced the redirect assertion in `update` as well, which
   correctly goes to the record. A mechanical replace across a test file catches the tests you did not mean.
+
+## Reduced motion is honoured, and three unused rules get their triggers written down
+
+**`prefers-reduced-motion` was live in one place.** `auto_dismiss_controller` checked it for the flash
+fade; meanwhile both nav drawers slid 256px on a 300ms transform and every button and row transitioned
+its colours. That is a real accessibility gap on a setting every major OS ships.
+
+`app/assets/tailwind/motion.css` **restricts which properties may transition** rather than zeroing every
+duration. The common snippet sets `transition-duration: 0.01ms` on everything, and it is blunter than the
+setting asks for: the query is about *motion*, and a colour or opacity fade is not motion in the sense
+that causes trouble. So transforms stop moving and animations collapse, while a button still fades on
+hover. `!important` is deliberate and confined to this file, because a utility is what declares the
+transition on every one of these elements.
+
+One thing made this safe: **nothing here waits on `transitionend`**. That was already a rule - "remove on
+its own timer, because a transition that never fires leaves the message up forever" - and a
+reduced-motion override is exactly the trap it was written for.
+
+`reduced_motion_test` drives it through CDP `Emulation.setEmulatedMedia`, which is the only way to put
+this browser in that state; without it the media query is dead code no test can see. Verified by
+un-importing the stylesheet - both examples fail.
+
+**And the three rules with no callers.** Container queries, logical properties and `clamp()` were added to
+the responsive guidelines two changes ago and nothing used any of them. A caller was looked for rather
+than invented: `components/ui/_stat` was the candidate, since it renders both in a four-across band and
+inside a card, and measured on `classrooms#show` it is 151px at 1024px with no overflow and no label wrap.
+`reflow_test` passes at 320px and 200%. Every case that has actually come up was fixed by `flex-wrap`,
+`min-w-0` or `min-h-*`.
+
+So the guidelines now record the **trigger** for each instead of implying adoption: a container query is
+for a component that must change *layout* by its own width, logical properties are a convention for new
+markup rather than a sweep, and `clamp()` is wrong for a value that is a token - which nearly every size
+here is. Both failure modes are named in the doc: a rule with no caller drifts as surely as no rule, and a
+caller invented to satisfy a rule is an abstraction nobody asked for.
+
+**Closed while there:** the backlog still claimed the `design.md` reconciliation had "roughly 200 lines"
+of CASA examples left. That finished earlier the same day at 236 → 6 lines, the 6 deliberate. The file
+itself records "re-check a standing claim before repeating it", from carrying a fixed CVE as the branch's
+most urgent item.

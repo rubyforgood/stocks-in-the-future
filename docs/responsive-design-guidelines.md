@@ -158,12 +158,30 @@ query instead of a new viewport tier.** This is where the field has moved: Polar
 GitHub all put component adaptation on container queries and keep viewport breakpoints for page
 layout.
 
-### Adoption
+### Adoption: nothing uses this yet, and that is not an oversight
 
-New and rebuilt components size against their container. Existing ones are converted when touched;
-there is no sweep, because a component that only ever renders full width loses nothing by using `lg:`.
-The test is the question **"could this render in a narrower box than the page?"** — if yes, it is a
-container query.
+**No component in this app currently needs a container query, and one was not added to give the rule a
+caller.** That was considered and rejected on evidence:
+
+- `reflow_test` walks every main page at 320px and at 200% text and passes, so nothing is being pushed
+  around by a viewport tier answering the wrong question.
+- The obvious candidate was `components/ui/_stat`, which renders both in a four-across band and inside a
+  card. Measured on `classrooms#show` at 1024px it is 151px wide with no overflow and no label wrap; at
+  1366px, 236px. It does not misbehave, and `@container` on it would have been a rule pretending to have
+  a use.
+- Every case that *has* come up this year was fixed by a fluid technique instead - `flex-wrap` on the
+  admin header, the discard tabs and the callout, `min-w-0` on a flex item that would not shrink,
+  `min-h-*` on the staging band. Those are the first four bullets above, and they kept working.
+
+So the rule stands as the answer to a question that will be asked: **when a component must change its
+layout because of its own width, use a container query rather than adding a viewport tier.** The trigger
+is a *layout* change - one column becoming two, a row becoming a stack - not a size change, which
+`clamp()` covers, and not an overflow, which wrapping covers.
+
+Recorded this plainly because the alternative is worse in both directions. A rule with no caller drifts
+as surely as no rule - this repo has the receipts, `tw-input-primary` sat unused for months while nine
+forms rendered at 2.54:1. And a caller invented to satisfy a rule is an abstraction nobody asked for,
+which is the other half of the same problem.
 
 ---
 
@@ -217,10 +235,18 @@ they cost nothing today; retrofitting a whole app's `left`/`right` later is what
 "the last column right-aligns" is `text-end`. This app is English-only and that is not the point — the
 point is that the physical version encodes an assumption for no benefit.
 
+**A convention for new and rebuilt markup, not a sweep.** Nothing here uses them yet, and converting
+several hundred existing utilities for an app with one language would be churn with no reader on the
+other end. The cost of *not* starting is that the pile grows.
+
 **Fluid sizes with `clamp()` where the step is arbitrary.** `text-xl lg:text-3xl` is two guesses and a
 jump; `clamp()` is one continuous curve, and it is what Utopia-style scales and most modern systems
 ship. Use it for type and space that should scale with the viewport. Keep discrete steps where the
 value is a *token* — a button's 40px height is a decision, not a curve.
+
+Also unused today, and for a reason worth knowing: nearly every size in this app **is** a token from
+design.md's scale, and a token is exactly the case `clamp()` is wrong for. The place it would earn its
+keep is a display figure that wants to grow with the page.
 
 **`dvh` / `svh`, not `vh`.** `100vh` is wrong on a phone the moment the browser chrome collapses;
 `dvh` tracks it. `chrome.css` uses `100dvh` for the drawer for exactly this reason.
