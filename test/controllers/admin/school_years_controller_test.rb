@@ -30,7 +30,10 @@ module Admin
 
       assert_response :success
       assert_select "h1", "#{school_name} (#{year_name})"
-      assert_select "h2", "Quarters"
+      # **No "Quarters" card.** A school year always has exactly four, so listing them was an invariant
+      # rendered as data. The count is in the summary line instead.
+      assert_select "h2", text: "Quarters", count: 0
+      assert_select "p", text: /4 quarters/
     end
 
     test "new" do
@@ -104,7 +107,8 @@ module Admin
       get edit_admin_school_year_path(school_year)
 
       assert_response :success
-      assert_select "h1", "Edit school year"
+      # The record's page edits in place, so its heading is the record's name.
+      assert_select "h1", school_year.name
     end
 
     test "update" do

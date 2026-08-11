@@ -60,6 +60,69 @@ module AdminHelper
 
   # Renders breadcrumbs for navigation
   # @param breadcrumbs [Array<Hash>] Breadcrumb items with :label and :path keys
+  # A teacher's state and reach, as the record page's summary line.
+  #
+  # The state was a badge under the title. It reads better as a sentence beside the other fact somebody wants -
+  # how many classrooms they teach - and a page's summary is the place for a read-only fact that is not worth a
+  # section. Whether they are active is stated in words, not only by a badge's colour.
+  def teacher_summary(teacher)
+    state = teacher.discarded? ? "Deactivated" : "Active"
+
+    "#{state} · #{pluralize(teacher.classrooms.size, 'classroom')}"
+  end
+
+  # A student's classroom and what is in their portfolio, as the summary line. Nil-safe for the same reason as
+  # the transaction helpers above: a failed save re-renders this page.
+  def student_summary(student)
+    parts = [student.classroom&.name]
+    parts << "#{number_to_currency(student.portfolio.cash_balance)} cash" if student.portfolio.present?
+
+    parts.compact.join(" · ").presence || "No classroom"
+  end
+
+  # What the transaction *is*, as its heading. An id is not a name - and this page already moved its id into
+  # the breadcrumb once, for the same reason.
+  # **Everything here tolerates a nil.** Now that view and edit are one page, a failed save re-renders the
+  # record's own page - and an invalid record is one whose `portfolio_id`, type or amount is missing. This is
+  # the second helper to learn it the hard way: `SchoolYear#name` raised from a page title while the form was
+  # trying to show the validation message. Anything a merged page's header reads must survive an invalid
+  # record.
+  def transaction_title(transaction)
+    return "Transaction" if transaction.transaction_type.blank? || transaction.amount_cents.blank?
+
+    amount = number_to_currency(transaction.amount_cents / 100.0)
+
+    "#{transaction.transaction_type.humanize} of #{amount}"
+  end
+
+  # The two facts the form cannot express: when the money moved, and the order that caused it. One line each,
+  # so they belong in the summary rather than in sections of their own.
+  def transaction_summary(transaction)
+    parts = [transaction.portfolio&.user&.username,
+             transaction.created_at && l(transaction.created_at.to_date, format: :long)]
+    parts << "from order ##{transaction.order.id}" if transaction.order.present?
+
+    parts.compact.join(" · ")
+  end
+
+  # A classroom's state and size, as its summary line. Archived and trading are **not** form fields - the
+  # archive toggle is a header action and trading is the teacher's switch on their own classroom page - so they
+  # are read-only facts, which is exactly what a summary line is for. Stated in words, not by colour alone.
+  def classroom_summary(classroom)
+    parts = [classroom.grades_display.presence, classroom.year_name.presence]
+    parts << (classroom.trading_enabled? ? "trading on" : "trading off")
+    parts << "archived" if classroom.archived?
+
+    parts.compact.join(" · ")
+  end
+
+  # A school year's summary: how many classrooms run in it, and the quarter count that used to be a card of
+  # four identical rows.
+  def school_year_summary(school_year)
+    "#{pluralize(school_year.classrooms.size, 'classroom')} · " \
+      "#{pluralize(school_year.quarters.size, 'quarter')}"
+  end
+
   def admin_breadcrumbs(breadcrumbs = [])
     render "admin/shared/breadcrumbs", breadcrumbs: breadcrumbs
   end

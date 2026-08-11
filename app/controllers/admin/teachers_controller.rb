@@ -16,6 +16,10 @@ module Admin
     end
 
     def show
+      # The record's page renders the form, so it needs what the form needs. `edit` was the only action that
+      # called this; merging the two pages means `show` does too.
+      set_form_data
+
       @breadcrumbs = [
         { label: "Teachers", path: admin_teachers_path },
         { label: @teacher.username }

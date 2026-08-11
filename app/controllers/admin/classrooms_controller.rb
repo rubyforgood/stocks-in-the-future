@@ -5,7 +5,11 @@ module Admin
     include ClassroomFormFields
 
     before_action :set_classroom, only: %i[show edit update toggle_archive]
-    before_action :classroom_form_data, only: %i[new edit create update]
+    # `show` is on this list now: the record's page renders the form, so it needs the form's collections. And
+    # the roster comes with it, because `edit` and a failed `update` render the same page - the first version
+    # loaded it in `show` alone and both of those blew up on `nil.any?`.
+    before_action :classroom_form_data, only: %i[show new edit create update]
+    before_action :load_roster, only: %i[show edit update]
 
     def index
       @classrooms = apply_sorting(Classroom.all, default: "name")
@@ -83,6 +87,12 @@ module Admin
     end
 
     private
+
+    # Loaded here rather than queried from the view, with the limit explicit so the page can say it truncated
+    # rather than presenting ten students as the whole roster.
+    def load_roster
+      @students = @classroom.students.limit(10).to_a
+    end
 
     def set_classroom
       @classroom = Classroom.find(params.expect(:id))

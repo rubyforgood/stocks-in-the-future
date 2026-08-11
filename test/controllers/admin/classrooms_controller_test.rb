@@ -34,7 +34,10 @@ module Admin
 
       assert_response :success
       assert_select "h1", classroom.name
-      assert_select "[data-testid='grades_display'] dd", text: "9th-10th"
+      # The grades are a **form field** now, not a read-only row: the form edits `grade_ids`, so a definition
+      # list of them beside the checkboxes was the same fact twice. The summary line carries the display value.
+      assert_select "[data-testid='grades_display'] dd", count: 0
+      assert_select "p", text: /9th-10th/
     end
 
     test "should get new" do
@@ -93,7 +96,8 @@ module Admin
       get edit_admin_classroom_path(classroom)
 
       assert_response :success
-      assert_select "h1", "Edit classroom"
+      # The record's page edits in place, so its heading is the record's name.
+      assert_select "h1", classroom.name
     end
 
     test "update" do

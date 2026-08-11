@@ -1,61 +1,47 @@
-<div class="max-w-7xl mx-auto">
-  <%= admin_breadcrumbs(@breadcrumbs) %>
+<%= render layout: "admin/shared/record_page",
+           locals: { title: @classroom.name, breadcrumbs: @breadcrumbs,
+                     description: classroom_summary(@classroom),
+                     actions: capture { classroom_archive_toggle_button(@classroom) } } do %>
+  <%# **No attribute card, and no "Teachers" card.** The form edits the name, the school year, the grades and
+      `teacher_ids`, so all four were being displayed a second time on a page where they could not be changed.
+      Which teachers are assigned is the form's checkbox group.
 
-  <%# Actions are written out rather than using admin/shared/_show_actions because the
-      archive toggle sits between Edit and Delete, and that order is worth keeping. %>
-  <%= render layout: "components/ui/page_header", locals: { title: @classroom.name } do %>
-    <%= link_to edit_admin_classroom_path(@classroom), class: admin_secondary_button_class do %>
-      <%= lucide_icon("square-pen", class: "h-5 w-5 shrink-0 text-slate-500") %>
-      Edit
-    <% end %>
-
-    <%= classroom_archive_toggle_button(@classroom) %>
-
-    <%# **No Delete.** It posted `DELETE` to `admin_classroom_path`, and that route does not exist -
-        `resources :classrooms, except: [:destroy]` - so the button 404'd every time it was pressed, for
-        as long as it had existed. The same shape as the account deletion that returned a 500 for years:
-        a destructive control nothing tested may never have worked.
-
-        Nor should it: a classroom holds grade books and a roster, `Classroom#users` is `dependent:
-        :nullify`, and deleting one would cut every student in it loose from their class while leaving
-        their grades pointing at nothing. Archive is the reversible action that already exists, and it is
-        the one in this toolbar. %>
+      **No Delete**, and that predates the merge: it posted `DELETE` to a route that does not exist -
+      `resources :classrooms, except: [:destroy]` - so it 404'd every time for as long as it had existed. Nor
+      should it exist: a classroom holds grade books and a roster, and `Classroom#users` is `dependent:
+      :nullify`, so deleting one would cut every student loose from their class. Archive is the reversible
+      action, and it is the header's. %>
+  <%= render layout: "admin/shared/record_section",
+             locals: { title: "Details", hint: "Changes apply to everyone who can see this classroom." } do %>
+    <%= render "classrooms/form",
+               classroom: @classroom,
+               url: admin_classroom_path(@classroom),
+               cancel_path: admin_classroom_path(@classroom) %>
   <% end %>
 
-  <div class="space-y-6">
-    <%= admin_show_attributes(
-          @classroom,
-          attributes: %i[name grades_display archived trading_enabled school_year]
-        ) %>
-
-    <%= render layout: "components/ui/card",
-               locals: { title: "Students (#{@classroom.students.count})" } do %>
-      <% if @classroom.students.any? %>
-        <ul class="space-y-2">
-          <% @classroom.students.limit(10).each do |student| %>
-            <li class="text-sm text-slate-900"><%= student.username %></li>
-          <% end %>
-          <% if @classroom.students.count > 10 %>
-            <li class="text-sm text-slate-600">
-              ... and <%= @classroom.students.count - 10 %> more
+  <%# The roster: a collection worth scanning, and the reason somebody opens a classroom. Read-only here - a
+      student is added from the teacher's own classroom page, which has the flow for it. %>
+  <%= render layout: "admin/shared/record_section", locals: { title: "Students" } do %>
+    <%= render layout: "components/ui/card", locals: {} do %>
+      <% if @students.any? %>
+        <ul class="divide-y divide-slate-100">
+          <% @students.each do |student| %>
+            <li class="py-2 text-sm">
+              <%= link_to student.display_name.presence || student.username,
+                          admin_student_path(student), class: "tw-link" %>
             </li>
           <% end %>
         </ul>
+
+        <%# A truncated list has to say so, or "ten students" reads as the whole roster. %>
+        <% if @classroom.students.size > @students.size %>
+          <p class="mt-3 text-xs text-slate-600">
+            Showing <%= @students.size %> of <%= @classroom.students.size %>.
+          </p>
+        <% end %>
       <% else %>
         <p class="text-sm text-slate-600">No students in this classroom yet.</p>
       <% end %>
     <% end %>
-
-    <%= render layout: "components/ui/card", locals: { title: "Teachers" } do %>
-      <% if @classroom.teachers.any? %>
-        <ul class="space-y-2">
-          <% @classroom.teachers.each do |teacher| %>
-            <li class="text-sm text-slate-900"><%= teacher.username %></li>
-          <% end %>
-        </ul>
-      <% else %>
-        <p class="text-sm text-slate-600">No teachers assigned to this classroom yet.</p>
-      <% end %>
-    <% end %>
-  </div>
-</div>
+  <% end %>
+<% end %>

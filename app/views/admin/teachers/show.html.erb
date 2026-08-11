@@ -1,63 +1,12 @@
-<div class="max-w-7xl mx-auto">
-  <%= admin_breadcrumbs(@breadcrumbs) %>
-
-  <%# The status badge moves under the title rather than inside it: it was a sibling of
-      the old h2, and putting it inside the h1 would make "Active" part of the page's
-      accessible name. %>
-  <% status_label = @teacher.discarded? ? "Deactivated" : "Active" %>
-  <% status_tone = @teacher.discarded? ? :danger : :success %>
-  <% status_badge = render("components/ui/badge", label: status_label, tone: status_tone) %>
-
-  <%= render layout: "components/ui/page_header",
-             locals: { title: @teacher.username, description: status_badge } do %>
-    <%= link_to edit_admin_teacher_path(@teacher), class: admin_secondary_button_class do %>
-      <%= lucide_icon("square-pen", class: "h-5 w-5 shrink-0 text-slate-500") %>
-      Edit
-    <% end %>
-
-    <% if @teacher.discarded? %>
-      <%= link_to admin_teacher_reactivation_path(@teacher),
-                  data: { turbo_method: :post,
-                          turbo_confirm: teacher_reactivate_confirm(@teacher) },
-                  class: admin_secondary_button_class do %>
-        <%= lucide_icon("circle-check", class: "h-5 w-5 shrink-0 text-slate-500") %>
-        Reactivate
-      <% end %>
-
-      <%= link_to admin_teacher_path(@teacher),
-                  data: { turbo_method: :delete,
-                          turbo_confirm: teacher_delete_confirm(@teacher) },
-                  class: admin_danger_button_class do %>
-        <%= lucide_icon("trash-2", class: "h-5 w-5 shrink-0") %>
-        Permanently delete
-      <% end %>
-    <% else %>
-      <%= link_to admin_teacher_deactivation_path(@teacher),
-                  data: { turbo_method: :post,
-                          turbo_confirm: teacher_deactivate_confirm(@teacher) },
-                  class: admin_danger_button_class do %>
-        <%= lucide_icon("trash-2", class: "h-5 w-5 shrink-0") %>
-        Deactivate
-      <% end %>
-    <% end %>
+<%= render layout: "admin/shared/record_page",
+           locals: { title: @teacher.display_name.presence || @teacher.username,
+                     breadcrumbs: @breadcrumbs,
+                     description: teacher_summary(@teacher),
+                     actions: capture { render "admin/teachers/record_actions", teacher: @teacher } } do %>
+  <%# **No "Classrooms" card.** The form's `classroom_ids` group *is* the list of classrooms this teacher
+      teaches, and a read-only copy beside it was the same fact twice - once changeable, once not. %>
+  <%= render layout: "admin/shared/record_section",
+             locals: { title: "Details", hint: "Saved when you press Update teacher." } do %>
+    <%= render "form" %>
   <% end %>
-
-  <div class="space-y-6">
-    <%= admin_show_attributes(
-          @teacher,
-          attributes: %i[username email name]
-        ) %>
-
-    <%= render layout: "components/ui/card", locals: { title: "Classrooms" } do %>
-      <% if @teacher.classrooms.any? %>
-        <ul class="space-y-2">
-          <% @teacher.classrooms.each do |classroom| %>
-            <li class="text-sm text-slate-900"><%= classroom.name %></li>
-          <% end %>
-        </ul>
-      <% else %>
-        <p class="text-sm text-slate-600">No classrooms assigned to this teacher yet.</p>
-      <% end %>
-    <% end %>
-  </div>
-</div>
+<% end %>

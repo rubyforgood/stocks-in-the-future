@@ -1,75 +1,32 @@
-<div class="max-w-7xl mx-auto">
-  <%= admin_breadcrumbs(@breadcrumbs) %>
+<%= render layout: "admin/shared/record_page",
+           locals: { title: transaction_title(@portfolio_transaction),
+                     breadcrumbs: @breadcrumbs,
+                     description: transaction_summary(@portfolio_transaction),
+                     actions: capture do
+                       # A Ruby comment, not an ERB one: this is inside a `capture` block, and a comment tag
+                       # inside another tag ends it mid-expression - a trap this repo has recorded four times.
+                       #
+                       # Only where the record is still valid. A failed save re-renders this page with the
+                       # attributes the user submitted, so an invalid transaction has no portfolio to name, and
+                       # the confirmation names one.
+                       if @portfolio_transaction.portfolio.present?
+                         link_to "Delete transaction",
+                                 admin_portfolio_transaction_path(@portfolio_transaction),
+                                 data: { turbo_method: :delete,
+                                         turbo_confirm: transaction_delete_confirm(@portfolio_transaction) },
+                                 class: admin_danger_button_class
+                       end
+                     end } do %>
+  <%# **Four cards became one section.** "Portfolio", "Transaction details" and "Description" were all
+      attributes the form edits - portfolio, type, reason, amount, description - displayed a second time where
+      they could not be changed. The two facts the form cannot express are the **date** the money moved and the
+      **order** that caused it, and both are one line each, so they are the summary rather than sections of
+      their own. That is the same rule the stock page's holders line follows.
 
-  <%# "Portfolio transaction" was Title Case. Sentence case per design.md. %>
-  <%= render layout: "components/ui/page_header",
-             locals: { title: "Portfolio transaction ##{@portfolio_transaction.id}" } do %>
-    <%= render "admin/shared/show_actions",
-               record: @portfolio_transaction,
-               edit_path: edit_admin_portfolio_transaction_path(@portfolio_transaction),
-               delete_path: admin_portfolio_transaction_path(@portfolio_transaction) %>
+      The title was "Portfolio transaction #215". An id is not a name, and design.md already records moving
+      that id to the breadcrumb on this very page - so the heading says what the transaction *is*. %>
+  <%= render layout: "admin/shared/record_section",
+             locals: { title: "Details", hint: "Saved when you press Update transaction." } do %>
+    <%= render "form", portfolio_transaction: @portfolio_transaction %>
   <% end %>
-
-  <%# dt labels are slate-700, matching admin/shared/_show_attributes: slate-500 read as
-      muted metadata rather than as the key half of a key/value pair. %>
-  <div class="space-y-6">
-
-    <%= render layout: "components/ui/card", locals: { title: "Portfolio" } do %>
-      <dl class="grid grid-cols-1 gap-4">
-        <div>
-          <dt class="text-sm font-medium text-slate-700">Portfolio ID</dt>
-          <dd class="mt-1 text-sm text-slate-900"><%= @portfolio_transaction.portfolio_id %></dd>
-        </div>
-        <div>
-          <dt class="text-sm font-medium text-slate-700">User</dt>
-          <dd class="mt-1 text-sm text-slate-900"><%= @portfolio_transaction.portfolio.user.username %></dd>
-        </div>
-      </dl>
-    <% end %>
-
-    <%= render layout: "components/ui/card", locals: { title: "Transaction details" } do %>
-      <dl class="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <div>
-          <dt class="text-sm font-medium text-slate-700">Transaction type</dt>
-          <dd class="mt-1 text-sm text-slate-900">
-            <%= render "components/ui/badge",
-                       label: @portfolio_transaction.transaction_type.humanize,
-                       tone: @portfolio_transaction.deposit? ? :success : :neutral %>
-          </dd>
-        </div>
-        <div>
-          <dt class="text-sm font-medium text-slate-700">Amount</dt>
-          <dd class="mt-1 text-sm font-semibold text-slate-900">
-            <%= number_to_currency(@portfolio_transaction.amount_cents / 100.0) %>
-          </dd>
-        </div>
-        <div>
-          <dt class="text-sm font-medium text-slate-700">Reason</dt>
-          <dd class="mt-1 text-sm text-slate-900"><%= @portfolio_transaction.reason&.humanize || "—" %></dd>
-        </div>
-        <%# The date belongs with the amount, not in a metadata card. `created_at` is *content* here - it is
-            when the money moved - which is why this is the one page where dropping the id-and-timestamps card
-            had to move something rather than just delete it. Everywhere else those three are metadata about a
-            row and nobody acts on them. %>
-        <div>
-          <dt class="text-sm font-medium text-slate-700">Date</dt>
-          <dd class="mt-1 text-sm text-slate-900" data-testid="created_at">
-            <%= l(@portfolio_transaction.created_at.to_date, format: :long) %>
-          </dd>
-        </div>
-      </dl>
-    <% end %>
-
-    <% if @portfolio_transaction.description.present? %>
-      <%= render layout: "components/ui/card", locals: { title: "Description" } do %>
-        <p class="text-sm text-slate-900 whitespace-pre-wrap"><%= @portfolio_transaction.description %></p>
-      <% end %>
-    <% end %>
-
-    <% if @portfolio_transaction.order.present? %>
-      <%= render layout: "components/ui/card", locals: { title: "Associated order" } do %>
-        <p class="text-sm text-slate-900">Order #<%= @portfolio_transaction.order.id %></p>
-      <% end %>
-    <% end %>
-  </div>
-</div>
+<% end %>

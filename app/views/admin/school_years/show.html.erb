@@ -1,46 +1,36 @@
-<div class="max-w-7xl mx-auto">
-  <%= admin_breadcrumbs(@breadcrumbs) %>
-
-  <%= render layout: "components/ui/page_header",
-             locals: { title: "#{@school_year.school_name} (#{@school_year.year_name})" } do %>
-    <%= render "admin/shared/show_actions",
-               record: @school_year,
-               edit_path: edit_admin_school_year_path(@school_year),
-               delete_path: admin_school_year_path(@school_year) %>
+<%= render layout: "admin/shared/record_page",
+           locals: { title: @school_year.name, breadcrumbs: @breadcrumbs,
+                     description: school_year_summary(@school_year),
+                     actions: capture do
+                       link_to "Delete school year", admin_school_year_path(@school_year),
+                               data: { turbo_method: :delete,
+                                       turbo_confirm: school_year_delete_confirm(@school_year) },
+                               class: admin_danger_button_class
+                     end } do %>
+  <%# **No "Quarters" card.** A school year always has exactly four - they come from
+      `SchoolYear#create_quarters`, nothing else makes one, and there are no quarter routes - so listing them
+      was an invariant rendered as data. The count is in the summary line, where it is context rather than a
+      list you could act on. %>
+  <%= render layout: "admin/shared/record_section",
+             locals: { title: "Details", hint: "Saved when you press Update school year." } do %>
+    <%= render "form" %>
   <% end %>
 
-  <div class="space-y-6">
-    <%= admin_show_attributes(
-          @school_year,
-          attributes: %i[school_name year_name]
-        ) %>
-
-    <%= render layout: "components/ui/card",
-               locals: { title: "Classrooms (#{@school_year.classrooms.count})" } do %>
+  <%# A collection worth scanning: which classrooms run in this year. Read-only here - a classroom is created
+      from the classrooms screen, where it needs its grades and teachers too. %>
+  <%= render layout: "admin/shared/record_section", locals: { title: "Classrooms" } do %>
+    <%= render layout: "components/ui/card", locals: {} do %>
       <% if @school_year.classrooms.any? %>
-        <ul class="space-y-2">
-          <% @school_year.classrooms.limit(10).each do |classroom| %>
-            <li class="text-sm text-slate-900"><%= classroom.name %></li>
-          <% end %>
-          <% if @school_year.classrooms.count > 10 %>
-            <li class="text-sm text-slate-600">
-              ... and <%= @school_year.classrooms.count - 10 %> more
+        <ul class="divide-y divide-slate-100">
+          <% @school_year.classrooms.each do |classroom| %>
+            <li class="py-2 text-sm">
+              <%= link_to classroom.name, admin_classroom_path(classroom), class: "tw-link" %>
             </li>
           <% end %>
         </ul>
       <% else %>
-        <p class="text-sm text-slate-600">No classrooms associated with this school year yet.</p>
+        <p class="text-sm text-slate-600">No classrooms in this school year yet.</p>
       <% end %>
     <% end %>
-
-    <% if @school_year.quarters.any? %>
-      <%= render layout: "components/ui/card", locals: { title: "Quarters" } do %>
-        <ul class="space-y-2">
-          <% @school_year.quarters.order(:number).each do |quarter| %>
-            <li class="text-sm text-slate-900"><%= quarter.name %></li>
-          <% end %>
-        </ul>
-      <% end %>
-    <% end %>
-  </div>
-</div>
+  <% end %>
+<% end %>

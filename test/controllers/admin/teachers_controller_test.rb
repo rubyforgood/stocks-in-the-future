@@ -90,11 +90,17 @@ module Admin
       get admin_teacher_path(teacher)
 
       assert_response :success
-      assert_select "h1", teacher.username
+      # The record's own name: `display_name` where the teacher has one, the username otherwise.
+      assert_select "h1", teacher.display_name.presence || teacher.username
     end
 
     test "should show teacher classrooms" do
-      classroom = create(:classroom, name: "Math 101")
+      # In the **current** school year, because that is the only scope the form offers - `set_form_data`
+      # narrows to `Year.current_school_year`. A classroom outside it is not a checkbox on this page, so a
+      # fixture in any other year would have asserted against a control that was never going to exist.
+      current_year = Year.current_school_year.first_or_create!
+      school_year = create(:school_year, school: create(:school), year: current_year)
+      classroom = create(:classroom, name: "Math 101", archived: false, school_year:)
       teacher = create(:teacher)
       teacher.classrooms << classroom
       admin = create(:admin, admin: true, classroom: nil)
@@ -103,9 +109,12 @@ module Admin
       get admin_teacher_path(teacher)
 
       assert_response :success
-      assert_select "h1", teacher.username
-      assert_select "h2", "Classrooms"
-      assert_select "li", text: classroom.name
+      # **No "Classrooms" card.** The form's `classroom_ids` group *is* which classrooms this teacher teaches,
+      # and a read-only copy beside it was the same fact twice - once changeable, once not. The count is in the
+      # summary line; which ones are ticked in the form.
+      assert_select "h2", text: "Classrooms", count: 0
+      assert_select "p", text: /1 classroom/
+      assert_select "label", text: /#{classroom.name}/
     end
 
     test "show when teacher has no classrooms" do
@@ -116,7 +125,7 @@ module Admin
       get admin_teacher_path(teacher)
 
       assert_response :success
-      assert_select "p", text: "No classrooms assigned to this teacher yet."
+      assert_select "p", text: /0 classrooms/
     end
 
     test "new" do
@@ -218,7 +227,8 @@ module Admin
       get edit_admin_teacher_path(teacher)
 
       assert_response :success
-      assert_select "h1", "Edit teacher"
+      # The record's page edits in place, so its heading is the record's name.
+      assert_select "h1", teacher.display_name.presence || teacher.username
     end
 
     test "update" do

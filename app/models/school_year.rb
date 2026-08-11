@@ -6,8 +6,12 @@ class SchoolYear < ApplicationRecord
   has_many :classrooms, dependent: :restrict_with_error
   has_many :quarters, dependent: :destroy
 
-  delegate :name, to: :school, prefix: :school
-  delegate :name, to: :year, prefix: :year
+  # `allow_nil`, because a **failed save re-renders the record's own page** now that view and edit are one
+  # screen - and an invalid school year is one whose `school_id` or `year_id` is nil. Without this, `#name`
+  # raised `undefined local variable 'name' for nil` from the page title while the form was trying to show the
+  # validation message.
+  delegate :name, to: :school, prefix: :school, allow_nil: true
+  delegate :name, to: :year, prefix: :year, allow_nil: true
 
   # There is a unique index on [school_id, year_id], and without this a double-submitted "Add school year"
   # is a `RecordNotUnique` rather than a message.
@@ -16,7 +20,9 @@ class SchoolYear < ApplicationRecord
   after_create :create_quarters
 
   def name
-    "#{school_name} (#{year_name})"
+    return "School year" if school_name.blank? && year_name.blank?
+
+    [school_name, year_name.presence && "(#{year_name})"].compact.join(" ")
   end
 
   # **What removing this would destroy**, for a confirmation to state rather than a page to discover.
