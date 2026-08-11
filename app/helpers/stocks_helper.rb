@@ -10,12 +10,26 @@ module StocksHelper
   # The direction is in the word as well as the colour, because green against red is not a distinction
   # everybody can make.
   def stock_price_summary(stock)
+    [price_movement(stock), holding_summary(stock)].join(" · ")
+  end
+
+  private
+
+  def price_movement(stock)
     return number_to_currency(stock.current_price) if stock.percentage_change.zero?
 
     direction = stock.percentage_change.positive? ? "up" : "down"
 
     "#{number_to_currency(stock.current_price)}, #{direction} #{stock.percentage_change_formatted} " \
       "on yesterday"
+  end
+
+  # Stated either way, because **"nobody holds this" is the fact that makes archiving safe** - the archived
+  # stocks decision in design-todo turns on exactly that. A count of zero would be noise; "not held" is not.
+  def holding_summary(stock)
+    count = stock.portfolio_stocks.size
+
+    count.zero? ? "not held by any student" : "held in #{pluralize(count, 'portfolio')}"
   end
 
   # What the trading floor's list of buyable companies is, said in the reader's own terms.

@@ -30,17 +30,12 @@
     <%= render "form" %>
   <% end %>
 
-  <%# The one thing the form cannot express: who holds it. Read-only because an admin does not assign a
-      holding - a student buys it. %>
-  <%= render layout: "admin/shared/record_section", locals: { title: "Held by" } do %>
-    <%= render layout: "components/ui/card", locals: {} do %>
-      <% if @stock.portfolio_stocks.any? %>
-        <p class="text-sm text-slate-900">
-          Held in <%= pluralize(@stock.portfolio_stocks.count, "portfolio") %>.
-        </p>
-      <% else %>
-        <p class="text-sm text-slate-600">No student holds this stock yet.</p>
-      <% end %>
-    <% end %>
-  <% end %>
+  <%# **No "Held by" section.** It was one line - "Held in 3 portfolios" - in a card of its own at the foot of
+      a 3468px page, so a single fact needed scrolling past seventeen form fields to reach. A section earns a
+      heading when it holds a collection you can scan or act on; a lone read-only fact is a metadata line, and
+      it belongs in the record's summary where you see it on arrival. Stripe and Linear both put this kind of
+      fact beside the title rather than below the content.
+
+      It is in the header now, at no vertical cost, and it matters there: whether anyone holds a stock is what
+      decides whether archiving it is safe. %>
 <% end %>
