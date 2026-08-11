@@ -3986,3 +3986,36 @@ silently discarded looks like a save that worked. A test covers it directly.
   and sticking it would pin a sub-form's button over the page.
 - **`admin/schools` offers three years, not every year.** A school already linked to others still shows
   them.
+
+## The sticky action row's border is gone
+
+Reported one commit after it shipped: the divider under the card and above the action buttons is not
+anywhere else in the app. Correct, and it was wrong twice over.
+
+**design.md rules it out by name.** The Dividers section says "no extra dividers anywhere", then lists the
+four that stay - a tab rail's baseline, the fixed app bar's edge, a table's row separators, and field-group
+separators *inside* a form card. A form's action row is not one of them, and nothing else in the product
+draws that line. I added it to a shared class and rolled it out to nine forms in a single change, which is
+the same shape as the ring this document already records: sweeping a component everywhere standardises
+its drift instead of removing it.
+
+**And it was a rule with nothing behind it most of the time.** The border only means anything while the row
+is actually overlapping content. On every form shorter than the viewport, and on any form scrolled to its
+end, it drew a hairline against nothing - the same conditional-affordance error as a pinned table cell's
+separator, which was fixed earlier the same day by making it depend on scroll state rather than drawing it
+always. My own comment in `forms.css` argued *for* the border on exactly the grounds that only hold in the
+overlapping case.
+
+The opaque page-coloured background is what stops text showing through the buttons, and it needs no border
+to do it. Verified rather than assumed: with the border gone, `elementFromPoint` at the row's centre still
+finds the row rather than what is beneath it, and the submit is still at y=569 of a 625px viewport.
+
+`form_actions_test` now asserts `border-top-width` is `0px`, with the reason in the failure message, so the
+line cannot come back quietly.
+
+### What this breaks
+
+- Nothing. 896 unit and 340 system runs pass.
+- The lesson, restated because it keeps recurring: **a shared class is the fastest way to propagate an
+  invention.** Check a new visual treatment against design.md's own spec *before* nine call sites adopt it,
+  not after.

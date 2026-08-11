@@ -23,6 +23,7 @@ class FormActionsTest < ApplicationSystemTestCase
         cardLeft: Math.round(b(card).left),
         primaryHeight: Math.round(b(primary).height),
         rowBackground: getComputedStyle(row).backgroundColor,
+        rowBorderTop: getComputedStyle(row).borderTopWidth,
         // The body, not main: admin's main has no background of its own, so comparing against it read the
         // row as contrasting with transparent.
         pageBackground: getComputedStyle(document.body).backgroundColor,
@@ -52,6 +53,15 @@ class FormActionsTest < ApplicationSystemTestCase
     assert_equal "sticky", g["rowPosition"],
                  "#{label}: the action row is #{g['rowPosition']}, so a long form puts its submit " \
                  "below the fold"
+
+    # **And no rule.** This carried a `border-t` for one commit, on nine forms, and design.md's Dividers
+    # section rules it out by name: "no extra dividers anywhere", followed by an exhaustive list of the four
+    # that stay - none of which is a form's action row. It was also a hairline against nothing on every form
+    # shorter than the viewport. The opaque background is what hides scrolling content; the line added a
+    # treatment that exists nowhere else in the app.
+    assert_equal "0px", g["rowBorderTop"],
+                 "#{label}: the action row draws a #{g['rowBorderTop']} rule above it, which nothing else " \
+                 "in the app does - see design.md's Dividers section"
     assert_in_delta g["cardLeft"], g["primaryLeft"], 1,
                     "#{label}: the primary is at #{g['primaryLeft']}px against a card edge of " \
                     "#{g['cardLeft']}px - actions anchor to the leading edge"

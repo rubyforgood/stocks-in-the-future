@@ -172,10 +172,22 @@
    *
    * This is Polaris's ContextualSaveBar and Stripe's sticky form footer, minus the state machine.
    *
-   * The border and the page-coloured background matter: without them the buttons float over whatever text
-   * scrolls beneath, which reads as a rendering fault rather than as chrome. `-mx-*` is deliberately absent:
-   * a negative margin drags paint past the content edge, which this codebase has recorded three times. */
+   * **The page-coloured background does the work, and there is no rule.** This carried a
+   * `border-t border-slate-200` for one commit, on nine forms, and it was wrong twice over. design.md's
+   * Dividers section says "no extra dividers anywhere" and then lists the four that stay - a tab rail's
+   * baseline, the fixed app bar's edge, a table's row separators, and field-group separators inside a form
+   * card. A form's action row is not one of them, and nothing else in the app draws that line.
+   *
+   * It was also a rule with nothing behind it most of the time: the border only means anything while the row
+   * is actually overlapping content, so on every short form, and on any form scrolled to its end, it drew a
+   * hairline against nothing. That is the same conditional-affordance error as a pinned table cell's
+   * separator, which this codebase fixed by making it depend on scroll state rather than drawing it always.
+   *
+   * The opaque background is what stops text showing through the buttons, and it needs no border to do it.
+   *
+   * `-mx-*` is deliberately absent: a negative margin drags paint past the content edge, which this
+   * codebase has recorded three times. */
   .tw-form-actions {
-    @apply sticky bottom-0 z-10 flex flex-wrap items-center gap-3 border-t border-slate-200 bg-slate-50 py-4;
+    @apply sticky bottom-0 z-10 flex flex-wrap items-center gap-3 bg-slate-50 py-4;
   }
 }
