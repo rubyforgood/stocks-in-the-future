@@ -71,32 +71,7 @@ module ButtonHelper
     end
   end
 
-  # The same two controls as a **menu item**: full width, 44px, label after the icon. A row's actions
-  # inside `components/ui/_row_actions` use these rather than the ghosts, because a ghost is sized to its
-  # own content and a menu row fills the panel.
-  def menu_action_link(label, path, icon:, variant: :neutral, **options)
-    link_to path, **menu_options(options, variant) do
-      safe_join([ghost_icon(icon), label])
-    end
-  end
-
-  # Renders a whole `<form>`, so it must not sit inside another one. A popover panel is not a form, and a
-  # table row is not a form, so this is safe in a row actions menu - but it is the reason the callout's
-  # dismiss is passed per call site rather than built into that component.
-  def menu_action_button(label, path, icon:, variant: :neutral, **options)
-    form_options = options.delete(:form) || {}
-
-    button_to path, **menu_options(options, variant), form: form_options do
-      safe_join([ghost_icon(icon), label])
-    end
-  end
-
   private
-
-  def menu_options(options, variant)
-    classes = ["tw-menu-item", ("tw-menu-item-danger" if variant == :danger), options[:class]]
-    options.merge(class: classes.compact.join(" "))
-  end
 
   def ghost_icon(icon)
     lucide_icon(icon, class: "size-4 shrink-0")

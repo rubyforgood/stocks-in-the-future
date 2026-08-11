@@ -3675,3 +3675,36 @@ Archive - is what every major system puts behind one overflow trigger.
   cell is `position: static` and moves with the scroll, and the collapsed row carries its actions.
 - Any future need to keep a column in view should pin the **first** one, and should note that a menu
   inside `overflow-x-auto` will be clipped unless it renders in the top layer.
+
+## The row actions menu is reverted
+
+Built as a preview on `admin/classrooms` and in the gallery, reviewed, and rejected: "it just adds
+clicks and friction, not value."
+
+That is the trade the numbers could not settle. The menu did what it claimed - the trailing cell went
+260px to 76px and the table's overflow at 1024px went 215px to 31px - but every one of those pixels was
+bought with a click on Edit, which is the action people go to that page for. design.md already says not
+to bury a core action in an overflow menu, and this is the case it was warning about.
+
+Reverted in full, including `.tw-menu-item`. Extracting that from `layouts/_account_menu` was justified
+by a *second* menu needing it; with no second menu it is a named class with one caller, which this
+codebase treats as no better than the local string it came from.
+
+**What is worth keeping from the exercise, since none of it depends on the menu:**
+
+- **The trailing actions cell is the widest column in every admin table** - 253-280px against 175-340px
+  of overflow at 1024px, and 455px at 1920 where it absorbs all the slack for two buttons. Whatever
+  narrows it, that is where the width is.
+- **`View` is redundant now.** The record's name became a link in the previous change, so the row carries
+  two controls to the same page - the defect this document already records for a dashboard with two
+  ghosts sharing an href. Dropping it saves ~85px and costs nothing, and is the obvious next move, but it
+  was part of the reverted change rather than asked for, so it is left alone here.
+- **A dropdown cannot be an absolute panel in a table cell.** Measured: 508px against a 288px wrapper,
+  and `.table-wrapper` computes `overflow: auto` on both axes. It needs the top layer - `popover` - and
+  JS positioning, because CSS anchor positioning is Chrome-only.
+- **A row emitted twice needs two ids.** These rows render in the trailing cell at `lg` and inside the
+  primary cell below it, so any id-addressed control - a popover, an `aria-controls` - is duplicated, and
+  the *visible* trigger then drives the *hidden* copy. The panel measured 0x0 and reported itself open.
+- **44px does not fit a table row here.** The shared alignment rule puts a control's centre on the row's
+  first text line, 22px from the cell top; 32px needs 6px of padding above it and 40px needs 2px, and
+  44px cannot reach it without a negative margin, which drags the hover fill past the content edge.

@@ -27,9 +27,9 @@
 
     No rule separates the identity block from the actions - it sits on a slate-50 tint
     instead, so the panel groups without drawing a divider. %>
-<%# `.tw-menu-item`, shared with the row actions menu. This was a local string, and a second menu would
-    have copied it - which is the drift mechanism this codebase keeps recording. %>
-<% item_class = "tw-menu-item" %>
+<% item_class = "flex min-h-11 items-center gap-2 px-4 py-2 text-sm text-slate-700 " \
+                "hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 " \
+                "focus-visible:outline-sitf-primary" %>
 
 <%# data-testid because the sidebar's Trading floor disclosure is also a <details>/
     <summary>, so "the summary" is ambiguous in a test. %>

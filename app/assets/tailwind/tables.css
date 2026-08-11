@@ -176,14 +176,6 @@
     @apply pt-1.5;
   }
 
-  /* A cell holding the 40px menu trigger instead of a 32px ghost needs 2px rather than 6px to put the
-     control's centre on the row's first line. `:has()` rather than a modifier class, so the cell adapts to
-     what it contains and no call site has to know the arithmetic - which also means the two can coexist
-     while tables move onto the menu one at a time. */
-  td.table-actions-cell:has(.tw-menu-trigger) {
-    @apply pt-0.5;
-  }
-
   /* A table of form controls cannot use the collapse the other tables use.
    *
    * Everywhere else, below lg the secondary cells are `hidden lg:table-cell` and their values are
