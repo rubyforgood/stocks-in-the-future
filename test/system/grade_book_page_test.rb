@@ -286,6 +286,30 @@ class GradeBookPageTest < ApplicationSystemTestCase
     assert_includes confirm, "cannot be undone"
   end
 
+  # **Irreversible is not destructive.** Finalizing sat on `:danger_outline` and turned rose under the
+  # pointer, which is the affordance for an action that takes something away - delete, deactivate,
+  # archive. This one pays money into student portfolios. Reported as "lights up like a destructive
+  # button on hover. This should not be the case."
+  #
+  # A class contract rather than a rendered colour, deliberately: Tailwind emits `hover:` inside
+  # `@media (hover: hover)` and the headless Chromium the suite drives reports `(hover: none)`, so the
+  # rose never applies here even with the pointer over the control and the class in the list. The
+  # resting colour is identical between the two variants, so a pixel assertion could not tell them
+  # apart either. The class is the only thing that distinguishes them, so the class is what to assert.
+  test "finalize is not a destructive button" do
+    classroom, book = a_grade_book_with_entries
+    sign_in create(:admin)
+
+    visit classroom_grade_book_path(classroom, book)
+
+    classes = find("#finalize-button button")[:class].split
+
+    assert_includes classes, "tw-btn-secondary"
+    assert_not_includes classes, "tw-btn-danger-outline",
+                        "finalizing adds money to portfolios; the rose hover is for taking something away"
+    assert_not_includes classes, "tw-btn-danger"
+  end
+
   # The action goes after the copy and the figures it acts on, not floated beside them.
   test "the finalize action sits below its explanation" do
     classroom, book = a_grade_book_with_entries
@@ -654,9 +678,10 @@ class GradeBookPageTest < ApplicationSystemTestCase
     assert_not centred, "the save action is centred; form actions anchor to the leading edge"
   end
 
-  # design.md: one filled primary per page. "Finalize grades" was a second one, and it is the action
-  # that pays students and cannot be undone - so it is :danger_outline with the consequence in copy
-  # beside it, which is this app's rule for a serious action.
+  # design.md: one filled primary per page. "Finalize grades" was a second one, and it is the action that
+  # pays students and cannot be undone - so it is `:secondary`, with the consequence carried by the copy
+  # beside it and by the two-part confirmation. It was `:danger_outline` until that was reported as
+  # lighting up like a destructive button; see "finalize is not a destructive button" above.
   test "an admin sees one filled primary, and finalize explains itself" do
     classroom, book = a_grade_book_with_entries
     sign_in create(:admin)
@@ -674,7 +699,7 @@ class GradeBookPageTest < ApplicationSystemTestCase
     assert_equal 1, primaries.length, "two filled primaries on one page: #{primaries.inspect}"
     assert_text "and locks these entries"
     assert_text "cannot be undone"
-    assert_selector ".tw-btn-danger-outline", text: "Finalize grades"
+    assert_selector ".tw-btn-secondary", text: "Finalize grades"
   end
 
   # A completed grade book has already paid out, so the control is not rendered at all rather than

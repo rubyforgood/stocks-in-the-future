@@ -2797,6 +2797,19 @@ plus the roster's table card and a setting card, put six surfaces on one page.
   it matches its neighbours at rest. Never mix a ghost destructive next to bordered buttons -- it reads
   as broken. Either way there is **no red-at-rest**. No border, fill, or shadow: the
   lowest-emphasis action, for repeated row / toolbar actions so they recede from brand links. It lives
+**Irreversible is not destructive, and only one of them gets the rose hover.** The rose is the
+affordance for an action that *takes something away* - delete, deactivate, archive - and its job is to
+make that legible at the point of action. An action that is merely *irreversible* does not qualify:
+finalizing a grade book pays money into every student's portfolio and cannot be undone, and it sat on
+`:danger_outline` until that was reported as "lights up like a destructive button". Stripe's "Pay $X" is
+not a red button either.
+
+Note what colour was actually doing there, which is the general lesson: `:danger_outline` and
+`:secondary` are **identical at rest**, so the only reader who ever saw the warning was one already
+hovering the control they had decided to press. The weight belongs on the label, the figure stated
+beside it, and the two-part confirmation. Ask what the hover is being asked to communicate, and to whom,
+before spending the rose on it.
+
 **No red-at-rest applies to the container too, not just the button.** A destructive section is a
 plain `border-slate-200` card like every other section. A rose border belongs to an **alert message**
 panel, paired with a rose fill and rose ink, saying that a thing *is* in a bad state. Outlining a

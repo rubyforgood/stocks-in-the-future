@@ -1,7 +1,22 @@
-<%# `:danger_outline`, which design.md defines for exactly this: an action whose consequence is serious,
-    identical to `:secondary` at rest so it never competes with the page's one filled primary ("Save
-    grades"), turning rose only on hover. Revealing danger at the point of action is the industry
-    affordance; a red button at rest is an always-on alarm.
+<%# `:secondary`. **Irreversible is not the same as destructive**, and this control had it both ways:
+    the note below already argues that the dialog's accept button stays the brand primary because
+    "finalizing is irreversible and it is not destructive: it pays students and locks entries, and
+    nothing is lost" - while the trigger sat on `:danger_outline` and lit up rose under the pointer.
+    Reported as exactly that: it "lights up like a destructive button on hover. This should not be the
+    case."
+
+    The rose hover is the affordance for an action that *takes something away* - delete, deactivate,
+    archive - and every other `:danger_outline` in this app is one of those. Finalizing adds money to
+    portfolios. Stripe's "Pay $X" is not a red button, and design.md reserves the rose fill for a
+    destructive confirmation.
+
+    What carries the weight instead is what should: the label, the amount stated on the card above, the
+    two-part confirmation below, and Cancel holding `autofocus`. Colour was never doing that work - at
+    rest `:danger_outline` and `:secondary` are the same button, so the only reader who saw a warning was
+    one already hovering the control they had decided to press.
+
+    It stays `:secondary` rather than becoming the page's primary because "Save grades" is the primary
+    here, which is the hierarchy this page was rebuilt around.
 
     **The confirmation is two parts, which is what the dialog is built for.** It passed one string -
     "Finalize and pay $12.00 to 2 students? This cannot be undone." - so the whole sentence landed in the
@@ -12,10 +27,8 @@
     The consequence comes from `finalize_consequence`, the same helper the card above renders, so the
     preview and the confirmation cannot describe one payment two ways.
 
-    **The accept button stays the brand primary, not `.tw-btn-danger`.** Finalizing is irreversible and it
-    is not destructive: it pays students and locks entries, and nothing is lost. Stripe's "Pay $X" is a
-    primary button, and design.md reserves the rose fill for a destructive confirmation. The
-    irreversibility is carried by the sentence and by Cancel holding `autofocus`.
+    **The accept button is the brand primary, not `.tw-btn-danger`** - for the same reason as the trigger
+    above, and it was already right when the trigger was not.
 
     An earlier note here claimed `turbo_confirm` had no override and was a native OS dialog. That stopped
     being true when `confirm_dialog_controller` took over `Turbo.config.forms.confirm`.
@@ -32,6 +45,6 @@
 <% confirm = "Finalize these grades?\n\n#{finalize_consequence(earnings)}" %>
 
 <%= button_to "Finalize grades", finalize_classroom_grade_book_path(@classroom, @grade_book),
-              class: "tw-btn-danger-outline",
+              class: "tw-btn-secondary",
               data: { turbo_frame: "_top", turbo_confirm: confirm },
               form: { id: "finalize-button" } %>

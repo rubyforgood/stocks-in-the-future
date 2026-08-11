@@ -3551,3 +3551,36 @@ at the left edge — 272px off the gutter it shares with every card, which `chro
   `4rem`, which fails it.
 - Two assertions in `environment_ribbon_test` were hardcoding a 64px header and are now relative. One
   was off by the 1px border, which paints *on* the seam and always has.
+
+## Finalize grades stops being a destructive button
+
+Reported: "on the grade book page finalize grades lights up like a destructive button on hover. This
+should not be the case." Correct, and the file's own comment already contained the argument against
+itself.
+
+It was `:danger_outline` — slate at rest, rose on hover — while the note beside it explained that the
+*dialog's* accept button stays the brand primary because "finalizing is irreversible and it is not
+destructive: it pays students and locks entries, and nothing is lost". The same action was therefore
+non-destructive in the confirmation and dangerous on the page.
+
+**Irreversible is not destructive.** The rose hover is the affordance for an action that takes something
+away, and every other `:danger_outline` in this app is one: Permanently delete, Deactivate, Archive,
+Delete. Audited all of them, plus every `variant: :danger` ghost — finalize was the only misuse, and the
+Restore and Reactivate counterparts were already correctly neutral. Finalizing adds money to portfolios;
+Stripe's "Pay $X" is not a red button.
+
+It is `:secondary`, not the primary, because "Save grades" is the primary on that page — the hierarchy
+the page was rebuilt around.
+
+**What colour was actually doing there is the general lesson.** `:danger_outline` and `:secondary` are
+identical at rest, so the only reader who ever saw the warning was one already hovering the control they
+had decided to press. The weight belongs on the label, the figure stated beside it, and the two-part
+confirmation. That is now a rule in design.md.
+
+### What this breaks
+
+- One assertion in `grade_book_page_test` said `.tw-btn-danger-outline`; it says `.tw-btn-secondary`.
+- A new test pins it as a **class contract**, not a rendered colour, and the reason is recorded in it:
+  Tailwind emits `hover:` inside `@media (hover: hover)` and the headless Chromium reports
+  `(hover: none)`, so the rose never applies in the suite even with the pointer on the control — and the
+  resting colours are identical, so a pixel assertion could not tell the two variants apart either.
