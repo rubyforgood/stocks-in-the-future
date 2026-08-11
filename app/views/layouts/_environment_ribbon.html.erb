@@ -13,7 +13,7 @@
       the sentence needed 128px, and it started at y=-48. The first two lines were simply unreachable
       and the rest covered the header.
 
-      Its height is published as `--sitf-ribbon-h` by `ribbon-offset`, and everything fixed below it
+      Its height is published as `--sitf-ribbon-h` by `chrome-offset`, and everything fixed below it
       is expressed against that; see chrome.css. That is also what makes the dismissal reclaim the
       space for free: with no ribbon rendered the variable falls back to its 0px default.
 
@@ -23,7 +23,7 @@
   <div class="<%= position %> flex min-h-8 w-full flex-wrap items-center justify-center gap-x-2 gap-y-1 bg-amber-100 px-4 py-1 text-center text-xs leading-tight font-medium text-amber-900"
        <%# tag.attributes, not an interpolated string: an interpolated optional attribute renders
            **unquoted**, and neither CSS nor Capybara will match it. %>
-       <%= tag.attributes(data: { controller: ("ribbon-offset" if fixed) }) %>
+       <%= tag.attributes(data: { controller: ("chrome-offset" if fixed), chrome_offset_variable_value: ("--sitf-ribbon-h" if fixed) }) %>
        role="status"
        data-testid="environment-ribbon">
     <%= lucide_icon "triangle-alert", class: "size-4 shrink-0", aria: { hidden: true } %>

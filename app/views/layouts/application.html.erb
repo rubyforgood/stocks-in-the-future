@@ -22,7 +22,31 @@
           while the cards sat at 16px on a phone, so the chrome and the content did not share an edge. %>
       <%= render "layouts/environment_ribbon" %>
 
-      <header class="chrome-header fixed left-0 w-full z-50 flex h-16 items-center justify-between border-b border-slate-200 bg-white px-4 py-4 lg:px-6">
+      <%# `min-h-16` and no vertical padding, and its height is measured.
+
+          `h-16` with `py-4` was 64px of box around 76px of content, so at 200% text the contents spilled
+          out of the border rather than moving it. Its admin twin had the mirror-image bug: `min-h-16`
+          with `py-3` measured **69px**, which put the header's bottom border 5px over the top of the
+          sidebar - an odd line across the nav, and the nav's own rule not continuing.
+
+          The trigger is already 44px, so `min-h-16` alone gives exactly the 64px this has always been,
+          and lets it grow only when the contents genuinely need it. `chrome-offset` publishes what it
+          measures so the sidebar and the content follow. %>
+      <header class="chrome-header fixed left-0 z-50 w-full border-b border-slate-200 bg-white"
+              data-controller="chrome-offset"
+              data-chrome-offset-variable-value="--sitf-header-h">
+        <%# The row is a child of the bordered box, mirroring admin's structure, and that is not
+            cosmetic. Preflight sets `box-sizing: border-box`, so `min-h-16` *on the bordered element*
+            leaves 63px of content - the two layouts published 63 and 64 and their sidebars aligned with
+            different numbers. With the border on the outer box and the height on the inner row, both
+            measure the same 64px. %>
+        <%# No `flex-wrap` here, unlike admin's row, and the difference is the content rather than
+            carelessness. Admin's left side is a *text* wordmark that grows with the font, so at 200% it
+            has to be allowed to wrap or it pushes the page sideways. This side's is a fixed-size SVG,
+            and wrapping it at 375px moved the account menu onto a second line at the left edge - 272px
+            off the gutter it shares with every card on the page, which `chrome_gutter_test` caught.
+            Measured: `reflow_test` passes at 320px and at 200% text without it. %>
+        <div class="flex min-h-16 items-center justify-between gap-2 px-4 lg:px-6">
         <div class="flex items-center gap-4">
           <%# A button, not a label driving a hidden checkbox: a label is announced as a
               checkbox rather than as a control that opens navigation.
@@ -64,6 +88,7 @@
         <div class="flex shrink-0 items-center gap-2">
           <%= render "layouts/environment_badge" %>
           <%= render 'layouts/account_menu' %>
+        </div>
         </div>
       </header>
 

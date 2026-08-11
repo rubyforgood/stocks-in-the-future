@@ -175,7 +175,11 @@ class EnvironmentRibbonTest < ApplicationSystemTestCase
 
       assert_equal 32, tops["headerTop"], "the header should sit under the ribbon"
       assert_equal 96, tops["navTop"], "the sidebar should start below the header, not behind it"
-      assert_operator tops["navTop"], :>=, tops["headerBottom"], "the sidebar overlaps the header"
+
+      # The header's border box ends one pixel later than the sidebar starts, because the 1px `border-b`
+      # paints *on* the seam rather than above it - which is what it has always done, on both halves.
+      # `fixed_chrome_test` asserts this relationship properly, against the offset the chrome publishes.
+      assert_operator tops["navTop"], :>=, tops["headerBottom"] - 1, "the sidebar overlaps the header"
     end
   end
 
@@ -250,7 +254,12 @@ class EnvironmentRibbonTest < ApplicationSystemTestCase
         assert_operator m["textTop"], :>=, 0, "text is above the top of the viewport, unreachable"
         assert_operator m["textBottom"], :<=, m["ribbon"], "text spills out of the ribbon"
         assert_equal m["ribbon"], m["headerTop"], "the header does not follow the ribbon's height"
-        assert_equal m["ribbon"] + 64, m["mainTop"], "content does not clear the grown chrome"
+        # Not `+ 64`: the header grows with its text too, so the figure to add is the height it
+        # publishes. Hardcoding 64 here was the same mistake chrome.css used to make.
+        header = page.evaluate_script(
+          "parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--sitf-header-h'))"
+        )
+        assert_equal m["ribbon"] + header.round, m["mainTop"], "content does not clear the grown chrome"
       end
     end
   end

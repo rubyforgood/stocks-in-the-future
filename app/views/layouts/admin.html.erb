@@ -18,7 +18,11 @@
     <%# Admin Header %>
     <%= render "layouts/environment_ribbon" %>
 
-    <div class="chrome-header fixed left-0 w-full z-50 bg-white border-b border-slate-200">
+    <%# The `chrome-offset` controller goes on the box that carries the border, in both layouts, so the
+        published height means the same thing on each. See the controller. %>
+    <div class="chrome-header fixed left-0 w-full z-50 bg-white border-b border-slate-200"
+         data-controller="chrome-offset"
+         data-chrome-offset-variable-value="--sitf-header-h">
       <%# `min-h-16` and `gap-2`, not `h-16` with no gap: at 200% text the wordmark alone is 166px and
           the account group 216px, which together push a 305px viewport to 507px. `reflow_test` caught
           it on every admin page at once. A fixed-height bar cannot hold text that has grown, and the
@@ -26,7 +30,7 @@
 
           Fluid rather than a breakpoint, which is what the responsive rules ask for: the groups may
           shrink (`min-w-0`), the wordmark truncates rather than pushing, and the bar grows if it must. %>
-      <div class="flex min-h-16 flex-wrap items-center justify-between gap-2 px-4 py-3 lg:px-6">
+      <div class="flex min-h-16 flex-wrap items-center justify-between gap-2 px-4 lg:px-6">
         <div class="flex min-w-0 items-center gap-4">
           <%# A button, not a label driving a hidden checkbox, and it reports its own state. %>
           <button type="button"

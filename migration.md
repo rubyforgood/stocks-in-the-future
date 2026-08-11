@@ -3506,3 +3506,48 @@ the reader's own session, and signing in clears it. Nothing is authorised becaus
 - Adds `StagingRibbonDismissal` (a session-key holder, not a record), one controller, one route, and one
   initializer. `Dismissal::KEYS` is unchanged — briefly adding a key there was the wrong store and was
   reverted before it shipped.
+
+## The fixed header's height stops being a hardcoded 4rem
+
+Reported: "an odd line that goes past the top nav, in the admin setting page, and the horizontal line
+does not continue." It was a regression from the previous entry but one worth having found, because the
+cause was older than the change.
+
+`chrome.css` positioned everything below the header against a literal `4rem`. The admin bar was
+`min-h-16` around a 44px trigger inside `py-3`, so it measured **69px**. Its `border-b` therefore painted
+at y=100 while the sidebar and the content both started at 96 — a hairline lying across the top of the
+nav, and the nav's own rule beginning 5px late. Switching that bar from `h-16` to `min-h-16` in the
+previous entry is what let the intrinsic height win; `h-16` had been clipping it.
+
+Two fixes, and the second is the one that matters:
+
+- The redundant `py-3` is gone, so the bar is the 64px its token says.
+- **The header's height is measured and published as `--sitf-header-h`**, the same way the staging band
+  publishes its own. Every offset is now `calc(var(--sitf-header-h) + var(--sitf-ribbon-h))`. A hardcoded
+  height cannot survive a header that wraps at narrow widths or grows at 200% text, and both are things
+  this header now does.
+
+`ribbon_offset_controller` became `chrome_offset_controller`, taking the variable name as a value, so
+one measurer serves both.
+
+**It publishes `clientHeight`, not the bounding rect**, and that detail took two attempts. The two
+layouts carried `border-b` on different boxes, so measuring the border box published 65 in one and 64 in
+the other and the sidebars aligned with different numbers. The app header is now structured like
+admin's — border on the outer element, `min-h-16` on an inner row — because Preflight sets
+`box-sizing: border-box`, so `min-h-16` *on the bordered element* leaves 63px of content. That was a
+1px seam difference between the two halves, invisible until something depended on it.
+
+**`flex-wrap` came off the app header.** It belongs on admin's, whose left side is a text wordmark that
+grows with the font; this side's is a fixed-size SVG, and wrapping put the account menu on a second line
+at the left edge — 272px off the gutter it shares with every card, which `chrome_gutter_test` caught.
+`reflow_test` passes at 320px and 200% without it.
+
+### What this breaks
+
+- **`test/system/fixed_chrome_test.rb` is new** and asserts the seam *relatively* — the header's painted
+  bottom, the sidebar's top and the content's top all equal the offset the chrome publishes — on both
+  halves, with and without the band, at normal and 200% text. Every previous assertion about this seam
+  was the number 96, which both sides agreed on until one grew. Verified by reinstating the hardcoded
+  `4rem`, which fails it.
+- Two assertions in `environment_ribbon_test` were hardcoding a 64px header and are now relative. One
+  was off by the 1px border, which paints *on* the seam and always has.
