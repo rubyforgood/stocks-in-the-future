@@ -4019,3 +4019,53 @@ line cannot come back quietly.
 - The lesson, restated because it keeps recurring: **a shared class is the fastest way to propagate an
   invention.** Check a new visual treatment against design.md's own spec *before* nine call sites adopt it,
   not after.
+
+## A school's years are provisioned, not picked
+
+Asked for a multi-select dropdown; built a list with an explicit add and remove instead, because measuring
+the existing control turned up three defects rather than a layout problem.
+
+**What the checkbox group actually did.** Each `SchoolYear` writes four quarters on create, so every box was
+a provisioning action:
+
+1. **Unchecking silently destroyed four quarters** along with the join. No confirmation, and nothing on the
+   page said the quarters existed.
+2. **Unchecking a year that had a classroom raised `PG::ForeignKeyViolation`** - a 500 - because
+   `year_ids=` deleted the join before `restrict_with_error` could speak.
+3. **Found while removing it:** `update` rebuilt `year_ids` by hand and defaulted it to `[]`. With the
+   checkboxes gone, *every name edit* would have wiped the school's years and their quarters, or 500'd on the
+   first one with a classroom. The tests caught that; nothing else would have.
+
+**Why not a multi-select.** A native `<select multiple>` is the one control the field advises against:
+GOV.UK says not to use it, and Polaris, Material and Carbon ship none - beyond a handful of options they use
+a combobox with chips. And neither control addresses the real problem, which is that each option is a
+create-or-destroy with dependents. What the field does for *this* is one explicit action at a time -
+PowerSchool's per-school Years and Terms, Infinite Campus's per-year calendar.
+
+**What is there now.** On the school's own page, a list row per year - the name, a "Current" badge, its
+quarter count - with `Remove` where it is possible and, where it is not, the reason in its place: "In use by
+3 classrooms". The confirmation states the consequence ("its 4 quarters will be deleted"). Below the rows, a
+select of every year not yet added, newest first, the current one marked "(current)" in the option text
+because an option cannot carry markup.
+
+**The select carries the whole list rather than a window.** Twelve options in the seeded data. A window was
+right for a checkbox group, which showed every option at once and put the submit below the fold; a select
+does not have that problem, and inventing a range would make some years unreachable.
+
+**One rule now lives on the record.** `SchoolYear` validates uniqueness of `[school_id, year_id]`, so a
+double-submitted add is a message rather than `RecordNotUnique`. That made the old
+`Admin::SchoolYearsController#create` much smaller: it looked the school and year up by hand, called
+`create!`, and rescued the database error to synthesise a base message. The rescue is unreachable now and
+the hand-built message was a second copy of one rule, so both are gone.
+
+### What this breaks
+
+- **`school_params` no longer permits `year_ids`**, and `Year.offered_for` / `around_current` are gone with
+  the checkbox group. `Year.addable_to` replaces them; `current_school_year_name` and `current?` stay.
+- **Six schools-controller tests were rewritten** against the new contract, and a new
+  `school_years_controller_test` covers add, remove, the duplicate message, the refusal, cross-school
+  scoping and a teacher being unable to do either.
+- **The duplicate-message assertion changed** from `/already exists/` to `/already added to this school/`.
+- Two of my own probes read a flash before the page had re-rendered, and reported a removal as not having
+  happened when the row count proved it had. The count is the honest signal; a `#notice` read straight after
+  a click is not.

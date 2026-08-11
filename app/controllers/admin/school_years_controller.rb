@@ -36,29 +36,19 @@ module Admin
       ]
     end
 
+    # **One path, and the model decides.** This used to look the school and the year up by hand, call
+    # `create!`, and then rescue `RecordNotUnique` to synthesise a base error saying the pair already exists.
+    # `SchoolYear` validates that now - it had to, because the same rule is reached from a school's own page -
+    # so the database error is unreachable from here and the hand-built message was a second copy of one
+    # rule. A missing school or year is caught by `belongs_to`, which is required by default.
     def create
-      school = School.find_by(id: school_year_params[:school_id])
-      year = Year.find_by(id: school_year_params[:year_id])
+      @school_year = SchoolYear.new(school_year_params)
 
-      unless school && year
-        @school_year = SchoolYear.new(school_year_params)
-        @school_year.valid?
-        return render_new_with_errors
-      end
-
-      @school_year = SchoolYear.create!(school:, year:)
-
-      if @school_year.persisted?
+      if @school_year.save
         redirect_to admin_school_year_path(@school_year), notice: t(".notice")
       else
         render_new_with_errors
       end
-    rescue ActiveRecord::RecordNotUnique
-      save_error(school_year_params)
-      render_new_with_errors
-    rescue ActiveRecord::RecordInvalid => e
-      @school_year = e.record
-      render_new_with_errors
     end
 
     def update
@@ -100,12 +90,6 @@ module Admin
         { label: "New school year" }
       ]
       render :new, status: :unprocessable_content
-    end
-
-    def save_error(params)
-      @school_year = SchoolYear.new(params)
-      @school_year.valid?
-      @school_year.errors.add(:base, "A school year with this school and year already exists.")
     end
   end
 end

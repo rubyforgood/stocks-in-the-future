@@ -15,18 +15,14 @@
                        hint: "Enter the school name",
                        placeholder: "Lincoln elementary school" %>
 
-      <%# Three columns from `lg`, one below. Fourteen years in a single column measured 608px and put the
-          submit at y=1094 in a 625px viewport; three columns is 212px. The labels are short and uniform,
-          which is the shape GOV.UK and Polaris both allow a multi-column group for.
+      <%# **No years here.** They were a `collection_check_boxes` on `year_ids`, and that was two defects
+          rather than a layout problem: unchecking a box silently destroyed a school year and its four
+          quarters, and doing it to a year with a classroom raised `PG::ForeignKeyViolation` - a 500 - because
+          the join went before `restrict_with_error` could speak.
 
-          The current school year is marked, because the list is ordered newest-first and "newest" is not
-          the one anybody wants - it is the one in progress. A callable `text_method`, which the builder
-          already supports, so the badge is part of the option rather than a second list beside it. %>
-      <%= f.collection_check_boxes :year_ids, @years, :id,
-                                   ->(year) { year_option_label(year) },
-                                   label: "Years",
-                                   hint: "Select the school years this school will be active",
-                                   columns: 3 %>
+          A year is provisioned, not preferred, so it is a list with an explicit add and remove on the
+          school's own page. That is also what the field does rather than a multi-select: GOV.UK advises
+          against `select multiple` outright, and Polaris, Material and Carbon ship none. %>
   <% end %>
 
   <div class="tw-form-actions">

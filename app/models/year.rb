@@ -23,21 +23,11 @@ class Year < ApplicationRecord
     where(name: current_school_year_name(date))
   end
 
-  # The current school year, the one before it and the one after. What a form should offer, because a school
-  # being marked active in a year a decade away is not a decision anybody makes today - and the seeds create
-  # current+10, so a plain descending list opened on 2036 with the useful year ten rows down.
-  def self.around_current(date = Date.current)
-    start = current_school_year_name(date).split(" - ").first.to_i
-    where(name: ((start - 1)..(start + 1)).map { |y| "#{y} - #{y + 1}" })
-  end
-
-  # The window, **plus whatever this record already has**. Narrowing the offered set without this is data
-  # loss rather than tidying: `year_ids=` replaces the whole collection, so a school linked to 2023-2024
-  # would have that association destroyed by any save from a form that never showed it - along with the four
-  # quarters on the `SchoolYear`, or a failure if it has classrooms, since both are `restrict_with_error`.
-  # A field whose value is silently discarded looks like a save that worked.
-  def self.offered_for(record, date = Date.current)
-    where(id: around_current(date).ids | Array(record&.year_ids)).ordered_by_start_year
+  # The years a school has not added yet, newest first. A one-at-a-time select can carry the whole list -
+  # that is what a select is for - so there is no window to invent here, and no year is silently
+  # unreachable. The checkbox group this replaced needed one, because it showed every option at once.
+  def self.addable_to(school)
+    where.not(id: school.year_ids).ordered_by_start_year
   end
 
   def current?

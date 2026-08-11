@@ -15,6 +15,10 @@ en:
         type: Role
     errors:
       models:
+        school_year:
+          attributes:
+            year_id:
+              taken: is already added to this school
         stock:
           attributes:
             company_website:
@@ -62,6 +66,18 @@ en:
         notice: School created successfully.
       destroy:
         notice: School deleted successfully.
+      school_years:
+        create:
+          notice:
+            one: "%{year} added, with 1 quarter."
+            other: "%{year} added, with %{count} quarters."
+        destroy:
+          has_classrooms:
+            one: "%{year} still has 1 classroom, so it cannot be removed."
+            other: "%{year} still has %{count} classrooms, so it cannot be removed."
+          notice:
+            one: "%{year} removed, along with its quarter."
+            other: "%{year} removed, along with its %{count} quarters."
       update:
         notice: School updated successfully.
     stocks:

@@ -105,7 +105,13 @@ Rails.application.routes.draw do
         patch :toggle_archive
       end
     end
-    resources :schools
+    # A school's years are added and removed one at a time rather than set as a list. Creating one
+    # provisions four quarters and removing one destroys them, which is not what a checkbox in a form should
+    # do - and the `year_ids=` path it replaces raised a raw foreign-key violation when the year had a
+    # classroom.
+    resources :schools do
+      resources :school_years, only: %i[create destroy], controller: "schools/school_years"
+    end
     resources :school_years
     resources :stocks
     resources :students do

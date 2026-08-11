@@ -91,7 +91,9 @@ module Admin
       # In the error summary, which is where every admin form lists its errors now - including the ones
       # on :base. This asserted `p.text-red-600`, the markup of a builder method that existed only to
       # render base errors and was a second copy of the same list.
-      assert_select "[data-testid=?] li", "form-errors", /already exists/
+      # The model's message now, not a base error built by hand in the controller: the same rule is
+      # reached from a school's own page, so it had to live on the record.
+      assert_select "[data-testid=?] li", "form-errors", /already added to this school/
     end
 
     test "edit" do
