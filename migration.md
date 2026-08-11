@@ -3928,3 +3928,61 @@ the reason the status only changes when the words change.
 - **Not built, deliberately:** no `reopened_by`/`reopened_at`. The status change and the payment stated on
   the page are the visible record. If accountability for the funds needs a name against the action, that
   pair is the obvious next step.
+
+## The school form: a sticky action row, three columns, and only the years that matter
+
+Reported on `admin/schools#edit`: the years push the action button below the fold, and the years should be
+in reverse order.
+
+**The ordering was already reverse.** `Year.ordered_by_start_year` is `DESC` and the list rendered 2036,
+2035, 2034 … 2024, 2023. What made it feel wrong is that the seeds create **current−3 to current+10**, so
+"newest first" opened on a year a decade away and buried the one in progress ten rows down.
+
+**Shortening the list does not fix the button**, which is the measurement that decided the shape. At 625px
+of Chromebook viewport the submit sat at y=1094, and laying the fourteen checkboxes out in columns moved it
+to 786 (2 columns), 698 (3) and 654 (4) - still below the fold every time, because the breadcrumb, the page
+header, the card padding, the name field and the hints take ~486px before the years begin.
+
+So three changes, and each is measured:
+
+- **`.tw-form-actions`** - `sticky bottom-0` with a top border and the page's own background, on every form
+  footer in the app. Submit at **y=569 of 625** unscrolled, and it holds while scrolling. No JavaScript and
+  no unsaved-changes state: sticky only offsets an element that would otherwise leave the scrollport, so on
+  a short form the row sits exactly where it always did. This is Polaris's ContextualSaveBar and Stripe's
+  sticky footer without the state machine. A form's primary action should not depend on the form's length.
+- **`columns:` on `collection_check_boxes`** - three columns from `lg`, one below. Fourteen years went from
+  **612px to 216px** and five rows. GOV.UK and Polaris both allow a multi-column checkbox group for short
+  uniform labels, which is what a school year is.
+- **`Year.offered_for`** - the current school year, the one either side, and **anything the record already
+  has**. Three boxes instead of fourteen, with the current one badged.
+
+**The already-selected clause is not tidiness, it is the difference between narrowing and data loss.**
+`year_ids=` replaces the whole collection, so a school linked to 2023-2024 would have that association
+destroyed by any save from a form that never showed it - along with the four quarters on the `SchoolYear`,
+or an outright failure if it has classrooms, since both are `restrict_with_error`. A field whose value is
+silently discarded looks like a save that worked. A test covers it directly.
+
+### Three traps, all of them mine, all already recorded here
+
+- **A class name built by interpolation does not compile.** `lg:grid-cols-#{columns}` is invisible to
+  Tailwind, so the first version rendered a grid with no columns - and the group *looked* fixed, because
+  three years fit in one column anyway. `COLUMN_LAYOUTS` spells the three results out.
+- **`str.replace` without an assertion silently no-ops.** The call site passing `columns` never matched on
+  indentation, so the variable became unused, `rubocop -a` stripped the assignment, and the option was
+  quietly discarded. Every edit in the fix asserts its match first.
+- **Two of my measurement probes were wrong before the code was.** One targeted the wrong container and
+  reported no change from any column count; another never passed its argument, so `arguments[0]` was
+  undefined and the grid was never applied. A probe is code and can be wrong in the direction that
+  flatters the thing being measured.
+
+### What this breaks
+
+- **`form_actions_test`'s rule changed deliberately.** It required the action row to be transparent - "it
+  sits on the page" - which a sticky row cannot be, or the page scrolls visibly through the buttons. It now
+  requires the row to match the **page's own background** or be transparent, and to be `position: sticky`.
+  Read from `body`, not `main`: admin's main has no background of its own.
+- **Nine action rows moved onto the shared class**, including the classroom and student forms. One did
+  *not*: the nested "Add transaction" submit on `admin/students#_form` is a section's action inside a card,
+  and sticking it would pin a sub-form's button over the page.
+- **`admin/schools` offers three years, not every year.** A school already linked to others still shows
+  them.

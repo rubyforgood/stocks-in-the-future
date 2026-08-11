@@ -155,6 +155,10 @@ module Ui
       label_text = options.delete(:label) || attribute.to_s.humanize
       hint = options.delete(:hint)
       wrapper_class = options.delete(:wrapper_class) || ""
+      # Lay the boxes out in columns from `lg`, for a group whose labels are short and uniform. Fourteen
+      # school years in one column measured 608px; three columns is 212px. GOV.UK and Polaris both allow a
+      # multi-column checkbox group for exactly that shape, and both keep one column on a phone.
+      columns = options.delete(:columns)
 
       # A group *does* need its own message: the proc skips checkboxes deliberately, because a group's error
       # belongs to the group and Rails would otherwise attach it to whichever box it rendered first. This is
@@ -173,7 +177,7 @@ module Ui
       @template.content_tag(:div, class: "mb-6 #{wrapper_class}") do
         @template.tag.fieldset(**error_attrs) do
           build_checkbox_collection_label(label_text, hint, required:) +
-            build_checkbox_collection_items(attribute, collection, value_method, text_method) +
+            build_checkbox_collection_items(attribute, collection, value_method, text_method, columns) +
             (@template.field_error(object, errors_on) || "".html_safe)
         end
       end
@@ -267,6 +271,16 @@ module Ui
       @template.link_to(text, url, options)
     end
 
+    # **Literal class strings, not interpolation.** Tailwind compiles what it can *see* in the source, and
+    # it cannot see `lg:grid-cols-#{columns}` - so the first version of this rendered a grid with no columns
+    # and the group was only short because three items fit anyway. Measured: `grid-template-columns` came
+    # back as a single track. Anything that builds a class name from a variable has to spell the results out.
+    COLUMN_LAYOUTS = {
+      2 => "mt-2 grid grid-cols-1 gap-2 lg:grid-cols-2",
+      3 => "mt-2 grid grid-cols-1 gap-2 lg:grid-cols-3",
+      4 => "mt-2 grid grid-cols-1 gap-2 lg:grid-cols-4"
+    }.freeze
+
     private
 
     def build_select_choice(item, label_method, value_method)
@@ -299,17 +313,27 @@ module Ui
     end
 
     # Build checkbox collection items
-    def build_checkbox_collection_items(attribute, collection, value_method, text_method)
+    def build_checkbox_collection_items(attribute, collection, value_method, text_method, columns = nil)
       # One empty value ahead of the boxes, so unchecking everything submits an empty list rather than
       # omitting the key - without it the parameter is simply absent and the record keeps what it had, so
       # clearing a group silently does nothing and reports a save that worked. `id: nil` because it would
       # otherwise take the same derived id as every checkbox below it.
       @template.hidden_field_tag("#{object_name}[#{attribute}][]", "", id: nil) +
-        @template.content_tag(:div, class: "mt-2 space-y-2") do
+        @template.content_tag(:div, class: checkbox_collection_layout(columns)) do
           collection.map do |item|
             build_single_checkbox(attribute, item, value_method, text_method)
           end.join.html_safe # rubocop:disable Rails/OutputSafety
         end
+    end
+
+    # `gap-2`, not `space-y-2`, in the grid case. `space-y-*` compiles to a rule on adjacent *siblings*
+    # (`> :not([hidden]) ~ :not([hidden])`), which in a grid adds a top margin to every item that is not
+    # first in **DOM** order rather than first in its row - so the columns come out ragged. The one-column
+    # case keeps `space-y-2`, because that is what it has always rendered and there is nothing to change.
+    def checkbox_collection_layout(columns)
+      return "mt-2 space-y-2" if columns.blank?
+
+      COLUMN_LAYOUTS.fetch(columns.to_i)
     end
 
     # Build a single checkbox item

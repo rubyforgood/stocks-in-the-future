@@ -40,7 +40,7 @@
                       rows: 4 %>
   <% end %>
 
-  <div class="flex flex-wrap items-center gap-3">
+  <div class="tw-form-actions">
     <%= f.submit_button portfolio_transaction.persisted? ? "Update portfolio transaction" : "Create portfolio transaction" %>
     <%= f.cancel_button "Cancel", url: portfolio_transaction.persisted? ? admin_portfolio_transaction_path(portfolio_transaction) : admin_root_path %>
   </div>

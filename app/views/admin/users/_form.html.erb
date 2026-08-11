@@ -61,7 +61,7 @@
       <% end %>
   <% end %>
 
-  <div class="flex flex-wrap items-center gap-3">
+  <div class="tw-form-actions">
     <%= f.submit_button @user.persisted? ? "Update user" : "Create user" %>
     <%= f.cancel_button "Cancel", url: @user.persisted? ? admin_user_path(@user) : admin_users_path %>
   </div>

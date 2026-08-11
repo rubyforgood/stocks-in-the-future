@@ -42,7 +42,7 @@
       <% end %>
   <% end %>
 
-  <div class="flex flex-wrap items-center gap-3">
+  <div class="tw-form-actions">
     <%= f.submit_button @school_year.persisted? ? "Update school year" : "Create school year" %>
     <%= f.cancel_button "Cancel", url: @school_year.persisted? ? admin_school_year_path(@school_year) : admin_school_years_path %>
   </div>

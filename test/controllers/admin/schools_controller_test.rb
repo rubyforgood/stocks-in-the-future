@@ -49,16 +49,49 @@ module Admin
       assert_select "h1", "New school"
     end
 
-    test "new shows year checkboxes" do
-      year1 = create(:year, name: "2024 - 2025")
-      year2 = create(:year, name: "2025 - 2026")
+    # Relative to the current school year, never hardcoded: the window moves, and a literal "2024 - 2025"
+    # here would have started failing in July whichever way this was written.
+    def a_year(offset)
+      start = Year.current_school_year_name.split(" - ").first.to_i + offset
+      create(:year, name: "#{start} - #{start + 1}")
+    end
+
+    test "new offers the current school year, the one either side, and nothing further out" do
+      previous = a_year(-1)
+      current = a_year(0)
+      following = a_year(1)
+      distant = a_year(5)
 
       get new_admin_school_path
 
       assert_response :success
-      assert_select "input[type='checkbox'][name='school[year_ids][]']", count: 2
-      assert_select "label", text: year1.name
-      assert_select "label", text: year2.name
+      assert_select "input[type='checkbox'][name='school[year_ids][]']", count: 3
+      [previous, current, following].each { |year| assert_select "label", text: /#{year.name}/ }
+      assert_select "label", text: /#{distant.name}/, count: 0
+    end
+
+    test "the current school year is marked" do
+      a_year(0)
+
+      get new_admin_school_path
+
+      assert_select "label", text: /Current/
+    end
+
+    # **The guard against silent data loss.** `year_ids=` replaces the whole collection, so a school linked
+    # to a year outside the window would have that association destroyed by any save from a form that never
+    # showed it - along with the four quarters on the `SchoolYear`, or a failure if it has classrooms, since
+    # both are `restrict_with_error`.
+    test "edit still offers a year the school already has, however old" do
+      distant = a_year(-6)
+      a_year(0)
+      school = create(:school)
+      create(:school_year, school:, year: distant)
+
+      get edit_admin_school_path(school)
+
+      assert_select "label", text: /#{distant.name}/
+      assert_select "input[type='checkbox'][name='school[year_ids][]'][checked]", count: 1
     end
 
     test "create" do

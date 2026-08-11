@@ -23,6 +23,10 @@ class FormActionsTest < ApplicationSystemTestCase
         cardLeft: Math.round(b(card).left),
         primaryHeight: Math.round(b(primary).height),
         rowBackground: getComputedStyle(row).backgroundColor,
+        // The body, not main: admin's main has no background of its own, so comparing against it read the
+        // row as contrasting with transparent.
+        pageBackground: getComputedStyle(document.body).backgroundColor,
+        rowPosition: getComputedStyle(row).position,
         insideCard: card.contains(primary),
         rowJustify: getComputedStyle(row).justifyContent,
         cardRadius: getComputedStyle(card).borderTopLeftRadius,
@@ -36,8 +40,18 @@ class FormActionsTest < ApplicationSystemTestCase
 
     assert_not_nil g, "#{label}: no submit or no card found"
     assert_not g["insideCard"], "#{label}: the actions are inside the card"
-    assert_equal "rgba(0, 0, 0, 0)", g["rowBackground"],
-                 "#{label}: the action row is tinted (#{g['rowBackground']}); it sits on the page"
+    # **The row may not be a *contrasting* band, which is what this rule was protecting** - the reported
+    # defect was buttons on a grey strip inside the card. It is now `sticky bottom-0`, because a form longer
+    # than the viewport put its submit at y=1094 of 625 on admin/schools#edit and no amount of shortening the
+    # fields fixed that. A sticky row has to be opaque or the page scrolls visibly through the buttons, so
+    # the test is that its background is the **page's own colour**: it looks like the page when it is not
+    # overlapping anything, and hides what passes under it when it is.
+    assert_includes ["rgba(0, 0, 0, 0)", g["pageBackground"]], g["rowBackground"],
+                    "#{label}: the action row is #{g['rowBackground']} against a page of " \
+                    "#{g['pageBackground']} - it may match the page or be transparent, not contrast"
+    assert_equal "sticky", g["rowPosition"],
+                 "#{label}: the action row is #{g['rowPosition']}, so a long form puts its submit " \
+                 "below the fold"
     assert_in_delta g["cardLeft"], g["primaryLeft"], 1,
                     "#{label}: the primary is at #{g['primaryLeft']}px against a card edge of " \
                     "#{g['cardLeft']}px - actions anchor to the leading edge"

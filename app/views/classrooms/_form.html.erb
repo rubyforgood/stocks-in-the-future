@@ -131,7 +131,7 @@
       Cancel replaces the pair of `tw-btn-secondary` links that used to sit under the form - "View
       classroom" and "Back to classrooms" - which put three actions on the page in two groups with the
       primary orphaned above them. Going back is one action, and on #edit it goes where Cancel goes. %>
-  <div class="mt-6 flex flex-wrap items-center gap-3">
+  <div class="tw-form-actions mt-6">
     <%= form.submit classroom.persisted? ? "Update classroom" : "Create classroom", class: "tw-btn-primary" %>
     <%= link_to "Cancel", cancel_path, class: "tw-btn-secondary" %>
   </div>

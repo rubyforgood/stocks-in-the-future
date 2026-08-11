@@ -155,3 +155,27 @@
     @apply cursor-not-allowed text-slate-500;
   }
 }
+
+@layer components {
+  /* A form's action row, stuck to the bottom of the viewport while the form is longer than it.
+   *
+   * Reported on `admin/schools#edit`, where a fourteen-year checkbox group put the submit at y=1094 in a
+   * 625px Chromebook viewport. **Shortening the list is not enough**, which is the measurement that decided
+   * this: at two columns the submit is still at 786, at three 698, at four 654 - because the breadcrumb, the
+   * page header, the card padding, the name field and the hints take ~486px before the years begin. A form's
+   * primary action should not depend on the form's length.
+   *
+   * `position: sticky` with `bottom: 0` needs no JavaScript and no unsaved-changes state: on a form shorter
+   * than the viewport the row simply sits where it always did, because sticky only offsets an element that
+   * would otherwise leave the scrollport. Measured on that page: submit at y=585 of 625 unscrolled, and it
+   * holds while scrolling.
+   *
+   * This is Polaris's ContextualSaveBar and Stripe's sticky form footer, minus the state machine.
+   *
+   * The border and the page-coloured background matter: without them the buttons float over whatever text
+   * scrolls beneath, which reads as a rendering fault rather than as chrome. `-mx-*` is deliberately absent:
+   * a negative margin drags paint past the content edge, which this codebase has recorded three times. */
+  .tw-form-actions {
+    @apply sticky bottom-0 z-10 flex flex-wrap items-center gap-3 border-t border-slate-200 bg-slate-50 py-4;
+  }
+}

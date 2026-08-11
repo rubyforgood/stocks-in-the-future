@@ -54,7 +54,7 @@
         Primary first, because at the leading edge the eye reads left to right and the primary is what the
         form is for. Trailing alignment reverses that - Polaris and Stripe put Cancel first there - which
         is exactly why the two cannot be mixed. %>
-    <div class="mt-6 flex flex-wrap items-center gap-3">
+    <div class="tw-form-actions mt-6">
       <%= f.submit "Create student", class: "tw-btn-primary" %>
       <%= link_to "Cancel", classroom_path(@classroom), class: "tw-btn-secondary" %>
     </div>

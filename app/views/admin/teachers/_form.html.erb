@@ -65,7 +65,7 @@
   <% end %>
 
   <div class="flex items-center justify-between gap-x-4">
-    <div class="flex items-center gap-x-4">
+    <div class="tw-form-actions">
       <%= f.cancel_button "Cancel", url: @teacher.persisted? ? admin_teacher_path(@teacher) : admin_teachers_path %>
       <%= f.submit_button @teacher.persisted? ? "Update teacher" : "Create teacher" %>
     </div>

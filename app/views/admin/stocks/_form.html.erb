@@ -125,7 +125,7 @@
       </div>
   <% end %>
 
-  <div class="flex flex-wrap items-center gap-3">
+  <div class="tw-form-actions">
     <%= f.submit_button @stock.persisted? ? "Update stock" : "Create stock" %>
     <%= f.cancel_button "Cancel", url: @stock.persisted? ? admin_stock_path(@stock) : admin_stocks_path %>
   </div>

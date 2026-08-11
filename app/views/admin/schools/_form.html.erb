@@ -15,12 +15,21 @@
                        hint: "Enter the school name",
                        placeholder: "Lincoln elementary school" %>
 
-      <%= f.collection_check_boxes :year_ids, @years, :id, :name,
+      <%# Three columns from `lg`, one below. Fourteen years in a single column measured 608px and put the
+          submit at y=1094 in a 625px viewport; three columns is 212px. The labels are short and uniform,
+          which is the shape GOV.UK and Polaris both allow a multi-column group for.
+
+          The current school year is marked, because the list is ordered newest-first and "newest" is not
+          the one anybody wants - it is the one in progress. A callable `text_method`, which the builder
+          already supports, so the badge is part of the option rather than a second list beside it. %>
+      <%= f.collection_check_boxes :year_ids, @years, :id,
+                                   ->(year) { year_option_label(year) },
                                    label: "Years",
-                                   hint: "Select the school years this school will be active" %>
+                                   hint: "Select the school years this school will be active",
+                                   columns: 3 %>
   <% end %>
 
-  <div class="flex flex-wrap items-center gap-3">
+  <div class="tw-form-actions">
     <%= f.submit_button @school.persisted? ? "Update school" : "Create school" %>
     <%= f.cancel_button "Cancel", url: @school.persisted? ? admin_school_path(@school) : admin_schools_path %>
   </div>

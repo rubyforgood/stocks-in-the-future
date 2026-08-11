@@ -86,8 +86,13 @@ module Admin
       @school = School.find(params.expect(:id))
     end
 
+    # The current school year, the one either side, and anything this school already has. Not every year in
+    # the table: the seeds create ten future ones, so a descending list opened on 2036 and buried the useful
+    # year ten rows down - and 608px of checkboxes put the submit below the fold on a Chromebook.
+    #
+    # `@school` is nil on `new`, which `offered_for` handles: a new school has no years to preserve.
     def set_form_data
-      @years = Year.ordered_by_start_year
+      @years = Year.offered_for(@school)
     end
 
     def school_params

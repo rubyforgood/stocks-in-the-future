@@ -47,7 +47,7 @@
     </div>
   </div>
 
-  <div class="flex flex-wrap items-center gap-3">
+  <div class="tw-form-actions">
     <%= f.submit_button @student.persisted? ? "Update student" : "Create student" %>
     <%= f.cancel_button "Cancel", url: @student.persisted? ? admin_student_path(@student) : admin_students_path %>
   </div>
@@ -93,6 +93,9 @@
       </div>
     </div>
 
+    <%# Not `tw-form-actions`: that class sticks a row to the bottom of the viewport, and this is a
+        *section's* action inside a card rather than the form's footer. Sticking it would pin a sub-form's
+        button over the page. %>
     <div class="flex flex-wrap items-center gap-3">
       <%= f.submit_button "Add transaction", variant: :secondary %>
     </div>
