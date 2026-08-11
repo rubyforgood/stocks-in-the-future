@@ -40,9 +40,13 @@ module Admin
       assert_response :success
       assert_select "[data-testid='school-years']"
       assert_select "[data-testid='school-years']", text: /#{year.name}/
-      # Four quarters are provisioned on create, and the row says so - that is the consequence a removal
-      # has to warn about.
-      assert_select "[data-testid='school-years']", text: /4 quarters/
+
+      # **Not "4 quarters".** A school year always has exactly four - `create_quarters` makes them, nothing
+      # else does, and there are no quarter routes - so on every row it was an invariant dressed as data. The
+      # number survives where it is the *consequence*, in the removal confirmation.
+      assert_select "[data-testid='school-years']", text: /4 quarters/, count: 0
+
+      # The classroom count does vary, and it is the reason removal is refused.
       assert_select "[data-testid='school-years']", text: /1 classroom/
     end
 

@@ -1,0 +1,31 @@
+<%# The shape every admin record page has: one column, one header, one section stack.
+
+    **Declared here rather than nine times.** The three school pages were measured before this existed and
+    disagreed on all of it: view was 768px with three cards, edit 768px with two, create 1062px with one and no
+    section headings at all. A form's measure should not change between creating a record and editing it -
+    design.md records that defect on `classrooms#edit` - and a section that looks different on each page is the
+    inconsistency this partial exists to remove.
+
+    **View and edit are the same page.** Stripe's customer page, Linear's project page, Shopify admin's product
+    page and Polaris's resource detail pages all hold a record's attributes *and* its collections on one
+    screen, edited in place. A separate edit screen is a Rails scaffold convention; it earns its place for a
+    long form, not for a record with a handful of fields.
+
+    Locals:
+      title       - the record's own name, which is the page's h1
+      breadcrumbs - the trail
+      description - optional line under the title
+      actions     - optional block for the header's actions, usually just Delete
+
+    The sections themselves are the block: a collection first where there is one, because that is what the page
+    is for, then Details, then anything read-only. %>
+<div class="mx-auto max-w-3xl">
+  <%= admin_breadcrumbs(breadcrumbs) %>
+
+  <%= render layout: "components/ui/page_header",
+             locals: { title: title, description: local_assigns[:description] } do %>
+    <%= local_assigns[:actions] %>
+  <% end %>
+
+  <div class="space-y-6"><%= yield %></div>
+</div>

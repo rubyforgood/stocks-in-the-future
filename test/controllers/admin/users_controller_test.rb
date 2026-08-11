@@ -72,7 +72,9 @@ module Admin
       get edit_admin_user_path(user)
 
       assert_response :success
-      assert_select "h1", "Edit user"
+      # The record's page edits in place, so its heading is the record's name. There is no separate edit page
+      # in this shape; the route renders the same screen so existing Edit links keep working.
+      assert_select "h1", user.username
     end
 
     test "create" do

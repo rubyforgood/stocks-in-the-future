@@ -179,6 +179,21 @@
     @apply flex flex-wrap items-center gap-3 py-4;
   }
 
+  /* **Absent until there is something to save**, on a form that edits an existing record. A Save button on a
+     page you are only reading is friction, and Polaris's ContextualSaveBar is not merely unpinned when the
+     form is clean - it is not there. Shopify admin and Stripe behave the same way.
+   *
+   * Note the distinction from design.md's "enabled + validate, not disabled-until-input": that rule is about
+   * a control the user might reasonably press, so it must be pressable and explain the refusal. A save with
+   * nothing to save has nothing to explain. Hidden, not disabled.
+   *
+   * `form-dirty` sets `clean` on connect for an update form and swaps it for `dirty` on the first change - so
+   * with no JavaScript neither attribute is ever set and the row is simply there, which is what the app did
+   * before any of this. A create form is never marked clean: you cannot create anything without submitting. */
+  [data-form-clean="true"] .tw-form-actions {
+    @apply hidden;
+  }
+
   [data-form-dirty="true"] .tw-form-actions {
     @apply sticky bottom-0 z-10 bg-slate-50;
   }

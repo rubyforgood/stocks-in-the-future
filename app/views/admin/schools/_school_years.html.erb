@@ -41,9 +41,14 @@
               <%= render "components/ui/badge", label: "Current", tone: :info %>
             <% end %>
           </p>
-          <%# Quarters only. The classroom count appears on the right, where it is the reason removal is
-              refused - stating it in both places had the blocked row reading "1 classroom" twice. %>
-          <p class="mt-1 text-xs text-slate-600"><%= pluralize(school_year.quarters.size, "quarter") %></p>
+          <%# **No metadata line.** It said "4 quarters", and a school year always has exactly four: they come
+              from `SchoolYear#create_quarters`, nothing else creates one, and there are no quarter routes at
+              all. An invariant rendered as data on every row is a column of identical values - the same defect
+              as a column of dashes. The number still appears in the removal confirmation, where it is the
+              consequence rather than decoration.
+
+              What varies is the classroom count, and that is on the right, where it is the reason removal is
+              refused. Stating it on both sides had the blocked row reading "1 classroom" twice. %>
         </div>
 
         <% if manage %>

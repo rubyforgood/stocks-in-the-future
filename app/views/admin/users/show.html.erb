@@ -1,31 +1,28 @@
-<div class="max-w-7xl mx-auto">
-  <%= admin_breadcrumbs(@breadcrumbs) %>
-
-  <%= render layout: "components/ui/page_header", locals: { title: @user.username } do %>
-    <%= render "admin/shared/show_actions",
-               record: @user,
-               edit_path: edit_admin_user_path(@user),
-               delete_path: admin_user_path(@user) %>
+<%= render layout: "admin/shared/record_page",
+           locals: { title: @user.username, breadcrumbs: @breadcrumbs,
+                     actions: capture do
+                       link_to "Delete user", admin_user_path(@user),
+                               data: { turbo_method: :delete, turbo_confirm: delete_confirm(@user) },
+                               class: admin_danger_button_class
+                     end } do %>
+  <%# Details first here, and last on a page with a collection: this record has no collection to lead with. %>
+  <%= render layout: "admin/shared/record_section", locals: { title: "Details" } do %>
+    <%= render "form" %>
   <% end %>
 
-  <div class="space-y-6">
-    <%= admin_show_attributes(
-          @user,
-          attributes: %i[username type email admin classroom]
-        ) %>
-
-    <%= render layout: "components/ui/card", locals: { title: "Portfolio" } do %>
+  <%= render layout: "admin/shared/record_section", locals: { title: "Portfolio" } do %>
+    <%= render layout: "components/ui/card", locals: {} do %>
       <% if @user.portfolio.present? %>
-        <div class="text-sm text-slate-900">
-          Portfolio ID: <%= @user.portfolio.id %>
+        <p class="text-sm text-slate-900">
           <% if @user.student? %>
-            <%= link_to "View portfolio", user_portfolio_path(@user, @user.portfolio),
-                        class: "ml-2 tw-link" %>
+            <%= link_to "View portfolio", user_portfolio_path(@user, @user.portfolio), class: "tw-link" %>
+          <% else %>
+            This user has a portfolio.
           <% end %>
-        </div>
+        </p>
       <% else %>
         <p class="text-sm text-slate-600">No portfolio associated with this user.</p>
       <% end %>
     <% end %>
-  </div>
-</div>
+  <% end %>
+<% end %>

@@ -36,7 +36,29 @@ class FormActionsTest < ApplicationSystemTestCase
     })()
   JS
 
+  # Dirties the form the way a person does. On an **update** form the action row is hidden until there is
+  # something to save - a Save button on a page you are only reading is friction, which is what Polaris's
+  # ContextualSaveBar avoids - so every measurement below needs the row on screen first.
+  def dirty_the_form
+    page.execute_script(<<~JS)
+      (function () {
+        const field = document.querySelector("main form input[type=text], main form input[type=email], " +
+                                             "main form textarea, main form select");
+        if (field) field.dispatchEvent(new Event("input", { bubbles: true }));
+      })()
+    JS
+  end
+
   def assert_leading_edge_actions(label)
+    updates = page.evaluate_script(%(!!document.querySelector("main form input[name='_method']")))
+
+    if updates
+      assert_equal "none",
+                   page.evaluate_script("getComputedStyle(document.querySelector('main .tw-form-actions')).display"),
+                   "#{label}: the action row is on screen before anything has changed"
+    end
+
+    dirty_the_form
     g = page.evaluate_script(GEOMETRY)
 
     assert_not_nil g, "#{label}: no submit or no card found"
@@ -50,26 +72,14 @@ class FormActionsTest < ApplicationSystemTestCase
     assert_includes ["rgba(0, 0, 0, 0)", g["pageBackground"]], g["rowBackground"],
                     "#{label}: the action row is #{g['rowBackground']} against a page of " \
                     "#{g['pageBackground']} - it may match the page or be transparent, not contrast"
-    # **Static until something changes, then pinned.** An always-sticky row was reported twice - once for the
-    # rule it drew, once for hovering over a page whose only field is a name nobody was editing - and Polaris,
-    # Shopify admin and Stripe all reveal the save affordance on change rather than parking it there. It
-    # cannot simply be static either: measured, the submit would sit at y=3298 on admin/stocks#edit.
-    assert_equal "static", g["rowPosition"],
-                 "#{label}: the action row is pinned before anything has changed"
-
-    # Dirty it the way a person does - an `input` event on the first field - and it should pin.
-    page.execute_script(<<~JS)
-      (function () {
-        const field = document.querySelector("main form input[type=text], main form input[type=email], " +
-                                             "main form textarea, main form select");
-        if (!field) return;
-        field.dispatchEvent(new Event("input", { bubbles: true }));
-      })()
-    JS
-
-    assert_equal "sticky", page.evaluate_script(GEOMETRY)["rowPosition"],
-                 "#{label}: the action row did not pin once the form had unsaved changes, so a long form " \
-                 "leaves its submit below the fold"
+    # Pinned, now that there is something to save. It cannot be pinned always - reported twice, once for the
+    # rule it drew and once for hovering over a page whose only field is a name nobody was editing - and it
+    # cannot be static either: measured, the submit would sit at y=3298 on admin/stocks#edit against a 625px
+    # viewport. Polaris, Shopify admin and Stripe all reveal the save on change.
+    # Both kinds pin once dirty - a create form needs it just as much, with students#new's submit at y=1043.
+    # What differs is only whether the row starts hidden, which is asserted above.
+    assert_equal "sticky", g["rowPosition"],
+                 "#{label}: the action row is #{g['rowPosition']} with unsaved changes on screen"
 
     # **And no rule.** This carried a `border-t` for one commit, on nine forms, and design.md's Dividers
     # section rules it out by name: "no extra dividers anywhere", followed by an exhaustive list of the four

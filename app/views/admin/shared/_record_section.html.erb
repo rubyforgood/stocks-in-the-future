@@ -1,0 +1,21 @@
+<%# One section inside a record page: a heading, an optional line under it, and the content.
+
+    A partial rather than nine hand-written `<section>`s, because the heading level, the hint's colour and the
+    12px gap between them and the content are exactly the things that drift. `space-y-6` on the parent puts 24px
+    between sections, so this adds no margin of its own.
+
+    Locals: title, content as the block, and an optional `hint`. `sr_only` for a section whose heading would
+    repeat the only label inside it - used sparingly, since a heading on one page and not another is the
+    inconsistency this is here to remove. %>
+<section aria-labelledby="<%= title.parameterize %>-heading">
+  <h2 id="<%= title.parameterize %>-heading"
+      class="<%= local_assigns[:sr_only] ? "sr-only" : "text-base font-semibold text-slate-900" %>">
+    <%= title %>
+  </h2>
+
+  <% if local_assigns[:hint].present? %>
+    <p class="mt-1 text-sm text-slate-600"><%= hint %></p>
+  <% end %>
+
+  <div class="mt-3"><%= yield %></div>
+</section>

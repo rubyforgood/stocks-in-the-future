@@ -1,26 +1,11 @@
-<div class="max-w-7xl mx-auto">
-  <%= admin_breadcrumbs(@breadcrumbs) %>
-
-  <%# The title and its actions sit at page level, on the page background. They used to
-      be nested inside the card alongside admin_show_attributes - which renders a card
-      of its own, so the page held a card inside a card. %>
-  <%= render layout: "components/ui/page_header", locals: { title: @announcement.title } do %>
-    <%= render "admin/shared/show_actions",
-               record: @announcement,
-               edit_path: edit_admin_announcement_path(@announcement),
-               delete_path: admin_announcement_path(@announcement) %>
+<%= render layout: "admin/shared/record_page",
+           locals: { title: @announcement.title, breadcrumbs: @breadcrumbs,
+                     actions: capture do
+                       link_to "Delete announcement", admin_announcement_path(@announcement),
+                               data: { turbo_method: :delete, turbo_confirm: delete_confirm(@announcement) },
+                               class: admin_danger_button_class
+                     end } do %>
+  <%= render layout: "admin/shared/record_section", locals: { title: "Details" } do %>
+    <%= render "form" %>
   <% end %>
-
-  <div class="space-y-6">
-    <%= admin_show_attributes(
-          @announcement,
-          attributes: %i[title featured]
-        ) %>
-
-    <%= render layout: "components/ui/card", locals: { title: "Content" } do %>
-      <div class="prose max-w-none">
-        <%= @announcement.content %>
-      </div>
-    <% end %>
-  </div>
-</div>
+<% end %>

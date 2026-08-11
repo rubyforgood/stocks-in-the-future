@@ -1,8 +1,3 @@
-<div class="max-w-7xl mx-auto">
-  <%= admin_breadcrumbs(@breadcrumbs) %>
-
-  <%= render layout: "components/ui/page_header",
-             locals: { title: "Edit user", description: @user.username } do %><% end %>
-
-  <%= render "form" %>
-</div>
+<%# There is no separate edit page in this shape: the record's own page edits in place. This template stays
+    so every existing Edit link keeps working, and renders that page. %>
+<%= render template: "admin/users/show" %>
