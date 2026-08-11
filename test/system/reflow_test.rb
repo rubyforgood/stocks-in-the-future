@@ -134,7 +134,18 @@ class ReflowTest < ApplicationSystemTestCase
   end
 
   test "the admin pages reflow" do
-    create(:student, :with_portfolio, classroom: create(:classroom, :with_trading))
+    student = create(:student, :with_portfolio, classroom: create(:classroom, :with_trading))
+    student.reload
+    # A record page with something in every section: two forms, an earnings breakdown, a transaction and an
+    # attendance row. The index was walked here and the record page was not, which is the wrong way round -
+    # a page of fields and figures reflows less easily than a table that collapses.
+    create(
+      :portfolio_transaction, :deposit,
+      portfolio: student.portfolio, amount_cents: 100_000, reason: :attendance_earnings
+    )
+    quarter = student.classroom.school_year.quarters.find_by!(number: 1)
+    grade_book = student.classroom.grade_books.find_by!(quarter:)
+    create(:grade_entry, grade_book:, user: student, attendance_days: 42)
     create(:stock)
     sign_in create(:admin)
 
@@ -142,6 +153,7 @@ class ReflowTest < ApplicationSystemTestCase
       "dashboard" => admin_root_path,
       "classrooms" => admin_classrooms_path,
       "students" => admin_students_path,
+      "student" => admin_student_path(student),
       "teachers" => admin_teachers_path,
       "stocks" => admin_stocks_path,
       "school years" => admin_school_years_path,
