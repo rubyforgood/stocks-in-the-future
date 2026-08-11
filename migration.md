@@ -3373,3 +3373,51 @@ spec is the drift this repo keeps recording:
 - **Length is a constraint.** At 375px there are 304px for text. The first rewrite measured 307px and
   wrapped by three pixels; this one is 219px and fits on one line from 320px up. The ribbon grows to
   fit either way, but a phone should not need two lines to say this.
+
+## Container queries become the rule for components
+
+The two-tier viewport policy was made explicit in the previous entry. This adds the thing that makes
+two tiers *viable* rather than merely defensible.
+
+A viewport breakpoint answers "how wide is the window". A component nearly always needs "how wide am
+I", and the two diverge the moment anything sits in a column, a card, a modal or a table cell. Every
+"this component broke somewhere else" bug recorded in this document is that divergence: the roster at
+765px beside a 256px rail, a `flex-1` pane that needed `min-w-0`, a four-across stat band that is fine
+full width and wrong in a column, row actions off screen because the *page* scrolled.
+
+The usual response to those is to add `md:`, then `xl:` — which is how a two-tier system becomes a
+five-tier one without anyone deciding to. **The rule is now: page layout uses the viewport tiers, and
+anything that could render in a narrower box than the page uses a container query.** Verified in this
+codebase, not assumed: Tailwind 4.3.1 compiles `@container` and its variants, with `@lg:` resolving to
+`@container (min-width:32rem)` — container-relative, not the 1024px viewport `lg:`.
+
+Adoption is by touch, not by sweep: a component that only ever renders full width loses nothing by
+using `lg:`. The test is "could this render in a narrower box than the page?"
+
+Four smaller items were added at the same time, all of them current field defaults and none of them
+expensive today: **logical properties** (`ms-`, `pe-`, `text-end`) over physical, **`clamp()`** where a
+size step is arbitrary rather than a token, **`dvh`** over `vh`, and **`prefers-reduced-motion`** on
+anything that moves.
+
+The doc also now says what is *missing*: a test that walks the main pages at 320px and at 200% text
+asserting no overflow, nothing above `y = 0`, and no control outside its scroll container. Every
+failure found by hand in this session would have been caught by it.
+
+### What this breaks
+
+- **Nothing yet.** No existing component was converted; this is a rule for new and rebuilt ones.
+- A future PR adding `md:` or `xl:` should be answered with "should that be a container query?"
+
+## The ribbon's copy, second pass
+
+`Staging site. These are not real students.` became **`Staging site. Test data only.`**
+
+The absolute claim was a promise the deployment cannot keep *through use*. Staging is seeded from
+`db/seeds/development.rb`, so it ships with fabricated students — but an admin doing UAT can import a
+real roster through the CSV path, and a banner that then reassures them the data is fake is worse than
+one that says nothing. "Test data only" states what the environment is *for*, which stays true and
+reads as an instruction rather than a guarantee.
+
+It is also the field's idiom (Stripe's "test data", Shopify's "Development store") and the shortest
+candidate measured: 148px against a 249px budget at 320px, where "Does not contain any real data" needs
+236px and "Nothing here affects the live site" 250px — the latter wraps at 320px.

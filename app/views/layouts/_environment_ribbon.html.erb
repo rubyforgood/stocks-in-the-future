@@ -34,14 +34,17 @@
         environment", Salesforce's "Sandbox", Shopify's "Development store". The second sentence is
         ours, because this product moves money into student portfolios.
 
-        **"These are not real students", not "nothing here affects real students."** The second is a
-        stronger promise than the deployment can keep - staging is configured with real SMTP, so an
-        action here can still send mail. What is reliably true is that the records are fake, and that
-        is also the thing worth knowing before pressing Finalize.
+        **"Test data only", not "contains no real data."** The absolute is a promise the deployment
+        cannot keep through use: staging is seeded from the *development* seeds, so it ships with
+        fabricated students - but an admin doing UAT can import a real roster through the CSV path, and
+        a banner that then reassures them the data is fake is worse than one that says nothing. "Test
+        data only" states what the environment is *for*, which stays true and reads as an instruction.
 
-        Length is a constraint, not an afterthought: at 375px there are 304px for text, and the first
-        draft measured 307px, so it wrapped by three pixels. This one is 219px. The ribbon grows to fit
-        either way - see below - but a phone should not need two lines to say this. %>
-    <span>Staging site. These are not real students.</span>
+        It is also the field's idiom - Stripe's "test data", Shopify's "Development store" - and the
+        shortest of the candidates measured, at 148px against a 249px budget on a 320px phone, where
+        "Does not contain any real data" needs 236px and "Nothing here affects the live site" 250px.
+        The last of those wraps at 320px; this one has room at every width. The ribbon grows to fit
+        either way - see above - but a phone should not need two lines to say this. %>
+    <span>Staging site. Test data only.</span>
   </div>
 <% end %>

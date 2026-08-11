@@ -4584,6 +4584,18 @@ The *why* behind the system, so choices aren't re-litigated or lost.
   reaching for a tier. Verify at 320, 375, 768, 1024, 1366 and 1920, plus 375 and 1024 at 200%, plus
   one width above ~1584px, because a layout width cap is invisible at every width below it.
 
+  **A component sizes against its container, not the window.** Tailwind v4 ships container queries, so
+  anything that could render in a card, a column, a modal or a table cell uses `@container` and the
+  container-relative `@lg:` (32rem), not the viewport `lg:` (1024px). That is where the field has moved
+  - Polaris, Material and GitHub all keep viewport breakpoints for page layout and put component
+  adaptation on container queries - and it is what stops "add `md:`" from turning two tiers into five.
+  Every "this broke somewhere else" bug here has been a component sized against the viewport while
+  living in a narrower box.
+
+  Also standard now, and cheap: **logical properties** (`ms-`, `pe-`, `text-end`) over physical ones,
+  **`clamp()`** where a size step is arbitrary rather than a token, **`dvh`** over `vh`, and
+  **`prefers-reduced-motion`** on anything that moves.
+
   [`docs/responsive-design-guidelines.md`](docs/responsive-design-guidelines.md) is the long form and
   wins on anything responsive.
 - **No `dark:` variant.** There is no dark mode here, and Tailwind v4 compiles `dark:` to
