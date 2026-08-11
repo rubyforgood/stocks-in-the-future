@@ -3811,3 +3811,54 @@ caller invented to satisfy a rule is an abstraction nobody asked for.
 of CASA examples left. That finished earlier the same day at 236 → 6 lines, the 6 deliberate. The file
 itself records "re-check a standing claim before repeating it", from carrying a fixed CVE as the branch's
 most urgent item.
+
+## Map: re-opening a finalized grade book, and paying the difference
+
+**Asked for:** an admin-only re-open of a finalized grade book, with the app computing the difference and
+offering it for confirmation rather than an admin entering it by hand.
+
+**Why it needs a map.** This changes what students are paid, and the current code will pay twice if
+anything reopens a book. Three problems, all measured or read off the schema:
+
+1. **`finalize` pays in full, every time.** It sets `verified!`, and `DistributeEarnings` deposits the
+   whole computed amount and sets `completed!`. Return the status to `draft` and finalize again and every
+   student is paid the entire amount a second time. The service has no notion of having run before.
+2. **Nothing links a deposit to the grade book that caused it.** `portfolio_transactions` is
+   `amount_cents`, `reason`, `transaction_type`, `description`, `portfolio_id`. So "how much has this book
+   already paid this student?" is unanswerable, and a difference cannot be computed at all.
+3. **A finalized book's entries are writable today.** `GradeBooksController#update` has no `completed?`
+   guard - only `finalize` does - and `GradeBookPolicy#update?` asks who you are, not what state the book
+   is in. Measured: a teacher PATCHed a completed book and moved a grade from C to A, days 3 to 40 and the
+   perfect-attendance flag to true. The ledger did not move, so the record and the money now disagree, and
+   the page's derived figures are computed from the record.
+
+**Target structure.**
+
+- `portfolio_transactions.grade_book_id` (nullable, indexed). Nullable because every existing row and
+  every purchase, sale and fee has no grade book. This is also Tier 3 Step 3 - pairing an earnings
+  transaction with the grade that caused it - which is why that item comes forward with this one.
+- `GradeBook#paid?` derives from the existence of linked transactions rather than a second column, so
+  there is one source for "has this paid". `#paid_on` and `#amount_paid_cents` come from the same rows.
+- `DistributeEarnings` pays the **difference per user per reason**: owed now, minus what this book has
+  already paid for that reason. On a fresh book the second term is zero, so behaviour is unchanged, and
+  the characterisation test's literals still hold.
+- **A negative difference is never taken back.** A grade corrected downward leaves the overpayment paid.
+  Taking money out of a portfolio is not neutral - the student may have bought shares with it, so the
+  balance may not cover it - and a balance that drops is a pedagogical event, not a bookkeeping one. The
+  amount is reported, not clawed.
+
+**Order of moves, and what each breaks.**
+
+1. **Guard `update` on `completed?`.** Closes the hole above. Breaks any client that edits a finalized
+   book - nothing legitimate does, since the view has never offered the inputs.
+2. **Add the column and the associations.** Reads nothing yet. Breaks nothing.
+3. **Tag deposits with the grade book** in `DistributeEarnings`. Still pays in full. Breaks nothing; it
+   only makes the next step possible.
+4. **Make the amount a difference.** No behaviour change on a first finalize, by construction.
+5. **Add `reopen`, admin-only**, and surface the outstanding difference in the finalize card and its
+   confirmation.
+
+**What is deliberately not in this.** No audit columns for who reopened and when. The status change and
+the payment stated on the page are the visible record; if accountability for the funds needs a name
+against the action, that is a `reopened_by`/`reopened_at` pair and it is the obvious next step rather than
+something to guess at now.
