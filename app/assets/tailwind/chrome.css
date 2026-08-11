@@ -44,6 +44,19 @@
     height: calc(100dvh - 4rem - var(--sitf-ribbon-h));
   }
 
+  /* The account menu's dropdown panel.
+
+     `w-64` is 16rem, and rem scales with text: at 200% that is **512px**, wider than a 320px phone.
+     An absolutely positioned box contributes to its containing block's scrollable overflow whether or
+     not the menu is open, so every admin page scrolled sideways at 320px/200% with the menu shut -
+     which is what `reflow_test` found. `min()` keeps the 16rem it wants and the viewport it has.
+
+     A class rather than an arbitrary utility because `min()` with two units is not a scale value, and
+     because both halves render the same partial, so this is the one place to change it. */
+  .account-menu-panel {
+    width: min(16rem, calc(100vw - 2rem));
+  }
+
   /* The app side's sidebar is a full-height overlay on a phone and a fixed column under the header
      from lg up, so it needs the media query rather than a second class. */
   .chrome-sidebar {

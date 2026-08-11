@@ -22,6 +22,7 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
   CHROMEBOOK = [1366, 768].freeze
   LG_MINIMUM = [1024, 768].freeze
   DEFAULT_SIZE = [1400, 1400].freeze
+  REFLOW_WIDTH = 320
 
   # Restores the default size afterwards. Capybara reuses the browser between tests, so a test
   # that resized and did not restore would silently hand a 375px window to whatever ran next.
@@ -61,6 +62,40 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
   ensure
     resize_window_to(*DEFAULT_SIZE)
     wait_until { desktop_viewport? }
+  end
+
+  # 320px, the WCAG 1.4.10 Reflow width, through CDP rather than `resize_to`.
+  #
+  # A Chrome *window* will not go below about 500px, so `resize_to(320, ...)` silently gives you ~500 and
+  # a test that believes it checked 320px. `Emulation.setDeviceMetricsOverride` sets the viewport
+  # directly; measured, it yields a 305px client width here, the remainder being the scrollbar.
+  def in_reflow_viewport
+    page.driver.browser.execute_cdp(
+      "Emulation.setDeviceMetricsOverride",
+      width: REFLOW_WIDTH, height: 640, deviceScaleFactor: 1, mobile: false
+    )
+    yield
+  ensure
+    page.driver.browser.execute_cdp("Emulation.clearDeviceMetricsOverride")
+  end
+
+  # 200% text, for WCAG 1.4.4.
+  #
+  # Doubling the root font size is the standard automated proxy: Tailwind sizes type *and* spacing in
+  # rem, so this scales the same things browser zoom does. It is not identical to zoom - it leaves px
+  # values alone - which makes it the harsher test for exactly the failure mode that matters here, a box
+  # with a fixed height holding text that has grown.
+  #
+  # It has to be re-applied after every `visit`, because navigation replaces the documentElement.
+  def with_text_at_200_percent
+    apply_200_percent_text
+    yield
+  ensure
+    page.execute_script("document.documentElement.style.fontSize = ''")
+  end
+
+  def apply_200_percent_text
+    page.execute_script("document.documentElement.style.fontSize = '32px'")
   end
 
   private

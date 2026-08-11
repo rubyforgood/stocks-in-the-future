@@ -34,7 +34,15 @@
 <div class="mb-6 flex flex-col gap-3 lg:flex-row <%= align %> lg:justify-between">
   <div class="min-w-0">
     <div class="flex flex-wrap items-center gap-3">
-      <h1 class="text-2xl font-bold tracking-tight text-slate-900"><%= title %></h1>
+      <%# `min-w-0 break-words`, and it needs both. A title is one long word often enough -
+        "Announcements" at 200% text is 346px against a 305px viewport - and a word that cannot break
+        pushes the whole page sideways.
+
+        `break-words` alone did nothing here, which is worth knowing: this h1 is a **flex item** (the
+        row it sits in also holds the status badge), so its `min-width: auto` floors it at min-content,
+        and the min-content of a single unbreakable word is the whole word. `min-w-0` removes the floor;
+        only then does `overflow-wrap` get to break it. %>
+      <h1 class="min-w-0 text-2xl font-bold tracking-tight break-words text-slate-900"><%= title %></h1>
       <%= local_assigns[:badge] %>
     </div>
     <% if local_assigns[:description].present? %>

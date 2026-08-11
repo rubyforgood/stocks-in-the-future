@@ -37,9 +37,13 @@
 <%= tag.div class: "rounded-2xl border #{t[:surface]} p-4 #{local_assigns[:class]}",
             role: "status",
             data: { testid: local_assigns[:testid] } do %>
-  <div class="flex items-start gap-3">
+  <%# `flex-wrap` and a `min-w-0` body. At 200% text the dismiss control is 172px and the message needs
+      the rest, which together ran a 305px page out to 447px - the callout was the only thing on the
+      portfolio page that could not reflow. Wrapping drops the action onto its own line instead, which
+      is what the row wanted at that size anyway. %>
+  <div class="flex flex-wrap items-start gap-3">
     <%= lucide_icon local_assigns.fetch(:icon, t[:glyph]), class: "mt-0.5 size-5 shrink-0 #{t[:icon]}" %>
-    <div class="flex-1">
+    <div class="min-w-0 flex-1">
       <p class="text-sm font-medium <%= t[:title] %>"><%= title %></p>
       <% if local_assigns[:body].present? %>
         <p class="mt-1 text-sm <%= t[:body] %>"><%= body %></p>

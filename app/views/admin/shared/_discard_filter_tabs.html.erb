@@ -18,7 +18,10 @@
     Locals:
       current - the active filter: :active, :discarded or :all
       tabs    - array of [label, filter, path] %>
-<div class="mb-4 flex gap-1 border-b border-slate-200" data-testid="filter-tabs">
+<%# `flex-wrap`: at 200% text "Active / Deactivated / All" is 507px, which pushed a 305px page
+    sideways on every admin index that has these tabs. A row of chips is the textbook case for
+    wrapping rather than for a breakpoint. %>
+<div class="mb-4 flex flex-wrap gap-1 border-b border-slate-200" data-testid="filter-tabs">
   <% tabs.each do |label, filter, path| %>
     <% selected = current == filter %>
     <% tone = if selected

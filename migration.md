@@ -3421,3 +3421,43 @@ reads as an instruction rather than a guarantee.
 It is also the field's idiom (Stripe's "test data", Shopify's "Development store") and the shortest
 candidate measured: 148px against a 249px budget at 320px, where "Does not contain any real data" needs
 236px and "Nothing here affects the live site" 250px — the latter wraps at 320px.
+
+## `reflow_test`, and the five failures it found on its first run
+
+The previous entry said the highest-value gap was a test that walks the main pages at 320px and at
+200% text. It exists now: `test/system/reflow_test.rb`, four tests — signed out, student, teacher,
+admin — covering seventeen pages, each measured twice.
+
+Two helpers make it possible, and both are worth knowing about:
+
+- **`in_reflow_viewport`** uses CDP `Emulation.setDeviceMetricsOverride`, not `resize_to`. A Chrome
+  *window* will not go below about 500px, so `resize_to(320, ...)` silently gives you ~500 and a test
+  that believes it checked 320px. The override yields a 305px client width, the rest being scrollbar.
+- **`apply_200_percent_text`** doubles the root font size. Tailwind sizes type *and* spacing in rem, so
+  this scales what browser zoom scales. It has to be re-applied after every `visit`.
+
+It asserts three things per page: the document does not scroll sideways, nothing visible renders above
+`y = 0`, and no `.hidden` element has a computed display other than `none`.
+
+**It failed on five pages the first time it ran, and every failure was real.** All five were the same
+shape — a row that could not wrap, or a box that could not shrink — and all five fixes are fluid, not
+new breakpoints:
+
+| Page | Cause | Fix |
+|---|---|---|
+| every admin page | the header bar was `h-16` with two unshrinkable groups; at 200% the wordmark alone is 166px and the account group 216px, against 305px | `min-h-16 flex-wrap`, `min-w-0` on the left group, `truncate` on the wordmark |
+| every page | the account menu panel is `w-64` — 16rem, so **512px** at 200% — and an absolutely positioned box adds to its container's scrollable overflow **whether or not the menu is open** | `.account-menu-panel { width: min(16rem, calc(100vw - 2rem)) }` |
+| admin students, teachers | the Active / Deactivated / All tabs, `flex gap-1` with no wrap, 507px | `flex-wrap` |
+| admin announcements | the `h1` "Announcements" at 346px | `min-w-0 break-words` |
+| student portfolio | the callout's Dismiss is `shrink-0`, so the row ran to 447px | `flex-wrap` on the callout, `min-w-0` on its body |
+
+**The `h1` is the one to remember.** `break-words` alone changed nothing, because the title is a *flex
+item* — the row also holds the status badge — so its `min-width: auto` floors it at min-content, and
+the min-content of a single unbreakable word is the whole word. `min-w-0` removes the floor; only then
+does `overflow-wrap` get to break it. Any "why won't this wrap" inside a flex row is this.
+
+### What this breaks
+
+- **Nothing.** 882 unit and 330 system runs pass, and the system suite was run three times to be sure.
+- Four shared partials changed — `_page_header`, `_callout`, `_account_menu`, `_discard_filter_tabs` —
+  plus the admin layout's header. All of them widen what already worked; none narrows it.

@@ -45,7 +45,7 @@
 
   <%# w-64, not w-56: an email is longer than a name, and truncating it defeats the point of
       showing it. %>
-  <div class="absolute right-0 z-20 mt-2 w-64 overflow-hidden rounded-xl border border-slate-200 bg-white py-1 shadow-lg">
+  <div class="account-menu-panel absolute right-0 z-20 mt-2 overflow-hidden rounded-xl border border-slate-200 bg-white py-1 shadow-lg">
     <div class="bg-slate-50 px-4 py-3">
       <p class="truncate text-sm font-medium text-slate-900"><%= current_user.display_name %></p>
       <% if current_user.email.present? %>

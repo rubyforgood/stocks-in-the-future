@@ -19,8 +19,15 @@
     <%= render "layouts/environment_ribbon" %>
 
     <div class="chrome-header fixed left-0 w-full z-50 bg-white border-b border-slate-200">
-      <div class="flex items-center justify-between py-3 px-4 h-16 lg:px-6">
-        <div class="flex items-center gap-4">
+      <%# `min-h-16` and `gap-2`, not `h-16` with no gap: at 200% text the wordmark alone is 166px and
+          the account group 216px, which together push a 305px viewport to 507px. `reflow_test` caught
+          it on every admin page at once. A fixed-height bar cannot hold text that has grown, and the
+          two groups had nothing telling them they were allowed to shrink or wrap.
+
+          Fluid rather than a breakpoint, which is what the responsive rules ask for: the groups may
+          shrink (`min-w-0`), the wordmark truncates rather than pushing, and the bar grows if it must. %>
+      <div class="flex min-h-16 flex-wrap items-center justify-between gap-2 px-4 py-3 lg:px-6">
+        <div class="flex min-w-0 items-center gap-4">
           <%# A button, not a label driving a hidden checkbox, and it reports its own state. %>
           <button type="button"
                   data-drawer-target="trigger"
@@ -37,8 +44,8 @@
 <%# Branding and a link home, not a page heading. This was an h1, so every
     admin page announced the same title regardless of what it showed, and
     /admin ended up with three. The real heading is in the content area. %>
-<span class="text-xl font-semibold text-slate-900">
-            <%= link_to admin_root_path, class: "inline-flex items-center rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary" do %>
+<span class="min-w-0 truncate text-xl font-semibold text-slate-900">
+            <%= link_to admin_root_path, class: "inline-flex max-w-full items-center rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary" do %>
               <%= lucide_icon("wrench", class: "text-sitf-primary mr-2 w-4 h-4 shrink-0") %>
               Admin
             <% end %>
@@ -47,7 +54,7 @@
         <%# Was the email as plain text plus two bare links, one of them "Sign out" in
             red-600 on white - 4.0:1, under the gate. Same account menu as the main app, so
             there is one place to see who is signed in and one way to leave. %>
-        <div class="flex items-center gap-1">
+        <div class="flex shrink-0 items-center gap-1">
           <%# The way back to the student-facing app. It was an item inside the account menu, which
               is wrong twice over: it is a destination rather than an account action, and a
               destination behind an avatar is not discoverable - which was the report.
