@@ -3630,3 +3630,48 @@ instead - from drawing a stray rule beside its Trade button.
   `elementFromPoint` at the cell's own centre - that the cell is what paints there. Verified by
   reinstating the old condition, which fails both pinned-cell tests.
 - The shared table's `link:` option now only affects non-primary columns.
+
+## The actions column stops being pinned
+
+Reported, after the previous entry made the pinned cell opaque: "there is a point where half a column is
+displayed, and the rest is covered by the column on the right with the action buttons."
+
+That is inherent to a frozen trailing column. `position: sticky; right: 0` pulls the cell into view
+whenever its table overflows, so at every scroll position except the last it sits over whatever column is
+underneath. Making it opaque with a separator is the correct treatment *for a frozen column* - AG Grid and
+Airtable both do exactly that - and it made the dead zone legible rather than removing it.
+
+Two measurements decided to remove it instead:
+
+| table | overflow @1024 | @1366 | @1920 | actions column @1024 |
+|---|---|---|---|---|
+| classrooms | 215px | 0 | 0 | 260px |
+| users | 340px | 0 | 0 | 260px |
+| teachers | 306px | 0 | 0 | 280px |
+| stocks | 175px | 0 | 0 | 253px |
+| students | 11px | 0 | 0 | 260px |
+
+**The pin served one narrow band**, roughly 1024-1200px: at 1366 and 1920 nothing overflows at all. And
+below `lg` the row collapses into its primary cell, where `shared/_stacked_row_fields` already repeats the
+actions - verified on all six admin indexes - so a phone never needed it either.
+
+**The convention it was reaching for freezes the leading column, not the trailing one.** Excel's frozen
+panes, Airtable, AG Grid and Material's data tables pin the *identifier*, so you know which row you are on
+while scrolling across. Pinning actions is rare and, where it exists, an explicit user choice.
+
+`.table-actions-pinned` is `.table-actions-cell` now, keeping only the `pt-1.5` that puts a 32px control on
+the row's first line. `table_scroll_controller` is deleted along with the `data-table-pinned` attribute it
+existed to set - nothing else read it.
+
+**The width is the real problem and it is still open.** That cell is 253-280px, the widest column in every
+one of these tables and 36% of the 703px visible at 1024px, against 175-340px of overflow. Take ~180px out
+of it and four of the five stop overflowing entirely. It also absorbs all the slack at wide widths, reaching
+**455px** on admin/students at 1920 to hold two buttons. Three labelled ghosts per row - View, Edit,
+Archive - is what every major system puts behind one overflow trigger.
+
+### What this breaks
+
+- **Three tests describing the pin are gone**, replaced by two describing what is true now: the actions
+  cell is `position: static` and moves with the scroll, and the collapsed row carries its actions.
+- Any future need to keep a column in view should pin the **first** one, and should note that a menu
+  inside `overflow-x-auto` will be clipped unless it renders in the top layer.

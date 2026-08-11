@@ -5,7 +5,7 @@ require "application_system_test_case"
 # No table may scroll sideways at 375px, anywhere in the app.
 #
 # This is the assertion the suite did not have. `table_actions_reachable_test` looks only at
-# `td.table-actions-pinned`, so it could only ever see a table that *has* an actions column - the grade
+# `td.table-actions-cell`, so it could only ever see a table that *has* an actions column - the grade
 # book has none, and its four inputs per row sat 398px off the right edge of a scroll while every test
 # passed. And `page_width_test` asserts `main` does not scroll, which is a different thing: a table
 # scrolling inside its own container leaves `main` perfectly happy.

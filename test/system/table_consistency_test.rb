@@ -210,7 +210,7 @@ class TableConsistencyTest < ApplicationSystemTestCase
 
     # Every data cell shares the token's padding; the trailing actions cell takes 6px, on purpose, so its
     # 32px control's centre lands on the row's first line rather than 6.5px below it. That is the one
-    # permitted override and it is defined once on `td.table-actions-pinned`, not at a call site - which is
+    # permitted override and it is defined once on `td.table-actions-cell`, not at a call site - which is
     # what this assertion is really guarding against, since the bug it was written for was a cell with an
     # ad-hoc `py-4` that pushed its text 14px below its neighbours.
     data_pads = report["pads"][0..-2]

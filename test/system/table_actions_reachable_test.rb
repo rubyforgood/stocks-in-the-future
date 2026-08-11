@@ -20,7 +20,7 @@ class TableActionsReachableTest < ApplicationSystemTestCase
   REACHABILITY = <<~JS
     (function () {
       const out = [];
-      document.querySelectorAll("td.table-actions-pinned a, td.table-actions-pinned button").forEach(function (c) {
+      document.querySelectorAll("td.table-actions-cell a, td.table-actions-cell button").forEach(function (c) {
         if (c.getClientRects().length === 0) return;
         let wrap = c.parentElement;
         while (wrap && wrap !== document.body) {
@@ -88,150 +88,67 @@ class TableActionsReachableTest < ApplicationSystemTestCase
   # This test found that itself. It was written at a Chromebook width and its precondition assertion -
   # "this table does not scroll at 1366px, so the rest of this test proves nothing" - failed the moment
   # the wrapping change landed, which is exactly the failure a precondition is for.
-  test "the pinned cell holds its place when the table is scrolled to the end" do
-    sign_in(create(:admin))
-    # Long enough to overflow seven columns at 1366px. With the factory's short name this table fits,
-    # and the test would then assert against a scroll that never happened - which is how it would pass
-    # while proving nothing.
-    a_wide_classrooms_table
-
-    in_lg_minimum_viewport do
-      visit admin_classrooms_path
-
-      # The precondition, asserted rather than assumed: there is a scroll for the cell to hold its
-      # place against.
-      overflow = page.evaluate_script(<<~JS)
-        (function () {
-          const wrap = document.querySelector("td.table-actions-pinned").closest("[class*='overflow-x']");
-          return Math.round(wrap.scrollWidth - wrap.clientWidth);
-        })()
-      JS
-
-      assert_operator overflow, :>, 1,
-                      "this table does not scroll at 1024px, so the rest of this test proves nothing"
-
-      page.execute_script(<<~JS)
-        const wrap = document.querySelector("td.table-actions-pinned").closest("[class*='overflow-x']");
-        wrap.scrollLeft = wrap.scrollWidth;
-      JS
-
-      # The flag is set from the container's overflow rather than from a scroll event now, so it is
-      # already true before this scrolls - but still wait on it rather than reading a style in the same
-      # tick, because a ResizeObserver publishes on the next frame.
-      assert_selector "[data-table-pinned='true']", visible: :all
-
-      result = page.evaluate_script(<<~JS)
-        (function () {
-          const cell = document.querySelector("td.table-actions-pinned");
-          const wrap = cell.closest("[class*='overflow-x']");
-          return {
-            edge: Math.round(wrap.getBoundingClientRect().right),
-            right: Math.round(cell.getBoundingClientRect().right),
-            position: getComputedStyle(cell).position,
-            opaque: getComputedStyle(cell).backgroundColor
-          };
-        })()
-      JS
-
-      assert_equal "sticky", result["position"], "the actions cell is not pinned"
-      assert_operator result["right"], :<=, result["edge"] + 1,
-                      "the actions cell left the visible area once the table was scrolled"
-      assert_not_equal "rgba(0, 0, 0, 0)", result["opaque"],
-                       "a pinned cell needs an opaque background once the table is scrolled, or " \
-                       "the columns sliding under it show through"
-    end
-  end
-
-  # **At scroll position zero**, which is the case nothing covered and the one that was reported: "the
-  # buttons overlap over the columns to the left when the viewport size is reduced."
+  # Three tests used to live here about the pinned actions cell: that it held its place when the table
+  # was scrolled, that it was opaque as soon as it overlapped, and that a table which does not scroll
+  # shows no separator. **The cell is not pinned any more**, so all three describe a thing that no longer
+  # exists. What replaces them is the property that made pinning look necessary and the one that made it
+  # harmful.
   #
-  # A `sticky right-0` cell is pulled into view as soon as its table is wider than its container. That
-  # happens before any scrolling, so a flag set by a scroll listener is still false, and the cell floats
-  # over the columns beneath it with no background at all. Nothing here scrolls the table on purpose.
-  test "the pinned cell is opaque as soon as it overlaps, before any scrolling" do
+  # Why it went: a frozen trailing column covers whatever is scrolled under it at every intermediate
+  # position, reported as "half a column is displayed, and the rest is covered by the column on the right
+  # with the action buttons". Measured, these tables overflow only between 1024px and about 1200px - at
+  # 1366 and 1920 it is zero on every one of them - so the pin served one narrow band, and below `lg` the
+  # actions are already repeated in the primary cell. The convention it reached for freezes the *leading*
+  # column anyway.
+  test "the actions cell scrolls with its table rather than floating over it" do
     sign_in(create(:admin))
     a_wide_classrooms_table
 
     in_lg_minimum_viewport do
       visit admin_classrooms_path
 
-      assert_selector "[data-table-pinned='true']", visible: :all
-
       result = page.evaluate_script(<<~JS)
         (function () {
-          const cell = document.querySelector("td.table-actions-pinned");
+          const cell = document.querySelector("td.table-actions-cell");
           const wrap = cell.closest("[class*='overflow-x']");
-          const overflow = Math.round(wrap.scrollWidth - wrap.clientWidth);
-          // What sits under the cell's own middle: if the cell is transparent, this finds whatever it
-          // is covering instead of the cell.
-          const box = cell.getBoundingClientRect();
-          const under = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
+          const before = Math.round(cell.getBoundingClientRect().left);
+          wrap.scrollLeft = 120;
+          const after = Math.round(cell.getBoundingClientRect().left);
+          wrap.scrollLeft = 0;
           return {
-            scrollLeft: Math.round(wrap.scrollLeft),
-            overflow: overflow,
-            background: getComputedStyle(cell).backgroundColor,
-            borderLeft: getComputedStyle(cell).borderLeftWidth,
-            coversWhatIsUnderIt: cell.contains(under) || cell === under
+            position: getComputedStyle(cell).position,
+            overflow: Math.round(wrap.scrollWidth - wrap.clientWidth),
+            movedBy: before - after
           };
         })()
       JS
 
-      assert_equal 0, result["scrollLeft"], "this test is about the unscrolled state"
       assert_operator result["overflow"], :>, 1,
-                      "the table does not overflow here, so the cell is not pinned and this proves nothing"
-      assert_equal "rgb(255, 255, 255)", result["background"],
-                   "the pinned cell is transparent, so the columns it covers show through the buttons"
-      assert_equal "1px", result["borderLeft"], "no separator against the content it is covering"
-      assert result["coversWhatIsUnderIt"], "something is painting over the pinned cell"
+                      "the table does not overflow here, so this proves nothing about scrolling"
+      assert_equal "static", result["position"],
+                   "a sticky actions cell covers the column scrolled under it"
+      assert_equal 120, result["movedBy"],
+                   "the actions cell did not move with the scroll, so it is still pinned somehow"
     end
   end
 
-  # And the separator is absent when there is nothing behind it. It used to be unconditional below
-  # lg, which drew a stray rule on the student portfolio's holdings table - measured, that table
-  # never scrolls at any width, because it adapts by wrapping the company name.
-  test "an unscrolled table shows no separator" do
-    classroom = create(:classroom, :with_trading)
-    student = create(:student, :with_portfolio, classroom:)
-    student.reload
-    create(:portfolio_transaction, :deposit, portfolio: student.portfolio, amount_cents: 100_000)
-    stock = create(:stock, ticker: "KO", company_name: "Coca-Cola Company", price_cents: 15_000)
-    create(:portfolio_stock, portfolio: student.portfolio, stock:, shares: 2)
-    sign_in(student)
+  # The reason pinning is not needed: below `lg` the row collapses into its primary cell and the actions
+  # come with it. That is asserted at 375px above; this pins the mechanism so the two cannot drift - if
+  # the stacked fields ever stop carrying `actions:`, the phone loses them entirely and no pin would help.
+  test "the collapsed row carries its actions" do
+    sign_in(create(:admin))
+    a_wide_classrooms_table
 
     in_phone_viewport do
-      visit user_portfolio_path(student, student.portfolio)
+      visit admin_classrooms_path
 
-      pinned = page.evaluate_script(<<~JS)
-        (function () {
-          const cell = document.querySelector("td.table-actions-pinned");
-          if (!cell) return null;
-          const wrap = cell.closest("[class*='overflow-x']");
-          const s = getComputedStyle(cell);
-          return {
-            border: s.borderLeftWidth,
-            bg: s.backgroundColor,
-            scrollLeft: wrap.scrollLeft,
-            scrollable: wrap.scrollWidth > wrap.clientWidth + 1
-          };
-        })()
-      JS
-
-      assert_not_nil pinned
-      # The point is not whether it *can* scroll - it is that nothing is behind the cell until it
-      # *has* been scrolled. An earlier version asserted the table does not scroll at all, which was
-      # measured against .table-wrapper - an overflow-hidden element that can never report scrolling.
-      assert_equal 0, pinned["scrollLeft"]
-      assert_equal "0px", pinned["border"],
-                   "a separator with nothing behind it is a stray rule beside the button"
-      assert_equal "rgba(0, 0, 0, 0)", pinned["bg"],
-                   "an opaque cell on an unscrolled row swallows the row's hover tint"
+      within "tbody tr:first-child" do
+        assert_no_selector "td.table-actions-cell", visible: true
+        assert_selector "a", text: "Edit"
+      end
     end
   end
 
-  # classroom#show laid the roster and the grade book list side by side with a bare `flex gap-8`
-  # at every width: 812px of content in a 328px viewport, which made <main> itself scroll sideways
-  # and carried every row action off screen with it. Pinning could not help, because the cell pins
-  # to its own table's container and that container was the thing being pushed right.
   test "no page makes the main region scroll sideways at 375px" do
     classroom = create(:classroom, :with_trading)
     student = create(:student, :with_portfolio, classroom:)

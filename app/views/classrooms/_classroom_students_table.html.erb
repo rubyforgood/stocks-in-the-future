@@ -8,7 +8,7 @@
       <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">Portfolio value</th>
       <% if @can_manage_students %>
         <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">Available cash</th>
-        <th scope="col" class="table-header-cell table-header-cell-right table-actions-pinned hidden lg:table-cell"><span class="sr-only">Actions</span></th>
+        <th scope="col" class="table-header-cell table-header-cell-right table-actions-cell hidden lg:table-cell"><span class="sr-only">Actions</span></th>
       <% end %>
     </tr>
   </thead>
@@ -107,7 +107,7 @@
           </td>
         <% end %>
         <% if @can_manage_students %>
-          <td class="table-body-cell table-body-cell-right hidden whitespace-nowrap table-actions-pinned lg:table-cell" data-testid="student-actions">
+          <td class="table-body-cell table-body-cell-right hidden whitespace-nowrap table-actions-cell lg:table-cell" data-testid="student-actions">
             <div class="flex items-center justify-end gap-1">
               <%# Were three icon-only 32px links whose only accessible name was a title
                   attribute, coloured black / amber-600 / red-600 at rest. Now the same ghost

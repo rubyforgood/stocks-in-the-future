@@ -92,8 +92,8 @@ class RowActionAlignmentTest < ApplicationSystemTestCase
 
     padding = page.evaluate_script(<<~JS)
       (function () {
-        const th = document.querySelector("main th.table-actions-pinned");
-        const td = document.querySelector("main td.table-actions-pinned");
+        const th = document.querySelector("main th.table-actions-cell");
+        const td = document.querySelector("main td.table-actions-cell");
         return { header: getComputedStyle(th).paddingTop, body: getComputedStyle(td).paddingTop };
       })()
     JS

@@ -41,7 +41,7 @@
           <%# The trailing actions column is unlabelled, like every other table in the app - a
               header naming one action stops being true as soon as a second one is added. %>
           <% if actions_column %>
-            <th scope="col" class="table-header-cell table-header-cell-right table-actions-pinned hidden lg:table-cell">
+            <th scope="col" class="table-header-cell table-header-cell-right table-actions-cell hidden lg:table-cell">
               <span class="sr-only">Actions</span>
             </th>
           <% end %>
@@ -126,7 +126,7 @@
                 <%= earnings_cell %>
               </td>
               <% if actions_column %>
-                <td class="table-body-cell table-body-cell-right table-actions-pinned hidden lg:table-cell">
+                <td class="table-body-cell table-body-cell-right table-actions-cell hidden lg:table-cell">
                   <div class="flex items-center justify-end gap-1">
                     <% if policy(classroom).edit? %>
                       <%= ghost_action_link "Edit", edit_classroom_path(classroom), icon: "pencil" %>

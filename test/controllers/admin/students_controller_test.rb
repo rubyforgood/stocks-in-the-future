@@ -55,7 +55,7 @@ module Admin
       #
       # Scoped to the table body as well: as `a[href*='edit']` this also counted the account menu's
       # "Edit profile" link, so adding a profile page broke a test about student rows.
-      assert_select "tbody td.table-actions-pinned a[href*='/edit']", count: 2
+      assert_select "tbody td.table-actions-cell a[href*='/edit']", count: 2
     end
 
     test "show" do
