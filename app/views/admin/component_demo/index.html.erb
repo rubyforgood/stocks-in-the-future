@@ -40,6 +40,31 @@
     </div>
   </div>
 
+  <div class="tw-card mb-6 p-5" data-testid="component-row-actions">
+    <h2 class="text-xl font-semibold text-slate-900 mb-1">Row actions</h2>
+    <p class="mb-4 text-sm text-slate-600">
+      A row's actions behind one trigger. Three labelled ghosts made a table's trailing cell 253&ndash;280px
+      &mdash; the widest column in every admin table, and 455px at 1920 where it absorbs the slack to hold two
+      buttons. A 40px trigger makes it 76px, which took <code>admin/classrooms</code>' overflow at 1024px from
+      215px to 31px.
+    </p>
+    <p class="mb-4 text-sm text-slate-600">
+      The panel is a <code>popover</code>, so it renders in the top layer: measured, an ordinary absolute panel
+      in that cell reaches 508px while its scroll wrapper ends at 288px, and the table clips it. The trigger
+      carries the row's name, because <code>lucide_icon</code> is <code>aria-hidden</code> and an icon-only
+      control has no accessible name of its own.
+    </p>
+    <div class="flex items-center gap-6">
+      <%= render layout: "components/ui/row_actions",
+                 locals: { id: "component-demo-row-actions",
+                           label: "Actions for Grade 6 Homeroom" } do %>
+        <%= menu_action_link "Edit", "#", icon: "pencil" %>
+        <%= menu_action_link "Archive", "#", icon: "archive", variant: :danger %>
+      <% end %>
+      <p class="text-sm text-slate-600">Open it &mdash; the panel anchors to the trigger.</p>
+    </div>
+  </div>
+
   <div class="tw-card mb-6 p-5" data-testid="component-card">
     <h2 class="text-xl font-semibold text-slate-900 mb-1">Card</h2>
     <p class="mb-4 text-sm text-slate-600">

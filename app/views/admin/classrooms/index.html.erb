@@ -59,20 +59,51 @@
                              label: classroom.trading_enabled? ? "Yes" : "No",
                              tone: classroom.trading_enabled? ? :success : :neutral %>
                 <% end %>
+                <%# One trigger, not three labelled ghosts.
+
+                    `View` is gone: the classroom's name is a link to that page as of the previous change,
+                    so the row carried two controls to the same place - which this document already calls a
+                    defect where a dashboard had two ghosts with the same href.
+
+                    The rest live behind the menu. Measured, three ghosts made this cell 260px, the widest
+                    column in the table and 36% of the 703px visible at 1024px; a 44px trigger makes it 76px
+                    and takes the table's overflow at 1024 from 215px to 32px.
+
+                    **The items are captured once and the menu is rendered twice, with different ids.** This
+                    row is emitted in two places - the trailing cell at `lg`, and inside the primary cell
+                    below it through `stacked_row_fields` - and a popover is addressed by id, so one id used
+                    twice means every visible trigger opens the *hidden* copy's panel. It did: the panel
+                    measured 0x0 and reported itself open. The items themselves stay a single definition,
+                    because two copies of a row's actions is the drift this codebase keeps recording. %>
+                <% action_items = capture do %>
+                  <%= menu_action_link "Edit", edit_admin_classroom_path(classroom), icon: "pencil" %>
+                  <% if classroom.archived? %>
+                    <%= menu_action_link "Activate", toggle_archive_admin_classroom_path(classroom),
+                                         icon: "circle-check",
+                                         data: { turbo_method: :patch,
+                                                 turbo_confirm: classroom_toggle_confirm(classroom) } %>
+                  <% else %>
+                    <%= menu_action_link "Archive", toggle_archive_admin_classroom_path(classroom),
+                                         icon: "archive", variant: :danger,
+                                         data: { turbo_method: :patch,
+                                                 turbo_confirm: classroom_toggle_confirm(classroom) } %>
+                  <% end %>
+                <% end %>
+
+                <% row_actions_stacked = capture do %>
+                  <%= render layout: "components/ui/row_actions",
+                             locals: { id: "row-actions-stacked-#{dom_id(classroom)}",
+                                       label: "Actions for #{classroom.name}" } do %>
+                    <%= action_items %>
+                  <% end %>
+                <% end %>
+
                 <% row_actions = capture do %>
-                  <%= ghost_action_link "View", admin_classroom_path(classroom), icon: "eye" %>
-                    <%= ghost_action_link "Edit", edit_admin_classroom_path(classroom), icon: "pencil" %>
-                    <% if classroom.archived? %>
-                      <%= ghost_action_link "Activate", toggle_archive_admin_classroom_path(classroom),
-                                            icon: "circle-check",
-                                            data: { turbo_method: :patch,
-                                                    turbo_confirm: classroom_toggle_confirm(classroom) } %>
-                    <% else %>
-                      <%= ghost_action_link "Archive", toggle_archive_admin_classroom_path(classroom),
-                                            icon: "archive", variant: :danger,
-                                            data: { turbo_method: :patch,
-                                                    turbo_confirm: classroom_toggle_confirm(classroom) } %>
-                    <% end %>
+                  <%= render layout: "components/ui/row_actions",
+                             locals: { id: "row-actions-#{dom_id(classroom)}",
+                                       label: "Actions for #{classroom.name}" } do %>
+                    <%= action_items %>
+                  <% end %>
                 <% end %>
 
                 <td class="table-body-cell whitespace-nowrap hidden lg:table-cell">
@@ -83,7 +114,7 @@
 
                   <%= render "shared/stacked_row_fields",
                              fields: [["ID", id_cell], ["Grade", grade_cell], ["School year", school_year_cell], ["Archived", archived_cell], ["Trading enabled", trading_enabled_cell]],
-                             actions: row_actions %>
+                             actions: row_actions_stacked %>
                 </td>
                 <td class="table-body-cell whitespace-nowrap hidden lg:table-cell">
                   <%= grade_cell %>

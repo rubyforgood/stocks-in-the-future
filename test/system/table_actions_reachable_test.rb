@@ -111,13 +111,18 @@ class TableActionsReachableTest < ApplicationSystemTestCase
         (function () {
           const cell = document.querySelector("td.table-actions-cell");
           const wrap = cell.closest("[class*='overflow-x']");
+          // Scroll by whatever this table actually has - the actions menu took the overflow from 215px
+          // to about 30px, and a hardcoded 120 silently clamps and then measures the clamp.
+          const available = Math.round(wrap.scrollWidth - wrap.clientWidth);
           const before = Math.round(cell.getBoundingClientRect().left);
-          wrap.scrollLeft = 120;
+          wrap.scrollLeft = available;
+          const scrolled = Math.round(wrap.scrollLeft);
           const after = Math.round(cell.getBoundingClientRect().left);
           wrap.scrollLeft = 0;
           return {
             position: getComputedStyle(cell).position,
-            overflow: Math.round(wrap.scrollWidth - wrap.clientWidth),
+            overflow: available,
+            scrolled: scrolled,
             movedBy: before - after
           };
         })()
@@ -127,7 +132,7 @@ class TableActionsReachableTest < ApplicationSystemTestCase
                       "the table does not overflow here, so this proves nothing about scrolling"
       assert_equal "static", result["position"],
                    "a sticky actions cell covers the column scrolled under it"
-      assert_equal 120, result["movedBy"],
+      assert_equal result["scrolled"], result["movedBy"],
                    "the actions cell did not move with the scroll, so it is still pinned somehow"
     end
   end
@@ -144,7 +149,13 @@ class TableActionsReachableTest < ApplicationSystemTestCase
 
       within "tbody tr:first-child" do
         assert_no_selector "td.table-actions-cell", visible: true
-        assert_selector "a", text: "Edit"
+
+        # A trigger rather than a labelled link, since the actions moved behind a menu. What matters is
+        # that the row has a way to act at all, and that the control says whose row it is - an icon-only
+        # trigger has no accessible name of its own, because `lucide_icon` is aria-hidden.
+        trigger = find("[data-testid='row-actions-trigger']")
+
+        assert_match(/\AActions for /, trigger.text(:all).strip)
       end
     end
   end

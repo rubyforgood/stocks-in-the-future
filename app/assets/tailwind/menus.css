@@ -1,0 +1,38 @@
+/* Menus: the account menu's panel, and a row's actions menu.
+ *
+ * Named here because the item style existed only inside `layouts/_account_menu`, as a local `item_class`
+ * string. A second menu would have copied it, and a style written in two places survives every sweep of
+ * one of them - which is how this codebase got a grey table header twice and a button base twice. */
+@layer components {
+  /* The panel. `p-0` matters on a popover: the UA gives `[popover]` a border and padding of its own, and
+     a menu wants neither. */
+  .tw-menu-panel {
+    @apply w-56 overflow-hidden rounded-xl border border-slate-200 bg-white p-0 py-1 shadow-lg;
+  }
+
+  /* A row in a menu. min-h-11 because a menu item is a bare tap target with no other affordance, which
+     is the case design.md reserves 44px for. */
+  .tw-menu-item {
+    @apply flex min-h-11 w-full cursor-pointer items-center gap-2 px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary;
+  }
+
+  /* A destructive item: slate at rest like every other, rose on hover. Same rule as the row actions it
+     replaces - no red at rest. */
+  .tw-menu-item-danger {
+    @apply hover:bg-rose-50 hover:text-rose-700 focus-visible:outline-rose-700;
+  }
+
+  /* The trigger: 40px square, design.md's control height, and the whole reason a row's actions column can
+     be 76px instead of 260px.
+   *
+   * Not 44px, which is what design.md reserves for a bare tap target and what an icon-only control would
+   * otherwise take. In a table row the binding constraint is the shared alignment rule - a control's centre
+   * sits on the row's **first text line**, which `row_action_alignment_test` asserts to within 1.5px - and
+   * that line's centre is 22px from the cell's top. A 32px control needs 6px of padding above it, which is
+   * the `pt-1.5` the actions cell has always carried; 40px needs 2px; 44px cannot reach it without a
+   * negative margin, and a negative margin drags the hover fill outside the content edge, which this
+   * codebase has recorded as the wrong fix three times. 40px still clears WCAG 2.5.8's 24x24 comfortably. */
+  .tw-menu-trigger {
+    @apply inline-flex size-10 cursor-pointer items-center justify-center rounded-lg text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary;
+  }
+}
