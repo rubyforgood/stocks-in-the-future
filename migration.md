@@ -3263,3 +3263,30 @@ depends on the session having ended by a particular moment.
 - **The test now asserts a different thing**, and this is the point. It used to assert the home
   page's `h1` — and the teacher's home page has the *same* `h1`, so it passed while signed in as the
   wrong user. It asserts the account menu names the student, which is the claim the test makes.
+
+## The staging ribbon's sidebar offset, found by previewing it
+
+`EnvironmentHelper` exists so the ribbon's 32px is written once and every fixed element below it moves
+by exactly that. The admin layout read it. **The app layout did not** — `layouts/_navbar` hardcoded
+`lg:top-16` — so with the ribbon on, admin's navigation dropped to 96px and the student's stayed at
+64px, with its top third behind the 32–96px header.
+
+`environment_ribbon_test` could not see it. The student-side case asserted `main`'s top, and `main`
+was correct: it reads `main_offset_class`, which the layout does use. The sidebar was the one element
+in that layout not going through the helper.
+
+`sidebar_top_class` is the `lg:` twin of `drawer_top_class` — separate because the app side's phone
+drawer is a full-height `top-0` overlay, where admin's hangs below the header. Two assertions now
+pin it: the sidebar's top equals the header's bottom, and neither overlaps.
+
+The ribbon also moved to `z-60`, above the `z-50` drawers. **Not because it was broken** — measured by
+reverting the class, it stays on top at `z-50` too, purely because it is later in the layout. That is
+the DOM-order tie design.md's stacking section already calls fragile, and an explicit rank is the
+remedy it gives. The test asserts the *compiled* `z-index`, because `z-60` is a real Tailwind v4
+utility and a class the build dropped would leave the tie in place while the markup read as fixed.
+
+### What this breaks
+
+- **Nothing outside staging.** Every one of these methods returns the previous value when
+  `Rails.env.staging?` is false, which is every environment the app currently runs in.
+- The ribbon is now the top of the stacking order below native `<dialog>`; design.md records it.

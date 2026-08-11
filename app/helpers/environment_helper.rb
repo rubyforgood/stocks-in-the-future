@@ -44,4 +44,13 @@ module EnvironmentHelper
   def drawer_height_class
     environment_ribbon? ? "h-[calc(100vh-6rem)]" : "h-[calc(100vh-4rem)]"
   end
+
+  # The app side's sidebar is only fixed below the header at `lg`; on a phone it is a full-height
+  # drawer that overlays everything, which is why this is the `lg:` twin of `drawer_top_class` rather
+  # than the same string. It exists because the app layout hardcoded `lg:top-16` while admin read the
+  # helper, so the ribbon pushed admin's chrome down and left the student sidebar 32px behind the
+  # header - the exact one-half-only drift these methods were written to stop.
+  def sidebar_top_class
+    environment_ribbon? ? "lg:top-24" : "lg:top-16"
+  end
 end

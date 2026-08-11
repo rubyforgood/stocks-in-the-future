@@ -4489,7 +4489,11 @@ restyling a destructive control, run it.
   stacking context (a positioned `z-*` toolbar, a `transform` / hover-lift card, a native control)
   ties the header and wins by DOM order — painting a page **button over the open dropdown**. The
   full order is **page content ≤ z-20 < top bar `z-[25]` < mobile nav scrim `z-30`** (so the open
-  drawer still dims the header) **< sidebar drawer `z-40` < native `<dialog>` modals** (top layer).
+  drawer still dims the header) **< sidebar drawer `z-40` < the staging ribbon `z-60` < native
+  `<dialog>` modals** (top layer). The ribbon is above the drawers because it describes the whole
+  deployment rather than the page - and it is explicit rather than left to DOM order, which is the
+  same fragility as above: measured, it stays on top at `z-50` too, but only because it happens to be
+  later in the layout.
   Keep page-content z-index ≤ 20; verify overlays with `elementFromPoint`, not by eye.
 
 ## Key patterns
