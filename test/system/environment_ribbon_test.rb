@@ -115,6 +115,82 @@ class EnvironmentRibbonTest < ApplicationSystemTestCase
     end
   end
 
+  # The sign-in page had no ribbon at all, which is the half of staging a person sees *first*. Its
+  # header is in normal flow rather than fixed, so the ribbon is static there - a fixed one would
+  # cover the header, and a static one needs no offsets, which is why it also skips the controller.
+  test "the signed-out page carries it too, in normal flow" do
+    in_staging do
+      visit new_user_session_path
+
+      assert_selector "[data-testid='environment-ribbon']", text: "Staging"
+
+      m = page.evaluate_script(<<~JS)
+        (function () {
+          const r = document.querySelector("[data-testid='environment-ribbon']");
+          const header = document.querySelector("header");
+          return {
+            position: getComputedStyle(r).position,
+            controller: r.dataset.controller || null,
+            ribbonBottom: Math.round(r.getBoundingClientRect().bottom),
+            headerTop: Math.round(header.getBoundingClientRect().top)
+          };
+        })()
+      JS
+
+      # In flow, whatever the exact keyword: `relative` still occupies space, `fixed` and `absolute`
+      # do not, and taking space is the whole difference here.
+      assert_not_includes %w[fixed absolute], m["position"],
+                          "a ribbon taken out of flow would cover the in-flow header"
+      assert_nil m["controller"], "nothing is offset against it, so it should not publish a height"
+      assert_operator m["headerTop"], :>=, m["ribbonBottom"], "the ribbon overlaps the header"
+    end
+  end
+
+  # WCAG 1.4.4 (AA): at 200% text nothing may be lost. The ribbon's sentence wraps to four lines on a
+  # phone at that size, and in the rigid `h-8` box it used to have, the overflow went **both** ways -
+  # measured at 320px the text began at y=-48, above the top of the viewport, where a fixed element
+  # cannot be scrolled to, and the rest of it covered the header.
+  #
+  # Doubling the ribbon's own font-size is the honest proxy here: the failure is the box, not the
+  # zoom mechanism, and Selenium cannot drive browser zoom.
+  test "at 200% text the ribbon grows instead of spilling out of a fixed box" do
+    student = create(:student, :with_portfolio, classroom: create(:classroom, :with_trading))
+    sign_in student
+
+    in_staging do
+      in_phone_viewport do
+        visit root_path
+        page.execute_script(<<~JS)
+          document.querySelector("[data-testid='environment-ribbon']").style.fontSize = "24px"
+        JS
+        # The ResizeObserver publishes on the next frame; there is no state to wait on but the number.
+        sleep 0.3
+
+        m = page.evaluate_script(<<~JS)
+          (function () {
+            const r = document.querySelector("[data-testid='environment-ribbon']");
+            const box = r.getBoundingClientRect();
+            const span = r.querySelector("span").getBoundingClientRect();
+            const header = document.querySelector(".chrome-header").getBoundingClientRect();
+            return {
+              ribbon: Math.round(box.height),
+              textTop: Math.round(span.top),
+              textBottom: Math.round(span.bottom),
+              headerTop: Math.round(header.top),
+              mainTop: Math.round(document.querySelector("main").getBoundingClientRect().top)
+            };
+          })()
+        JS
+
+        assert_operator m["ribbon"], :>, 32, "the ribbon did not grow with its text"
+        assert_operator m["textTop"], :>=, 0, "text is above the top of the viewport, unreachable"
+        assert_operator m["textBottom"], :<=, m["ribbon"], "text spills out of the ribbon"
+        assert_equal m["ribbon"], m["headerTop"], "the header does not follow the ribbon's height"
+        assert_equal m["ribbon"] + 64, m["mainTop"], "content does not clear the grown chrome"
+      end
+    end
+  end
+
   # The mobile drawer is a full-height `top-0` overlay on the app side, so the ribbon has to outrank
   # it. It does at `z-60`, and - measured by reverting the class - it also did at `z-50`, purely
   # because it sits later in the layout. This test pins the outcome rather than the mechanism, which

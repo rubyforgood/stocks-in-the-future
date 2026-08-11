@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# The staging ribbon, and the one place its geometry is written down.
+# The staging ribbon: which deployment am I looking at.
 #
 # An admin on staging had nothing on screen telling them the data was not real. A ribbon answers "which
 # deployment am I looking at", which is a different question from the component demo's banner - that one
@@ -14,43 +14,20 @@
 # application and not the page - GitLab's environment ribbon and Shopify's development-store banner sit
 # in the chrome for the same reason. And it has no dismiss: this app's rule is that only an *outcome*
 # removes itself, and the environment is still true in a minute.
+#
+# This used to carry five methods handing out Tailwind classes - `header_top_class`,
+# `main_offset_class`, `drawer_top_class`, `drawer_height_class`, `sidebar_top_class` - so that the
+# ribbon's 32px was written down in six places. Two things went wrong with that and both are recorded
+# in chrome.css: one layout did not use them, and a hardcoded height cannot survive 200% text. The
+# offsets are CSS now, driven by the ribbon's measured height, and this is back to one question.
 module EnvironmentHelper
-  RIBBON_HEIGHT = "2rem" # h-8, and the offset every fixed element below it needs
-
+  # Set `PREVIEW_STAGING_CHROME=1` to see it locally. Chrome that only exists in one environment is
+  # chrome nobody looks at until it is deployed, which is how it reached staging with the app side's
+  # sidebar 32px behind the header and its text unreachable at 200%. Refused in production, where the
+  # ribbon would be an outright lie.
   def environment_ribbon?
+    return true if ENV["PREVIEW_STAGING_CHROME"] == "1" && !Rails.env.production?
+
     Rails.env.staging?
-  end
-
-  # The fixed header sits at the top, or below the ribbon. Both layouts read this, so the offset is
-  # written once - a second copy would be the fourth thing this codebase has watched drift.
-  def header_top_class
-    environment_ribbon? ? "top-8" : "top-0"
-  end
-
-  # `main` clears the 64px header, plus the ribbon when there is one.
-  def main_offset_class(property)
-    if environment_ribbon?
-      property == :margin ? "mt-24" : "pt-24"
-    else
-      property == :margin ? "mt-16" : "pt-16"
-    end
-  end
-
-  # The admin drawer hangs off the bottom of the header.
-  def drawer_top_class
-    environment_ribbon? ? "top-24" : "top-16"
-  end
-
-  def drawer_height_class
-    environment_ribbon? ? "h-[calc(100vh-6rem)]" : "h-[calc(100vh-4rem)]"
-  end
-
-  # The app side's sidebar is only fixed below the header at `lg`; on a phone it is a full-height
-  # drawer that overlays everything, which is why this is the `lg:` twin of `drawer_top_class` rather
-  # than the same string. It exists because the app layout hardcoded `lg:top-16` while admin read the
-  # helper, so the ribbon pushed admin's chrome down and left the student sidebar 32px behind the
-  # header - the exact one-half-only drift these methods were written to stop.
-  def sidebar_top_class
-    environment_ribbon? ? "lg:top-24" : "lg:top-16"
   end
 end

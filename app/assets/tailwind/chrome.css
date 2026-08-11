@@ -1,0 +1,58 @@
+/* Fixed chrome: the header, the drawers, and how far the content clears them.
+
+   These four measurements used to be hardcoded Tailwind classes chosen by `EnvironmentHelper` -
+   top-0/top-8, mt-16/mt-24, pt-16/pt-24, top-16/top-24, plus two h-calc heights - so the ribbon's
+   height was written down in six places and every one of them had to be changed together. It was
+   not: the app layout's sidebar kept `lg:top-16` while admin read the helper, and on staging a third
+   of the student sidebar sat behind the header.
+
+   Worse, a fixed number cannot be right. At 200% text - WCAG 1.4.4, which is AA - the ribbon's
+   sentence wraps to four lines on a phone. In a rigid 32px box with centred content it overflowed
+   both ways: measured at 320px, the text started at y=-48, which is above the top of the viewport and
+   therefore unreachable, and the rest of it covered the header.
+
+   So the ribbon's height is measured and published as `--sitf-ribbon-h`, and everything below it is
+   expressed against that. The header's own height is a genuine constant (h-16), so it stays a
+   literal. With no ribbon the variable is 0px and every value below collapses to exactly what it was
+   before: header at 0, main at 4rem, drawer at 4rem. */
+@layer components {
+  /* 0px, not unset: every calc below has to work before the controller connects, and on a page with
+     no ribbon at all it is never set. */
+  :root {
+    --sitf-ribbon-h: 0px;
+  }
+
+  /* The fixed header hangs directly under the ribbon. */
+  .chrome-header {
+    top: var(--sitf-ribbon-h);
+  }
+
+  /* Content clears the header plus the ribbon. Two classes because the app layout uses margin (its
+     main carries the page background) and admin uses padding. */
+  .chrome-main-margin {
+    margin-top: calc(4rem + var(--sitf-ribbon-h));
+  }
+
+  .chrome-main-padding {
+    padding-top: calc(4rem + var(--sitf-ribbon-h));
+  }
+
+  /* Admin's drawer hangs off the bottom of the header and fills what is left. dvh rather than vh so
+     a mobile browser's collapsing address bar does not leave the drawer taller than the screen. */
+  .chrome-drawer {
+    top: calc(4rem + var(--sitf-ribbon-h));
+    height: calc(100dvh - 4rem - var(--sitf-ribbon-h));
+  }
+
+  /* The app side's sidebar is a full-height overlay on a phone and a fixed column under the header
+     from lg up, so it needs the media query rather than a second class. */
+  .chrome-sidebar {
+    top: 0;
+  }
+
+  @media (width >= 64rem) {
+    .chrome-sidebar {
+      top: calc(4rem + var(--sitf-ribbon-h));
+    }
+  }
+}

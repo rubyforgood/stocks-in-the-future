@@ -3290,3 +3290,41 @@ utility and a class the build dropped would leave the tie in place while the mar
 - **Nothing outside staging.** Every one of these methods returns the previous value when
   `Rails.env.staging?` is false, which is every environment the app currently runs in.
 - The ribbon is now the top of the stacking order below native `<dialog>`; design.md records it.
+
+## The ribbon's offsets move from six hardcoded classes to one measured custom property
+
+Previewing the ribbon at eight widths, and at 200% text, found a WCAG **1.4.4 (AA)** failure at every
+width below 1024px. The sentence wraps on a phone; at 200% it needs 128px. In a rigid `h-8` box with
+centred content the overflow went **both** ways — measured at 320px the text began at **y = -48**,
+above the top of the viewport, where a fixed element cannot be scrolled to, and the rest covered the
+header. Two lines of it were simply unreachable.
+
+The cause was the design, not the number. `EnvironmentHelper` handed out five Tailwind classes
+(`header_top_class`, `main_offset_class`, `drawer_top_class`, `drawer_height_class`,
+`sidebar_top_class`) so the ribbon's 32px was written down in six places, and **a hardcoded height
+cannot be right when the text rewraps.**
+
+The ribbon is now `min-h-8` growing downward, it publishes its rendered height as `--sitf-ribbon-h`
+through the `ribbon-offset` controller and a `ResizeObserver`, and every offset below it is CSS
+against that variable (`chrome.css`). The header's own 4rem is a genuine constant and stays a literal.
+**With no ribbon the variable is `0px` and every value collapses to exactly what it was**: header at
+0, main at 4rem, drawer at 4rem — which is why nothing outside staging moved.
+
+A `ResizeObserver` rather than a resize listener, because the height also changes on zoom and on the
+webfont swap, and only the element knows about all three.
+
+Two other gaps closed in the same pass:
+
+- **The signed-out layout had no ribbon at all** — the half of staging a person sees first. Its header
+  is in normal flow, so the ribbon is static there (`fixed: false`) and skips the controller, because
+  nothing is offset against it.
+- **`PREVIEW_STAGING_CHROME=1` shows it outside production.** Chrome that exists in one environment is
+  chrome nobody looks at until it is deployed, which is how it reached staging with the sidebar behind
+  the header and its text unreachable at 200%.
+
+### What this breaks
+
+- **Nothing outside staging**, by construction: the variable defaults to `0px`.
+- **`EnvironmentHelper` is down to one method.** Anything calling the five class helpers must move to
+  the `chrome-*` classes.
+- The offsets are no longer greppable as Tailwind classes in the layouts; they are in `chrome.css`.

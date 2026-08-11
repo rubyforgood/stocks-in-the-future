@@ -1,13 +1,27 @@
 <%# See EnvironmentHelper for why this is staging-only and why it is chrome rather than content. %>
 <% if environment_ribbon? %>
-  <%# z-60, above the drawers, which are z-50.
+  <%# `fixed: false` for the signed-out layout, whose header is in normal flow: a fixed ribbon there
+      would cover it, and a static one needs no offsets at all, so it also skips the controller. %>
+  <% fixed = local_assigns.fetch(:fixed, true) %>
+  <% position = fixed ? "fixed top-0 left-0 z-60" : "relative" %>
+  <%# `min-h-8`, not `h-8`, and it grows **downward**.
 
-      Measured, not assumed: at z-50 the ribbon *already* stays on top of an open mobile drawer,
-      because it is later in the DOM. That is exactly the tie design.md's stacking section calls
-      fragile - it holds only until somebody reorders the layout - and the remedy it gives is an
-      explicit rank rather than a dependence on document order. A statement about which deployment
-      you are looking at outranks a panel, so say so in the z-index. %>
-  <div class="fixed top-0 left-0 z-60 flex h-8 w-full items-center justify-center gap-2 bg-amber-100 px-4 text-xs font-medium text-amber-900"
+      A rigid 32px box with centred content overflows both ways once the text is taller than the box,
+      and the half that goes up is above the top of the viewport, where a fixed element cannot be
+      scrolled to. Measured at 200% text on a 320px phone - which is WCAG 1.4.4, an AA requirement -
+      the sentence needed 128px, and it started at y=-48. The first two lines were simply unreachable
+      and the rest covered the header.
+
+      Its height is published as `--sitf-ribbon-h` by `ribbon-offset`, and everything fixed below it
+      is expressed against that; see chrome.css.
+
+      z-60, above the z-50 drawers. Measured, not assumed: at z-50 it already stayed on top of an open
+      mobile drawer, because it is later in the DOM. That is the tie design.md's stacking section calls
+      fragile, and the remedy it gives is an explicit rank. %>
+  <div class="<%= position %> flex min-h-8 w-full items-center justify-center gap-2 bg-amber-100 px-4 py-1 text-center text-xs leading-tight font-medium text-amber-900"
+       <%# tag.attributes, not an interpolated string: an interpolated optional attribute renders
+           **unquoted**, and neither CSS nor Capybara will match it. %>
+       <%= tag.attributes(data: { controller: ("ribbon-offset" if fixed) }) %>
        role="status"
        data-testid="environment-ribbon">
     <%= lucide_icon "triangle-alert", class: "size-4 shrink-0", aria: { hidden: true } %>
