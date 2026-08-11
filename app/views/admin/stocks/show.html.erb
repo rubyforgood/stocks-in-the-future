@@ -1,106 +1,46 @@
-<div class="max-w-7xl mx-auto">
-  <%= admin_breadcrumbs(@breadcrumbs) %>
+<%# PREVIEW - the worst case for merging view and edit, and the one that shows why the merge is a
+    simplification rather than a rearrangement.
 
-  <%= render layout: "components/ui/page_header", locals: { title: @stock.ticker } do %>
-    <%= render "admin/shared/show_actions",
-               record: @stock,
-               edit_path: edit_admin_stock_path(@stock),
-               delete_path: admin_stock_path(@stock) %>
+    **Eight read-only cards became two sections.** The old page rendered Description, Price information,
+    Company information, Financial metrics, Industry averages, Management, Competitor names and Portfolio
+    stocks. The edit form edits **every one of those attributes** - seventeen fields including both prices - so
+    six of the eight cards were the form's own fields displayed a second time, on a different page, where they
+    could not be changed. Nothing was lost by deleting them; the fields *are* the display now.
+
+    What genuinely is not editable is the **derived** figure - the percentage change, computed from the two
+    prices - and the **collection** of portfolios holding the stock. The first is a glanceable summary, so it
+    goes in the header beside the price; the second is a section of its own.
+
+    **Order follows what the page is for, while the shape stays fixed.** On a school the collection leads,
+    because managing years is why you open it. On a stock the fundamentals lead, because editing them is. The
+    shared partial fixes the column, the header and the section grammar; it does not fix the order. %>
+<%= render layout: "admin/shared/record_page",
+           locals: { title: @stock.company_name.presence || @stock.ticker,
+                     breadcrumbs: @breadcrumbs,
+                     description: stock_price_summary(@stock),
+                     actions: capture do
+                       link_to "Delete stock", admin_stock_path(@stock),
+                               data: { turbo_method: :delete, turbo_confirm: delete_confirm(@stock) },
+                               class: admin_danger_button_class
+                     end } do %>
+  <%= render layout: "admin/shared/record_section",
+             locals: { title: "Details",
+                       hint: "Grouped as they were on the old read-only cards. Saved when you press " \
+                             "Save changes." } do %>
+    <%= render "form" %>
   <% end %>
 
-  <%# Each block was a mt-6 pt-6 border-t section inside one big card. They are cards
-      now, so the rules go and each section carries its own h2. %>
-  <div class="space-y-6">
-    <%= admin_show_attributes(
-          @stock,
-          attributes: %i[ticker company_name company_website stock_exchange archived]
-        ) %>
-
-    <% if @stock.description.present? %>
-      <%= render layout: "components/ui/card", locals: { title: "Description" } do %>
-        <p class="text-sm text-slate-900 whitespace-pre-wrap"><%= @stock.description %></p>
-      <% end %>
-    <% end %>
-
-    <%= render layout: "components/ui/card", locals: { title: "Price information" } do %>
-      <dl class="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <div>
-          <dt class="text-sm font-medium text-slate-700">Current price</dt>
-          <dd class="mt-1 text-sm text-slate-900"><%= number_to_currency(@stock.current_price) %></dd>
-        </div>
-        <div>
-          <dt class="text-sm font-medium text-slate-700">Yesterday's price</dt>
-          <dd class="mt-1 text-sm text-slate-900"><%= number_to_currency(@stock.yesterday_price) %></dd>
-        </div>
-        <div>
-          <dt class="text-sm font-medium text-slate-700">Percentage change</dt>
-          <dd class="mt-1 text-sm">
-            <span class="<%= @stock.percentage_change.positive? ? 'text-green-700' : 'text-red-700' %>">
-              <%= @stock.percentage_change_formatted %>
-            </span>
-          </dd>
-        </div>
-      </dl>
-    <% end %>
-
-    <%= render layout: "components/ui/card", locals: { title: "Company information" } do %>
-      <dl class="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <div>
-          <dt class="text-sm font-medium text-slate-700">Employees</dt>
-          <dd class="mt-1 text-sm text-slate-900"><%= @stock.employees || "—" %></dd>
-        </div>
-        <div>
-          <dt class="text-sm font-medium text-slate-700">Industry</dt>
-          <dd class="mt-1 text-sm text-slate-900"><%= @stock.industry || "—" %></dd>
-        </div>
-      </dl>
-    <% end %>
-
-    <%= render layout: "components/ui/card", locals: { title: "Financial metrics" } do %>
-      <dl class="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <% { "Cash flow" => @stock.cash_flow, "Debt" => @stock.debt,
-             "Debt to equity" => @stock.debt_to_equity, "Profit margin" => @stock.profit_margin,
-             "Sales growth" => @stock.sales_growth }.each do |term, value| %>
-          <div>
-            <dt class="text-sm font-medium text-slate-700"><%= term %></dt>
-            <dd class="mt-1 text-sm text-slate-900"><%= value || "—" %></dd>
-          </div>
-        <% end %>
-      </dl>
-    <% end %>
-
-    <%= render layout: "components/ui/card", locals: { title: "Industry averages" } do %>
-      <dl class="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <% { "Avg debt to equity" => @stock.industry_avg_debt_to_equity,
-             "Avg profit margin" => @stock.industry_avg_profit_margin,
-             "Avg sales growth" => @stock.industry_avg_sales_growth }.each do |term, value| %>
-          <div>
-            <dt class="text-sm font-medium text-slate-700"><%= term %></dt>
-            <dd class="mt-1 text-sm text-slate-900"><%= value || "—" %></dd>
-          </div>
-        <% end %>
-      </dl>
-    <% end %>
-
-    <% if @stock.management.present? %>
-      <%= render layout: "components/ui/card", locals: { title: "Management" } do %>
-        <p class="text-sm text-slate-900 whitespace-pre-wrap"><%= @stock.management %></p>
-      <% end %>
-    <% end %>
-
-    <% if @stock.competitor_names.present? %>
-      <%= render layout: "components/ui/card", locals: { title: "Competitor names" } do %>
-        <p class="text-sm text-slate-900 whitespace-pre-wrap"><%= @stock.competitor_names %></p>
-      <% end %>
-    <% end %>
-
-    <% if @stock.portfolio_stocks.any? %>
-      <%= render layout: "components/ui/card",
-                 locals: { title: "Portfolio stocks (#{@stock.portfolio_stocks.count})" } do %>
-        <p class="text-sm text-slate-600">
-          This stock is held in <%= pluralize(@stock.portfolio_stocks.count, "portfolio") %>.
+  <%# The one thing the form cannot express: who holds it. Read-only because an admin does not assign a
+      holding - a student buys it. %>
+  <%= render layout: "admin/shared/record_section", locals: { title: "Held by" } do %>
+    <%= render layout: "components/ui/card", locals: {} do %>
+      <% if @stock.portfolio_stocks.any? %>
+        <p class="text-sm text-slate-900">
+          Held in <%= pluralize(@stock.portfolio_stocks.count, "portfolio") %>.
         </p>
+      <% else %>
+        <p class="text-sm text-slate-600">No student holds this stock yet.</p>
       <% end %>
     <% end %>
-  </div>
-</div>
+  <% end %>
+<% end %>

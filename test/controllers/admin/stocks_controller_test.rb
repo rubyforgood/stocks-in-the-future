@@ -29,19 +29,26 @@ module Admin
     end
 
     # Show tests
+    # The company name, not the ticker: a record page's h1 is what the record is called, and the ticker is in
+    # the breadcrumb and the form's first field.
     test "should show stock" do
       get admin_stock_path(@stock1)
 
       assert_response :success
-      assert_select "h1", @stock1.ticker
+      assert_select "h1", @stock1.company_name
     end
 
-    test "should show stock price information" do
+    # **No "Price information" card.** The form edits both prices, so a read-only card of them was the same
+    # numbers twice - once changeable and once not. The derived figure, which the form cannot express, is the
+    # header's summary line, and the editable values are fields.
+    test "the price is a header summary and a pair of fields, not a read-only card" do
       get admin_stock_path(@stock1)
 
       assert_response :success
-      assert_select "h2", "Price information"
-      assert_select "dt", text: "Current price"
+      assert_select "h2", text: "Price information", count: 0
+      assert_select "p", text: /#{Regexp.escape(ActiveSupport::NumberHelper.number_to_currency(@stock1.current_price))}/
+      assert_select "input[name=?]", "stock[price_cents]"
+      assert_select "input[name=?]", "stock[yesterday_price_cents]"
     end
 
     # New tests
@@ -103,7 +110,8 @@ module Admin
       get edit_admin_stock_path(@stock1)
 
       assert_response :success
-      assert_select "h1", "Edit stock"
+      # The record's page edits in place, so its heading is the record's name.
+      assert_select "h1", @stock1.company_name
     end
 
     # Update tests

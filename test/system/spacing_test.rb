@@ -48,9 +48,13 @@ class SpacingTest < ApplicationSystemTestCase
                     "items-start row is the usual cause"
   end
 
+  # **The gallery, not a record page.** This used `admin/stocks#show`, which had a titled "Price information"
+  # card until the record page absorbed it - the form edits both prices, so a read-only card of them was the
+  # same numbers twice. A titled card is rarer now that a section's heading carries the title, and the gallery
+  # is the one page guaranteed to render every component, which `component_gallery_test` enforces.
   test "a card header leaves 32px between its title and the content" do
     sign_in(create(:admin))
-    visit admin_stock_path(create(:stock))
+    visit admin_component_demo_index_path
 
     gap = page.evaluate_script(<<~JS)
       (function () {
@@ -63,7 +67,7 @@ class SpacingTest < ApplicationSystemTestCase
       })()
     JS
 
-    assert_not_nil gap, "expected a titled card on the admin stock page"
+    assert_not_nil gap, "expected a titled card in the component gallery"
     assert_in_delta CARD_SEAM, gap, TOLERANCE,
                     "card header to content measured #{gap}px; the header's padding stacking " \
                     "on a full p-5 body is the usual cause"

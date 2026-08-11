@@ -1,6 +1,23 @@
 # frozen_string_literal: true
 
 module StocksHelper
+  # The price and its movement, for a stock page's header.
+  #
+  # It is **derived** - the percentage comes from the two prices the form edits - so it cannot be a field
+  # beside them without stating the same thing twice, once editable and once not. A record's page opens with
+  # the figure you glance at, which is what Stripe does with a customer's balance.
+  #
+  # The direction is in the word as well as the colour, because green against red is not a distinction
+  # everybody can make.
+  def stock_price_summary(stock)
+    return number_to_currency(stock.current_price) if stock.percentage_change.zero?
+
+    direction = stock.percentage_change.positive? ? "up" : "down"
+
+    "#{number_to_currency(stock.current_price)}, #{direction} #{stock.percentage_change_formatted} " \
+      "on yesterday"
+  end
+
   # What the trading floor's list of buyable companies is, said in the reader's own terms.
   #
   # The single string this replaced was "Companies you can buy shares in right now", which is written in
