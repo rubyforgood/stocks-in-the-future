@@ -73,7 +73,7 @@
                   <%= id_cell %>
                 </td>
                 <td class="table-body-cell">
-                  <%= student.username %>
+                  <%= link_to student.username, admin_student_path(student), class: "tw-link" %>
 
                   <%= render "shared/stacked_row_fields",
                              fields: [["ID", id_cell], ["Classroom", classroom_cell], ["Created at", created_at_cell]],

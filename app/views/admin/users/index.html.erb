@@ -97,7 +97,7 @@
                   <%= id_cell %>
                 </td>
                 <td class="table-body-cell">
-                  <%= user.username %>
+                  <%= link_to user.username, admin_user_path(user), class: "tw-link" %>
 
                   <%= render "shared/stacked_row_fields",
                              fields: [["ID", id_cell], ["Type", type_cell], ["Email", email_cell], ["Classroom", classroom_cell], ["Admin", admin_cell]],

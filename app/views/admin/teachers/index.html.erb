@@ -42,7 +42,7 @@
         <tbody class="bg-white">
           <% if @teachers.any? %>
             <% @teachers.each do |teacher| %>
-              <tr class="table-body-row" id="<%= dom_id(teacher) %>" class="hover:bg-slate-50 transition-colors">
+              <tr class="table-body-row" id="<%= dom_id(teacher) %>">
                 <% id_cell = capture do %>
                   <%= teacher.id %>
                 <% end %>

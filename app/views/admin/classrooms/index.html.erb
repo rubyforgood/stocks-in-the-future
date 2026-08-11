@@ -36,7 +36,7 @@
         <tbody class="bg-white">
           <% if @classrooms.any? %>
             <% @classrooms.each do |classroom| %>
-              <tr class="table-body-row" id="<%= dom_id(classroom) %>" class="hover:bg-slate-50 transition-colors cursor-pointer"
+              <tr class="table-body-row cursor-pointer" id="<%= dom_id(classroom) %>"
                   data-controller="clickable-row"
                   data-clickable-row-url-value="<%= admin_classroom_path(classroom) %>"
                   data-action="click->clickable-row#navigate">
@@ -79,7 +79,7 @@
                   <%= id_cell %>
                 </td>
                 <td class="table-body-cell">
-                  <%= classroom.name %>
+                  <%= link_to classroom.name, admin_classroom_path(classroom), class: "tw-link" %>
 
                   <%= render "shared/stacked_row_fields",
                              fields: [["ID", id_cell], ["Grade", grade_cell], ["School year", school_year_cell], ["Archived", archived_cell], ["Trading enabled", trading_enabled_cell]],

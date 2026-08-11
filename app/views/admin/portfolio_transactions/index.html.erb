@@ -31,7 +31,7 @@
         <tbody class="bg-white">
           <% if @portfolio_transactions.any? %>
             <% @portfolio_transactions.each do |transaction| %>
-              <tr class="table-body-row" id="<%= dom_id(transaction) %>" class="hover:bg-slate-50 transition-colors">
+              <tr class="table-body-row" id="<%= dom_id(transaction) %>">
                 <% date_cell = capture do %>
                   <%= link_to admin_portfolio_transaction_path(transaction),
                               class: "font-medium tw-link focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary" do %>

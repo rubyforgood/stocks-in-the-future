@@ -53,7 +53,7 @@
       <tbody>
         <% if @orders.any? %>
           <% @orders.each do |order| %>
-            <tr class="table-body-row" id="<%= dom_id(order) %>" class="table-body-row">
+            <tr class="table-body-row" id="<%= dom_id(order) %>">
                 <% date_cell = capture do %>
                   <span class="table-cell-content">
                   <%= order.created_at.to_date %>

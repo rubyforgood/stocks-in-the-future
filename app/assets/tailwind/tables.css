@@ -159,15 +159,19 @@
     @apply pt-1.5;
   }
 
-  /* The separator and the opaque ground appear only once the table has actually been scrolled,
-   * which the table-scroll controller records on the wrapper.
+  /* The separator and the opaque ground appear only when the actions cell is genuinely pinned - that
+   * is, when its table is wider than its container - and not otherwise.
    *
-   * They used to be unconditional below lg. Measured, the student portfolio's holdings table never
-   * scrolls at any width - it adapts by wrapping the company name - so that drew a stray rule
-   * beside the Trade button and put an opaque cell over the row's hover tint, for no scroll. The
-   * admin tables do scroll (885px of content in a 341px wrapper at 375px), and there the separator
-   * is doing its job. Scroll state, not a breakpoint, is what decides. */
-  [data-table-scrolled="true"] .table-actions-pinned {
+   * The condition used to be "has been scrolled", which is a different thing and was a reported bug:
+   * a `sticky right-0` cell is pulled into view as soon as the table overflows, which is at scroll
+   * position **0**, so the buttons floated over the columns beneath them with nothing behind them.
+   *
+   * It must still not fire on a table that fits. Unconditional below lg was the original mistake: the
+   * student portfolio's holdings table never scrolls at any width - it adapts by wrapping the company
+   * name - so that drew a stray rule beside the Trade button and put an opaque cell over the row's
+   * hover tint, for no scroll. The admin tables do overflow (885px of content in a 341px wrapper at
+   * 375px), and there both are doing their job. */
+[data-table-pinned="true"] .table-actions-pinned {
     @apply border-l border-slate-200 bg-white;
   }
 

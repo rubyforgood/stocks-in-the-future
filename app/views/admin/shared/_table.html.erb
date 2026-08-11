@@ -51,7 +51,7 @@
       <tbody class="bg-white">
         <% if collection.any? %>
           <% collection.each do |record| %>
-            <tr class="table-body-row" id="<%= dom_id(record) %>" class="hover:bg-slate-50 transition-colors cursor-pointer"
+            <tr class="table-body-row cursor-pointer" id="<%= dom_id(record) %>"
                 data-controller="clickable-row"
                 data-clickable-row-url-value="<%= url_for([:admin, route_model(record)]) %>"
                 data-action="click->clickable-row#navigate">
@@ -68,8 +68,13 @@
                     column still reads that column. %>
                 <td class="table-body-cell <%= "hidden whitespace-nowrap lg:table-cell" unless index == primary %>"
                     data-testid="<%= column[:attribute] %>">
-                  <% if column[:link] %>
-                    <%= link_to format_attribute(record, column[:attribute]), [:admin, route_model(record)], class: "tw-link font-medium" %>
+                  <%# The primary column is always a link, not only when a caller remembers `link: true`.
+                      The row navigates on click, and until this changed the only signifier of that was a
+                      `cursor-pointer` that a duplicate `class` attribute had been swallowing - so the
+                      record's own name looked like plain text on every admin index. `link: true` remains
+                      for any *other* column that should point somewhere. %>
+                  <% if index == primary || column[:link] %>
+                    <%= link_to format_attribute(record, column[:attribute]), [:admin, route_model(record)], class: "tw-link" %>
                   <% else %>
                     <%= format_attribute(record, column[:attribute]) %>
                   <% end %>

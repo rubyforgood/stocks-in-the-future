@@ -3584,3 +3584,49 @@ confirmation. That is now a rule in design.md.
   Tailwind emits `hover:` inside `@media (hover: hover)` and the headless Chromium reports
   `(hover: none)`, so the rose never applies in the suite even with the pointer on the control — and the
   resting colours are identical, so a pixel assertion could not tell the two variants apart either.
+
+## Admin index rows: a real link on the name, and the pinned cell stops floating over the columns
+
+Two reported defects on `admin/classrooms`, both of which turned out to be app-wide.
+
+### The name had no signifier because the class attribute was silently dropped
+
+The row navigates on click - `data-controller="clickable-row"` - and the only affordance was
+`cursor-pointer`. It never applied: the `<tr>` carried **two `class` attributes**, and a browser keeps
+the first and drops the second without complaint. This is the same trap already recorded against the
+portfolio chart's `h2`, and it was in **five** files: admin classrooms, teachers, portfolio
+transactions, the shared admin table, and orders. `.table-body-row` already supplies the hover tint and
+the transition, which is exactly why nothing else looked wrong and nobody noticed.
+
+The fix is not the cursor. **The primary cell is a real `<a>`** on `.tw-link`, because a `<tr>` with a
+click handler is not keyboard reachable and is not announced as anything - the row click stays as an
+enhancement on top. Applied to classrooms, students and users, and `admin/shared/_table` now links its
+**primary column always** rather than only when a caller passes `link: true`. That option existed and
+was used by exactly one caller: the component demo. Announcements, schools and stocks had the same
+plain-text primary cell.
+
+### The pinned actions cell was transparent at scroll position zero
+
+Reported as the buttons overlapping the columns to their left as the viewport narrows, and the condition
+was simply the wrong one. A `sticky right-0` cell is pulled into view the moment its table is wider than
+its container - **at scroll position 0, before any scroll event exists** - but the opaque ground and the
+separator were gated on `data-table-scrolled`, which only a scroll listener ever set. So the buttons
+floated over the columns with nothing behind them until the user happened to scroll.
+
+The flag is `data-table-pinned` now and it means *can* scroll, not *has* scrolled:
+`scrollWidth > clientWidth`, set on connect, on scroll, and from a `ResizeObserver` on each container
+and its table, so a viewport change or a content change re-evaluates it. Turbo's load and stream events
+re-scan, since Turbo replaces content without reconnecting a body-level controller.
+
+The original concern is preserved: a table that fits gets neither, which is what stops the student
+portfolio's holdings table - which never scrolls at any width, because it wraps the company name
+instead - from drawing a stray rule beside its Trade button.
+
+### What this breaks
+
+- One assertion moved from `[data-table-scrolled='true']` to `[data-table-pinned='true']`.
+- A new test covers the case nothing did: the cell **unscrolled**, asserting `scrollLeft` is 0, that the
+  table does overflow, that the background is opaque, that the separator is there, and - with
+  `elementFromPoint` at the cell's own centre - that the cell is what paints there. Verified by
+  reinstating the old condition, which fails both pinned-cell tests.
+- The shared table's `link:` option now only affects non-primary columns.

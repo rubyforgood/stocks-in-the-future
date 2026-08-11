@@ -93,15 +93,7 @@ class TableActionsReachableTest < ApplicationSystemTestCase
     # Long enough to overflow seven columns at 1366px. With the factory's short name this table fits,
     # and the test would then assert against a scroll that never happened - which is how it would pass
     # while proving nothing.
-    classroom = create(
-      :classroom, :with_trading,
-      name: "Mrs Abernathy's Advanced Placement Sixth Grade Homeroom",
-      school_year: create(:school_year, school: create(:school), year: create(:year))
-    )
-    create(
-      :teacher_classroom, teacher: create(:teacher, name: "Wilhelmina Abernathy-Fitzgerald"),
-                          classroom: classroom
-    )
+    a_wide_classrooms_table
 
     in_lg_minimum_viewport do
       visit admin_classrooms_path
@@ -123,10 +115,10 @@ class TableActionsReachableTest < ApplicationSystemTestCase
         wrap.scrollLeft = wrap.scrollWidth;
       JS
 
-      # The scroll event fires asynchronously, so the state the separator depends on is not set in
-      # the same tick that sets scrollLeft. Wait for it before reading any style - an earlier
-      # version of this test read the background synchronously and saw the unscrolled value.
-      assert_selector "[data-table-scrolled='true']", visible: :all
+      # The flag is set from the container's overflow rather than from a scroll event now, so it is
+      # already true before this scrolls - but still wait on it rather than reading a style in the same
+      # tick, because a ResizeObserver publishes on the next frame.
+      assert_selector "[data-table-pinned='true']", visible: :all
 
       result = page.evaluate_script(<<~JS)
         (function () {
@@ -147,6 +139,50 @@ class TableActionsReachableTest < ApplicationSystemTestCase
       assert_not_equal "rgba(0, 0, 0, 0)", result["opaque"],
                        "a pinned cell needs an opaque background once the table is scrolled, or " \
                        "the columns sliding under it show through"
+    end
+  end
+
+  # **At scroll position zero**, which is the case nothing covered and the one that was reported: "the
+  # buttons overlap over the columns to the left when the viewport size is reduced."
+  #
+  # A `sticky right-0` cell is pulled into view as soon as its table is wider than its container. That
+  # happens before any scrolling, so a flag set by a scroll listener is still false, and the cell floats
+  # over the columns beneath it with no background at all. Nothing here scrolls the table on purpose.
+  test "the pinned cell is opaque as soon as it overlaps, before any scrolling" do
+    sign_in(create(:admin))
+    a_wide_classrooms_table
+
+    in_lg_minimum_viewport do
+      visit admin_classrooms_path
+
+      assert_selector "[data-table-pinned='true']", visible: :all
+
+      result = page.evaluate_script(<<~JS)
+        (function () {
+          const cell = document.querySelector("td.table-actions-pinned");
+          const wrap = cell.closest("[class*='overflow-x']");
+          const overflow = Math.round(wrap.scrollWidth - wrap.clientWidth);
+          // What sits under the cell's own middle: if the cell is transparent, this finds whatever it
+          // is covering instead of the cell.
+          const box = cell.getBoundingClientRect();
+          const under = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
+          return {
+            scrollLeft: Math.round(wrap.scrollLeft),
+            overflow: overflow,
+            background: getComputedStyle(cell).backgroundColor,
+            borderLeft: getComputedStyle(cell).borderLeftWidth,
+            coversWhatIsUnderIt: cell.contains(under) || cell === under
+          };
+        })()
+      JS
+
+      assert_equal 0, result["scrollLeft"], "this test is about the unscrolled state"
+      assert_operator result["overflow"], :>, 1,
+                      "the table does not overflow here, so the cell is not pinned and this proves nothing"
+      assert_equal "rgb(255, 255, 255)", result["background"],
+                   "the pinned cell is transparent, so the columns it covers show through the buttons"
+      assert_equal "1px", result["borderLeft"], "no separator against the content it is covering"
+      assert result["coversWhatIsUnderIt"], "something is painting over the pinned cell"
     end
   end
 
@@ -220,5 +256,18 @@ class TableActionsReachableTest < ApplicationSystemTestCase
                         "that does not stack below lg is the usual cause"
       end
     end
+  end
+  # Long names on purpose: the table has to be genuinely wider than its container for a pinned cell to
+  # be pinned at all, and a fixture with short values makes the test pass while proving nothing.
+  def a_wide_classrooms_table
+    classroom = create(
+      :classroom, :with_trading,
+      name: "Mrs Abernathy's Advanced Placement Sixth Grade Homeroom",
+      school_year: create(:school_year, school: create(:school), year: create(:year))
+    )
+    create(
+      :teacher_classroom, teacher: create(:teacher, name: "Wilhelmina Abernathy-Fitzgerald"),
+                          classroom: classroom
+    )
   end
 end
