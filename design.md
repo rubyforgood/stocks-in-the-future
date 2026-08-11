@@ -58,7 +58,7 @@ and visual-quality pass, page by page onto shared primitives.
 | **Figtree**, self-hosted, no CDN | Adopted. It is a *variable* font, so one file covers 400–800; two subsets (latin, latin-ext) live in `public/vendor/figtree/`, declared in `app/assets/tailwind/figtree.css`. Shipping one file per weight would be the same bytes five times. |
 | **slate** neutrals | Adopted app-wide. Contrast verified to hold: slate-500 4.76:1, slate-600 7.58:1, slate-700 10.35:1, slate-900 17.85:1 on white. |
 | Type scale, sentence case, `text-xs` as chrome | Adopted verbatim. |
-| Full breakpoint set (`sm:`/`md:`/`xl:`) | **Overridden.** `docs/responsive-design-guidelines.md` permits only `base` and `lg:`, because the users are students on 1366×768 Chromebooks and 375px phones. That document wins on anything responsive. |
+| Full breakpoint set (`sm:`/`md:`/`xl:`) | **Overridden.** `docs/responsive-design-guidelines.md` permits only `base` and `lg:` — because this app's layouts change shape exactly once, at the sidebar. That document wins on anything responsive, and note what the rule does *not* say: two tiers is not two widths, and everything still has to work continuously from 320px and at 200% text. |
 | Brand colour | **Overridden.** Stocks in the Future keeps its own palette (`sitf-primary` teal-blue, `sitf-accent` lime) for brand moments, exposed as tokens in `tailwind.config.css`. |
 
 ## Foundations
@@ -4569,9 +4569,23 @@ The *why* behind the system, so choices aren't re-litigated or lost.
 - **Icons come from `lucide_icon`**, vendored through the gem rather than a CDN. It renders
   `aria-hidden` by default, so an **icon-only control needs its own visually hidden text** or it has
   no accessible name at all.
-- **Only `base` and `lg:`.** No `sm:`, `md:`, `xl:` or `2xl:`. The users are students on school
-  Chromebooks at 1366x768 and phones at 375px, so those are the two widths to check -- plus one above
-  ~1584px, because a layout width bug is invisible at every width below it.
+- **Only `base` and `lg:`.** No `sm:`, `md:`, `xl:` or `2xl:`, and no custom breakpoint. Not because
+  the audience has two devices, but because **this app's layouts change shape exactly once**: below
+  1024px there is no room for a 256px sidebar beside the content, and above it there is. A third tier
+  would be a breakpoint with no layout change behind it, which is a place for two versions of a
+  component to drift. The field's rule is content-based breakpoints rather than device-based, and two
+  is at the low end of what systems ship -- Tailwind's default is five, Bootstrap five, Material five,
+  Primer four, Polaris four, GOV.UK three.
+
+  **Two tiers is not two widths.** Everything must work continuously from 320px up, and at 200% text:
+  WCAG 1.4.10 and 1.4.4, both AA. Checking 375 and 1366 alone shipped a fixed-height ribbon whose text
+  rendered *above* the viewport at 200%, unreachable. Adapt fluidly -- `flex-wrap`, `minmax()`,
+  `min-h-*` on anything containing text, `clamp()`, a measured value in a custom property -- before
+  reaching for a tier. Verify at 320, 375, 768, 1024, 1366 and 1920, plus 375 and 1024 at 200%, plus
+  one width above ~1584px, because a layout width cap is invisible at every width below it.
+
+  [`docs/responsive-design-guidelines.md`](docs/responsive-design-guidelines.md) is the long form and
+  wins on anything responsive.
 - **No `dark:` variant.** There is no dark mode here, and Tailwind v4 compiles `dark:` to
   `@media (prefers-color-scheme: dark)`, so it goes live on any dark-OS device regardless. One
   `dark:text-slate-400` was audited as "justified, 6.99:1 on dark" while rendering **2.45:1** over a

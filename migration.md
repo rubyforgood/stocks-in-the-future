@@ -3328,3 +3328,48 @@ Two other gaps closed in the same pass:
 - **`EnvironmentHelper` is down to one method.** Anything calling the five class helpers must move to
   the `chrome-*` classes.
 - The offsets are no longer greppable as Tailwind classes in the layouts; they are in `chrome.css`.
+
+## The two-breakpoint policy is explicit now, and grounded in the content rather than the devices
+
+`docs/responsive-design-guidelines.md` already said "use only `base` and `lg:`". Its stated reason was
+device-based — "1366×768 is the most common Chromebook resolution" — which is the reasoning the field
+explicitly warns against, because a list of device widths goes stale while a layout's own breaking
+point does not.
+
+The rule is unchanged. **The justification is now the layout**: this app changes shape exactly once,
+at 1024px, where there is or is not room for a 256px sidebar beside the content. A third tier would be
+a breakpoint with no layout change behind it, and every one of those is a place for two versions of a
+component to drift apart. The doc now shows what other systems ship — Tailwind five, Bootstrap five,
+Material five, Primer four, Polaris four, GOV.UK three — so that two is a visible, argued choice
+rather than an unexamined one.
+
+**The substantive addition is "two tiers is not two widths."** The doc used to say *Test at Two
+Sizes*, and that is what let the ribbon ship: it passed at 375 and 1366 and failed at every width
+below 1024 as soon as text was at 200%. Two tiers is a claim about layout; the product still has to
+work continuously from 320px, and at 200% text, which are WCAG 1.4.10 and 1.4.4, both AA. The doc now
+asks for 320 / 375 / 768 / 1024 / 1366 / 1920 plus two zoom cases, and says to adapt fluidly —
+`flex-wrap`, `minmax()`, `min-h-*`, `clamp()`, a measured custom property — before adding a tier.
+
+Three contradictions with design.md were fixed in the same pass, since a doc that disagrees with the
+spec is the drift this repo keeps recording:
+
+- It required **44px** touch targets. design.md's button height is 40px, and 44px is reserved for bare
+  tap targets. Setting the admin buttons to 44px once made them visibly taller than every other button.
+- It said **"Tailwind-only: no custom CSS"**, which has never been true — the `.tw-*` component classes
+  are the app's shared patterns. What is actually banned is an inline style or an arbitrary value with
+  a scale equivalent, and there is a test for that.
+- Its example markup was **pre-token**: `border-2 border-black rounded-[20px]`, `bg-blue-600`,
+  `min-h-[48px]`. Now `.tw-btn-*` and `components/ui/_card`.
+
+## The ribbon's copy
+
+`Staging — this is not the real site, and nothing here affects real students` became
+**`Staging site. These are not real students.`**
+
+- **No em dash.** A dash asks the reader to work out how the halves relate; a full stop states them.
+- **"These are not real students", not "nothing here affects real students."** The second is a
+  stronger promise than the deployment can keep: staging is configured with real SMTP, so an action
+  here can still send mail. What is reliably true is that the records are fake.
+- **Length is a constraint.** At 375px there are 304px for text. The first rewrite measured 307px and
+  wrapped by three pixels; this one is 219px and fits on one line from 320px up. The ribbon grows to
+  fit either way, but a phone should not need two lines to say this.

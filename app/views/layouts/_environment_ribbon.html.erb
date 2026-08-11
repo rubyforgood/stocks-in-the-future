@@ -25,6 +25,23 @@
        role="status"
        data-testid="environment-ribbon">
     <%= lucide_icon "triangle-alert", class: "size-4 shrink-0", aria: { hidden: true } %>
-    <span>Staging &mdash; this is not the real site, and nothing here affects real students</span>
+    <%# Names the deployment first, then the one consequence that matters, in two short sentences.
+
+        **No em dash.** A dash asks the reader to work out how the halves relate; a full stop just
+        states them. It also made the line read as one long clause, which is part of why it wrapped.
+
+        Leading with the environment's name is what the field ships: GitLab's "You are on a staging
+        environment", Salesforce's "Sandbox", Shopify's "Development store". The second sentence is
+        ours, because this product moves money into student portfolios.
+
+        **"These are not real students", not "nothing here affects real students."** The second is a
+        stronger promise than the deployment can keep - staging is configured with real SMTP, so an
+        action here can still send mail. What is reliably true is that the records are fake, and that
+        is also the thing worth knowing before pressing Finalize.
+
+        Length is a constraint, not an afterthought: at 375px there are 304px for text, and the first
+        draft measured 307px, so it wrapped by three pixels. This one is 219px. The ribbon grows to fit
+        either way - see below - but a phone should not need two lines to say this. %>
+    <span>Staging site. These are not real students.</span>
   </div>
 <% end %>
