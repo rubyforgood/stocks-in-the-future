@@ -1,0 +1,47 @@
+<%# PREVIEW - every movement of this student's money, newest first.
+
+    Moved out of the "Portfolio details" card, where it was an h3 under a second h3 under the card's own
+    h2 - three heading levels for one page - and onto `shared/table_container`, which is the surface every
+    other table in the app uses. It had a hand-rolled `overflow-x-auto border-t`, so it sat on no surface
+    at all inside its card.
+
+    `region_label`, because this table holds no links or inputs: a scroll container whose contents cannot
+    be focused cannot be scrolled from the keyboard (axe scrollable-region-focusable). Every table that
+    passes the check does so by accident, through its row actions; this one has none.
+
+    `table-stacked`, not the column-hiding collapse the index tables use: these are four peer columns with
+    no identifying primary to collapse into and no row actions. Below lg each transaction becomes a block
+    of labelled lines. It overflowed by 88px at 375px before that. %>
+<%= render "shared/table_container", table_class: "table-stacked", region_label: "Transactions" do %>
+  <thead>
+    <tr class="table-header-row">
+      <th scope="col" class="table-header-cell table-header-cell-left">Date</th>
+      <th scope="col" class="table-header-cell table-header-cell-left">Type</th>
+      <th scope="col" class="table-header-cell table-header-cell-left">Reason</th>
+      <th scope="col" class="table-header-cell table-header-cell-right">Amount</th>
+    </tr>
+  </thead>
+  <tbody class="bg-white">
+    <% transactions.each do |transaction| %>
+      <tr class="table-body-row">
+        <td class="table-body-cell whitespace-nowrap">
+          <%= transaction.created_at.strftime("%m/%d/%Y") %>
+        </td>
+        <td class="table-body-cell whitespace-nowrap">
+          <span class="table-stacked-label lg:hidden">Type</span>
+          <%= render "components/ui/badge",
+                     label: transaction.transaction_type.humanize,
+                     tone: transaction.deposit? ? :success : :neutral %>
+        </td>
+        <td class="table-body-cell">
+          <span class="table-stacked-label lg:hidden">Reason</span>
+          <%= transaction.reason&.humanize || "—" %>
+        </td>
+        <td class="table-body-cell table-body-cell-right whitespace-nowrap font-medium tabular-nums">
+          <span class="table-stacked-label lg:hidden">Amount</span>
+          <%= number_to_currency(transaction.amount_cents / 100.0) %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+<% end %>

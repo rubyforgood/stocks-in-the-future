@@ -1,8 +1,24 @@
-<div class="max-w-7xl mx-auto">
+<%# PREVIEW - create, on the same shape as the record page.
+
+    **max-w-3xl, not max-w-7xl.** Measured at 1366px: this form was 1047px wide, and the record page it
+    leads to is 768px, for the same three fields. design.md records that defect on `classrooms#edit` - a
+    form's measure does not scale with the window - and every admin create page still has it.
+
+    **One section, Details, with the same heading the record page uses.** A student who does not exist yet
+    has no portfolio to pay into and no grade book to have been marked in, so the money and attendance
+    sections have nothing to show. The heading matching is the point: a section that is called something
+    different on the create page is the inconsistency this shape exists to remove. %>
+<div class="mx-auto max-w-3xl">
   <%= admin_breadcrumbs(@breadcrumbs) %>
 
   <%= render layout: "components/ui/page_header",
-             locals: { title: "New student" } do %><% end %>
+             locals: { title: "New student",
+                       description: "You can add money and see attendance once the account exists." } do %><% end %>
 
-  <%= render "form", student: @student %>
+  <div class="space-y-6">
+    <%= render layout: "admin/shared/record_section",
+               locals: { title: "Details", hint: "Saved when you press Create student." } do %>
+      <%= render "form" %>
+    <% end %>
+  </div>
 </div>

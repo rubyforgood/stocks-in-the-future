@@ -1,205 +1,72 @@
-<div class="max-w-7xl mx-auto">
-  <%= admin_breadcrumbs(@breadcrumbs) %>
+<%# PREVIEW - the ninth and last admin resource on the shared record-page shape. Compare
+    /admin/students/:id with what it replaced: a 1047px column, three titled cards, five heading levels
+    and a separate /edit page holding the two forms.
 
-  <%= render layout: "components/ui/page_header", locals: { title: @student.username } do %>
-    <%= link_to edit_admin_student_path(@student), class: admin_secondary_button_class do %>
-      <%= lucide_icon("square-pen", class: "h-5 w-5 shrink-0 text-slate-500") %>
-      Edit
+    The three-way rule the other eight were converted with, applied here:
+
+    - an attribute the form edits appears **once**, as a field. `admin_show_attributes` printed username
+      and classroom above a form that edits both.
+    - a collection worth scanning or acting on gets a **section**. Transactions and attendance are two.
+    - a lone read-only fact goes in the **header summary**. Cash balance and total value were two of four
+      `text-2xl` tiles; the third was the portfolio's **id**, and the fourth said "Total stocks".
+
+    Sections run editable first, read-only after, which is what the shell's own note prescribes. %>
+<%= render layout: "admin/shared/record_page",
+           locals: { title: @student.display_name, breadcrumbs: @breadcrumbs,
+                     description: student_summary(@student),
+                     actions: capture { render "admin/students/record_actions", student: @student } } do %>
+  <%= render layout: "admin/shared/record_section",
+             locals: { title: "Details", hint: "Saved when you press Update student." } do %>
+    <%= render "form" %>
+  <% end %>
+
+  <% if @student.portfolio.present? %>
+    <%# The second write on this page, and the one that moves money. Its own section, so the heading says
+        what the button does and the hint says when it takes effect - the confusing thing about a page that
+        mixes a form you submit with an action that applies at once. %>
+    <%= render layout: "admin/shared/record_section",
+               locals: { title: "Add a transaction",
+                         hint: "Applies as soon as you press Add transaction: it changes what this " \
+                               "student can invest, and appears in the transactions below." } do %>
+      <%= render "transaction_form", student: @student %>
     <% end %>
 
-    <%= link_to admin_student_path(@student),
-                data: { turbo_method: :delete,
-                        turbo_confirm: "Archive #{@student.display_name}?\n\n" \
-                                       "They stop being able to sign in and leave the active list. " \
-                                       "Their portfolio, transactions and grades are kept, and you " \
-                                       "can restore the account from the students list." },
-                class: admin_danger_button_class do %>
-      <%= lucide_icon("archive", class: "h-5 w-5 shrink-0") %>
-      Archive
+    <%= render layout: "admin/shared/record_section",
+               locals: { title: "Earnings",
+                         hint: "Where this student's cash came from, and what trading has cost them." } do %>
+      <%= render "shared/earnings_breakdown", summary: @earnings_summary %>
+    <% end %>
+
+    <%# The hint derives from what is in the section, so it cannot say "0 transactions, newest first" -
+        which is what a fixed string did, promising an order for an empty list. %>
+    <%= render layout: "admin/shared/record_section",
+               locals: { title: "Transactions",
+                         hint: ("#{pluralize(@transactions.size, 'transaction')}, newest first." if @transactions.any?) } do %>
+      <% if @transactions.any? %>
+        <%= render "transactions_table", transactions: @transactions %>
+      <% else %>
+        <p class="text-sm text-slate-600">No money has moved in or out of this portfolio yet.</p>
+      <% end %>
+    <% end %>
+  <% else %>
+    <%# A student created through the app always has a portfolio - `Student#ensure_portfolio` runs after
+        create - so this is a legacy or half-imported record. One sentence, not three empty sections, and
+        no transaction form: it would post to a nil `belongs_to` and could only fail. %>
+    <%= render layout: "admin/shared/record_section", locals: { title: "Money" } do %>
+      <%= render layout: "components/ui/card", locals: {} do %>
+        <p class="text-sm text-slate-600">
+          This student has no portfolio, so there is nowhere to hold cash, earnings or transactions.
+        </p>
+      <% end %>
     <% end %>
   <% end %>
 
-  <div class="space-y-6">
-    <%# Was a hand-rolled dl repeating what admin_show_attributes already renders, with
-        slate-500 labels rather than the slate-700 the shared partial uses. %>
-    <%= admin_show_attributes(
-          @student,
-          attributes: %i[username classroom]
-        ) %>
-
-    <% if @student.portfolio.present? %>
-      <%= render layout: "components/ui/card", locals: { title: "Portfolio details" } do %>
-        <div class="grid grid-cols-1 gap-4 lg:grid-cols-4">
-          <%# Neutral, not hue-coded. These were blue-50 / green-50 / purple-50 panels beside a
-              slate-50 one - four figures, three arbitrary hues and no icon to carry them.
-              design.md hue-codes a KPI's *icon tile*, never the panel fill, and says a numeral is
-              always slate-900 and never carries state. Same fix as the order modal's pair. %>
-          <div class="rounded-lg bg-slate-50 p-4">
-            <div class="mb-1 text-xs font-medium text-slate-600" data-testid="cash_balance_label">
-              Cash balance
-            </div>
-            <div class="text-2xl font-bold text-slate-900 tabular-nums">
-              <%= number_to_currency(@student.portfolio.cash_balance) %>
-            </div>
-          </div>
-
-          <div class="rounded-lg bg-slate-50 p-4">
-            <div class="mb-1 text-xs font-medium text-slate-600" data-testid="total_portfolio_worth_label">
-              Total portfolio worth
-            </div>
-            <div class="text-2xl font-bold text-slate-900 tabular-nums">
-              <%= number_to_currency(@student.portfolio.total_portfolio_worth) %>
-            </div>
-          </div>
-
-          <div class="rounded-lg bg-slate-50 p-4">
-            <div class="mb-1 text-xs font-medium text-slate-600">Total stocks</div>
-            <div class="text-2xl font-bold text-slate-900 tabular-nums">
-              <%= @student.portfolio.portfolio_stocks.sum(:shares).to_i %>
-            </div>
-          </div>
-
-          <%= link_to portfolio_path(@student.portfolio),
-                      class: "block rounded-lg bg-slate-50 p-4 transition-colors hover:bg-slate-100 " \
-                             "focus-visible:outline-2 focus-visible:outline-offset-2 " \
-                             "focus-visible:outline-sitf-primary" do %>
-            <div class="mb-1 text-xs font-medium text-slate-600">Portfolio ID</div>
-            <div class="text-2xl font-bold text-slate-900 tabular-nums">#<%= @student.portfolio.id %></div>
-          <% end %>
-        </div>
-
-        <h3 class="mt-6 mb-3 text-sm font-medium text-slate-700">Earnings summary</h3>
-        <div class="overflow-x-auto border-t border-slate-200">
-          <table class="table-base">
-            <thead>
-              <tr class="table-header-row">
-                <th scope="col" class="table-header-cell table-header-cell-left">Category</th>
-                <th scope="col" class="table-header-cell table-header-cell-right">Amount</th>
-              </tr>
-            </thead>
-            <tbody class="bg-white">
-              <% { "Attendance earnings" => @earnings_summary.attendance_earnings_cents,
-                   "Math earnings" => @earnings_summary.math_earnings_cents,
-                   "Rewards" => @earnings_summary.awards_cents }.each do |label, cents| %>
-                <tr class="table-body-row">
-                  <td class="table-body-cell"><%= label %></td>
-                  <td class="table-body-cell table-body-cell-right font-medium tabular-nums">
-                    <%= number_to_currency(cents / 100.0) %>
-                  </td>
-                </tr>
-              <% end %>
-              <tr class="table-body-row bg-green-50">
-                <td class="table-body-cell font-semibold">Total earnings</td>
-                <td class="table-body-cell table-body-cell-right font-bold tabular-nums">
-                  <%= number_to_currency(@earnings_summary.total_earnings_cents / 100.0) %>
-                </td>
-              </tr>
-              <%# red-600 on white is 4.0:1, under the gate. red-700 is 5.9:1. %>
-              <tr class="table-body-row">
-                <td class="table-body-cell font-medium text-red-700">Transaction fees</td>
-                <td class="table-body-cell table-body-cell-right font-medium text-red-700 tabular-nums">
-                  <%= number_to_currency(@earnings_summary.transaction_fees_cents / 100.0) %>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <% transactions = @student.portfolio.portfolio_transactions.order(created_at: :desc) %>
-        <h3 class="mt-6 mb-3 text-sm font-medium text-slate-700">
-          All transactions (<%= transactions.count %>)
-        </h3>
-        <% if transactions.any? %>
-          <div class="overflow-x-auto border-t border-slate-200">
-            <%# table-stacked, not the collapse the index tables use: these are four peer columns with
-                no identifying primary to collapse into and no row actions. Below lg each transaction
-                becomes a block of labelled lines. It overflowed by 88px at 375px. %>
-            <table class="table-base table-stacked">
-              <thead>
-                <tr class="table-header-row">
-                  <th scope="col" class="table-header-cell table-header-cell-left">Date</th>
-                  <th scope="col" class="table-header-cell table-header-cell-left">Type</th>
-                  <th scope="col" class="table-header-cell table-header-cell-left">Reason</th>
-                  <th scope="col" class="table-header-cell table-header-cell-right">Amount</th>
-                </tr>
-              </thead>
-              <tbody class="bg-white">
-                <% transactions.each do |transaction| %>
-                  <tr class="table-body-row">
-                    <td class="table-body-cell whitespace-nowrap">
-                      <%= transaction.created_at.strftime("%m/%d/%Y") %>
-                    </td>
-                    <td class="table-body-cell whitespace-nowrap">
-                      <span class="table-stacked-label lg:hidden">Type</span>
-                      <%= render "components/ui/badge",
-                                 label: transaction.transaction_type.humanize,
-                                 tone: transaction.deposit? ? :success : :neutral %>
-                    </td>
-                    <td class="table-body-cell">
-                      <span class="table-stacked-label lg:hidden">Reason</span>
-                      <%= transaction.reason&.humanize || "—" %>
-                    </td>
-                    <td class="table-body-cell table-body-cell-right whitespace-nowrap font-medium tabular-nums">
-                      <span class="table-stacked-label lg:hidden">Amount</span>
-                      <%= number_to_currency(transaction.amount_cents / 100.0) %>
-                    </td>
-                  </tr>
-                <% end %>
-              </tbody>
-            </table>
-          </div>
-        <% else %>
-          <p class="text-sm text-slate-600">No transactions yet.</p>
-        <% end %>
-      <% end %>
+  <%= render layout: "admin/shared/record_section",
+             locals: { title: "Attendance", hint: "Entered on each quarter's grade book." } do %>
+    <% if @attendance_entries.any? %>
+      <%= render "attendance_table", entries: @attendance_entries %>
     <% else %>
-      <%= render layout: "components/ui/card", locals: { title: "Portfolio details" } do %>
-        <p class="text-sm text-slate-600">No portfolio associated with this student.</p>
-      <% end %>
+      <p class="text-sm text-slate-600">No attendance records found.</p>
     <% end %>
-
-    <%= render layout: "components/ui/card", locals: { title: "Attendance" } do %>
-      <% if @attendance_entries.any? %>
-        <div class="overflow-x-auto border-t border-slate-200">
-          <%# Same treatment as the transactions table above, and the same reason. 152px at 375px. %>
-          <table class="table-base table-stacked">
-            <thead>
-              <tr class="table-header-row">
-                <th scope="col" class="table-header-cell table-header-cell-left">Year</th>
-                <th scope="col" class="table-header-cell table-header-cell-left">Quarter</th>
-                <th scope="col" class="table-header-cell table-header-cell-right">Attendance days</th>
-                <th scope="col" class="table-header-cell table-header-cell-center">Perfect attendance</th>
-              </tr>
-            </thead>
-            <tbody class="bg-white">
-              <% @attendance_entries.each do |entry| %>
-                <tr class="table-body-row">
-                  <td class="table-body-cell whitespace-nowrap">
-                    <span class="table-stacked-label lg:hidden">Year</span>
-                    <%= entry.year_name %>
-                  </td>
-                  <td class="table-body-cell whitespace-nowrap">
-                    <span class="table-stacked-label lg:hidden">Quarter</span>
-                    <%= entry.quarter_name %>
-                  </td>
-                  <td class="table-body-cell table-body-cell-right whitespace-nowrap tabular-nums">
-                    <span class="table-stacked-label lg:hidden">Attendance days</span>
-                    <%= entry.attendance_days_display %>
-                  </td>
-                  <td class="table-body-cell table-body-cell-center whitespace-nowrap">
-                    <span class="table-stacked-label lg:hidden">Perfect attendance</span>
-                    <%= render "components/ui/badge",
-                               label: entry.perfect_attendance? ? "Yes" : "No",
-                               tone: entry.perfect_attendance? ? :success : :neutral %>
-                  </td>
-                </tr>
-              <% end %>
-            </tbody>
-          </table>
-        </div>
-      <% else %>
-        <p class="text-sm text-slate-600">No attendance records found.</p>
-      <% end %>
-    <% end %>
-  </div>
-</div>
+  <% end %>
+<% end %>

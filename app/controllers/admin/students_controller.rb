@@ -20,13 +20,7 @@ module Admin
     end
 
     def show
-      @attendance_entries = AttendanceEntryPresenter.for_student(@student)
-      @earnings_summary = EarningsSummary.new(@student.portfolio) if @student.portfolio.present?
-
-      @breadcrumbs = [
-        { label: "Students", path: admin_students_path },
-        { label: @student.username }
-      ]
+      load_record_page
     end
 
     def new
@@ -38,12 +32,12 @@ module Admin
       ]
     end
 
+    # PREVIEW: the record page edits in place, so `edit` renders it - which means it needs everything that
+    # page reads. Every path that renders the record page has to load the same data, and there are three:
+    # show, edit, and a failed update. Missing one is a NoMethodError on nil, which is how the other eight
+    # conversions found this twice.
     def edit
-      @breadcrumbs = [
-        { label: "Students", path: admin_students_path },
-        { label: @student.username, path: admin_student_path(@student) },
-        { label: "Edit" }
-      ]
+      load_record_page
     end
 
     def create
@@ -76,11 +70,7 @@ module Admin
       if @student.save(context: :student_form)
         redirect_to admin_student_path(@student), notice: t(".notice")
       else
-        @breadcrumbs = [
-          { label: "Students", path: admin_students_path },
-          { label: @student.username, path: admin_student_path(@student) },
-          { label: "Edit" }
-        ]
+        load_record_page
         render :edit, status: :unprocessable_content
       end
     end
@@ -138,6 +128,23 @@ module Admin
     end
 
     private
+
+    # Everything the record page renders, in one place: the two collections, the earnings summary, and the
+    # trail. `@transactions` is loaded here rather than queried in the template because both the section's
+    # count and the table read it - a derived figure and the thing it derives from must come from one query.
+    def load_record_page
+      @attendance_entries = AttendanceEntryPresenter.for_student(@student)
+
+      if @student.portfolio.present?
+        @earnings_summary = EarningsSummary.new(@student.portfolio)
+        @transactions = @student.portfolio.portfolio_transactions.order(created_at: :desc)
+      end
+
+      @breadcrumbs = [
+        { label: "Students", path: admin_students_path },
+        { label: @student.display_name }
+      ]
+    end
 
     def set_discarded_student
       @student = Student.with_discarded.find(params.expect(:id))

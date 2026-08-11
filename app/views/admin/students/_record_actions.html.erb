@@ -1,0 +1,42 @@
+<%# PREVIEW - a student's lifecycle actions, in the page header.
+
+    **No "Edit".** The record's page edits in place, so a control that navigates to the page you are on
+    has nothing to do - the same reason it came off the teacher page.
+
+    **Archive or restore, never both.** `Student.find` has no discard scope, so an archived student's page
+    renders exactly like an active one, and it offered "Archive" - which discards an already discarded
+    record and changes nothing. A control that can only report that it did nothing is not a control.
+
+    **"View portfolio" is the one link out.** It was a `#3` tile among the money figures, styled as a
+    fourth KPI; a portfolio id is not a metric, and the useful part of that tile was that it was a link.
+    `PortfolioPolicy#show?` returns true for an admin, so it is a page an admin can actually open - worth
+    checking before linking, since two roles here get redirected instead. %>
+<% if student.portfolio.present? %>
+  <%= link_to portfolio_path(student.portfolio), class: admin_secondary_button_class do %>
+    <%= lucide_icon("chart-pie", class: "h-5 w-5 shrink-0 text-slate-500") %>
+    View portfolio
+  <% end %>
+<% end %>
+
+<% if student.discarded? %>
+  <%= link_to restore_admin_student_path(student),
+              data: { turbo_method: :patch,
+                      turbo_confirm: "Restore #{student.display_name}?\n\n" \
+                                     "They can sign in again and reappear in the students list. " \
+                                     "Their portfolio, transactions and grades are unchanged." },
+              class: admin_secondary_button_class do %>
+    <%= lucide_icon("rotate-ccw", class: "h-5 w-5 shrink-0 text-slate-500") %>
+    Restore
+  <% end %>
+<% else %>
+  <%= link_to admin_student_path(student),
+              data: { turbo_method: :delete,
+                      turbo_confirm: "Archive #{student.display_name}?\n\n" \
+                                     "They stop being able to sign in and leave the active list. " \
+                                     "Their portfolio, transactions and grades are kept, and you " \
+                                     "can restore the account from the students list." },
+              class: admin_danger_button_class do %>
+    <%= lucide_icon("archive", class: "h-5 w-5 shrink-0") %>
+    Archive
+  <% end %>
+<% end %>

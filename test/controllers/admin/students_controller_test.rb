@@ -67,16 +67,19 @@ module Admin
       get admin_student_path(student)
 
       assert_response :success
-      assert_select "h1", username
-      assert_select "h2", text: "Portfolio details"
-      assert_select(
-        "[data-testid='cash_balance_label']",
-        text: "Cash balance"
-      )
-      assert_select(
-        "[data-testid='total_portfolio_worth_label']",
-        text: "Total portfolio worth"
-      )
+      # The record's own name, as on every other record page. The username is in the summary line beneath
+      # it, because the students list links by username and that is what an admin searched for.
+      assert_select "h1", student.display_name
+      assert_select "p", text: /#{username}/
+      # **No "Portfolio details" card, and no figure tiles.** Cash balance and total value are two
+      # read-only facts, so they are on the summary line; the third tile held the portfolio's id.
+      assert_select "h2", text: "Portfolio details", count: 0
+      assert_select "p", text: /cash/
+      assert_select "p", text: /total value/
+      # The sections, in order: what you can change first, then what only happened.
+      headings = response.parsed_body.css("main section[aria-labelledby] > h2").map { |h| h.text.strip }
+
+      assert_equal ["Details", "Add a transaction", "Earnings", "Transactions", "Attendance"], headings
     end
 
     test "show displays attendance records" do
@@ -119,12 +122,16 @@ module Admin
       get admin_student_path(student)
 
       assert_response :success
-      assert_select "h3", text: "Earnings summary"
-      assert_select "td", text: "Attendance earnings"
-      assert_select "td", text: "Math earnings"
-      assert_select "td", text: "Rewards"
-      assert_select "td", text: "Total earnings"
-      assert_select "td", text: "Transaction fees"
+      # One partial for both halves of the product now, so this is the same list the student sees on their
+      # own portfolio page - including **Reading**, which the admin copy left out while still printing a
+      # total that included it.
+      assert_select "h2", text: "Earnings"
+      assert_select "dt", text: "Attendance"
+      assert_select "dt", text: "Reading"
+      assert_select "dt", text: "Math"
+      assert_select "dt", text: "Rewards"
+      assert_select "dt", text: "Total earned"
+      assert_select "dt", text: "Transaction fees"
     end
 
     test "new" do
@@ -185,7 +192,8 @@ module Admin
       get edit_admin_student_path(student)
 
       assert_response :success
-      assert_select "h1", "Edit student"
+      # The record's page edits in place, so its heading is the record's name.
+      assert_select "h1", student.display_name
     end
 
     test "update" do

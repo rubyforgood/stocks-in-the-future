@@ -1,0 +1,48 @@
+<%# PREVIEW - the one place an administrator moves a student's money by hand.
+
+    It was the second half of `_form`, in a card headed "Add portfolio transaction" under a card headed
+    "Student details". The record page's section heading names it now, so the card carries no header of
+    its own - the same treatment as every other form on this shape.
+
+    **Rendered only when the student has a portfolio.** It used to render regardless, reading
+    `portfolio&.cash_balance || 0` for its display and posting to `add_transaction`, which builds a
+    `PortfolioTransaction` with a nil portfolio - a `belongs_to` - so every submit failed validation and
+    redirected with an alert. A control whose only possible outcome is an error is not a control.
+
+    **No read-only "Current cash balance" line.** The header's summary states the balance, and on a merged
+    page this block would have been the third copy of one number: summary line, figure tile, and here. %>
+<%= form_with url: add_transaction_admin_student_path(student), method: :post,
+              builder: Ui::FormBuilder, class: "space-y-6" do |f| %>
+  <%= render layout: "components/ui/card", locals: {} do %>
+    <%= f.select :transaction_type,
+                 [["", ""], ["Deposit", "deposit"], ["Debit", "debit"]],
+                 label: "Transaction type",
+                 hint: "Deposit adds to the cash balance, debit takes from it",
+                 include_blank: false %>
+
+    <%= f.number_field :add_fund_amount,
+                       label: "Amount",
+                       hint: "In dollars",
+                       placeholder: "0.00",
+                       step: "0.01" %>
+
+    <%= f.select :transaction_reason,
+                 PortfolioTransaction.reasons.keys.map { |key| [PortfolioTransaction.human_attribute_name("reason.#{key}"), key] },
+                 label: "Reason",
+                 hint: "Where this money came from, or what it was for",
+                 include_blank: "Select a reason" %>
+
+    <%= f.text_area :transaction_description,
+                    label: "Description (optional)",
+                    hint: "Additional details about this transaction",
+                    placeholder: "Enter transaction details...",
+                    rows: 3 %>
+  <% end %>
+
+  <%# Not `tw-form-actions`: that class hides an update form's row until a field changes and then sticks
+      it to the bottom of the viewport. This form *creates* something, so there is nothing to compare
+      against and nothing to reveal - and two sticky rows on one page would fight. %>
+  <div class="flex flex-wrap items-center gap-3">
+    <%= f.submit_button "Add transaction", variant: :secondary %>
+  </div>
+<% end %>

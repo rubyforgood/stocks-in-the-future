@@ -1,0 +1,58 @@
+<%# PREVIEW - where a student's cash came from, and what it cost. One partial for both halves of the
+    product.
+
+    It was a card on the student's own portfolio page and a hand-written table on the admin record page,
+    and the two disagreed on the **numbers**: the admin copy rendered Attendance, Math and Rewards and
+    then printed `total_earnings_cents`, which also includes reading. On the seeded student that is
+    $650.00 of rows under a $1,150.00 total, with the missing $500.00 named nowhere. A figure and its own
+    breakdown cannot be maintained in two files - the same reasoning as one button base, applied to money.
+
+    Locals:
+      summary  - an EarningsSummary
+      title    - optional card heading, omitted where a section heading already names it
+      subtitle - optional line under that heading
+      class    - extra classes on the card
+
+    dl/dt/dd rather than divs: it is a list of terms and their values. Figures are tabular-nums so they
+    read down the column. %>
+<% paid = summary.total_earnings_cents.positive? || summary.transaction_fees_cents.positive? %>
+
+<%= render layout: "components/ui/card",
+           locals: { title: local_assigns[:title], subtitle: local_assigns[:subtitle],
+                     padded: !paid, class: local_assigns[:class] } do %>
+  <% if paid %>
+    <dl class="divide-y divide-slate-100 text-sm">
+      <% [["Attendance", summary.attendance_earnings_cents],
+          ["Reading", summary.reading_earnings_cents],
+          ["Math", summary.math_earnings_cents],
+          ["Rewards", summary.awards_cents]].each do |label, cents| %>
+        <div class="flex items-center justify-between gap-4 px-5 py-3">
+          <dt class="text-slate-700"><%= label %></dt>
+          <dd class="tabular-nums text-slate-900"><%= number_to_currency(cents / 100.0) %></dd>
+        </div>
+      <% end %>
+
+      <div class="flex items-center justify-between gap-4 bg-slate-50 px-5 py-3">
+        <dt class="font-semibold text-slate-900">Total earned</dt>
+        <dd class="font-semibold tabular-nums text-slate-900">
+          <%= number_to_currency(summary.total_earnings_cents / 100.0) %>
+        </dd>
+      </div>
+
+      <%# A deduction, so it carries an explicit minus as well as the colour - the same convention the
+          holdings table uses for a negative, and it keeps the meaning off colour alone. %>
+      <div class="flex items-center justify-between gap-4 px-5 py-3">
+        <dt class="text-slate-700">Transaction fees</dt>
+        <dd class="tabular-nums text-red-700">
+          -<%= number_to_currency(summary.transaction_fees_cents / 100.0) %>
+        </dd>
+      </div>
+    </dl>
+  <% else %>
+    <%# Six rows of $0.00 with a red "-$0.00" among them state nothing, and the minus on a zero is a wart
+        the fees row cannot avoid. A student who has not been paid yet needs to know what pays them. %>
+    <p class="text-sm text-slate-600">
+      Nothing earned yet. Earnings arrive when a grade book is finalized.
+    </p>
+  <% end %>
+<% end %>

@@ -71,11 +71,24 @@ module AdminHelper
     "#{state} · #{pluralize(teacher.classrooms.size, 'classroom')}"
   end
 
-  # A student's classroom and what is in their portfolio, as the summary line. Nil-safe for the same reason as
+  # A student's account and what is in their portfolio, as the summary line. Nil-safe for the same reason as
   # the transaction helpers above: a failed save re-renders this page.
+  #
+  # **The username leads**, because the h1 is the student's name and the students list links by username -
+  # without it here, clicking "jsmith2" would land on a page headed "Jordan Smith" with the identifier you
+  # searched for nowhere above the fold except in a form field.
+  #
+  # The two money figures were `text-2xl` tiles in a four-across band, beside a third tile holding the
+  # portfolio's **id**. This is the treatment the stock page already moved to: a read-only fact that is not
+  # worth a section goes on the summary line. Shares held is not here - it is a holdings figure, and
+  # "View portfolio" is one click away.
   def student_summary(student)
-    parts = [student.classroom&.name]
-    parts << "#{number_to_currency(student.portfolio.cash_balance)} cash" if student.portfolio.present?
+    parts = [student.username.presence, student.classroom&.name]
+
+    if student.portfolio.present?
+      parts << "#{number_to_currency(student.portfolio.cash_balance)} cash"
+      parts << "#{number_to_currency(student.portfolio.total_portfolio_worth)} total value"
+    end
 
     parts.compact.join(" · ").presence || "No classroom"
   end

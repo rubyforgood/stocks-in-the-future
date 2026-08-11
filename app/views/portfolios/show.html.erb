@@ -86,7 +86,11 @@
       <%= render "portfolios/portfolio_chart" %>
     </div>
     <div class="lg:col-span-1">
-      <%= render "portfolios/earnings_summary_card" %>
+      <%= render "shared/earnings_breakdown",
+                 summary: @earnings_summary,
+                 title: "Earnings breakdown",
+                 subtitle: "How you earned your cash to invest",
+                 class: "h-full" %>
     </div>
   </div>
 

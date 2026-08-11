@@ -1,103 +1,64 @@
-<%= form_with model: @student, url: @student.persisted? ? admin_student_path(@student) : admin_students_path, builder: Ui::FormBuilder, class: "space-y-6" do |f| %>
+<%# PREVIEW - a student's account: the fields, and nothing that is not one.
+
+    **No heading of its own.** The card was headed "Student details" under a page header that had just
+    named the student. The record page's section heading says "Details" once, above this - the same
+    treatment every other form on this shape gets.
+
+    **The transaction form has moved out**, into `_transaction_form`, because it is a second write with a
+    second button and a section heading of its own. Keeping the two in one partial is what produced two
+    titled cards, two submits and an "Add portfolio transaction" heading indistinguishable in weight from
+    the page's own. %>
+<%= form_with model: @student,
+              url: @student.persisted? ? admin_student_path(@student) : admin_students_path,
+              builder: Ui::FormBuilder, class: "space-y-6" do |f| %>
   <%= render "shared/form_errors", record: @student, subject: "student" %>
 
-  <div class="tw-card">
-    <div class="p-5">
-      <h3 class="text-lg font-medium text-slate-900 mb-6">Student details</h3>
+  <%= render layout: "components/ui/card", locals: {} do %>
+    <%# Both halves of the product get the field. Admin keeps showing the username as well, because
+        an administrator manages the account and the username is what the student signs in with. %>
+    <%= f.text_field :name,
+                     label: "Full name",
+                     required: true,
+                     hint: "Shown instead of the username wherever this student appears" %>
 
-      <%# Both halves of the product get the field. Admin keeps showing the username as well, because
-          an administrator manages the account and the username is what the student signs in with. %>
-      <%= f.text_field :name,
-                       label: "Full name",
-                       required: true,
-                       hint: "Shown instead of the username wherever this student appears" %>
+    <%= f.text_field :username,
+                     label: "Username",
+                     hint: "Unique username for the student",
+                     placeholder: "johndoe" %>
 
-      <%= f.text_field :username,
-                       label: "Username",
-                       hint: "Unique username for the student",
-                       placeholder: "johndoe" %>
+    <%= f.select :classroom_id,
+                 options_from_collection_for_select(
+                   Classroom.order(:name),
+                   :id,
+                   :name,
+                   @student.classroom_id
+                 ),
+                 label: "Classroom",
+                 hint: "Classroom assignment (required)",
+                 include_blank: "Select a classroom" %>
 
-      <%= f.select :classroom_id,
-                   options_from_collection_for_select(
-                     Classroom.order(:name),
-                     :id,
-                     :name,
-                     @student.classroom_id
-                   ),
-                   label: "Classroom",
-                   hint: "Classroom assignment (required)",
-                   include_blank: "Select a classroom" %>
+    <% if @student.new_record? %>
+      <div class="mt-6 pt-6 border-t border-slate-200">
+        <h3 class="text-base font-medium text-slate-900 mb-4">Password</h3>
+        <p class="text-sm text-slate-600 mb-4">Leave blank to generate a random password automatically</p>
 
-      <% if @student.new_record? %>
-        <div class="mt-6 pt-6 border-t border-slate-200">
-          <h4 class="text-md font-medium text-slate-900 mb-4">Password</h4>
-          <p class="text-sm text-slate-500 mb-4">Leave blank to generate a random password automatically</p>
+        <%= f.password_field :password,
+                             label: "Password (optional)",
+                             hint: "Minimum 6 characters, or leave blank to auto-generate",
+                             placeholder: "••••••••" %>
 
-          <%= f.password_field :password,
-                               label: "Password (optional)",
-                               hint: "Minimum 6 characters, or leave blank to auto-generate",
-                               placeholder: "••••••••" %>
+        <%= f.password_field :password_confirmation,
+                             label: "Password confirmation",
+                             hint: "Re-enter password to confirm",
+                             placeholder: "••••••••" %>
+      </div>
+    <% end %>
+  <% end %>
 
-          <%= f.password_field :password_confirmation,
-                               label: "Password confirmation",
-                               hint: "Re-enter password to confirm",
-                               placeholder: "••••••••" %>
-        </div>
-      <% end %>
-    </div>
-  </div>
-
+  <%# Primary first, then cancel - design.md sets that order for a leading-edge row, and
+      `form_actions_test` asserts it on the teacher-facing twin of this form. %>
   <div class="tw-form-actions">
     <%= f.submit_button @student.persisted? ? "Update student" : "Create student" %>
     <%= f.cancel_button "Cancel", url: @student.persisted? ? admin_student_path(@student) : admin_students_path %>
   </div>
-<% end %>
-
-<% if @student.persisted? %>
-  <%= form_with url: add_transaction_admin_student_path(@student), method: :post, builder: Ui::FormBuilder, class: "space-y-6 mt-6" do |f| %>
-    <div class="tw-card">
-      <div class="p-5">
-        <h3 class="text-lg font-medium text-slate-900 mb-6">Add portfolio transaction</h3>
-
-        <%# Current Cash Balance (Read-only) %>
-        <div class="mb-6">
-          <label class="block text-sm font-medium text-slate-700 mb-1">Current cash balance</label>
-          <div class="text-lg font-semibold text-slate-900">
-            <%= number_to_currency(@student.portfolio&.cash_balance || 0) %>
-          </div>
-        </div>
-
-        <%= f.select :transaction_type,
-                     [["", ""], ["Deposit", "deposit"], ["Debit", "debit"]],
-                     label: "Transaction type",
-                     hint: "Select deposit to add funds or debit to remove funds",
-                     include_blank: false %>
-
-        <%= f.number_field :add_fund_amount,
-                           label: "Amount",
-                           hint: "Transaction amount in dollars",
-                           placeholder: "0.00",
-                           step: "0.01" %>
-
-        <%= f.select :transaction_reason,
-                     PortfolioTransaction.reasons.keys.map { |key| [PortfolioTransaction.human_attribute_name("reason.#{key}"), key] },
-                     label: "Reason",
-                     hint: "Reason for this transaction",
-                     include_blank: "Select a reason" %>
-
-        <%= f.text_area :transaction_description,
-                        label: "Description (optional)",
-                        hint: "Additional details about this transaction",
-                        placeholder: "Enter transaction details...",
-                        rows: 3 %>
-      </div>
-    </div>
-
-    <%# Not `tw-form-actions`: that class sticks a row to the bottom of the viewport, and this is a
-        *section's* action inside a card rather than the form's footer. Sticking it would pin a sub-form's
-        button over the page. %>
-    <div class="flex flex-wrap items-center gap-3">
-      <%= f.submit_button "Add transaction", variant: :secondary %>
-    </div>
-  <% end %>
 <% end %>

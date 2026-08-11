@@ -65,9 +65,12 @@
   <% end %>
 
   <div class="flex items-center justify-between gap-x-4">
+    <%# PREVIEW: primary first, then cancel. design.md sets that order for a leading-edge row - it is
+        GOV.UK's and Material's - and this was the one form in the product with them the other way round,
+        because `form_actions_test` asserts the order on the teacher-facing forms and not on this one. %>
     <div class="tw-form-actions">
-      <%= f.cancel_button "Cancel", url: @teacher.persisted? ? admin_teacher_path(@teacher) : admin_teachers_path %>
       <%= f.submit_button @teacher.persisted? ? "Update teacher" : "Create teacher" %>
+      <%= f.cancel_button "Cancel", url: @teacher.persisted? ? admin_teacher_path(@teacher) : admin_teachers_path %>
     </div>
     <% if @teacher.discarded? %>
       <%= link_to "Permanently delete",
