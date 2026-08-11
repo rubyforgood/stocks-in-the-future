@@ -21,10 +21,9 @@ module Admin
         school_year = @school.school_years.new(year_id: params[:year_id])
 
         if school_year.save
-          redirect_to admin_school_path(@school),
-                      notice: t(".notice", year: school_year.year_name, count: school_year.quarters.count)
+          back(notice: t(".notice", year: school_year.year_name, count: school_year.quarters.count))
         else
-          redirect_to admin_school_path(@school), alert: school_year.errors.full_messages.to_sentence
+          back(alert: school_year.errors.full_messages.to_sentence)
         end
       end
 
@@ -39,17 +38,25 @@ module Admin
         quarters = school_year.quarters.count
         school_year.destroy!
 
-        redirect_to admin_school_path(@school), notice: t(".notice", year: year, count: quarters)
+        back(notice: t(".notice", year: year, count: quarters))
       end
 
       private
 
       def refuse(school_year)
-        redirect_to admin_school_path(@school),
-                    alert: t(
-                      "admin.schools.school_years.destroy.has_classrooms",
-                      year: school_year.year_name, count: school_year.classrooms.count
-                    )
+        back(
+          alert: t(
+            "admin.schools.school_years.destroy.has_classrooms",
+            year: school_year.year_name, count: school_year.classrooms.count
+          )
+        )
+      end
+
+      # Back where the action was taken. These controls are on the school's edit page and the school's own
+      # page renders the same list, so hardcoding either destination sends somebody away from the page they
+      # were working on - the rule this document already states for row actions.
+      def back(flash_message)
+        redirect_back_or_to(edit_admin_school_path(@school), **flash_message)
       end
 
       def set_school

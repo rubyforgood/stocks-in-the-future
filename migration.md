@@ -4069,3 +4069,34 @@ the hand-built message was a second copy of one rule, so both are gone.
 - Two of my own probes read a flash before the page had re-rendered, and reported a removal as not having
   happened when the row count proved it had. The count is the honest signal; a `#notice` read straight after
   a click is not.
+
+## The years go back on the edit page
+
+Reported: on the edit page "all the data on the years is completely disappeared. The only thing in the card
+is school name."
+
+Both halves of that are fair, and the second is the reason. Moving year management to the show page left an
+edit page whose only editable thing was a text field - navigate, change one word, save, navigate back, with
+the thing you came to change on another page. **A separate edit page is a Rails scaffold convention rather
+than a design pattern**, and it earns its place for a long form, not for one field.
+
+**And the explanation I left behind was an ERB comment**, which renders to nothing. So the card held one
+field and twenty lines of reasoning only a developer reading the source would ever see. I also never loaded
+the page after emptying it - I measured and screenshotted the *show* page repeatedly instead, which is the
+rule about reading the page you are changing, broken on the page I was asked to fix.
+
+`admin/schools/_school_years` is one partial with a `manage:` local: the edit page renders it with the add
+and remove controls, the show page renders the same list read-only and points at the edit page for changes.
+The controls sit *below* the form rather than inside it, because `button_to` renders a whole `<form>` and a
+browser drops a nested one - the remove would silently submit the school form.
+
+The add and remove actions use `redirect_back_or_to(edit_admin_school_path)`, so they return to whichever
+page they were used from rather than to a hardcoded one.
+
+### What this breaks
+
+- Three schools-controller tests now visit `edit` rather than `show`, and the school-years tests expect the
+  edit page as the fallback destination. A new test covers the `Referer` branch.
+- **Still open, and asked for next:** whether this should be a *single* detail page holding both, which is
+  what the field actually ships - Stripe's customer page, Linear's project page, Polaris's resource detail
+  pages, none of which have a separate edit screen for a record with one attribute.

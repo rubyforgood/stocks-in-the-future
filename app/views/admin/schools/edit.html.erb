@@ -1,8 +1,28 @@
-<div class="max-w-7xl mx-auto">
+<%# The name form, and the school's years beneath it.
+
+    **The years belong on this page.** They were moved to the show page for a turn, and that left an edit
+    page whose only editable thing was a text field - navigate, change one word, save, navigate back, with
+    the thing you came to change somewhere else. Reported exactly that way, and it is the right objection: a
+    separate edit page is a Rails scaffold convention rather than a design pattern, and it earns its place
+    for a long form, not for one field.
+
+    The years cannot go *inside* the form: the remove is a `button_to` and the add is a form of its own, and
+    a browser drops a nested `<form>` - the button would silently submit the outer one. So they sit below it
+    as a sibling section, which is what this document says to do instead of nesting.
+
+    `space-y-6` is the section rhythm, and the form's own actions row is sticky, so the years scroll under
+    it rather than the submit disappearing below them - which is what put it at y=1094 of a 625px viewport
+    when fourteen checkboxes lived in the card. %>
+<div class="mx-auto max-w-3xl">
   <%= admin_breadcrumbs(@breadcrumbs) %>
 
   <%= render layout: "components/ui/page_header",
              locals: { title: "Edit school", description: @school.name } do %><% end %>
 
-  <%= render "form" %>
+  <div class="space-y-6">
+    <%= render "form" %>
+
+    <%= render "school_years", school: @school, school_years: @school_years,
+                               addable: @addable_years, manage: true %>
+  </div>
 </div>

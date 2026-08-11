@@ -60,6 +60,8 @@ module Admin
       create(:year, name: "#{start} - #{start + 1}")
     end
 
+    # On the **edit** page: the show page renders the same list read-only. Managing a record's collection on
+    # its show page while the edit page held only a name field was reported as friction, correctly.
     test "the add control offers every year the school does not have, newest first" do
       distant = a_year(-6)
       current = a_year(0)
@@ -67,7 +69,7 @@ module Admin
       school = create(:school)
       SchoolYear.create!(school:, year: following)
 
-      get admin_school_path(school)
+      get edit_admin_school_path(school)
 
       options = css_select("select[name='year_id'] option").map(&:text)
 
@@ -81,7 +83,7 @@ module Admin
       school = create(:school)
       SchoolYear.create!(school:, year:)
 
-      get admin_school_path(school)
+      get edit_admin_school_path(school)
 
       assert_select "select[name='year_id'] option", text: /#{year.name}/, count: 0
     end
@@ -93,7 +95,8 @@ module Admin
     # The edit form no longer touches years at all, which is what removed the two defects: unchecking a box
     # silently destroyed four quarters, and doing it to a year with a classroom raised a foreign-key
     # violation.
-    test "the edit form does not touch years" do
+    # The *form* does not post years; the page manages them through their own actions beside it.
+    test "the edit form does not post year_ids" do
       school = create(:school)
       SchoolYear.create!(school:, year: a_year(0))
 

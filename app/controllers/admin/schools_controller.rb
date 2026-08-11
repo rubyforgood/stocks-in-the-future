@@ -16,10 +16,7 @@ module Admin
     end
 
     def show
-      # Loaded here rather than queried from the view, and eager-loaded because each row states its quarter
-      # and classroom counts - without it that is two queries per year.
-      @school_years = @school.school_years.includes(:year, :classrooms, :quarters).to_a
-      @addable_years = Year.addable_to(@school).to_a
+      set_form_data
 
       @breadcrumbs = [
         { label: "Schools", path: admin_schools_path },
@@ -89,9 +86,15 @@ module Admin
       @school = School.find(params.expect(:id))
     end
 
-    # The form edits the school's name. Its years are provisioned one at a time on the show page, because
-    # each one writes four quarters - see `Admin::Schools::SchoolYearsController`.
-    def set_form_data; end
+    # The school's years, for both `show` (read-only) and `edit` (with the add and remove controls). Loaded
+    # here rather than queried from a view, and eager-loaded because each row states its quarter count -
+    # without it that is a query per year.
+    def set_form_data
+      return if @school.nil?
+
+      @school_years = @school.school_years.includes(:year, :classrooms, :quarters).to_a
+      @addable_years = Year.addable_to(@school).to_a
+    end
 
     # **No `year_ids`.** It was the mechanism behind two defects: unchecking a box silently destroyed a
     # school year and its four quarters, and doing so to a year with a classroom raised

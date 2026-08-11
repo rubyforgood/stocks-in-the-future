@@ -18,6 +18,8 @@ class SchoolYearProvisioningTest < ActionDispatch::IntegrationTest
     sign_in create(:admin, admin: true, classroom: nil)
   end
 
+  # The fallback destination is the edit page, because that is where the controls are. With a `Referer` it
+  # returns to whichever page the action came from - the school's own page renders the same list read-only.
   test "adding a year provisions its quarters and says so" do
     assert_difference("SchoolYear.count", 1) do
       assert_difference("Quarter.count", 4) do
@@ -25,7 +27,7 @@ class SchoolYearProvisioningTest < ActionDispatch::IntegrationTest
       end
     end
 
-    assert_redirected_to admin_school_path(@school)
+    assert_redirected_to edit_admin_school_path(@school)
     assert_equal "2100 - 2101 added, with 4 quarters.", flash[:notice]
   end
 
@@ -46,7 +48,7 @@ class SchoolYearProvisioningTest < ActionDispatch::IntegrationTest
       delete admin_school_school_year_path(@school, school_year)
     end
 
-    assert_redirected_to admin_school_path(@school)
+    assert_redirected_to edit_admin_school_path(@school)
     assert_equal "2100 - 2101 removed, along with its 4 quarters.", flash[:notice]
     assert_not SchoolYear.exists?(school_year.id)
   end
@@ -61,7 +63,7 @@ class SchoolYearProvisioningTest < ActionDispatch::IntegrationTest
       delete admin_school_school_year_path(@school, school_year)
     end
 
-    assert_redirected_to admin_school_path(@school)
+    assert_redirected_to edit_admin_school_path(@school)
     assert_equal "2100 - 2101 still has 1 classroom, so it cannot be removed.", flash[:alert]
   end
 
@@ -75,6 +77,15 @@ class SchoolYearProvisioningTest < ActionDispatch::IntegrationTest
     # matters rather than which exception the environment turns that into.
     assert_response :not_found
     assert SchoolYear.exists?(school_year.id), "another school's year was removed through this one"
+  end
+
+  test "it returns to the page the action came from" do
+    school_year = SchoolYear.create!(school: @school, year: @year)
+
+    delete admin_school_school_year_path(@school, school_year),
+           headers: { "HTTP_REFERER" => admin_school_url(@school) }
+
+    assert_redirected_to admin_school_url(@school)
   end
 
   test "a teacher cannot add or remove" do
