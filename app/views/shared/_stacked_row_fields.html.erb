@@ -33,5 +33,9 @@
     where they are at lg too. `flex-wrap` because three labelled ghosts are ~250px and the cell is ~300px
     minus its padding, so the third can need a second line. %>
 <% if local_assigns[:actions].present? %>
-  <div class="mt-3 flex flex-wrap items-center gap-1 lg:hidden"><%= actions %></div>
+  <%# The testid is how a test tells a row *action* from any other link in the row. Since the record's
+      name became a link in its own right, `tbody tr a` no longer means "a row action" - and the test
+      that measures their height and icons was reading the 17px name link as one. %>
+  <div class="mt-3 flex flex-wrap items-center gap-1 lg:hidden"
+       data-testid="stacked-row-actions"><%= actions %></div>
 <% end %>

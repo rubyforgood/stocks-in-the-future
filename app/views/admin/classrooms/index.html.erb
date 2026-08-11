@@ -60,7 +60,6 @@
                              tone: classroom.trading_enabled? ? :success : :neutral %>
                 <% end %>
                 <% row_actions = capture do %>
-                  <%= ghost_action_link "View", admin_classroom_path(classroom), icon: "eye" %>
                     <%= ghost_action_link "Edit", edit_admin_classroom_path(classroom), icon: "pencil" %>
                     <% if classroom.archived? %>
                       <%= ghost_action_link "Activate", toggle_archive_admin_classroom_path(classroom),

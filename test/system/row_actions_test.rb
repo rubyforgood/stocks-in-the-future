@@ -33,9 +33,15 @@ class RowActionsTest < ApplicationSystemTestCase
   # cell, once inside the primary cell, which is the collapse that stops the table scrolling sideways at
   # 375px - and the trailing cell is `display: none` at that width. Measuring both reported a row action
   # 0px tall, which is not a spacing regression but a measurement of a hidden element.
+  #
+  # And scoped to the two containers that hold actions, rather than every link in the row. `tbody tr a`
+  # stopped meaning "a row action" when the record's name became a link: this then measured that 17px
+  # link as a 32px ghost with a missing icon, and reported it as two spacing failures.
   def row_action_boxes
     page.evaluate_script(<<~JS)
-      Array.from(document.querySelectorAll("tbody tr a, tbody tr button"))
+      Array.from(document.querySelectorAll(
+             "td.table-actions-cell a, td.table-actions-cell button, " +
+             "[data-testid='stacked-row-actions'] a, [data-testid='stacked-row-actions'] button"))
            .filter(function (el) { return el.getClientRects().length > 0; })
            .map(function (el) {
              const box = el.getBoundingClientRect();
@@ -58,7 +64,9 @@ class RowActionsTest < ApplicationSystemTestCase
     actions = row_action_boxes
     slate = slate_ink
 
-    assert_operator actions.size, :>=, 3, "expected View / Edit / Delete on the school years row"
+    # Two, not three: `View` is gone from every admin index, because the name in the primary cell is a
+    # link to the same page and the row was carrying two controls to one destination.
+    assert_operator actions.size, :>=, 2, "expected Edit / Delete on the school years row"
 
     actions.each do |action|
       assert_equal 1, action["icons"],

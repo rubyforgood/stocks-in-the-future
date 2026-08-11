@@ -61,7 +61,6 @@
                              tone: teacher.discarded? ? :danger : :success %>
                 <% end %>
                 <% row_actions = capture do %>
-                  <%= ghost_action_link "View", admin_teacher_path(teacher), icon: "eye" %>
                     <%= ghost_action_link "Edit", edit_admin_teacher_path(teacher), icon: "pencil" %>
                     <% if teacher.discarded? %>
                       <%= ghost_action_link "Reactivate", admin_teacher_reactivation_path(teacher),
@@ -80,7 +79,7 @@
                   <%= id_cell %>
                 </td>
                 <td class="table-body-cell">
-                  <%= teacher.username %>
+                  <%= link_to teacher.username, admin_teacher_path(teacher), class: "tw-link" %>
 
                   <%= render "shared/stacked_row_fields",
                              fields: [["ID", id_cell], ["Email", email_cell], ["Name", name_cell], ["Created at", created_at_cell], ["Status", status_cell]],

@@ -3708,3 +3708,36 @@ codebase treats as no better than the local string it came from.
 - **44px does not fit a table row here.** The shared alignment rule puts a control's centre on the row's
   first text line, 22px from the cell top; 32px needs 6px of padding above it and 40px needs 2px, and
   44px cannot reach it without a negative margin, which drags the hover fill past the content edge.
+
+## `View` is gone from every admin index
+
+The record's name became a link in the primary cell two changes ago, so every row was carrying **two
+controls to one destination** - the defect this document already records for a dashboard that had two
+adjacent ghosts sharing an href. Approved on the condition that the name is genuinely clickable, which is
+why three tables were linked first: `teachers`, `school_years` and `portfolio_transactions` still had
+plain-text primary cells and would otherwise have lost their only route to the record. Every admin index
+links its name now, and none of them offers `View`.
+
+Measured, before → after, at 1024px:
+
+| table | actions cell | overflow |
+|---|---|---|
+| classrooms | 260 → 185px | 215 → 136px |
+| users | 260 → 185px | 340 → 249px |
+| teachers | 280 → 206px | 306 → 244px |
+| school_years | — → 228px | 0 |
+| students | 260 → 208px | 11 → 0px |
+
+About 75px per table, and the two tables that fitted already still fit. It does not close the 1024-1200
+overflow on `users` and `teachers` - their username and email columns are ~190px each - and that is
+accepted: nothing is obscured now that the actions cell is not pinned, and a data table is WCAG 1.4.10's
+documented reflow exception.
+
+### What this breaks
+
+- **`tbody tr a` no longer means "a row action."** `row_actions_test` measured every link in the row, so
+  it read the 17px name link as a 32px ghost with a missing icon and reported two spacing failures. It is
+  scoped to the actions cell and to `[data-testid='stacked-row-actions']` now - a testid added for this,
+  because the collapsed row had no hook of its own. The lesson generalises: a test that selects by tag
+  inside a row is asserting about whatever else lands there later.
+- Any test or bookmark that clicked `View` in a row: the name is the link now.

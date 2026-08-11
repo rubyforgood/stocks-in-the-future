@@ -50,7 +50,6 @@
                   <%= number_to_currency(transaction.amount_cents / 100.0) %>
                 <% end %>
                 <% row_actions = capture do %>
-                  <%= ghost_action_link "View", admin_portfolio_transaction_path(transaction), icon: "eye" %>
                     <%= ghost_action_link "Edit", edit_admin_portfolio_transaction_path(transaction), icon: "pencil" %>
                     <%= ghost_action_link "Delete", admin_portfolio_transaction_path(transaction),
                                           icon: "trash-2", variant: :danger,
@@ -62,7 +61,7 @@
                   <%= date_cell %>
                 </td>
                 <td class="table-body-cell">
-                  <%= transaction.portfolio.username %>
+                  <%= link_to transaction.portfolio.username, admin_portfolio_transaction_path(transaction), class: "tw-link" %>
 
                   <%= render "shared/stacked_row_fields",
                              fields: [["Date", date_cell], ["Type", type_cell], ["Reason", reason_cell], ["Amount", amount_cell]],

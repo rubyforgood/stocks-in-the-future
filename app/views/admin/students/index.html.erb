@@ -62,7 +62,6 @@
                   <%= student.created_at.strftime("%B %d, %Y") %>
                 <% end %>
                 <% row_actions = capture do %>
-                  <%= ghost_action_link "View", admin_student_path(student), icon: "eye" %>
                     <% unless student.discarded? %>
                       <%= ghost_action_link "Edit", edit_admin_student_path(student), icon: "pencil" %>
                     <% end %>

@@ -44,7 +44,6 @@
                   <%= school_year.created_at.strftime("%B %d, %Y") %>
                 <% end %>
                 <% row_actions = capture do %>
-                  <%= ghost_action_link "View", admin_school_year_path(school_year), icon: "eye" %>
                     <%= ghost_action_link "Edit", edit_admin_school_year_path(school_year), icon: "pencil" %>
                     <%= ghost_action_link "Delete", admin_school_year_path(school_year),
                                           icon: "trash-2", variant: :danger,
@@ -56,7 +55,7 @@
                   <%= id_cell %>
                 </td>
                 <td class="table-body-cell">
-                  <%= school_year.school_name %>
+                  <%= link_to school_year.school_name, admin_school_year_path(school_year), class: "tw-link" %>
 
                   <%= render "shared/stacked_row_fields",
                              fields: [["ID", id_cell], ["Year", year_cell], ["Created at", created_at_cell]],
