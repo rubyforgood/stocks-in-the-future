@@ -24,6 +24,7 @@
     <%= f.select :transaction_type,
                  CashAdjustment::DIRECTIONS.map { |direction| [direction.humanize, direction] },
                  label: "Transaction type",
+                 width: :long,
                  required: true,
                  hint: "Deposit adds to the cash balance, debit takes from it",
                  include_blank: "Select a transaction type" %>
@@ -33,6 +34,7 @@
         "$12.50". The keypad on a phone is the same either way. %>
     <%= f.text_field :amount,
                      label: "Amount",
+                     width: :medium,
                      required: true,
                      hint: "In dollars, like 12.50",
                      placeholder: "0.00",
@@ -42,6 +44,7 @@
     <%= f.select :reason,
                  CashAdjustment::REASONS.map { |key| [PortfolioTransaction.human_attribute_name("reason.#{key}"), key] },
                  label: "Reason",
+                 width: :long,
                  required: true,
                  hint: "Where this money came from, or what it was for",
                  include_blank: "Select a reason" %>

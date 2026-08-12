@@ -20,6 +20,7 @@
       <%= f.select :transaction_type,
                    PortfolioTransaction.transaction_types.keys.map { |type| [type.humanize, type] },
                    label: "Transaction type",
+                   width: :long,
                    required: true,
                    hint: "Type of transaction (deposit, withdrawal, credit, debit, fee)",
                    include_blank: "Select transaction type..." %>
@@ -27,11 +28,13 @@
       <%= f.select :reason,
                    PortfolioTransaction.reasons.keys.map { |r| [r.humanize, r] },
                    label: "Reason",
+                   width: :long,
                    hint: "Reason for this transaction (optional)",
                    include_blank: "Select reason..." %>
 
       <%= f.currency_field :amount_cents,
                            label: "Amount",
+                           width: :medium,
                            required: true,
                            hint: "Transaction amount in dollars",
                            multiplier: 0.01,

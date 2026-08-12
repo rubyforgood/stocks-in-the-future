@@ -29,6 +29,23 @@ module Ui
 
     LABEL_TEXT_CLASSES = "min-w-0 text-sm font-medium text-slate-900"
 
+    # **A field is as wide as the content it holds.** `tw-input-primary` is `w-full`, which in a 768px column
+    # renders a 726px box for a two-letter ticker or a four-digit year. Reported as "some of these look very
+    # wide", and the field agrees: GOV.UK ships width modifiers and states the rule outright ("do not make a
+    # text input wider than the content you expect"), Tailwind UI's form sections span 2 to 6 of 12 columns
+    # per field rather than all 12, and Polaris groups short fields side by side instead of stacking
+    # full-width ones. Full width is the outlier, not the default.
+    #
+    # Four sizes, not a number per field. design.md already records why: three grade-book controls at two
+    # widths read as a misalignment rather than as sizing, so the set is fixed and small, and anything whose
+    # content is genuinely long - an email, a URL, a description, a select of classroom names - stays full.
+    FIELD_WIDTHS = {
+      short: "max-w-32",   # 128px: a ticker, a count, a two to four character code
+      medium: "max-w-48",  # 192px: money, a percentage, a ratio
+      long: "max-w-sm",    # 384px: a person's or a thing's name, a username, a password
+      full: nil            # an email, a URL, free text, a select whose options are long
+    }.freeze
+
     INPUT_ERROR_CLASSES = "tw-input-error"
     LABEL_CLASSES = "tw-label-primary"
     HINT_CLASSES = "tw-field-hint"
@@ -89,8 +106,7 @@ module Ui
     def text_area(attribute, options = {})
       field_wrapper(attribute, options) do
         options[:rows] ||= 4
-        options[:class] = "#{input_class(attribute)} #{options[:class] || ''}"
-        super(attribute, options)
+        super(attribute, input_options(attribute, options))
       end
     end
 
@@ -384,6 +400,7 @@ module Ui
       wrapper_class = options.delete(:wrapper_class)
 
       # Separate standard select options from html options
+      width = FIELD_WIDTHS.fetch(options.delete(:width) || :full)
       select_options = extract_select_options(options)
       remaining_html_options = html_options.merge(options)
 
@@ -392,7 +409,7 @@ module Ui
       @template.content_tag(:div, class: "mb-6 #{wrapper_class}") do
         build_label(attribute, label_text, required: remaining_html_options[:required]) +
           build_hint(hint) +
-          build_select_field(attribute, choices, select_options, remaining_html_options, &)
+          build_select_field(attribute, choices, select_options, remaining_html_options, width, &)
       end
     end
 
@@ -429,10 +446,12 @@ module Ui
     end
 
     # Build select field element
-    def build_select_field(attribute, choices, select_options, html_options, &)
+    def build_select_field(attribute, choices, select_options, html_options, width = nil, &)
+      classes = [input_class(attribute), width].compact.join(" ")
+
       @template.content_tag(:div, class: "mt-2") do
         ActionView::Helpers::FormBuilder.instance_method(:select).bind(self).call(
-          attribute, choices, select_options, html_options.merge(class: input_class(attribute)), &
+          attribute, choices, select_options, html_options.merge(class: classes), &
         )
       end
     end
@@ -477,9 +496,12 @@ module Ui
       end
     end
 
-    # Merges input options with default classes
+    # Merges input options with default classes, and applies `width:` if one was named.
     def input_options(attribute, options = {})
-      options[:class] = "#{input_class(attribute)} #{options[:class] || ''}"
+      width = FIELD_WIDTHS.fetch(options.delete(:width) || :full) do |name|
+        raise ArgumentError, "unknown field width #{name.inspect}, expected one of #{FIELD_WIDTHS.keys.inspect}"
+      end
+      options[:class] = [input_class(attribute), width, options[:class]].compact.join(" ").strip
       options
     end
 

@@ -4403,3 +4403,44 @@ Two decisions inside that sweep:
 - `test/integration/required_fields_test.rb` asserts the pairing per page. It fails if a required field loses
   its mark **or** if an optional field gains one, which is the half that keeps the asterisk meaning something.
 
+## One form measure, and fields sized to their content
+
+Reported twice in one turn: "the new transactions card width is different from the other editable pages" and
+"cards for new students and new teachers are different widths, what is industry std because some of these look
+very wide". Both were true, and they are two different problems.
+
+**Five measures existed.** Measured at 1366px on the input rather than the wrapper, because the wrapper is
+often the layout's `max-w-7xl` and says nothing:
+
+| Measure | Pages |
+| --- | --- |
+| 384px | the three auth pages - deliberate, and kept |
+| 630px | app-side classrooms#new/#edit, the teacher's students#new, profiles#edit |
+| 726px | the nine record pages, plus schools#new, students#new, transactions#new |
+| 854px | announcements#new |
+| 1020px | school_years#new, teachers#new, users#new, stocks#new - no column of their own at all |
+
+Every page that holds a form or a record is now **`max-w-3xl`, 768px**: the record pages already were, and a
+create page cannot be a different width from the record it creates. The six create pages that hand-rolled a
+column now render `admin/shared/_record_page` - the same shell the record page uses, with no lifecycle actions
+and one Details section - so the two cannot drift again. The auth pages keep 384px, which is a different page
+type and what Stripe, GitHub and Linear all do.
+
+**And a column cannot fix "looks very wide".** In a 768px column a `w-full` input is a 726px box for a
+two-letter ticker. `Ui::FormBuilder::FIELD_WIDTHS` adds four sizes - 128px, 192px, 384px, full - and 38 fields
+now name one. GOV.UK ships exactly these modifiers and states the rule; Tailwind UI spans 2 to 6 of 12 columns
+per field; Polaris pairs short fields rather than stacking full-width ones. Measured on the stock form after:
+ticker 128px, employees 128px, every price and ratio 192px, company name and industry 384px, website and the
+two textareas still 726px.
+
+### What this breaks
+
+- `admin/school_years/new`, `teachers/new`, `users/new`, `stocks/new`, `announcements/new`, `schools/new`,
+  `students/new` and `portfolio_transactions/new` all render through `admin/shared/_record_page` now. A test
+  asserting one of those pages' wrapper class rather than its rendered width would need updating; none did.
+- App-side `classrooms#new/#edit`, `students#new/#edit` and `profiles#edit` moved from 672px to 768px.
+- `width:` is a new builder option, and an unknown value **raises** rather than rendering full width, so a
+  typo fails loudly.
+- design.md's form-measure rule said `max-w-2xl` and its person-edit shape said the same; both now say 768px.
+  The table-cell field-width note is generalised: a field is sized to its content in a form column too.
+

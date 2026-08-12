@@ -12,6 +12,7 @@
   <%= render layout: "components/ui/card", locals: {} do %>
       <%= f.text_field :username,
                        label: "Username",
+                       width: :long,
                        required: true,
                        hint: "Unique username for the user",
                        placeholder: "johndoe" %>
@@ -22,6 +23,7 @@
                      @user.type
                    ),
                    label: "User type",
+                   width: :long,
                    hint: "Select the type of user (Student, Teacher, or generic User)",
                    include_blank: false %>
 
@@ -51,12 +53,14 @@
 
           <%= f.password_field :password,
                                label: "Password",
+                               width: :long,
                                required: true,
                                hint: "Minimum 6 characters",
                                placeholder: "••••••••" %>
 
           <%= f.password_field :password_confirmation,
                                label: "Password confirmation",
+                               width: :long,
                                required: true,
                                hint: "Re-enter password to confirm",
                                placeholder: "••••••••" %>

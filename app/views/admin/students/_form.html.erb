@@ -18,6 +18,7 @@
         an administrator manages the account and the username is what the student signs in with. %>
     <%= f.text_field :name,
                      label: "Full name",
+                     width: :long,
                      required: true,
                      hint: "Shown instead of the username wherever this student appears" %>
 
@@ -28,6 +29,7 @@
         that a requirement is stated once. %>
     <%= f.text_field :username,
                      label: "Username",
+                     width: :long,
                      required: true,
                      hint: "What the student signs in with, and it has to be unique",
                      placeholder: "johndoe" %>
@@ -51,11 +53,13 @@
 
         <%= f.password_field :password,
                              label: "Password (optional)",
+                             width: :long,
                              hint: "Minimum 6 characters, or leave blank to auto-generate",
                              placeholder: "••••••••" %>
 
         <%= f.password_field :password_confirmation,
                              label: "Password confirmation",
+                             width: :long,
                              hint: "Re-enter password to confirm",
                              placeholder: "••••••••" %>
       </div>

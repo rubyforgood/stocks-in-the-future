@@ -157,6 +157,85 @@ class PageWidthTest < ApplicationSystemTestCase
 
   # The cause behind one of the overflows, asserted directly because it is not really about width:
   # a component class must lose to a utility, or `hidden` silently stops working.
+  # **One measure for every page that holds a form**, and it is 768px - `max-w-3xl`, the same column the nine
+  # admin record pages use, because a create page must not be a different width from the record it creates.
+  #
+  # Reported as "cards for new students and new teachers are different widths". Measured at 1366px on the
+  # input rather than the wrapper, there were **five** measures across the app: 384px on the auth pages,
+  # 630px on the app-side forms, 726px on the record pages and three create pages, 854px on new announcement,
+  # and 1020px on four create pages that had no column of their own and inherited the layout's `max-w-7xl`.
+  test "every page that holds a form uses one column" do
+    school = create(:school)
+    year = create(:year)
+    school_year = create(:school_year, school:, year:)
+    classroom = create(:classroom, school_year:)
+    student = create(:student, :with_portfolio, classroom:)
+    student.reload
+    teacher = create(:teacher)
+    stock = create(:stock)
+    announcement = Announcement.create!(title: "Notice", content: "Body")
+    sign_in(create(:admin))
+
+    column = <<~JS
+      (function () {
+        const col = document.querySelector("main .max-w-3xl");
+        return col ? Math.round(col.getBoundingClientRect().width) : 0;
+      })()
+    JS
+
+    { "schools#new" => new_admin_school_path,
+      "schools#show" => admin_school_path(school),
+      "school_years#new" => new_admin_school_year_path,
+      "school_years#show" => admin_school_year_path(school_year),
+      "classrooms#new" => new_admin_classroom_path,
+      "classrooms#show" => admin_classroom_path(classroom),
+      "students#new" => new_admin_student_path,
+      "students#show" => admin_student_path(student),
+      "teachers#new" => new_admin_teacher_path,
+      "teachers#show" => admin_teacher_path(teacher),
+      "users#new" => new_admin_user_path,
+      "users#show" => admin_user_path(student),
+      "stocks#new" => new_admin_stock_path,
+      "stocks#show" => admin_stock_path(stock),
+      "announcements#new" => new_admin_announcement_path,
+      "announcements#show" => admin_announcement_path(announcement),
+      "transactions#new" => new_admin_portfolio_transaction_path }.each do |label, path|
+      visit path
+
+      assert_equal 768, page.evaluate_script(column),
+                   "#{label}: the form column is not the 768px every other one is"
+    end
+  end
+
+  # **And a field is as wide as its content, not as wide as the column.** Reported in the same breath - "some
+  # of these look very wide" - and it is the half a column cannot fix: a 726px box for a two-letter ticker.
+  # GOV.UK states the rule and ships width modifiers, Tailwind UI spans 2 to 6 of 12 columns per field, and
+  # Polaris groups short fields rather than stacking full-width ones.
+  test "a short field is not as wide as its column" do
+    create(:stock, ticker: "AAPL")
+    sign_in(create(:admin))
+
+    visit new_admin_stock_path
+
+    widths = page.evaluate_script(<<~JS)
+      (function () {
+        const out = {};
+        document.querySelectorAll("main form label.tw-label-primary").forEach(function (l) {
+          const c = document.getElementById(l.getAttribute("for"));
+          if (c) out[l.innerText.replace(/\s+/g, " ").trim()] = Math.round(c.getBoundingClientRect().width);
+        });
+        return out;
+      })()
+    JS
+
+    assert_equal 128, widths["Ticker symbol*"], "a ticker is four characters and its field is not short"
+    assert_equal 128, widths["Number of employees"]
+    assert_equal 192, widths["Current price"], "money is not a medium field"
+    assert_equal 384, widths["Company name"], "a name is not a long field"
+    # And what genuinely needs the width keeps it.
+    assert_equal 726, widths["Company website"], "a URL should still fill the column"
+  end
+
   test "a utility overrides a component class" do
     classroom = create(:classroom, :with_trading)
     student = create(:student, :with_portfolio, classroom:)

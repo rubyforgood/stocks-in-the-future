@@ -1,24 +1,10 @@
-<%# The shared page header, like every other admin page.
-
-    This page and #edit were the only two in the app that never adopted `components/ui/_page_header`. What
-    that cost, measured rather than asserted:
-
-    - **No h1.** The admin layout renders a visually hidden one from the last breadcrumb unless the page
-      declares :own_heading, which only the header partial does - so the page's accessible name was "New",
-      and the title on screen was an `h2`. A page title at `text-2xl font-bold` in an h2 is the shape the
-      header partial exists to stop.
-    - **A card inside a card.** `_form` renders its own `.tw-card`, so wrapping it here put two surfaces
-      around one form and stacked their padding: 48px before the first field at every width.
-    - **The gap above the card was 0px**, because the card was the first thing after the breadcrumb. The
-      page rhythm design.md states three times - a 24px header block, and nothing else in that gap - could
-      not apply to a page with no header.
-    - The heading also carried the card's own `mb-6` *and* a `mb-6` on the outer card, so the section title
-      inside sat 24px + 24px + 24px below the breadcrumb. %>
-<div class="mx-auto max-w-3xl">
-  <%= admin_breadcrumbs(@breadcrumbs) %>
-
-  <%= render layout: "components/ui/page_header",
-             locals: { title: "New portfolio transaction" } do %><% end %>
-
-  <%= render "form", portfolio_transaction: @portfolio_transaction %>
-</div>
+<%# Create, on the shared record-page shell - `admin/shared/_record_page`, the same partial the record page
+    uses, so a create page is that page with no lifecycle actions and one section. It hand-rolled the same
+    column, breadcrumbs and header, which is how six other create pages came to be four different widths. %>
+<%= render layout: "admin/shared/record_page",
+           locals: { title: "New transaction", breadcrumbs: @breadcrumbs } do %>
+  <%= render layout: "admin/shared/record_section",
+             locals: { title: "Details", hint: "Saved when you press Create portfolio transaction." } do %>
+    <%= render "form", portfolio_transaction: @portfolio_transaction %>
+  <% end %>
+<% end %>

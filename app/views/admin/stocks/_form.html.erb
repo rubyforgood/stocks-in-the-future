@@ -12,12 +12,14 @@
   <%= render layout: "components/ui/card", locals: {} do %>
       <%= f.text_field :ticker,
                        label: "Ticker symbol",
+                       width: :short,
                        required: true,
                        hint: "Stock ticker symbol (e.g., AAPL, GOOGL)",
                        placeholder: "AAPL" %>
 
       <%= f.text_field :company_name,
                        label: "Company name",
+                       width: :long,
                        hint: "Full company name",
                        placeholder: "Apple Inc." %>
 
@@ -28,6 +30,7 @@
 
       <%= f.text_field :stock_exchange,
                        label: "Stock exchange",
+                       width: :long,
                        hint: "Exchange where stock is traded (e.g., NASDAQ, NYSE)",
                        placeholder: "NASDAQ" %>
 
@@ -41,12 +44,14 @@
 
         <%= f.currency_field :price_cents,
                              label: "Current price",
+                             width: :medium,
                              hint: "Current stock price in dollars",
                              multiplier: 0.01,
                              decimals: 2 %>
 
         <%= f.currency_field :yesterday_price_cents,
                              label: "Yesterday's price",
+                             width: :medium,
                              hint: "Previous day's closing price in dollars",
                              multiplier: 0.01,
                              decimals: 2 %>
@@ -57,10 +62,12 @@
 
         <%= f.number_field :employees,
                            label: "Number of employees",
+                           width: :short,
                            hint: "Total number of employees" %>
 
         <%= f.text_field :industry,
                          label: "Industry",
+                         width: :long,
                          hint: "Industry sector",
                          placeholder: "Technology" %>
       </div>
@@ -70,22 +77,27 @@
 
         <%= f.text_field :cash_flow,
                          label: "Cash flow",
+                         width: :medium,
                          hint: "Company cash flow" %>
 
         <%= f.text_field :debt,
                          label: "Debt",
+                         width: :medium,
                          hint: "Total company debt" %>
 
         <%= f.text_field :debt_to_equity,
                          label: "Debt to equity ratio",
+                         width: :medium,
                          hint: "Debt to equity ratio" %>
 
         <%= f.text_field :profit_margin,
                          label: "Profit margin",
+                         width: :medium,
                          hint: "Company profit margin" %>
 
         <%= f.text_field :sales_growth,
                          label: "Sales growth",
+                         width: :medium,
                          hint: "Sales growth percentage" %>
       </div>
 
@@ -94,14 +106,17 @@
 
         <%= f.text_field :industry_avg_debt_to_equity,
                          label: "Industry avg debt to equity",
+                         width: :medium,
                          hint: "Industry average debt to equity ratio" %>
 
         <%= f.text_field :industry_avg_profit_margin,
                          label: "Industry avg profit margin",
+                         width: :medium,
                          hint: "Industry average profit margin" %>
 
         <%= f.text_field :industry_avg_sales_growth,
                          label: "Industry avg sales growth",
+                         width: :medium,
                          hint: "Industry average sales growth" %>
       </div>
 

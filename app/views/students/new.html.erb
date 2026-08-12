@@ -1,4 +1,4 @@
-<div class="mx-auto max-w-2xl">
+<div class="mx-auto max-w-3xl">
   <%= render layout: "components/ui/page_header",
              locals: { title: "Add new student",
                        description: "They can sign in as soon as you save." } do %><% end %>
@@ -29,6 +29,7 @@
             the two halves read differently. `Ui::FormBuilder` owns the shape now. %>
         <%= f.text_field :name,
                          label: "Full name",
+                         width: :long,
                          required: true,
                          placeholder: "e.g., Jordan Smith",
                          hint: "Shown instead of the username wherever this student appears. A roster " \
@@ -36,6 +37,7 @@
 
         <%= f.text_field :username,
                          label: "Username",
+                         width: :long,
                          required: true,
                          placeholder: "e.g., jordan_s",
                          hint: "What the student signs in with. A password is generated automatically." %>

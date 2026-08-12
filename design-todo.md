@@ -1023,3 +1023,15 @@ jobs:
 It costs about ten suite runs of CI time a night on a volunteer project's budget, which is why it is a
 decision rather than a commit.
 
+## Short fields could pair up (2026-08)
+
+Fields are sized to their content now - `Ui::FormBuilder::FIELD_WIDTHS`, four sizes - which leaves white space
+to the right of the short ones on a 768px column. The stock form has fifteen fields, eleven of them 192px or
+less, each on its own row: two prices that belong side by side, then five ratios, then three industry averages
+that read as a table pretending to be a form.
+
+Polaris's `FormLayout.Group` and Tailwind UI's 12-column form sections both pair short related fields on one
+row. It is the obvious next step and it is **a layout decision per form**, not a token: which fields belong
+together is a content question, and getting it wrong pairs two things a reader does not compare. Worth doing
+on the stock form first, where it would take a 19-field column from about 1,900px to nearer 1,200px.
+

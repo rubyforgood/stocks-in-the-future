@@ -1492,8 +1492,23 @@ description says that. Consequence-shaped, like its siblings: "They can sign in 
 
 **A form's measure is a `max-w-*`, never a fraction of the viewport.** `classrooms#new` and `#edit` were
 `mx-auto lg:w-2/3`, so on a 1920px monitor the form was 1280px wide with the name field stretched across
-all of it. A form's readable measure does not scale with the window. `max-w-2xl` (672px), which is what
-students#new and #edit already used - measured after: 672px at 1400px and at 1920px.
+all of it. A form's readable measure does not scale with the window.
+
+**The measure is `max-w-3xl` (768px), on every page that holds a form or a record, on both halves.** This
+said `max-w-2xl` (672px) when the app-side forms were the only ones with a column at all; the nine admin
+record pages then settled on 768px, and a create page cannot be a different width from the record it creates.
+Reported as "cards for new students and new teachers are different widths" - measured at 1366px on the input
+rather than the wrapper, there were **five** measures: 384px (auth), 630px (app-side forms), 726px (record
+pages and three create pages), 854px (new announcement) and 1020px on four create pages that had no column at
+all and inherited the layout's `max-w-7xl`. 768px is also where the field sits: GOV.UK's two-thirds column is
+~630px, Polaris's narrow page is 662px, Stripe's forms run 600-700px.
+
+**The auth pages keep their own 384px (`max-w-sm`), and that is not an inconsistency.** A signed-out centred
+card holding two fields is a different page type, and every reference does the same - Stripe, GitHub and
+Linear sign-in cards are all around 400px.
+
+`page_width_test` asserts the 768px column on seventeen pages, so a page that forgets its column fails by
+name rather than by looking slightly wrong.
 
 **Every control in a form starts on one left edge, and a hover band must not move it.** Reported as the
 teacher checkbox looking misaligned. Measuring **both** axes found where: vertically all six checkboxes were
@@ -1742,8 +1757,24 @@ words gave a teacher nothing: not whether it was required, not what it was worth
 a day count. It is a flat bonus on top of the per-day rate, and the section now says so - with every
 figure interpolated from `GradeEntry`'s constants, so the copy cannot claim a rate the model does not pay.
 
-**An input in a table cell is sized to its content.** `tw-input-primary` is `w-full`, which is right for
-a form column and wrong in a cell: the grade book's days field rendered at **322px** for a value that
+**A field is as wide as the content it holds - in a form column as well as in a table cell.** Reported as
+"some of these look very wide", and it is the half a column cannot fix: in a 768px column a `w-full` input
+renders a **726px** box for a two-letter ticker or a four-digit year. GOV.UK states the rule outright and
+ships width modifiers for it, Tailwind UI's form sections span 2 to 6 of 12 columns per field rather than all
+12, and Polaris puts short fields side by side instead of stacking full-width ones. Full width is the
+outlier.
+
+`Ui::FormBuilder::FIELD_WIDTHS` is the set, and it is deliberately four values rather than a number per
+field - the same reasoning as the grade book's three controls below: `short` 128px for a ticker or a count,
+`medium` 192px for money or a ratio, `long` 384px for a name, a username or a password, and full for what
+genuinely needs it - an email, a URL, free text, or a select whose options are classroom names. Pass
+`width: :short`; an unknown name raises rather than silently rendering full width.
+
+**Still stacked, one field per row.** Sizing the fields leaves white space to the right of the short ones,
+which Polaris and Tailwind UI use by putting two short fields on one row. That is a layout change per form
+rather than a token, and it is in design-todo.
+
+**An input in a table cell is sized to its content too**, and that is where this rule was first written: the grade book's days field rendered at **322px** for a value that
 cannot exceed two digits, because the column took the table's slack. GOV.UK states the rule and ships
 `width-2/3/4/5` modifiers for it. This is the one place overriding the component's width is wanted.
 
@@ -4768,8 +4799,8 @@ restyling a destructive control, run it.
   row**: one card, `divide-y` between rows, which is Polaris's `ResourceList`. A card earns its edges
   for a summary figure, a person or a preview.
 
-- **Person edit page** (`admin/students#edit`, `admin/teachers#edit`, `profiles#edit`): one
-  `max-w-2xl` column, the shared page header, then the form in a single card. No top primary -- a
+- **Person edit page** (`profiles#edit`, and the record page for a student or a teacher): one
+  `max-w-3xl` column, the shared page header, then the form in a single card. No top primary -- a
   fill-then-save page's primary lives at the form's bottom. Fields are editable per policy, and
   **the form hides what the policy filter drops**: a field whose value is silently discarded looks
   like a save that worked. `ClassroomPolicy#permitted_attributes` is the worked example, where a

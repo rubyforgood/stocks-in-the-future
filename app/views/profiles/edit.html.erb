@@ -18,7 +18,7 @@
     registrations#edit - which demanded the current password before it would save anything.
 
     Username is shown, not edited. It is what a student signs in with and a teacher assigns it. %>
-<div class="mx-auto w-full max-w-2xl space-y-6">
+<div class="mx-auto w-full max-w-3xl space-y-6">
   <%= render layout: "components/ui/page_header",
              locals: { title: "Your profile",
                        description: "How your name appears, and your password." } do %><% end %>
@@ -35,6 +35,7 @@
 
       <%= f.text_field :name,
                        label: "Display name",
+                       width: :long,
                        autocomplete: "name",
                        hint: "Shown on your portfolio and in the account menu. Leave it blank to use " \
                              "your username." %>
@@ -52,6 +53,7 @@
           value a student needs to remember becomes unreachable. %>
       <%= f.text_field :username,
                        label: "Username",
+                       width: :long,
                        readonly: true,
                        class: "bg-slate-50 text-slate-600",
                        hint: "You sign in with this. Ask your teacher if it needs to change." %>
@@ -68,17 +70,20 @@
 
       <%= f.password_field :current_password,
                            label: "Current password",
+                           width: :long,
                            required: true,
                            autocomplete: "current-password" %>
 
       <%= f.password_field :password,
                            label: "New password",
+                           width: :long,
                            required: true,
                            autocomplete: "new-password",
                            hint: length_hint %>
 
       <%= f.password_field :password_confirmation,
                            label: "Confirm new password",
+                           width: :long,
                            required: true,
                            autocomplete: "new-password" %>
 
