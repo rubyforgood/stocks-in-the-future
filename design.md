@@ -1252,6 +1252,59 @@ is where a section's control goes - Polaris's card header action, Primer's `Subh
 sections - with the sentence beside it. That is what makes the pill unnecessary and what took the page
 from **six card surfaces to two**.
 
+### A record's page edits in place
+
+**There is no separate edit page.** Stripe's customer page, Linear's project page, Shopify admin's product
+page and Polaris's resource detail pages all hold a record's attributes *and* its related collections on one
+screen, edited where they are shown. A separate `/edit` screen is a Rails scaffold convention; it earns its
+place for a long form, not for a record with a handful of fields. Nine admin resources were three pages each
+- a show page listing attributes, an edit page holding the form, a create page in a third width - and the
+show page's cards were, in six cases out of nine, the form's own fields rendered again where they could not
+be changed.
+
+`/admin/<thing>/:id/edit` still resolves and renders the record page, so every existing link and redirect
+keeps working.
+
+**The shape, declared once in `admin/shared/_record_page` and `_record_section`:** `mx-auto max-w-3xl`,
+breadcrumbs, the page header carrying the record's own name as its `h1`, then `space-y-6` sections. Each
+section is a `<section aria-labelledby>` with an `h2`, an optional hint line, and its content 12px below -
+one card per section, and **no card headers**, because the section heading has just named it. Before this the
+same three pages measured 1047px, 768px and 1062px wide, with headings on four levels.
+
+**What goes where is a three-way decision, and it is the whole simplification:**
+
+- an attribute **the form edits** appears once, as a field. Not as a field *and* a read-only row.
+- a collection **worth scanning or acting on** gets a section of its own.
+- a lone **read-only fact** goes on the header's summary line - `classroom_summary`, `teacher_summary`,
+  `student_summary`, `stock_price_summary`, one helper per resource. A student's cash balance and total
+  value were two of four `text-2xl` tiles in a figure band; the third held the portfolio's **id**.
+
+**An id, a timestamp and an invariant get nothing.** A "Record" card holding an id and two timestamps was
+160px of a page for facts nobody acts on, and the id is in the URL. A school year always has exactly four
+quarters, so listing them rendered an invariant as data; the count is in the summary line.
+
+**Order follows what the page is for.** A collection leads where the collection is the point - the school
+page's years, which are why anybody opens it - and Details leads where the editing is the point, as on a
+student, a teacher or a stock. Read-only sections come last. State it per page in a comment; it is not a
+fixed order, and the pages that get it wrong are the ones where nobody asked the question.
+
+**The save row appears when there is something to save.** `.tw-form-actions` is hidden on an **update** form
+until a field changes, then sticks to the bottom of the viewport - Polaris's ContextualSaveBar, and the
+reason a page you are only reading has no button offering to save it. Three details are load-bearing:
+
+- a **create** form's row is always visible: there is nothing saved to compare against, and its submit is
+  the only way to do anything at all.
+- a form that has just been **rejected** keeps its row, per form. It is not clean - its values were
+  submitted and refused - and hiding it left an error summary on screen with no way to try again.
+- no rule above it. A `border-t` there was one commit old and lost to the Dividers rule; the row sits on the
+  page background below the card, primary first, aligned to the card's leading edge.
+
+**Two writes on one page need to say which saves when.** A student's record page has an account form that
+waits for its button and a cash adjustment that applies immediately; the school page has a form and years
+that add and remove as you click. The section hint carries it - "Saved when you press Update student",
+"Applies as soon as you press Add transaction" - because a page that mixes the two and says nothing is the
+one thing about this shape a reader cannot work out by looking.
+
 ### Price age, and why the daily change is not a column
 
 **Decision: the trading floor states how old its prices are. It does not show a daily change.** That figure
@@ -2290,6 +2343,47 @@ resolved into the association on validation, and the validation is on them. Thre
   would fail a valid `build`.
 - **`find_or_initialize_by` with `autosave`,** not find-or-create before the save. The controllers used
   to resolve it eagerly, which left an orphan SchoolYear behind every failed submit.
+
+**Validate what the form claims.** The admin student form's classroom select carried the hint "Classroom
+assignment (required)" and `belongs_to :classroom` is `optional: true`, so nothing required it. Saving the
+blank was accepted and it broke the list the student was saved into - `admin/students#index` rendered
+`student.classroom.name`, so one classroom-less student returned a 500 for the whole page. A field that says
+required is required, on the label (the asterisk, `required: true`) and in the model; and a hint does not
+repeat it, because a requirement is stated once.
+
+**The requirement goes on the path a person types on, not on every create.** `Student` validates `name` and
+`classroom_id` `on: :student_form`, which the two forms opt into with `save(context: :student_form)`. CSV
+import and the seeds build students without a name and must keep working. Read the note in `Student` before
+widening one of these to `on: :create`.
+
+**Money is typed as text and stored as integer cents, and the parse has to be exact.** The admin's cash
+adjustment did `(amount.to_f * 100).to_i`. Measured across every typed amount from $0.01 to $1000.00,
+**4,586 of the 100,000** stored the wrong number of cents, always one low: $0.29 became 28, $1.15 became
+114, $2.01 became 200. `BigDecimal(amount) * 100` is exact. This is the same float round trip the Money
+section forbids in the other direction, in the one place a person types money into this app.
+
+**A blank check cannot see a bad value.** The same form's validation asked only whether each param was
+blank. `"abc".to_f * 100` is `0`, and `0` is not blank - so a typo deposited $0.00 and reported success;
+`"-50"` was accepted as a negative deposit; and an amount past the integer column's 2,147,483,647 cents
+raised `PG::NumericValueOutOfRange` from the insert, a 500 from a typo in a text box. Money has a shape:
+digits, optionally two decimal places, bounded. `numericality` is not that shape - it accepts `1e3`,
+`0x10` and `12.345`, and "is not a number" does not tell anybody what to type.
+
+**Fields that are not a model's attributes get a form object.** Four loose params checked in the controller
+and reported by `redirect_to ... alert:` put the message at the top of the page, threw away everything
+typed, and could only ask whether a value was blank. `CashAdjustment` is an `ActiveModel::Model` with the
+four fields, so each one carries its own error through `field_error_proc` like every other form in the app,
+and a rejected submit re-renders the page with the values still in it. **A rejected form re-renders; it does
+not redirect.**
+
+**A picker offers what the validation accepts, from one list.** `CashAdjustment::REASONS` is the enum's keys
+minus the one the model marks deprecated, and both the select and the `inclusion` validation read it. The
+form had been offering `grade_earnings` - "Deprecated, will be removed in future" - which is how a
+deprecated value stays alive: something still writes it.
+
+**Native browser validation is off app-wide** (`app/javascript/application.js`), which is what lets the
+app's own summary and field messages render at all. `required` stays on the input for assistive tech and for
+the label's asterisk; it is not what stops the submit. Opt a form back in with `data-native-validation`.
 
 ### One field-level message, from one place
 **A field shows one message.** Every invalid admin field showed **two**: "Name can't be blank" from

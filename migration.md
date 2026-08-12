@@ -4100,3 +4100,165 @@ page they were used from rather than to a hardcoded one.
 - **Still open, and asked for next:** whether this should be a *single* detail page holding both, which is
   what the field actually ships - Stripe's customer page, Linear's project page, Polaris's resource detail
   pages, none of which have a separate edit screen for a record with one attribute.
+
+## Adopted: one shape for view, edit and create, on all nine admin resources
+
+Answering the question the entry above left open. Built as `preview/single-detail-page`, previewed page by
+page, then merged into `stocksdesign`.
+
+**Every admin record now has one page.** `/admin/<thing>/:id` holds the record's attributes *and* its
+collections, edited in place; `/admin/<thing>/:id/edit` renders the same template so every existing link and
+redirect still resolves. The shape is declared twice, not nine times: `admin/shared/_record_page` (column,
+breadcrumbs, page header, section stack) and `admin/shared/_record_section` (heading, hint, content). See
+design.md, "A record's page edits in place", for the rules and the reasoning.
+
+What came off each resource, in every case because the form already edited it:
+
+| Resource | Removed | Moved to the summary line |
+| --- | --- | --- |
+| schools | - | (years lead the page) |
+| stocks | eight read-only cards, six of them the form's own fields | price, daily change, holders |
+| teachers | the Classrooms card - the form's `classroom_ids` group *is* that list | active state, classroom count |
+| classrooms | the whole attribute card, and the Teachers card | grades, year, trading state, archived |
+| school_years | the school and year rows, and the Quarters card - four is an invariant | classroom and quarter counts |
+| portfolio_transactions | Portfolio, Transaction details and Description cards | user, date, originating order |
+| users | - | - |
+| announcements | - | - |
+| students | `admin_show_attributes`, and a four-tile figure band | username, classroom, cash, total value |
+
+**The students page was the ninth and the largest.** Its figure band's fourth tile held the portfolio's
+**id**, rendered as a `text-2xl` KPI beside cash balance and total value; the useful part of it was that it
+linked, so "View portfolio" is a header action. Its two "Portfolio details" cards (present and absent
+branches) became one section with an empty state, its two tables moved onto `shared/table_container` - they
+had been sitting on no surface at all inside a card - and each got `region_label`, because neither holds a
+focusable element and a scroll container whose contents cannot be focused cannot be scrolled from a keyboard.
+
+**One cash balance, not three.** Merging naively would have printed it in the summary line, in a tile, and
+again as the transaction form's read-only "Current cash balance". The rendered page contains it once.
+
+### What this breaks
+
+- Controller tests asserting `h1` "Edit teacher" / "Edit school year" / "Edit student" now assert the
+  record's name. Tests asserting a removed card's `h2` assert the field or the summary line instead.
+- `admin/students#show` no longer emits `data-testid="cash_balance_label"` or
+  `"total_portfolio_worth_label"`: those tiles are gone and the figures are in the summary line.
+- Every path that renders a record page must load what that page reads. There are three - show, edit, and a
+  failed update - and `Admin::StudentsController#load_record_page` is the shape. Missing one is a
+  NoMethodError on nil, found twice during the conversion.
+- A merged page renders for an **invalid** record, so anything its header reads must tolerate nil
+  associations. `SchoolYear#name` raised from a page title while the form was trying to show a validation
+  message.
+- **Still inconsistent, and not part of this change:** six of the nine create pages are still `max-w-7xl`,
+  `max-w-4xl` or `max-w-2xl`. Three (schools, students, portfolio_transactions) are on the record shape.
+- **Still open:** every admin index row has an "Edit" action that now leads to the same page as the row's
+  name link. That is the argument that removed "View", applied to nine indexes.
+
+## `portfolios/_earnings_summary_card` is now `shared/_earnings_breakdown`
+
+The same figures were rendered by a card on the student's own portfolio page and by a hand-written table on
+the admin record page, and **the two disagreed about the numbers**. The admin copy listed Attendance, Math
+and Rewards and then printed `total_earnings_cents`, which also includes reading: on the seeded student that
+is $650.00 of rows under a $1,150.00 total, with the missing $500.00 named nowhere on the page.
+
+One partial, rendered by both, with `title` and `subtitle` optional so the admin page's section heading is
+the only heading. It also gains an empty state: an all-zero breakdown with a red "-$0.00" among six $0.00
+rows says nothing, so a student who has not been paid yet gets a sentence naming what pays them.
+
+### What this breaks
+
+- `app/views/portfolios/_earnings_summary_card.html.erb` is deleted. `portfolios#show` renders
+  `shared/earnings_breakdown` with the student-facing copy.
+- The admin page's rows are now `dt`/`dd` in a `dl`, not `td`s, and the labels match the student's page:
+  Attendance, Reading, Math, Rewards, Total earned, Transaction fees.
+
+## The transaction fees line counts fees
+
+**Money display, not money arithmetic.** `EarningsSummary#transaction_fees_cents` summed
+`portfolio_transactions.deposits.where(reason: :transaction_fees)`, and `TransactionFeeProcessor` writes a
+fee as `transaction_type: :fee`. So the line read **-$0.00 for every fee the app has ever charged**, on the
+student's own portfolio page as well as the admin one. The balance was never affected:
+`Portfolio#total_fees` uses the `fees` scope and has been charging them correctly all along.
+
+The fix sums by **reason alone**. Everything else in that class stays on `deposits`, deliberately: earnings
+are deposits by definition, and a later debit tagged `math_earnings` should not reduce what a student
+*earned*.
+
+**Widening `Portfolio#total_fees` to match would have been the wrong direction and would have moved money.**
+The balance counts a deposit as a credit, so a legacy row that is a *deposit* labelled `transaction_fees`
+would then be added as a credit and subtracted as a fee. A display sum can be generous about how a fee was
+recorded; the arithmetic cannot.
+
+**The seed was the reason nobody noticed.** `db/seeds/partials/portfolio_transactions.rb` created a
+**deposit** of $25.00 tagged `transaction_fees` - a shape nothing in the app can produce - and it was the
+only row in a seeded database that matched the wrong query. So the page showed a plausible -$25.00 while
+every real fee was excluded. The seed now writes a fee as a fee, at `TRANSACTION_FEE_CENTS`.
+
+### What this breaks
+
+- On a seeded development database the fees line changes: it now includes both the mislabelled $25.00
+  deposit already there and the real $1.00 fees, so student 1 reads -$27.00 rather than -$25.00. A freshly
+  seeded database reads -$1.00.
+- `earnings_summary_test` keeps its existing case (fees built as deposits still count) and gains one that
+  runs `TransactionFeeProcessor` and asserts the summary and `Portfolio#total_fees` agree. The old test
+  could not fail: it built its fixture the same wrong way the query read it.
+
+## An admin cash adjustment is a `CashAdjustment`, and money is parsed exactly
+
+The four fields on the student page's money form were loose params - `transaction_type`, `add_fund_amount`,
+`transaction_reason`, `transaction_description` - validated in the controller and reported by redirecting
+back with `alert:`. Three consequences, and the third is the reason this is here rather than in a styling
+commit.
+
+**`(amount.to_f * 100).to_i` was the parse.** Measured across every typed amount from $0.01 to $1000.00,
+**4,586 of the 100,000** stored the wrong number of cents, always one low - $0.29 deposited 28 cents. That
+is the float round trip CLAUDE.md and design.md both forbid, in the one place a person types money into this
+app. `BigDecimal` is exact.
+
+**And a blank check could not see a bad value.** `"abc".to_f * 100` is `0`, which is not blank, so a typo
+saved a $0.00 transaction and reported success. `"-50"` was a negative deposit. An amount past the integer
+column raised `PG::NumericValueOutOfRange` - a 500 from a typo in a text box.
+
+**The message was in the wrong place and the form was emptied on the way.** Errors now land against the
+fields, and a rejected adjustment re-renders the record page with what was typed still in it.
+
+### What this breaks
+
+- The request shape changes: `cash_adjustment[transaction_type]`, `[amount]`, `[reason]`, `[description]`.
+  `add_transaction` renders `:show` with a 422 instead of redirecting to `/edit` with a flash.
+- `admin.students.add_transaction.errors.*` is deleted - `CashAdjustment` carries the messages - and so is
+  the never-reachable `students.add_transaction` locale block.
+- The reason picker no longer offers `grade_earnings`, which the model marks deprecated, and the validation
+  rejects it.
+- The amount is a text input with `inputmode="decimal"`, not a `number_field`. GOV.UK's money pattern: a
+  number input carries spinners, changes on a stray scroll, and silently rejects a pasted "$12.50".
+- **Unchanged and worth a decision:** a debit may still take a balance negative. Nothing blocks it, and
+  nothing did before; fees can already do it, since the trading fee is charged without checking the balance.
+
+## A student needs a classroom, and the list survives one without
+
+`belongs_to :classroom` is `optional: true` on `User`, because a teacher or an admin has none. Nothing
+required it of a **student**, while the admin form's own hint read "Classroom assignment (required)" and its
+select offered a blank. Saving that blank was accepted, and `admin/students#index` renders
+`student.classroom.name` - so one classroom-less student returned a 500 for the whole list.
+
+`validates :classroom_id, presence: true, on: :student_form`, the same context as the name requirement, so
+CSV import and the seeds are unaffected. The index cell is nil-safe, with `format_attribute`'s em dash, for
+the students who predate the rule.
+
+### What this breaks
+
+- Creating or updating a student through either form with no classroom is now a 422 with the error on the
+  select. `create(:student, :without_enrollment)` still works: the factory does not use the form context.
+- The admin form marks `username` and `classroom_id` `required: true`, so both labels carry an asterisk. The
+  teacher-facing form always did.
+
+## A form that has just been rejected keeps its save button
+
+`form_dirty_controller` hid an update form's action row until a field changed, and a re-rendered form arrives
+with no dirty flag - so blanking a required field and pressing Update produced a page reading "1 error
+stopped this student being saved" with **no Save button**, and the only way to try again was to type in a
+field. It now skips any form containing an error summary or a `.field_with_errors`, per form, so a rejected
+transaction does not reveal the account form's row beside it.
+
+`form_actions_test` asserts both halves; verified by removing the guard and watching it fail.
+
