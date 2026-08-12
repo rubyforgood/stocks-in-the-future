@@ -1333,6 +1333,17 @@ markup as `sr-only`, so the section keeps its accessible name, and the content l
 12px of gap under an invisible heading is the "delete the rule, leave its padding" mistake this document
 records three times. Polaris's rule for a page with one card, applied a level up.
 
+**A section hint that repeats the button is noise.** "Saved when you press Update school year" under a page
+with one form says what the button says. It earns its place only where a page has **two** writes and they
+behave differently - a student's record page, where the cash adjustment applies immediately and the account
+form waits, or a school's, where the years do. Everywhere else the hint should carry a consequence or not
+exist: "A balance is the sum of these rows, so changing this moves money" is worth a line; "Saved when you
+press Update transaction" is not.
+
+**And never the app's own history.** A stock's Details hint read "Grouped as they were on the old read-only
+cards" - true, and meaningless to anybody who did not work on the branch that removed those cards. That
+belongs in migration.md, which is what it is for.
+
 **A page description states what the reader cannot see, and what happens next.** `students#new` said "You can
 add money and see attendance once the account exists", which described *other pages* to somebody filling in
 this one. What is not on the page is the consequence of submitting: the account works immediately, and a blank

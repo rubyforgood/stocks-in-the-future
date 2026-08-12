@@ -10,24 +10,34 @@
       card's header when the page has one card. A heading returns the moment a form has two - see
       admin/students, where it separates them. %>
   <%= render layout: "components/ui/card", locals: {} do %>
-    <div class="tw-form-grid">
+    <%# `derived-field` watches the Type select: choosing Teacher makes the username read-only, because
+        `Teacher#sync_username_from_email` replaces it with the email on save. A field whose value is silently
+        discarded looks like a save that worked - measured in a console, "typed_by_hand" came back as the
+        email address. Read-only rather than disabled, because a disabled field is skipped by keyboard
+        navigation; the profile page's username records the same decision. %>
+    <div class="tw-form-grid"
+         data-controller="derived-field"
+         data-derived-field-when-value="Teacher">
         <%= f.text_field :username,
                          label: "Username",
                          width: :half,
                          required: true,
-                         hint: "What they sign in with. For a teacher this is replaced by their " \
-                               "email address.",
-                         placeholder: "johndoe" %>
+                         hint: "What they sign in with. A teacher's is their email address, so it is " \
+                               "taken from the email field.",
+                         placeholder: "johndoe",
+                         data: { derived_field_target: "field" } %>
 
         <%= f.select :type,
                      options_for_select(
                        %w[User Student Teacher].map { |t| [t, t] },
                        @user.type
                      ),
-                     label: "User type",
-                     width: :half,
-                     hint: "Select the type of user (Student, Teacher, or generic User)",
-                     include_blank: false %>
+                     { label: "User type",
+                       width: :half,
+                       hint: "Student, Teacher, or a plain account with neither a portfolio nor a class",
+                       include_blank: false },
+                     { data: { derived_field_target: "source",
+                               action: "change->derived-field#refresh" } } %>
 
         <%= f.text_field :email,
                          label: "Email",

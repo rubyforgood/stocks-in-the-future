@@ -129,6 +129,27 @@ module AdminHelper
     parts.compact.join(" · ")
   end
 
+  # A user's role and where they sit, as the summary line. The two record pages without one were `users` and
+  # `announcements`, which made them the odd pages out of nine - a summary line is where a read-only fact that
+  # is not worth a section goes, and for a user the role is exactly that.
+  #
+  # `account_role_label` rather than `type`: an admin is a `User` row with `admin: true`, so the STI column
+  # reads "User" for the one account that can do everything.
+  def user_summary(user)
+    parts = [account_role_label(user), user.classroom&.name]
+    parts << "archived" if user.discarded?
+
+    parts.compact.join(" · ")
+  end
+
+  # An announcement's state, which is the only thing about it that changes what anybody sees: exactly one is
+  # featured, and that is the one rendered on the home page.
+  def announcement_summary(announcement)
+    return "Featured - shown on everyone's home page" if announcement.featured?
+
+    "Not featured, so nobody sees it"
+  end
+
   # A school year's summary: how many classrooms run in it, and the quarter count that used to be a card of
   # four identical rows.
   def school_year_summary(school_year)

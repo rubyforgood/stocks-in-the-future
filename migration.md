@@ -4552,3 +4552,54 @@ username field's hint rather than being a surprise after saving.
   fact each one is supposed to state. Scoped to the header's own paragraph, because a field hint further down
   uses the same type classes - the announcements page has one that also says "featured".
 
+## The edit pages' hints, and two things the audit turned up
+
+Asked to check the edit pages for what the create pages had. For eight admin resources "edit" *is* the record
+page, so the equivalent of a description is the section hint - and the same two defects were there.
+
+**"Saved when you press X" repeats the button** wherever a page has only one write. It is justified on
+`schools` and `students`, where a second control applies immediately and the pair distinguishes them - the
+years there say "Changes here apply immediately" - and it was noise on `school_years` (dropped),
+`portfolio_transactions` (now "A balance is the sum of these rows, so changing this moves money") and `stocks`.
+
+**`stocks` also carried the app's own history**: "Grouped as they were on the old read-only cards", which
+means nothing to anybody who did not work on this branch. It now says what a reader needs: prices refresh each
+weekday from the ticker and the company details weekly, so most of what you type there is replaced at the next
+update.
+
+**Two record pages had no summary line at all** - `users` and `announcements`, the odd two of nine.
+`user_summary` gives the role through `account_role_label` (an admin is a `User` row with `admin: true`, so the
+type column reads "User" for the account that can do everything) and `announcement_summary` states the only
+thing about an announcement that changes what anybody sees: whether it is the featured one, which is the one
+`home#index` renders.
+
+**`profiles#edit` lost its description**: "How your name appears, and your password" is what its two section
+headings already say.
+
+### A behaviour bug found while looking for copy
+
+`classrooms#show`'s hint read "Changes apply to everyone who can see this classroom", which is vague, so I
+went looking for the consequence worth stating - and found that **moving a classroom to another school year
+left its grade books behind**. `create_gradebooks_for_quarters` was `after_create` only: measured, a classroom
+moved from year 1 to year 2 still had four grade books on 1/Q1..1/Q4, so the year it had just been moved into
+had none and a teacher had nowhere to enter marks. It now runs on update too when `school_year_id` changes.
+The old books stay - they hold entered grades and, once finalized, money already paid - and `find_or_create_by!`
+means moving back and forth adds nothing twice. The hint says the consequence now that it is true.
+
+### And the two the last audit turned up
+
+- **The teachers form's duplicate sentence** is gone, and `admin_page_structure_test` asserts it appears once.
+- **The users form no longer offers a username a teacher's email will overwrite.** `derived_field_controller`
+  watches the Type select and makes the username read-only when Teacher is chosen - read-only rather than
+  disabled, because a disabled field is skipped by keyboard navigation, which is the decision the profile
+  page's username already records. Measured: choosing Teacher sets `readOnly` and the slate fill, choosing
+  Student or User clears both, and typing while it is derived leaves the value empty.
+
+### What this breaks
+
+- `admin/users/_form`'s type select now takes its options and html options as two hashes, because it needs
+  `data-action` on the control.
+- Three section hints changed and one was removed; `users#show` and `announcements#show` gained a description.
+- `classroom_test` gains three cases for the grade books: they follow a move, the old year's are kept, and
+  moving back adds no duplicates.
+

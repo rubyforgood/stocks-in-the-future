@@ -38,6 +38,15 @@ class Classroom < ApplicationRecord
 
   after_create :create_gradebooks_for_quarters
 
+  # **And again when the classroom moves year.** `after_create` alone left a classroom that an admin moved to
+  # another school year holding four grade books attached to the *old* year's quarters - measured: move a
+  # classroom from year 1 to year 2 and its books still read 1/Q1..1/Q4, so the year it is now in has no grade
+  # books at all and the teacher has nowhere to enter marks.
+  #
+  # The old books stay. They hold entered grades and, once finalized, money that has already been paid into
+  # portfolios; `find_or_create_by!` per quarter means moving back and forth adds nothing twice.
+  after_update :create_gradebooks_for_quarters, if: :saved_change_to_school_year_id?
+
   scope :active, -> { where(archived: false) }
   scope :archived, -> { where(archived: true) }
   scope :order_by_name, ->(direction = :asc) { reorder(name: direction) }

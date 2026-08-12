@@ -19,9 +19,10 @@
 
     Username is shown, not edited. It is what a student signs in with and a teacher assigns it. %>
 <div class="mx-auto w-full max-w-3xl space-y-6">
+  <%# No description. It read "How your name appears, and your password", which is what the two section
+      headings below already say - and a description is for what the reader cannot see. %>
   <%= render layout: "components/ui/page_header",
-             locals: { title: "Your profile",
-                       description: "How your name appears, and your password." } do %><% end %>
+             locals: { title: "Your profile" } do %><% end %>
 
   <%= render layout: "components/ui/card", locals: { title: "Your details" } do %>
     <%# `scope: :user` survives the builder, and it is load-bearing: `User` is an STI base, so

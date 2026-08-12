@@ -1,5 +1,6 @@
 <%= render layout: "admin/shared/record_page",
            locals: { title: @announcement.title, breadcrumbs: @breadcrumbs,
+                     description: announcement_summary(@announcement),
                      actions: capture do
                        link_to "Delete announcement", admin_announcement_path(@announcement),
                                data: { turbo_method: :delete, turbo_confirm: delete_confirm(@announcement) },

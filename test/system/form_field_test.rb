@@ -147,4 +147,29 @@ class FormFieldTest < ApplicationSystemTestCase
     assert_empty failures,
                  "a placeholder is text; gray-400 measured 2.54:1 and shipped on nine admin forms"
   end
+  # **A field whose value will be discarded is not left editable.** `Teacher#sync_username_from_email` runs
+  # `before_validation` and replaces the username with the email, so a username typed for a teacher on the
+  # users form was thrown away on save - measured in a console, "typed_by_hand" came back as the email address.
+  # The form accepted it, said nothing, and the record disagreed.
+  #
+  # Read-only rather than disabled: a disabled field is skipped by keyboard navigation, and the profile page's
+  # username records the same decision.
+  test "the users form stops offering a username the type will overwrite" do
+    sign_in create(:admin)
+
+    visit new_admin_user_path
+
+    read_only = -> { page.evaluate_script('document.getElementById("user_username").readOnly') }
+
+    assert_equal false, read_only.call, "a plain user types their own username"
+
+    select "Teacher", from: "User type"
+
+    assert_equal true, read_only.call, "a teacher's username comes from their email and is still editable"
+    assert_no_selector "#user_username:not([readonly])"
+
+    select "Student", from: "User type"
+
+    assert_equal false, read_only.call, "a student types their own username"
+  end
 end

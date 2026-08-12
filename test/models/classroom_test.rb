@@ -228,4 +228,52 @@ class ClassroomTest < ActiveSupport::TestCase
     classrooms = Classroom.apply_sorting(nil, "student_count", :desc)
     assert_equal classroom1.id, classrooms.first.id
   end
+
+  # Moving a classroom to another school year used to leave its four grade books attached to the *old* year's
+  # quarters, so the year it had just been moved into had none at all and a teacher had nowhere to enter marks.
+  # Measured before the fix: the books still read 1/Q1..1/Q4 after a move to year 2.
+  test "grade books follow the classroom when it moves to another school year" do
+    school = create(:school)
+    from_year = create(:school_year, school:, year: create(:year))
+    to_year = create(:school_year, school:, year: create(:year))
+    classroom = create(:classroom, school_year: from_year)
+
+    assert_equal 4, classroom.grade_books.count
+
+    classroom.update!(school_year: to_year)
+
+    covered = classroom.grade_books
+      .joins(quarter: :school_year)
+      .where(quarters: { school_year_id: to_year.id })
+      .count
+
+    assert_equal 4, covered, "the new year's four quarters do not all have a grade book"
+  end
+
+  # The old ones stay: they hold entered grades and, once finalized, money already paid into portfolios.
+  test "moving a classroom keeps the grade books of the year it came from" do
+    school = create(:school)
+    from_year = create(:school_year, school:, year: create(:year))
+    to_year = create(:school_year, school:, year: create(:year))
+    classroom = create(:classroom, school_year: from_year)
+    original = classroom.grade_books.pluck(:id)
+
+    classroom.update!(school_year: to_year)
+
+    assert_equal original.sort, (classroom.grade_books.pluck(:id) & original).sort
+    assert_equal 8, classroom.grade_books.count
+  end
+
+  # And moving back and forth does not add a second set: `find_or_create_by!` is keyed on quarter and classroom.
+  test "moving a classroom back adds no duplicate grade books" do
+    school = create(:school)
+    from_year = create(:school_year, school:, year: create(:year))
+    to_year = create(:school_year, school:, year: create(:year))
+    classroom = create(:classroom, school_year: from_year)
+
+    classroom.update!(school_year: to_year)
+    classroom.update!(school_year: from_year)
+
+    assert_equal 8, classroom.grade_books.count
+  end
 end
