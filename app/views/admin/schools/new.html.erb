@@ -3,7 +3,8 @@
     column, breadcrumbs and header, which is how six other create pages came to be four different widths. %>
 <%= render layout: "admin/shared/record_page",
            locals: { title: "New school", breadcrumbs: @breadcrumbs,
-                     description: "You will add its school years after it exists." } do %>
+                     description: "Nothing can use a school until it has a school year: a classroom " \
+                                  "belongs to one of those, not to the school." } do %>
   <%= render layout: "admin/shared/record_section",
              locals: { title: "Details", sr_only: true } do %>
     <%= render "form" %>

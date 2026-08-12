@@ -102,6 +102,46 @@ class AdminPageStructureTest < ActionDispatch::IntegrationTest
     end
   end
 
+  # **Every create page says what submitting does.** Two of them said what the reader would do on some *other*
+  # page instead - "You can add money and see attendance once the account exists" and "You will add its school
+  # years after it exists" - which is narration, not information, and was reported as such.
+  #
+  # This asserts the description exists rather than that it is well written, which no test can do. What it can
+  # do is catch the two shapes that were wrong: a page with nothing to say, and a fact stated twice.
+  test "every create page has a description" do
+    sign_in(create(:admin, admin: true, classroom: nil))
+
+    { new_admin_school_path => /school year/,
+      new_admin_school_year_path => /four quarters/,
+      new_admin_student_path => /password/,
+      new_admin_teacher_path => /reset email/,
+      new_admin_user_path => /portfolio/,
+      new_admin_stock_path => /ticker/,
+      new_admin_announcement_path => /featured/,
+      new_admin_portfolio_transaction_path => /moves the money/ }.each do |path, expected|
+      get path
+
+      assert_response :success
+      # Scoped to the page header's own paragraph - `_page_header` puts it in the title's column - because a
+      # field hint further down the form uses the same type classes, and on the announcements page it also
+      # mentions "featured".
+      assert_select "main div.min-w-0 > p", { text: expected, count: 1 },
+                    "#{path}: the page header's description does not say what submitting does"
+    end
+  end
+
+  # The teachers form stated its password behaviour twice: in the description, and again in a line below the
+  # last field. One statement, where it is read before the reader starts typing.
+  test "the teacher password behaviour is stated once" do
+    sign_in(create(:admin, admin: true, classroom: nil))
+
+    get new_admin_teacher_path
+
+    assert_response :success
+    assert_equal 1, response.parsed_body.text.scan(/temporary password/i).size,
+                 "the temporary-password sentence appears more than once"
+  end
+
   # And the record pages still draw theirs, because there they say which section you are in.
   test "a record page draws its section headings" do
     student = create(:student, :with_portfolio, classroom: create(:classroom, :with_trading))

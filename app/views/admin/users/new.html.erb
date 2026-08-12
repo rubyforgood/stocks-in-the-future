@@ -8,7 +8,9 @@
     The shell is `admin/shared/_record_page`, the same partial the record page uses, so the two cannot drift:
     a create page is that page with no lifecycle actions and one section. %>
 <%= render layout: "admin/shared/record_page",
-           locals: { title: "New user", breadcrumbs: @breadcrumbs } do %>
+           locals: { title: "New user", breadcrumbs: @breadcrumbs,
+                     description: "Type decides what the account gets: a student is given a portfolio, and " \
+                                  "a teacher signs in with their email." } do %>
   <%= render layout: "admin/shared/record_section",
              locals: { title: "Details", sr_only: true } do %>
     <%= render "form" %>

@@ -59,14 +59,10 @@
         <% end %>
       <% end %>
 
-      <% if @teacher.new_record? %>
-        <div class="mt-6 pt-6 border-t border-slate-200 lg:col-span-2">
-          <p class="text-sm text-slate-600">
-            <%= lucide_icon("info", class: "mr-1 w-4 h-4 shrink-0") %>
-            A temporary password will be generated and a password reset email will be sent to the teacher's email address.
-          </p>
-        </div>
-      <% end %>
+      <%# The "a temporary password is generated and a reset email is sent" line used to sit here, below the
+          last field, where a reader meets it after deciding what to type. It is the create page's
+          description now - what happens on submit belongs where it is read first, and stating it twice was
+          the duplication this form already fixed for its own heading. %>
   <% end %>
 
   <div class="flex items-center justify-between gap-x-4">

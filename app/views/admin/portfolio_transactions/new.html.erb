@@ -2,7 +2,8 @@
     uses, so a create page is that page with no lifecycle actions and one section. It hand-rolled the same
     column, breadcrumbs and header, which is how six other create pages came to be four different widths. %>
 <%= render layout: "admin/shared/record_page",
-           locals: { title: "New transaction", breadcrumbs: @breadcrumbs } do %>
+           locals: { title: "New transaction", breadcrumbs: @breadcrumbs,
+                     description: "A balance is the sum of these rows, so saving this moves the money." } do %>
   <%= render layout: "admin/shared/record_section",
              locals: { title: "Details", sr_only: true } do %>
     <%= render "form", portfolio_transaction: @portfolio_transaction %>

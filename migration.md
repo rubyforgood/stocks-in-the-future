@@ -4513,3 +4513,42 @@ stores it, so the recovery was another reset. Four notices carry a password - `a
   password notice is still on screen past the delay **and** that it never carried the controller - verified by
   putting `auto-dismiss` back and watching it fail.
 
+## The other create pages' descriptions, checked
+
+Asked to check the rest for what students#new had. Two were the same defect and four had nothing to say.
+
+**Narration, not information.** `schools#new` read "You will add its school years after it exists" - the same
+shape as the students one, telling a reader what they would do on a *different* page. It now states the fact
+behind that advice: nothing can use a school until it has a school year, because a classroom belongs to the
+year rather than to the school. `stocks#new` read "Only the ticker is required. The rest can be filled in
+later", whose first half is what the asterisks say now that required fields are marked, and whose second half
+is narration again. It says what the ticker is *for*: the price feed looks it up, prices refresh each weekday
+and the company details weekly, so most of that nineteen-field form fills itself in - `StockPricesUpdateJob`
+on `0 2 * * 2-6` and `StockAttributeUpdate` weekly, both verified in `config/recurring.yml`.
+
+**Four pages had no description**, and each had a fact worth having, each checked against the code rather than
+assumed:
+
+| Page | Description | Verified by |
+| --- | --- | --- |
+| teachers | a temporary password is generated and a reset email goes to this address | the line that used to sit below the last field |
+| users | type decides what the account gets: a student is given a portfolio, a teacher signs in with their email | `User.new(type: "Student")` instantiates the subclass, so `ensure_portfolio` runs - checked in a console |
+| announcements | only the featured one is shown, on the home page everybody lands on | `Announcement.current` is `find_by(featured: true)`, and `home#index` renders it |
+| portfolio_transactions | a balance is the sum of these rows, so saving this moves the money | `Portfolio#cash_on_hand_in_cents` |
+
+**And two things found while checking.** The teachers form stated its password behaviour **twice** - in the
+new description and in a line below the last field - so the in-form line is gone; what happens on submit
+belongs where it is read before the reader starts typing. And a teacher created through the *users* form has
+their typed username silently replaced by their email, because `Teacher#sync_username_from_email` runs
+`before_validation`: measured in a console, "typed_by_hand" came back as the email address. That is now in the
+username field's hint rather than being a surprise after saving.
+
+### What this breaks
+
+- `admin/teachers/_form` no longer renders the temporary-password line. A test asserting that sentence inside
+  the form would need to look at the page header instead; `admin_page_structure_test` asserts it appears
+  **once** on the page.
+- `admin_page_structure_test` also asserts every create page's header carries a description, matched on the
+  fact each one is supposed to state. Scoped to the header's own paragraph, because a field hint further down
+  uses the same type classes - the announcements page has one that also says "featured".
+
