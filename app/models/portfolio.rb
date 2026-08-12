@@ -6,7 +6,9 @@ class Portfolio < ApplicationRecord
   belongs_to :user
   validate :user_must_be_student
 
-  delegate :username, :student?, :school_name, :trading_enabled?, to: :user
+  # `school_name` went with the portfolio page's description: it named the school under a heading that
+  # already names the student, which is context nobody acts on, and no other caller reached for it here.
+  delegate :username, :student?, :trading_enabled?, to: :user
 
   has_many :portfolio_transactions, dependent: :destroy
   has_many :portfolio_stocks, dependent: :destroy

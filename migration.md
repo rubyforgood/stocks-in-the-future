@@ -4603,3 +4603,39 @@ means moving back and forth adds nothing twice. The hint says the consequence no
 - `classroom_test` gains three cases for the grade books: they follow a move, the old year's are kept, and
   moving back adds no duplicates.
 
+## The show pages, checked
+
+The eight admin "show" pages **are** the record pages audited in the entry above - `/edit` renders the same
+template - so what was left unchecked was the app side: home, the portfolio, the trading floor, a stock, the
+transactions list, a classroom, a grade book.
+
+**Most of it was already right, and for a reason worth recording.** The trading floor says "Prices are updated
+once a day, after the market closes. These are as of August 06, 2026"; the grade book's hint interpolates
+every rate from `GradeEntry`'s constants; the classroom's grade-book section says "Recording attendance and
+grades is what pays students their funds to invest". Each states a fact the reader cannot see and would act
+on, which is the test.
+
+**Two did not.**
+
+`orders#index` had **no description at all**, on the page whose one recurring question is why a row still says
+pending. It now answers it: orders are filled every 15 minutes - `OrderExecutionJob` on `*/15 * * * *` - and
+until one is, no money has moved, because `ExecuteOrder` writes the debit at execution. Only the trading fee
+is set aside, by `Portfolio#pending_transaction_fee`, and that figure is interpolated from
+`TRANSACTION_FEE_CENTS` rather than typed.
+
+`portfolios#show` described itself with the **school's name**, under a heading that already names the student.
+Nobody acts on it. It now says why the number holds still: share values use the last closing price, updated
+once a day. `Portfolio#school_name` had no other caller and went with it.
+
+**`home#index` keeps its warmth deliberately.** "This is your launchpad to earn, invest, and grow" says
+nothing factual, and on any admin page it would be cut - but design.md has a whole section on delight for the
+student side, the audience is eleven, and a welcome is what that page is for.
+
+### What this breaks
+
+- `Portfolio#school_name` is gone. Nothing else used it; `SchoolYear#school_name` is a different method and
+  stays.
+- `derived_copy_test` asserts that the two rates quoted in copy come from their constants - it re-quotes the
+  fee with the constant changed and expects the page to follow. A figure typed into copy passes the first
+  test and fails this one.
+

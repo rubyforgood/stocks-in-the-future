@@ -27,7 +27,8 @@
       sweep could have found it. A username is a proper noun, so it keeps its own capitalisation. %>
   <%= render layout: "components/ui/page_header",
              locals: { title: "#{@portfolio.user.display_name}'s portfolio",
-                       description: @portfolio.school_name } do %>
+                       description: "Share values use the last closing price, updated once a day - " \
+                                    "so this moves overnight, not while you watch it." } do %>
     <%# Not while the holdings table is empty: the empty state below carries this action, and a
         student with nothing yet was offered the same destination twice on one screen. Polaris and
         Stripe both suppress the header action when an empty state owns it, because the reader is
