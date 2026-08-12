@@ -1299,6 +1299,32 @@ reason a page you are only reading has no button offering to save it. Three deta
 - no rule above it. A `border-t` there was one commit old and lost to the Dividers rule; the row sits on the
   page background below the card, primary first, aligned to the card's leading edge.
 
+**A record page's length is bounded, and one section is where it stops being.** The student record measured
+2958px - 3.9 viewports at 1366x768 - and half of it was two blocks: a 728px form held permanently open for an
+occasional task, and every transaction the portfolio had. The second is the one that matters, because it has
+no ceiling: 13 rows measured 739px, and a year of weekly trading is about 150 rows, which is 7,400px. Two
+rules follow, and both are what the field does:
+
+- **A collection on a record page shows the first few and links to the rest.** Five here, with "Showing 5 of
+  13" and a link to the full list - which means the full list has to *exist* and be filterable, or truncation
+  just hides rows. Stripe's customer page truncates its payments the same way; `admin/classrooms#show`
+  already truncates its roster, and had nowhere to send you.
+- **An occasional write is a control you open, not a form you scroll past.** The money form is a `<details>`
+  inside the Transactions section, closed until asked for: Stripe's "Adjust balance" is a button for the same
+  reason. Measured after both: 1914px, 2.5 viewports, and opening the form adds 720px only for the person
+  who wanted it.
+
+**A section heading is a noun and its control is a verb.** This is why there is no section called "Add a
+transaction" containing a button of the same name: the collection is the subject, and the form is what you do
+to it. The heading names what you are looking at, the control names what happens next.
+
+**Use `<details>` for a disclosure, not a hidden div and a controller.** `dropdown_controller` already
+records the reason - without JavaScript a native disclosure still opens and closes - and there is a second
+one that matters more here: a rejected submit re-renders the page, and the panel has to come back **open**
+with the values in it. With `<details>` that is one server-rendered attribute; with a JS panel it is state to
+rebuild. Set it with `tag.details(open: record.errors.any?)`, never by interpolating the attribute, which
+renders it unquoted and unmatched by any selector.
+
 **Two writes on one page need to say which saves when.** A student's record page has an account form that
 waits for its button and a cash adjustment that applies immediately; the school page has a form and years
 that add and remove as you click. The section hint carries it - "Saved when you press Update student",
@@ -2939,6 +2965,16 @@ forms at `bg-blue-600 rounded-md px-4 py-2`, so every admin form's primary was g
 different size from the primary in the page header above it, and no view grep could see it. Cover
 `app/helpers`, `app/form_builders` and `app/assets/stylesheets` as well as `app/views`, and pixel-check
 the rendered page.
+
+**The 40px height is a minimum, not a fixed height.** `.tw-btn-*` was `h-10`; it is `min-h-10 py-2`, which
+measures the same 40px at every size this app renders - `text-sm` is a 20px line box plus 16px of padding is
+36px, so the minimum holds it - and survives the case a fixed height cannot. At **200% text** (WCAG 1.4.4) a
+label long enough to wrap is cropped by its own button. Found on the first label in the product long enough
+for it: "Add a transaction" measured 305px inside a 305px viewport at 320px, and every translated label after
+it would have had the same problem. A button grows with its text.
+
+An `inline-flex` control also needs `max-w-full` if its label can be long, because an inline-flex box is
+sized by its content and nothing else bounds it.
 
 ### Button variants as implemented here
 

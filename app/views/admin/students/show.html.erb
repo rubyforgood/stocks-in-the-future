@@ -20,29 +20,42 @@
   <% end %>
 
   <% if @student.portfolio.present? %>
-    <%# The second write on this page, and the one that moves money. Its own section, so the heading says
-        what the button does and the hint says when it takes effect - the confusing thing about a page that
-        mixes a form you submit with an action that applies at once. %>
-    <%= render layout: "admin/shared/record_section",
-               locals: { title: "Add a transaction",
-                         hint: "Applies as soon as you press Add transaction: it changes what this " \
-                               "student can invest, and appears in the transactions below." } do %>
-      <%= render "transaction_form", student: @student, adjustment: @cash_adjustment %>
-    <% end %>
-
     <%= render layout: "admin/shared/record_section",
                locals: { title: "Earnings",
                          hint: "Where this student's cash came from, and what trading has cost them." } do %>
       <%= render "shared/earnings_breakdown", summary: @earnings_summary %>
     <% end %>
 
-    <%# The hint derives from what is in the section, so it cannot say "0 transactions, newest first" -
-        which is what a fixed string did, promising an order for an empty list. %>
+    <%# **The money form lives here, collapsed, rather than in a section of its own.**
+        Measured: it was 728px of a 2958px page - a quarter of the scroll - permanently open for a task an
+        administrator does occasionally, and it sat second, above the history it writes into. Stripe's
+        customer balance is the same shape: the figures and the history are on the page, and "Adjust
+        balance" is a control you open.
+
+        A section heading is a noun and its control is a verb, which is why this is not a section called
+        "Add a transaction" with a button of the same name inside it: the collection is the subject here and
+        the form is what you do to it. design.md: a section's control belongs with its heading.
+
+        The hint is "Newest first" and the *count* moved to the truncation line, so the number is stated
+        once, next to the thing it qualifies. %>
     <%= render layout: "admin/shared/record_section",
                locals: { title: "Transactions",
-                         hint: ("#{pluralize(@transactions.size, 'transaction')}, newest first." if @transactions.any?) } do %>
+                         hint: ("Newest first." if @transactions.any?) } do %>
+      <%= render "transaction_disclosure", student: @student, adjustment: @cash_adjustment %>
+
       <% if @transactions.any? %>
         <%= render "transactions_table", transactions: @transactions %>
+
+        <%# A truncated list says so **and** offers the rest. `admin/classrooms#show` states the count
+            already; it had nowhere to send you, and this does. %>
+        <% if @transactions_count > @transactions.size %>
+          <p class="mt-3 text-sm text-slate-600">
+            Showing <%= @transactions.size %> of <%= @transactions_count %>.
+            <%= link_to "View all transactions",
+                        admin_portfolio_transactions_path(user_id: @student.id),
+                        class: "tw-link" %>
+          </p>
+        <% end %>
       <% else %>
         <p class="text-sm text-slate-600">No money has moved in or out of this portfolio yet.</p>
       <% end %>

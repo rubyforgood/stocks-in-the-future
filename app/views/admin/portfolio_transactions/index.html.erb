@@ -10,14 +10,27 @@
 <div class="max-w-7xl mx-auto">
   <%= admin_breadcrumbs(@breadcrumbs) %>
 
-  <%= render layout: "components/ui/page_header", locals: { title: "Portfolio transactions" } do %>
+  <%# A filtered list says so, in the description rather than only in the URL - and it offers the way out.
+      A page that quietly shows one person's rows under the heading "Portfolio transactions" is the same
+      class of error as a summary that describes a bucket it no longer matches. %>
+  <%= render layout: "components/ui/page_header",
+             locals: { title: "Portfolio transactions",
+                       description: (
+                         "Only #{@filtered_user.display_name}'s transactions." if @filtered_user
+                       ) } do %>
+    <% if @filtered_user %>
+      <%= link_to "Show all transactions", admin_portfolio_transactions_path,
+                  class: admin_secondary_button_class %>
+    <% end %>
     <%= link_to "New transaction", new_admin_portfolio_transaction_path, class: admin_primary_button_class %>
   <% end %>
 
   <div class="tw-card">
     <div class="overflow-x-auto">
       <table class="table-base">
-        <caption class="sr-only">Every portfolio transaction, most recent first</caption>
+        <caption class="sr-only">
+          <%= @filtered_user ? "#{@filtered_user.display_name}'s portfolio transactions, most recent first" : "Every portfolio transaction, most recent first" %>
+        </caption>
         <thead>
           <tr class="table-header-row">
             <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell"><%= sort_link(:created_at, "Date") %></th>

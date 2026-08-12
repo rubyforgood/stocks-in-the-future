@@ -66,8 +66,16 @@
   .tw-btn-danger,
   .tw-btn-danger-outline,
   .tw-btn-primary-disabled {
-    @apply inline-flex h-10 items-center justify-center gap-2 rounded-lg px-4 text-sm shadow-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2;
+    @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm shadow-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2;
   }
+
+  /* `min-h-10 py-2`, not `h-10`. Identical at every size this app actually renders - `text-sm` is a 20px
+   * line box, plus 16px of padding is 36px, so the minimum holds it at the 40px token and
+   * `form_actions_test` still measures 40. What it changes is the case a fixed height cannot survive: at
+   * **200% text** (WCAG 1.4.4) a label that has to wrap inside `h-10` is clipped by its own button. Found
+   * on the first label in the product long enough to wrap - "Add a transaction" measured 305px against a
+   * 305px viewport at 320px and 200% text - and a fixed height would have been wrong for every translated
+   * label after it. A button grows with its text; it does not crop it. */
 
   /* Filled variants are font-semibold, outlined are font-medium - the weight carries part of the
    * emphasis hierarchy, so they are not interchangeable. */

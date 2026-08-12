@@ -19,11 +19,19 @@ module Admin
   class PortfolioTransactionsController < BaseController
     before_action :set_portfolio_transaction, only: %i[show edit update destroy]
 
+    # `?user_id=` narrows the list to one person, which is what a student's record page links to when its
+    # own list is truncated. Without it, "View all transactions" had nowhere to go: truncating a list and
+    # leaving the rest unreachable is worse than a long page.
+    #
+    # An id that resolves to nobody is ignored rather than shown as an empty filtered list, and
+    # `@filtered_user` is what the page reads to say whose transactions these are - so the list never
+    # claims a filter it did not apply, and never applies one silently.
     def index
-      @portfolio_transactions = apply_sorting(
-        PortfolioTransaction.includes(portfolio: :user),
-        default: "created_at"
-      )
+      @filtered_user = User.find_by(id: params[:user_id]) if params[:user_id].present?
+      scope = PortfolioTransaction.includes(portfolio: :user)
+      scope = scope.joins(:portfolio).where(portfolios: { user_id: @filtered_user.id }) if @filtered_user
+
+      @portfolio_transactions = apply_sorting(scope, default: "created_at")
       @breadcrumbs = [{ label: "Portfolio transactions" }]
     end
 

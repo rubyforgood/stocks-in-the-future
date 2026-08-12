@@ -76,10 +76,12 @@ module Admin
       assert_select "h2", text: "Portfolio details", count: 0
       assert_select "p", text: /cash/
       assert_select "p", text: /total value/
-      # The sections, in order: what you can change first, then what only happened.
+      # The sections, in order: what you can change first, then what only happened. There is no "Add a
+      # transaction" section - the form is a disclosure inside Transactions, because a section heading is a
+      # noun and its control is a verb.
       headings = response.parsed_body.css("main section[aria-labelledby] > h2").map { |h| h.text.strip }
 
-      assert_equal ["Details", "Add a transaction", "Earnings", "Transactions", "Attendance"], headings
+      assert_equal %w[Details Earnings Transactions Attendance], headings
     end
 
     test "show displays attendance records" do
@@ -98,6 +100,56 @@ module Admin
       # width, which is what a request test sees.
       assert_select "td", text: /\bQ1\b/
       assert_select "td", text: /\b42\b/
+    end
+
+    # The transactions section was every row a portfolio had - 13 measured 739px, a quarter of the page, and
+    # unbounded: ~150 rows for a year of weekly trading is about 7,400px. Five, then a link to the rest.
+    test "show lists the five most recent transactions and links to the rest" do
+      student = create(:student)
+      7.times { |n| create(:portfolio_transaction, :deposit, portfolio: student.portfolio, amount_cents: 100 + n) }
+
+      get admin_student_path(student)
+
+      assert_response :success
+      assert_select "section[aria-labelledby='transactions-heading'] tbody tr", count: 5
+      assert_select "p", text: /Showing 5 of 7/
+      assert_select "a[href=?]", admin_portfolio_transactions_path(user_id: student.id),
+                    text: "View all transactions"
+    end
+
+    test "a short list is not truncated and says nothing about it" do
+      student = create(:student)
+      create(:portfolio_transaction, :deposit, portfolio: student.portfolio, amount_cents: 500)
+
+      get admin_student_path(student)
+
+      assert_response :success
+      assert_select "section[aria-labelledby='transactions-heading'] tbody tr", count: 1
+      assert_select "p", text: /Showing/, count: 0
+      assert_select "a", text: "View all transactions", count: 0
+    end
+
+    # A `<details>` rather than a JavaScript panel, so the server decides whether it is open - which is what
+    # makes a rejected submit come back with the form showing and the values still in it.
+    test "the transaction form is closed until asked for" do
+      student = create(:student)
+
+      get admin_student_path(student)
+
+      assert_response :success
+      assert_select "[data-testid='add-transaction-disclosure']:not([open])"
+      assert_select "summary", text: /Add a transaction/
+    end
+
+    test "a rejected transaction comes back with the form open" do
+      student = create(:student)
+
+      post add_transaction_admin_student_path(student),
+           params: { cash_adjustment: { transaction_type: "deposit", amount: "", reason: "" } }
+
+      assert_response :unprocessable_content
+      assert_select "[data-testid='add-transaction-disclosure'][open]"
+      assert_select "select[name='cash_adjustment[reason]'].tw-input-error"
     end
 
     test "show displays empty attendance message when no records" do

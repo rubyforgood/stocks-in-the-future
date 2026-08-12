@@ -205,40 +205,9 @@ module AdminHelper
     end
   end
 
-  # Generates a sort link for table headers
-  # @param column [Symbol] The column name
-  # @param label [String] The display label
-  # @return [String] HTML link
-  def sort_link(column, label)
-    direction = params[:sort] == column.to_s && params[:direction] == "asc" ? "desc" : "asc"
-    icon = sort_icon(column)
-
-    # Build URL with query parameters
-    url = url_for(sort: column, direction: direction, only_path: true)
-
-    link_to url, class: "group inline-flex items-center" do
-      safe_join(
-        [
-          label,
-          content_tag(
-            :span, icon,
-            class: "ml-2 flex-none rounded text-slate-900 group-hover:text-slate-900"
-          )
-        ]
-      )
-    end
-  end
-
-  # Returns the sort icon for a column
-  # @param column [Symbol] The column name
-  # @return [String] Icon HTML
-  def sort_icon(column)
-    if params[:sort] == column.to_s
-      params[:direction] == "asc" ? "↑" : "↓"
-    else
-      "⇅"
-    end
-  end
+  # `sort_link` and `sort_icon` are **not** here. They were defined identically in this module and in
+  # ApplicationHelper - and since Rails mixes every helper into the same view context, which copy answered
+  # depended on include order. One definition, in ApplicationHelper, which both halves of the product use.
 
   # Renders search and filter form
   # @param filters [Array<Hash>] Filter definitions with :name, :label, :options keys

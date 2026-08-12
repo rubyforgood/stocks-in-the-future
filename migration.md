@@ -4262,3 +4262,67 @@ transaction does not reveal the account form's row beside it.
 
 `form_actions_test` asserts both halves; verified by removing the guard and watching it fail.
 
+## The student record page is bounded: five transactions, and the money form closed
+
+Asked whether combining view and edit is what made the page a long scroll. Measured, and it is not: the same
+blocks were 1974px + 1510px across two pages and are 2958px on one, so merging removed 526px. What it did was
+concentrate the length, and two sections were carrying half of it.
+
+| Section | Was | Now |
+| --- | --- | --- |
+| Details | 474px | 474px |
+| Add a transaction | 728px, always open | folded into Transactions, closed |
+| Earnings | 331px | 331px |
+| Transactions | 739px, every row | 447px, five rows |
+| Attendance | 298px | 298px |
+| **Page** | **2958px, 3.9 viewports** | **1914px, 2.5 viewports** |
+
+**The transaction list is the only thing on that page with no ceiling.** 13 rows measured 739px; a year of
+weekly trading is about 150 rows, which is roughly 7,400px. It shows `RECENT_TRANSACTIONS` - five - then
+"Showing 5 of 13" and a link to the full list.
+
+**So the full list had to become reachable.** `admin/portfolio_transactions#index` takes `?user_id=`, says
+whose transactions it is showing, and offers "Show all transactions". An id matching nobody is ignored rather
+than rendered as an empty filtered list, and the notice is driven by the same object that applied the filter,
+so the page cannot claim a filter it did not apply.
+
+**And a filter had to survive being sorted.** `sort_link` built its URL with `url_for(sort:, direction:)`,
+which rebuilds the path from the current controller and action and drops every other query parameter - so
+sorting `/admin/students?discarded=true` silently returned the *active* list. Every admin index with a filter
+had it. It merges `request.query_parameters` now. While fixing it: `sort_link` and `sort_icon` were defined
+**identically** in `AdminHelper` and `ApplicationHelper`, and since Rails mixes every helper into one view
+context, which copy answered depended on include order. There is one, in `ApplicationHelper`.
+
+**The money form is a `<details>`, closed until asked for.** Stripe's "Adjust balance" is a button for the
+same reason: an occasional write should not cost everyone 728px of scroll. `dropdown_controller` had already
+settled the mechanism for this app - a native disclosure works without JavaScript - and it solves the case a
+hand-rolled panel gets wrong: a rejected submit re-renders the page, and the panel comes back open with the
+values in it because `open` is server-rendered.
+
+### Two reflow failures found on the way, both invisible to the existing checks
+
+**A card clips what it cannot fit, so the page never scrolls.** `.tw-card` is `overflow-hidden`. At 320px and
+200% text the earnings breakdown's figures sat up to **89px past their card's edge**, cut in half, with
+`document.scrollWidth` reporting no overflow at all - so `reflow_test` passed. Its rows wrap now, and a new
+test compares each figure's box against its **card's** box rather than the page's. That test only works
+because its fixture has real money in it: with zeros the card renders an empty state, which is why the
+populated rows had never been rendered by any test. The student-pages fixture now has earnings for the same
+reason.
+
+**`.tw-btn-*` was `h-10`, a fixed height.** At 200% text a label long enough to wrap is cropped by its own
+button, and "Add a transaction" was the first label in the product long enough to find it. The base is
+`min-h-10 py-2`, which measures the same 40px at every size this app renders - `form_actions_test` still
+asserts 40 - and grows instead of cropping. An `inline-flex` control whose label can be long also needs
+`max-w-full`, because an inline-flex box is sized by its own content and nothing else bounds it.
+
+### What this breaks
+
+- `admin/students#show` no longer has an "Add a transaction" section; its headings are Details, Earnings,
+  Transactions, Attendance. A test clicking the money form's submit has to open the disclosure first - which
+  is why the summary reads "Add a transaction" and the submit "Add transaction" rather than both the same.
+- `@transactions` is now five rows, not all of them, and `@transactions_count` is the total. Anything reading
+  `@transactions.size` as a count is wrong.
+- `sort_icon`'s unit tests moved from `admin_helper_test` to `application_helper_test` with the method.
+- Every button in the app is now `min-h-10 py-2` rather than `h-10`. Identical at normal text; a long label
+  wraps and the button grows.
+

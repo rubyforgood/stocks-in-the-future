@@ -3,6 +3,28 @@
 require "test_helper"
 
 class ApplicationHelperTest < ActionView::TestCase
+  # Moved from `admin_helper_test` with the method itself: `sort_icon` and `sort_link` were defined twice,
+  # identically, and both halves of the product read whichever copy the include order happened to pick.
+  test "sort_icon returns up arrow for asc sort" do
+    params[:sort] = "name"
+    params[:direction] = "asc"
+
+    assert_equal "↑", sort_icon(:name)
+  end
+
+  test "sort_icon returns down arrow for desc sort" do
+    params[:sort] = "name"
+    params[:direction] = "desc"
+
+    assert_equal "↓", sort_icon(:name)
+  end
+
+  test "sort_icon returns both arrows for unsorted column" do
+    params[:sort] = "email"
+
+    assert_equal "⇅", sort_icon(:name)
+  end
+
   test "safe_url returns valid http URL" do
     url = "http://example.com"
 

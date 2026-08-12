@@ -530,13 +530,68 @@ class FormActionsTest < ApplicationSystemTestCase
     assert_equal "flex", page.evaluate_script(row_display % admin_student_path(student)),
                  "the rejected form has no way to submit again"
 
-    # A rejected transaction must not un-hide the account form: that form is still clean.
+    # A rejected transaction must not un-hide the account form: that form is still clean. The form is a
+    # disclosure now, so it has to be opened before its submit exists to click - which is also why the
+    # summary reads "Add a transaction" and the submit "Add transaction", rather than both the same.
     visit admin_student_path(student)
+    find("[data-testid='add-transaction-disclosure'] summary").click
     click_on "Add transaction"
 
     assert_selector "[data-testid='form-errors']"
     assert_equal "none", page.evaluate_script(row_display % admin_student_path(student)),
                  "a rejected transaction revealed the account form's save row"
+  end
+
+  # The money form is collapsed, because it was 728px of a 2958px page - a quarter of the scroll - held open
+  # for a task an administrator does occasionally. Measured after: the page is 1914px, and opening the form
+  # takes it to 2634px, which is the point of a disclosure.
+  #
+  # A `<details>`, so this also asserts the thing a hand-rolled panel gets wrong: what a **closed** form does
+  # to the keyboard. `getBoundingClientRect()` still reports 44px for a field inside a closed details in
+  # Chrome - the geometry from before it closed - so the honest instruments are `checkVisibility()` and
+  # whether `focus()` takes.
+  test "the money form is closed until asked for, and unreachable while it is" do
+    student = create(:student, :with_portfolio, name: "Ada Lovelace")
+    student.reload
+    sign_in create(:admin)
+
+    visit admin_student_path(student)
+
+    state = <<~JS
+      (function () {
+        const details = document.querySelector("[data-testid='add-transaction-disclosure']");
+        const amount = document.querySelector("[name='cash_adjustment[amount]']");
+        return {
+          open: details.open,
+          pageHeight: Math.round(document.body.scrollHeight),
+          amountVisible: amount.checkVisibility({ contentVisibilityAuto: true }),
+          amountFocusable: (function () { amount.focus(); return document.activeElement === amount; })()
+        };
+      })()
+    JS
+
+    closed = page.evaluate_script(state)
+
+    assert_equal false, closed["open"], "the money form is open before anybody asked for it"
+    assert_equal false, closed["amountVisible"], "a closed form's field is still visible"
+    assert_equal false, closed["amountFocusable"], "tab reaches a field inside the closed form"
+
+    find("[data-testid='add-transaction-disclosure'] summary").click
+    opened = page.evaluate_script(state)
+
+    assert_equal true, opened["open"]
+    assert_equal true, opened["amountVisible"]
+    assert_operator opened["pageHeight"], :>, closed["pageHeight"] + 400,
+                    "opening the form did not add the form's height, so it was never really closed"
+
+    # A rejected submit has to come back **open**, with what was typed. The panel's state is a server-rendered
+    # attribute for exactly this reason.
+    fill_in "Amount", with: "50"
+    click_on "Add transaction"
+
+    assert_selector "[data-testid='form-errors']"
+    assert_selector "[data-testid='add-transaction-disclosure'][open]"
+    assert_equal "50", find("[name='cash_adjustment[amount]']").value
   end
 
   # The description says something the reader cannot already see. "You can add students once it exists" spent

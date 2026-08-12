@@ -92,8 +92,15 @@ module ApplicationHelper
     direction = params[:sort] == column.to_s && params[:direction] == "asc" ? "desc" : "asc"
     icon = sort_icon(column)
 
-    # Build URL with query parameters
-    url = url_for(sort: column, direction: direction, only_path: true)
+    # **Keeps whatever the reader is already looking at.** This was `url_for(sort:, direction:)`, which
+    # rebuilds the path from the current controller and action and drops every other query parameter - so
+    # sorting `/admin/students?discarded=true` silently returned the *active* list, and sorting a
+    # transactions list filtered to one student returned everybody's. Every admin index with a filter had
+    # it, and it is invisible until you sort a filtered page and read the rows.
+    sort_params = request.query_parameters.symbolize_keys.merge(
+      sort: column, direction: direction, only_path: true
+    )
+    url = url_for(sort_params)
 
     link_to url, class: "group inline-flex items-center" do
       safe_join(

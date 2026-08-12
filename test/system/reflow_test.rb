@@ -103,6 +103,14 @@ class ReflowTest < ApplicationSystemTestCase
   test "the student pages reflow" do
     classroom = create(:classroom, :with_trading)
     student = create(:student, :with_portfolio, classroom:)
+    # **With earnings**, so the breakdown renders its rows rather than its empty state. Without a reason the
+    # deposit counts towards nothing, every row reads $0.00, the card shows one sentence instead - and the
+    # overflow that a `$1,150.00` beside its label causes at 200% text went unmeasured on this page. A
+    # fixture that renders an empty state is not testing the populated one.
+    create(
+      :portfolio_transaction, :deposit,
+      portfolio: student.portfolio, amount_cents: 115_000, reason: :attendance_earnings
+    )
     create(
       :portfolio_stock, portfolio: student.portfolio, stock: (stock = create(:stock)), shares: 100,
                         purchase_price: stock.price_cents
@@ -131,6 +139,53 @@ class ReflowTest < ApplicationSystemTestCase
       "classroom" => classroom_path(classroom),
       "trading floor" => stocks_path
     )
+  end
+
+  # **The failure a page-level check cannot see.** `.tw-card` is `overflow-hidden`, so an element too wide
+  # for its card is *clipped* rather than pushed onto the page: the document never scrolls, the audit above
+  # passes, and a figure is cut in half. Measured on the earnings breakdown at 320px and 200% text, a
+  # `$1,150.00` sat 57px past its card's edge with the page reporting no overflow at all.
+  #
+  # Restricted to definition-list rows inside a card. A table cell legitimately extends past the wrapper it
+  # is in, because the scroller is the div between them - so including cells here would report every wide
+  # table as a defect.
+  test "a figure is never clipped by the card it sits in" do
+    student = create(:student, :with_portfolio, classroom: create(:classroom, :with_trading))
+    student.reload
+    { attendance_earnings: 50_000, reading_earnings: 50_000,
+      math_earnings: 10_000, awards: 5_000 }.each do |reason, cents|
+      create(:portfolio_transaction, :deposit, portfolio: student.portfolio, amount_cents: cents, reason:)
+    end
+    create(
+      :portfolio_transaction,
+      portfolio: student.portfolio, transaction_type: :fee, amount_cents: 100, reason: :transaction_fees
+    )
+    sign_in create(:admin)
+
+    clipped_rows = <<~JS
+      (function () {
+        const out = [];
+        document.querySelectorAll("main .tw-card dl dt, main .tw-card dl dd").forEach(function (el) {
+          const card = el.closest(".tw-card");
+          const e = el.getBoundingClientRect();
+          const c = card.getBoundingClientRect();
+          if (e.right > c.right + 1 || e.left < c.left - 1) {
+            out.push(JSON.stringify(el.textContent.trim().slice(0, 24)) + " is clipped by its card: " +
+                     Math.round(Math.max(e.right - c.right, c.left - e.left)) + "px past the edge");
+          }
+        });
+        return out;
+      })()
+    JS
+
+    in_reflow_viewport do
+      [admin_student_path(student), user_portfolio_path(student, student.portfolio)].each do |path|
+        visit path
+        apply_200_percent_text
+
+        assert_empty Array(page.evaluate_script(clipped_rows)), "#{path} at 320px and 200% text"
+      end
+    end
   end
 
   test "the admin pages reflow" do

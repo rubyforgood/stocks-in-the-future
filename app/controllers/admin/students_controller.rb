@@ -8,6 +8,14 @@ module Admin
     # How many distinct skip reasons the import flash names before it summarises the rest.
     SKIP_REASONS_SHOWN = 3
 
+    # How many of a student's transactions the record page shows before linking to the full list.
+    #
+    # The section was every row a portfolio had: 13 rows measured 739px, a quarter of the page, and it is
+    # the only thing on that page with no ceiling - a student trading weekly for a year has ~150 rows,
+    # which is about 7,400px. Five is what fits under the fold's neighbour without dominating it, and the
+    # rest are one click away on a list that can be sorted and filtered.
+    RECENT_TRANSACTIONS = 5
+
     before_action :set_student, only: %i[show edit update destroy add_transaction]
     before_action :set_discarded_student, only: %i[restore]
 
@@ -130,7 +138,11 @@ module Admin
 
       if @student.portfolio.present?
         @earnings_summary = EarningsSummary.new(@student.portfolio)
-        @transactions = @student.portfolio.portfolio_transactions.order(created_at: :desc)
+        transactions = @student.portfolio.portfolio_transactions.order(created_at: :desc)
+        # Both the count and the rows, from one query's relation: the section's "Showing 5 of 13" has to
+        # derive from the same thing the table renders, or the two can disagree.
+        @transactions_count = transactions.count
+        @transactions = transactions.limit(RECENT_TRANSACTIONS).to_a
         # `||=`, so a rejected adjustment keeps the one carrying the errors and the values typed into it.
         @cash_adjustment ||= CashAdjustment.new(portfolio: @student.portfolio)
       end

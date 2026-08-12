@@ -61,28 +61,10 @@ class AdminHelperTest < ActionView::TestCase
     assert_not_equal yes_classes, no_classes
   end
 
-  test "sort_icon returns up arrow for asc sort" do
-    params[:sort] = "name"
-    params[:direction] = "asc"
-    assert_equal "↑", sort_icon(:name)
-  end
-
-  test "sort_icon returns down arrow for desc sort" do
-    params[:sort] = "name"
-    params[:direction] = "desc"
-    assert_equal "↓", sort_icon(:name)
-  end
-
-  test "sort_icon returns both arrows for unsorted column" do
-    params[:sort] = "email"
-    assert_equal "⇅", sort_icon(:name)
-  end
-
-  # `sort_link`'s two tests were skipped as "broken due to routing issues", with their bodies commented
-  # out and the error kept in a comment: `No route matches {direction: "desc", sort: :name}`.
-  #
-  # Nothing was broken. The helper calls `url_for(sort:, direction:, only_path: true)`, which builds a URL
-  # **for the current page** - and an ActionView::TestCase has no current page, so there is no route for
-  # those two parameters to hang off. The behaviour only exists inside a request, which is where it is
-  # tested now: see `test/controllers/admin/sort_link_test.rb`.
+  # `sort_link` and `sort_icon` are not in `AdminHelper` any more - they were defined identically here and
+  # in `ApplicationHelper`, so which copy answered depended on include order. The unit tests for `sort_icon`
+  # moved to `application_helper_test`, and `sort_link` is tested inside a request, where it works:
+  # `test/controllers/admin/sort_link_test.rb`. It was once skipped as "broken due to routing issues" with
+  # `No route matches {direction: "desc", sort: :name}` kept in a comment; nothing was broken, an
+  # ActionView::TestCase simply has no current page for those parameters to hang off.
 end

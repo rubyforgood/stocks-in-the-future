@@ -103,6 +103,19 @@ applies it, which made one look unreachable — and an audit scored it "justifie
 while it rendered **2.45:1** over a background that stays light. There is no dark mode here, so
 there should be no `dark:`.
 
+**A page-level reflow check cannot see content a card clips.** `.tw-card` is `overflow-hidden`, so an
+element too wide for it is cut off rather than pushed onto the page: `document.scrollWidth` never grows,
+`reflow_test`'s audit passes, and a figure is sliced in half. Measured on the earnings breakdown at 320px and
+200% text - six figures up to **89px past their card's edge**, with the page reporting no overflow at all.
+The test for this compares each element's box against its **card's** box, and it only found the case because
+the fixture had real money in it: with zeros the card renders an empty state instead, so the populated rows
+were never rendered by any test.
+
+**`getBoundingClientRect()` lies inside a closed `<details>`.** Chrome keeps the geometry from before it
+closed, so a field in a collapsed disclosure reports a 44px height while being unreachable. `checkVisibility()`
+returns false and `focus()` does not take - those are the honest instruments, and they are what a test should
+assert on a collapsed panel.
+
 **Two greps in this repo's audits cannot be right, and both have produced a wrong number twice.**
 `<th` matches `<thead>`, so "N `<th>` without scope" is inflated by every table. And a line-based
 regex cannot see an attribute on the following line, so "images without alt" counts every

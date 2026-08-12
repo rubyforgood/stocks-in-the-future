@@ -14,7 +14,12 @@
       class    - extra classes on the card
 
     dl/dt/dd rather than divs: it is a list of terms and their values. Figures are tabular-nums so they
-    read down the column. %>
+    read down the column.
+
+    Each row wraps. At 200% text a `$1,150.00` beside its label does not fit a 320px viewport, and
+    `justify-between` with no wrap pushed the figure 57px past the edge - a WCAG 1.4.10 failure that only
+    appears when a student has real money, which is why it survived: the reflow test's fixture rendered
+    zeros, so the empty state stood in for the rows. %>
 <% paid = summary.total_earnings_cents.positive? || summary.transaction_fees_cents.positive? %>
 
 <%= render layout: "components/ui/card",
@@ -26,13 +31,13 @@
           ["Reading", summary.reading_earnings_cents],
           ["Math", summary.math_earnings_cents],
           ["Rewards", summary.awards_cents]].each do |label, cents| %>
-        <div class="flex items-center justify-between gap-4 px-5 py-3">
+        <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 px-5 py-3">
           <dt class="text-slate-700"><%= label %></dt>
           <dd class="tabular-nums text-slate-900"><%= number_to_currency(cents / 100.0) %></dd>
         </div>
       <% end %>
 
-      <div class="flex items-center justify-between gap-4 bg-slate-50 px-5 py-3">
+      <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 bg-slate-50 px-5 py-3">
         <dt class="font-semibold text-slate-900">Total earned</dt>
         <dd class="font-semibold tabular-nums text-slate-900">
           <%= number_to_currency(summary.total_earnings_cents / 100.0) %>
@@ -41,7 +46,7 @@
 
       <%# A deduction, so it carries an explicit minus as well as the colour - the same convention the
           holdings table uses for a negative, and it keeps the meaning off colour alone. %>
-      <div class="flex items-center justify-between gap-4 px-5 py-3">
+      <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 px-5 py-3">
         <dt class="text-slate-700">Transaction fees</dt>
         <dd class="tabular-nums text-red-700">
           -<%= number_to_currency(summary.transaction_fees_cents / 100.0) %>
