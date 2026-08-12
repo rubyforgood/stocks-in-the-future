@@ -45,10 +45,15 @@ if student && portfolio.portfolio_transactions.none?
     reason: :awards
   )
 
+  # A fee, written the way `TransactionFeeProcessor` writes one: `transaction_type: :fee`, at the flat
+  # `TRANSACTION_FEE_CENTS`. It was a **deposit** of $25.00 tagged `transaction_fees` - a shape nothing in
+  # the app can produce - and it was the only row in a seeded database that matched the equally wrong
+  # `deposits.where(reason: :transaction_fees)` in `EarningsSummary`. So the seed made the bug look like
+  # working code: the fees line showed a plausible -$25.00 while every real fee was excluded from it.
   PortfolioTransaction.create(
     portfolio: portfolio,
-    transaction_type: :deposit,
-    amount_cents: 25_00,
+    transaction_type: :fee,
+    amount_cents: PortfolioTransaction::TRANSACTION_FEE_CENTS,
     reason: :transaction_fees
   )
 
