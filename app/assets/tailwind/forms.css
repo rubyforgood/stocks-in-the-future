@@ -175,6 +175,26 @@
    *
    * No border: design.md's Dividers section rules out an extra rule, and the page-coloured background is
    * what stops content showing through when it is pinned. */
+  /* **A field is one cell of a two-column grid**, so a short field is exactly half the card's content box
+     minus half the gutter - 351px of a 726px box at 1366px - and two short fields pair without either of
+     them carrying a width of its own.
+
+     This replaced a set of `max-w-*` field sizes. Both rules exist in the field and they answer different
+     questions: sizing an input to its *content* is GOV.UK's, and it is a minority position taken for error
+     prevention in transactional government forms (an input wider than its data invites the wrong data).
+     Sizing an input to its *grid cell* is what Tailwind UI, Polaris, Carbon, Material and Bootstrap all do,
+     and it is what makes a form read as a rhythm rather than as a ragged stack. The two combine: the grid
+     lays the form out, and content width is kept for the genuinely tiny values that would look absurd at
+     half a card - a two-digit day count in a table cell, which is where design.md's other note lives.
+
+     `gap-y-0`: vertical rhythm still comes from each field wrapper's own `mb-6`, so a form that is not a
+     grid is unchanged and the 24px between fields is stated in one place rather than two.
+
+     One column below `lg`, because two 163px fields on a phone is not a pair, it is a squeeze. */
+  .tw-form-grid {
+    @apply grid grid-cols-1 gap-x-6 gap-y-0 lg:grid-cols-2;
+  }
+
   .tw-form-actions {
     @apply flex flex-wrap items-center gap-3 py-4;
   }

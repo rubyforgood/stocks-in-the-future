@@ -10,62 +10,64 @@
       card's header when the page has one card. A heading returns the moment a form has two - see
       admin/students, where it separates them. %>
   <%= render layout: "components/ui/card", locals: {} do %>
-      <%= f.text_field :username,
-                       label: "Username",
-                       width: :long,
-                       required: true,
-                       hint: "Unique username for the user",
-                       placeholder: "johndoe" %>
+    <div class="tw-form-grid">
+        <%= f.text_field :username,
+                         label: "Username",
+                         width: :half,
+                         required: true,
+                         hint: "Unique username for the user",
+                         placeholder: "johndoe" %>
 
-      <%= f.select :type,
-                   options_for_select(
-                     %w[User Student Teacher].map { |t| [t, t] },
-                     @user.type
-                   ),
-                   label: "User type",
-                   width: :long,
-                   hint: "Select the type of user (Student, Teacher, or generic User)",
-                   include_blank: false %>
+        <%= f.select :type,
+                     options_for_select(
+                       %w[User Student Teacher].map { |t| [t, t] },
+                       @user.type
+                     ),
+                     label: "User type",
+                     width: :half,
+                     hint: "Select the type of user (Student, Teacher, or generic User)",
+                     include_blank: false %>
 
-      <%= f.text_field :email,
-                       label: "Email",
-                       hint: "Email address (required for Teachers and Admins, optional for Students)",
-                       placeholder: "user@example.com" %>
+        <%= f.text_field :email,
+                         label: "Email",
+                         hint: "Email address (required for Teachers and Admins, optional for Students)",
+                         placeholder: "user@example.com" %>
 
-      <%= f.boolean_field :admin,
-                          label: "Admin",
-                          hint: "Grant admin privileges to this user" %>
+        <%= f.boolean_field :admin,
+                            label: "Admin",
+                            hint: "Grant admin privileges to this user" %>
 
-      <%= f.select :classroom_id,
-                   options_from_collection_for_select(
-                     Classroom.order(:name),
-                     :id,
-                     :name,
-                     @user.classroom_id
-                   ),
-                   label: "Classroom",
-                   hint: "Optional classroom assignment",
-                   include_blank: "No classroom" %>
+        <%= f.select :classroom_id,
+                     options_from_collection_for_select(
+                       Classroom.order(:name),
+                       :id,
+                       :name,
+                       @user.classroom_id
+                     ),
+                     label: "Classroom",
+                     hint: "Optional classroom assignment",
+                     include_blank: "No classroom" %>
 
-      <% if @user.new_record? %>
-        <div class="mt-6 pt-6 border-t border-slate-200">
-          <h4 class="text-md font-medium text-slate-900 mb-4">Password</h4>
+        <% if @user.new_record? %>
+          <div class="tw-form-grid mt-6 pt-6 border-t border-slate-200 lg:col-span-2">
+            <h4 class="text-md font-medium text-slate-900 mb-4 lg:col-span-2">Password</h4>
 
-          <%= f.password_field :password,
-                               label: "Password",
-                               width: :long,
-                               required: true,
-                               hint: "Minimum 6 characters",
-                               placeholder: "••••••••" %>
+            <%= f.password_field :password,
+                                 label: "Password",
+                                 width: :half,
+                                 required: true,
+                                 hint: "Minimum 6 characters",
+                                 placeholder: "••••••••" %>
 
-          <%= f.password_field :password_confirmation,
-                               label: "Password confirmation",
-                               width: :long,
-                               required: true,
-                               hint: "Re-enter password to confirm",
-                               placeholder: "••••••••" %>
-        </div>
-      <% end %>
+            <%= f.password_field :password_confirmation,
+                                 label: "Password confirmation",
+                                 width: :half,
+                                 required: true,
+                                 hint: "Re-enter password to confirm",
+                                 placeholder: "••••••••" %>
+          </div>
+    </div>
+    <% end %>
   <% end %>
 
   <div class="tw-form-actions">

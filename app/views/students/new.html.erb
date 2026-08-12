@@ -16,7 +16,9 @@
         capped at 672px. A single-column stack is what GOV.UK, Polaris and Tailwind UI use for a short
         form, and one field per row is what makes a form scannable. %>
     <div class="tw-card p-5">
-      <div>
+      <%# Two short fields, so they pair: `.tw-form-grid` makes each one half the card's content box minus
+          half the gutter, which is the same 351px the admin form renders. %>
+      <div class="tw-form-grid">
         <%# `users.name` has existed the whole time and `User#display_name` prefers it, but nothing ever
             collected it - so every student's name was nil and every screen fell back to a lowercased
             username. Reported as "why are all the student names lowercase": they were not names. Required
@@ -29,7 +31,7 @@
             the two halves read differently. `Ui::FormBuilder` owns the shape now. %>
         <%= f.text_field :name,
                          label: "Full name",
-                         width: :long,
+                         width: :half,
                          required: true,
                          placeholder: "e.g., Jordan Smith",
                          hint: "Shown instead of the username wherever this student appears. A roster " \
@@ -37,7 +39,7 @@
 
         <%= f.text_field :username,
                          label: "Username",
-                         width: :long,
+                         width: :half,
                          required: true,
                          placeholder: "e.g., jordan_s",
                          hint: "What the student signs in with. A password is generated automatically." %>

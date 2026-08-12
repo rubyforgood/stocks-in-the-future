@@ -46,9 +46,13 @@
       load-bearing the moment an error summary appeared between the two, giving that state a 16px gap where
       the rest of the page uses 24. The summary spaces itself now. %>
   <div class="tw-card p-5">
-    <div class="space-y-5">
+    <%# `.tw-form-grid` in place of `space-y-5`: the vertical rhythm comes from each field wrapper's own
+        `mb-6` either way - `space-y-5`'s 20px lost to it by margin collapsing and was inert - and the grid
+        pairs School with Year rather than stacking two short selects down a 726px column. %>
+    <div class="tw-form-grid">
       <%= form.text_field :name,
                           label: "Name",
+                          width: :half,
                           required: true,
                           hint: "What a teacher and their students will see it called." %>
 
@@ -62,12 +66,12 @@
       <% if admin_fields %>
         <%= form.select :school_id,
                         options_from_collection_for_select(@schools, :id, :name, classroom.school_id),
-                        { label: "School", prompt: "Select a school" },
+                        { label: "School", prompt: "Select a school", width: :half },
                         { required: true } %>
 
         <%= form.select :year_id,
                         options_from_collection_for_select(@years, :id, :name, classroom.year_id),
-                        { label: "Year", prompt: "Select a year" },
+                        { label: "Year", prompt: "Select a year", width: :half },
                         { required: true } %>
       <% end %>
 

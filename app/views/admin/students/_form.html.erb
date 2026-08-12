@@ -14,55 +14,57 @@
   <%= render "shared/form_errors", record: @student, subject: "student" %>
 
   <%= render layout: "components/ui/card", locals: {} do %>
-    <%# Both halves of the product get the field. Admin keeps showing the username as well, because
-        an administrator manages the account and the username is what the student signs in with. %>
-    <%= f.text_field :name,
-                     label: "Full name",
-                     width: :long,
-                     required: true,
-                     hint: "Shown instead of the username wherever this student appears" %>
+    <div class="tw-form-grid">
+      <%# Both halves of the product get the field. Admin keeps showing the username as well, because
+          an administrator manages the account and the username is what the student signs in with. %>
+      <%= f.text_field :name,
+                       label: "Full name",
+                       width: :half,
+                       required: true,
+                       hint: "Shown instead of the username wherever this student appears" %>
 
-    <%# `required: true` on both, matching the teacher's own form, which had it all along. The model
-        requires a username and a classroom on this path, and the markup said neither: no asterisk on the
-        label, no `required` attribute, so the browser let an empty form through to be rejected by the
-        server. The asterisk is why the classroom hint no longer ends "(required)" - design.md's rule is
-        that a requirement is stated once. %>
-    <%= f.text_field :username,
-                     label: "Username",
-                     width: :long,
-                     required: true,
-                     hint: "What the student signs in with, and it has to be unique",
-                     placeholder: "johndoe" %>
+      <%# `required: true` on both, matching the teacher's own form, which had it all along. The model
+          requires a username and a classroom on this path, and the markup said neither: no asterisk on the
+          label, no `required` attribute, so the browser let an empty form through to be rejected by the
+          server. The asterisk is why the classroom hint no longer ends "(required)" - design.md's rule is
+          that a requirement is stated once. %>
+      <%= f.text_field :username,
+                       label: "Username",
+                       width: :half,
+                       required: true,
+                       hint: "What the student signs in with, and it has to be unique",
+                       placeholder: "johndoe" %>
 
-    <%= f.select :classroom_id,
-                 options_from_collection_for_select(
-                   Classroom.order(:name),
-                   :id,
-                   :name,
-                   @student.classroom_id
-                 ),
-                 label: "Classroom",
-                 required: true,
-                 hint: "The class this student belongs to",
-                 include_blank: "Select a classroom" %>
+      <%= f.select :classroom_id,
+                   options_from_collection_for_select(
+                     Classroom.order(:name),
+                     :id,
+                     :name,
+                     @student.classroom_id
+                   ),
+                   label: "Classroom",
+                   required: true,
+                   hint: "The class this student belongs to",
+                   include_blank: "Select a classroom" %>
 
-    <% if @student.new_record? %>
-      <div class="mt-6 pt-6 border-t border-slate-200">
-        <h3 class="text-base font-medium text-slate-900 mb-4">Password</h3>
-        <p class="text-sm text-slate-600 mb-4">Leave blank to generate a random password automatically</p>
+      <% if @student.new_record? %>
+        <div class="tw-form-grid mt-6 pt-6 border-t border-slate-200 lg:col-span-2">
+          <h3 class="text-base font-medium text-slate-900 mb-4 lg:col-span-2">Password</h3>
+          <p class="text-sm text-slate-600 mb-4 lg:col-span-2">Leave blank to generate a random password automatically</p>
 
-        <%= f.password_field :password,
-                             label: "Password (optional)",
-                             width: :long,
-                             hint: "Minimum 6 characters, or leave blank to auto-generate",
-                             placeholder: "••••••••" %>
+          <%= f.password_field :password,
+                               label: "Password (optional)",
+                               width: :half,
+                               hint: "Minimum 6 characters, or leave blank to auto-generate",
+                               placeholder: "••••••••" %>
 
-        <%= f.password_field :password_confirmation,
-                             label: "Password confirmation",
-                             width: :long,
-                             hint: "Re-enter password to confirm",
-                             placeholder: "••••••••" %>
-      </div>
+          <%= f.password_field :password_confirmation,
+                               label: "Password confirmation",
+                               width: :half,
+                               hint: "Re-enter password to confirm",
+                               placeholder: "••••••••" %>
+        </div>
+    </div>
     <% end %>
   <% end %>
 

@@ -581,7 +581,10 @@ class FormActionsTest < ApplicationSystemTestCase
 
     assert_equal true, opened["open"]
     assert_equal true, opened["amountVisible"]
-    assert_operator opened["pageHeight"], :>, closed["pageHeight"] + 400,
+    # 200px, not 400: the money form's fields pair in `.tw-form-grid` now, so it opens 331px rather than the
+    # 720px it took when every field had its own row. The assertion is that the panel was really closed, and
+    # a third of a viewport of growth says that as well as two thirds did.
+    assert_operator opened["pageHeight"], :>, closed["pageHeight"] + 200,
                     "opening the form did not add the form's height, so it was never really closed"
 
     # A rejected submit has to come back **open**, with what was typed. The panel's state is a server-rendered

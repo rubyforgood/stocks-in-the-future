@@ -10,22 +10,24 @@
       card's header when the page has one card. A heading returns the moment a form has two - see
       admin/students, where it separates them. %>
   <%= render layout: "components/ui/card", locals: {} do %>
-      <%= f.text_field :name,
-                       label: "Name",
-                       width: :long,
-                       required: true,
-                       hint: "Enter the school name",
-                       placeholder: "Lincoln elementary school" %>
+    <div class="tw-form-grid">
+        <%= f.text_field :name,
+                         label: "Name",
+                         width: :half,
+                         required: true,
+                         hint: "Enter the school name",
+                         placeholder: "Lincoln elementary school" %>
 
-      <%# **No years here.** They were a `collection_check_boxes` on `year_ids`, and that was two defects
-          rather than a layout problem: unchecking a box silently destroyed a school year and its four
-          quarters, and doing it to a year with a classroom raised `PG::ForeignKeyViolation` - a 500 - because
-          the join went before `restrict_with_error` could speak.
+        <%# **No years here.** They were a `collection_check_boxes` on `year_ids`, and that was two defects
+            rather than a layout problem: unchecking a box silently destroyed a school year and its four
+            quarters, and doing it to a year with a classroom raised `PG::ForeignKeyViolation` - a 500 - because
+            the join went before `restrict_with_error` could speak.
 
-          A year is provisioned, not preferred, so it is a list with an explicit add and remove on the
-          school's own page. That is also what the field does rather than a multi-select: GOV.UK advises
-          against `select multiple` outright, and Polaris, Material and Carbon ship none. %>
-  <% end %>
+            A year is provisioned, not preferred, so it is a list with an explicit add and remove on the
+            school's own page. That is also what the field does rather than a multi-select: GOV.UK advises
+            against `select multiple` outright, and Polaris, Material and Carbon ship none. %>
+    </div>
+    <% end %>
 
   <div class="tw-form-actions">
     <%# On a detail page the submit names what it saves, and there is nothing to cancel *to* -

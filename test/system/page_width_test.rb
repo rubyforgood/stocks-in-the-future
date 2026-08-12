@@ -207,11 +207,15 @@ class PageWidthTest < ApplicationSystemTestCase
     end
   end
 
-  # **And a field is as wide as its content, not as wide as the column.** Reported in the same breath - "some
-  # of these look very wide" - and it is the half a column cannot fix: a 726px box for a two-letter ticker.
-  # GOV.UK states the rule and ships width modifiers, Tailwind UI spans 2 to 6 of 12 columns per field, and
-  # Polaris groups short fields rather than stacking full-width ones.
-  test "a short field is not as wide as its column" do
+  # **A short field is one cell of a two-column grid** - half the card's content box minus half the gutter,
+  # which is 351px of 726px here - and two short fields pair rather than stacking down a 726px column.
+  #
+  # This asserted four `max-w-*` sizes for one commit, which was the other rule in the field: GOV.UK sizes an
+  # input to its **content** and ships width modifiers for it. The grid is what Tailwind UI, Polaris, Carbon,
+  # Material and Bootstrap do, and it is what was asked for - "half the size of the container and half the
+  # size of the padding were there another field beside it in a two column format". Content width survives
+  # where a value is genuinely tiny: the grade book's cells, which are 96px in a table.
+  test "a short field is one cell of the form grid" do
     create(:stock, ticker: "AAPL")
     sign_in(create(:admin))
 
@@ -228,12 +232,30 @@ class PageWidthTest < ApplicationSystemTestCase
       })()
     JS
 
-    assert_equal 128, widths["Ticker symbol*"], "a ticker is four characters and its field is not short"
-    assert_equal 128, widths["Number of employees"]
-    assert_equal 192, widths["Current price"], "money is not a medium field"
-    assert_equal 384, widths["Company name"], "a name is not a long field"
-    # And what genuinely needs the width keeps it.
-    assert_equal 726, widths["Company website"], "a URL should still fill the column"
+    # (726 - 24) / 2: the card's content box less the grid's 24px gutter, halved.
+    assert_equal 351, widths["Ticker symbol*"], "a ticker does not take one cell"
+    assert_equal 351, widths["Number of employees"]
+    assert_equal 351, widths["Current price"]
+    assert_equal 351, widths["Company name"]
+    # And what genuinely needs the width spans both cells.
+    assert_equal 726, widths["Company website"], "a URL should still fill the row"
+    assert_equal 726, widths["Description"], "a textarea should still fill the row"
+
+    # Paired, not merely narrow: the second field of a row starts where the first one's cell ends plus the
+    # gutter. A short field that does not pair is just a short field.
+    lefts = page.evaluate_script(<<~JS)
+      (function () {
+        const out = {};
+        document.querySelectorAll("main form label.tw-label-primary").forEach(function (l) {
+          const c = document.getElementById(l.getAttribute("for"));
+          if (c) out[l.innerText.replace(/\s+/g, " ").trim()] = Math.round(c.getBoundingClientRect().left);
+        });
+        return out;
+      })()
+    JS
+
+    assert_equal lefts["Ticker symbol*"] + 351 + 24, lefts["Company name"],
+                 "the second field of the row is not beside the first"
   end
 
   test "a utility overrides a component class" do

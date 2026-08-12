@@ -4444,3 +4444,38 @@ two textareas still 726px.
 - design.md's form-measure rule said `max-w-2xl` and its person-edit shape said the same; both now say 768px.
   The table-cell field-width note is generalised: a field is sized to its content in a form column too.
 
+## A form is a two-column grid, and the field sizes are gone
+
+The commit before this sized fields with four `max-w-*` values. Asked for the grid rule instead - "the short
+fields should be half the size of the container and half the size of the padding were there another field
+beside it in a two column format" - which is both what was wanted and the mainstream one.
+
+`.tw-form-grid` is `grid-cols-1 gap-x-6 gap-y-0 lg:grid-cols-2`, so a short field is **351px** of a 726px card
+at 1366px - half the content box less half the gutter - and two short fields pair. `gap-y-0` because the
+vertical rhythm is already each field wrapper's `mb-6`; `grid-cols-1` below `lg` because two 163px fields on a
+phone is a squeeze, not a pair.
+
+`FIELD_WIDTHS` became `FIELD_SPANS`: `width: :half` is one cell, `:full` is both, the default is `:full` so an
+unconsidered field keeps the width it has, and an unknown name raises.
+
+**The two rules this chooses between.** Sizing an input to its **content** is GOV.UK's, and a minority
+position taken for error prevention in transactional government forms. Sizing it to its **grid cell** is
+Tailwind UI (2 to 6 of 12 columns), Polaris's `FormLayout.Group`, Carbon, Material and Bootstrap. Content width
+survives in this app only where a value is genuinely tiny - the grade book's 96px table cells.
+
+### What this breaks
+
+- `collection_check_boxes` now always renders `lg:col-span-2`, in the builder: a group of checkboxes lays its
+  own boxes out in columns and is never half a card. Outside a grid the class does nothing.
+- Field groups - the password blocks, the stock form's six sections - are grids themselves with
+  `lg:col-span-2`, and their headings and helper paragraphs span. A group left as a plain child would have
+  rendered its whole contents in a 351px cell, which is how this was found.
+- `classrooms/_form` lost `space-y-5` for the grid. That spacing was already inert: 20px of `space-y` against
+  each wrapper's 24px `mb-6`, collapsed to 24px.
+- `profiles#edit`'s two forms carry `.tw-form-grid` in place of `class: "contents"`, and their error summaries
+  and submit rows span.
+- `form_actions_test`'s disclosure threshold moved from +400px to +200px, because the money form now opens
+  331px rather than 720px - its fields pair. `page_width_test` asserts 351px cells and that the second field
+  of a row starts one cell plus one gutter along, which is the part that says "paired" rather than merely
+  "narrow".
+

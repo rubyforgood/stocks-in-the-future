@@ -1757,22 +1757,30 @@ words gave a teacher nothing: not whether it was required, not what it was worth
 a day count. It is a flat bonus on top of the per-day rate, and the section now says so - with every
 figure interpolated from `GradeEntry`'s constants, so the copy cannot claim a rate the model does not pay.
 
-**A field is as wide as the content it holds - in a form column as well as in a table cell.** Reported as
-"some of these look very wide", and it is the half a column cannot fix: in a 768px column a `w-full` input
-renders a **726px** box for a two-letter ticker or a four-digit year. GOV.UK states the rule outright and
-ships width modifiers for it, Tailwind UI's form sections span 2 to 6 of 12 columns per field rather than all
-12, and Polaris puts short fields side by side instead of stacking full-width ones. Full width is the
-outlier.
+**A form is a two-column grid, and a short field is one cell of it.** Reported as "some of these look very
+wide", then specified exactly: half the container minus half the gutter, as if another field sat beside it.
+That is **351px** of a 726px card at 1366px, and two short fields pair instead of stacking down a column.
+`.tw-form-grid` is `grid-cols-1 gap-x-6 gap-y-0 lg:grid-cols-2` - one column below `lg`, because two 163px
+fields on a phone is a squeeze rather than a pair, and `gap-y-0` because the vertical rhythm is already each
+field wrapper's own `mb-6`.
 
-`Ui::FormBuilder::FIELD_WIDTHS` is the set, and it is deliberately four values rather than a number per
-field - the same reasoning as the grade book's three controls below: `short` 128px for a ticker or a count,
-`medium` 192px for money or a ratio, `long` 384px for a name, a username or a password, and full for what
-genuinely needs it - an email, a URL, free text, or a select whose options are classroom names. Pass
-`width: :short`; an unknown name raises rather than silently rendering full width.
+**Which rule this is, and which it is not.** Two exist in the field and they answer different questions.
+Sizing an input to its **content** is GOV.UK's - they ship `--width-10`-style modifiers and say outright not
+to make an input wider than the data you expect - and it is a minority position, held for error prevention in
+transactional government forms. Sizing an input to its **grid cell** is what Tailwind UI (2 to 6 of 12
+columns), Polaris (`FormLayout.Group`), Carbon, Material and Bootstrap all do, and it is what a reader
+perceives as alignment. This app uses the grid, and keeps content width only where a value is genuinely tiny:
+the grade book's 96px cells, below. A set of four `max-w-*` sizes shipped here for one commit; the grid
+replaced it because a fixed 128px field beside a fixed 384px one aligns with nothing.
 
-**Still stacked, one field per row.** Sizing the fields leaves white space to the right of the short ones,
-which Polaris and Tailwind UI use by putting two short fields on one row. That is a layout change per form
-rather than a token, and it is in design-todo.
+`Ui::FormBuilder::FIELD_SPANS` is the mechanism - `width: :half` for one cell, `:full` for both - and the
+default is `:full`, so a field nobody has considered keeps the width it has. An unknown name raises.
+
+**What is not a cell.** A checkbox group lays its own boxes out in columns, so `collection_check_boxes`
+always spans, in the builder rather than at every call site. A group heading, a helper paragraph, an error
+summary and a submit row span too, and a *group* of fields is itself a grid carrying `lg:col-span-2`, so its
+fields pair inside it. Measured on the stock form: six groups spanning, with Cash flow beside Debt, Debt to
+equity beside Profit margin, the three industry averages paired, and both textareas at the full 726px.
 
 **An input in a table cell is sized to its content too**, and that is where this rule was first written: the grade book's days field rendered at **322px** for a value that
 cannot exceed two digits, because the column took the table's slack. GOV.UK states the rule and ships

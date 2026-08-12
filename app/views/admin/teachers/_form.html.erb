@@ -10,54 +10,57 @@
       card's header when the page has one card. A heading returns the moment a form has two - see
       admin/students, where it separates them. %>
   <%= render layout: "components/ui/card", locals: {} do %>
-      <%= f.text_field :email,
-                       label: "Email",
-                       required: true,
-                       hint: "Also used as the teacher's login username",
-                       placeholder: "teacher@example.com" %>
+    <div class="tw-form-grid">
+        <%= f.text_field :email,
+                         label: "Email",
+                         required: true,
+                         hint: "Also used as the teacher's login username",
+                         placeholder: "teacher@example.com" %>
 
-      <%= f.text_field :name,
-                       label: "Full name",
-                       width: :long,
-                       hint: "Teacher's full name",
-                       placeholder: "John Doe" %>
+        <%= f.text_field :name,
+                         label: "Full name",
+                         width: :half,
+                         hint: "Teacher's full name",
+                         placeholder: "John Doe" %>
 
-      <div data-controller="form-filter" data-form-filter-frame-id-value="teacher_classroom_selection">
-        <%= f.select :school_id,
-                     options_from_collection_for_select(@schools, :id, :name, @selected_school_id),
-                     { label: "School filter", hint: "Select a school to filter the classroom list", include_blank: "All schools" },
-                     { name: "school_id", data: { action: "change->form-filter#change" } } %>
-      </div>
+        <div data-controller="form-filter" data-form-filter-frame-id-value="teacher_classroom_selection">
+          <%= f.select :school_id,
+                       options_from_collection_for_select(@schools, :id, :name, @selected_school_id),
+                       { label: "School filter", hint: "Select a school to filter the classroom list", include_blank: "All schools" },
+                       { name: "school_id", data: { action: "change->form-filter#change" } } %>
+        </div>
 
-      <%= turbo_frame_tag "teacher_classroom_selection", class: "block mb-6" do %>
-        <% if @classrooms.any? %>
-          <%= f.collection_check_boxes :classroom_ids,
-                                       @classrooms,
-                                       :id,
-                                       :name,
-                                       label: "Classrooms",
-                                       hint: "Select one or more classrooms to assign to this teacher",
-                                       wrapper_class: "mb-0" %>
-        <% else %>
-          <div class="mb-6">
-            <label class="block text-sm font-medium text-slate-700 mb-2">Classrooms</label>
-            <%# The callout, not a hand-rolled panel with an inline SVG and yellow-400/700/800 ink.
-                The link is the callout's trailing action rather than a link buried mid-sentence:
-                a notice plus the thing to do about it. yellow was also one step off the amber the
-                component uses. %>
-            <%= render layout: "components/ui/callout",
-                       locals: { title: "No classrooms available",
-                                 body: "No classrooms are associated with this school and active year yet." } do %>
-              <%= link_to admin_classrooms_path, class: ghost_class do %>
-                <%= lucide_icon "arrow-right", class: "size-4 shrink-0" %>
-                Update classrooms
-              <% end %>
+        <%# `lg:col-span-2`: a checkbox group of classroom names is not a half-width field. %>
+        <%= turbo_frame_tag "teacher_classroom_selection", class: "block mb-6 lg:col-span-2" do %>
+          <% if @classrooms.any? %>
+            <%= f.collection_check_boxes :classroom_ids,
+                                         @classrooms,
+                                         :id,
+                                         :name,
+                                         label: "Classrooms",
+                                         hint: "Select one or more classrooms to assign to this teacher",
+                                         wrapper_class: "mb-0" %>
+          <% else %>
+            <div class="mb-6">
+              <label class="block text-sm font-medium text-slate-700 mb-2">Classrooms</label>
+              <%# The callout, not a hand-rolled panel with an inline SVG and yellow-400/700/800 ink.
+                  The link is the callout's trailing action rather than a link buried mid-sentence:
+                  a notice plus the thing to do about it. yellow was also one step off the amber the
+                  component uses. %>
+              <%= render layout: "components/ui/callout",
+                         locals: { title: "No classrooms available",
+                                   body: "No classrooms are associated with this school and active year yet." } do %>
+                <%= link_to admin_classrooms_path, class: ghost_class do %>
+                  <%= lucide_icon "arrow-right", class: "size-4 shrink-0" %>
+                  Update classrooms
+    </div>
+    <% end %>
             <% end %>
         <% end %>
       <% end %>
 
       <% if @teacher.new_record? %>
-        <div class="mt-6 pt-6 border-t border-slate-200">
+        <div class="mt-6 pt-6 border-t border-slate-200 lg:col-span-2">
           <p class="text-sm text-slate-600">
             <%= lucide_icon("info", class: "mr-1 w-4 h-4 shrink-0") %>
             A temporary password will be generated and a password reset email will be sent to the teacher's email address.

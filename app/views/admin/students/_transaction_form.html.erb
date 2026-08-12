@@ -21,40 +21,42 @@
   <%= render "shared/form_errors", record: adjustment, subject: "transaction" %>
 
   <%= render layout: "components/ui/card", locals: {} do %>
-    <%= f.select :transaction_type,
-                 CashAdjustment::DIRECTIONS.map { |direction| [direction.humanize, direction] },
-                 label: "Transaction type",
-                 width: :long,
-                 required: true,
-                 hint: "Deposit adds to the cash balance, debit takes from it",
-                 include_blank: "Select a transaction type" %>
+    <div class="tw-form-grid">
+      <%= f.select :transaction_type,
+                   CashAdjustment::DIRECTIONS.map { |direction| [direction.humanize, direction] },
+                   label: "Transaction type",
+                   width: :half,
+                   required: true,
+                   hint: "Deposit adds to the cash balance, debit takes from it",
+                   include_blank: "Select a transaction type" %>
 
-    <%# A text field with `inputmode`, not `number_field`. GOV.UK's money pattern is explicit about this:
-        a number input carries spinners, changes value on a stray scroll, and silently rejects a pasted
-        "$12.50". The keypad on a phone is the same either way. %>
-    <%= f.text_field :amount,
-                     label: "Amount",
-                     width: :medium,
-                     required: true,
-                     hint: "In dollars, like 12.50",
-                     placeholder: "0.00",
-                     inputmode: "decimal",
-                     autocomplete: "off" %>
+      <%# A text field with `inputmode`, not `number_field`. GOV.UK's money pattern is explicit about this:
+          a number input carries spinners, changes value on a stray scroll, and silently rejects a pasted
+          "$12.50". The keypad on a phone is the same either way. %>
+      <%= f.text_field :amount,
+                       label: "Amount",
+                       width: :half,
+                       required: true,
+                       hint: "In dollars, like 12.50",
+                       placeholder: "0.00",
+                       inputmode: "decimal",
+                       autocomplete: "off" %>
 
-    <%= f.select :reason,
-                 CashAdjustment::REASONS.map { |key| [PortfolioTransaction.human_attribute_name("reason.#{key}"), key] },
-                 label: "Reason",
-                 width: :long,
-                 required: true,
-                 hint: "Where this money came from, or what it was for",
-                 include_blank: "Select a reason" %>
+      <%= f.select :reason,
+                   CashAdjustment::REASONS.map { |key| [PortfolioTransaction.human_attribute_name("reason.#{key}"), key] },
+                   label: "Reason",
+                   width: :half,
+                   required: true,
+                   hint: "Where this money came from, or what it was for",
+                   include_blank: "Select a reason" %>
 
-    <%= f.text_area :description,
-                    label: "Description (optional)",
-                    hint: "Additional details about this transaction",
-                    placeholder: "Enter transaction details...",
-                    rows: 3 %>
-  <% end %>
+      <%= f.text_area :description,
+                      label: "Description (optional)",
+                      hint: "Additional details about this transaction",
+                      placeholder: "Enter transaction details...",
+                      rows: 3 %>
+    </div>
+    <% end %>
 
   <%# Not `tw-form-actions`: that class hides an update form's row until a field changes and then sticks
       it to the bottom of the viewport. This form *creates* something, so there is nothing to compare

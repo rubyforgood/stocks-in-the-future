@@ -10,136 +10,138 @@
       card's header when the page has one card. A heading returns the moment a form has two - see
       admin/students, where it separates them. %>
   <%= render layout: "components/ui/card", locals: {} do %>
-      <%= f.text_field :ticker,
-                       label: "Ticker symbol",
-                       width: :short,
-                       required: true,
-                       hint: "Stock ticker symbol (e.g., AAPL, GOOGL)",
-                       placeholder: "AAPL" %>
+    <div class="tw-form-grid">
+        <%= f.text_field :ticker,
+                         label: "Ticker symbol",
+                         width: :half,
+                         required: true,
+                         hint: "Stock ticker symbol (e.g., AAPL, GOOGL)",
+                         placeholder: "AAPL" %>
 
-      <%= f.text_field :company_name,
-                       label: "Company name",
-                       width: :long,
-                       hint: "Full company name",
-                       placeholder: "Apple Inc." %>
+        <%= f.text_field :company_name,
+                         label: "Company name",
+                         width: :half,
+                         hint: "Full company name",
+                         placeholder: "Apple Inc." %>
 
-      <%= f.text_field :company_website,
-                       label: "Company website",
-                       hint: "Company website URL (must be HTTP or HTTPS)",
-                       placeholder: "https://www.apple.com" %>
+        <%= f.text_field :company_website,
+                         label: "Company website",
+                         hint: "Company website URL (must be HTTP or HTTPS)",
+                         placeholder: "https://www.apple.com" %>
 
-      <%= f.text_field :stock_exchange,
-                       label: "Stock exchange",
-                       width: :long,
-                       hint: "Exchange where stock is traded (e.g., NASDAQ, NYSE)",
-                       placeholder: "NASDAQ" %>
+        <%= f.text_field :stock_exchange,
+                         label: "Stock exchange",
+                         width: :half,
+                         hint: "Exchange where stock is traded (e.g., NASDAQ, NYSE)",
+                         placeholder: "NASDAQ" %>
 
-      <%= f.text_area :description,
-                      label: "Description",
-                      hint: "Company description and overview",
-                      rows: 4 %>
-
-      <div class="mt-6 pt-6 border-t border-slate-200">
-        <h3 class="mb-4 text-sm font-semibold text-slate-900">Pricing</h3>
-
-        <%= f.currency_field :price_cents,
-                             label: "Current price",
-                             width: :medium,
-                             hint: "Current stock price in dollars",
-                             multiplier: 0.01,
-                             decimals: 2 %>
-
-        <%= f.currency_field :yesterday_price_cents,
-                             label: "Yesterday's price",
-                             width: :medium,
-                             hint: "Previous day's closing price in dollars",
-                             multiplier: 0.01,
-                             decimals: 2 %>
-      </div>
-
-      <div class="mt-6 pt-6 border-t border-slate-200">
-        <h3 class="mb-4 text-sm font-semibold text-slate-900">Company details</h3>
-
-        <%= f.number_field :employees,
-                           label: "Number of employees",
-                           width: :short,
-                           hint: "Total number of employees" %>
-
-        <%= f.text_field :industry,
-                         label: "Industry",
-                         width: :long,
-                         hint: "Industry sector",
-                         placeholder: "Technology" %>
-      </div>
-
-      <div class="mt-6 pt-6 border-t border-slate-200">
-        <h3 class="mb-4 text-sm font-semibold text-slate-900">Financial metrics</h3>
-
-        <%= f.text_field :cash_flow,
-                         label: "Cash flow",
-                         width: :medium,
-                         hint: "Company cash flow" %>
-
-        <%= f.text_field :debt,
-                         label: "Debt",
-                         width: :medium,
-                         hint: "Total company debt" %>
-
-        <%= f.text_field :debt_to_equity,
-                         label: "Debt to equity ratio",
-                         width: :medium,
-                         hint: "Debt to equity ratio" %>
-
-        <%= f.text_field :profit_margin,
-                         label: "Profit margin",
-                         width: :medium,
-                         hint: "Company profit margin" %>
-
-        <%= f.text_field :sales_growth,
-                         label: "Sales growth",
-                         width: :medium,
-                         hint: "Sales growth percentage" %>
-      </div>
-
-      <div class="mt-6 pt-6 border-t border-slate-200">
-        <h3 class="mb-4 text-sm font-semibold text-slate-900">Industry averages</h3>
-
-        <%= f.text_field :industry_avg_debt_to_equity,
-                         label: "Industry avg debt to equity",
-                         width: :medium,
-                         hint: "Industry average debt to equity ratio" %>
-
-        <%= f.text_field :industry_avg_profit_margin,
-                         label: "Industry avg profit margin",
-                         width: :medium,
-                         hint: "Industry average profit margin" %>
-
-        <%= f.text_field :industry_avg_sales_growth,
-                         label: "Industry avg sales growth",
-                         width: :medium,
-                         hint: "Industry average sales growth" %>
-      </div>
-
-      <div class="mt-6 pt-6 border-t border-slate-200">
-        <h3 class="mb-4 text-sm font-semibold text-slate-900">Additional information</h3>
-
-        <%= f.text_area :management,
-                        label: "Management",
-                        hint: "Information about company management",
+        <%= f.text_area :description,
+                        label: "Description",
+                        hint: "Company description and overview",
                         rows: 4 %>
 
-        <%= f.text_area :competitor_names,
-                        label: "Competitor names",
-                        hint: "List of competitor companies",
-                        rows: 3 %>
-      </div>
+        <div class="tw-form-grid mt-6 pt-6 border-t border-slate-200 lg:col-span-2">
+          <h3 class="mb-4 text-sm font-semibold text-slate-900 lg:col-span-2">Pricing</h3>
 
-      <div class="mt-6 pt-6 border-t border-slate-200">
-        <%= f.boolean_field :archived,
-                            label: "Archived",
-                            hint: "Mark this stock as archived (hidden from active listings)" %>
-      </div>
-  <% end %>
+          <%= f.currency_field :price_cents,
+                               label: "Current price",
+                               width: :half,
+                               hint: "Current stock price in dollars",
+                               multiplier: 0.01,
+                               decimals: 2 %>
+
+          <%= f.currency_field :yesterday_price_cents,
+                               label: "Yesterday's price",
+                               width: :half,
+                               hint: "Previous day's closing price in dollars",
+                               multiplier: 0.01,
+                               decimals: 2 %>
+        </div>
+
+        <div class="tw-form-grid mt-6 pt-6 border-t border-slate-200 lg:col-span-2">
+          <h3 class="mb-4 text-sm font-semibold text-slate-900 lg:col-span-2">Company details</h3>
+
+          <%= f.number_field :employees,
+                             label: "Number of employees",
+                             width: :half,
+                             hint: "Total number of employees" %>
+
+          <%= f.text_field :industry,
+                           label: "Industry",
+                           width: :half,
+                           hint: "Industry sector",
+                           placeholder: "Technology" %>
+        </div>
+
+        <div class="tw-form-grid mt-6 pt-6 border-t border-slate-200 lg:col-span-2">
+          <h3 class="mb-4 text-sm font-semibold text-slate-900 lg:col-span-2">Financial metrics</h3>
+
+          <%= f.text_field :cash_flow,
+                           label: "Cash flow",
+                           width: :half,
+                           hint: "Company cash flow" %>
+
+          <%= f.text_field :debt,
+                           label: "Debt",
+                           width: :half,
+                           hint: "Total company debt" %>
+
+          <%= f.text_field :debt_to_equity,
+                           label: "Debt to equity ratio",
+                           width: :half,
+                           hint: "Debt to equity ratio" %>
+
+          <%= f.text_field :profit_margin,
+                           label: "Profit margin",
+                           width: :half,
+                           hint: "Company profit margin" %>
+
+          <%= f.text_field :sales_growth,
+                           label: "Sales growth",
+                           width: :half,
+                           hint: "Sales growth percentage" %>
+        </div>
+
+        <div class="tw-form-grid mt-6 pt-6 border-t border-slate-200 lg:col-span-2">
+          <h3 class="mb-4 text-sm font-semibold text-slate-900 lg:col-span-2">Industry averages</h3>
+
+          <%= f.text_field :industry_avg_debt_to_equity,
+                           label: "Industry avg debt to equity",
+                           width: :half,
+                           hint: "Industry average debt to equity ratio" %>
+
+          <%= f.text_field :industry_avg_profit_margin,
+                           label: "Industry avg profit margin",
+                           width: :half,
+                           hint: "Industry average profit margin" %>
+
+          <%= f.text_field :industry_avg_sales_growth,
+                           label: "Industry avg sales growth",
+                           width: :half,
+                           hint: "Industry average sales growth" %>
+        </div>
+
+        <div class="tw-form-grid mt-6 pt-6 border-t border-slate-200 lg:col-span-2">
+          <h3 class="mb-4 text-sm font-semibold text-slate-900 lg:col-span-2">Additional information</h3>
+
+          <%= f.text_area :management,
+                          label: "Management",
+                          hint: "Information about company management",
+                          rows: 4 %>
+
+          <%= f.text_area :competitor_names,
+                          label: "Competitor names",
+                          hint: "List of competitor companies",
+                          rows: 3 %>
+        </div>
+
+        <div class="tw-form-grid mt-6 pt-6 border-t border-slate-200 lg:col-span-2">
+          <%= f.boolean_field :archived,
+                              label: "Archived",
+                              hint: "Mark this stock as archived (hidden from active listings)" %>
+        </div>
+    </div>
+    <% end %>
 
   <div class="tw-form-actions">
     <%= f.submit_button @stock.persisted? ? "Update stock" : "Create stock" %>
