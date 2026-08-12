@@ -12,6 +12,7 @@
   <%= render layout: "components/ui/card", locals: {} do %>
       <%= f.text_field :ticker,
                        label: "Ticker symbol",
+                       required: true,
                        hint: "Stock ticker symbol (e.g., AAPL, GOOGL)",
                        placeholder: "AAPL" %>
 

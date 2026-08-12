@@ -2404,6 +2404,28 @@ resolved into the association on validation, and the validation is on them. Thre
 - **`find_or_initialize_by` with `autosave`,** not find-or-create before the save. The controllers used
   to resolve it eagerly, which left an orphan SchoolYear behind every failed submit.
 
+**A required field says so, and an optional one does not.** The mark is the red asterisk on the label -
+`.required-indicator`, red-600 at 4.83:1 on white, where red-500 measured 3.76:1 and failed AA - plus
+`required` on the control, which is what assistive technology announces. The asterisk is `aria-hidden`, so it
+is not read twice. Pass `required: true` to the builder and both appear together.
+
+**Both directions are the same defect.** A field marked required that the model would accept blank teaches a
+reader to distrust the asterisk; a field the model rejects with no mark makes them find out by submitting.
+Nine of eighteen forms were in the second state - a school's name, a stock's ticker, an announcement's title
+and content, a school year's school and year, a teacher's email, a user's username and password, and every
+field on both money forms. `test/integration/required_fields_test.rb` asserts the pairing per page, including
+that an optional field carries no asterisk.
+
+**Where the requirement is conditional, so is the mark.** `User#email_required?` is true for a teacher or an
+admin and false for a student, so the profile page passes `required: current_user.email_required?` and the
+asterisk appears exactly when a blank would be rejected. Guessing either way would be wrong for half the
+users.
+
+**`required` is not what stops the submit here** - native validation is off app-wide so the app's own error
+summary can render - so a mark with no model validation behind it is decoration. When you add the mark, check
+the validation exists; that is how `PortfolioTransaction`'s missing `transaction_type` and `amount_cents`
+checks were found, both `null: false` columns whose blank submit produced a 500 rather than a message.
+
 **Validate what the form claims.** The admin student form's classroom select carried the hint "Classroom
 assignment (required)" and `belongs_to :classroom` is `optional: true`, so nothing required it. Saving the
 blank was accepted and it broke the list the student was saved into - `admin/students#index` rendered

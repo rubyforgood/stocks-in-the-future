@@ -17,12 +17,14 @@
       <% length_hint = "#{@minimum_password_length} characters minimum" if @minimum_password_length %>
       <%= f.password_field :password,
                            label: "New password",
+                           required: true,
                            autofocus: true,
                            autocomplete: "new-password",
                            hint: length_hint %>
 
       <%= f.password_field :password_confirmation,
                            label: "Confirm new password",
+                           required: true,
                            autocomplete: "new-password" %>
 
       <%= f.submit "Change password", class: "tw-btn-primary w-full" %>

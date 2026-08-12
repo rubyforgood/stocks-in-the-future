@@ -4364,3 +4364,42 @@ with the first and 0px with the second.
 - `table_actions_reachable_test` gains the 1024px assertion, and its wide-classrooms fixture needed longer
   data - with ordinary data that table now fits, which would have made the not-pinned test vacuous.
 
+## Required fields are marked, and a currency field stops rendering two labels
+
+Reported: on the new portfolio transaction page nothing said which fields were required, and "amount says
+amount in dollars then there is another subheader amount cents".
+
+**The second one was a bug in the builder, not the form.** `currency_field` called `field_wrapper`, which
+deletes `:label` from the options and renders it, and then called `number_field`, which wraps *again* and -
+finding no label left - fell back to the humanized attribute name. Three fields across two forms rendered two
+labels each: Amount / "Amount cents", Current price / "Price cents", Yesterday's price / "Yesterday price
+cents". `currency_field` delegates to `number_field` now, so there is one wrapper, one label, one hint and one
+message.
+
+**And the marks were missing from half the product.** Nine of eighteen forms marked nothing: schools,
+school_years, stocks, teachers, users, announcements, portfolio_transactions, the admin cash adjustment, and
+the reset-password and profile password forms. Each now passes `required: true` for exactly the fields its
+model requires - the red asterisk on the label plus `required` on the control, which is what assistive
+technology announces.
+
+Two decisions inside that sweep:
+
+- **Conditional requirements are marked conditionally.** `User#email_required?` is false for a student, so the
+  profile's email field passes `required: current_user.email_required?` rather than being marked always or
+  never.
+- **A mark needs a validation behind it.** `PortfolioTransaction` validated neither `transaction_type` nor
+  `amount_cents`, both `null: false` columns - so the admin's "New transaction" form answered a blank submit
+  with `ActiveRecord::NotNullViolation`, a 500 rather than a message beside the field. Both are presence
+  validations now. Presence only: an amount of zero is rejected on the path a person types on
+  (`CashAdjustment`), not on a model that services write to with their own arithmetic.
+
+### What this breaks
+
+- `PortfolioTransaction` now rejects a blank `transaction_type` or `amount_cents`. Every writer in the app
+  already sets both - `ExecuteOrder` through the `.debit` / `.credit` scopes, `TransactionFeeProcessor`
+  through `.fees`, `DistributeEarnings` and `CashAdjustment` explicitly - and the factory sets both too.
+- A currency field's markup changes: one label element instead of two, and the second `mb-6` wrapper is gone,
+  so the field's spacing matches every other field rather than being double.
+- `test/integration/required_fields_test.rb` asserts the pairing per page. It fails if a required field loses
+  its mark **or** if an optional field gains one, which is the half that keeps the asterisk meaning something.
+

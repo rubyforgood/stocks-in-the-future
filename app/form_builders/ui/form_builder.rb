@@ -62,26 +62,27 @@ module Ui
       end
     end
 
-    # Currency field with proper formatting
+    # A cents column shown and entered in dollars.
     # Usage: f.currency_field :price_cents, multiplier: 0.01, decimals: 2
+    #
+    # **One wrapper.** This used to call `field_wrapper` and then `number_field`, which wraps again - so every
+    # currency field rendered **two** labels: the one it was given, then a second from the humanized attribute
+    # name, because the first wrapper had already deleted `:label` from the options. Reported as "amount says
+    # amount in dollars then there is another subheader amount cents", and it was on three fields across two
+    # forms: Amount / "Amount cents", Current price / "Price cents", Yesterday's price / "Yesterday price
+    # cents". Delegating to `number_field` leaves exactly one label, one hint and one message.
     def currency_field(attribute, options = {})
       multiplier = options.delete(:multiplier) || 0.01
       decimals = options.delete(:decimals) || 2
+      value = object.public_send(attribute)
 
-      field_wrapper(attribute, options) do
-        value = object.public_send(attribute)
-        display_value = value ? (value * multiplier).round(decimals) : nil
-
-        number_field(
-          attribute,
-          options.merge(
-            value: display_value,
-            step: (1.0 / (10**decimals)),
-            class: input_class(attribute),
-            data: { currency_multiplier: (1.0 / multiplier).to_i }
-          )
+      number_field(
+        attribute,
+        options.merge(
+          value: value ? (value * multiplier).round(decimals) : nil,
+          step: (1.0 / (10**decimals))
         )
-      end
+      )
     end
 
     # Text area with proper styling

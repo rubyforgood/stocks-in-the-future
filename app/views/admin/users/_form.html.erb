@@ -12,6 +12,7 @@
   <%= render layout: "components/ui/card", locals: {} do %>
       <%= f.text_field :username,
                        label: "Username",
+                       required: true,
                        hint: "Unique username for the user",
                        placeholder: "johndoe" %>
 
@@ -50,11 +51,13 @@
 
           <%= f.password_field :password,
                                label: "Password",
+                               required: true,
                                hint: "Minimum 6 characters",
                                placeholder: "••••••••" %>
 
           <%= f.password_field :password_confirmation,
                                label: "Password confirmation",
+                               required: true,
                                hint: "Re-enter password to confirm",
                                placeholder: "••••••••" %>
         </div>

@@ -12,6 +12,7 @@
   <%= render layout: "components/ui/card", locals: {} do %>
       <%= f.text_field :email,
                        label: "Email",
+                       required: true,
                        hint: "Also used as the teacher's login username",
                        placeholder: "teacher@example.com" %>
 

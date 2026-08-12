@@ -39,7 +39,14 @@
                        hint: "Shown on your portfolio and in the account menu. Leave it blank to use " \
                              "your username." %>
 
-      <%= f.email_field :email, label: "Email address", autocomplete: "email", hint: email_hint %>
+      <%# `required:` follows `User#email_required?`, which is true for a teacher or an admin and false
+          for a student - so the asterisk appears exactly when the model would reject a blank. A field
+          marked required that is not, or required and unmarked, are the same defect in two directions. %>
+      <%= f.email_field :email,
+                        label: "Email address",
+                        autocomplete: "email",
+                        required: current_user.email_required?,
+                        hint: email_hint %>
 
       <%# Read-only rather than disabled: a disabled field is skipped by keyboard navigation, so the
           value a student needs to remember becomes unreachable. %>
@@ -61,15 +68,18 @@
 
       <%= f.password_field :current_password,
                            label: "Current password",
+                           required: true,
                            autocomplete: "current-password" %>
 
       <%= f.password_field :password,
                            label: "New password",
+                           required: true,
                            autocomplete: "new-password",
                            hint: length_hint %>
 
       <%= f.password_field :password_confirmation,
                            label: "Confirm new password",
+                           required: true,
                            autocomplete: "new-password" %>
 
       <%# Secondary, not primary: design.md allows one filled primary per page and "Save details"

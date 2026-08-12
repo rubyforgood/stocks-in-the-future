@@ -12,11 +12,13 @@
   <%= render layout: "components/ui/card", locals: {} do %>
       <%= f.text_field :title,
                        label: "Title",
+                       required: true,
                        hint: "Enter the announcement title (max 255 characters)",
                        placeholder: "Important update" %>
 
       <%= f.rich_text_area :content,
                            label: "Content",
+                           required: true,
                            hint: "Write the full announcement content" %>
 
       <%= f.boolean_field :featured,

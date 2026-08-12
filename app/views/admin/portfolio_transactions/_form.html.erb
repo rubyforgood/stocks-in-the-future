@@ -13,12 +13,14 @@
       <%= f.association_select :portfolio_id,
                                collection: Portfolio.includes(:user).order("users.username"),
                                label: "Portfolio",
+                               required: true,
                                label_method: ->(portfolio) { "#{portfolio.user.username} (ID: #{portfolio.id})" },
                                hint: "Select the portfolio for this transaction" %>
 
       <%= f.select :transaction_type,
                    PortfolioTransaction.transaction_types.keys.map { |type| [type.humanize, type] },
                    label: "Transaction type",
+                   required: true,
                    hint: "Type of transaction (deposit, withdrawal, credit, debit, fee)",
                    include_blank: "Select transaction type..." %>
 
@@ -30,6 +32,7 @@
 
       <%= f.currency_field :amount_cents,
                            label: "Amount",
+                           required: true,
                            hint: "Transaction amount in dollars",
                            multiplier: 0.01,
                            decimals: 2 %>

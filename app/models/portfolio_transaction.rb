@@ -18,6 +18,18 @@ class PortfolioTransaction < ApplicationRecord
 
   belongs_to :portfolio
 
+  # Both columns are `null: false`, and until now nothing checked them - so the admin's "New transaction"
+  # form could post a blank type or a blank amount and get `ActiveRecord::NotNullViolation`, which is a 500
+  # rather than a message next to the field. Every writer in the app already sets both: `ExecuteOrder` through
+  # the `.debit` / `.credit` scopes, `TransactionFeeProcessor` through `.fees`, `DistributeEarnings` and
+  # `CashAdjustment` explicitly.
+  #
+  # Presence only. An amount of zero is not something a person should be able to submit - `CashAdjustment`
+  # rejects it - but that rule belongs on the path a person types on rather than on the model, which is also
+  # written to by services whose arithmetic is their own.
+  validates :transaction_type, presence: true
+  validates :amount_cents, presence: true
+
   # Which grade book paid this, for an earnings deposit. Optional, and nil for every purchase, sale and
   # fee - and for every earnings deposit made before the column existed, which is why a difference
   # calculation has to treat nil as "not paid by this book" rather than as "unknown".

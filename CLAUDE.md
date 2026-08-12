@@ -143,6 +143,15 @@ assert on a collapsed panel.
 regex cannot see an attribute on the following line, so "images without alt" counts every
 multi-line `image_tag`. Read the hits before recording a count.
 
+**A form-builder method that wraps and then calls another wrapping method renders the label twice.**
+`Ui::FormBuilder#currency_field` called `field_wrapper` - which *deletes* `:label` from the options and
+renders it - and then called `number_field`, which wraps again and, finding no `:label` left, fell back to
+the humanized attribute name. So every currency field showed its own label followed by a second one from the
+column: "Amount" then **"Amount cents"**, "Current price" then "Price cents". Reported by a user, on three
+fields across two forms, after eleven months. If a builder method needs the input rather than the wrapper,
+call the ActionView method directly the way `build_select_field` does - or delegate to the wrapping method
+and let it do the wrapping once.
+
 **`form_with` takes `scope:`, not `as:`** — and `as:` is accepted silently into `**options`, so the
 fix looks applied and changes nothing. This matters here because **`User` is an STI base**:
 `form_with model: current_user` derives the param key from the record's class, so a Student posts
