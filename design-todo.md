@@ -976,3 +976,50 @@ are the better answer** - `admin/teachers` has them - and the classroom archive 
 its own toggle rather than Discard, so `SoftDeletableFiltering` does not drop straight in. Worth doing next
 time somebody is in that file.
 
+## One unreproduced flake, and the instrument for the next one (2026-08)
+
+A single `bin/rails test` run reported `930 runs, 3768 assertions, 1 failures`. Every other run before and
+since - **24 of them, 20 with distinct seeds** - reported `3769 assertions, 0 failures`. The failing test's
+name was lost because the command was piped through `tail -3`, so there is nothing to fix yet and a blind
+change would be theatre.
+
+What was ruled out by reading, so nobody re-treads it:
+
+- **Not a data-dependent assertion count.** 3769 in all 24 runs, so no test's count varies; the missing
+  assertion is just a test that failed at its first one and never reached its second.
+- **Not the compiled stylesheet.** No test reads `app/assets/builds`, so the Tailwind build that runs before
+  the suite cannot race one.
+- **Not the clock, in the year logic.** `year_test` passes explicit dates into `Year.current_school_year(date)`
+  rather than reading `Date.current`, which is what makes those tests date-proof.
+- **Not a factory sequence walking into a hard-coded value** - the family that produced the `Grade#level`
+  flake. `Year`'s sequence yields `"201 - 2002"`-shaped names, which cannot collide with the `"2026 - 2027"`
+  that three tests hard-code. (That sequence looks like a typo for `2000 + n` and is worth tidying on its own
+  account; it is not this.)
+
+**What to do about it:** `bin/flake-hunt N` exists now - serial runs, one log per failure, seed and assertion
+count per run, non-zero exit if anything was not green. Verified by breaking a test deliberately.
+
+**The decision left open** is whether to run it on a schedule. A one-in-fifty failure is never caught by a
+human watching a terminal; it is caught by a nightly job. The workflow is small:
+
+```yaml
+# .github/workflows/flake-hunt.yml
+name: Flake hunt
+on:
+  schedule: [{ cron: "0 6 * * *" }]
+  workflow_dispatch:
+jobs:
+  hunt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # …the same setup steps as ci.yml…
+      - run: bin/flake-hunt 10
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with: { name: flake-logs, path: tmp/flake }
+```
+
+It costs about ten suite runs of CI time a night on a volunteer project's budget, which is why it is a
+decision rather than a commit.
+

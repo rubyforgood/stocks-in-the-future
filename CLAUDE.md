@@ -76,6 +76,21 @@ clicks the account menu. And note how it hid: the assertion was the home page's 
 string for a teacher, so the test passed while signed in as the wrong user. **Assert who is signed in,
 not where you landed.**
 
+**Never pipe a suite run through `tail`.** A flake was seen exactly once - `930 runs, 3768 assertions,
+1 failures` - and the failing test's *name* went into the bit bucket, because the command was
+`bin/rails test 2>&1 | tail -3`. Twenty-four runs afterwards were identical (3769 assertions, zero
+failures, twenty different seeds), so there was nothing left to diagnose. **A one-in-many failure is only
+diagnosable if the run that fails leaves its log behind:** `bin/flake-hunt N` runs the suite N times
+serially, records the seed and the assertion count per run, and keeps the log of any run that was not
+green. Verified by breaking a test and watching it name it.
+
+Two signatures worth telling apart when reading those counts. An assertion count that **varies between
+runs** means state is leaking between tests, or some test's count depends on data. A count that drops by
+one **alongside a failure** means only that a test failed at its first assertion and never reached its
+second - that is arithmetic, not a second symptom. And if something does reproduce, replay it with
+`PARALLEL_WORKERS=1 bin/rails test --seed N`: if it only fails with workers it is shared state or the ten
+databases, and if it fails serially it is ordering or the clock.
+
 **Do not run two `bin/rails test` invocations at once.** Parallel workers share ten
 numbered databases (`stocks_in_the_future_test_0` … `_9`), so a second run collides
 with the first and both fill with `PG::TRDeadlockDetected` across unrelated tests. It
