@@ -77,6 +77,63 @@ class TableActionsReachableTest < ApplicationSystemTestCase
     end
   end
 
+  # **Every admin index fits at 1024px**, which is Tailwind's `lg` minimum, a docked Chromebook window, and
+  # the width where every column hidden below `lg` reappears at once. The sidebar takes 256px, so the table
+  # gets a 718px scroller - and three tables wanted 927px, 895px and 853px, which put the row actions off
+  # screen. Nothing about that was visible at 1366px or at 375px, which is why it survived both existing
+  # tests.
+  #
+  # This is the guard against column creep: a column added later has to earn its width against 718px, or a
+  # table starts scrolling again and the actions are the first thing to go.
+  test "no admin index table overflows at the lg minimum" do
+    admin = create(:admin)
+    classroom = create(:classroom, :with_trading)
+    student = create(:student, :with_portfolio, classroom:)
+    student.reload
+    create(:portfolio_transaction, :deposit, portfolio: student.portfolio, amount_cents: 50_000)
+    teacher = create(:teacher, name: "Wilhelmina Abernathy")
+    create(:teacher_classroom, teacher:, classroom:)
+    create(
+      :stock,
+      ticker: "AAPL", company_name: "Apple Inc.", price_cents: 15_000,
+      company_website: "https://www.apple.com/investor-relations"
+    )
+    create(:school_year)
+    sign_in(admin)
+
+    overflowing = {}
+
+    in_lg_minimum_viewport do
+      { "admin/users" => admin_users_path,
+        "admin/classrooms" => admin_classrooms_path,
+        "admin/students" => admin_students_path,
+        "admin/teachers" => admin_teachers_path,
+        "admin/schools" => admin_schools_path,
+        "admin/school_years" => admin_school_years_path,
+        "admin/stocks" => admin_stocks_path,
+        "admin/announcements" => admin_announcements_path,
+        "admin/portfolio_transactions" => admin_portfolio_transactions_path }.each do |label, path|
+        visit path
+        # Reports the columns as well as the overflow, because "+58px" does not say which column to argue
+        # with and the answer is never the one you assume.
+        result = page.evaluate_script(<<~JS)
+          (function () {
+            const wrap = document.querySelector("main [class*='overflow-x']");
+            if (!wrap) return { over: 0, columns: [] };
+            const columns = [...document.querySelectorAll("main thead th")]
+              .map((th) => [th.innerText.replace(/\s+/g, " ").trim().slice(0, 18) || "actions",
+                            Math.round(th.getBoundingClientRect().width)])
+              .filter((pair) => pair[1] > 0);
+            return { over: Math.round(wrap.scrollWidth - wrap.clientWidth), columns: columns };
+          })()
+        JS
+        overflowing[label] = result if result["over"].to_i > 1
+      end
+    end
+
+    assert_empty overflowing, "these tables scroll sideways at 1024px: #{overflowing.inspect}"
+  end
+
   # At 1024px, which is Tailwind's `lg` minimum and the only width where this mechanism does anything.
   #
   # Below `lg` no table scrolls sideways any more - each one collapses to a single column - so there is
@@ -176,11 +233,19 @@ class TableActionsReachableTest < ApplicationSystemTestCase
   end
   # Long names on purpose: the table has to be genuinely wider than its container for a pinned cell to
   # be pinned at all, and a fixture with short values makes the test pass while proving nothing.
+  # Deliberately extreme, and it has to be: with ordinary data this table **fits** at 1024px now, since the
+  # id column went and the Archived and Trading columns became one Status. That is asserted just above. The
+  # property this fixture exists for - that the actions cell scrolls with its table rather than floating over
+  # the column beneath it - can only be measured on a table that scrolls, so the data forces one.
   def a_wide_classrooms_table
     classroom = create(
       :classroom, :with_trading,
       name: "Mrs Abernathy's Advanced Placement Sixth Grade Homeroom",
-      school_year: create(:school_year, school: create(:school), year: create(:year))
+      school_year: create(
+        :school_year,
+        school: create(:school, name: "Saint Bartholomew's Consolidated Elementary and Middle School"),
+        year: create(:year)
+      )
     )
     create(
       :teacher_classroom, teacher: create(:teacher, name: "Wilhelmina Abernathy-Fitzgerald"),

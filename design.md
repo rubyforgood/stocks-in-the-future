@@ -2052,6 +2052,40 @@ One rule caught while sweeping: the student show page still coloured its stat **
 (`text-blue-900`, `text-green-900`, `text-purple-900`). The KPI entry is explicit that a numeral
 is always `slate-900` and never carries state; the tile carries it. Fixed.
 
+### A column earns its width against 718px
+
+**That is the number, and it is not 1366.** At 1024px - Tailwind's `lg` minimum, a docked Chromebook window,
+and the width where every column hidden below `lg` reappears at once - the sidebar takes 256px and a table's
+scroller is **718px**. Measured there, `admin/stocks` wanted 927px, `admin/teachers` 895px and `admin/users`
+853px, so the trailing actions column sat off screen on all three. Nothing about it showed at 1366px, where
+every one of them fits, or at 375px, where the row collapses into a single cell.
+
+**The answer is fewer columns, not another breakpoint.** Two tiers is the policy, and a third would only have
+hidden the problem at one more width. What came off, and the rule each removal follows:
+
+- **`ID`, from all seven indexes that had one.** 62px, and it is in the URL of the link in the same row.
+- **A column that duplicates another.** `Teacher#sync_username_from_email` sets `username = email`, so the
+  teachers list printed the same string in two columns. The name leads that table now.
+- **A creation date** on a staff list. Metadata belongs on the record page's summary line.
+- **A yes/no beside the column that could answer it.** `Admin` was a badge next to `Type`, which said "User"
+  for the one account that can do everything; `Type` reads the role through `account_role_label` now.
+- **Two state columns become one.** Classrooms had `Archived` and `Trading enabled` as separate yes/no
+  columns - 236px to answer two questions with "Yes". One `Status` column states the state in words, and
+  archived outranks trading because an archived classroom's switch position is moot.
+
+**What does not come off:** a column that is the only place a state is visible. `admin/stocks#index` lists
+`Stock.all`, so its `Archived` column is the only thing telling an archived row from an active one - dropping
+it would have hidden real data, and the two columns above it were enough.
+
+**And `break-words` does not shrink a table column.** An email is one unbreakable token, so it sets the
+cell's min-content width and the table sizes to it. `overflow-wrap: break-word` does not change a min-content
+contribution - `overflow-wrap: anywhere` does, which is Tailwind's `wrap-anywhere`. That distinction is the
+whole difference between a table that fits and one that scrolls, and it is invisible in the class list.
+
+`table_actions_reachable_test` asserts no admin index overflows at 1024px, with a fixture whose emails and
+names are long enough to matter, and its failure message names the columns and their widths - because "+58px"
+does not tell you which column to argue with, and it is never the one you assume.
+
 ### A column whose meaning is fixed and whose scope is stated
 **One column, one meaning; the viewer decides only the denominator.** The trading floor's `Held by`
 answers *who owns this, among the people you can see* - and `ClassroomPolicy::Scope` decides who that

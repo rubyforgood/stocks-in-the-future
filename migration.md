@@ -4326,3 +4326,41 @@ asserts 40 - and grows instead of cropping. An `inline-flex` control whose label
 - Every button in the app is now `min-h-10 py-2` rather than `h-10`. Identical at normal text; a long label
   wraps and the button grows.
 
+## Every admin index fits at 1024px
+
+Measured at Tailwind's `lg` minimum, where the sidebar leaves a table a **718px** scroller and every column
+hidden below `lg` reappears at once: `admin/stocks` wanted 927px, `admin/teachers` 895px, `admin/users` 853px
+and `admin/classrooms` 795px, so the trailing actions column was off screen on four of the nine indexes. It
+showed at neither 1366px nor 375px, which is why two existing tests both passed.
+
+Fewer columns, not a third breakpoint:
+
+| Removed | Why |
+| --- | --- |
+| `ID`, from all seven indexes that had one | 62px, and it is in the URL of the link in the same row |
+| teachers' `Username` | `Teacher#sync_username_from_email` sets `username = email`, so it printed the same string as the Email column. The **name** leads that table now |
+| teachers' `Created at` | metadata, and the record page's summary line is where metadata goes |
+| users' `Admin` | a yes/no badge beside a `Type` column that said "User" for the one account that can do everything. `Type` reads `account_role_label` now |
+| stocks' `Website` | 185px, already reduced to a host, and it is a field on the stock's own page |
+| classrooms' `Archived` + `Trading enabled` | two yes/no columns, 236px, answering two questions with "Yes". One `Status` column now, stating the state in words |
+
+**Stocks keeps `Archived`.** `#index` lists `Stock.all`, so it is the only thing distinguishing an archived
+row - and dropping the id and the website was enough by itself.
+
+**Two tables needed a wrapping fix as well as a column cut.** An email is one unbreakable token, so it sets a
+cell's min-content width and the table sizes to it. `break-words` does **not** change a min-content
+contribution; `overflow-wrap: anywhere` does, which is Tailwind's `wrap-anywhere`. `admin/users` was 58px over
+with the first and 0px with the second.
+
+### What this breaks
+
+- Sorting classrooms by `archived` or `trading_enabled` is gone: one derived `Status` column replaced both.
+  With no archived filter on that page, sorting was how you grouped them - filter tabs are the better answer
+  and are recorded in design-todo.
+- `admin/shared/_table` no longer has its "skip a leading id column" fallback for choosing the primary
+  column, because no caller passes an id.
+- The teachers list links from the **name** rather than the username, falling back to `display_name` for a
+  teacher who has none.
+- `table_actions_reachable_test` gains the 1024px assertion, and its wide-classrooms fixture needed longer
+  data - with ordinary data that table now fits, which would have made the not-pinned test vacuous.
+

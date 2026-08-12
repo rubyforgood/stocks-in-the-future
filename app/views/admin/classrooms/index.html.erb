@@ -10,9 +10,6 @@
       <table class="table-base">
         <thead>
           <tr class="table-header-row">
-            <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">
-              <%= sort_link(:id, "ID") %>
-            </th>
             <th scope="col" class="table-header-cell table-header-cell-left">
               <%= sort_link(:name, "Name") %>
             </th>
@@ -22,11 +19,16 @@
             <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">
               School year
             </th>
+            <%# One Status column, not an "Archived" yes/no beside a "Trading enabled" yes/no. Two badge
+                columns cost 236px of a 718px scroller at 1024px and pushed the row actions off screen; this
+                is ~110px and says the state in words rather than answering two questions with "Yes".
+                Matches the Status column on admin/teachers.
+
+                Not sortable, and that is a real loss: with no archived filter on this page, sorting by
+                Archived was how you grouped them. Filter tabs are the better answer - noted in
+                design-todo. %>
             <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">
-              <%= sort_link(:archived, "Archived") %>
-            </th>
-            <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">
-              <%= sort_link(:trading_enabled, "Trading enabled") %>
+              Status
             </th>
             <th scope="col" class="table-header-cell table-header-cell-right table-actions-cell hidden lg:table-cell">
               <span class="sr-only">Actions</span>
@@ -40,24 +42,22 @@
                   data-controller="clickable-row"
                   data-clickable-row-url-value="<%= admin_classroom_path(classroom) %>"
                   data-action="click->clickable-row#navigate">
-                <% id_cell = capture do %>
-                  <%= classroom.id %>
-                <% end %>
                 <% grade_cell = capture do %>
                   <%= classroom.grades.pluck(:name).join(', ') %>
                 <% end %>
                 <% school_year_cell = capture do %>
                   <%= "#{classroom.school_name} - #{classroom.year_name}" %>
                 <% end %>
-                <% archived_cell = capture do %>
-                  <%= render "components/ui/badge",
-                             label: classroom.archived? ? "Yes" : "No",
-                             tone: classroom.archived? ? :danger : :neutral %>
-                <% end %>
-                <% trading_enabled_cell = capture do %>
-                  <%= render "components/ui/badge",
-                             label: classroom.trading_enabled? ? "Yes" : "No",
-                             tone: classroom.trading_enabled? ? :success : :neutral %>
+                <%# Archived outranks trading: an archived classroom's switch position is moot, because
+                    nobody is using it. One badge, one fact, the fact that matters for this row. %>
+                <% status_cell = capture do %>
+                  <% if classroom.archived? %>
+                    <%= render "components/ui/badge", label: "Archived", tone: :danger %>
+                  <% else %>
+                    <%= render "components/ui/badge",
+                               label: classroom.trading_enabled? ? "Trading on" : "Trading off",
+                               tone: classroom.trading_enabled? ? :success : :neutral %>
+                  <% end %>
                 <% end %>
                 <% row_actions = capture do %>
                     <%= ghost_action_link "Edit", edit_admin_classroom_path(classroom), icon: "pencil" %>
@@ -74,14 +74,11 @@
                     <% end %>
                 <% end %>
 
-                <td class="table-body-cell whitespace-nowrap hidden lg:table-cell">
-                  <%= id_cell %>
-                </td>
                 <td class="table-body-cell">
                   <%= link_to classroom.name, admin_classroom_path(classroom), class: "tw-link" %>
 
                   <%= render "shared/stacked_row_fields",
-                             fields: [["ID", id_cell], ["Grade", grade_cell], ["School year", school_year_cell], ["Archived", archived_cell], ["Trading enabled", trading_enabled_cell]],
+                             fields: [["Grade", grade_cell], ["School year", school_year_cell], ["Status", status_cell]],
                              actions: row_actions %>
                 </td>
                 <td class="table-body-cell whitespace-nowrap hidden lg:table-cell">
@@ -91,10 +88,7 @@
                   <%= school_year_cell %>
                 </td>
                 <td class="table-body-cell whitespace-nowrap hidden lg:table-cell">
-                  <%= archived_cell %>
-                </td>
-                <td class="table-body-cell whitespace-nowrap hidden lg:table-cell">
-                  <%= trading_enabled_cell %>
+                  <%= status_cell %>
                 </td>
                 <td class="table-body-cell table-body-cell-right whitespace-nowrap table-actions-cell hidden lg:table-cell">
                   <div class="flex items-center justify-end gap-1"><%= row_actions %></div>
@@ -103,7 +97,7 @@
             <% end %>
           <% else %>
             <%= render "admin/shared/empty_row",
-                       colspan: 7,
+                       colspan: 5,
                        title: "No classrooms yet",
                        body: "Classrooms group students with a teacher, a school year and grades.",
                        action_label: "New classroom",

@@ -7,12 +7,14 @@
 <div class="tw-card">
   <div class="overflow-x-auto">
     <table class="table-base">
-<%# The identifier column, which is the one that stays visible below lg. Not necessarily the first:
-    three of these tables lead with `id`, and a bare number is a poor thing to head a stacked row with -
-    the reader is looking for "Apple Inc.", not "7". A caller can name it; otherwise it is the first
-    column that is not an id, and only then the first column. %>
-<% primary = columns.index { it[:primary] } ||
-             columns.index { it[:attribute].to_s != "id" } || 0 %>
+<%# The identifier column, which is the one that stays visible below lg. A caller can name it with
+    `primary: true`; otherwise it is the first.
+
+    The `id` fallback that used to sit here - skip the first column if it is an id - is gone with the id
+    columns themselves. No index shows one now: an id is 62px of a 718px scroller at 1024px, and it is in the
+    URL of the link in the same row. Keeping a branch for a shape nothing produces is how an unused rule
+    starts looking like a supported one. %>
+<% primary = columns.index { it[:primary] } || 0 %>
 
       <%# Below lg this table is **one column**: the identifier column's value, then every other as a
           labelled line, then the actions. Nine index tables render through here and each one scrolled

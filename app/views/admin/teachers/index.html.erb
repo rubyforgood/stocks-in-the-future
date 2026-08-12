@@ -16,20 +16,15 @@
       <table class="table-base">
         <thead>
           <tr class="table-header-row">
-            <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">
-              <%= sort_link(:id, "ID") %>
-            </th>
+            <%# **Name leads, and there is no Username column.** `Teacher#sync_username_from_email` sets
+                `username = email` before every validation, so those two columns printed the same string
+                twice - 108px of duplication in a 718px scroller. The name is what a person scans a staff
+                list for, and it is what the record page is titled with. %>
             <th scope="col" class="table-header-cell table-header-cell-left">
-              <%= sort_link(:username, "Username") %>
-            </th>
-            <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">
-              <%= sort_link(:email, "Email") %>
-            </th>
-            <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">
               <%= sort_link(:name, "Name") %>
             </th>
             <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">
-              <%= sort_link(:created_at, "Created at") %>
+              <%= sort_link(:email, "Email") %>
             </th>
             <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">
               Status
@@ -43,17 +38,8 @@
           <% if @teachers.any? %>
             <% @teachers.each do |teacher| %>
               <tr class="table-body-row" id="<%= dom_id(teacher) %>">
-                <% id_cell = capture do %>
-                  <%= teacher.id %>
-                <% end %>
                 <% email_cell = capture do %>
                   <%= teacher.email %>
-                <% end %>
-                <% name_cell = capture do %>
-                  <%= teacher.name %>
-                <% end %>
-                <% created_at_cell = capture do %>
-                  <%= teacher.created_at.strftime("%B %d, %Y") %>
                 <% end %>
                 <% status_cell = capture do %>
                   <%= render "components/ui/badge",
@@ -75,24 +61,20 @@
                     <% end %>
                 <% end %>
 
-                <td class="table-body-cell whitespace-nowrap hidden lg:table-cell">
-                  <%= id_cell %>
-                </td>
                 <td class="table-body-cell">
-                  <%= link_to teacher.username, admin_teacher_path(teacher), class: "tw-link" %>
+                  <%# `display_name`, so a teacher with no name yet still has a link to click - it falls back
+                      to the username, which for a teacher is their email. %>
+                  <%= link_to teacher.display_name, admin_teacher_path(teacher), class: "tw-link" %>
 
                   <%= render "shared/stacked_row_fields",
-                             fields: [["ID", id_cell], ["Email", email_cell], ["Name", name_cell], ["Created at", created_at_cell], ["Status", status_cell]],
+                             fields: [["Email", email_cell], ["Status", status_cell]],
                              actions: row_actions %>
                 </td>
-                <td class="table-body-cell whitespace-nowrap hidden lg:table-cell">
+                <%# No `whitespace-nowrap`, and `break-words`: an email is one unbreakable token, so a long
+                    one sets the column's minimum width and pushed the actions off screen. Allowed to break,
+                    the column can shrink and the row grows by a line instead. %>
+                <td class="table-body-cell wrap-anywhere hidden lg:table-cell">
                   <%= email_cell %>
-                </td>
-                <td class="table-body-cell whitespace-nowrap hidden lg:table-cell">
-                  <%= name_cell %>
-                </td>
-                <td class="table-body-cell whitespace-nowrap hidden lg:table-cell">
-                  <%= created_at_cell %>
                 </td>
                 <td class="table-body-cell whitespace-nowrap hidden lg:table-cell">
                   <%= status_cell %>
@@ -104,7 +86,7 @@
             <% end %>
           <% else %>
             <%= render "admin/shared/empty_row",
-                       colspan: 7,
+                       colspan: 4,
                        title: "No teachers yet",
                        body: "Teachers manage classrooms and enter grades for their students.",
                        action_label: "New teacher",

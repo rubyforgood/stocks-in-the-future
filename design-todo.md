@@ -916,7 +916,7 @@ engineering; each needs somebody to say which way it goes. Ordered by what happe
    match the fields. Doing it properly means `shared/_form_errors` knowing the form's field order, which it
    cannot see today - so it is a small mechanism to design, not a copy fix.
 
-## The 1024px table overflow, and what to do about it (2026-08)
+## The 1024px table overflow, and what to do about it (2026-08) - DONE
 
 Measured at 1024px - Tailwind's `lg`, where every column hidden below it reappears at once, and the width of
 a school Chromebook in a docked window. The sidebar takes 256px, so the table's scroller is **718px**:
@@ -954,4 +954,25 @@ the column beside it.
 
 **Not the actions column.** It is 178-206px because row actions are labelled rather than icon-only, which was
 an accessibility fix: `lucide_icon` is `aria-hidden`, so an icon-only link had no accessible name at all.
+
+## What the 1024px table work actually took (2026-08)
+
+The recommendation above was right about the mechanism and wrong twice about the specifics, both caught by
+measuring rather than by reading:
+
+- **Stocks' `Archived` column had to stay.** `#index` lists `Stock.all`, so it is the only thing telling an
+  archived row from an active one. Dropping the id and the website was enough on its own: 680px of a 718px
+  scroller.
+- **`admin/classrooms` was overflowing too** (+77px) and was not in the three I measured. Its `Archived` and
+  `Trading enabled` yes/no columns became one `Status` column stating the state in words.
+- **Two tables needed more than column removal.** With realistic data - a teacher whose username is their
+  email - `admin/users` still ran 58px over, because an email is one unbreakable token that sets the column's
+  minimum width. `break-words` does not change a min-content contribution; `wrap-anywhere` does. And the
+  teachers list turned out to be printing `username` and `email` as two columns of the same string.
+
+**One thing was lost:** sorting classrooms by `archived` or by `trading_enabled`, since those columns are now
+one derived `Status`. With no archived filter on that page, sorting was how you grouped them. **Filter tabs
+are the better answer** - `admin/teachers` has them - and the classroom archive is an `archived` boolean with
+its own toggle rather than Discard, so `SoftDeletableFiltering` does not drop straight in. Worth doing next
+time somebody is in that file.
 

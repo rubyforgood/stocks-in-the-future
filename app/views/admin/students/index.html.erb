@@ -28,9 +28,6 @@
       <table class="table-base">
         <thead>
           <tr class="table-header-row">
-            <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">
-              <%= sort_link(:id, "ID") %>
-            </th>
             <th scope="col" class="table-header-cell table-header-cell-left">
               <%= sort_link(:username, "Username") %>
             </th>
@@ -52,9 +49,6 @@
                   data-controller="clickable-row"
                   data-clickable-row-url-value="<%= admin_student_path(student) %>"
                   data-action="click->clickable-row#navigate">
-                <% id_cell = capture do %>
-                  <%= student.id %>
-                <% end %>
                 <%# Nil-safe: the form requires a classroom, and a student imported before that or
                     unassigned by hand still has to appear in this list rather than raising from it.
                     The em dash in slate-500 is `format_attribute`'s absent-value marker - slate-400
@@ -72,14 +66,11 @@
                     <%= discard_restore_action(student) %>
                 <% end %>
 
-                <td class="table-body-cell whitespace-nowrap hidden lg:table-cell">
-                  <%= id_cell %>
-                </td>
                 <td class="table-body-cell">
                   <%= link_to student.username, admin_student_path(student), class: "tw-link" %>
 
                   <%= render "shared/stacked_row_fields",
-                             fields: [["ID", id_cell], ["Classroom", classroom_cell], ["Created at", created_at_cell]],
+                             fields: [["Classroom", classroom_cell], ["Created at", created_at_cell]],
                              actions: row_actions %>
                 </td>
                 <td class="table-body-cell whitespace-nowrap hidden lg:table-cell">
@@ -95,7 +86,7 @@
             <% end %>
           <% else %>
             <%= render "admin/shared/empty_row",
-                       colspan: 5,
+                       colspan: 4,
                        title: "No students yet",
                        body: "Add students one at a time, or import a whole classroom from a CSV.",
                        action_label: "New student",

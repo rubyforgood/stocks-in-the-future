@@ -10,9 +10,6 @@
       <table class="table-base">
         <thead>
           <tr class="table-header-row">
-            <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">
-              <%= sort_link(:id, "ID") %>
-            </th>
             <th scope="col" class="table-header-cell table-header-cell-left">
               School
             </th>
@@ -34,9 +31,6 @@
                   data-controller="clickable-row"
                   data-clickable-row-url-value="<%= admin_school_year_path(school_year) %>"
                   data-action="click->clickable-row#navigate">
-                <% id_cell = capture do %>
-                  <%= school_year.id %>
-                <% end %>
                 <% year_cell = capture do %>
                   <%= school_year.year_name %>
                 <% end %>
@@ -51,14 +45,11 @@
                                                   turbo_confirm: school_year_delete_confirm(school_year) } %>
                 <% end %>
 
-                <td class="table-body-cell whitespace-nowrap hidden lg:table-cell">
-                  <%= id_cell %>
-                </td>
                 <td class="table-body-cell">
                   <%= link_to school_year.school_name, admin_school_year_path(school_year), class: "tw-link" %>
 
                   <%= render "shared/stacked_row_fields",
-                             fields: [["ID", id_cell], ["Year", year_cell], ["Created at", created_at_cell]],
+                             fields: [["Year", year_cell], ["Created at", created_at_cell]],
                              actions: row_actions %>
                 </td>
                 <td class="table-body-cell whitespace-nowrap hidden lg:table-cell">
@@ -74,7 +65,7 @@
             <% end %>
           <% else %>
             <%= render "admin/shared/empty_row",
-                       colspan: 5,
+                       colspan: 4,
                        title: "No school years yet",
                        body: "A school year holds the quarters that earnings are calculated against.",
                        action_label: "New school year",

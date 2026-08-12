@@ -103,6 +103,13 @@ applies it, which made one look unreachable — and an audit scored it "justifie
 while it rendered **2.45:1** over a background that stays light. There is no dark mode here, so
 there should be no `dark:`.
 
+**`break-words` cannot shrink a table column; `wrap-anywhere` can.** `overflow-wrap: break-word` does not
+change an element's **min-content** contribution, and table layout sizes columns from min-content - so a cell
+holding one long unbreakable token (an email, a URL) keeps its full width and the table scrolls, with the
+class list saying the text may wrap. `overflow-wrap: anywhere` - Tailwind's `wrap-anywhere` - does change it.
+Measured: `admin/users` sat 58px past its scroller at 1024px with `break-words` on both email columns and 0px
+with `wrap-anywhere`.
+
 **A page-level reflow check cannot see content a card clips.** `.tw-card` is `overflow-hidden`, so an
 element too wide for it is cut off rather than pushed onto the page: `document.scrollWidth` never grows,
 `reflow_test`'s audit passes, and a figure is sliced in half. Measured on the earnings breakdown at 320px and
