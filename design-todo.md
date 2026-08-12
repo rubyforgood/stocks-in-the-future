@@ -885,3 +885,73 @@ The nine record pages are done and merged. Five things they raise are not.
   wrong or the pages are; the answer is probably that the note should say "order follows what the page is
   for, stated per page", which is what design.md now says. One line to reconcile.
 
+## Decisions waiting on a product owner (2026-08)
+
+One list, because they were scattered across this file and across conversations. None of them is blocked on
+engineering; each needs somebody to say which way it goes. Ordered by what happens if nobody does.
+
+1. **Public sign-up is open.** `/users/sign_up` renders and creates accounts. The redirect meant to close it
+   was declared after `devise_for` and never fired, so it has been open the whole time - see "Product
+   questions from the account work" above for the detail. Every other account here is created by an admin or
+   a teacher. **If this should be closed, it is a behaviour change with tests attached.**
+2. **A debit can take a student's cash balance negative.** Nothing blocks it and nothing did before; the
+   trading fee is charged without checking the balance either, so negative balances are already reachable.
+   The question is whether an administrator correcting a $500 mistake needs to be able to pull out money the
+   student has already spent on shares. `CashAdjustment` is where the rule would go.
+3. **Can anyone close their own account?** The button that claimed to had never worked - `User` refuses a
+   hard delete - and a working version would have destroyed the portfolio and orders. If self-service closure
+   is wanted it has to be a `discard`, and somebody has to decide whether a child may lock themselves out of
+   their coursework.
+4. **Do students see a provisional grade before a grade book is finalized?** The data exists the moment a
+   teacher types it. Today nothing shows it to them, which is a decision nobody made out loud.
+5. **May a teacher finalize their own grade book?** Finalizing pays real money, and it is admin-only today.
+   The teacher enters the grades and cannot press the button; the admin presses the button and did not enter
+   the grades.
+6. **Do students see projected earnings** - what the current, unfinalized grades would pay? The calculator
+   is pure and already used by the preview, so this is a product question rather than a build.
+7. **The staging ribbon has never been seen on staging.** The tests stub `Rails.env`, which is the only
+   honest way to cover an environment the suite does not run in, and it is not the same as looking. Needs one
+   deploy and one screenshot.
+8. **The error summary lists errors in validation order, not field order.** GOV.UK is explicit that it should
+   match the fields. Doing it properly means `shared/_form_errors` knowing the form's field order, which it
+   cannot see today - so it is a small mechanism to design, not a copy fix.
+
+## The 1024px table overflow, and what to do about it (2026-08)
+
+Measured at 1024px - Tailwind's `lg`, where every column hidden below it reappears at once, and the width of
+a school Chromebook in a docked window. The sidebar takes 256px, so the table's scroller is **718px**:
+
+| Page | Content | Overflow | At 1100px | At 1200px |
+| --- | --- | --- | --- | --- |
+| admin/stocks | 927px | +209px | +133px | +33px |
+| admin/teachers | 895px | +177px | +101px | +1px |
+| admin/users | 853px | +135px | +59px | none |
+
+The page itself does not scroll - the card's inner scroller absorbs it - so this is not a WCAG 1.4.10
+failure. What it costs is that the **actions column is off screen** at a width plenty of people use, on three
+of the nine admin indexes.
+
+**The recommendation is fewer columns, not another breakpoint.** Every one of the three fits at 718px by
+removing columns that carry no decision, and each removal is already an established rule in design.md:
+
+- **`ID`, 62px, on all three.** It is in the URL of the link in the same row. design.md has moved an id off a
+  page twice already for the same reason - an id is not a name, and nobody acts on it.
+- **`Created at`, 137px, on teachers.** A creation date is metadata, and the record page's summary line is
+  where read-only metadata goes. Dropping this and the id fixes teachers outright (199px against 177px).
+- **`Admin`, 86px, on users.** A yes/no column beside a `Type` column that could say "Admin" instead. With
+  the id that is 148px against 135px - users fits.
+- **`Archived`, 99px, on stocks**, which says the same thing on every row of whichever list you are looking
+  at, and the filter above already says which list that is. design.md: a column whose meaning is fixed says
+  nothing. With the id, 161px of 209px.
+- **`Website`, 185px, on stocks.** Already reduced to a host; make the company name the link and the column
+  is unnecessary. That takes stocks comfortably under.
+
+**What was considered and rejected.** A third breakpoint is off the table by policy - two tiers, `base` and
+`lg:` - and this case does not need one, because the columns themselves are the problem. A container query is
+a real mechanism but the wrong one here: it changes a component's *layout* by its own width, and no layout of
+seven columns fits 718px. Pinning the actions cell was tried on the classrooms page and reverted - it covered
+the column beside it.
+
+**Not the actions column.** It is 178-206px because row actions are labelled rather than icon-only, which was
+an accessibility fix: `lucide_icon` is `aria-hidden`, so an icon-only link had no accessible name at all.
+

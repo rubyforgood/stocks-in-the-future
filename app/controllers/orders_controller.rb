@@ -83,6 +83,11 @@ class OrdersController < ApplicationController
     @shares_owned = current_user.portfolio&.shares_owned(@stock&.id)
   end
 
+  # These three read `t(".key")` from private helpers, and Rails resolves a lazy lookup against the current
+  # **action** rather than the enclosing method - so all of them land under `orders.cancel.*`, which is where
+  # the keys are. `i18n-tasks` infers the scope from the method name instead, so it reports
+  # `orders.cancel_order.success` as missing and `orders.cancel.success` as unused. Both are wrong; the
+  # lookups were checked at runtime. Do not "fix" either list by moving the keys.
   def unauthorized_response
     respond_to do |format|
       format.html { redirect_to orders_url, alert: t(".unauthorized") }
@@ -102,15 +107,6 @@ class OrdersController < ApplicationController
     respond_to do |format|
       format.html { redirect_to orders_url, alert: t(".pending_only") }
       format.json { render json: { error: t(".pending_only") }, status: :unprocessable_content }
-    end
-  end
-
-  def destroy
-    @order.destroy!
-
-    respond_to do |format|
-      format.html { redirect_to orders_url, notice: t(".notice") }
-      format.json { head :no_content }
     end
   end
 end

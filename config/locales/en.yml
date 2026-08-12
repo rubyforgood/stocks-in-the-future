@@ -208,8 +208,6 @@ en:
       unauthorized: You can only cancel your own orders
     create:
       notice: Order was successfully created.
-    destroy:
-      notice: Order was successfully destroyed.
     update:
       notice: Order was successfully updated.
   profiles:
@@ -229,6 +227,3 @@ en:
       notice: 'Password reset for %{username}. New password: %{password}'
     update:
       notice: Student updated successfully.
-  teachers:
-    create:
-      notice: Teacher created successfully. An account setup email has been sent.
