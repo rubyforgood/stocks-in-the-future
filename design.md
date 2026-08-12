@@ -1325,6 +1325,20 @@ with the values in it. With `<details>` that is one server-rendered attribute; w
 rebuild. Set it with `tag.details(open: record.errors.any?)`, never by interpolating the attribute, which
 renders it unquoted and unmatched by any selector.
 
+**A create page does not draw its section heading.** A record page has four sections and "Details" says
+which one you are in; a create page has one, so the heading repeats the h1 a line above it and its hint
+("Saved when you press Create student") repeats the button. Measured on `students#new`: the card sat at y=304
+with the subhead and y=244 without, so it cost **60px of the first viewport to say nothing**. It stays in the
+markup as `sr-only`, so the section keeps its accessible name, and the content loses its `mt-3` with it -
+12px of gap under an invisible heading is the "delete the rule, leave its padding" mistake this document
+records three times. Polaris's rule for a page with one card, applied a level up.
+
+**A page description states what the reader cannot see, and what happens next.** `students#new` said "You can
+add money and see attendance once the account exists", which described *other pages* to somebody filling in
+this one. What is not on the page is the consequence of submitting: the account works immediately, and a blank
+password field means one is generated and shown **once**. Both facts change what the reader does; neither is
+guessable from the form.
+
 **Two writes on one page need to say which saves when.** A student's record page has an account form that
 waits for its button and a cash adjustment that applies immediately; the school page has a form and years
 that add and remove as you click. The section hint carries it - "Saved when you press Update student",
@@ -2907,6 +2921,11 @@ not white: measure against the actual background.
   message keeps `role="status"`, so it is announced when it appears; removing it later is silent.
 - Warnings and errors (`role="alert"`) are **never** auto-dismissed: they are often the only
   record of what went wrong.
+- **Nor is a notice that carries a credential.** Four of them do - creating a student from either half, and
+  the two password resets - and the message *is* the only copy: `MemorablePasswordGenerator` hands the
+  password to the flash and nothing stores it, so six seconds later the only way back was another reset. The
+  controller sets `flash[:sticky]` alongside such a notice and the partial omits `auto-dismiss`. The test for
+  auto-dismiss is whether the sentence is still true in a minute; a password is.
 - The fade is applied as an **inline style**, not a utility class, and the removal is on a timer
   rather than `transitionend`. A class added from JS only works while Tailwind still emits it, and
   a missed `transitionend` would leave the message on screen forever.

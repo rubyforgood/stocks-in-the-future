@@ -61,8 +61,10 @@ module Admin
       end
 
       if @student.save(context: :student_form)
-        redirect_to admin_student_path(@student),
-                    notice: t(".notice", username: @student.username, password: generated_password)
+        # `sticky`, because this notice *is* the only copy of the password - see layouts/_flash.
+        notice = t(".notice", username: @student.username, password: generated_password)
+
+        redirect_to admin_student_path(@student), flash: { sticky: true, notice: notice }
       else
         @breadcrumbs = [
           { label: "Students", path: admin_students_path },

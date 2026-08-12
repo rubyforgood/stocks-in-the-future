@@ -18,8 +18,10 @@ class StudentsController < ApplicationController
     @student.password = generate_memorable_password
 
     if @student.save(context: :student_form)
-      redirect_to classroom_path(@classroom),
-                  notice: t(".notice", username: @student.username, password: @student.password)
+      # `sticky`: the notice is the only copy of the generated password.
+      notice = t(".notice", username: @student.username, password: @student.password)
+
+      redirect_to classroom_path(@classroom), flash: { sticky: true, notice: notice }
     else
       render :new, status: :unprocessable_content
     end
@@ -47,15 +49,17 @@ class StudentsController < ApplicationController
   def reset_password
     new_password = generate_memorable_password
     @student.update!(password: new_password)
-    redirect_to classroom_path(@classroom),
-                notice: t(".notice", username: @student.username, password: new_password)
+    notice = t(".notice", username: @student.username, password: new_password)
+
+    redirect_to classroom_path(@classroom), flash: { sticky: true, notice: notice }
   end
 
   def generate_password
     new_password = generate_memorable_password
     @student.update!(password: new_password)
-    redirect_to classroom_path(@classroom),
-                notice: t(".notice", username: @student.username, password: new_password)
+    notice = t(".notice", username: @student.username, password: new_password)
+
+    redirect_to classroom_path(@classroom), flash: { sticky: true, notice: notice }
   end
 
   private

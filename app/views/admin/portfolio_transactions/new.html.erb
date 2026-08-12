@@ -4,7 +4,7 @@
 <%= render layout: "admin/shared/record_page",
            locals: { title: "New transaction", breadcrumbs: @breadcrumbs } do %>
   <%= render layout: "admin/shared/record_section",
-             locals: { title: "Details", hint: "Saved when you press Create portfolio transaction." } do %>
+             locals: { title: "Details", sr_only: true } do %>
     <%= render "form", portfolio_transaction: @portfolio_transaction %>
   <% end %>
 <% end %>

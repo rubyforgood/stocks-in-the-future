@@ -76,6 +76,49 @@ class AdminPageStructureTest < ActionDispatch::IntegrationTest
     end
   end
 
+  # **A create page has one section, so its heading is not drawn.** Reported on students#new: "the details
+  # subhead pushes the content down and doesn't seem to add value". It does not - "Details" under
+  # "New student" repeats the h1 a line above, and its hint repeated the submit button. Measured: the card
+  # moved from y=304 to y=244, so the subhead was costing 60px of the first viewport to say nothing.
+  #
+  # The heading stays in the markup as `sr-only`, so the `<section aria-labelledby>` keeps its accessible
+  # name. This is Polaris's rule for a card header on a page with one card, which design.md already records
+  # at card level: "Teacher details" under "Edit teacher", 24px apart, in two sizes.
+  test "no create page draws a section heading" do
+    sign_in(create(:admin, admin: true, classroom: nil))
+
+    [new_admin_school_path, new_admin_school_year_path, new_admin_student_path, new_admin_teacher_path,
+     new_admin_user_path, new_admin_stock_path, new_admin_announcement_path,
+     new_admin_portfolio_transaction_path].each do |path|
+      get path
+
+      assert_response :success
+      headings = response.parsed_body.css("main section[aria-labelledby] > h2")
+
+      assert_equal 1, headings.size, "#{path}: a create page has one section"
+      assert_includes headings.first["class"].to_s, "sr-only",
+                      "#{path}: the section heading is drawn, and it repeats the page title"
+      assert_select "p", text: /Saved when you press/, count: 0
+    end
+  end
+
+  # And the record pages still draw theirs, because there they say which section you are in.
+  test "a record page draws its section headings" do
+    student = create(:student, :with_portfolio, classroom: create(:classroom, :with_trading))
+    student.reload
+    sign_in(create(:admin, admin: true, classroom: nil))
+
+    get admin_student_path(student)
+
+    assert_response :success
+    headings = response.parsed_body.css("main section[aria-labelledby] > h2")
+
+    assert_operator headings.size, :>, 1
+    drawn = headings.none? { |h| h["class"].to_s.include?("sr-only") }
+
+    assert drawn, "a record page's section headings distinguish its sections and are drawn"
+  end
+
   test "filter tabs sit above the table card, not inside it" do
     [admin_students_path, admin_teachers_path].each do |path|
       get path

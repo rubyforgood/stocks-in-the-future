@@ -1,11 +1,22 @@
 <%# Create, on the shared record-page shell - `admin/shared/_record_page`, the same partial the record page
     uses, so a create page is that page with no lifecycle actions and one section. It hand-rolled the same
-    column, breadcrumbs and header, which is how six other create pages came to be four different widths. %>
+    column, breadcrumbs and header, which is how six other create pages came to be four different widths.
+
+    **The description says the two things that are not on the page.** It read "You can add money and see
+    attendance once the account exists", which was reported as not well written and was worse than that: it
+    described *other pages*, in the passive, for a reader who is filling in this one. What they cannot see
+    here is what happens on submit - the account is active immediately, and if the password field is left
+    blank `MemorablePasswordGenerator` makes one that appears in the flash on the next screen **and nowhere
+    else**. That last word is why the notice no longer auto-dismisses; see layouts/_flash.
+
+    The section heading below is `sr_only`. "Details" under "New student" named nothing a reader could not
+    already see, and its hint - "Saved when you press Create student" - repeated the button. %>
 <%= render layout: "admin/shared/record_page",
            locals: { title: "New student", breadcrumbs: @breadcrumbs,
-                     description: "You can add money and see attendance once the account exists." } do %>
+                     description: "They can sign in straight away. Leave the password blank and one is " \
+                                  "generated - the next screen shows it once." } do %>
   <%= render layout: "admin/shared/record_section",
-             locals: { title: "Details", hint: "Saved when you press Create student." } do %>
+             locals: { title: "Details", sr_only: true } do %>
     <%= render "form" %>
   <% end %>
 <% end %>

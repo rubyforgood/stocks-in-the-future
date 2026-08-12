@@ -48,6 +48,34 @@ class FlashDismissTest < ApplicationSystemTestCase
 
   # The other half of the convention, and the reason the controller is on one branch of the partial
   # rather than on the partial: an error is often the only record of what went wrong.
+  # **A notice carrying a password does not auto-dismiss**, because the notice *is* the only copy of it:
+  # `MemorablePasswordGenerator` hands the password to the flash and nothing stores it. Six seconds later it
+  # was gone and the only way back was another reset. design.md's test for auto-dismiss is whether the
+  # sentence is still true in a minute, and a password is.
+  #
+  # Asserted on the attribute as well as the clock: past the delay the message is still there, and the
+  # element never had `auto-dismiss` in the first place, which is the part a reader of the markup can check.
+  test "a notice that carries a generated password stays" do
+    classroom = create(:classroom, :with_trading)
+    sign_in create(:admin)
+
+    visit new_admin_student_path
+    fill_in "Full name", with: "Ada Lovelace"
+    fill_in "Username", with: "ada"
+    select classroom.name, from: "Classroom"
+    click_on "Create student"
+
+    assert_selector "#notice"
+    password = find("#notice").text[/Password: (\S+)/, 1]
+
+    assert password.present?, "the notice did not carry a password, so this asserts nothing"
+    assert_no_selector "#notice[data-controller~='auto-dismiss']"
+
+    sleep PAST_THE_DELAY
+
+    assert_selector "#notice", text: password, wait: 0
+  end
+
   test "an error alert is never dismissed" do
     student_who_can_sign_in("staysput")
 

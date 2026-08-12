@@ -11,7 +11,7 @@
            locals: { title: "New school year", breadcrumbs: @breadcrumbs,
                      description: "Creating one adds its four quarters." } do %>
   <%= render layout: "admin/shared/record_section",
-             locals: { title: "Details", hint: "Saved when you press Create school year." } do %>
+             locals: { title: "Details", sr_only: true } do %>
     <%= render "form", school_year: @school_year %>
   <% end %>
 <% end %>

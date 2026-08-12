@@ -10,7 +10,7 @@
 <%= render layout: "admin/shared/record_page",
            locals: { title: "New announcement", breadcrumbs: @breadcrumbs } do %>
   <%= render layout: "admin/shared/record_section",
-             locals: { title: "Details", hint: "Saved when you press Create announcement." } do %>
+             locals: { title: "Details", sr_only: true } do %>
     <%= render "form" %>
   <% end %>
 <% end %>

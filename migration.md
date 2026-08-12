@@ -4479,3 +4479,37 @@ survives in this app only where a value is genuinely tiny - the grade book's 96p
   of a row starts one cell plus one gutter along, which is the part that says "paired" rather than merely
   "narrow".
 
+## A create page stops repeating itself, and a password stops vanishing
+
+Reported on `students#new`: "the details subhead pushes the content down and doesn't seem to add value", and
+the description "You can add money and see attendance once the account exists" is badly written.
+
+**Both were mine, and both were right.** A record page has four sections, so "Details" says which one you are
+in; a create page has one, so the heading repeated the h1 a line above and its hint - "Saved when you press
+Create student" - repeated the button. Measured: the card sat at **y=304** with the subhead and **y=244**
+without, on a 768px-tall viewport. All eight create pages render the heading `sr-only` now, so the section
+keeps its accessible name and nothing is drawn twice, and `_record_section` drops the content's `mt-3`
+alongside an invisible heading rather than leaving 12px of gap under nothing.
+
+**The description described other pages.** It told somebody filling in this form what they could do on two
+*different* screens, in the passive. What is not on the page is what submitting does: the account works
+immediately, and a blank password field means one is generated and shown once. It now says so.
+
+**Writing "shown once" honestly required a fix.** That password appears in the success flash - and the success
+flash auto-dismisses after six seconds, which meant the only copy of a generated credential deleted itself
+while the admin was reading the page behind it. `MemorablePasswordGenerator` hands it to the flash and nothing
+stores it, so the recovery was another reset. Four notices carry a password - `admin/students#create`,
+`students#create`, and both password regenerations - and all four now set `flash[:sticky]`, which makes
+`layouts/_flash` omit the `auto-dismiss` controller.
+
+### What this breaks
+
+- `layouts/_flash`'s notice is built with `tag.div` rather than a literal, because the data attributes are now
+  conditional and an interpolated optional attribute renders unquoted, which no selector matches.
+- `flash[:sticky]` is a new flash key. Nothing iterates the flash, so it renders nothing on its own.
+- Four redirects moved from `notice:` to `flash: { sticky: true, notice: … }`.
+- `admin_page_structure_test` asserts that a create page's section heading is `sr-only` and a record page's is
+  not, and that no create page carries a "Saved when you press…" hint. `flash_dismiss_test` asserts a
+  password notice is still on screen past the delay **and** that it never carried the controller - verified by
+  putting `auto-dismiss` back and watching it fail.
+
