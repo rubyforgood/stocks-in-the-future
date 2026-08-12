@@ -1,5 +1,5 @@
-<%# PREVIEW - a single detail page holding both the school's attributes and its years.
-    Not merged: `edit` still exists and still works. Compare /admin/schools/:id with /admin/schools/:id/edit.
+<%# A single detail page holding both the school's attributes and its years.
+    `/admin/schools/:id/edit` renders this same page, so every existing Edit link still works.
 
     **What the field ships.** Stripe's customer page, Linear's project page, GitHub's repository settings and
     Polaris's resource detail pages all hold a record's attributes *and* its related collections on one
@@ -9,7 +9,8 @@
     The saving is what changes, not just the layout: this page has **two independent writes**. The name form
     saves the name; the years manage themselves. So there is no single "Save" that means everything on screen,
     which is the thing to look at - Polaris solves it with a contextual save bar that appears when a field is
-    dirty, and Stripe with per-section saves. This preview uses per-section, which is the smaller mechanism. %>
+    dirty, and Stripe with per-section saves. This page does both: per-section writes, and an action row
+    that stays hidden until a field changes - see `.tw-form-actions`. %>
 <div class="mx-auto max-w-3xl">
   <%= admin_breadcrumbs(@breadcrumbs) %>
 
@@ -22,7 +23,7 @@
   <% end %>
 
   <div class="space-y-6">
-    <%# **The years first.** Measured on the first draft of this preview, with Details above them, they
+    <%# **The years first.** Measured on the first draft of this page, with Details above them, they
         started at y=618 of a 625px viewport - below the fold, on the page you came to them for. That is the
         same cost `classrooms#show` already paid: adding to the top of a page costs the thing the page is for.
         A one-field Details section is not worth the 280px it put above them. %>

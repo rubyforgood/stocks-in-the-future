@@ -153,7 +153,7 @@ module Admin
       assert_response :unprocessable_content
     end
 
-    # PREVIEW: `/edit` renders the record page, so its heading is the school's name rather than "Edit school".
+    # `/edit` renders the record page, so its heading is the school's name rather than "Edit school".
     # In the merged shape there is no separate edit page at all; this keeps every existing Edit link working
     # while the design is under review.
     test "edit renders the record page" do

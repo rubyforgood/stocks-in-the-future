@@ -26,7 +26,7 @@
   <% end %>
 
   <div class="tw-form-actions">
-    <%# PREVIEW: on a detail page the submit names what it saves, and there is nothing to cancel *to* -
+    <%# On a detail page the submit names what it saves, and there is nothing to cancel *to* -
         you are already on the record. On `new` it still needs both. %>
     <% if @school.persisted? %>
       <%= f.submit_button "Save details" %>

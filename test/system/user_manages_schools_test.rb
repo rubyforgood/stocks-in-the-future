@@ -21,7 +21,7 @@ class UserManagesSchoolsTest < ApplicationSystemTestCase
     sign_in(admin)
     visit admin_school_url(school)
 
-    # PREVIEW: no "Edit" step. The record's page edits in place, which is what a detail page does in Stripe,
+    # No "Edit" step. The record's page edits in place, which is what a detail page does in Stripe,
     # Linear, Shopify admin and Polaris - a separate edit screen for a record with one attribute is a Rails
     # scaffold convention. This test is the clearest statement of what the merged shape changes: a flow that
     # was navigate-then-edit is now just edit.

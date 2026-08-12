@@ -33,7 +33,7 @@ module Admin
       ]
     end
 
-    # PREVIEW: `edit` renders the record page, so /admin/schools/:id and /admin/schools/:id/edit are the same
+    # `edit` renders the record page, so /admin/schools/:id and /admin/schools/:id/edit are the same
     # screen. In the merged shape there is no separate edit page at all - this keeps every existing Edit link
     # working while the design is being looked at.
     def edit
