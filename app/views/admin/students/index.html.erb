@@ -55,8 +55,12 @@
                 <% id_cell = capture do %>
                   <%= student.id %>
                 <% end %>
+                <%# Nil-safe: the form requires a classroom, and a student imported before that or
+                    unassigned by hand still has to appear in this list rather than raising from it.
+                    The em dash in slate-500 is `format_attribute`'s absent-value marker - slate-400
+                    measures 2.6:1 and fails AA. %>
                 <% classroom_cell = capture do %>
-                  <%= student.classroom.name %>
+                  <%= student.classroom&.name || tag.span("—", class: "text-slate-500") %>
                 <% end %>
                 <% created_at_cell = capture do %>
                   <%= student.created_at.strftime("%B %d, %Y") %>

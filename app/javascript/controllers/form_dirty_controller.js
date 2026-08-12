@@ -38,9 +38,20 @@ export default class extends Controller {
       if (!form.querySelector(".tw-form-actions")) return
       if (form.dataset.formDirty === "true") return
       if (!this.updates(form)) return
+      if (this.reportingErrors(form)) return
 
       form.dataset.formClean = "true"
     })
+  }
+
+  // A form that failed validation is *not* clean, whatever its fields look like to this controller: the
+  // values in it were submitted and rejected. Measured before this: blanking a required field and pressing
+  // Update re-rendered the page with "1 error stopped this student being saved" and **no Save button**,
+  // because a re-rendered form arrives with no dirty flag. The only way back was to type in a field.
+  //
+  // Per form, not per page - a rejected transaction must not un-hide the account form beside it.
+  reportingErrors(form) {
+    return form.querySelector("[data-testid='form-errors'], .field_with_errors") !== null
   }
 
   // Rails posts an update through a hidden `_method`, so the markup says which this is without a local.

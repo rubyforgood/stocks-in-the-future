@@ -501,6 +501,44 @@ class FormActionsTest < ApplicationSystemTestCase
                  "with a summary showing, the gap above the card is not 24px"
   end
 
+  # The other half of the hidden action row, and the half that was wrong: a form which has just been
+  # **rejected** must keep its Save button. Measured before the fix: blanking the name on a student's record
+  # page and pressing Update re-rendered the page with "1 error stopped this student being saved" and a
+  # `display: none` action row, so the only way to try again was to type in a field.
+  test "a rejected form keeps its save button, and the form beside it does not gain one" do
+    student = create(:student, :with_portfolio, name: "Ada Lovelace")
+    student.reload
+    sign_in create(:admin)
+
+    row_display = <<~JS
+      (function () {
+        const form = document.querySelector("main form[action='%s']");
+        const row = form.querySelector(".tw-form-actions");
+        return row ? getComputedStyle(row).display : "no row";
+      })()
+    JS
+
+    visit admin_student_path(student)
+
+    assert_equal "none", page.evaluate_script(row_display % admin_student_path(student)),
+                 "the action row is on screen before anything has changed"
+
+    fill_in "Full name", with: ""
+    click_on "Update student"
+
+    assert_selector "[data-testid='form-errors']"
+    assert_equal "flex", page.evaluate_script(row_display % admin_student_path(student)),
+                 "the rejected form has no way to submit again"
+
+    # A rejected transaction must not un-hide the account form: that form is still clean.
+    visit admin_student_path(student)
+    click_on "Add transaction"
+
+    assert_selector "[data-testid='form-errors']"
+    assert_equal "none", page.evaluate_script(row_display % admin_student_path(student)),
+                 "a rejected transaction revealed the account form's save row"
+  end
+
   # The description says something the reader cannot already see. "You can add students once it exists" spent
   # itself on the obvious next step; the four grade books are the part nobody would guess.
   test "the new classroom page says what creating one does" do

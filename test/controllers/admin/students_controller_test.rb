@@ -134,6 +134,41 @@ module Admin
       assert_select "dt", text: "Transaction fees"
     end
 
+    # The classroom select's hint says "(required)" and `belongs_to :classroom` is `optional: true`, so it
+    # was not. A student saved without one then broke the list they were saved into: the index rendered
+    # `student.classroom.name`.
+    test "create requires a classroom" do
+      params = { student: { name: "Test Student", username: "noclass", classroom_id: "" } }
+
+      assert_no_difference("Student.count") do
+        post(admin_students_path, params:)
+      end
+
+      assert_response :unprocessable_content
+      assert_select ".field_with_errors", text: /Classroom/
+    end
+
+    test "update cannot remove a student's classroom" do
+      student = create(:student)
+
+      patch admin_student_path(student), params: { student: { classroom_id: "" } }
+
+      assert_response :unprocessable_content
+      assert_not_nil student.reload.classroom_id
+    end
+
+    # A student who predates the requirement, or one an import created, still has to render.
+    test "index renders a student with no classroom" do
+      student = create(:student)
+      # Deliberately past the validation: this is what a student who predates the requirement looks like.
+      student.update_column(:classroom_id, nil) # rubocop:disable Rails/SkipsModelValidations
+
+      get admin_students_path
+
+      assert_response :success
+      assert_select "tbody tr", count: 1
+    end
+
     test "new" do
       admin = create(:admin, admin: true, classroom: nil)
       sign_in(admin)
@@ -257,10 +292,12 @@ module Admin
       student = create(:student, portfolio:)
       create(:portfolio_transaction, :deposit, portfolio:, amount_cents: 10_000)
       params = {
-        transaction_type: "deposit",
-        add_fund_amount: "100.50",
-        transaction_reason: "awards",
-        transaction_description: "Test deposit"
+        cash_adjustment: {
+          transaction_type: "deposit",
+          amount: "100.50",
+          reason: "awards",
+          description: "Test deposit"
+        }
       }
       admin = create(:admin, admin: true, classroom: nil)
       sign_in(admin)
@@ -270,16 +307,18 @@ module Admin
 
       assert_redirected_to admin_student_path(student)
       assert_equal "Transaction added successfully.", flash[:notice]
-      assert_equal 20_050, portfolio.cash_balance * 100
+      assert_equal 20_050, portfolio.cash_balance_cents
     end
 
     test "add_transaction debit" do
       student = create(:student)
       params = {
-        transaction_type: "debit",
-        add_fund_amount: "50.25",
-        transaction_reason: "administrative_adjustments",
-        transaction_description: "Test debit"
+        cash_adjustment: {
+          transaction_type: "debit",
+          amount: "50.25",
+          reason: "administrative_adjustments",
+          description: "Test debit"
+        }
       }
       admin = create(:admin, admin: true, classroom: nil)
       sign_in(admin)
@@ -292,29 +331,96 @@ module Admin
       assert_equal 5_025, transaction.amount_cents
     end
 
-    test "add_transaction invalid params" do
+    # The form's own field names, asserted against the page rather than against the controller. A test that
+    # hand-writes its params agrees with whatever the controller reads and cannot see a form that posts
+    # something else - eight of them here once passed while every real submit 400'd on another page.
+    test "the transaction form posts the keys the controller reads" do
       student = create(:student)
-      params = { transaction_type: "" }
-      admin = create(:admin, admin: true, classroom: nil)
-      sign_in(admin)
 
-      post(add_transaction_admin_student_path(student), params:)
-      expected_error_message =
-        "Transaction type must be present, Amount must be present, " \
-        "Reason must be present"
+      get admin_student_path(student)
 
-      assert_redirected_to edit_admin_student_path(student)
-      assert_equal expected_error_message, flash[:alert]
+      assert_response :success
+      assert_select "form[action=?]", add_transaction_admin_student_path(student) do
+        assert_select "select[name='cash_adjustment[transaction_type]']"
+        assert_select "input[name='cash_adjustment[amount]']"
+        assert_select "select[name='cash_adjustment[reason]']"
+        assert_select "textarea[name='cash_adjustment[description]']"
+      end
     end
 
-    test "add_transaction params are not nested under student key" do
+    # Was a redirect with an `alert:`, which put the message at the top of the page and emptied the form on
+    # the way. The errors belong against the fields, and what was typed has to survive.
+    test "add_transaction reports each field and keeps what was typed" do
+      student = create(:student)
+      params = { cash_adjustment: { transaction_type: "", amount: "", reason: "",
+                                    description: "Keep me" } }
+
+      assert_no_difference("PortfolioTransaction.count") do
+        post(add_transaction_admin_student_path(student), params:)
+      end
+
+      assert_response :unprocessable_content
+      assert_select "[data-testid='form-errors']", text: /3 errors/
+      assert_select ".field_with_errors", minimum: 3
+      assert_select "textarea[name='cash_adjustment[description]']", text: /Keep me/
+    end
+
+    # `(amount.to_f * 100).to_i` returned 28 for "0.29" - 4,586 of the 100,000 typed amounts between $0.01
+    # and $1000.00 were a cent low. This is the float round trip design.md forbids, in the one place a
+    # person types money.
+    test "add_transaction stores exact cents" do
+      student = create(:student)
+
+      { "0.29" => 29, "1.15" => 115, "3.35" => 335, "2.01" => 201 }.each do |typed, cents|
+        params = { cash_adjustment: { transaction_type: "deposit", amount: typed, reason: "awards" } }
+        post(add_transaction_admin_student_path(student), params:)
+
+        assert_equal cents, student.portfolio.portfolio_transactions.order(:id).last.amount_cents,
+                     "typing #{typed} should deposit #{cents} cents"
+      end
+    end
+
+    # Every shape the old blank check let through. "abc" became `0` cents, which is not blank, so it was
+    # saved and reported as a success; an amount past the integer column raised from the insert.
+    test "add_transaction rejects an amount that is not money" do
+      student = create(:student)
+
+      ["abc", "-50", "0", "0.00", "12.345", "1e3", "$12.50", "99999999999"].each do |typed|
+        params = { cash_adjustment: { transaction_type: "deposit", amount: typed, reason: "awards" } }
+
+        assert_no_difference("PortfolioTransaction.count") do
+          post(add_transaction_admin_student_path(student), params:)
+        end
+
+        assert_response :unprocessable_content, "#{typed.inspect} should be rejected"
+      end
+    end
+
+    # The reason picker offers seven of the eight enum values: `grade_earnings` is marked deprecated on the
+    # model and was still being offered, which is how a deprecated value stays in the data.
+    test "add_transaction rejects a deprecated reason the form does not offer" do
+      student = create(:student)
+      params = { cash_adjustment: { transaction_type: "deposit", amount: "5.00",
+                                    reason: "grade_earnings" } }
+
+      assert_no_difference("PortfolioTransaction.count") do
+        post(add_transaction_admin_student_path(student), params:)
+      end
+
+      assert_response :unprocessable_content
+      assert_select "form[action=?]", add_transaction_admin_student_path(student) do
+        assert_select "option[value='grade_earnings']", count: 0
+      end
+    end
+
+    test "add_transaction params are not read from the student key" do
       student = create(:student)
       params = {
         student: {
           transaction_type: "deposit",
-          add_fund_amount: "50.00",
-          transaction_reason: "awards",
-          transaction_description: "Nested params should be ignored"
+          amount: "50.00",
+          reason: "awards",
+          description: "Nested params should be ignored"
         }
       }
       admin = create(:admin, admin: true, classroom: nil)
@@ -324,7 +430,7 @@ module Admin
         post(add_transaction_admin_student_path(student), params:)
       end
 
-      assert_redirected_to edit_admin_student_path(student)
+      assert_response :unprocessable_content
     end
 
     # Import/Template tests

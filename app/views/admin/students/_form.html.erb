@@ -1,4 +1,4 @@
-<%# PREVIEW - a student's account: the fields, and nothing that is not one.
+<%# A student's account: the fields, and nothing that is not one.
 
     **No heading of its own.** The card was headed "Student details" under a page header that had just
     named the student. The record page's section heading says "Details" once, above this - the same
@@ -21,9 +21,15 @@
                      required: true,
                      hint: "Shown instead of the username wherever this student appears" %>
 
+    <%# `required: true` on both, matching the teacher's own form, which had it all along. The model
+        requires a username and a classroom on this path, and the markup said neither: no asterisk on the
+        label, no `required` attribute, so the browser let an empty form through to be rejected by the
+        server. The asterisk is why the classroom hint no longer ends "(required)" - design.md's rule is
+        that a requirement is stated once. %>
     <%= f.text_field :username,
                      label: "Username",
-                     hint: "Unique username for the student",
+                     required: true,
+                     hint: "What the student signs in with, and it has to be unique",
                      placeholder: "johndoe" %>
 
     <%= f.select :classroom_id,
@@ -34,7 +40,8 @@
                    @student.classroom_id
                  ),
                  label: "Classroom",
-                 hint: "Classroom assignment (required)",
+                 required: true,
+                 hint: "The class this student belongs to",
                  include_blank: "Select a classroom" %>
 
     <% if @student.new_record? %>

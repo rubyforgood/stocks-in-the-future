@@ -25,6 +25,20 @@ class Student < User
   # it is a schema change with its own reasons rather than a default.
   validates :name, presence: true, on: :student_form
 
+  # A classroom, on the same paths and for the same reason.
+  #
+  # `belongs_to :classroom` is `optional: true` on `User` - a teacher or an admin does not belong to one -
+  # so nothing required it of a student, while the admin form's own hint said "Classroom assignment
+  # (required)" and its select offered a blank option. Saving that blank was accepted, and it broke the
+  # list the student was saved into: `admin/students#index` renders `student.classroom.name`, so one
+  # classroom-less student took the whole page down with a 500. The teacher's own form always had the
+  # classroom from the route, so this was reachable from admin only.
+  #
+  # The `:student_form` context again, not `on: :create`: `ImportStudentService` reads a classroom id from
+  # the CSV and a seed builds students directly, and neither should start failing here. What the context
+  # covers is every path a **person** fills in a form on.
+  validates :classroom_id, presence: true, on: :student_form
+
   has_many :classroom_enrollments, dependent: :destroy
   has_many :classrooms, through: :classroom_enrollments
 

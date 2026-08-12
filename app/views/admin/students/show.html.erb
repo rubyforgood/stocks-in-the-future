@@ -1,6 +1,5 @@
-<%# PREVIEW - the ninth and last admin resource on the shared record-page shape. Compare
-    /admin/students/:id with what it replaced: a 1047px column, three titled cards, five heading levels
-    and a separate /edit page holding the two forms.
+<%# The ninth and last admin resource on the shared record-page shape. What it replaced: a 1047px
+    column, three titled cards, five heading levels, and a separate /edit page holding the two forms.
 
     The three-way rule the other eight were converted with, applied here:
 
@@ -28,7 +27,7 @@
                locals: { title: "Add a transaction",
                          hint: "Applies as soon as you press Add transaction: it changes what this " \
                                "student can invest, and appears in the transactions below." } do %>
-      <%= render "transaction_form", student: @student %>
+      <%= render "transaction_form", student: @student, adjustment: @cash_adjustment %>
     <% end %>
 
     <%= render layout: "admin/shared/record_section",

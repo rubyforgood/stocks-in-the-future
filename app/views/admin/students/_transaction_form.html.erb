@@ -1,4 +1,4 @@
-<%# PREVIEW - the one place an administrator moves a student's money by hand.
+<%# The one place an administrator moves a student's money by hand.
 
     It was the second half of `_form`, in a card headed "Add portfolio transaction" under a card headed
     "Student details". The record page's section heading names it now, so the card carries no header of
@@ -10,29 +10,40 @@
     redirected with an alert. A control whose only possible outcome is an error is not a control.
 
     **No read-only "Current cash balance" line.** The header's summary states the balance, and on a merged
-    page this block would have been the third copy of one number: summary line, figure tile, and here. %>
-<%= form_with url: add_transaction_admin_student_path(student), method: :post,
+    page this block would have been the third copy of one number: summary line, figure tile, and here.
+
+    **Bound to `CashAdjustment`**, so each field carries its own error and a rejected submit keeps what was
+    typed. The four fields were loose params reported by a redirect with `alert:`, which put the message at
+    the top of the page and emptied the form on the way. See the class for what that could not validate. %>
+<%= form_with model: adjustment,
+              url: add_transaction_admin_student_path(student), method: :post,
               builder: Ui::FormBuilder, class: "space-y-6" do |f| %>
+  <%= render "shared/form_errors", record: adjustment, subject: "transaction" %>
+
   <%= render layout: "components/ui/card", locals: {} do %>
     <%= f.select :transaction_type,
-                 [["", ""], ["Deposit", "deposit"], ["Debit", "debit"]],
+                 CashAdjustment::DIRECTIONS.map { |direction| [direction.humanize, direction] },
                  label: "Transaction type",
                  hint: "Deposit adds to the cash balance, debit takes from it",
-                 include_blank: false %>
+                 include_blank: "Select a transaction type" %>
 
-    <%= f.number_field :add_fund_amount,
-                       label: "Amount",
-                       hint: "In dollars",
-                       placeholder: "0.00",
-                       step: "0.01" %>
+    <%# A text field with `inputmode`, not `number_field`. GOV.UK's money pattern is explicit about this:
+        a number input carries spinners, changes value on a stray scroll, and silently rejects a pasted
+        "$12.50". The keypad on a phone is the same either way. %>
+    <%= f.text_field :amount,
+                     label: "Amount",
+                     hint: "In dollars, like 12.50",
+                     placeholder: "0.00",
+                     inputmode: "decimal",
+                     autocomplete: "off" %>
 
-    <%= f.select :transaction_reason,
-                 PortfolioTransaction.reasons.keys.map { |key| [PortfolioTransaction.human_attribute_name("reason.#{key}"), key] },
+    <%= f.select :reason,
+                 CashAdjustment::REASONS.map { |key| [PortfolioTransaction.human_attribute_name("reason.#{key}"), key] },
                  label: "Reason",
                  hint: "Where this money came from, or what it was for",
                  include_blank: "Select a reason" %>
 
-    <%= f.text_area :transaction_description,
+    <%= f.text_area :description,
                     label: "Description (optional)",
                     hint: "Additional details about this transaction",
                     placeholder: "Enter transaction details...",

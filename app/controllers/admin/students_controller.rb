@@ -32,7 +32,7 @@ module Admin
       ]
     end
 
-    # PREVIEW: the record page edits in place, so `edit` renders it - which means it needs everything that
+    # The record page edits in place, so `edit` renders it - which means it needs everything that
     # page reads. Every path that renders the record page has to load the same data, and there are three:
     # show, edit, and a failed update. Missing one is a NoMethodError on nil, which is how the other eight
     # conversions found this twice.
@@ -87,25 +87,18 @@ module Admin
       redirect_to admin_students_path(discarded: true), notice: t(".notice", username: username)
     end
 
+    # A rejected adjustment re-renders the record page rather than redirecting: the errors belong against
+    # the fields, and a redirect discards what was typed. `CashAdjustment` holds the validation - see the
+    # class for the two things a blank check could not catch.
     def add_transaction
-      errors = validate_transaction_params
+      @cash_adjustment = CashAdjustment.new(cash_adjustment_params)
+      @cash_adjustment.portfolio = @student.portfolio
 
-      if errors.present?
-        redirect_to edit_admin_student_path(@student), alert: errors.join(", ")
+      if @cash_adjustment.save
+        redirect_to admin_student_path(@student), notice: t(".notice")
       else
-        transaction = PortfolioTransaction.new(
-          portfolio: @student.portfolio,
-          amount_cents: transaction_amount_cents,
-          transaction_type: transaction_type,
-          reason: transaction_reason,
-          description: transaction_description
-        )
-
-        if transaction.save
-          redirect_to admin_student_path(@student), notice: t(".notice")
-        else
-          redirect_to edit_admin_student_path(@student), alert: transaction.errors.full_messages.join(", ")
-        end
+        load_record_page
+        render :show, status: :unprocessable_content
       end
     end
 
@@ -138,6 +131,8 @@ module Admin
       if @student.portfolio.present?
         @earnings_summary = EarningsSummary.new(@student.portfolio)
         @transactions = @student.portfolio.portfolio_transactions.order(created_at: :desc)
+        # `||=`, so a rejected adjustment keeps the one carrying the errors and the values typed into it.
+        @cash_adjustment ||= CashAdjustment.new(portfolio: @student.portfolio)
       end
 
       @breadcrumbs = [
@@ -158,33 +153,10 @@ module Admin
       params.expect(student: %i[name username classroom_id password password_confirmation])
     end
 
-    def transaction_params
-      params.permit(:add_fund_amount, :transaction_type, :transaction_reason, :transaction_description)
-    end
-
-    def transaction_amount_cents
-      amount = transaction_params[:add_fund_amount]
-      amount.present? ? (amount.to_f * 100).to_i : nil
-    end
-
-    def transaction_type
-      transaction_params[:transaction_type]
-    end
-
-    def transaction_reason
-      transaction_params[:transaction_reason]
-    end
-
-    def transaction_description
-      transaction_params[:transaction_description]
-    end
-
-    def validate_transaction_params
-      errors = []
-      errors << t("admin.students.add_transaction.errors.transaction_type_blank") if transaction_type.blank?
-      errors << t("admin.students.add_transaction.errors.amount_blank") if transaction_amount_cents.blank?
-      errors << t("admin.students.add_transaction.errors.reason_blank") if transaction_reason.blank?
-      errors
+    # `fetch` with a default, so a post with no `cash_adjustment` key at all validates and reports rather
+    # than raising `ParameterMissing` - the same reason every other form here tolerates an empty submit.
+    def cash_adjustment_params
+      params.fetch(:cash_adjustment, {}).permit(:transaction_type, :amount, :reason, :description)
     end
 
     def redirect_with_missing_file_error
