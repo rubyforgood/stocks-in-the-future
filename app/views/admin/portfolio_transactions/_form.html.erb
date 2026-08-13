@@ -14,6 +14,7 @@
         <%= f.association_select :portfolio_id,
                                  collection: Portfolio.includes(:user).order("users.username"),
                                  label: "Portfolio",
+                                 width: :half,
                                  required: true,
                                  label_method: ->(portfolio) { "#{portfolio.user.username} (ID: #{portfolio.id})" } %>
 

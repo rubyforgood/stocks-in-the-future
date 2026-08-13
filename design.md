@@ -1413,6 +1413,17 @@ transaction type the app never writes ("withdrawals when a student trades"; trad
 the British way against 42 American uses including the button's own label. Copy that names a value is subject
 to the same rule as copy that quotes a figure: check it against the code.
 
+**A field hint is a sentence and ends with a full stop. A caption under a figure does not.** Twelve of sixty
+hints had no stop, which was reported as inconsistent - and nine of the twelve were not field hints at all.
+`components/ui/_stat` takes a local also called `hint`, and a caption under a metric ("Ready to spend on
+shares", "All deposits, all time") is a fragment, which is what Stripe and Polaris put there. Two components,
+one local name, two correct answers. They are told apart by class: a field hint is `p.tw-field-hint`, a
+caption is not, and `hint_copy_test` reads the class.
+
+One field hint changed wording rather than gaining a stop: "Must start with http:// or https://" would have
+ended on a full stop glued to a scheme, which reads as part of the address. It is "Must be a full web
+address, starting with http or https." instead.
+
 **A hint says something the label cannot.** Twenty-six of this app's field hints restated their own label:
 "Full company name" under Company name, "Industry sector" under Industry, "Select the school for this school
 year" under School, "Re-enter password to confirm" under Password confirmation, "Grant admin privileges to
@@ -2069,6 +2080,19 @@ nothing. A real two-column grid was the same instruction read as an indicative -
 costs a second scan line and a judgement per row about which two belong together. Pairing is Tailwind UI's
 and Polaris's answer to a *long* form on a wide page; a stack with one scan line is GOV.UK's, and the width
 does the work either way.
+
+**Every single-line control takes it; only a textarea and a URL keep the full measure.** Reported after the
+first sweep: the create and edit pages did not match the new classroom page, and some selects were one column
+and some two. Measured, and the *same field* had two widths on two pages - School and Year were 351px on
+`admin/classrooms` and 726px on `admin/school_years`, Classroom was 726 on students and users while
+Transaction type beside it on transactions was 351. Nine fields were left behind, because `width: :half` is
+opt-in and a field nobody has considered keeps the full measure.
+
+The two exceptions are **readable from the element**: a `<textarea>` by its tag, and the one long single-line
+field - a web address - by `type="url"`. That is deliberate. Every other exception in this codebase has been
+a name written into a rule, and a named exception is how `portfolios#show` kept a column of dashes through
+three sweeps. `form_field_test` walks eleven forms and asserts the width of every control against its own
+tag and type, so a new field cannot quietly start full.
 
 The class goes on the **control**, not the wrapper, so the label and hint keep the full measure and a two-line
 hint does not wrap into four. GOV.UK puts its width modifiers there for the same reason. Default is `:full`,

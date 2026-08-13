@@ -38,6 +38,7 @@
 
         <%= f.text_field :email,
                          label: "Email",
+                         width: :half,
                          hint: "Used to sign in by teachers, so a teacher needs one. Optional for " \
                                "everyone else, including admins.",
                          placeholder: "user@example.com" %>
@@ -55,6 +56,7 @@
                        @user.classroom_id
                      ),
                      label: "Classroom",
+                     width: :half,
                      hint: "Determines which grade book pays a student and whether they can trade. " \
                            "Not needed for teachers or admins.",
                      include_blank: "No classroom" %>

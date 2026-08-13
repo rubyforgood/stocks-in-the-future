@@ -114,6 +114,60 @@ class FormFieldTest < ApplicationSystemTestCase
   end
 
   # The placeholder was the AA failure, and it was on every admin form.
+  # **One width for every single-line control; the full measure only for a textarea.**
+  #
+  # Reported: the inputs on the create and edit pages did not match the new classroom page, and some selects
+  # were one column while others were two. Measured, and they were right - the *same field* had two widths on
+  # two pages. School and Year were 351px on `admin/classrooms` and **726px** on `admin/school_years`;
+  # Classroom was 726 on students and users while Transaction type beside it on transactions was 351.
+  #
+  # `width: :half` is opt-in and the default is `:full` - deliberately, so a field nobody has considered
+  # keeps what it has - which is why the original sweep left nine behind. This is the check that opt-in
+  # needed: a form card's single-line controls all measure the one-column width, and anything that does not
+  # has to be a textarea.
+  HALF = 351
+  FULL = 726
+
+  test "every single-line field in a form card is one column wide" do
+    classroom = create(:classroom, :with_trading)
+    create(:student, classroom:)
+    create(:stock)
+    create(:school)
+    sign_in(create(:admin))
+
+    { "teachers" => new_admin_teacher_path, "students" => new_admin_student_path,
+      "schools" => new_admin_school_path, "stocks" => new_admin_stock_path,
+      "classrooms" => new_admin_classroom_path, "school years" => new_admin_school_year_path,
+      "announcements" => new_admin_announcement_path, "users" => new_admin_user_path,
+      "transactions" => new_admin_portfolio_transaction_path,
+      "app classrooms" => new_classroom_path,
+      "app students" => new_classroom_student_path(classroom) }.each do |name, path|
+      visit path
+
+      page.evaluate_script(<<~JS).each do |field|
+        Array.from(document.querySelectorAll("main .tw-card input, main .tw-card select, main .tw-card textarea"))
+             .filter(function (el) {
+               return el.type !== "hidden" && el.type !== "checkbox" && el.getClientRects().length > 0;
+             })
+             .map(function (el) {
+               const label = el.labels && el.labels[0] ? el.labels[0].textContent.trim() : el.name;
+               return { tag: el.tagName.toLowerCase(), type: el.type, label: label,
+                        width: Math.round(el.getBoundingClientRect().width) };
+             })
+      JS
+        # A textarea and a URL keep the full measure, and both are readable from the element - the URL by
+        # its `type`, not by a name in a list. An exception the test can see cannot rot the way a named one
+        # does.
+        full = field["tag"] == "textarea" || field["type"] == "url"
+        want = full ? FULL : HALF
+        assert_in_delta want, field["width"], 2,
+                        "#{name}: #{field['tag']} \"#{field['label']}\" is #{field['width']}px, and a " \
+                        "#{field['tag']} is #{want}. A field with two widths across two pages is what this " \
+                        "catches; `width: :half` is opt-in, so a new one starts full."
+      end
+    end
+  end
+
   test "placeholders are readable" do
     sign_in(create(:admin))
     visit "/admin/stocks/new"

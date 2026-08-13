@@ -148,7 +148,7 @@
         <div>
           <h3 class="text-sm font-semibold text-slate-900 mb-3">Basic form setup</h3>
           <pre class="text-xs bg-slate-50 p-4 rounded border border-slate-200 overflow-x-auto"><code>&lt;%= form_with model: @resource, builder: Ui::FormBuilder do |f| %>
-  &lt;%= f.text_field :name, label: "Name", hint: "Displayed wherever this appears" %>
+  &lt;%= f.text_field :name, label: "Name", hint: "Displayed wherever this appears." %>
   &lt;%= f.submit_button "Save" %>
 &lt;% end %></code></pre>
         </div>
@@ -174,7 +174,7 @@
           <h3 class="text-sm font-semibold text-slate-900 mb-3">Boolean field</h3>
           <pre class="text-xs bg-slate-50 p-4 rounded border border-slate-200 overflow-x-auto"><code>&lt;%= f.boolean_field :active,
     label: "Active",
-    hint: "Inactive resources are kept, but stop appearing in the lists" %></code></pre>
+    hint: "Inactive resources are kept, but stop appearing in the lists." %></code></pre>
         </div>
 
         <div>

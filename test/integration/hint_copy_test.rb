@@ -56,7 +56,24 @@ class HintCopyTest < ActionDispatch::IntegrationTest
     end
   end
 
+  # **A field hint is a sentence, so it ends like one.** Twelve of sixty did not, which is what a reader
+  # noticed - "some have periods at the end and others don't".
+  #
+  # Nine of those twelve were not field hints at all: `_stat`'s caption takes a local also called `hint`, and
+  # a caption under a figure - "Ready to spend on shares", "All deposits, all time" - is a fragment, which is
+  # what Stripe and Polaris put under a metric. They render `p.mt-1.text-xs.text-slate-500`, not
+  # `p.tw-field-hint`, so this rule reads the class and leaves them alone. Two components, one local name.
+  def assert_hint_is_a_sentence(path, label, hint)
+    assert_match(
+      /[.?!]\z/, hint,
+      "#{path}: \"#{label}\" is hinted \"#{hint}\" with no full stop. A field hint is a " \
+      "sentence; a fragment under a figure is `_stat`'s caption, which is a different component."
+    )
+  end
+
   def assert_hint_earns_its_place(path, label, hint, group)
+    assert_hint_is_a_sentence(path, label, hint)
+
     unless group
       assert_no_match IMPERATIVES, hint,
                       "#{path}: \"#{label}\" is hinted \"#{hint}\" - a control's own verb is not a hint"

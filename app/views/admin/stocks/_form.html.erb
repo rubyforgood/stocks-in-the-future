@@ -34,9 +34,15 @@
                          width: :half,
                          placeholder: "Apple Inc." %>
 
+        <%# **The one single-line field that keeps the full measure**, and `type="url"` is what says so. A web
+            address is genuinely long - `page_width_test` recorded the exception when the widths were first
+            set - and every other exception in this app has been a name in a list, which is how the column of
+            dashes survived three sweeps. A type is a property of the field, so the width rule can read it:
+            "half unless it is a textarea or a url". The type also gets the right keyboard on a phone. %>
         <%= f.text_field :company_website,
                          label: "Company website",
-                         hint: "Must start with http:// or https://",
+                         type: "url",
+                         hint: "Must be a full web address, starting with http or https.",
                          placeholder: "https://www.apple.com" %>
 
         <%= f.text_field :stock_exchange,

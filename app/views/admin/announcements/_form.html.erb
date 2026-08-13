@@ -12,6 +12,7 @@
   <%= render layout: "components/ui/card", locals: {} do %>
       <%= f.text_field :title,
                        label: "Title",
+                       width: :half,
                        required: true,
                        hint: "Up to 255 characters.",
                        placeholder: "Important update" %>

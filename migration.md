@@ -5388,3 +5388,40 @@ Measured after, in the rendered modal: label `tw-label-primary` reading "Number 
 - Two `.field_with_errors` wrappers per invalid field is *not* two messages - Rails wraps the label and the
   input separately. The message is one `<p>` with an id derived from the attribute, which is what the new
   test asserts.
+
+## Field widths and hint punctuation, audited across every form
+
+Two reports, both about consistency the earlier sweeps claimed and did not have.
+
+**Nine fields were the wrong width.** `width: :half` is opt-in - the default is `:full`, deliberately, so a
+field nobody has considered keeps what it has - and the first sweep opted in the fields it happened to visit.
+Measured across eleven forms, the *same field* had two widths on two pages:
+
+| Field | Was | Now |
+| --- | --- | --- |
+| School, Year on `admin/school_years` | 726 | 351, as on `admin/classrooms` |
+| Classroom on `admin/students`, `admin/users` | 726 | 351 |
+| Portfolio on `admin/portfolio_transactions` | 726 | 351, as its two neighbours already were |
+| Email on `admin/teachers`, `admin/users` | 726 | 351 |
+| Title on `admin/announcements` | 726 | 351 |
+
+The two things that keep the full measure are now **readable from the element**: a `<textarea>` by its tag,
+and the company website by `type="url"`. `page_width_test` had recorded that URL exception in words ("a URL
+should still fill the row") and my first pass overrode it; giving the field its real type keeps the exception
+and lets the rule see it. Every other exception in this codebase has been a name in a rule, which is how
+`portfolios#show` kept its column of dashes through three sweeps.
+
+**Twelve hints had no full stop, and nine of them were right.** `components/ui/_stat` takes a local also
+called `hint`, and a caption under a figure is a fragment - what Stripe and Polaris put under a metric. The
+three that were genuinely field hints are fixed, one by rewording: "Must start with http:// or https://"
+would have ended on a stop glued to a scheme, so it reads "Must be a full web address, starting with http or
+https." now.
+
+### What this breaks
+
+- **`form_field_test` asserts a width for every control on eleven forms**, against the element's own tag and
+  type. A new field that starts at the default full measure fails there by name.
+- **`hint_copy_test` asserts the full stop**, scoped to `p.tw-field-hint`, so a `_stat` caption is untouched.
+- **The company website is `type="url"`**, so a browser now validates it as a URL on top of the model's
+  format check, and a phone shows the URL keyboard. The model validation is unchanged and is still the one
+  that matters.
