@@ -315,7 +315,13 @@ asserts the *rendered* distance from the header block to the first thing that fo
 **Filters and tabs go above the card as well.** A filter is chrome above the data, so a
 plain borderless filter bar or tab rail sits on the page background, `mb-4` (16px) above
 the table — not on the card's surface. `admin/shared/_discard_filter_tabs` is the shared
-rail for the active/archived/all filters on the students and teachers indexes.
+rail for the active/archived/all filters on the students, teachers, users and classrooms indexes.
+
+Which tab is selected is read in **one place** — `SoftDeletableFiltering#discard_filter`, exposed to views
+with `helper_method`. `?discarded=true` / `?all=true` is a contract four indexes share, and it was being
+read twice: once in the concern for the scope and once in `AdminHelper#current_discard_filter` for the
+rail. The archive *mechanism* is not part of that contract — three of the four use `discard` and
+`classrooms` an `archived` boolean, and both map onto the same three tabs.
 
 This is worth stating plainly because the opposite argument is persuasive and wrong: *the
 tabs filter the table directly below them, so they belong to it.* They do not. Putting
@@ -1359,9 +1365,17 @@ derived from. `admin_page_structure_test` asserts **both** halves, so "add one e
 **An empty state under a filter is a different sentence.** With nothing archived, three indexes said "No
 students yet" / "No teachers yet" / "No users yet" and offered a New button - on a tab that lists archived
 records, with plenty of unarchived ones one tab away. Both halves were false, and it is the state most
-installations are permanently in. `archived_empty_state` owns that sentence once; the empty state offers no
-action there, because creating a record would put nothing in the list you are looking at. The page header's
-New button stays, since that action is always available.
+installations are permanently in. `archived_empty_state` owns that sentence once -- four indexes render it
+now, `classrooms` included; the empty state offers no action there, because creating a record would put
+nothing in the list you are looking at. The page header's New button stays, since that action is always
+available.
+
+**And an empty state that cannot render is dead markup.** `admin/users` carried both branches and the
+unfiltered one could not fire: the viewer is a `User` and is not archived, so the Active and All tabs always
+hold at least the admin reading the page, and that index has neither search nor pagination to empty them. It
+said "No users yet" and offered a New button for a state the app cannot be in. That one index renders the
+archived sentence alone; every other keeps both branches, because a school or a stock list genuinely can be
+empty. Same question as the column of dashes -- can this ever show, for this viewer, in this state?
 
 **And they are photographed, because they cannot be seen any other way.** An empty state renders only when a
 list is empty and every development database has data, so the screen a first-time admin meets is the one
@@ -3350,6 +3364,18 @@ themselves, so an action cannot ship without one. Both sides of the product use 
 **Every table row action is a ghost with a leading icon and a visible label.** The icon vocabulary
 is Lucide, not `bi-*`: `eye` View, `pencil` Edit, `trash-2` Delete, `archive` Archive,
 `rotate-ccw` Restore, `circle-check` Activate/Reactivate, `ban` Deactivate/Cancel.
+
+**A row action never duplicates the row's own name link.** The name in the primary cell links to the
+record's page, so `View` was two controls to one destination -- that argument removed it from all nine
+admin indexes, and it applies unchanged to `Edit` now that the record page edits in place. What stays on an
+admin row is what a link cannot do: `Delete`, and the `Archive` / `Restore` pair. The vocabulary above
+keeps `eye` and `pencil` because the app side still uses both.
+
+The test is the **destination, not the label.** `classrooms#index` on the app side keeps its `Edit`, and
+that is not drift: the name links to the roster at `classroom_path` while `edit_classroom_path` is a
+separate form page, so the two controls go to two places. Ask where the row's name goes before adding
+anything beside it -- and note that removing the duplicate narrows the actions column, which is the column
+that runs off screen first at 1024px.
 
 **Height is `min-h-8` - 32px at every width.** 28-32px is where row actions sit in current practice
 (Primer's small control 28 and medium 32, Linear and Stripe about 28, Polaris slim 28), and 44px

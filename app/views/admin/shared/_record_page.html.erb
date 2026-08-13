@@ -17,8 +17,14 @@
       description - optional line under the title
       actions     - optional block for the header's actions, usually just Delete
 
-    The sections themselves are the block: a collection first where there is one, because that is what the page
-    is for, then Details, then anything read-only. %>
+    The sections themselves are the block, and **the order is per page, not per shape.** Eight of the nine
+    record pages lead with Details, because editing the record is why you opened it. `schools#show` leads with
+    its years, because provisioning them is - measured, with Details above them the years started at y=618 of
+    a 625px viewport. So the question is what this page is for, and the answer is not the same on all nine.
+
+    This paragraph read "a collection first where there is one, because that is what the page is for" - which
+    was the school page's reason generalised into a rule, stated on the partial that renders the eight pages
+    that do the opposite. A docstring that contradicts every caller is worse than none. %>
 <div class="mx-auto max-w-3xl">
   <%= admin_breadcrumbs(breadcrumbs) %>
 

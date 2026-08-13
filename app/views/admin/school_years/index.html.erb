@@ -38,7 +38,6 @@
                   <%= school_year.created_at.strftime("%B %d, %Y") %>
                 <% end %>
                 <% row_actions = capture do %>
-                    <%= ghost_action_link "Edit", edit_admin_school_year_path(school_year), icon: "pencil" %>
                     <%= ghost_action_link "Delete", admin_school_year_path(school_year),
                                           icon: "trash-2", variant: :danger,
                                           data: { turbo_method: :delete,

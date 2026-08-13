@@ -5,6 +5,15 @@
     <%= link_to "New classroom", new_admin_classroom_path, class: admin_primary_button_class %>
   <% end %>
 
+  <%# The same three tabs as students, teachers and users, reading the same query params - see
+      `SoftDeletableFiltering#discard_filter`. "Archived", not "Deactivated": a classroom is archived, which is
+      the word the row action and the flash both use. %>
+  <%= render "admin/shared/discard_filter_tabs",
+             current: discard_filter,
+             tabs: [["Active", :active, admin_classrooms_path],
+                    ["Archived", :discarded, admin_classrooms_path(discarded: true)],
+                    ["All", :all, admin_classrooms_path(all: true)]] %>
+
   <div class="tw-card">
     <div class="overflow-x-auto">
       <table class="table-base">
@@ -60,7 +69,6 @@
                   <% end %>
                 <% end %>
                 <% row_actions = capture do %>
-                    <%= ghost_action_link "Edit", edit_admin_classroom_path(classroom), icon: "pencil" %>
                     <% if classroom.archived? %>
                       <%= ghost_action_link "Activate", toggle_archive_admin_classroom_path(classroom),
                                             icon: "circle-check",
@@ -96,12 +104,18 @@
               </tr>
             <% end %>
           <% else %>
-            <%= render "admin/shared/empty_row",
-                       colspan: 5,
-                       title: "No classrooms yet",
-                       body: "Classrooms group students with a teacher, a school year and grades.",
-                       action_label: "New classroom",
-                       action_path: new_admin_classroom_path %>
+            <%# The Archived tab is a different sentence: there are classrooms, none of them archived, and a
+                New button would not put one in this list. `archived_empty_state` is the one copy of it. %>
+            <% if discard_filter == :discarded %>
+              <%= render "admin/shared/empty_row", colspan: 5, **archived_empty_state("classroom") %>
+            <% else %>
+              <%= render "admin/shared/empty_row",
+                         colspan: 5,
+                         title: "No classrooms yet",
+                         body: "Classrooms group students with a teacher, a school year and grades.",
+                         action_label: "New classroom",
+                         action_path: new_admin_classroom_path %>
+            <% end %>
           <% end %>
         </tbody>
       </table>

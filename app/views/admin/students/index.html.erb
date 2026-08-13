@@ -18,7 +18,7 @@
   <% end %>
 
   <%= render "admin/shared/discard_filter_tabs",
-             current: current_discard_filter,
+             current: discard_filter,
              tabs: [["Active", :active, admin_students_path],
                     ["Archived", :discarded, admin_students_path(discarded: true)],
                     ["All", :all, admin_students_path(all: true)]] %>
@@ -60,9 +60,6 @@
                   <%= student.created_at.strftime("%B %d, %Y") %>
                 <% end %>
                 <% row_actions = capture do %>
-                    <% unless student.discarded? %>
-                      <%= ghost_action_link "Edit", edit_admin_student_path(student), icon: "pencil" %>
-                    <% end %>
                     <%= discard_restore_action(student) %>
                 <% end %>
 
@@ -87,7 +84,7 @@
           <% else %>
             <%# The Archived tab needs its own sentence: with nothing archived this said "No students yet" and
                 offered a New button, on a list of archived records. %>
-            <% if current_discard_filter == :discarded %>
+            <% if discard_filter == :discarded %>
               <%= render "admin/shared/empty_row",
                          colspan: 4,
                          **archived_empty_state("student") %>

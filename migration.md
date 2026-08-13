@@ -4776,3 +4776,62 @@ teacher is assigned to classrooms rather than to a school, and can hold them in 
 - `admin_page_structure_test` matched the teachers description on /reset email/; it matches the multi-school
   sentence now, and its "stated once" test still passes because the sentence moved rather than multiplied.
 
+
+## Four mechanical items from the record-page adoption
+
+Four things the design-todo listed as "known and not done". None needed a decision, all four were one file
+to a few, and they are grouped because they share a cause: the single record page changed what a row and a
+page are for, and these are the places that had not caught up.
+
+**1. Every index row's `Edit` is gone.** With view and edit merged it pointed where the row's name already
+points, which is the argument that removed `View` from all nine indexes a fortnight earlier. Removed from
+`admin/shared/_table_row_actions` (schools, stocks, announcements) and from the six indexes that write their
+own actions - classrooms, portfolio transactions, school years, students, teachers, users. Every row still
+has at least one action: `Delete`, or the archive/restore pair, which is the point - what stays on a row is
+what a link cannot do.
+
+The **app** side keeps its `Edit`, deliberately. `classrooms#index` links a name to the roster at
+`classroom_path` and `edit_classroom_path` is a separate form page, so the two controls go to two places.
+The rule in design.md is the destination, not the label.
+
+**2. `_record_page`'s docstring says what the nine pages do.** It read "a collection first where there is
+one, because that is what the page is for" - the school page's reason generalised into a rule, written on
+the partial that renders the eight pages doing the opposite. Eight lead with Details; `schools#show` leads
+with its years, and the measurement behind that (Details above them put the years at y=618 of a 625px
+viewport) is quoted in the docstring now.
+
+**3. `admin/users` renders one empty state instead of two.** The unfiltered branch could not fire: the
+viewer is a `User` and is not archived, so the Active and All tabs always contain at least the admin reading
+the page, and that index has neither search nor pagination to empty them. It claimed "No users yet" and
+offered a New button for a state the app cannot be in. The Archived branch is all that is left there.
+
+**4. `admin/classrooms` has the three archive tabs.** Since two badge columns became one derived `Status`,
+sorting by `archived` was gone and nothing replaced it, so archived classrooms sat among the live ones with
+no way to group them. It now renders `admin/shared/_discard_filter_tabs` with the same labels and the same
+`?discarded=true` / `?all=true` params as students, teachers and users, plus the `archived_empty_state`
+sentence for an empty Archived tab.
+
+`Classroom` archives with a boolean rather than `discard`, so `scoped_by_discard_status` does not apply;
+`filtered_classrooms` maps the shared filter onto `Classroom.active` / `.archived` / `.all`. What *is* shared
+is reading the params, which had been written twice - `SoftDeletableFiltering#scoped_by_discard_status` for
+the scope and `AdminHelper#current_discard_filter` for the rail. One `discard_filter` in the concern now,
+exposed to views with `helper_method`, and the helper's copy is deleted.
+
+### What this breaks
+
+- **`/admin/classrooms` no longer lists archived classrooms by default.** This is a data-visibility change:
+  the page used to show every classroom, and now defaults to Active like the other three indexes. The
+  archived ones are one tab away, and the All tab is the previous behaviour. Any bookmark or link expecting
+  the full list needs `?all=true`.
+- **`AdminHelper#current_discard_filter` is deleted.** Views call `discard_filter`, which comes from
+  `SoftDeletableFiltering` via `helper_method` - so a view that needs it requires its controller to include
+  the concern. `Admin::ClassroomsController` now does, for the param reading alone.
+- **Any test that reached an admin record page by clicking `Edit` on its index has no such link.** Three
+  needed changing: `students_controller_test` counted the Edit links to prove the All tab lists both kinds of
+  row (it asserts the archive link and the restore form now, which is what actually distinguishes them),
+  `row_actions_test` asserted at least two actions on the school years row (one now), and
+  `table_actions_reachable_test` looked for `Edit` inside a collapsed row (`Archive` now). The app-side
+  `Edit` tests are untouched.
+- Row actions cells are narrower everywhere, which changes measured column widths. Nothing asserts them
+  directly, and the actions column is the one that overflows first at 1024px, so the change is in the safe
+  direction.

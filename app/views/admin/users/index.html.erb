@@ -9,7 +9,7 @@
   <% end %>
 
   <%= render "admin/shared/discard_filter_tabs",
-             current: current_discard_filter,
+             current: discard_filter,
              tabs: [["Active", :active, admin_users_path],
                     ["Archived", :discarded, admin_users_path(discarded: true)],
                     ["All", :all, admin_users_path(all: true)]] %>
@@ -57,7 +57,6 @@
                   <%= user.classroom&.name || content_tag(:span, "—", class: "text-slate-500") %>
                 <% end %>
                 <% row_actions = capture do %>
-                    <%= ghost_action_link "Edit", edit_admin_user_path(user), icon: "pencil" %>
                     <%# "Archive", not "Delete", because that is what happens: the controller discards,
                         and `User#destroy` raises rather than hard-delete a person. The old label and its
                         "This cannot be undone" were both false - and the same string on the students
@@ -114,20 +113,14 @@
               </tr>
             <% end %>
           <% else %>
-            <%# The Archived tab needs its own sentence: with nothing archived this said "No users yet" and
-                offered a New button, on a list of archived records. %>
-            <% if current_discard_filter == :discarded %>
-              <%= render "admin/shared/empty_row",
-                         colspan: 5,
-                         **archived_empty_state("user") %>
-            <% else %>
-              <%= render "admin/shared/empty_row",
-                         colspan: 5,
-                         title: "No users yet",
-                         body: "Users include admins, teachers and students across every school.",
-                         action_label: "New user",
-                         action_path: new_admin_user_path %>
-            <% end %>
+            <%# One sentence, because only one is reachable. The viewer is a `User` and is not discarded, so
+                the Active and All tabs always contain at least the admin reading the page - this index has no
+                search and no pagination, so nothing else can empty them. The "No users yet" branch that used
+                to sit here could not render, and offered a New button for a state the app cannot be in.
+
+                Every other index keeps both branches, because a school or a stock list genuinely can be
+                empty. This one is the exception and this is why. %>
+            <%= render "admin/shared/empty_row", colspan: 5, **archived_empty_state("user") %>
           <% end %>
         </tbody>
       </table>

@@ -23,6 +23,62 @@ module Admin
       )
     end
 
+    # The three archive tabs, which this index did not have: it listed archived classrooms among the live
+    # ones with only the Status column telling them apart, and sorting by Archived - the old way to group
+    # them - went when two badge columns became one.
+    #
+    # `Classroom` archives with a boolean rather than `discard`, so these assert the mapping onto its own
+    # scopes as well as the param reading in `SoftDeletableFiltering#discard_filter`.
+    test "index lists only active classrooms by default" do
+      active = create(:classroom, name: "Active room")
+      archived = create(:classroom, name: "Archived room", archived: true)
+      sign_in(create(:admin, admin: true, classroom: nil))
+
+      get admin_classrooms_path
+
+      assert_response :success
+      assert_select "tbody tr##{dom_id(active)}", count: 1
+      assert_select "tbody tr##{dom_id(archived)}", count: 0
+    end
+
+    test "index with the archived filter lists only archived classrooms" do
+      active = create(:classroom, name: "Active room")
+      archived = create(:classroom, name: "Archived room", archived: true)
+      sign_in(create(:admin, admin: true, classroom: nil))
+
+      get admin_classrooms_path(discarded: true)
+
+      assert_response :success
+      assert_select "tbody tr##{dom_id(archived)}", count: 1
+      assert_select "tbody tr##{dom_id(active)}", count: 0
+      assert_select "[data-testid='filter-tabs'] a[aria-current='page']", text: "Archived"
+    end
+
+    test "index with the all filter lists both" do
+      active = create(:classroom, name: "Active room")
+      archived = create(:classroom, name: "Archived room", archived: true)
+      sign_in(create(:admin, admin: true, classroom: nil))
+
+      get admin_classrooms_path(all: true)
+
+      assert_response :success
+      assert_select "tbody tr##{dom_id(active)}", count: 1
+      assert_select "tbody tr##{dom_id(archived)}", count: 1
+    end
+
+    # An empty Archived tab is a different sentence from an empty index: there are classrooms, none of them
+    # archived, and the New button that belongs on the other branch would not put one in this list.
+    test "index with the archived filter and nothing archived says so" do
+      create(:classroom, name: "Active room")
+      sign_in(create(:admin, admin: true, classroom: nil))
+
+      get admin_classrooms_path(discarded: true)
+
+      assert_response :success
+      assert_select "[data-testid='empty-state']", text: /No archived classrooms/
+      assert_select "[data-testid='empty-state'] a", text: "New classroom", count: 0
+    end
+
     test "show" do
       grade9 = create(:grade, level: 9)
       grade10 = create(:grade, level: 10)

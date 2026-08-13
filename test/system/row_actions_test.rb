@@ -64,9 +64,13 @@ class RowActionsTest < ApplicationSystemTestCase
     actions = row_action_boxes
     slate = slate_ink
 
-    # Two, not three: `View` is gone from every admin index, because the name in the primary cell is a
-    # link to the same page and the row was carrying two controls to one destination.
-    assert_operator actions.size, :>=, 2, "expected Edit / Delete on the school years row"
+    # One, and it has been three. `View` went when the name in the primary cell became a link to the
+    # record's page, and `Edit` went for the same reason once that page started editing in place - both
+    # were a second control to one destination. What is left is Delete, which is something no link does.
+    #
+    # This is the row with the fewest actions in the admin, which is why the test uses it: the properties
+    # below are about a single ghost, and asserting a count here only pins the floor.
+    assert_operator actions.size, :>=, 1, "expected Delete on the school years row"
 
     actions.each do |action|
       assert_equal 1, action["icons"],

@@ -252,18 +252,6 @@ module AdminHelper
             "The ones you archive appear here." }
   end
 
-  # Determines the current discard filter state based on query parameters
-  # @return [Symbol] :active, :discarded, or :all
-  def current_discard_filter
-    if params[:discarded].present?
-      :discarded
-    elsif params[:all].present?
-      :all
-    else
-      :active
-    end
-  end
-
   # Returns the correct model for routing purposes
   # Handles STI (Single Table Inheritance) by returning the base class
   # @param record [ActiveRecord::Base] The record

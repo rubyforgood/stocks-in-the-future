@@ -3,6 +3,7 @@
 module Admin
   class ClassroomsController < BaseController
     include ClassroomFormFields
+    include SoftDeletableFiltering
 
     before_action :set_classroom, only: %i[show edit update toggle_archive]
     # `show` is on this list now: the record's page renders the form, so it needs the form's collections. And
@@ -12,7 +13,7 @@ module Admin
     before_action :load_roster, only: %i[show edit update]
 
     def index
-      @classrooms = apply_sorting(Classroom.all, default: "name")
+      @classrooms = apply_sorting(filtered_classrooms, default: "name")
 
       @breadcrumbs = [
         { label: "Classrooms" }
@@ -87,6 +88,20 @@ module Admin
     end
 
     private
+
+    # `Classroom` archives with a boolean column rather than `discard`, so it cannot use the concern's
+    # `scoped_by_discard_status` - but it can and does share the tabs and their query params.
+    #
+    # The default is Active, which is a change: this index listed archived classrooms among the live ones and
+    # the Status column was the only thing telling them apart. Sorting by Archived used to group them, and it
+    # went when two badge columns became one, which left no way to see them together at all.
+    def filtered_classrooms
+      case discard_filter
+      when :discarded then Classroom.archived
+      when :all       then Classroom.all
+      else                 Classroom.active
+      end
+    end
 
     # Loaded here rather than queried from the view, with the limit explicit so the page can say it truncated
     # rather than presenting ten students as the whole roster.

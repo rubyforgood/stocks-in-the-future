@@ -6,7 +6,7 @@
   <% end %>
 
   <%= render "admin/shared/discard_filter_tabs",
-             current: current_discard_filter,
+             current: discard_filter,
              tabs: [["Active", :active, admin_teachers_path],
                     ["Deactivated", :discarded, admin_teachers_path(discarded: true)],
                     ["All", :all, admin_teachers_path(all: true)]] %>
@@ -47,7 +47,6 @@
                              tone: teacher.discarded? ? :danger : :success %>
                 <% end %>
                 <% row_actions = capture do %>
-                    <%= ghost_action_link "Edit", edit_admin_teacher_path(teacher), icon: "pencil" %>
                     <% if teacher.discarded? %>
                       <%= ghost_action_link "Reactivate", admin_teacher_reactivation_path(teacher),
                                             icon: "circle-check",
@@ -87,7 +86,7 @@
           <% else %>
             <%# The Archived tab needs its own sentence: with nothing archived this said "No teachers yet" and
                 offered a New button, on a list of archived records. %>
-            <% if current_discard_filter == :discarded %>
+            <% if discard_filter == :discarded %>
               <%= render "admin/shared/empty_row",
                          colspan: 4,
                          **archived_empty_state("teacher") %>

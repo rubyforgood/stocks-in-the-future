@@ -861,15 +861,16 @@ trigger for each, so none of them is a rule nobody applies.
 
 ## Left after adopting the single record page (2026-08)
 
-The nine record pages are done and merged. Of the five things they raised, three are still open - the other
-two were done later and are struck through here rather than deleted, so the entry cannot be read as a to-do
-list that never shrank.
+The nine record pages are done and merged. Of the five things they raised, **two are still open** - the
+other three are struck through here rather than deleted, so the entry cannot be read as a to-do list that
+never shrank.
 
 - ~~**Six create pages are a different width from the record they create.**~~ Done: all nine create pages
   render `admin/shared/_record_page`, the same shell as the record page, at 768px.
-- **Every index row still has an "Edit" action pointing at the row's own page.** With view and edit merged
-  it goes where the name link goes, which is the argument that removed "View" from all nine indexes. Two
-  controls, one destination, one row.
+- ~~**Every index row still has an "Edit" action pointing at the row's own page.**~~ Done: gone from
+  `admin/shared/_table_row_actions` and the six indexes that write their own actions, so all nine. The app
+  side keeps its `Edit`, because there the name link and the edit page are two destinations - design.md
+  states the rule as the destination rather than the label.
 - **The error summary lists errors in validation order, not field order.** An empty student form reads
   "Username can't be blank, Name can't be blank, Classroom can't be blank" against a form ordered name,
   username, classroom. GOV.UK's error summary is explicit that the order must match the fields. Doing it
@@ -878,10 +879,10 @@ list that never shrank.
   trading fee is charged without checking the balance either, so negative balances are already reachable.
   It is a product decision, not a validation gap: does an administrator correcting a $500 mistake need to
   be able to pull money out that the student has already spent on shares?
-- **`_record_page`'s own note still says a collection leads "because that is what the page is for", and
-  eight of the nine pages put Details first.** Only the school page leads with its collection. design.md now
-  says the honest version - order follows what the page is for, stated per page - so the partial's docstring
-  is the one line left to reconcile.
+- ~~**`_record_page`'s own note still says a collection leads "because that is what the page is for".**~~
+  Done: the docstring says what the nine pages do - eight lead with Details, `schools#show` leads with its
+  years and the measurement that decided it is quoted there. A docstring that contradicts every caller is
+  worse than none.
 
 ## Decisions waiting on a product owner (2026-08)
 
@@ -968,11 +969,15 @@ measuring rather than by reading:
   minimum width. `break-words` does not change a min-content contribution; `wrap-anywhere` does. And the
   teachers list turned out to be printing `username` and `email` as two columns of the same string.
 
-**One thing was lost:** sorting classrooms by `archived` or by `trading_enabled`, since those columns are now
-one derived `Status`. With no archived filter on that page, sorting was how you grouped them. **Filter tabs
-are the better answer** - `admin/teachers` has them - and the classroom archive is an `archived` boolean with
-its own toggle rather than Discard, so `SoftDeletableFiltering` does not drop straight in. Worth doing next
-time somebody is in that file.
+**One thing was lost and has been recovered:** sorting classrooms by `archived` or by `trading_enabled`,
+since those columns are now one derived `Status`. With no archived filter on that page, sorting was how you
+grouped them. Filter tabs were the better answer and `admin/classrooms` has them now, the same rail and the
+same query params as the other three indexes. The archive is an `archived` boolean with its own toggle rather
+than Discard, so `scoped_by_discard_status` does not drop in - `filtered_classrooms` maps the shared filter
+onto `Classroom.active` / `.archived` / `.all`, and the param reading itself is shared.
+
+Sorting by `trading_enabled` is still gone, and no filter replaces it. Nobody has asked to group classrooms
+by whether trading is on, so it stays out until somebody does.
 
 ## One unreproduced flake, and the instrument for the next one (2026-08)
 

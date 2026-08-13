@@ -49,13 +49,19 @@ module Admin
 
       assert_response :success
       assert_select "tbody tr", count: 3
+      # Two live rows and one archived one, asserted on the action each kind gets - which is what the
+      # All tab is for. This counted `a[href*='/edit']` instead, and every row had one, so it proved
+      # only that three rows rendered.
+      #
+      # Archive is a link with a turbo method; Restore is a `button_to`, so it is a form. `User#destroy`
+      # raises rather than deleting, so the way back from an archive is a POST rather than a link.
+      #
       # Scoped to the actions column, because below lg the row's actions are rendered a second time
       # inside the primary cell - the collapse that stops the table scrolling sideways at 375px. Only
-      # one copy is ever on screen, but a request test has no CSS and counts both.
-      #
-      # Scoped to the table body as well: as `a[href*='edit']` this also counted the account menu's
-      # "Edit profile" link, so adding a profile page broke a test about student rows.
-      assert_select "tbody td.table-actions-cell a[href*='/edit']", count: 2
+      # one copy is ever on screen, but a request test has no CSS and counts both. And scoped to the
+      # table body, or the account menu's own links join the count.
+      assert_select "tbody td.table-actions-cell a[data-turbo-method='delete']", count: 2
+      assert_select "tbody td.table-actions-cell form[action*='/restore']", count: 1
     end
 
     test "show" do
