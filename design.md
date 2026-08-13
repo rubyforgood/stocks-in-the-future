@@ -2277,9 +2277,9 @@ A badge still sits ~4px below bare text, because a pill has `py-1` of its own; t
 table in the app and is not worth chasing. Put a badge straight into `table-body-cell` the way the
 admin tables do, with no wrapper padding.
 
-**An unlabelled actions column is not rendered when the viewer can never use it.** The
-`table-no-permission` dash means "no action on *this* row", which says something only when another row has
-one; a column of dashes communicates only that there is a column. `ClassroomPolicy#edit?` **was**
+**An unlabelled actions column is not rendered when the viewer can never use it.** A dash in an actions cell
+means "no action on *this* row", which says something only when another row has one; a column of dashes
+communicates only that there is a column. `ClassroomPolicy#edit?` **was**
 admin-only, so a teacher's classrooms table was a trailing column of italic hyphens, on every row.
 classrooms#index computes whether **any** row has a permitted action and drops the header, the cells and one
 from the empty state's `colspan` when none does. (Teachers edit their own classrooms now, so that column
@@ -2299,9 +2299,15 @@ reader, differ?* If the gate reads the reader rather than the row, the answer is
 `dash_column_test` asserts the ratio - dashes strictly fewer than rows - on every table under every role,
 which is a check a named exception cannot go stale against.
 
-There is **no reachable mixed column in the app today**. `classrooms#index` keeps its dash branch and cannot
-fire it, because the scope gives a teacher only the classrooms they teach and `edit?` permits exactly those.
-It stays as a guard against a wider scope, behind `actions_column`.
+There is **no mixed column in the app, and no dash left to draw one with.** `classrooms#index` kept a branch
+that could not fire - the scope gives a teacher only the classrooms they teach and `edit?` permits exactly
+those - and it is gone, along with `.table-no-permission`, which then had no caller. The per-row
+`policy(classroom).edit?` check stays, so a scope that widens renders an empty cell rather than a wrong link.
+
+**If a genuinely mixed column ever appears**, the dash is still the right convention for its empty rows and
+the declaration is preserved verbatim in migration.md: `.table-no-permission { @apply text-slate-500 italic; }`
+- slate-500 because slate-400 measured 2.6:1 and fails AA. Restoring one class is cheaper than leaving a
+class nothing renders, which is indistinguishable from a supported one.
 
 `table_consistency_test.rb` measures all of it: one line across a classrooms row, the row height, Edit
 present for a teacher and an admin, and the column plus the empty state's `colspan` both dropping for a

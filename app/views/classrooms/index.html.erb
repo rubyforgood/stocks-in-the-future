@@ -12,11 +12,16 @@
 
   <%# Whether the actions column can ever hold anything for this viewer.
 
-      ClassroomPolicy#edit? is `user.admin?`, so a teacher had an unlabelled trailing column
-      containing nothing but the `table-no-permission` dash, on every row - a column of italic
-      hyphens that says only "there is a column here". The dash is the right convention when a
-      column holds actions for *some* rows and not others, which is what portfolios#show does; it
-      is not a column.
+      ClassroomPolicy#edit? was `user.admin?`, so a teacher had an unlabelled trailing column
+      containing nothing but italic hyphens, on every row - a column that says only "there is a
+      column here".
+
+      That comment used to add "the dash is the right convention when a column holds actions for
+      *some* rows and not others, which is what portfolios#show does". It was not what that page
+      did: `Trade` there is gated on the viewer, so its column was all links or all dashes, and it
+      was reported as a hyphen against every holding. Both dashes are gone from the app now, and
+      with them `.table-no-permission` - see migration.md for the declaration if a genuinely mixed
+      column ever needs it back.
 
       `any?` rather than `policy(Classroom).edit?` because edit? is defined per record. It happens
       to ignore the record today, and asking per record is what keeps this correct if it stops. %>
@@ -127,12 +132,14 @@
               </td>
               <% if actions_column %>
                 <td class="table-body-cell table-body-cell-right table-actions-cell hidden lg:table-cell">
+                  <%# No dash on a row without the action, because no such row reaches here.
+                      `ClassroomPolicy::Scope` gives a teacher only the classrooms they teach and `edit?`
+                      permits exactly those, and an admin may edit all of them - so `actions_column` being
+                      true means *every* row has the link, not merely one. The per-row check stays as the
+                      guard for a scope that widens; what went is the branch that could not fire. %>
                   <div class="flex items-center justify-end gap-1">
                     <% if policy(classroom).edit? %>
                       <%= ghost_action_link "Edit", edit_classroom_path(classroom), icon: "pencil" %>
-                    <% else %>
-                      <%# Still the dash here: this column does hold actions, just not on this row. %>
-                      <span class="table-no-permission">-</span>
                     <% end %>
                   </div>
                 </td>

@@ -110,11 +110,6 @@
     @apply px-4 py-10 text-center text-sm text-slate-600;
   }
 
-  /* Was slate-400 at 2.6:1, which fails AA. slate-500 is 4.76:1. */
-  .table-no-permission {
-    @apply text-slate-500 italic;
-  }
-
   /* The trailing actions cell, pinned to the right edge below lg.
    *
    * Every admin index table overflowed at 375px - between 212px and 699px of it - and the actions

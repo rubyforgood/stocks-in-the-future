@@ -5243,3 +5243,34 @@ already stops it becoming a column - but `.table-no-permission` currently render
   than an empty one.
 - `table_consistency_test`'s comment named the exemption and has been corrected in place; the assertion it
   sits on is unchanged.
+
+## The last dash branch, and the class it was the only caller of
+
+`classrooms#index` kept a dash for a row without the action, and that branch cannot fire:
+`ClassroomPolicy::Scope` gives a teacher only the classrooms they teach, `edit?` permits exactly those, and
+an admin may edit all of them - so `actions_column` being true means *every* row has the link, not merely
+one. Deleted. The per-row `policy(classroom).edit?` check stays as the guard for a scope that widens; what
+went is the branch behind it.
+
+That was the last caller, so **`.table-no-permission` is deleted from `tables.css`** as well - an unused
+class is indistinguishable from a supported one, which is the rule that removed five of them from
+`admin.css` earlier.
+
+**The declaration, preserved verbatim** in case a genuinely mixed column ever appears, because the dash is
+still the right convention for its empty rows:
+
+```css
+/* Was slate-400 at 2.6:1, which fails AA. slate-500 is 4.76:1. */
+.table-no-permission {
+  @apply text-slate-500 italic;
+}
+```
+
+### What this breaks
+
+- **A row that cannot be edited would now render an empty actions cell rather than a dash.** No such row
+  reaches the page today; if the scope widens, restore the class above rather than leaving a blank, which
+  reads as a rendering fault.
+- Three tests still reference `.table-no-permission`, all asserting its **absence** - `dash_column_test` and
+  `table_consistency_test` - so they keep working and would keep working if it came back.
+- `tailwind.css` no longer contains the rule. Nothing referenced it from a template, so no markup changes.
