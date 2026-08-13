@@ -605,7 +605,7 @@ class FormActionsTest < ApplicationSystemTestCase
 
     visit new_classroom_path
 
-    assert_text "Creating it adds a grade book for each quarter of the school year."
+    assert_text "Creating a class adds a grade book for each quarter of the school year."
     assert_no_text "You can add students once it exists"
   end
 end

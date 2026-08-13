@@ -154,7 +154,7 @@ class AdminPageStructureTest < ActionDispatch::IntegrationTest
       new_admin_user_path => /portfolio/,
       new_admin_stock_path => /ticker/,
       new_admin_announcement_path => /featured/,
-      new_admin_portfolio_transaction_path => /moves the money/ }.each do |path, expected|
+      new_admin_portfolio_transaction_path => /moves money/ }.each do |path, expected|
       get path
 
       assert_response :success

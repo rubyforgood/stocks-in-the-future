@@ -6,8 +6,12 @@
                      actions: capture { render "admin/teachers/record_actions", teacher: @teacher } } do %>
   <%# **No "Classrooms" card.** The form's `classroom_ids` group *is* the list of classrooms this teacher
       teaches, and a read-only copy beside it was the same fact twice - once changeable, once not. %>
+  <%# No hint on this section. design.md: a hint that names the button is noise unless the page has two
+      writes that behave differently - `students#show`, where the cash adjustment applies at once and the
+      account form waits, or `schools#show`, where the years do. This page has one form, so "Saved when you
+      press Update teacher" said what the button already says. %>
   <%= render layout: "admin/shared/record_section",
-             locals: { title: "Details", hint: "Saved when you press Update teacher." } do %>
+             locals: { title: "Details" } do %>
     <%= render "form" %>
   <% end %>
 <% end %>

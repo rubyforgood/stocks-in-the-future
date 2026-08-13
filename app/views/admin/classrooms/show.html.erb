@@ -13,7 +13,7 @@
       :nullify`, so deleting one would cut every student loose from their class. Archive is the reversible
       action, and it is the header's. %>
   <%= render layout: "admin/shared/record_section",
-             locals: { title: "Details", hint: "Moving it to another school year gives it that year's four grade books." } do %>
+             locals: { title: "Details", hint: "Moving a class to another school year gives it that year's four grade books." } do %>
     <%= render "classrooms/form",
                classroom: @classroom,
                url: admin_classroom_path(@classroom),

@@ -5140,3 +5140,39 @@ sentence beside the switch, and a pill would be the third copy of one fact.
 - **This overturns the reasoning in `teacher_summary`'s own comment**, which argued a state should be words
   rather than a badge's colour. The answer is that a badge has a label; the comment is rewritten rather than
   removed, so the argument is not made again.
+
+## Section hints name their noun, and one of them was noise
+
+Set by a reader on `admin/classrooms#show`: **"Moving a class to another school year gives it that year's
+four grade books."** It replaced "Moving *it* to another school year gives *it* …", where the subject of the
+sentence is not in the sentence - a reader has to look up at the h1 and carry the answer back down, and help
+text is read at the field rather than from the title.
+
+Four more had the same shape and now name their noun:
+
+| Where | Was | Now |
+| --- | --- | --- |
+| `classrooms#new`, both halves | Creating **it** adds a grade book … | Creating **a class** adds … |
+| `school_years#new` | Creating **one** adds its four quarters | Creating **a school year** adds … |
+| `school_years#show`, Classrooms | Open **one** to edit it | Open **a classroom** to edit it |
+| `portfolio_transactions#new` / `#show` | so saving **this** moves the money | so saving **this transaction** moves money |
+
+A pronoun whose noun is in the same sentence stays - "Deposit adds to the cash balance. Debit takes from
+it" names the balance first.
+
+**And the sweep found a hint this document already forbids.** design.md: a section hint that names the
+button is noise unless the page has two writes that behave differently. `admin/teachers#show` has one form
+and said "Saved when you press Update teacher", which is what the button says. Removed. The two pages that
+keep the sentence are the two the rule was written for: `students#show`, where the cash adjustment applies
+at once and the account form waits, and `schools#show`, where the years do.
+
+### What this breaks
+
+- **Two copy tests were pinned to the old strings.** `admin_page_structure_test` matched
+  `/moves the money/` on the transaction create page and now matches `/moves money/`; `form_actions_test`
+  asserted the classroom create sentence verbatim.
+- `admin/teachers#show`'s Details section renders no hint, so anything asserting a `p` under that heading
+  counts one fewer.
+- **The comment explaining the removal broke the page first** - written as `<%# … %>` *inside* the
+  `render layout:` argument list, which ends the tag mid-hash. Fifth recorded instance of that trap, caught
+  by curling the page; `no_nested_erb_tags_test` names the file and line in 19ms and is the faster check.

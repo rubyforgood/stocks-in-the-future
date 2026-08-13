@@ -1451,6 +1451,22 @@ Second person ("you sign in with this") and third ("they sign in with this") wer
 one page. The subject of a hint is the *field*, so the sentence does not need a person in it at all - which
 is also what removes the awkwardness of writing about a teacher and their student in the same line.
 
+**Name the noun the sentence is about; do not lean on "it".** "Moving **it** to another school year gives
+**it** that year's four grade books" was reported as needing help: the subject of the sentence is not in the
+sentence, so a reader has to look up at the h1 and carry the answer back down. It reads "Moving **a class**
+to another school year …" now, and the same fault was in four more places -- "Creating **it** adds a grade
+book …", "Creating **one** adds its four quarters", "Open **one** to edit it", "so saving **this** moves the
+money".
+
+A pronoun is fine when its noun is *in the same sentence*: "Deposit adds to the cash balance. Debit takes
+from **it**" names the balance first. The test is whether the line survives being read on its own, which is
+how help text is read -- eyes go to the field, not to the title above it.
+
+**And the sentence states the consequence, not the mechanism.** "gives it that year's four grade books" is
+what happens to you; "updates the `school_year_id`" is what happens to the row. Every hint that earns its
+place answers *what will this do to my data*: four grade books appear, a balance moves, a student can sign
+in, a stock leaves the trading floor.
+
 **A page description follows the same register, with the entity as a plural subject.** "Teachers are assigned
 to classrooms, not schools, and can hold more than one" - not "A teacher is assigned to classrooms rather
 than to a school, and they can hold classrooms in more than one". Plural because the page is about the type

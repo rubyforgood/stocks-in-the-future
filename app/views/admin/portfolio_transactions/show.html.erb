@@ -26,7 +26,9 @@
       The title was "Portfolio transaction #215". An id is not a name, and design.md already records moving
       that id to the breadcrumb on this very page - so the heading says what the transaction *is*. %>
   <%= render layout: "admin/shared/record_section",
-             locals: { title: "Details", hint: "A balance is the sum of these rows, so changing this moves money." } do %>
+             locals: { title: "Details",
+                       hint: "A balance is the sum of these rows, so changing this transaction " \
+                             "moves money." } do %>
     <%= render "form", portfolio_transaction: @portfolio_transaction %>
   <% end %>
 <% end %>

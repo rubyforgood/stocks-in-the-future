@@ -24,8 +24,8 @@
       teachers too. %>
   <%= render layout: "admin/shared/record_section",
              locals: { title: "Classrooms",
-                       hint: "Open one to edit it. New classrooms are added from the Classrooms " \
-                             "screen, where they also need their grades and teachers." } do %>
+                       hint: "Open a classroom to edit it. New classrooms are added from the " \
+                             "Classrooms screen, where they also need their grades and teachers." } do %>
     <%= render layout: "components/ui/card", locals: {} do %>
       <% if @school_year.classrooms.any? %>
         <ul class="divide-y divide-slate-100">
