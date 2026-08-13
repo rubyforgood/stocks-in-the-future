@@ -5359,3 +5359,32 @@ a trail at all uses one.
 
 - The root crumb is a plain text link, so a selector matching `nav[aria-label='Breadcrumb'] svg` counts two
   per three-crumb trail rather than three. Nothing asserted the icon.
+
+## The order form joins `Ui::FormBuilder`
+
+The last app-half form not on the builder, and the one that matters most: the student-facing buy/sell modal,
+which is the product's core transaction. It carried the right classes by hand - `tw-label-primary` on a
+`form.label`, `tw-input-primary` on a `form.number_field` - which is why no sweep had flagged it. Applying
+the classes is not the same as using the component that owns them, and two things had drifted behind that:
+
+- **No required asterisk.** The one form a student uses to move money was the only form that did not mark
+  its required field, because the app-wide asterisk sweep went through `Ui::FormBuilder`.
+- **Its own error summary.** "Please fix the following errors:" over a bulleted list - the third shape
+  `shared/_form_errors` was written to remove, and the one its own docstring says it removed. It survived
+  because that sweep also went through the forms already on the builder. The summary now counts the errors,
+  which is what GOV.UK, Polaris and Primer put there.
+
+The submit takes its variant from `submit_button` rather than a hand-written `tw-btn-primary`.
+
+Measured after, in the rendered modal: label `tw-label-primary` reading "Number of shares*", input
+`tw-input-primary` and `required`, submit `tw-btn-primary flex-1 hidden`.
+
+### What this breaks
+
+- **The field's label text gains an asterisk.** Capybara's `fill_in "Number of shares"` still matches - the
+  buy/sell system tests pass unchanged - but an exact-string assertion on the label would not.
+- **The error markup is different.** A test looking for "Please fix the following errors" finds nothing;
+  the summary is `[data-testid='form-errors']` like every other form's.
+- Two `.field_with_errors` wrappers per invalid field is *not* two messages - Rails wraps the label and the
+  input separately. The message is one `<p>` with an id derived from the attribute, which is what the new
+  test asserts.

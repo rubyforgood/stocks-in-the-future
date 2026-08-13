@@ -1,5 +1,6 @@
 <%= form_with(
       model: order,
+      builder: Ui::FormBuilder,
       class: "w-full max-w-md mx-auto",
       data: {
         controller: "order-form",
@@ -13,22 +14,14 @@
       }
     ) do |form| %>
 
-  <%# Error Messages %>
-  <% if order.errors.any? %>
-    <%# The alert tokens - red-50 with a red-200 hairline - rather than sitf-danger at 10% and 20%
-        opacity, which is red-500 tinted by transparency and lands somewhere off the scale. And a
-        <p>, not an <h4>: it is a message, and there was no h3 above it to hang an h4 from. %>
-    <div class="mb-6 rounded-2xl border border-red-200 bg-red-50 p-4">
-      <p class="mb-2 font-medium text-red-700">
-        Please fix the following errors:
-      </p>
-      <ul class="space-y-1 text-sm text-red-700">
-        <% order.errors.each do |error| %>
-          <li>• <%= error.full_message %></li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
+  <%# `shared/_form_errors`, the same summary the other twelve forms render. This was the third shape that
+      partial's own docstring says it removed - "Please fix the following errors:" over a bulleted list -
+      and it survived because the sweep that replaced the other two went through the forms already on
+      `Ui::FormBuilder`, which this one was not. It gains a heading that counts the errors, which is what
+      GOV.UK, Polaris and Primer all put there. %>
+  <div class="mb-6">
+    <%= render "shared/form_errors", record: order, subject: "order" %>
+  </div>
 
   <%# Title plus subtitle, which is the shape a card header already has, on the same
       text-base font-semibold token. It was text-2xl font-bold and centred, while the import
@@ -67,24 +60,21 @@
     </div>
   </div>
 
-  <%# Shares Input %>
-  <div class="mb-6">
-    <%# tw-label-primary and tw-input-primary, the named classes, rather than a hand-rolled pair.
-        The label was text-black where the token is slate-900, and the input was border-2
-        border-slate-500 at text-lg - a 2px border in a darker slate than the slate-300 token, and
-        two steps up the type scale from every other field in the app. %>
-    <%= form.label :shares, "Number of shares", class: "tw-label-primary mb-2" %>
-    <%= form.number_field :shares,
-                          min: 1,
-                          step: 1,
-                          required: true,
-                          placeholder: "Enter quantity",
-                          class: "tw-input-primary",
-                          data: {
-                            order_form_target: "shares",
-                            action: "input->order-form#calculateTotal"
-                          } %>
-  </div>
+  <%# Through the builder, which renders the label, the required asterisk, the input and - via
+      `field_error_proc` - the field's own error message, in that order and from one place. It was a
+      hand-written label plus input carrying the right classes, which is the shape that drifts: this field
+      had no asterisk, so the one form a student uses to move money was the form that did not say which
+      field was required. %>
+  <%= form.number_field :shares,
+                        label: "Number of shares",
+                        min: 1,
+                        step: 1,
+                        required: true,
+                        placeholder: "Enter quantity",
+                        data: {
+                          order_form_target: "shares",
+                          action: "input->order-form#calculateTotal"
+                        } %>
 
   <%# Order summary, itemised.
 
@@ -217,9 +207,9 @@
 
     <%# "Buy Shares" was Title Case. It is interpolated, so no earlier sentence-case pass
         could see it as a literal. %>
-    <%= form.submit "#{buying ? 'Buy' : 'Sell'} shares",
-                    data: { order_form_target: "submitButton" },
-                    class: "tw-btn-primary flex-1 hidden" %>
+    <%= form.submit_button "#{buying ? 'Buy' : 'Sell'} shares",
+                           data: { order_form_target: "submitButton" },
+                           class: "flex-1 hidden" %>
   </div>
 
 <% end %>
