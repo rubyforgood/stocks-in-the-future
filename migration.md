@@ -5209,3 +5209,37 @@ when the admin ones were.
 - A student with no email address now reads that they cannot reset their own password. That is a statement
   about a real limitation rather than a copy change - if self-service recovery for students is wanted, it is
   a feature, and the hint is the honest description until then.
+
+## The column of dashes came back, on the table the rule had exempted
+
+Reported on a student's portfolio: a hyphen in the rightmost column of every row. Reproduced as an admin -
+five holdings, five dashes, under a header with no visible label.
+
+**Why it resurfaced.** The rule ("a column of dashes is not a column") was written when `classrooms#index`
+shipped one, and in the same change `portfolios#show` was named as its exception, in a comment in
+`table_consistency_test`: *"the dash convention stays where a column holds actions for some rows and not
+others - portfolios#show."* That was wrong about that table. `Trade` is gated on `current_user.student?` -
+the **viewer**, not the row - so the column is all links or all dashes and never mixed. Nobody rendered the
+page as a teacher to check, and because the exemption was written into a test comment it read as settled.
+
+The fix is the one the rule already prescribes: one flag, read by the header, the cells and the empty
+state's colspan, so the three cannot disagree. The owner still gets a Trade link on every holding.
+
+**And the check no longer depends on a list.** `dash_column_test` asserts the *ratio* - dashes strictly
+fewer than rows - on every table on the portfolio, the classrooms list, the trading floor and seven admin
+indexes, under student, teacher and admin. Verified by reverting the view and watching it name the page, the
+role and the counts.
+
+**One thing found on the way:** there is no reachable mixed column left in the app. `classrooms#index` keeps
+a dash branch that cannot fire, because `ClassroomPolicy::Scope` gives a teacher only the classrooms they
+teach and `edit?` permits exactly those. It is left in place as a guard against a wider scope - `actions_column`
+already stops it becoming a column - but `.table-no-permission` currently renders nowhere.
+
+### What this breaks
+
+- **`portfolios#show` has five columns, not six, for a non-student viewer**, and its empty-state colspan
+  follows. Anything counting `th` on that page under a teacher or admin changes.
+- The dash branch is gone from that table entirely, so a viewer who cannot trade sees no actions cell rather
+  than an empty one.
+- `table_consistency_test`'s comment named the exemption and has been corrected in place; the assertion it
+  sits on is unchanged.

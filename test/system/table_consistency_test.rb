@@ -235,8 +235,14 @@ class TableConsistencyTest < ApplicationSystemTestCase
   end
 
   # A teacher edits the classrooms they teach, so the column carries Edit for them and the dash is gone
-  # because there is a real action rather than because the column was hidden. The dash convention itself
-  # stays where a column holds actions for some rows and not others - portfolios#show.
+  # because there is a real action rather than because the column was hidden.
+  #
+  # This comment used to end "the dash convention itself stays where a column holds actions for some rows
+  # and not others - portfolios#show", and that exempted the one table that most needed the rule. `Trade`
+  # there is gated on the **viewer** being a student, not on anything about the row, so the column was all
+  # links or all dashes - and a teacher opening a student's portfolio saw a hyphen against every holding. It
+  # was reported from the rendered page. `dash_column_test` now asserts the ratio on every table under every
+  # role, which is the check a named exception cannot go stale against.
   test "a teacher gets Edit on the classroom they teach" do
     classroom = create(:classroom, :with_trading)
     teacher = create(:teacher)

@@ -121,6 +121,19 @@
       Numeric columns are now right-aligned with tabular figures so they read
       down the column, and there is an empty state - previously an empty
       portfolio rendered a header with nothing under it. %>
+  <%# **The actions column exists only if some row can act.** `Trade` is gated on the *viewer* being a
+      student, not on anything about the row, so the column is all links or all dashes and never mixed -
+      and a teacher or an admin got a trailing column of italic hyphens, one per holding.
+
+      design.md already had the rule ("a column of dashes is not a column") and this page was written into
+      `table_consistency_test` as its exception: "the dash convention stays where a column holds actions for
+      some rows and not others - portfolios#show". That exemption was wrong about this table and nobody
+      rendered it as a non-student to find out. The dash is right on `classrooms#index`, where the
+      permission genuinely varies per row.
+
+      One flag, read by the header, the cells and the empty state's colspan, because three places deciding
+      the same thing separately is how a header outlives its cells. %>
+  <% holdings_actions = current_user.student? %>
   <div data-testid="holdings-table">
     <%= render layout: "components/ui/data_table", locals: { caption: "Your current holdings" } do %>
       <%# The class belongs on the row, not the thead - it is the header row's border. Every
@@ -133,7 +146,9 @@
           <th scope="col" class="table-header-cell table-header-cell-right hidden lg:table-cell">Last price</th>
           <th scope="col" class="table-header-cell table-header-cell-right hidden lg:table-cell">Change</th>
           <th scope="col" class="table-header-cell table-header-cell-right hidden lg:table-cell">Total return</th>
-          <th scope="col" class="table-header-cell hidden lg:table-cell"><span class="sr-only">Actions</span></th>
+          <% if holdings_actions %>
+            <th scope="col" class="table-header-cell hidden lg:table-cell"><span class="sr-only">Actions</span></th>
+          <% end %>
         </tr>
       </thead>
       <tbody>
@@ -160,7 +175,7 @@
               </span>
             <% end %>
             <% row_actions = capture do %>
-              <% if current_user.student? %>
+              <% if holdings_actions %>
                 <%= ghost_action_link "Trade", stocks_path, icon: "arrow-right-left" %>
               <% end %>
             <% end %>
@@ -201,31 +216,29 @@
               <td class="table-body-cell table-body-cell-right hidden whitespace-nowrap lg:table-cell"><%= change_cell %></td>
               <td class="table-body-cell table-body-cell-right hidden whitespace-nowrap lg:table-cell"><%= return_cell %></td>
 
-              <%# A row action, so it is the ghost, like every other row action in the app.
-                  It was a filled primary repeated down every holding - the shape design.md
-                  rules out for a per-row action - and the earlier sweep missed this table.
-                  A viewer who is not a student gets the dash the rest of the app uses for
-                  "not yours to do" rather than a disabled pill. %>
-              <td class="table-body-cell table-body-cell-right hidden table-actions-cell lg:table-cell">
-                <div class="flex items-center justify-end gap-1">
-                  <% if current_user.student? %>
-                    <%# arrow-right-left, not arrow-up-down. A vertical two-arrow glyph is the
-                        *sort* icon - Material's swap_vert, and this app's own sort_icon renders
-                        exactly that as an unsorted column's caret - so a vertical pair as a row
-                        action means "sort" in the one context where sorting is a thing you do to
-                        rows. Horizontal is the exchange glyph: Material's swap_horiz, and what TD,
-                        Chase, Monzo and Revolut all use for a transfer. %>
+              <%# A row action, so it is the ghost, like every other row action in the app. It was a filled
+                  primary repeated down every holding - the shape design.md rules out for a per-row action.
+
+                  No dash branch: the cell is not rendered at all for a viewer who cannot trade, because
+                  then *no* row can and a column of hyphens says nothing. See the note on the flag above.
+
+                  arrow-right-left, not arrow-up-down. A vertical two-arrow glyph is the *sort* icon -
+                  Material's swap_vert, and this app's own sort_icon renders exactly that as an unsorted
+                  column's caret - so a vertical pair as a row action means "sort" in the one context where
+                  sorting is a thing you do to rows. Horizontal is the exchange glyph: Material's
+                  swap_horiz, and what TD, Chase, Monzo and Revolut all use for a transfer. %>
+              <% if holdings_actions %>
+                <td class="table-body-cell table-body-cell-right hidden table-actions-cell lg:table-cell">
+                  <div class="flex items-center justify-end gap-1">
                     <%= ghost_action_link "Trade", stocks_path, icon: "arrow-right-left" %>
-                  <% else %>
-                    <span class="table-no-permission">-</span>
-                  <% end %>
-                </div>
-              </td>
+                  </div>
+                </td>
+              <% end %>
             </tr>
           <% end %>
         <% else %>
           <tr class="table-body-row">
-            <td colspan="6" class="p-0">
+            <td colspan="<%= holdings_actions ? 6 : 5 %>" class="p-0">
               <%# Leads with the student's own balance: this is the first screen every student
                   sees, and "you have $24.00 ready" is about them in a way "no holdings yet" is
                   not. "You can buy a single share" removes the thing that stops people starting.
