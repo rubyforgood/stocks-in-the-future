@@ -42,8 +42,10 @@
 <%# See _page_header: check the yielded content, not block_given?. %>
 <% action = yield %>
 
+<%# `data-testid`, because an empty state is the hardest thing in the app to look at - it renders only
+    when a list is empty - and the test that photographs them needs to find them. %>
 <% if local_assigns[:compact] %>
-  <div class="min-w-0">
+  <div class="min-w-0" data-testid="empty-state">
     <p class="text-sm font-medium text-slate-900"><%= title %></p>
 
     <% if local_assigns[:body].present? %>
@@ -55,7 +57,7 @@
     <% end %>
   </div>
 <% else %>
-  <div class="flex flex-col items-center justify-center px-6 py-12 text-center">
+  <div class="flex flex-col items-center justify-center px-6 py-12 text-center" data-testid="empty-state">
     <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-slate-100">
       <%= lucide_icon(icon, class: "h-6 w-6 text-slate-500") %>
     </div>

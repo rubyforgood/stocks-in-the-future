@@ -21,7 +21,7 @@
   <%= render "shared/form_errors", record: adjustment, subject: "transaction" %>
 
   <%= render layout: "components/ui/card", locals: {} do %>
-    <div class="tw-form-grid">
+    <div>
       <%= f.select :transaction_type,
                    CashAdjustment::DIRECTIONS.map { |direction| [direction.humanize, direction] },
                    label: "Transaction type",

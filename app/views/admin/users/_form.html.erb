@@ -15,9 +15,7 @@
         discarded looks like a save that worked - measured in a console, "typed_by_hand" came back as the
         email address. Read-only rather than disabled, because a disabled field is skipped by keyboard
         navigation; the profile page's username records the same decision. %>
-    <div class="tw-form-grid"
-         data-controller="derived-field"
-         data-derived-field-when-value="Teacher">
+    <div data-controller="derived-field" data-derived-field-when-value="Teacher">
         <%= f.text_field :username,
                          label: "Username",
                          width: :half,
@@ -60,8 +58,8 @@
                      include_blank: "No classroom" %>
 
         <% if @user.new_record? %>
-          <div class="tw-form-grid mt-6 pt-6 border-t border-slate-200 lg:col-span-2">
-            <h4 class="text-md font-medium text-slate-900 mb-4 lg:col-span-2">Password</h4>
+          <div class="mt-6 pt-6 border-t border-slate-200">
+            <h4 class="text-md font-medium text-slate-900 mb-4">Password</h4>
 
             <%= f.password_field :password,
                                  label: "Password",

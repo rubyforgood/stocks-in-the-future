@@ -10,7 +10,7 @@
       card's header when the page has one card. A heading returns the moment a form has two - see
       admin/students, where it separates them. %>
   <%= render layout: "components/ui/card", locals: {} do %>
-    <div class="tw-form-grid">
+    <div>
         <%= f.text_field :email,
                          label: "Email",
                          required: true,
@@ -31,7 +31,7 @@
         </div>
 
         <%# `lg:col-span-2`: a checkbox group of classroom names is not a half-width field. %>
-        <%= turbo_frame_tag "teacher_classroom_selection", class: "block mb-6 lg:col-span-2" do %>
+        <%= turbo_frame_tag "teacher_classroom_selection", class: "block mb-6" do %>
           <% if @classrooms.any? %>
             <%= f.collection_check_boxes :classroom_ids,
                                          @classrooms,

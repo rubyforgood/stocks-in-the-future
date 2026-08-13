@@ -10,7 +10,7 @@
       card's header when the page has one card. A heading returns the moment a form has two - see
       admin/students, where it separates them. %>
   <%= render layout: "components/ui/card", locals: {} do %>
-    <div class="tw-form-grid">
+    <div>
         <%= f.association_select :portfolio_id,
                                  collection: Portfolio.includes(:user).order("users.username"),
                                  label: "Portfolio",

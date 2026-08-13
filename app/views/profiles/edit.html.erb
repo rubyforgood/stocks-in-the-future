@@ -30,11 +30,9 @@
         `student[name]` to a controller expecting `user`. That is a 400 on every submit, and a controller
         test that hand-writes its params cannot see it. %>
     <% email_hint = current_user.email_required? ? "Used to reset your password." : "Optional. Used to reset your password if you have one." %>
-    <%# `tw-form-grid` in place of `contents`: the form *is* the grid, so its fields pair without a wrapper
-        div, and a short field is half the card's content box minus half the gutter. %>
     <%= form_with model: @user, scope: :user, url: profile_path, method: :patch,
-                  builder: Ui::FormBuilder, class: "tw-form-grid" do |f| %>
-      <div class="lg:col-span-2"><%= render "profiles/errors", user: @user, on: %i[name email] %></div>
+                  builder: Ui::FormBuilder, class: "contents" do |f| %>
+      <%= render "profiles/errors", user: @user, on: %i[name email] %>
 
       <%= f.text_field :name,
                        label: "Display name",
@@ -61,17 +59,15 @@
                        class: "bg-slate-50 text-slate-600",
                        hint: "You sign in with this. Ask your teacher if it needs to change." %>
 
-      <div class="lg:col-span-2"><%= f.submit "Save details", class: "tw-btn-primary" %></div>
+      <%= f.submit "Save details", class: "tw-btn-primary" %>
     <% end %>
   <% end %>
 
   <%= render layout: "components/ui/card", locals: { title: "Password" } do %>
     <% length_hint = "#{@minimum_password_length} characters minimum" if @minimum_password_length %>
     <%= form_with model: @user, scope: :user, url: password_profile_path, method: :patch,
-                  builder: Ui::FormBuilder, class: "tw-form-grid" do |f| %>
-      <div class="lg:col-span-2">
-        <%= render "profiles/errors", user: @user, on: %i[current_password password password_confirmation] %>
-      </div>
+                  builder: Ui::FormBuilder, class: "contents" do |f| %>
+      <%= render "profiles/errors", user: @user, on: %i[current_password password password_confirmation] %>
 
       <%= f.password_field :current_password,
                            label: "Current password",
@@ -94,7 +90,7 @@
 
       <%# Secondary, not primary: design.md allows one filled primary per page and "Save details"
           above is this page's main action. A second card's submit is the sub-form case. %>
-      <div class="lg:col-span-2"><%= f.submit "Change password", class: "tw-btn-secondary" %></div>
+      <%= f.submit "Change password", class: "tw-btn-secondary" %>
     <% end %>
   <% end %>
 </div>

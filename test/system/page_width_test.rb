@@ -241,21 +241,28 @@ class PageWidthTest < ApplicationSystemTestCase
     assert_equal 726, widths["Company website"], "a URL should still fill the row"
     assert_equal 726, widths["Description"], "a textarea should still fill the row"
 
-    # Paired, not merely narrow: the second field of a row starts where the first one's cell ends plus the
-    # gutter. A short field that does not pair is just a short field.
-    lefts = page.evaluate_script(<<~JS)
+    # **Stacked, not paired.** The width is what a field would have *if* another sat beside it; the fields
+    # themselves are one per row, so every control starts on the same left edge and no two share a top.
+    boxes = page.evaluate_script(<<~JS)
       (function () {
         const out = {};
         document.querySelectorAll("main form label.tw-label-primary").forEach(function (l) {
           const c = document.getElementById(l.getAttribute("for"));
-          if (c) out[l.innerText.replace(/\s+/g, " ").trim()] = Math.round(c.getBoundingClientRect().left);
+          if (!c) return;
+          const r = c.getBoundingClientRect();
+          out[l.innerText.replace(/\s+/g, " ").trim()] = [Math.round(r.left), Math.round(r.top)];
         });
         return out;
       })()
     JS
 
-    assert_equal lefts["Ticker symbol*"] + 351 + 24, lefts["Company name"],
-                 "the second field of the row is not beside the first"
+    lefts = boxes.values.map(&:first).uniq
+
+    assert_equal 1, lefts.size, "the controls start on #{lefts.size} left edges: #{lefts.inspect}"
+
+    tops = boxes.values.map(&:last)
+
+    assert_equal tops.size, tops.uniq.size, "two fields share a row, so they were paired rather than stacked"
   end
 
   test "a utility overrides a component class" do

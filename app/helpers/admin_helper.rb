@@ -237,6 +237,21 @@ module AdminHelper
     render "admin/shared/search_filter", filters: filters, search_placeholder: search_placeholder
   end
 
+  # The empty state for the **Archived** tab, which is a different sentence from an empty list.
+  #
+  # With nothing archived, all three filtered indexes said "No students yet" / "No teachers yet" / "No users
+  # yet" and offered a New button - on a tab that lists archived records. Both halves are wrong: there are
+  # records, none of them archived, and creating one would not put anything in this list. Measured on live
+  # data, where every one of those tabs is empty and the page claims the app has no students.
+  #
+  # One sentence in one place, because the three call sites would otherwise drift - and the noun is the only
+  # thing that differs.
+  def archived_empty_state(noun)
+    { title: "No archived #{noun.pluralize}",
+      body: "Archiving a #{noun} is reversible and keeps everything attached to it. " \
+            "The ones you archive appear here." }
+  end
+
   # Determines the current discard filter state based on query parameters
   # @return [Symbol] :active, :discarded, or :all
   def current_discard_filter

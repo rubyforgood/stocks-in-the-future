@@ -85,12 +85,20 @@
               </tr>
             <% end %>
           <% else %>
-            <%= render "admin/shared/empty_row",
-                       colspan: 4,
-                       title: "No students yet",
-                       body: "Add students one at a time, or import a whole classroom from a CSV.",
-                       action_label: "New student",
-                       action_path: new_admin_student_path %>
+            <%# The Archived tab needs its own sentence: with nothing archived this said "No students yet" and
+                offered a New button, on a list of archived records. %>
+            <% if current_discard_filter == :discarded %>
+              <%= render "admin/shared/empty_row",
+                         colspan: 4,
+                         **archived_empty_state("student") %>
+            <% else %>
+              <%= render "admin/shared/empty_row",
+                         colspan: 4,
+                         title: "No students yet",
+                         body: "Add students one at a time, or import a whole classroom from a CSV.",
+                         action_label: "New student",
+                         action_path: new_admin_student_path %>
+            <% end %>
           <% end %>
         </tbody>
       </table>

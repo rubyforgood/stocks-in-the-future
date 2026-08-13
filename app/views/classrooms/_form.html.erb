@@ -46,10 +46,9 @@
       load-bearing the moment an error summary appeared between the two, giving that state a 16px gap where
       the rest of the page uses 24. The summary spaces itself now. %>
   <div class="tw-card p-5">
-    <%# `.tw-form-grid` in place of `space-y-5`: the vertical rhythm comes from each field wrapper's own
-        `mb-6` either way - `space-y-5`'s 20px lost to it by margin collapsing and was inert - and the grid
-        pairs School with Year rather than stacking two short selects down a 726px column. %>
-    <div class="tw-form-grid">
+    <%# `space-y-5` went with the grid experiment and is not coming back: it was inert anyway, 20px against
+        each field wrapper's own 24px `mb-6`, collapsed to 24px. %>
+    <div>
       <%= form.text_field :name,
                           label: "Name",
                           width: :half,

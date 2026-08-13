@@ -29,21 +29,20 @@ module Ui
 
     LABEL_TEXT_CLASSES = "min-w-0 text-sm font-medium text-slate-900"
 
-    # **A field is one cell of `.tw-form-grid`**, so `width: :half` is half the card's content box minus half
-    # the gutter - 351px of 726px at 1366px - and two short fields pair with no width on either of them.
+    # **A short field is one column wide, and the fields still stack.** `width: :half` puts `.tw-field-half`
+    # on the control - `max-width: calc(50% - 0.75rem)`, half the card's content box less half a gutter, so
+    # 351px of 726px: the width the field would have *if* another sat beside it.
     #
-    # This replaced four `max-w-*` sizes, and the distinction is worth keeping straight. Sizing an input to
-    # its **content** is GOV.UK's rule, held for error prevention in transactional government forms. Sizing
-    # it to its **grid cell** is what Tailwind UI, Polaris, Carbon, Material and Bootstrap do, and it is what
-    # a reader perceives as alignment. The grid lays the form out; content width survives only where a value
-    # is genuinely tiny, which in this app is the grade book's cells.
+    # It went through two wrong shapes first. Four fixed `max-w-*` sizes were GOV.UK's content-width rule
+    # applied without its layout, and a 128px field above a 384px one aligns with nothing. A two-column grid
+    # was the same instruction read as the indicative - "were there another field beside it" describes a
+    # width, not a pairing - and it costs a second scan line down a form.
     #
-    # **The default is `:full`**, deliberately: a field nobody has thought about stays the width it is today,
-    # and an email, a URL, a textarea or a select of classroom names squeezed to half a card would be a
-    # regression rather than a tidy-up. `:half` is the opt-in.
-    FIELD_SPANS = {
-      half: nil,               # one cell: half the container minus half the gutter
-      full: "lg:col-span-2"    # both cells: an email, a URL, free text, a long select
+    # On the control rather than the wrapper: the label and the hint keep the full measure, so a two-line
+    # hint does not wrap into four. GOV.UK's width modifiers go on the input for the same reason.
+    FIELD_WIDTHS = {
+      half: "tw-field-half",
+      full: nil
     }.freeze
 
     INPUT_ERROR_CLASSES = "tw-input-error"
@@ -191,9 +190,9 @@ module Ui
 
       # `<fieldset>` with `aria-invalid` / `aria-describedby` from FormErrorsHelper, so assistive tech ties
       # the group to its message - the same call the hand-written fieldsets make.
-      # `lg:col-span-2` unconditionally: a group of checkboxes lays its own boxes out in columns, so it takes
-      # the full row of `.tw-form-grid` rather than a cell. Outside a grid the class does nothing.
-      @template.content_tag(:div, class: "mb-6 lg:col-span-2 #{wrapper_class}") do
+      # No width option here: a group of checkboxes lays its own boxes out in columns and is never a short
+      # field, so `width:` would only ever be wrong.
+      @template.content_tag(:div, class: "mb-6 #{wrapper_class}") do
         @template.tag.fieldset(**error_attrs) do
           build_checkbox_collection_label(label_text, hint, required:) +
             build_checkbox_collection_items(attribute, collection, value_method, text_method, columns) +
@@ -402,17 +401,17 @@ module Ui
       wrapper_class = options.delete(:wrapper_class)
 
       # Separate standard select options from html options
-      span = field_span(options)
+      width = field_width(options)
       options.delete(:width)
       select_options = extract_select_options(options)
       remaining_html_options = html_options.merge(options)
 
       # A select is a text-like control as far as the proc is concerned, so it gets its message from there
       # too - see the note in field_wrapper. This is the second of the two places that appended one.
-      @template.content_tag(:div, class: ["mb-6", span, wrapper_class].compact.join(" ").strip) do
+      @template.content_tag(:div, class: ["mb-6", wrapper_class].compact.join(" ").strip) do
         build_label(attribute, label_text, required: remaining_html_options[:required]) +
           build_hint(hint) +
-          build_select_field(attribute, choices, select_options, remaining_html_options, &)
+          build_select_field(attribute, choices, select_options, remaining_html_options, width, &)
       end
     end
 
@@ -449,8 +448,8 @@ module Ui
     end
 
     # Build select field element
-    def build_select_field(attribute, choices, select_options, html_options, &)
-      classes = input_class(attribute)
+    def build_select_field(attribute, choices, select_options, html_options, width = nil, &)
+      classes = [input_class(attribute), width].compact.join(" ")
 
       @template.content_tag(:div, class: "mt-2") do
         ActionView::Helpers::FormBuilder.instance_method(:select).bind(self).call(
@@ -483,10 +482,7 @@ module Ui
       #
       # The proc's version is the one to keep: it carries the attribute's name, so the field and the summary
       # say the same thing, and it is the same component the app half uses.
-      span = field_span(options)
-      options.delete(:width)
-
-      @template.content_tag(:div, class: ["mb-6", span, wrapper_class].compact.join(" ").strip) do
+      @template.content_tag(:div, class: ["mb-6", wrapper_class].compact.join(" ").strip) do
         decorated_label(attribute, label_text, required:) +
           (hint ? @template.content_tag(:p, hint, class: HINT_CLASSES) : "".html_safe) +
           @template.content_tag(:div, class: "mt-2", &)
@@ -502,20 +498,19 @@ module Ui
       end
     end
 
-    # Merges input options with default classes. `width:` is consumed by `field_wrapper`, which owns the grid
-    # span - the input itself stays `w-full` and fills whatever cell it is in.
+    # Merges input options with default classes, including the width class when one was named.
     def input_options(attribute, options = {})
+      options[:class] = [input_class(attribute), field_width(options), options[:class]].compact.join(" ").strip
       options.delete(:width)
-      options[:class] = [input_class(attribute), options[:class]].compact.join(" ").strip
       options
     end
 
-    # The wrapper's span, from `width:`. Unknown names raise rather than silently rendering full width.
-    def field_span(options)
+    # The control's width class, from `width:`. Unknown names raise rather than silently rendering full width.
+    def field_width(options)
       name = options[:width] || :full
 
-      FIELD_SPANS.fetch(name) do
-        raise ArgumentError, "unknown field width #{name.inspect}, expected one of #{FIELD_SPANS.keys.inspect}"
+      FIELD_WIDTHS.fetch(name) do
+        raise ArgumentError, "unknown field width #{name.inspect}, expected one of #{FIELD_WIDTHS.keys.inspect}"
       end
     end
 

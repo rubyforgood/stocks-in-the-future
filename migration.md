@@ -4669,3 +4669,56 @@ loudly as "add none".
 - `admin_page_structure_test` gains a test that names which three indexes carry a description and asserts the
   other six carry none.
 
+## Short fields stack again, at one column's width
+
+"Were there another field beside it" is the subjunctive. I read it as an indicative and built a two-column
+grid, which paired the fields; the width was right and the layout was not.
+
+`.tw-form-grid` is gone. `width: :half` puts `.tw-field-half` on the **control** -
+`max-width: calc(50% - 0.75rem)`, half the card's content box less half of a 24px gutter, so 351px of 726px -
+and the fields stack one per row. Measured on `students#new`: five controls, all at `left=448`, tops 321, 445,
+569, 794 and 918, three of them 351px and the classroom select full width.
+
+On the control rather than the wrapper, so the label and the hint keep the full measure. That is also where
+GOV.UK puts its width modifiers.
+
+The grid took wrappers, spans and a `contents` form with it: the field groups are plain divs again,
+`collection_check_boxes` no longer forces a span, and `profiles#edit`'s two forms are back to `class:
+"contents"`.
+
+### What this breaks
+
+- `page_width_test` asserted that the second field of a row started one cell plus one gutter along. It now
+  asserts the opposite property - one left edge for every control, and no two sharing a top - which is what
+  distinguishes stacked from paired.
+- `form_actions_test`'s disclosure threshold stays at +200px: the money form is taller stacked, so the margin
+  only gets safer.
+
+## Every empty state, photographed - and one of them was lying
+
+Asked for previews of the empty states. They cannot be seen any other way: an empty state renders only when a
+list is empty, and every development database has data in every table, so the screen a first-time admin or a
+brand-new student meets is the one nobody has looked at.
+
+`empty_state_preview_test` builds each condition, asserts a title, a body of at least 30 characters and no
+"No X found" phrasing, and with `PREVIEW=1` writes `public/preview/empty-*.png`. Eleven states.
+
+**It found a defect on its first run.** With nothing archived, `admin/students?discarded=true` said:
+
+> **No students yet** - Add students one at a time, or import a whole classroom from a CSV. [New student]
+
+There are students; none are archived. The sentence is false and the action would put nothing in the list
+being looked at. Same on teachers and users. `archived_empty_state` now owns that sentence - "No archived
+students. Archiving a student is reversible and keeps everything attached to it. The ones you archive appear
+here." - with no action inside the empty state. The page header's New button stays, because creating one is
+always available.
+
+**And `admin/users` has no unfiltered empty state at all**: you are signed in as a user to see the page, so
+that branch cannot render. Its empty state exists only on the Archived tab.
+
+### What this breaks
+
+- `components/ui/_empty_state` carries `data-testid="empty-state"` on both variants, which is how the preview
+  test finds them.
+- Three index views branch on `current_discard_filter` for their empty row.
+

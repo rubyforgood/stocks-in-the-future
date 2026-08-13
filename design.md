@@ -1341,6 +1341,19 @@ active ones and its prices are refreshed by a job, and `portfolio_transactions` 
 derived from. `admin_page_structure_test` asserts **both** halves, so "add one everywhere" fails as loudly as
 "add none".
 
+**An empty state under a filter is a different sentence.** With nothing archived, three indexes said "No
+students yet" / "No teachers yet" / "No users yet" and offered a New button - on a tab that lists archived
+records, with plenty of unarchived ones one tab away. Both halves were false, and it is the state most
+installations are permanently in. `archived_empty_state` owns that sentence once; the empty state offers no
+action there, because creating a record would put nothing in the list you are looking at. The page header's
+New button stays, since that action is always available.
+
+**And they are photographed, because they cannot be seen any other way.** An empty state renders only when a
+list is empty and every development database has data, so the screen a first-time admin meets is the one
+nobody looks at. `empty_state_preview_test` builds each condition, asserts a title, a body of at least 30
+characters and no "No X found", and with `PREVIEW=1` writes `public/preview/empty-*.png`. It found the
+archived-tab defect above on its first run.
+
 **An empty state is the only content on the page at the moment it shows**, so it says what the thing is or how
 rows arrive: "A school year holds the quarters that earnings are calculated against", "Add students one at a
 time, or import a whole classroom from a CSV". Two got this wrong in a way worth naming - one named a
@@ -1798,30 +1811,21 @@ words gave a teacher nothing: not whether it was required, not what it was worth
 a day count. It is a flat bonus on top of the per-day rate, and the section now says so - with every
 figure interpolated from `GradeEntry`'s constants, so the copy cannot claim a rate the model does not pay.
 
-**A form is a two-column grid, and a short field is one cell of it.** Reported as "some of these look very
-wide", then specified exactly: half the container minus half the gutter, as if another field sat beside it.
-That is **351px** of a 726px card at 1366px, and two short fields pair instead of stacking down a column.
-`.tw-form-grid` is `grid-cols-1 gap-x-6 gap-y-0 lg:grid-cols-2` - one column below `lg`, because two 163px
-fields on a phone is a squeeze rather than a pair, and `gap-y-0` because the vertical rhythm is already each
-field wrapper's own `mb-6`.
+**A short field is one column wide, and the fields still stack.** `width: :half` puts `.tw-field-half` on
+the control - `max-width: calc(50% - 0.75rem)`, half the card's content box less half a 24px gutter, so
+**351px** of 726px. That is the width a field would have *if* another sat beside it, which is what was asked
+for: "half the size of the container and half the size of the padding **were there** another field beside it".
 
-**Which rule this is, and which it is not.** Two exist in the field and they answer different questions.
-Sizing an input to its **content** is GOV.UK's - they ship `--width-10`-style modifiers and say outright not
-to make an input wider than the data you expect - and it is a minority position, held for error prevention in
-transactional government forms. Sizing an input to its **grid cell** is what Tailwind UI (2 to 6 of 12
-columns), Polaris (`FormLayout.Group`), Carbon, Material and Bootstrap all do, and it is what a reader
-perceives as alignment. This app uses the grid, and keeps content width only where a value is genuinely tiny:
-the grade book's 96px cells, below. A set of four `max-w-*` sizes shipped here for one commit; the grid
-replaced it because a fixed 128px field beside a fixed 384px one aligns with nothing.
+**Three shapes were tried, and the two wrong ones are worth knowing.** Four fixed `max-w-*` sizes were
+GOV.UK's content-width rule applied without its layout, and a 128px field above a 384px one aligns with
+nothing. A real two-column grid was the same instruction read as an indicative - it pairs the fields, which
+costs a second scan line and a judgement per row about which two belong together. Pairing is Tailwind UI's
+and Polaris's answer to a *long* form on a wide page; a stack with one scan line is GOV.UK's, and the width
+does the work either way.
 
-`Ui::FormBuilder::FIELD_SPANS` is the mechanism - `width: :half` for one cell, `:full` for both - and the
-default is `:full`, so a field nobody has considered keeps the width it has. An unknown name raises.
-
-**What is not a cell.** A checkbox group lays its own boxes out in columns, so `collection_check_boxes`
-always spans, in the builder rather than at every call site. A group heading, a helper paragraph, an error
-summary and a submit row span too, and a *group* of fields is itself a grid carrying `lg:col-span-2`, so its
-fields pair inside it. Measured on the stock form: six groups spanning, with Cash flow beside Debt, Debt to
-equity beside Profit margin, the three industry averages paired, and both textareas at the full 726px.
+The class goes on the **control**, not the wrapper, so the label and hint keep the full measure and a two-line
+hint does not wrap into four. GOV.UK puts its width modifiers there for the same reason. Default is `:full`,
+so a field nobody has considered keeps the width it has, and an unknown name raises.
 
 **An input in a table cell is sized to its content too**, and that is where this rule was first written: the grade book's days field rendered at **322px** for a value that
 cannot exceed two digits, because the column took the table's slack. GOV.UK states the rule and ships

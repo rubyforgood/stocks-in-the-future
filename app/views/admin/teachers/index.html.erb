@@ -85,12 +85,20 @@
               </tr>
             <% end %>
           <% else %>
-            <%= render "admin/shared/empty_row",
-                       colspan: 4,
-                       title: "No teachers yet",
-                       body: "Teachers manage classrooms and enter grades for their students.",
-                       action_label: "New teacher",
-                       action_path: new_admin_teacher_path %>
+            <%# The Archived tab needs its own sentence: with nothing archived this said "No teachers yet" and
+                offered a New button, on a list of archived records. %>
+            <% if current_discard_filter == :discarded %>
+              <%= render "admin/shared/empty_row",
+                         colspan: 4,
+                         **archived_empty_state("teacher") %>
+            <% else %>
+              <%= render "admin/shared/empty_row",
+                         colspan: 4,
+                         title: "No teachers yet",
+                         body: "Teachers manage classrooms and enter grades for their students.",
+                         action_label: "New teacher",
+                         action_path: new_admin_teacher_path %>
+            <% end %>
           <% end %>
         </tbody>
       </table>

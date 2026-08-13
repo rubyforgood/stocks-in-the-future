@@ -114,12 +114,20 @@
               </tr>
             <% end %>
           <% else %>
-            <%= render "admin/shared/empty_row",
-                       colspan: 5,
-                       title: "No users yet",
-                       body: "Users include admins, teachers and students across every school.",
-                       action_label: "New user",
-                       action_path: new_admin_user_path %>
+            <%# The Archived tab needs its own sentence: with nothing archived this said "No users yet" and
+                offered a New button, on a list of archived records. %>
+            <% if current_discard_filter == :discarded %>
+              <%= render "admin/shared/empty_row",
+                         colspan: 5,
+                         **archived_empty_state("user") %>
+            <% else %>
+              <%= render "admin/shared/empty_row",
+                         colspan: 5,
+                         title: "No users yet",
+                         body: "Users include admins, teachers and students across every school.",
+                         action_label: "New user",
+                         action_path: new_admin_user_path %>
+            <% end %>
           <% end %>
         </tbody>
       </table>

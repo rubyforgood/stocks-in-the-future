@@ -175,24 +175,22 @@
    *
    * No border: design.md's Dividers section rules out an extra rule, and the page-coloured background is
    * what stops content showing through when it is pinned. */
-  /* **A field is one cell of a two-column grid**, so a short field is exactly half the card's content box
-     minus half the gutter - 351px of a 726px box at 1366px - and two short fields pair without either of
-     them carrying a width of its own.
+  /* **A short field is one column wide, and the fields still stack.**
+     `calc(50% - 0.75rem)` is half the card's content box less half of a 24px gutter - 351px of 726px - which
+     is the width a field would have *if* another sat beside it in a two-column layout. Asked for exactly
+     that, and I built the two-column layout instead: "were there another field beside it" is the
+     subjunctive, and pairing the fields was the indicative.
 
-     This replaced a set of `max-w-*` field sizes. Both rules exist in the field and they answer different
-     questions: sizing an input to its *content* is GOV.UK's, and it is a minority position taken for error
-     prevention in transactional government forms (an input wider than its data invites the wrong data).
-     Sizing an input to its *grid cell* is what Tailwind UI, Polaris, Carbon, Material and Bootstrap all do,
-     and it is what makes a form read as a rhythm rather than as a ragged stack. The two combine: the grid
-     lays the form out, and content width is kept for the genuinely tiny values that would look absurd at
-     half a card - a two-digit day count in a table cell, which is where design.md's other note lives.
+     Why the subjunctive is the better rule here. A form of stacked fields has one scan line, which is what
+     makes a short form readable - GOV.UK stacks and sizes, and its research is about error rates rather than
+     density. Pairing is Tailwind UI's and Polaris's answer to a *long* form on a wide page, and it costs a
+     second scan line and a decision per row about which two fields belong together. The width still does the
+     work: a 351px box for a two-letter ticker no longer says "type a sentence here".
 
-     `gap-y-0`: vertical rhythm still comes from each field wrapper's own `mb-6`, so a form that is not a
-     grid is unchanged and the 24px between fields is stated in one place rather than two.
-
-     One column below `lg`, because two 163px fields on a phone is not a pair, it is a squeeze. */
-  .tw-form-grid {
-    @apply grid grid-cols-1 gap-x-6 gap-y-0 lg:grid-cols-2;
+     On the input, not the wrapper, so the label and hint keep the full measure and a two-line hint does not
+     wrap into four. That is where GOV.UK puts its width modifiers too. */
+  .tw-field-half {
+    max-width: calc(50% - 0.75rem);
   }
 
   .tw-form-actions {
