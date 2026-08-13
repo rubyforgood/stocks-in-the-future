@@ -199,14 +199,40 @@ class AdminPageStructureTest < ActionDispatch::IntegrationTest
   # The teachers form stated its password behaviour twice: in the description, and again in a line below the
   # last field. It is stated once now, and on the **email field**, which is the thing it is about - a reader
   # meeting "a reset email goes to this address" in the page description has not typed an address yet.
-  test "the teacher password behaviour is stated once" do
+  #
+  # And only where it happens. The create and record pages render one partial, `create` sends the mail and
+  # `update` does not - `:confirmable` is not enabled, so even changing the address is silent - so the same
+  # sentence on the record page promises a mail nobody sends.
+  test "the teacher setup mail is stated once, and only on the page that sends it" do
     sign_in(create(:admin, admin: true, classroom: nil))
 
     get new_admin_teacher_path
 
     assert_response :success
-    assert_equal 1, response.parsed_body.text.scan(/temporary password/i).size,
-                 "the temporary-password sentence appears more than once"
+    assert_equal 1, response.parsed_body.text.scan(/emails them a link to set their password/i).size,
+                 "the setup-mail sentence should appear exactly once on the create page"
+
+    get admin_teacher_path(create(:teacher))
+
+    assert_response :success
+    assert_equal 0, response.parsed_body.text.scan(/emails them a link/i).size,
+                 "the record page promises a mail that `update` does not send"
+  end
+
+  # The word for what is generated, not what is sent. `create` makes a `Devise.friendly_token` only so the
+  # record can save, and the reset mail is a link and nothing else - so a page saying the temporary password
+  # is emailed is describing something that does not happen to anybody.
+  test "no teacher page claims the temporary password is emailed" do
+    sign_in(create(:admin, admin: true, classroom: nil))
+    teacher = create(:teacher)
+
+    [new_admin_teacher_path, admin_teacher_path(teacher)].each do |path|
+      get path
+
+      assert_response :success
+      assert_equal 0, response.parsed_body.text.scan(/temporary password/i).size,
+                   "#{path}: the temporary password is never sent to anyone, including the teacher"
+    end
   end
 
   # And the record pages still draw theirs, because there they say which section you are in.

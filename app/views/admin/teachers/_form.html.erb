@@ -10,22 +10,62 @@
       card's header when the page has one card. A heading returns the moment a form has two - see
       admin/students, where it separates them. %>
   <%= render layout: "components/ui/card", locals: {} do %>
+    <%# **Three sentences on this card are true on one of the two pages that render it and false on the
+        other**, so they branch on `persisted?` rather than being written for whichever page was open when
+        they were drafted:
+
+        - Saving a *new* teacher emails a setup link - `create` calls `send_reset_password_instructions`.
+          Saving an existing one emails nothing, and `:confirmable` is not among the devise modules, so
+          even changing the address is silent.
+        - A new teacher has no classrooms, so the school filter has nothing to promise to keep listed.
+        - Only the create page's description says a teacher can hold classrooms in two schools. The record
+          page's description is the teacher's own summary line, so there the group hint is the only place
+          that fact can live - and on create it would be the second copy of it. %>
+    <% creating = !@teacher.persisted? %>
+
+    <% email_hint = if creating
+                      "They sign in with this, and saving emails them a link to set their password."
+                    else
+                      "They sign in with this, so changing it changes how they sign in."
+                    end %>
+
+    <% filter_hint = if creating
+                       "Only changes which classrooms are listed below."
+                     else
+                       "Only changes which classrooms are listed. Any already assigned stay listed " \
+                         "whichever school you pick."
+                     end %>
+
+    <% classrooms_hint = if creating
+                           "Tick every classroom this teacher runs."
+                         else
+                           "Tick every classroom this teacher runs. They can be in different schools."
+                         end %>
+
     <div>
-        <%# Two facts, both about this field: it is the login username, and it is where the setup mail goes.
-            The second used to be the page's description, which read as a footnote about the future - the
-            reader met "a reset email goes to this address" before there was an address. On the field it is
-            an instruction about what to type. %>
+        <%# Two facts, both about this field: it is the login username - `sync_username_from_email` copies
+            it, so the sign-in form's "username" is this address - and, on create, where the setup mail
+            goes. The second used to be the page's description, which read as a footnote about the future:
+            the reader met "a reset email goes to this address" before there was an address.
+
+            **The mail does not carry the temporary password, and this said it did.** `create` generates one
+            with `Devise.friendly_token` so the record can save; what is sent is Devise's reset mail, which
+            is a link and nothing else. Nobody ever sees that password, the teacher included. %>
         <%= f.text_field :email,
                          label: "Email",
                          required: true,
-                         hint: "They sign in with this, and their temporary password and setup link " \
-                               "are emailed here.",
+                         hint: email_hint,
                          placeholder: "teacher@example.com" %>
 
+        <%# "Teacher's full name" restated the label and the placeholder already shows the shape. What a
+            reader cannot see is that the field is optional and what happens if they leave it: `display_name`
+            falls back to the email's local part, and it is what the index, the record page's title and every
+            classroom teacher list render. %>
         <%= f.text_field :name,
                          label: "Full name",
                          width: :half,
-                         hint: "Teacher's full name",
+                         hint: "Shown wherever this teacher is listed. Without one they appear as the " \
+                               "first part of their email.",
                          placeholder: "John Doe" %>
 
         <%# **"School filter" read as an attribute of the teacher** - which school do they belong to? - sitting
@@ -38,8 +78,7 @@
                        options_from_collection_for_select(@schools, :id, :name, @selected_school_id),
                        { label: "Show classrooms from",
                          width: :half,
-                         hint: "Only changes which classrooms are listed. Any already assigned stay " \
-                               "listed whichever school you pick.",
+                         hint: filter_hint,
                          include_blank: "All schools" },
                        { name: "school_id", data: { action: "change->form-filter#change" } } %>
         </div>
@@ -52,8 +91,7 @@
                                          :id,
                                          :name,
                                          label: "Classrooms",
-                                         hint: "Tick every classroom this teacher runs. They can be in " \
-                                               "different schools.",
+                                         hint: classrooms_hint,
                                          wrapper_class: "mb-0" %>
           <% else %>
             <div class="mb-6">
@@ -75,9 +113,9 @@
       <% end %>
 
       <%# The "a temporary password is generated and a reset email is sent" line used to sit here, below the
-          last field, where a reader meets it after deciding what to type. It is the create page's
-          description now - what happens on submit belongs where it is read first, and stating it twice was
-          the duplication this form already fixed for its own heading. %>
+          last field, where a reader met it after deciding what to type. It went to the page description,
+          which was no better - a footnote about the future, above the field it was about - and it is the
+          **email field's** hint now. What happens on submit belongs on the input that causes it. %>
   <% end %>
 
   <div class="flex items-center justify-between gap-x-4">

@@ -4835,3 +4835,39 @@ exposed to views with `helper_method`, and the helper's copy is deleted.
 - Row actions cells are narrower everywhere, which changes measured column widths. Nothing asserts them
   directly, and the actions column is the one that overflows first at 1024px, so the change is in the safe
   direction.
+
+## The teacher form's copy is per page, because three of its sentences were not
+
+The create page and the record page render one `admin/teachers/_form`, and three of its sentences were
+true on one of them and false on the other. Each was written while looking at a single page.
+
+**The email hint claimed the temporary password is emailed. It is not.** `create` generates one with
+`Devise.friendly_token` purely so the record can save, and sends `send_reset_password_instructions` - a
+reset link and nothing else. Nobody ever sees that password, the teacher included. The hint now says a
+link is emailed, which is what happens.
+
+**And it said so on the record page, where saving emails nothing.** `update` calls `update`, and
+`:confirmable` is not among the devise modules, so even changing the address is silent. The record page's
+hint now carries the fact that *is* true there: the email is the username - `sync_username_from_email`
+copies it - so changing it changes how they sign in.
+
+**The school filter promised to keep classrooms that a new teacher does not have.** "Any already assigned
+stay listed whichever school you pick" is the reason the filter is safe on the record page, and on create
+there is nothing assigned for it to be about.
+
+**And the multi-school fact was on the create page twice** - in the page description and again in the
+classroom group's hint. The record page has no such description, so the hint keeps it there and drops it
+on create.
+
+Separately, "Teacher's full name" restated its own label. It now says what a reader cannot see: the field
+is what the index, the record page title and every classroom teacher list render, and without it a teacher
+appears as the first part of their email.
+
+### What this breaks
+
+- `admin_page_structure_test`'s "the teacher password behaviour is stated once" scanned for
+  `/temporary password/i` and expected one hit. That phrase is gone from both pages, so the test would
+  read zero as a regression. It asserts the setup-mail sentence appears once on create and **not at all**
+  on the record page, and a second test asserts no teacher page mentions a temporary password at all.
+- `_form` now needs `@teacher` set before the hints are computed, which every render already did - it is
+  the same object `form_with` takes.
