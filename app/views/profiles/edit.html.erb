@@ -64,6 +64,11 @@
                        label: "Username",
                        width: :half,
                        readonly: true,
+                       # WCAG 1.3.5, which applies to a field collecting the *reader's own* data - this is
+                       # your account. The admin forms that collect a student's or a teacher's details are
+                       # out of its scope, and giving them an autocomplete would offer the admin their own
+                       # name for somebody else's field.
+                       autocomplete: "username",
                        class: "bg-slate-50 text-slate-600",
                        hint: "Used to sign in. Ask your teacher if it needs to change." %>
 

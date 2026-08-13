@@ -5425,3 +5425,39 @@ https." now.
 - **The company website is `type="url"`**, so a browser now validates it as a URL on top of the model's
   format check, and a phone shows the URL keyboard. The model validation is unchanged and is still the one
   that matters.
+
+## A WCAG 2.2 AA pass, and the instrument that had to be proved first
+
+Fifteen screens, all three roles, measured on the rendered page: 1.4.3 contrast, 1.1.1 images and icon-only
+controls, 1.3.1 labels and header cells and heading order, 2.4.2 titles, 2.5.8 target size, 4.1.2 names.
+`wcag_audit_test` asserts all of it and the app passes.
+
+**Two findings.** One fixed: `/profile/edit`'s username field had no `autocomplete`, where its name, email
+and password fields all did - **1.3.5**, and in scope because that page collects the reader's *own* details.
+The admin forms that collect a student's or a teacher's details are deliberately left alone: 1.3.5 covers
+fields about the user filling them in, and an autocomplete there would offer the admin their own name for
+somebody else's field.
+
+One not fixed, and recorded in design-todo instead: **1.4.11**, where `.tw-input-primary`'s `border-slate-300`
+measures 1.49:1 and `.tw-btn-secondary`'s `border-slate-200` measures 1.23:1 against a white card, and the
+border is the only thing identifying either control. Clearing 3:1 needs `slate-500` (4.76:1) - `slate-400` is
+2.63:1 and still fails - which is a visibly heavier border on every field in the product.
+
+**The instrument needed proving before its report could be believed**, and this is the part worth keeping.
+The first version measured contrast by painting each colour over opaque black, which destroyed the alpha,
+resolved every transparent background to black, and reported slate-900 body text at **1.18:1** - it would
+have produced a page of contrast failures that do not exist, which this repo has done once before by parsing
+`oklch()` as RGB. Two more of its findings were its own faults: an anchor wrapping the logo `<img alt>` read
+as unnamed because the audit looked for `alt` on the anchor, and 2.5.8 flagged the sr-only skip link and
+every breadcrumb link until it implemented the spec's inline and spacing exceptions. A fourth was the
+harness: signing out and back in inside one system test left four teacher pages auditing the *sign-in* page.
+
+So the file carries a test that injects one violation of each kind and asserts the audit catches it. A clean
+report from a broken instrument is worse than no report.
+
+### What this breaks
+
+- `wcag_audit_test` is 4 tests and about 45s of the system suite. It walks pages as three roles, so a new
+  page is not covered until it is added to one of the three lists.
+- The profile's username field now carries `autocomplete="username"`, which a browser may use to offer a
+  saved value on a **readonly** field. It is readonly by design there, so nothing can be overwritten.

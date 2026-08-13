@@ -884,6 +884,31 @@ never shrank.
   years and the measurement that decided it is quoted there. A docstring that contradicts every caller is
   worse than none.
 
+## The one WCAG failure left, and it is a design decision (2026-08)
+
+A full WCAG 2.2 AA pass over fifteen screens as all three roles is in `wcag_audit_test`, and everything it
+asserts is clean: contrast, accessible names, image alt, form labels, header cells, heading order, page
+titles, single h1, and target size under 2.5.8's inline and spacing exceptions.
+
+**1.4.11 Non-text Contrast is measured and not asserted, because two tokens `design.md` names by hand fail
+it.** A control's boundary must reach 3:1 against what is next to it, and on a white card:
+
+| Token | Where | Measured |
+| --- | --- | --- |
+| `border-slate-300` | `.tw-input-primary` - every input, select and textarea | **1.49:1** |
+| `border-slate-200` | `.tw-btn-secondary` - every secondary button | **1.23:1** |
+
+In both cases the border is the *only* thing identifying the control: the fill is white and so is the card.
+A filled primary is fine - its own fill carries it at well over 3:1.
+
+**What fixing it costs.** Measured on this build: `slate-400` is **2.63:1** and still fails; `slate-500` is
+**4.76:1** and is the first token that clears the bar. That is a visibly heavier border on every field and
+every secondary button in the product, which is a decision about how the app looks rather than a bug to
+quietly fix - and the reason it is here rather than done.
+
+Worth knowing before deciding: this is a common failure. Tailwind's defaults, GitHub and Stripe all ship
+input borders under 3:1. That is not a defence, but it means the bar is higher than the field's habit.
+
 ## Decisions waiting on a product owner (2026-08)
 
 One list, because they were scattered across this file and across conversations. None of them is blocked on
