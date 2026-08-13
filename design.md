@@ -2278,15 +2278,30 @@ table in the app and is not worth chasing. Put a badge straight into `table-body
 admin tables do, with no wrapper padding.
 
 **An unlabelled actions column is not rendered when the viewer can never use it.** The
-`table-no-permission` dash is right when a column holds actions for *some* rows - `portfolios#show`
-gives a non-student viewer the dash where a student gets Trade - but `ClassroomPolicy#edit?` **was**
-admin-only, so a teacher's classrooms table was a trailing column containing nothing but italic
-hyphens, on every row, and a column of dashes communicates only that there is a column. classrooms#index
-computes whether **any** row has a permitted action and drops the header, the cells and one from the
-empty state's `colspan` when none does. (Teachers edit their own classrooms now, so that column carries
-Edit for them and the guard fires only for a viewer with no rows at all - the rule outlived the case
+`table-no-permission` dash means "no action on *this* row", which says something only when another row has
+one; a column of dashes communicates only that there is a column. `ClassroomPolicy#edit?` **was**
+admin-only, so a teacher's classrooms table was a trailing column of italic hyphens, on every row.
+classrooms#index computes whether **any** row has a permitted action and drops the header, the cells and one
+from the empty state's `colspan` when none does. (Teachers edit their own classrooms now, so that column
+carries Edit for them and the guard fires only for a viewer with no rows at all - the rule outlived the case
 that found it.) Asked per record rather than per class, so it stays correct if the policy ever starts
 reading the record.
+
+**The test is whether the permission varies by *row*, not whether the page has two kinds of reader** - and
+this paragraph got that wrong for a year. It used to cite `portfolios#show` as the case where the dash is
+*right*: "gives a non-student viewer the dash where a student gets Trade". That is a gate on the **viewer**,
+so the column is all links or all dashes and never mixed - and a teacher or an admin opening a student's
+portfolio saw five holdings and five hyphens. It was reported from the rendered page, and it had been
+blessed here and in a `table_consistency_test` comment, which is why three later sweeps left it alone.
+
+So ask it as a question about the collection you are about to draw: *would two rows of this table, for this
+reader, differ?* If the gate reads the reader rather than the row, the answer is no whatever the gate says.
+`dash_column_test` asserts the ratio - dashes strictly fewer than rows - on every table under every role,
+which is a check a named exception cannot go stale against.
+
+There is **no reachable mixed column in the app today**. `classrooms#index` keeps its dash branch and cannot
+fire it, because the scope gives a teacher only the classrooms they teach and `edit?` permits exactly those.
+It stays as a guard against a wider scope, behind `actions_column`.
 
 `table_consistency_test.rb` measures all of it: one line across a classrooms row, the row height, Edit
 present for a teacher and an admin, and the column plus the empty state's `colspan` both dropping for a
