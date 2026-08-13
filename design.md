@@ -1391,6 +1391,32 @@ transaction type the app never writes ("withdrawals when a student trades"; trad
 the British way against 42 American uses including the button's own label. Copy that names a value is subject
 to the same rule as copy that quotes a figure: check it against the code.
 
+**A hint says something the label cannot.** Twenty-six of this app's field hints restated their own label:
+"Full company name" under Company name, "Industry sector" under Industry, "Select the school for this school
+year" under School, "Re-enter password to confirm" under Password confirmation, "Grant admin privileges to
+this user" under Admin. GOV.UK, Polaris, Carbon and Material 3 each name this as the thing hint text must not
+do, and the cost is not the wasted line - it is that a reader who finds three hints empty stops reading the
+fourth, which is the one saying a nightly job overwrites the field.
+
+A hint earns its place by carrying one of:
+
+- **a format or constraint** the value is checked against -- "Must start with http:// or https://",
+  "At least 6 characters", "In dollars, like 12.50"
+- **a consequence** of the value -- "Students can no longer buy it. Anyone holding shares keeps them and can
+  still sell", "Deposit and credit add to the balance. Withdrawal, debit and fee take from it"
+- **who sees it, or what else writes it** -- "Shown wherever this teacher is listed", "Replaced each weekday
+  by the price feed", "Notes for other administrators - a student never sees this"
+
+Otherwise it is deleted, and no hint is the correct amount of hint. **Never open with the control's own
+verb** - "Enter", "Select", "Choose", "Type" - because a text box already announces that you type in it;
+GOV.UK's guidance is that a hint describes the *answer*, not the operation. And where a fact is true of a
+whole card rather than one field, say it once in the page description: sixteen stock fields were each
+gesturing at "students read this", which is one sentence about the page.
+
+`hint_copy_test` fails on the shape rather than on a list of strings - the label's words appearing in a short
+hint, or an opening imperative - so a new field cannot reintroduce it and the test does not go stale. It was
+verified by putting "Enter the school name" back and watching it name the field.
+
 **The product is American, and that extends to the verbs, not just the spellings.** "Tick every classroom
 this teacher runs" is what a British writer says; it is **Select** here - and "check" only where the control
 is unambiguously a checkbox and the sentence is about the box rather than the choice. Apple's HIG, Material

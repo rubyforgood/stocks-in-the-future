@@ -4908,3 +4908,51 @@ British. It was the only instance in rendered copy.
 - The empty-state callout said "associated with this school and active year" and named a filter that no
   longer exists. It says "set up for the current school year" now, and a controller test matched on the old
   sentence.
+
+## Field hints: twenty-six said the label again, and a card's last field stopped padding it
+
+Two things reported together, both about forms.
+
+**Hints.** Twenty-six of the app's field hints restated their own label - "Full company name" under Company
+name, "Industry sector" under Industry, "Select the school for this school year" under School, "Re-enter
+password to confirm" under Password confirmation. `admin/stocks` was the worst: sixteen of its twenty.
+They are deleted. The ones that stay carry a format, a consequence or who else writes the value, and
+design.md now states that test with examples of each.
+
+Three were not merely empty but **wrong**, which is what a restating hint hides:
+
+- `admin/users` said email is "required for Teachers and Admins". `User` validates
+  `presence: false, allow_blank: true`; what makes a teacher need one is `sync_username_from_email`, since
+  a blank email leaves a blank username and *that* is validated. An admin needs no email at all.
+- `admin/portfolio_transactions` listed the five transaction types without saying which way each moves
+  money. `Portfolio#cash_on_hand_in_cents` adds deposits and credits and subtracts withdrawals, debits and
+  fees - the one fact the field exists for.
+- `admin/stocks` described Archived as "hidden from active listings". Archived stocks are still listed;
+  what changes is that `_trade_actions` withholds Buy and `Order#prevent_archived_stock_purchase` blocks it,
+  while a holder can still sell.
+
+`admin/component_demo`'s own hints were swept too. It is where somebody copies a call from, so a hint
+restating its label there becomes one in a form.
+
+**Card padding.** Reported as too much space under the new teacher card, and it was every admin form card
+except one: **21px above the first field and 45px below the last**. `Ui::FormBuilder` wraps every field in
+`mb-6`, the rhythm *between* fields, and the last one's 24px landed inside the card's 20px padding. Fixed in
+`cards.css` for every card at once rather than by passing `wrapper_class: "mb-0"` at eight call sites, where
+reordering a field would bring it back.
+
+### What this breaks
+
+- **The card rule lives in `@layer utilities`, not `@layer components`.** `mb-6` is a utility, and in
+  Tailwind v4 the utilities layer beats the components layer whatever the specificity - the first attempt
+  was in `@layer components` and measured identically to no rule at all. Anything overriding a utility from
+  a component file has the same problem.
+- **It is a chain of `:last-child` selectors four levels deep**, because a field sits two levels down on
+  announcements, three on teachers and four on students. A form nesting deeper regains the gap;
+  `card_padding_test` measures all nine form cards, so that fails by name.
+- **A card whose last element wants a bottom margin cannot have one.** Nothing did. If one ever needs it,
+  the padding is the thing to change, not the margin.
+- `hint_copy_test` walks nine create pages and fails on the *shape* - the label's words inside a short hint,
+  or an opening "Enter" / "Select" / "Choose". A hint that legitimately repeats a label word needs to be
+  longer than the label plus three words, which every real one is.
+- Stock fields lost sixteen hints, so anything asserting on `p.tw-field-hint` counts on those pages change.
+  Nothing did.

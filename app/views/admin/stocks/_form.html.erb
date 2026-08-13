@@ -9,35 +9,43 @@
       just named it: "Teacher details" below "Edit teacher", 24px apart, in two sizes. Polaris drops a
       card's header when the page has one card. A heading returns the moment a form has two - see
       admin/students, where it separates them. %>
+  <%# **Sixteen hints removed, four kept.**
+      "Full company name" under a field labelled Company name, "Industry sector" under Industry, "Company
+      cash flow" under Cash flow - sixteen of the twenty said the label again in different words, which is
+      what GOV.UK, Polaris, Carbon and Material all name as the thing hint text must not do. A hint that
+      restates is worse than none: it adds a line to read, and it teaches a reader that the hints on this
+      page carry nothing, so they stop reading the four that do.
+
+      The four that stay each carry something the label cannot: a format the record is validated against,
+      two fields a background job overwrites, and what archiving does to a student.
+
+      What the deleted ones were reaching for - that these fields are read by students - is true of the
+      whole card, so it is said once in the page description rather than sixteen times. %>
   <%= render layout: "components/ui/card", locals: {} do %>
     <div>
         <%= f.text_field :ticker,
                          label: "Ticker symbol",
                          width: :half,
                          required: true,
-                         hint: "Stock ticker symbol (e.g., AAPL, GOOGL)",
                          placeholder: "AAPL" %>
 
         <%= f.text_field :company_name,
                          label: "Company name",
                          width: :half,
-                         hint: "Full company name",
                          placeholder: "Apple Inc." %>
 
         <%= f.text_field :company_website,
                          label: "Company website",
-                         hint: "Company website URL (must be HTTP or HTTPS)",
+                         hint: "Must start with http:// or https://",
                          placeholder: "https://www.apple.com" %>
 
         <%= f.text_field :stock_exchange,
                          label: "Stock exchange",
                          width: :half,
-                         hint: "Exchange where stock is traded (e.g., NASDAQ, NYSE)",
                          placeholder: "NASDAQ" %>
 
         <%= f.text_area :description,
                         label: "Description",
-                        hint: "Company description and overview",
                         rows: 4 %>
 
         <div class="mt-6 pt-6 border-t border-slate-200">
@@ -46,14 +54,14 @@
           <%= f.currency_field :price_cents,
                                label: "Current price",
                                width: :half,
-                               hint: "Current stock price in dollars",
+                               hint: "Replaced each weekday by the price feed.",
                                multiplier: 0.01,
                                decimals: 2 %>
 
           <%= f.currency_field :yesterday_price_cents,
                                label: "Yesterday's price",
                                width: :half,
-                               hint: "Previous day's closing price in dollars",
+                               hint: "Set by the feed - whatever the last refresh replaced.",
                                multiplier: 0.01,
                                decimals: 2 %>
         </div>
@@ -63,13 +71,11 @@
 
           <%= f.number_field :employees,
                              label: "Number of employees",
-                             width: :half,
-                             hint: "Total number of employees" %>
+                             width: :half %>
 
           <%= f.text_field :industry,
                            label: "Industry",
                            width: :half,
-                           hint: "Industry sector",
                            placeholder: "Technology" %>
         </div>
 
@@ -78,28 +84,23 @@
 
           <%= f.text_field :cash_flow,
                            label: "Cash flow",
-                           width: :half,
-                           hint: "Company cash flow" %>
+                           width: :half %>
 
           <%= f.text_field :debt,
                            label: "Debt",
-                           width: :half,
-                           hint: "Total company debt" %>
+                           width: :half %>
 
           <%= f.text_field :debt_to_equity,
                            label: "Debt to equity ratio",
-                           width: :half,
-                           hint: "Debt to equity ratio" %>
+                           width: :half %>
 
           <%= f.text_field :profit_margin,
                            label: "Profit margin",
-                           width: :half,
-                           hint: "Company profit margin" %>
+                           width: :half %>
 
           <%= f.text_field :sales_growth,
                            label: "Sales growth",
-                           width: :half,
-                           hint: "Sales growth percentage" %>
+                           width: :half %>
         </div>
 
         <div class="mt-6 pt-6 border-t border-slate-200">
@@ -107,18 +108,15 @@
 
           <%= f.text_field :industry_avg_debt_to_equity,
                            label: "Industry avg debt to equity",
-                           width: :half,
-                           hint: "Industry average debt to equity ratio" %>
+                           width: :half %>
 
           <%= f.text_field :industry_avg_profit_margin,
                            label: "Industry avg profit margin",
-                           width: :half,
-                           hint: "Industry average profit margin" %>
+                           width: :half %>
 
           <%= f.text_field :industry_avg_sales_growth,
                            label: "Industry avg sales growth",
-                           width: :half,
-                           hint: "Industry average sales growth" %>
+                           width: :half %>
         </div>
 
         <div class="mt-6 pt-6 border-t border-slate-200">
@@ -126,19 +124,18 @@
 
           <%= f.text_area :management,
                           label: "Management",
-                          hint: "Information about company management",
                           rows: 4 %>
 
           <%= f.text_area :competitor_names,
                           label: "Competitor names",
-                          hint: "List of competitor companies",
                           rows: 3 %>
         </div>
 
         <div class="mt-6 pt-6 border-t border-slate-200">
           <%= f.boolean_field :archived,
                               label: "Archived",
-                              hint: "Mark this stock as archived (hidden from active listings)" %>
+                              hint: "Students can no longer buy it. Anyone holding shares keeps " \
+                                    "them and can still sell." %>
         </div>
     </div>
     <% end %>

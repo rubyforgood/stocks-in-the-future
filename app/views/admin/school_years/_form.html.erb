@@ -19,7 +19,6 @@
                    ),
                    label: "School",
                    required: true,
-                   hint: "Select the school for this school year",
                    include_blank: "Select a school" %>
 
       <%= f.select :year_id,
@@ -31,7 +30,6 @@
                    ),
                    label: "Year",
                    required: true,
-                   hint: "Select the year for this school year",
                    include_blank: "Select a year" %>
 
       <% if @school_year.new_record? %>

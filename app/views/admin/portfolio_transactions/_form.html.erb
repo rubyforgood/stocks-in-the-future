@@ -15,35 +15,34 @@
                                  collection: Portfolio.includes(:user).order("users.username"),
                                  label: "Portfolio",
                                  required: true,
-                                 label_method: ->(portfolio) { "#{portfolio.user.username} (ID: #{portfolio.id})" },
-                                 hint: "Select the portfolio for this transaction" %>
+                                 label_method: ->(portfolio) { "#{portfolio.user.username} (ID: #{portfolio.id})" } %>
 
         <%= f.select :transaction_type,
                      PortfolioTransaction.transaction_types.keys.map { |type| [type.humanize, type] },
                      label: "Transaction type",
                      width: :half,
                      required: true,
-                     hint: "Type of transaction (deposit, withdrawal, credit, debit, fee)",
+                     hint: "Deposit and credit add to the balance. Withdrawal, debit and fee take " \
+                           "from it.",
                      include_blank: "Select transaction type..." %>
 
         <%= f.select :reason,
                      PortfolioTransaction.reasons.keys.map { |r| [r.humanize, r] },
                      label: "Reason",
                      width: :half,
-                     hint: "Reason for this transaction (optional)",
                      include_blank: "Select reason..." %>
 
         <%= f.currency_field :amount_cents,
                              label: "Amount",
                              width: :half,
                              required: true,
-                             hint: "Transaction amount in dollars",
+                             hint: "In dollars, like 12.50.",
                              multiplier: 0.01,
                              decimals: 2 %>
 
         <%= f.text_area :description,
                         label: "Description",
-                        hint: "Optional description for this transaction",
+                        hint: "Notes for other administrators - a student never sees this.",
                         rows: 4 %>
     </div>
     <% end %>

@@ -25,8 +25,9 @@
                      end } do %>
   <%= render layout: "admin/shared/record_section",
              locals: { title: "Details",
-                       hint: "Prices refresh each weekday from the ticker, and the company details " \
-                             "weekly, so most of this is replaced at the next update." } do %>
+                       hint: "Prices refresh each weekday from the ticker, so most of this is " \
+                             "replaced at the next update. The rest is what a student reads on the " \
+                             "stock's page before deciding to buy." } do %>
     <%= render "form" %>
   <% end %>
 

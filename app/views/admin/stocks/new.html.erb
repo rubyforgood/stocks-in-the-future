@@ -9,9 +9,9 @@
     a create page is that page with no lifecycle actions and one section. %>
 <%= render layout: "admin/shared/record_page",
            locals: { title: "New stock", breadcrumbs: @breadcrumbs,
-                     description: "The ticker is what the price feed looks up. Prices refresh each " \
-                                  "weekday and the company details weekly, so most of this fills " \
-                                  "itself in." } do %>
+                     description: "The ticker is what the price feed looks up, and prices refresh " \
+                                  "each weekday. Everything else here is what a student reads on the " \
+                                  "stock's page before deciding to buy." } do %>
   <%= render layout: "admin/shared/record_section",
              locals: { title: "Details", sr_only: true } do %>
     <%= render "form", stock: @stock %>

@@ -31,9 +31,12 @@
         <div class="border-b border-slate-200 pb-6">
           <h3 class="text-lg font-medium text-slate-900 mb-4">Text fields</h3>
 
+          <%# A hint says something the label cannot. These are examples of that, not filler: the gallery
+              is where somebody copies a call from, so a hint restating its label here becomes a hint
+              restating its label in a form. %>
           <%= f.text_field :name,
                            label: "Full name",
-                           hint: "Enter the user's full name" %>
+                           hint: "Shown wherever this person is listed." %>
 
           <%= f.email_field :email,
                             label: "Email address",
@@ -41,7 +44,7 @@
 
           <%= f.password_field :password,
                                label: "Password",
-                               hint: "Minimum 8 characters" %>
+                               hint: "At least 8 characters." %>
         </div>
 
         <%# Number & Currency Fields %>
@@ -50,13 +53,13 @@
 
           <%= f.number_field :id,
                              label: "User ID",
-                             hint: "Auto-generated unique identifier" %>
+                             hint: "Set when the account is created and never changes." %>
 
           <%= f.currency_field :id,
                                label: "Account balance",
                                multiplier: 0.01,
                                decimals: 2,
-                               hint: "Currency field with $ prefix" %>
+                               hint: "In dollars, like 12.50." %>
         </div>
 
         <%# Text Area %>
@@ -66,7 +69,7 @@
           <%= f.text_area :email,
                           label: "Biography",
                           rows: 4,
-                          hint: "Tell us about yourself" %>
+                          hint: "Two or three sentences, shown on their profile." %>
         </div>
 
         <%# Select Fields %>
@@ -85,7 +88,7 @@
 
           <%= f.boolean_field :admin,
                               label: "Administrator",
-                              hint: "Grant admin privileges to this user" %>
+                              hint: "Admins reach every school, classroom and account." %>
         </div>
 
         <%# Date & DateTime Fields %>
@@ -145,7 +148,7 @@
         <div>
           <h3 class="text-sm font-semibold text-slate-900 mb-3">Basic form setup</h3>
           <pre class="text-xs bg-slate-50 p-4 rounded border border-slate-200 overflow-x-auto"><code>&lt;%= form_with model: @resource, builder: Ui::FormBuilder do |f| %>
-  &lt;%= f.text_field :name, label: "Name", hint: "Enter the resource name" %>
+  &lt;%= f.text_field :name, label: "Name", hint: "Shown wherever this appears" %>
   &lt;%= f.submit_button "Save" %>
 &lt;% end %></code></pre>
         </div>
@@ -171,7 +174,7 @@
           <h3 class="text-sm font-semibold text-slate-900 mb-3">Boolean field</h3>
           <pre class="text-xs bg-slate-50 p-4 rounded border border-slate-200 overflow-x-auto"><code>&lt;%= f.boolean_field :active,
     label: "Active",
-    hint: "Check to activate this resource" %></code></pre>
+    hint: "Inactive resources stay, but stop appearing in the lists" %></code></pre>
         </div>
 
         <div>

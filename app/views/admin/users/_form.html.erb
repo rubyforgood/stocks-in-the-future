@@ -39,12 +39,14 @@
 
         <%= f.text_field :email,
                          label: "Email",
-                         hint: "Email address (required for Teachers and Admins, optional for Students)",
+                         hint: "A teacher signs in with theirs, so a teacher needs one. Optional " \
+                               "for everybody else, including admins.",
                          placeholder: "user@example.com" %>
 
         <%= f.boolean_field :admin,
                             label: "Admin",
-                            hint: "Grant admin privileges to this user" %>
+                            hint: "Admins reach every school, classroom and account, and can move " \
+                                  "money in a portfolio." %>
 
         <%= f.select :classroom_id,
                      options_from_collection_for_select(
@@ -54,7 +56,8 @@
                        @user.classroom_id
                      ),
                      label: "Classroom",
-                     hint: "Optional classroom assignment",
+                     hint: "A student's classroom decides whose grade book pays them and whether " \
+                           "they can trade. Teachers and admins do not need one.",
                      include_blank: "No classroom" %>
 
         <% if @user.new_record? %>
@@ -65,14 +68,13 @@
                                  label: "Password",
                                  width: :half,
                                  required: true,
-                                 hint: "Minimum 6 characters",
+                                 hint: "At least 6 characters.",
                                  placeholder: "••••••••" %>
 
             <%= f.password_field :password_confirmation,
                                  label: "Password confirmation",
                                  width: :half,
                                  required: true,
-                                 hint: "Re-enter password to confirm",
                                  placeholder: "••••••••" %>
           </div>
     </div>

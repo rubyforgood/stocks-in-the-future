@@ -44,7 +44,7 @@
                    ),
                    label: "Classroom",
                    required: true,
-                   hint: "The class this student belongs to",
+                   hint: "Decides whose grade book pays them and whether they can trade.",
                    include_blank: "Select a classroom" %>
 
       <% if @student.new_record? %>
@@ -55,13 +55,12 @@
           <%= f.password_field :password,
                                label: "Password (optional)",
                                width: :half,
-                               hint: "Minimum 6 characters, or leave blank to auto-generate",
+                               hint: "At least 6 characters, or leave it blank and one is generated.",
                                placeholder: "••••••••" %>
 
           <%= f.password_field :password_confirmation,
                                label: "Password confirmation",
                                width: :half,
-                               hint: "Re-enter password to confirm",
                                placeholder: "••••••••" %>
         </div>
     </div>

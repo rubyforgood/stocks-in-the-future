@@ -14,3 +14,34 @@
   }
 
 }
+
+/* The last thing in a card does not add to the card's own bottom padding.
+
+   Measured across the eight admin form cards: 21px above the first field and 45px below the last, on
+   seven of them. Nothing in any of those templates asks for that. Ui::FormBuilder wraps every field in
+   mb-6, which is the rhythm *between* fields, and the last one's 24px lands inside the card's 20px
+   padding. The class list says p-5 and the box is not symmetric - two spacings stacking at a seam, which
+   is the defect design.md already records at the card header.
+
+   Declared here rather than by passing `wrapper_class: "mb-0"` at eight call sites, because the last
+   field is a different field on every form and reordering one would silently bring the gap back.
+   Bootstrap's `.card-body > :last-child`, Polaris's Card and Primer's Box all strip trailing margin from
+   card content for the same reason.
+
+   **`@layer utilities`, not `components`.** `mb-6` is a utility, and in Tailwind v4 the utilities layer
+   beats the components layer whatever the specificity - the first version of this rule was in
+   `@layer components`, measured identically to no rule at all. Inside the same layer it wins on
+   specificity: three or four `:last-child` pseudo-classes against one `.mb-6`.
+
+   The chain is written out because the depth is not constant: a field sits two levels down on
+   announcements, three on teachers and four on students, where a `border-t` section wrapper intervenes.
+   `card_padding_test` asserts top == bottom on every form card, so a form that nests deeper than this
+   fails by name rather than quietly regaining the gap. */
+@layer utilities {
+  .tw-card > :last-child,
+  .tw-card > :last-child > :last-child,
+  .tw-card > :last-child > :last-child > :last-child,
+  .tw-card > :last-child > :last-child > :last-child > :last-child {
+    margin-bottom: 0;
+  }
+}
