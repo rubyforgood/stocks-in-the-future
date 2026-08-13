@@ -29,7 +29,15 @@
         `form_with model:` alone derives the param key from the record's class and a Student would post
         `student[name]` to a controller expecting `user`. That is a 400 on every submit, and a controller
         test that hand-writes its params cannot see it. %>
-    <% email_hint = current_user.email_required? ? "Used to reset your password." : "Optional. Used to reset your password if you have one." %>
+    <%# Two branches because the consequence differs, not the wording. "Optional. Used to reset your
+        password if you have one" was ambiguous - "one" reads as a password - and it buried the thing that
+        matters: `devise/passwords/new` asks for an email address, so a student without one cannot recover
+        their own account and has to ask an admin. %>
+    <% email_hint = if current_user.email_required?
+                      "Used to reset your password."
+                    else
+                      "Optional. Without an email address you cannot reset your own password."
+                    end %>
     <%= form_with model: @user, scope: :user, url: profile_path, method: :patch,
                   builder: Ui::FormBuilder, class: "contents" do |f| %>
       <%= render "profiles/errors", user: @user, on: %i[name email] %>

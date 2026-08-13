@@ -10,7 +10,8 @@
     </div>
 
     <h1 class="text-center text-2xl/9 font-bold tracking-tight text-slate-900 pb-4">Forgot your password?</h1>
-    <p class="text-center text-sm text-slate-600 pb-4">Enter your email and we'll send you reset instructions.</p>
+    <p class="text-center text-sm text-slate-600 pb-4">Reset instructions are sent to the email address
+      on your account.</p>
 
     <% opts = { as: resource_name, url: password_path(resource_name), builder: Ui::FormBuilder,
                 html: { method: :post } } %>

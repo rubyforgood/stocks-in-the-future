@@ -73,7 +73,7 @@ class HintCopyTest < ActionDispatch::IntegrationTest
                "cannot - a format, a consequence, or who sees the value - or drop the hint."
   end
 
-  test "no hint restates its own label" do
+  test "no admin hint restates its own label" do
     classroom = create(:classroom)
     create(:student, classroom:)
     create(:stock)
@@ -84,7 +84,34 @@ class HintCopyTest < ActionDispatch::IntegrationTest
              new_admin_classroom_path, new_admin_school_year_path, new_admin_announcement_path,
              new_admin_user_path, new_admin_portfolio_transaction_path]
 
+    assert_operator sweep(paths), :>, 5, "the selectors have probably drifted"
+  end
+
+  # **And the app side, which this test did not look at.** It walked nine admin create pages and stopped
+  # there, so the forms a teacher and a student actually use - the classroom form, the student forms, the
+  # profile - were never checked by the rule they are subject to. A copy audit scoped to one half of a
+  # product is how the two halves come to read differently, which is the thing design.md's "both sides"
+  # instruction exists to stop.
+  test "no app-side hint restates its own label" do
+    classroom = create(:classroom, :with_trading)
+    create(:teacher_classroom, teacher: create(:teacher), classroom:)
+    create(:student, classroom:)
+    # Signed in as an admin because `ClassroomPolicy#new?` is admin-only, and the point here is to render
+    # the forms rather than to test who reaches them.
+    sign_in(create(:admin, admin: true, classroom: nil))
+
+    assert_operator sweep(
+      [new_classroom_path, edit_classroom_path(classroom),
+       new_classroom_student_path(classroom), edit_profile_path]
+    ),
+                    :>, 5, "the selectors have probably drifted"
+  end
+
+  private
+
+  def sweep(paths)
     checked = 0
+
     paths.each do |path|
       fields_on(path).each do |label, hint, group|
         checked += 1
@@ -92,8 +119,7 @@ class HintCopyTest < ActionDispatch::IntegrationTest
       end
     end
 
-    # The suite would pass on zero fields if the selectors ever stopped matching, which is how a copy test
-    # quietly stops testing copy.
-    assert_operator checked, :>, 5, "found #{checked} hinted fields; the selectors have probably drifted"
+    # Zero fields would pass every assertion, which is how a copy test quietly stops testing copy.
+    checked
   end
 end

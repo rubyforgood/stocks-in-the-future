@@ -5176,3 +5176,36 @@ at once and the account form waits, and `schools#show`, where the years do.
 - **The comment explaining the removal broke the page first** - written as `<%# … %>` *inside* the
   `render layout:` argument list, which ends the tag mid-hash. Fifth recorded instance of that trap, caught
   by curling the page; `no_nested_erb_tags_test` names the file and line in 19ms and is the faster check.
+
+## The app side, checked against the same hint rules
+
+The hint sweep and `hint_copy_test` had both been scoped to the nine admin create pages, so the forms a
+teacher and a student actually use had never been held to the rules written for them. Four lines changed,
+and the test now walks both halves.
+
+**`profiles/edit`'s email hint was ambiguous and buried its consequence.** "Optional. Used to reset your
+password if you have one" - "one" reads as *a password*. What the field decides is whether a student can
+recover their own account at all: `devise/passwords/new` asks for an email address, so without one they must
+ask an admin. It says that now.
+
+**`classrooms/_form`, two.** The Grades group said "Select at least one grade that applies to this
+classroom", where the asterisk already carries the required-ness and "that applies to this classroom" is
+padding - "Select every grade level this class covers" matches the register of the teacher picker beside it.
+And the trading checkbox stated its on-state as though unconditional: "Students in this classroom can place
+buy and sell orders" is now "When on, …", which is what a checkbox hint is for.
+
+**`devise/passwords/new`** opened with the control's own verb - "Enter your email and we'll send you reset
+instructions" - and used a first person the product uses nowhere else. It states what happens instead.
+
+Everything else on the app side was already in register, because the student and classroom forms were swept
+when the admin ones were.
+
+### What this breaks
+
+- **`hint_copy_test` is two tests now**, one per half, sharing a `sweep` helper. The app-side one signs in as
+  an **admin**: `ClassroomPolicy#new?` is admin-only, and the point is to render the forms rather than to
+  test who reaches them. Verified by putting "The classroom name" back under a label reading "Name" and
+  watching it fail by name.
+- A student with no email address now reads that they cannot reset their own password. That is a statement
+  about a real limitation rather than a copy change - if self-service recovery for students is wanted, it is
+  a feature, and the hint is the honest description until then.
