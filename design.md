@@ -1769,6 +1769,21 @@ render now.
 no badge, because the trading setting below states its state in a sentence beside the switch - a pill would be
 the third copy of one fact.
 
+**A page reached from a record needs a way back to it, and on the app half that is a back link.** An admin
+clicking "View portfolio" on `admin/students#show` - the only link out of that page - landed on
+`portfolios#show`, which renders in the **app** layout and therefore has no breadcrumb trail. Nothing on the
+screen returned them. Reported.
+
+Trails are the admin half's convention; this half's is a back link in the page header's action slot, which is
+what `stocks#show` already does with "Back to trading floor". **The destination is per role, because the
+readers arrive from different places**: an admin from the student's record, a teacher from their classroom
+roster, where the student's name is the link. The owner gets none - they came from the nav, and a back link
+would name a page they were never on.
+
+The general form: before linking from one half of the product into the other, open the destination as the
+role that will click it and ask how they get back. A page that is top-level for one reader is a dead end for
+another.
+
 **A breadcrumb's last item is the page's own title, verbatim.** `admin/school_years#show` set its crumb to
 `@school_year.to_s`; `SchoolYear` defines `#name` and no `#to_s`, so the trail read
 `Dashboard / School years / #<SchoolYear:0x0000ffff68492f88>` under an h1 reading "Test School (2026 - 2027)".

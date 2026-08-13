@@ -38,6 +38,9 @@
     <% if current_user.student? && @portfolio.trading_enabled? %>
       <%= link_to "Invest now", stocks_path, class: "tw-btn-primary" %>
     <% end %>
+
+    <%# And the way back, for a viewer who did not arrive from the nav - see `portfolio_back_link`. %>
+    <%= portfolio_back_link(@portfolio, current_user) %>
   <% end %>
 
   <% if @portfolio.student? && @portfolio.trading_off_notice? %>

@@ -33,6 +33,35 @@ module ApplicationHelper
     end
   end
 
+  # The way back from a portfolio somebody else owns.
+  #
+  # A portfolio is a top-level destination for the student who owns it - the nav gets them there and back -
+  # but a teacher and an admin arrive from a *record*: an admin from `admin/students#show`, whose
+  # "View portfolio" button is the only link out of that page, and a teacher from their classroom roster,
+  # where a student's name is the link. Neither had a way back. The page renders in the app layout, which
+  # has no breadcrumb trail, so the browser's Back button was it.
+  #
+  # A back link rather than a trail, because that is this half's convention - `stocks#show` has
+  # "Back to trading floor" in the same slot - and the destination is per role rather than per page,
+  # because the two readers came from two different places.
+  #
+  # Returns nil for the owner, and for anyone whose origin cannot be named: a teacher can hold classrooms
+  # in more than one school, but a student sits in exactly one, so `classroom` is the only honest answer.
+  def portfolio_back_link(portfolio, viewer)
+    owner = portfolio.user
+    return if viewer.blank? || owner == viewer
+
+    if viewer.admin?
+      # `user_show_path`, which maps a user to their own record page. `admin/users#show` links here as well
+      # as `admin/students#show`, and both send an admin to the same place - `Portfolio#user_must_be_student`
+      # means an owner is always a Student, so there is no second type to branch on. Written as a branch
+      # first, and the model rejected the fixture that would have exercised it.
+      link_to "Back to #{owner.display_name}", user_show_path(owner), class: "tw-btn-secondary"
+    elsif viewer.teacher? && owner.classroom.present?
+      link_to "Back to #{owner.classroom.name}", classroom_path(owner.classroom), class: "tw-btn-secondary"
+    end
+  end
+
   def account_role_label(user)
     return "Admin" if user.admin?
     return "Teacher" if user.teacher?

@@ -5274,3 +5274,30 @@ still the right convention for its empty rows:
 - Three tests still reference `.table-no-permission`, all asserting its **absence** - `dash_column_test` and
   `table_consistency_test` - so they keep working and would keep working if it came back.
 - `tailwind.css` no longer contains the rule. Nothing referenced it from a template, so no markup changes.
+
+## A portfolio reached from a record had no way back
+
+Reported: from `admin/students#show`, whose "View portfolio" button is the only link out of that page, an
+admin landed on `portfolios#show` with nothing to return by. The page renders in the **app** layout, which
+has no breadcrumb trail - trails are the admin half's convention - so the browser's Back button was the whole
+of it. `admin/users#show` links here too, with the same result.
+
+`ApplicationHelper#portfolio_back_link` renders one in the page header's action slot, which is where
+`stocks#show` already puts "Back to trading floor". **The destination is per role**, because the two readers
+arrive from different places: an admin from the student's record, a teacher from their classroom roster,
+where the student's name is the link. The owner gets nothing - they came from the nav, and a back link would
+name a page they were never on.
+
+**One branch was written and deleted.** The admin case started as `admin_student_path` behind an
+`is_a?(Student)` guard, with a second path for an owner of another type - and the fixture for that test
+would not save: `Portfolio#user_must_be_student` means a portfolio's owner is always a Student. The helper
+calls `user_show_path`, which maps a user to their own record page, and the comment records why there is no
+type to branch on.
+
+### What this breaks
+
+- **`portfolios#show`'s header renders a second action** for a teacher or an admin. It is a `tw-btn-secondary`
+  beside the student-only "Invest now" primary, and the two never appear together - the primary is
+  student-gated and the back link is not-the-owner-gated.
+- The link's text contains the owner's display name or the classroom's name, so a test matching the header's
+  links by text on that page sees one more.
