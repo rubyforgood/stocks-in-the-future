@@ -151,7 +151,8 @@ module Admin
       # a message in a form, not a section heading - and the link is the callout's trailing action
       # rather than a link buried mid-sentence.
       assert_select "[role='status']", text: /No classrooms available/
-      assert_select "[role='status']", text: /No classrooms are associated with this school/
+      # No longer "associated with this school", because there is no school filter to be associated with.
+      assert_select "[role='status']", text: /set up for the current school year/
       assert_select "a[href='#{admin_classrooms_path}']", text: /Update classrooms/
     end
 
@@ -169,7 +170,10 @@ module Admin
       assert_response :success
 
       assert_select "input[type='checkbox'][name='teacher[classroom_ids][]']"
-      assert_select "label", text: "Test Classroom"
+      # The label is two lines now - the classroom over its school - so the name is a span within it rather
+      # than the label's whole text.
+      assert_select "label span", text: "Test Classroom"
+      assert_select "label span", text: "Test School"
 
       assert_select "h3", text: "No classrooms available", count: 0
     end
@@ -308,24 +312,30 @@ module Admin
     end
 
     # **A teacher can hold classrooms in more than one school**, and this form used to guarantee they could
-    # not. The checkbox group is the whole of `classroom_ids`, the list was narrowed to one school, and
-    # `update` assigns what was submitted - so the other school's classroom was removed. It needed no
-    # interaction: the filter defaults to the school of the teacher's *first* classroom, so opening the page
-    # and pressing Update was enough. Measured in a console: "A room, B room" in, "A room" out.
-    test "the form lists a teacher's classrooms whatever school the filter shows" do
-      teacher, first_school, other_room = a_teacher_in_two_schools
+    # not. The checkbox group is the whole of `classroom_ids`, a school filter narrowed the list to one
+    # school, and `update` assigns what was submitted - so the other school's classroom was removed. It
+    # needed no interaction: the filter defaulted to the school of the teacher's *first* classroom, so
+    # opening the page and pressing Update was enough. Measured in a console: "A room, B room" in, "A room"
+    # out.
+    #
+    # The filter is gone and the group lists every current-year classroom, so nothing can be hidden from the
+    # submit. These two stay as the regression: one that both classrooms are on the page, one that a save
+    # keeps them. They no longer pass `?school_id=`, which nothing reads - a test that sends a param the app
+    # ignores reads as coverage of a filter that does not exist.
+    test "the form lists every classroom a teacher holds, across schools" do
+      teacher, _first_school, other_room = a_teacher_in_two_schools
 
-      get edit_admin_teacher_path(teacher, school_id: first_school.id)
+      get edit_admin_teacher_path(teacher)
 
       assert_response :success
       assert_select "input[type=checkbox][value=?][checked]", other_room.id.to_s, { count: 1 },
                     "the classroom in the other school is not on the list, so saving would drop it"
     end
 
-    test "saving with the filter on one school keeps the classrooms in the other" do
-      teacher, first_school, other_room = a_teacher_in_two_schools
+    test "saving keeps a classroom in the other school" do
+      teacher, _first_school, other_room = a_teacher_in_two_schools
 
-      get edit_admin_teacher_path(teacher, school_id: first_school.id)
+      get edit_admin_teacher_path(teacher)
       ids = response.parsed_body.css("input[type=checkbox][checked]").pluck("value")
 
       patch admin_teacher_path(teacher), params: { teacher: { classroom_ids: ids } }
@@ -333,6 +343,17 @@ module Admin
       assert_redirected_to admin_teacher_path(teacher)
       assert_includes teacher.reload.classroom_ids, other_room.id,
                       "the other school's classroom was dropped by a save that never mentioned it"
+    end
+
+    # The row names the school, because nothing above the list does any more and two schools can each run a
+    # classroom of the same name.
+    test "each classroom option names its school" do
+      teacher, first_school, = a_teacher_in_two_schools
+
+      get edit_admin_teacher_path(teacher)
+
+      assert_response :success
+      assert_select "fieldset label span", text: first_school.name, count: 1
     end
 
     def a_teacher_in_two_schools

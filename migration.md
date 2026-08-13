@@ -4871,3 +4871,40 @@ appears as the first part of their email.
   on the record page, and a second test asserts no teacher page mentions a temporary password at all.
 - `_form` now needs `@teacher` set before the hints are computed, which every render already did - it is
   the same object `form_with` takes.
+
+## The teacher form's school filter is removed
+
+`admin/teachers/_form` had a single-select **"Show classrooms from"** above the multi-select classroom
+group it narrowed. Reported as making no sense, and it did not: two controls about one thing, told apart
+by their labels, one of them named for a mechanism.
+
+What it did: on change, a Stimulus controller rewrote a turbo frame's `src` with `?school_id=`, and
+`set_form_data` re-rendered the checkbox group narrowed to that school. `@selected_school_id` defaulted to
+**the school of the teacher's first classroom**, so the list arrived narrowed without anyone choosing
+anything - which is how it once dropped the second school's classroom on save, and why the group had to be
+unioned back together and the filter's own hint had to promise that "any already assigned stay listed".
+
+It was hiding a list shorter than the control: the group is limited to active classrooms in the current
+school year, which is 2 rows against 4 schools in this database. Removed entirely. Each row now renders the
+classroom's name over its school - `ClassroomsHelper#classroom_option_label`, mirroring `teacher_option_label`
+beside it - so two schools running a "Grade 5" stay distinguishable and a teacher spanning both can see it.
+
+Also: **"Tick every classroom this teacher runs" is now "Select"**. The product is American and the verb was
+British. It was the only instance in rendered copy.
+
+### What this breaks
+
+- **`?school_id=` on the teacher form does nothing.** No route change - it was never a permitted parameter,
+  only a top-level one `set_form_data` read - but a link carrying it now gets the full list.
+- **`app/javascript/controllers/form_filter_controller.js` is deleted.** It had one caller. Anything
+  reaching for a generic "reload a turbo frame from a select" controller needs to write it again; nothing
+  did.
+- **`Teacher#school_id` is deleted.** It was an `attr_accessor` existing only so `f.select :school_id` had
+  something to bind to. A teacher has no school, which is the point the page description makes.
+- **`@schools` and `@selected_school_id` are gone from `set_form_data`**, along with the union. Anything
+  rendering that partial gets every active classroom in the current year, ordered by school then name.
+- **The checkbox label is two lines, so it is no longer matched by its text.** `assert_select "label",
+  text: "Test Classroom"` became `assert_select "label span", ...`; the same trap as the teacher picker.
+- The empty-state callout said "associated with this school and active year" and named a filter that no
+  longer exists. It says "set up for the current school year" now, and a controller test matched on the old
+  sentence.

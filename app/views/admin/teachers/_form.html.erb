@@ -10,14 +10,13 @@
       card's header when the page has one card. A heading returns the moment a form has two - see
       admin/students, where it separates them. %>
   <%= render layout: "components/ui/card", locals: {} do %>
-    <%# **Three sentences on this card are true on one of the two pages that render it and false on the
+    <%# **Two sentences on this card are true on one of the two pages that render it and false on the
         other**, so they branch on `persisted?` rather than being written for whichever page was open when
         they were drafted:
 
         - Saving a *new* teacher emails a setup link - `create` calls `send_reset_password_instructions`.
           Saving an existing one emails nothing, and `:confirmable` is not among the devise modules, so
           even changing the address is silent.
-        - A new teacher has no classrooms, so the school filter has nothing to promise to keep listed.
         - Only the create page's description says a teacher can hold classrooms in two schools. The record
           page's description is the teacher's own summary line, so there the group hint is the only place
           that fact can live - and on create it would be the second copy of it. %>
@@ -29,17 +28,10 @@
                       "They sign in with this, so changing it changes how they sign in."
                     end %>
 
-    <% filter_hint = if creating
-                       "Only changes which classrooms are listed below."
-                     else
-                       "Only changes which classrooms are listed. Any already assigned stay listed " \
-                         "whichever school you pick."
-                     end %>
-
     <% classrooms_hint = if creating
-                           "Tick every classroom this teacher runs."
+                           "Select every classroom this teacher runs."
                          else
-                           "Tick every classroom this teacher runs. They can be in different schools."
+                           "Select every classroom this teacher runs. They can be in different schools."
                          end %>
 
     <div>
@@ -68,49 +60,49 @@
                                "first part of their email.",
                          placeholder: "John Doe" %>
 
-        <%# **"School filter" read as an attribute of the teacher** - which school do they belong to? - sitting
-            among their name and email. It is neither: a teacher belongs to *classrooms*, and nothing stops
-            those being in more than one school. It is a control for the list below it, so it sits with that
-            list, is named for what it does, and says that it changes nothing about the teacher. %>
-        <div class="mb-2" data-controller="form-filter"
-             data-form-filter-frame-id-value="teacher_classroom_selection">
-          <%= f.select :school_id,
-                       options_from_collection_for_select(@schools, :id, :name, @selected_school_id),
-                       { label: "Show classrooms from",
-                         width: :half,
-                         hint: filter_hint,
-                         include_blank: "All schools" },
-                       { name: "school_id", data: { action: "change->form-filter#change" } } %>
-        </div>
+        <%# **The school filter is gone, and the list says which school each classroom is in.**
+            It was a single-select dropdown above a multi-select group, both about classrooms, telling them
+            apart by label alone - and "Show classrooms from" named a mechanism rather than a thing. What it
+            did was reload the group into a turbo frame with a narrower list, defaulting to the school of the
+            teacher's *first* classroom, which is how it once dropped the second school's classroom on save.
 
-        <%# `lg:col-span-2`: a checkbox group of classroom names is not a half-width field. %>
-        <%= turbo_frame_tag "teacher_classroom_selection", class: "block mb-6" do %>
+            It was hiding a list shorter than itself: the group is already limited to active classrooms in
+            the current school year. `classroom_option_label` puts the school on each row, so two schools
+            running a "Grade 5" are still distinguishable, and a teacher holding classrooms in both can see
+            it rather than read it in a caveat.
+
+            The threshold for changing the control is the one classrooms#form states: past roughly ten
+            options a checkbox list becomes a searchable multi-select with chips. A dropdown that hides
+            options is not that control. %>
+        <div class="mb-6">
           <% if @classrooms.any? %>
             <%= f.collection_check_boxes :classroom_ids,
                                          @classrooms,
                                          :id,
-                                         :name,
+                                         classroom_option_label,
                                          label: "Classrooms",
                                          hint: classrooms_hint,
                                          wrapper_class: "mb-0" %>
           <% else %>
-            <div class="mb-6">
-              <label class="block text-sm font-medium text-slate-700 mb-2">Classrooms</label>
-              <%# The callout, not a hand-rolled panel with an inline SVG and yellow-400/700/800 ink.
-                  The link is the callout's trailing action rather than a link buried mid-sentence:
-                  a notice plus the thing to do about it. yellow was also one step off the amber the
-                  component uses. %>
-              <%= render layout: "components/ui/callout",
-                         locals: { title: "No classrooms available",
-                                   body: "No classrooms are associated with this school and active year yet." } do %>
-                <%= link_to admin_classrooms_path, class: ghost_class do %>
-                  <%= lucide_icon "arrow-right", class: "size-4 shrink-0" %>
-                  Update classrooms
-    </div>
-    <% end %>
+            <label class="block text-sm font-medium text-slate-700 mb-2">Classrooms</label>
+            <%# The callout, not a hand-rolled panel with an inline SVG and yellow-400/700/800 ink.
+                The link is the callout's trailing action rather than a link buried mid-sentence:
+                a notice plus the thing to do about it. yellow was also one step off the amber the
+                component uses.
+
+                It named the school filter - "associated with this school and active year" - and there is no
+                school filter now. The year is the only thing narrowing the list. %>
+            <%= render layout: "components/ui/callout",
+                       locals: { title: "No classrooms available",
+                                 body: "No classrooms have been set up for the current school year yet." } do %>
+              <%= link_to admin_classrooms_path, class: ghost_class do %>
+                <%= lucide_icon "arrow-right", class: "size-4 shrink-0" %>
+                Update classrooms
+              <% end %>
             <% end %>
-        <% end %>
-      <% end %>
+          <% end %>
+        </div>
+    </div>
 
       <%# The "a temporary password is generated and a reset email is sent" line used to sit here, below the
           last field, where a reader met it after deciding what to type. It went to the page description,

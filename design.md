@@ -1391,6 +1391,11 @@ transaction type the app never writes ("withdrawals when a student trades"; trad
 the British way against 42 American uses including the button's own label. Copy that names a value is subject
 to the same rule as copy that quotes a figure: check it against the code.
 
+**The product is American, and that extends to the verbs, not just the spellings.** "Tick every classroom
+this teacher runs" is what a British writer says; it is **Select** here - and "check" only where the control
+is unambiguously a checkbox and the sentence is about the box rather than the choice. Apple's HIG, Material
+and Polaris all write "Select". Reported by a reader, on the one hint in the app that said it.
+
 **A section hint that repeats the button is noise.** "Saved when you press Update school year" under a page
 with one form says what the button says. It earns its place only where a page has **two** writes and they
 behave differently - a student's record page, where the cash adjustment applies immediately and the account
@@ -1662,6 +1667,19 @@ Polaris and Primer all use one - and there is one teacher in this database. **Pa
 become a searchable multi-select with chips**, which is GitHub's assignees picker, Linear's and Jira's,
 because a list you have to scroll to find a name in is a list you should be able to type into. That threshold
 is the trigger; not a redesign for its own sake.
+
+**And a dropdown that hides options is not that control.** The admin teacher form had a single-select
+"Show classrooms from" above the multi-select group it narrowed, which is two controls about one thing,
+distinguished only by their labels, one of them naming a mechanism rather than a thing. It pre-selected the
+school of the teacher's first classroom, so it hid options nobody chose to hide - and it was hiding a list
+shorter than itself: 4 schools and 2 classrooms in the current year here. The whole apparatus went, and each
+row names its school instead, so a classroom is unambiguous when two schools run a "Grade 5" and a teacher
+spanning both can *see* it rather than read it in a caveat.
+
+The general rule: **if a control narrows a list, it must earn its place against the length of the list it
+narrows** - and it must not remove options from a submit. When a set is too long to scan, the answer is a
+text filter the reader types, over a list they can still see all of. That is what GitHub, Linear and Jira do,
+and the previous filter is what a checkbox group's own hint had to apologise for.
 
 **A group of checkboxes is a `<fieldset>` with a `<legend>`.** It is the only thing that can name a group,
 because there is no single control for a `<label for>` to point at - and the classroom form proved it by
