@@ -5022,3 +5022,49 @@ the sticky state, which is the only state that needs air above the button.
   in between today. A third case would render the button tight against whatever is above it.
 - `card_padding_test` now measures card-to-*button* on nine forms as well as the card's own symmetry, so the
   two spacings are pinned separately.
+
+## An empty state explains; the page header acts
+
+Reported as a rule: an empty state should not carry a primary CTA, particularly where the page already has
+one. The count made the case - **five of them did, and every one duplicated a button already on the page**:
+
+| Page | Empty state had | Page also had |
+|---|---|---|
+| `admin/teachers#index` | New teacher | header New teacher |
+| `admin/students#index` | New student | header New student |
+| `admin/classrooms#index` | New classroom | header New classroom |
+| `admin/school_years#index` | New school year | header New school year |
+| `classrooms#show` roster | Add the first student | header Add student |
+| `grade_books#show` | Add this class's students | section header, as a secondary |
+
+**This reverses what design.md said**, and the reversal is recorded there rather than quietly applied.
+Polaris and Stripe do the opposite - the empty state owns the action and the header suppresses its own -
+and that *was* the rule here, implemented on `portfolios#show` and nowhere else, which is how the five
+duplicates survived a rule written against exactly them. Two things decide it the other way: a control in
+the header is in the same place at every row count, where one in an empty state migrates the moment the
+first record lands; and the suppression made the empty case the only case with no header action.
+
+That second point is why `portfolios#show` needed the opposite change. Its "Invest now" was suppressed
+*because* the empty state carried "Browse companies", so removing the empty state's button alone would have
+left a student with no holdings - the exact reader who needs the trading floor - with no route to it. The
+header now renders in every state.
+
+`admin/shared/_empty_row` loses `action_label` / `action_path` entirely, and `admin/shared/_table` the
+`empty_action_label` / `empty_action_path` options that fed them. Those existed only to render a
+`tw-btn-primary` inside a table's empty row.
+
+### What this breaks
+
+- **`_empty_row` no longer takes an action.** A caller passing `action_label:` gets an ignored local, not an
+  error - so the grep to run when adding an empty state is for the *header's* button, to check one exists.
+- **`portfolios#show` renders "Invest now" whenever a student can trade**, not only when they hold
+  something. `portfolio_delight_test` asserted "Browse companies" in the empty state and now asserts the
+  header's link plus the absence of the old one.
+- **`button_copy_test` loses its `Add the first …` exemption**, which existed for the empty state's CTA. An
+  exemption that outlives its case is a hole in the rule.
+- Three system tests reached a page through a button that no longer exists - the portfolio's, the
+  classroom roster's, and the grade book's, where the click moves to the section header's "Add new
+  students". `can_populate` is computed before the branch, so that control renders on an empty grade book
+  exactly when there is somebody to add.
+- `empty_state_preview_test` walks eight indexes and fails on any `.tw-btn-primary` inside a
+  `[data-testid='empty-state']`, so a new empty state cannot reintroduce the pair.

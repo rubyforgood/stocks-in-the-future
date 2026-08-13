@@ -131,7 +131,11 @@ class PortfolioDelightTest < ApplicationSystemTestCase
     visit user_portfolio_path(student, student.portfolio)
 
     assert_text "You have $24.00 ready to invest"
-    assert_link "Browse companies"
+    # The route out is the page header's, not the empty state's. An empty state explains; the header acts,
+    # and it is rendered whether or not there are holdings - so this asserts the student is not stranded,
+    # which is the property that mattered when the empty state's own button carried it.
+    assert_link "Invest now"
+    assert_no_link "Browse companies"
   end
 
   # Someone else's portfolio is not theirs to be invited to spend from.

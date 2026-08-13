@@ -29,11 +29,13 @@
              locals: { title: "#{@portfolio.user.display_name}'s portfolio",
                        description: "Share values use the last closing price, updated once a day - " \
                                     "so this moves overnight, not while you watch it." } do %>
-    <%# Not while the holdings table is empty: the empty state below carries this action, and a
-        student with nothing yet was offered the same destination twice on one screen. Polaris and
-        Stripe both suppress the header action when an empty state owns it, because the reader is
-        looking at the empty state, not back up here. %>
-    <% if current_user.student? && @portfolio.trading_enabled? && @portfolio.positions.any? %>
+    <%# **Rendered whatever the table holds.** This used to be suppressed while the holdings were empty,
+        on the grounds that the empty state below carried the action - the two were the same destination
+        twice on one screen, and that was the half that went. It is the other half now: an empty state
+        explains, the page header acts, so the button is in one place in every state rather than moving
+        when the first share lands. A student with nothing yet is exactly the reader who needs the route
+        to the trading floor, and suppressing it here left them none once the empty state's went. %>
+    <% if current_user.student? && @portfolio.trading_enabled? %>
       <%= link_to "Invest now", stocks_path, class: "tw-btn-primary" %>
     <% end %>
   <% end %>
@@ -233,11 +235,7 @@
                 <%= render layout: "components/ui/empty_state",
                            locals: { icon: "sparkles",
                                      title: "You have #{number_to_currency(@portfolio.cash_balance)} ready to invest",
-                                     body: "Pick a company you know. You can buy a single share - there is no minimum, and you can sell whenever you like." } do %>
-                  <%# The page's primary while the table is empty - the header's is suppressed,
-                      so this is the one filled action rather than a second route to it. %>
-                  <%= link_to "Browse companies", stocks_path, class: "tw-btn-primary" %>
-                <% end %>
+                                     body: "Pick a company you know. You can buy a single share - there is no minimum, and you can sell whenever you like." } do %><% end %>
               <% else %>
                 <%= render layout: "components/ui/empty_state",
                            locals: { icon: "chart-line",

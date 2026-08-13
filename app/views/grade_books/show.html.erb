@@ -173,9 +173,6 @@
                    locals: { icon: "users",
                              title: "No students yet",
                              body: "Add the students in this class to start entering grades." } do %>
-          <% if can_populate %>
-            <%= render partial: "populate_button", locals: { label: "Add this class's students", button_class: "tw-btn-primary" } %>
-          <% end %>
         <% end %>
       </div>
     <% end %>

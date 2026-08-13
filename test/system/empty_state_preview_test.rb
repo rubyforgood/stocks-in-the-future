@@ -86,6 +86,37 @@ class EmptyStatePreviewTest < ApplicationSystemTestCase
     end
   end
 
+  # **An empty state explains; the page header acts.**
+  #
+  # Four admin indexes and the classroom roster carried a filled "New teacher" / "New student" inside the
+  # empty state while the page header carried the same button to the same path - two primaries, one
+  # destination, which is the fault `one_primary_test` exists for and which this pair slipped past because
+  # only one of them renders at a time in a populated database.
+  #
+  # The header's copy is the one that stays, because it is in the same place whether the list has nothing in
+  # it or a hundred rows. An empty state whose action moves to the header when the first record lands is a
+  # control that changes position on a state the reader did not choose.
+  test "no empty state carries a filled primary" do
+    classroom = create(:classroom, :with_trading)
+    teacher = create(:teacher)
+    create(:teacher_classroom, teacher:, classroom:)
+    sign_in(create(:admin))
+
+    [admin_teachers_path, admin_students_path, admin_classrooms_path, admin_school_years_path,
+     admin_users_path, admin_schools_path, admin_stocks_path, admin_announcements_path].each do |path|
+      visit path
+
+      offenders = page.evaluate_script(<<~JS)
+        Array.from(document.querySelectorAll("[data-testid='empty-state'] .tw-btn-primary"))
+             .map(function (el) { return el.textContent.trim(); })
+      JS
+
+      assert_empty offenders,
+                   "#{path}: the empty state renders #{offenders.inspect} as a filled primary. An empty " \
+                   "state explains why the list is empty; the page header carries the action."
+    end
+  end
+
   test "a teacher's empty classroom" do
     classroom = create(:classroom, :with_trading)
     teacher = create(:teacher)
@@ -95,8 +126,11 @@ class EmptyStatePreviewTest < ApplicationSystemTestCase
     visit classroom_path(classroom)
 
     # The teacher's roster says something different from the admin's, and should: this one can act.
+    # The acting is the page header's "Add student" - the empty state used to carry a second filled button
+    # to the same place, and now explains instead.
     assert_text "No students yet"
-    assert_text "Add the first student"
+    assert_link "Add student"
+    assert_no_text "Add the first student"
     capture("classroom-roster")
   end
 

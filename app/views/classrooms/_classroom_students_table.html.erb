@@ -146,9 +146,7 @@
                  colspan: @can_manage_students ? 4 : 2,
                  icon: "graduation-cap",
                  title: "No students yet",
-                 body: "Students you add appear here with their portfolio value.",
-                 action_label: (@can_manage_students ? "Add the first student" : nil),
-                 action_path: (@can_manage_students ? new_classroom_student_path(@classroom) : nil) %>
+                 body: "Students you add appear here with their portfolio value." %>
     <% end %>
   </tbody>
 <% end %>

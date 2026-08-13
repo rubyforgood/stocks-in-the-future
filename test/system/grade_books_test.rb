@@ -224,7 +224,9 @@ class GradeBooksTest < ApplicationSystemTestCase
 
     assert_text "No students yet"
 
-    click_on "Add this class's students"
+    # The section header's control, not one inside the empty state. `can_populate` is computed before the
+    # branch, so it renders on an empty grade book exactly when there is somebody to add.
+    click_on "Add new students"
 
     assert_selector "#notice", text: "Added 2 students to this grade book."
     assert_selector "tbody tr", count: 2

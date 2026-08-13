@@ -759,7 +759,7 @@ so a table dense with links is not a field of rules, and a lone link in a form i
 Sign in had built that inline as a five-utility local while sign up used `tw-link text-sm`, so the
 one link the two pages share looked different on each.
 
-### One destination, one button — and the empty state wins
+### One destination, one button — and the page header wins
 
 Two buttons pointing at one path is the same fault as two labels for one path, from the other side.
 `button_copy_test.rb` asserts it, and it found two cases:
@@ -773,10 +773,31 @@ Two buttons pointing at one path is the same fault as two labels for one path, f
   This document had already recorded that pair as a bug and the fix had only demoted the second one
   to secondary, leaving both.
 
-**When an empty state carries the action, the page header does not.** Polaris and Stripe both
-suppress the header action while an empty state owns it, because the reader is looking at the empty
-state, not back up at the header. So the portfolio's "Invest now" renders only once there are
-holdings, and while the table is empty the empty state's own CTA is the page's primary.
+**An empty state explains; the page header acts.** An empty state carries no filled primary, and where
+one exists on the page the empty state carries no action at all. Reported, and the count made the case:
+four admin indexes and the classroom roster rendered "New teacher" / "New student" / "New classroom"
+*inside* the empty state while the page header carried the same label to the same path.
+
+This reverses what this document said, so the reasoning is worth keeping. Polaris and Stripe do the
+opposite -- the empty state owns the action and the header suppresses its own -- and that was the rule
+here, applied on `portfolios#show` and nowhere else, which is how the five duplicates survived. Two things
+decided it the other way:
+
+- **The header is the one position that does not change.** A control that lives in the empty state moves
+  to the header the moment the first record lands, on a state transition the reader did not choose and may
+  not have caused. A button in the same place at every count is learnable; one that migrates is not.
+- **Suppressing the header made the empty case the *only* case with no header action**, which on
+  `portfolios#show` meant a student with no holdings -- the exact reader who needs the trading floor -- had
+  their route removed the moment the empty state's own button went. The suppression was load-bearing for a
+  pattern we no longer use.
+
+So `portfolios#show` renders "Invest now" whatever the table holds, and the empty state under it says what
+a first purchase is like and nothing else. `empty_state_preview_test` walks eight indexes and fails on any
+`.tw-btn-primary` inside a `[data-testid='empty-state']`.
+
+A **section**-level control is not covered by this: the grade book's "Add new students" sits on its
+section's header line, which is where a section's action belongs, and it is a secondary. What went there
+was the second, filled copy of it inside the empty state.
 
 **A detail page's primary action acts on the thing it is showing.** A primary that navigates to the
 list is not an action, and it is a strong signal that the page is missing one.
@@ -784,8 +805,9 @@ list is not an action, and it is a strong signal that the page is missing one.
 ### Button copy: three words, verb first, one label per destination
 
 **A button label is a verb-first phrase of at most three words.** `button_copy_test.rb` asserts it
-on the rendered page, exempting `Back to …` (a back link naming its destination is worth the fourth
-word) and `Add the first …` (an empty state's first-run CTA).
+on the rendered page, exempting `Back to …` -- a back link naming its destination is worth the fourth
+word. It also exempted `Add the first …`, "an empty state's first-run CTA", and that exemption is gone
+with the button it described.
 
 **One destination gets one label.** `stocks_path` was reached by six:
 

@@ -107,9 +107,7 @@
           <%= render "admin/shared/empty_row",
                      colspan: columns.length + (options[:show_actions] == false ? 0 : 1),
                      title: options[:empty_title] || "Nothing here yet",
-                     body: options[:empty_message],
-                     action_label: options[:empty_action_label],
-                     action_path: options[:empty_action_path] %>
+                     body: options[:empty_message] %>
         <% end %>
       </tbody>
     </table>

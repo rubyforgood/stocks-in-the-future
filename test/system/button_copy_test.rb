@@ -20,7 +20,11 @@ class ButtonCopyTest < ApplicationSystemTestCase
 
   # A back link names where it goes, which is worth more than the word count: "Back to school
   # years" beats "Back". Everything else earns its length or gets shorter.
-  EXEMPT = [/\ABack to /, /\AAdd the first /].freeze
+  #
+  # `Add the first …` was the second exemption, for an empty state's first-run CTA. Empty states carry no
+  # button now - the page header does - so the exemption went with the label it was written for. An
+  # exemption that outlives its case is a hole in the rule.
+  EXEMPT = [/\ABack to /].freeze
 
   BUTTONS = <<~JS
     (function () {
