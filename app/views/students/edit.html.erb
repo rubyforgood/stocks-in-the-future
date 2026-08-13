@@ -28,13 +28,13 @@
                          label: "Full name",
                          required: true,
                          placeholder: "e.g., Jordan Smith",
-                         hint: "Shown instead of the username wherever this student appears. A roster " \
-                               "of usernames alone is hard to read." %>
+                         hint: "Displayed wherever this student appears. If left blank, their " \
+                               "username is shown instead." %>
 
         <%= f.text_field :username,
                          label: "Username",
                          required: true,
-                         hint: "What the student signs in with. Changing it changes how they sign in." %>
+                         hint: "Used to sign in. Changing it changes how this student signs in." %>
       </div>
     </div>
 

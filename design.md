@@ -1409,7 +1409,25 @@ A hint earns its place by carrying one of:
 
 Otherwise it is deleted, and no hint is the correct amount of hint. **Never open with the control's own
 verb** - "Enter", "Select", "Choose", "Type" - because a text box already announces that you type in it;
-GOV.UK's guidance is that a hint describes the *answer*, not the operation. And where a fact is true of a
+GOV.UK's guidance is that a hint describes the *answer*, not the operation. **A choice group is the
+exception**, and GOV.UK's own checkbox pattern is the reason: it ships "Select all that apply" as the hint,
+because with a group the thing a reader cannot see is *how many* they may pick. So "Select all classrooms
+this teacher teaches" is right on a `<fieldset>` and would be wrong on a text field.
+
+**The register is impersonal and states the consequence.** Set by a reader on the teacher form and applied
+across the product:
+
+| | |
+|---|---|
+| purpose | `Used to sign in.` -- not "They sign in with this" |
+| visibility | `Displayed wherever this teacher appears.` -- "Displayed", consistently, not "Shown" |
+| fallback | `If left blank, the first part of their email is shown instead.` |
+| consequence of saving | `A link to set a password will be sent by email once saved.` |
+| a group | `Select all classrooms this teacher teaches.` |
+
+Second person ("you sign in with this") and third ("they sign in with this") were both in use, sometimes on
+one page. The subject of a hint is the *field*, so the sentence does not need a person in it at all - which
+is also what removes the awkwardness of writing about a teacher and their student in the same line. And where a fact is true of a
 whole card rather than one field, say it once in the page description: sixteen stock fields were each
 gesturing at "students read this", which is one sentence about the page.
 
@@ -1677,6 +1695,17 @@ behaviour last is the order GOV.UK and Polaris both use when fields are grouped 
 opting in, which is what this is; and a switch implies the change takes effect as you flip it, which is true
 of the control on the classroom page and false here, where nothing happens until you save. The same setting
 can legitimately be a switch in one place and a checkbox in another for exactly that reason.
+
+**A checkbox group's rows are contiguous - the row's padding is the whole of the gap.** It was `py-2` on
+each row *and* `space-y-2` between them, so 24px of air between one option's text and the next and a 60px
+pitch for a two-line row. Three spacings for one job, and reported as too much padding.
+
+design.md was silent here, so the field decides, and the row's own `hover:bg-slate-50` settles it: a filled
+row is Primer's ActionList and Material's list item, both of which run edge to edge, because a gap between
+two fills reads as a hole rather than as separation. Polaris's bare ChoiceList takes the other consistent
+option - a gap and no padding - and that is not this component. Measured after: **52px pitch for a two-line
+row and 36px for one line**, against GOV.UK's 54px and Material's 56px two-line item. A multi-column group
+gets `gap-x` only, for the same reason.
 
 **A checkbox's own hint is indented to its label's text**, not to the box - `pl-7`, the 16px box plus the
 12px gap, which GOV.UK also does. Measured: label text and hint text both at x=538, the checkbox at 510.

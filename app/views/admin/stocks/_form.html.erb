@@ -61,7 +61,8 @@
           <%= f.currency_field :yesterday_price_cents,
                                label: "Yesterday's price",
                                width: :half,
-                               hint: "Set by the feed - whatever the last refresh replaced.",
+                               hint: "Set by the price feed. Holds whatever the last refresh " \
+                                     "replaced.",
                                multiplier: 0.01,
                                decimals: 2 %>
         </div>

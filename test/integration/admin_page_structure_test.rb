@@ -209,13 +209,13 @@ class AdminPageStructureTest < ActionDispatch::IntegrationTest
     get new_admin_teacher_path
 
     assert_response :success
-    assert_equal 1, response.parsed_body.text.scan(/emails them a link to set their password/i).size,
+    assert_equal 1, response.parsed_body.text.scan(/sent by email once saved/i).size,
                  "the setup-mail sentence should appear exactly once on the create page"
 
     get admin_teacher_path(create(:teacher))
 
     assert_response :success
-    assert_equal 0, response.parsed_body.text.scan(/emails them a link/i).size,
+    assert_equal 0, response.parsed_body.text.scan(/sent by email/i).size,
                  "the record page promises a mail that `update` does not send"
   end
 

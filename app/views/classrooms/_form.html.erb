@@ -53,7 +53,7 @@
                           label: "Name",
                           width: :half,
                           required: true,
-                          hint: "What a teacher and their students will see it called." %>
+                          hint: "Displayed to the teacher and their students." %>
 
       <%# **School** and **Year**, which are what `SchoolYearFields` accepts - the model resolves the pair
           into a SchoolYear on validation. The view used to reach through `classroom.school_year.school.id`
@@ -106,8 +106,8 @@
         <%= form.collection_check_boxes :teacher_ids, @teachers, :id, teacher_option_label,
                                         label: "Teachers",
                                         errors_on: :teachers,
-                                        hint: "Teachers you select can see this classroom and edit its " \
-                                              "grades and trading setting." %>
+                                        hint: "Select every teacher who can see this classroom and " \
+                                              "edit its grades and trading setting." %>
       <% end %>
 
       <%# **Last in the form**, after what the classroom *is* and who can see it.

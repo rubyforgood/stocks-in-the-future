@@ -14,7 +14,7 @@
       <%= render "devise/shared/error_messages", resource: resource %>
       <%= f.hidden_field :reset_password_token %>
 
-      <% length_hint = "#{@minimum_password_length} characters minimum" if @minimum_password_length %>
+      <% length_hint = "At least #{@minimum_password_length} characters." if @minimum_password_length %>
       <%= f.password_field :password,
                            label: "New password",
                            required: true,

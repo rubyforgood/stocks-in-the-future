@@ -38,8 +38,8 @@
                        label: "Display name",
                        width: :half,
                        autocomplete: "name",
-                       hint: "Shown on your portfolio and in the account menu. Leave it blank to use " \
-                             "your username." %>
+                       hint: "Displayed on your portfolio and in the account menu. If left blank, " \
+                             "your username is shown instead." %>
 
       <%# `required:` follows `User#email_required?`, which is true for a teacher or an admin and false
           for a student - so the asterisk appears exactly when the model would reject a blank. A field
@@ -57,14 +57,14 @@
                        width: :half,
                        readonly: true,
                        class: "bg-slate-50 text-slate-600",
-                       hint: "You sign in with this. Ask your teacher if it needs to change." %>
+                       hint: "Used to sign in. Ask your teacher if it needs to change." %>
 
       <%= f.submit "Save details", class: "tw-btn-primary" %>
     <% end %>
   <% end %>
 
   <%= render layout: "components/ui/card", locals: { title: "Password" } do %>
-    <% length_hint = "#{@minimum_password_length} characters minimum" if @minimum_password_length %>
+    <% length_hint = "At least #{@minimum_password_length} characters." if @minimum_password_length %>
     <%= form_with model: @user, scope: :user, url: password_profile_path, method: :patch,
                   builder: Ui::FormBuilder, class: "contents" do |f| %>
       <%= render "profiles/errors", user: @user, on: %i[current_password password password_confirmation] %>

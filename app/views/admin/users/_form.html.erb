@@ -20,8 +20,7 @@
                          label: "Username",
                          width: :half,
                          required: true,
-                         hint: "What they sign in with. A teacher's is their email address, so it is " \
-                               "taken from the email field.",
+                         hint: "Used to sign in. For a teacher it is taken from the email field.",
                          placeholder: "johndoe",
                          data: { derived_field_target: "field" } %>
 
@@ -32,21 +31,21 @@
                      ),
                      { label: "User type",
                        width: :half,
-                       hint: "Student, Teacher, or a plain account with neither a portfolio nor a class",
+                       hint: "A plain account has neither a portfolio nor a classroom.",
                        include_blank: false },
                      { data: { derived_field_target: "source",
                                action: "change->derived-field#refresh" } } %>
 
         <%= f.text_field :email,
                          label: "Email",
-                         hint: "A teacher signs in with theirs, so a teacher needs one. Optional " \
-                               "for everybody else, including admins.",
+                         hint: "Used to sign in by teachers, so a teacher needs one. Optional for " \
+                               "everyone else, including admins.",
                          placeholder: "user@example.com" %>
 
         <%= f.boolean_field :admin,
                             label: "Admin",
-                            hint: "Admins reach every school, classroom and account, and can move " \
-                                  "money in a portfolio." %>
+                            hint: "Grants access to every school, classroom and account, including " \
+                                  "moving money in a portfolio." %>
 
         <%= f.select :classroom_id,
                      options_from_collection_for_select(
@@ -56,8 +55,8 @@
                        @user.classroom_id
                      ),
                      label: "Classroom",
-                     hint: "A student's classroom decides whose grade book pays them and whether " \
-                           "they can trade. Teachers and admins do not need one.",
+                     hint: "Determines which grade book pays a student and whether they can trade. " \
+                           "Not needed for teachers or admins.",
                      include_blank: "No classroom" %>
 
         <% if @user.new_record? %>

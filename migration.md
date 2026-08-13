@@ -4956,3 +4956,38 @@ reordering a field would bring it back.
   longer than the label plus three words, which every real one is.
 - Stock fields lost sixteen hints, so anything asserting on `p.tw-field-hint` counts on those pages change.
   Nothing did.
+
+## One register for every hint, and the checkbox rows close up
+
+**Register.** Three hints were rewritten on the teacher form by a reader, and the rest of the product now
+matches them: `Used to sign in.` / `Displayed wherever this teacher appears. If left blank, the first part
+of their email is shown instead.` / `Select all classrooms this teacher teaches.` Impersonal, purpose
+first, consequence or fallback second. Both second person ("You sign in with this", on the profile) and
+third ("They sign in with this", on three admin forms) were in use, sometimes on one page; the subject of a
+hint is the field, so neither is needed. "Shown" is now "Displayed" throughout, and one phrasing per
+constraint - "At least 6 characters", where two forms said "Minimum 6 characters" and two said "6 characters
+minimum".
+
+**The imperative rule was too broad, and its test could not see that.** Last commit banned an opening
+"Select" on every hint. GOV.UK's checkbox pattern ships "Select all that apply" precisely because a group's
+unknown is *how many* you may pick, so the ban is wrong for a `<fieldset>` - and "Select all classrooms this
+teacher teaches" is the correct hint. It did not fail the test, and only by accident: a group names itself
+with `<legend>`, and `hint_copy_test` selected `label`, so **every choice group in the app was unchecked**.
+Groups are now checked for restatement and exempt from the verb.
+
+**Checkbox rows.** `py-2` on each row and `space-y-2` between them - 24px between one option's text and the
+next, 60px of pitch for a two-line row. The `space-y` is gone and the rows sit edge to edge: 52px pitch for
+two lines, 36px for one. `COLUMN_LAYOUTS` loses its `gap-2` for a `gap-x-6` gutter, so a multi-column group
+does not reintroduce the same stacking.
+
+### What this breaks
+
+- **`admin_page_structure_test` matched the old setup-mail wording** (`/emails them a link to set their
+  password/`) and now matches `/sent by email once saved/`. A copy test pinned to a sentence has to move
+  with the sentence; both halves - once on create, never on the record page - are unchanged.
+- **`hint_copy_test` now reads `legend.tw-label-primary` as well as `label`.** Its assertion count rose,
+  which is the sign the groups were previously invisible to it.
+- **A checkbox group has no vertical gap utility any more.** A caller wanting one has to change the row's
+  padding instead; `spacing_test` asserts the gap is zero and the pitch equals the row height.
+- The teacher form's `classrooms_hint` branch is gone - the same sentence serves both pages now, because
+  each row names its school and the multi-school fact no longer needs stating in words.

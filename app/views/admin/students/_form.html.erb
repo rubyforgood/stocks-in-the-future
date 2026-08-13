@@ -21,7 +21,8 @@
                        label: "Full name",
                        width: :half,
                        required: true,
-                       hint: "Shown instead of the username wherever this student appears" %>
+                       hint: "Displayed wherever this student appears. If left blank, their " \
+                             "username is shown instead." %>
 
       <%# `required: true` on both, matching the teacher's own form, which had it all along. The model
           requires a username and a classroom on this path, and the markup said neither: no asterisk on the
@@ -32,7 +33,7 @@
                        label: "Username",
                        width: :half,
                        required: true,
-                       hint: "What the student signs in with, and it has to be unique",
+                       hint: "Used to sign in. Must be unique.",
                        placeholder: "johndoe" %>
 
       <%= f.select :classroom_id,
@@ -44,7 +45,7 @@
                    ),
                    label: "Classroom",
                    required: true,
-                   hint: "Decides whose grade book pays them and whether they can trade.",
+                   hint: "Determines which grade book pays them and whether they can trade.",
                    include_blank: "Select a classroom" %>
 
       <% if @student.new_record? %>
@@ -55,7 +56,7 @@
           <%= f.password_field :password,
                                label: "Password (optional)",
                                width: :half,
-                               hint: "At least 6 characters, or leave it blank and one is generated.",
+                               hint: "At least 6 characters. If left blank, one is generated.",
                                placeholder: "••••••••" %>
 
           <%= f.password_field :password_confirmation,

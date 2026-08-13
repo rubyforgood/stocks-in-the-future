@@ -307,6 +307,42 @@ class SpacingTest < ApplicationSystemTestCase
                     "no padding-top of its own on the signed-in side"
   end
 
+  # Reported as too much padding between the checkboxes, and it was three spacings doing one job: `py-2` on
+  # each row, `space-y-2` between them, so 24px of air between one option's text and the next.
+  #
+  # The row carries a `hover:bg-slate-50` fill, which puts it in Primer's ActionList and Material's list
+  # family - both run their rows edge to edge, because a gap between two fills reads as a hole. So the
+  # padding is the whole of the separation and the gap is zero. Polaris's bare ChoiceList is the other
+  # consistent answer (a gap, no padding) and not this component.
+  test "a checkbox group's rows are contiguous, so the row padding is the only gap" do
+    sign_in(create(:admin))
+    school = create(:school)
+    year = Year.current_school_year.first_or_create!(name: Year.current_school_year_name)
+    school_year = create(:school_year, school:, year:)
+    2.times { |i| create(:classroom, name: "Grade #{i + 5}", school_year:) }
+
+    visit new_admin_teacher_path
+
+    rows = page.evaluate_script(<<~JS)
+      (function () {
+        const labels = Array.from(document.querySelectorAll("fieldset label")).filter(function (l) {
+          return l.querySelector("input[type=checkbox]") && l.getClientRects().length > 0;
+        });
+        if (labels.length < 2) return null;
+        const a = labels[0].getBoundingClientRect(), b = labels[1].getBoundingClientRect();
+        return { gap: Math.round(b.top - a.bottom), pitch: Math.round(b.top - a.top),
+                 height: Math.round(a.height) };
+      })()
+    JS
+
+    assert rows, "expected at least two classroom checkboxes to measure"
+    assert_equal 0, rows["gap"],
+                 "#{rows['gap']}px between two checkbox rows. The row's own py-2 is the separation; a " \
+                 "gap on top of it is the same space declared twice"
+    assert_equal rows["height"], rows["pitch"],
+                 "the pitch should be the row's own height once the rows are contiguous"
+  end
+
   # The page's own top-level children, which are one level deeper than they look. `main > div` is the
   # layout's content column - it wraps the flash and the yield together so a banner cannot be a
   # different width from the page under it - so the page's root is the column's *last* child, and its

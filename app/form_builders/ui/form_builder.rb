@@ -293,10 +293,13 @@ module Ui
     # it cannot see `lg:grid-cols-#{columns}` - so the first version of this rendered a grid with no columns
     # and the group was only short because three items fit anyway. Measured: `grid-template-columns` came
     # back as a single track. Anything that builds a class name from a variable has to spell the results out.
+    # `gap-x` only, for the same reason the single-column layout has no `space-y`: the row's own `py-2` is
+    # the vertical separation, and a grid `gap-2` would stack on it. The horizontal gutter is 24px, which is
+    # the gutter `.tw-field-half` already assumes between two half-width fields.
     COLUMN_LAYOUTS = {
-      2 => "mt-2 grid grid-cols-1 gap-2 lg:grid-cols-2",
-      3 => "mt-2 grid grid-cols-1 gap-2 lg:grid-cols-3",
-      4 => "mt-2 grid grid-cols-1 gap-2 lg:grid-cols-4"
+      2 => "mt-2 grid grid-cols-1 gap-x-6 lg:grid-cols-2",
+      3 => "mt-2 grid grid-cols-1 gap-x-6 lg:grid-cols-3",
+      4 => "mt-2 grid grid-cols-1 gap-x-6 lg:grid-cols-4"
     }.freeze
 
     private
@@ -348,8 +351,20 @@ module Ui
     # (`> :not([hidden]) ~ :not([hidden])`), which in a grid adds a top margin to every item that is not
     # first in **DOM** order rather than first in its row - so the columns come out ragged. The one-column
     # case keeps `space-y-2`, because that is what it has always rendered and there is nothing to change.
+    # **The rows are contiguous, and the padding is the only gap.**
+    #
+    # This was `space-y-2` on top of `py-2` on each row: 8px of padding, an 8px gap, 8px of padding, so 24px
+    # of air between one option's text and the next and a 60px pitch for a two-line row. Reported as too much
+    # padding between the checkboxes, and it is - three spacings doing one job.
+    #
+    # design.md does not set a value here, so the field decides, and the row's own `hover:bg-slate-50` fill
+    # is what settles it: a filled row is Primer's ActionList and Material's list item, both of which run
+    # their rows edge to edge, because a gap between two fills reads as a hole rather than as separation.
+    # Polaris's bare ChoiceList uses a gap and no padding - the other consistent answer, and not this
+    # component. Measured after: 52px pitch for the two-line rows on the teacher form, 36px for a one-line
+    # group, against GOV.UK's 54px and Material's 56px two-line item.
     def checkbox_collection_layout(columns)
-      return "mt-2 space-y-2" if columns.blank?
+      return "mt-2" if columns.blank?
 
       COLUMN_LAYOUTS.fetch(columns.to_i)
     end

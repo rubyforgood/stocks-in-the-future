@@ -36,7 +36,7 @@
               restating its label in a form. %>
           <%= f.text_field :name,
                            label: "Full name",
-                           hint: "Shown wherever this person is listed." %>
+                           hint: "Displayed wherever this person appears." %>
 
           <%= f.email_field :email,
                             label: "Email address",
@@ -69,7 +69,7 @@
           <%= f.text_area :email,
                           label: "Biography",
                           rows: 4,
-                          hint: "Two or three sentences, shown on their profile." %>
+                          hint: "Displayed on their profile. Two or three sentences." %>
         </div>
 
         <%# Select Fields %>
@@ -88,7 +88,7 @@
 
           <%= f.boolean_field :admin,
                               label: "Administrator",
-                              hint: "Admins reach every school, classroom and account." %>
+                              hint: "Grants access to every school, classroom and account." %>
         </div>
 
         <%# Date & DateTime Fields %>
@@ -148,7 +148,7 @@
         <div>
           <h3 class="text-sm font-semibold text-slate-900 mb-3">Basic form setup</h3>
           <pre class="text-xs bg-slate-50 p-4 rounded border border-slate-200 overflow-x-auto"><code>&lt;%= form_with model: @resource, builder: Ui::FormBuilder do |f| %>
-  &lt;%= f.text_field :name, label: "Name", hint: "Shown wherever this appears" %>
+  &lt;%= f.text_field :name, label: "Name", hint: "Displayed wherever this appears" %>
   &lt;%= f.submit_button "Save" %>
 &lt;% end %></code></pre>
         </div>
@@ -174,7 +174,7 @@
           <h3 class="text-sm font-semibold text-slate-900 mb-3">Boolean field</h3>
           <pre class="text-xs bg-slate-50 p-4 rounded border border-slate-200 overflow-x-auto"><code>&lt;%= f.boolean_field :active,
     label: "Active",
-    hint: "Inactive resources stay, but stop appearing in the lists" %></code></pre>
+    hint: "Inactive resources are kept, but stop appearing in the lists" %></code></pre>
         </div>
 
         <div>

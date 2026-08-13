@@ -21,6 +21,17 @@ class HintCopyTest < ActionDispatch::IntegrationTest
   # A control's own verb. "Enter", "Select" and "Choose" describe what the widget already announces - a text
   # box is for typing in and a select is for selecting from. GOV.UK's hint guidance is explicit that hint
   # text is for what the *answer* should be, not for how to operate the field.
+  #
+  # **A choice group is the exception, and GOV.UK is the reason.** Its own checkbox pattern ships
+  # "Select all that apply" as the hint, because with a group the thing a reader cannot see is *how many*
+  # they may pick - one, or as many as apply. So the imperative is the content there rather than filler,
+  # and "Select all classrooms this teacher teaches" is the correct hint for a `<fieldset>` of checkboxes
+  # and would be wrong on a text field.
+  #
+  # The first version of this test banned the verb everywhere, which would have failed that copy. It did
+  # not fail, and only because group labels are `<legend>` and the selector then read `label` - so the
+  # rule was over-broad *and* untested on the fields it was wrong about. Both are fixed: groups are
+  # checked for restatement and exempt from the verb.
   IMPERATIVES = /\A(enter|select|choose|type|write|input|pick|fill|specify|provide)\b/i
 
   def words(text)
@@ -35,18 +46,21 @@ class HintCopyTest < ActionDispatch::IntegrationTest
 
     assert_response :success
 
-    response.parsed_body.css("label.tw-label-primary").filter_map do |label|
-      wrapper = label.parent
-      hint = wrapper&.at_css("p.tw-field-hint")
+    # `<legend>` as well as `<label>`: a checkbox group names itself with a legend, which is the only
+    # element that can name a group - so a selector of `label` alone silently skips every group on the page.
+    response.parsed_body.css("label.tw-label-primary, legend.tw-label-primary").filter_map do |name|
+      hint = name.parent&.at_css("p.tw-field-hint")
       next unless hint
 
-      [label.text.strip.delete_suffix("*").strip, hint.text.strip]
+      [name.text.strip.delete_suffix("*").strip, hint.text.strip, name.name == "legend"]
     end
   end
 
-  def assert_hint_earns_its_place(path, label, hint)
-    assert_no_match IMPERATIVES, hint,
-                    "#{path}: \"#{label}\" is hinted \"#{hint}\" - a control's own verb is not a hint"
+  def assert_hint_earns_its_place(path, label, hint, group)
+    unless group
+      assert_no_match IMPERATIVES, hint,
+                      "#{path}: \"#{label}\" is hinted \"#{hint}\" - a control's own verb is not a hint"
+    end
 
     label_words = words(label)
     hint_words = words(hint)
@@ -72,9 +86,9 @@ class HintCopyTest < ActionDispatch::IntegrationTest
 
     checked = 0
     paths.each do |path|
-      fields_on(path).each do |label, hint|
+      fields_on(path).each do |label, hint, group|
         checked += 1
-        assert_hint_earns_its_place(path, label, hint)
+        assert_hint_earns_its_place(path, label, hint, group)
       end
     end
 

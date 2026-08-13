@@ -27,7 +27,7 @@
                    label: "Transaction type",
                    width: :half,
                    required: true,
-                   hint: "Deposit adds to the cash balance, debit takes from it",
+                   hint: "Deposit adds to the cash balance. Debit takes from it.",
                    include_blank: "Select a transaction type" %>
 
       <%# A text field with `inputmode`, not `number_field`. GOV.UK's money pattern is explicit about this:
@@ -37,7 +37,7 @@
                        label: "Amount",
                        width: :half,
                        required: true,
-                       hint: "In dollars, like 12.50",
+                       hint: "In dollars, like 12.50.",
                        placeholder: "0.00",
                        inputmode: "decimal",
                        autocomplete: "off" %>
@@ -47,12 +47,12 @@
                    label: "Reason",
                    width: :half,
                    required: true,
-                   hint: "Where this money came from, or what it was for",
+                   hint: "Records where the money came from, or what it was for.",
                    include_blank: "Select a reason" %>
 
       <%= f.text_area :description,
                       label: "Description (optional)",
-                      hint: "Notes for other administrators - the student never sees this.",
+                      hint: "Notes for other administrators. Never shown to the student.",
                       placeholder: "Enter transaction details...",
                       rows: 3 %>
     </div>

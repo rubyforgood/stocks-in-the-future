@@ -23,16 +23,10 @@
     <% creating = !@teacher.persisted? %>
 
     <% email_hint = if creating
-                      "They sign in with this, and saving emails them a link to set their password."
+                      "Used to sign in. A link to set a password will be sent by email once saved."
                     else
-                      "They sign in with this, so changing it changes how they sign in."
+                      "Used to sign in. Changing it changes how this teacher signs in."
                     end %>
-
-    <% classrooms_hint = if creating
-                           "Select every classroom this teacher runs."
-                         else
-                           "Select every classroom this teacher runs. They can be in different schools."
-                         end %>
 
     <div>
         <%# Two facts, both about this field: it is the login username - `sync_username_from_email` copies
@@ -56,8 +50,8 @@
         <%= f.text_field :name,
                          label: "Full name",
                          width: :half,
-                         hint: "Shown wherever this teacher is listed. Without one they appear as the " \
-                               "first part of their email.",
+                         hint: "Displayed wherever this teacher appears. If left blank, the first " \
+                               "part of their email is shown instead.",
                          placeholder: "John Doe" %>
 
         <%# **The school filter is gone, and the list says which school each classroom is in.**
@@ -81,7 +75,7 @@
                                          :id,
                                          classroom_option_label,
                                          label: "Classrooms",
-                                         hint: classrooms_hint,
+                                         hint: "Select all classrooms this teacher teaches.",
                                          wrapper_class: "mb-0" %>
           <% else %>
             <label class="block text-sm font-medium text-slate-700 mb-2">Classrooms</label>
