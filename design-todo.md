@@ -861,14 +861,12 @@ trigger for each, so none of them is a rule nobody applies.
 
 ## Left after adopting the single record page (2026-08)
 
-The nine record pages are done and merged. Five things they raise are not.
+The nine record pages are done and merged. Of the five things they raised, three are still open - the other
+two were done later and are struck through here rather than deleted, so the entry cannot be read as a to-do
+list that never shrank.
 
-- **Six create pages are still a different width from the record they create.** `announcements/new` is
-  `max-w-4xl`, `classrooms/new` is `max-w-2xl`, and `school_years`, `stocks`, `teachers` and `users` are
-  `max-w-7xl`, against `max-w-3xl` on the record page and on the three create pages already converted
-  (schools, students, portfolio_transactions). A form's measure should not change between creating a record
-  and editing it, which is a defect design.md already records for `classrooms#edit`. Mechanical: wrap the
-  form in a `Details` section and change the column.
+- ~~**Six create pages are a different width from the record they create.**~~ Done: all nine create pages
+  render `admin/shared/_record_page`, the same shell as the record page, at 768px.
 - **Every index row still has an "Edit" action pointing at the row's own page.** With view and edit merged
   it goes where the name link goes, which is the argument that removed "View" from all nine indexes. Two
   controls, one destination, one row.
@@ -880,10 +878,10 @@ The nine record pages are done and merged. Five things they raise are not.
   trading fee is charged without checking the balance either, so negative balances are already reachable.
   It is a product decision, not a validation gap: does an administrator correcting a $500 mistake need to
   be able to pull money out that the student has already spent on shares?
-- **`_record_page`'s own note says a collection leads "because that is what the page is for", and eight of
-  the nine pages put Details first.** Only the school page leads with its collection. Either the note is
-  wrong or the pages are; the answer is probably that the note should say "order follows what the page is
-  for, stated per page", which is what design.md now says. One line to reconcile.
+- **`_record_page`'s own note still says a collection leads "because that is what the page is for", and
+  eight of the nine pages put Details first.** Only the school page leads with its collection. design.md now
+  says the honest version - order follows what the page is for, stated per page - so the partial's docstring
+  is the one line left to reconcile.
 
 ## Decisions waiting on a product owner (2026-08)
 
