@@ -1333,6 +1333,22 @@ markup as `sr-only`, so the section keeps its accessible name, and the content l
 12px of gap under an invisible heading is the "delete the rule, leave its padding" mistake this document
 records three times. Polaris's rule for a page with one card, applied a level up.
 
+**An index page describes itself only where there is something to say.** Six of the nine admin indexes have
+nothing a reader cannot see - a table of students needs no sentence explaining that it lists students - and
+the correction to a create page that said too little is not a description on every page. Three do have a
+fact: `users` overlaps the students and teachers pages in the same sidebar, `stocks` mixes archived rows with
+active ones and its prices are refreshed by a job, and `portfolio_transactions` is what every balance is
+derived from. `admin_page_structure_test` asserts **both** halves, so "add one everywhere" fails as loudly as
+"add none".
+
+**An empty state is the only content on the page at the moment it shows**, so it says what the thing is or how
+rows arrive: "A school year holds the quarters that earnings are calculated against", "Add students one at a
+time, or import a whole classroom from a CSV". Two got this wrong in a way worth naming - one named a
+transaction type the app never writes ("withdrawals when a student trades"; trading writes a **debit** or a
+**credit**, and nothing in the app creates a withdrawal outside the admin form), and two spelled *finalized*
+the British way against 42 American uses including the button's own label. Copy that names a value is subject
+to the same rule as copy that quotes a figure: check it against the code.
+
 **A section hint that repeats the button is noise.** "Saved when you press Update school year" under a page
 with one form says what the button says. It earns its place only where a page has **two** writes and they
 behave differently - a student's record page, where the cash adjustment applies immediately and the account

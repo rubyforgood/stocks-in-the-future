@@ -4639,3 +4639,33 @@ student side, the audience is eleven, and a welcome is what that page is for.
   fee with the constant changed and expects the page to follow. A figure typed into copy passes the first
   test and fails this one.
 
+## The index pages, checked
+
+Nine admin indexes plus the three app-side lists. **The headline finding is that most of them were right to
+say nothing**, and the correction to the create pages - which said too little - is not a description on every
+page. A table of students does not need a sentence explaining that it lists students.
+
+Three had a fact a reader cannot see, and now state it:
+
+| Page | Description |
+| --- | --- |
+| users | "Every account there is, including the students and teachers that have their own pages in the sidebar." |
+| stocks | "Prices refresh each weekday after the market closes, and this list holds archived stocks as well as active ones." |
+| portfolio_transactions | "Every movement of money in the app. A student's cash balance is the sum of their rows here." |
+
+The other six keep an empty description, and the test asserts that too, so "add one everywhere" fails as
+loudly as "add none".
+
+**Two defects in the empty states**, which are the only content on the page at the moment they show:
+
+- `portfolio_transactions` said "withdrawals when a student trades". Trading writes a **debit** or a
+  **credit** - `ExecuteOrder` uses those two scopes - and nothing in the app creates a `withdrawal` outside
+  the admin form and the seeds. The copy named a transaction type the reader would never see from trading.
+- "finalised" appeared three times against 42 American spellings, including the grade book's own **Finalize
+  grades** button. One spelling now.
+
+### What this breaks
+
+- `admin_page_structure_test` gains a test that names which three indexes carry a description and asserts the
+  other six carry none.
+

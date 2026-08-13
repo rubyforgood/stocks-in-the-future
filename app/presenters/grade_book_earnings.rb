@@ -4,7 +4,7 @@
 #
 # It runs `EarningsCalculator` - the same class `DistributeEarnings` pays from - so the figures on
 # screen are the payout by construction rather than by agreement. That calculator was extracted for
-# exactly this ("so the same figures can be shown to a student before a grade book is finalised,
+# exactly this ("so the same figures can be shown to a student before a grade book is finalized,
 # without a second implementation drifting away from the one that actually pays out") and nothing had
 # ever used it that way: a teacher clicked Finalize, which is irreversible and deposits real money into
 # every student's portfolio, with no statement of what it would pay.

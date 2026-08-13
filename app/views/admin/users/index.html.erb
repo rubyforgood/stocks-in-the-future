@@ -1,7 +1,10 @@
 <div class="max-w-7xl mx-auto">
   <%= admin_breadcrumbs(@breadcrumbs) %>
 
-  <%= render layout: "components/ui/page_header", locals: { title: "Users" } do %>
+  <%= render layout: "components/ui/page_header",
+             locals: { title: "Users",
+                       description: "Every account there is, including the students and teachers that " \
+                                    "have their own pages in the sidebar." } do %>
     <%= link_to "New user", new_admin_user_path, class: admin_primary_button_class %>
   <% end %>
 

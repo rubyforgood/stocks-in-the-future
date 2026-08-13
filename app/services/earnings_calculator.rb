@@ -5,7 +5,7 @@
 # nothing - DistributeEarnings persists what this returns.
 #
 # Extracted from DistributeEarnings so the same figures can be shown to a student
-# before a grade book is finalised, without a second implementation drifting away from
+# before a grade book is finalized, without a second implementation drifting away from
 # the one that actually pays out.
 class EarningsCalculator
   Earnings = Struct.new(:attendance, :math, :reading) do

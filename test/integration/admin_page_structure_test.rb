@@ -130,6 +130,36 @@ class AdminPageStructureTest < ActionDispatch::IntegrationTest
     end
   end
 
+  # **An index page describes itself only where there is something to say.** Six of the nine have nothing a
+  # reader cannot see - a table of students needs no sentence explaining that it lists students - and
+  # inventing a line for each would be padding, which is the opposite failure to the one the create pages had.
+  #
+  # Three do: `users` overlaps the students and teachers pages in the same sidebar, `stocks` mixes archived
+  # rows with active ones and its prices are refreshed by a job, and `portfolio_transactions` *is* what every
+  # balance is derived from. This asserts both halves, because "add a description everywhere" is the wrong
+  # correction and the test should say so.
+  test "an index describes itself only where there is a fact to state" do
+    sign_in(create(:admin, admin: true, classroom: nil))
+
+    { admin_users_path => /students and teachers/,
+      admin_stocks_path => /refresh each weekday/,
+      admin_portfolio_transactions_path => /sum of their rows/ }.each do |path, expected|
+      get path
+
+      assert_response :success
+      assert_select "main div.min-w-0 > p", { text: expected, count: 1 }, "#{path}: description missing"
+    end
+
+    [admin_students_path, admin_teachers_path, admin_classrooms_path,
+     admin_schools_path, admin_school_years_path, admin_announcements_path].each do |path|
+      get path
+
+      assert_response :success
+      assert_select "main div.min-w-0 > p", { count: 0 },
+                    "#{path}: a description was added to a table that explains itself"
+    end
+  end
+
   # The teachers form stated its password behaviour twice: in the description, and again in a line below the
   # last field. One statement, where it is read before the reader starts typing.
   test "the teacher password behaviour is stated once" do

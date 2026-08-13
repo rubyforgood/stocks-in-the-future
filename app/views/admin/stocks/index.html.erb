@@ -16,7 +16,10 @@
 <div class="max-w-7xl mx-auto">
   <%= admin_breadcrumbs(@breadcrumbs) %>
 
-  <%= render layout: "components/ui/page_header", locals: { title: "Stocks" } do %>
+  <%= render layout: "components/ui/page_header",
+             locals: { title: "Stocks",
+                       description: "Prices refresh each weekday after the market closes, and this list " \
+                                    "holds archived stocks as well as active ones." } do %>
     <%= link_to "New stock", new_admin_stock_path, class: admin_primary_button_class %>
   <% end %>
 

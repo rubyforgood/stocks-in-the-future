@@ -16,7 +16,12 @@
   <%= render layout: "components/ui/page_header",
              locals: { title: "Portfolio transactions",
                        description: (
-                         "Only #{@filtered_user.display_name}'s transactions." if @filtered_user
+                         if @filtered_user
+                           "Only #{@filtered_user.display_name}'s transactions."
+                         else
+                           "Every movement of money in the app. A student's cash balance is the sum " \
+                             "of their rows here."
+                         end
                        ) } do %>
     <% if @filtered_user %>
       <%= link_to "Show all transactions", admin_portfolio_transactions_path,
@@ -99,7 +104,8 @@
                        colspan: 6,
                        icon: "arrow-left-right",
                        title: "No transactions yet",
-                       body: "Deposits appear here when a grade book is finalised, and withdrawals when a student trades." %>
+                       body: "Deposits appear here when a grade book is finalized, and a debit or a " \
+                             "credit each time a student buys or sells." %>
           <% end %>
         </tbody>
       </table>
