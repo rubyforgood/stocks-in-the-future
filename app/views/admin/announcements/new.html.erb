@@ -9,8 +9,8 @@
     a create page is that page with no lifecycle actions and one section. %>
 <%= render layout: "admin/shared/record_page",
            locals: { title: "New announcement", breadcrumbs: @breadcrumbs,
-                     description: "Only the featured announcement is shown, and it is on the home page " \
-                                  "everybody lands on." } do %>
+                     description: "Only the featured announcement is displayed, and it appears on " \
+                                  "the home page." } do %>
   <%= render layout: "admin/shared/record_section",
              locals: { title: "Details", sr_only: true } do %>
     <%= render "form" %>

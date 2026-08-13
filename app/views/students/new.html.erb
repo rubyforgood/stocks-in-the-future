@@ -1,8 +1,8 @@
 <div class="mx-auto max-w-3xl">
   <%= render layout: "components/ui/page_header",
              locals: { title: "Add new student",
-                       description: "They can sign in as soon as you save. The next screen shows " \
-                                    "their password once." } do %><% end %>
+                       description: "Students can sign in as soon as the account is saved. Their " \
+                                    "password is shown once, on the next screen." } do %><% end %>
 
   <%= form_with model: [@classroom, @student], builder: Ui::FormBuilder do |f| %>
     <%= render "shared/form_errors", record: @student, subject: "student" %>

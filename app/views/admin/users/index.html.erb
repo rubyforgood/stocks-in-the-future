@@ -3,8 +3,8 @@
 
   <%= render layout: "components/ui/page_header",
              locals: { title: "Users",
-                       description: "Every account there is, including the students and teachers that " \
-                                    "have their own pages in the sidebar." } do %>
+                       description: "Every account in the app, including the students and teachers " \
+                                    "with their own pages in the sidebar." } do %>
     <%= link_to "New user", new_admin_user_path, class: admin_primary_button_class %>
   <% end %>
 

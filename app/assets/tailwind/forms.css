@@ -193,8 +193,19 @@
     max-width: calc(50% - 0.75rem);
   }
 
+  /* **No top padding: the form's own `space-y-6` is the gap above this row.**
+
+     It was `py-4`, and the row is a `space-y-6` sibling of the card, so the button sat 24px + 16px = **40px**
+     below the card on all ten forms while design.md's stacked-section rhythm is 24px. GOV.UK puts 30px above
+     a submit, Tailwind UI 24px, Polaris 20px; 40px was more than any of them, and it was the same defect as
+     the card's own bottom padding - one gap declared twice.
+
+     The bottom padding stays, and the top comes back in the sticky state below, because a pinned bar needs
+     air on both sides of the button. That means the row grows by 16px on the first keystroke of an update
+     form - which is the same transition where Polaris's ContextualSaveBar appears out of nothing, so it is
+     within the pattern this rule is modelled on rather than a layout jump on an idle page. */
   .tw-form-actions {
-    @apply flex flex-wrap items-center gap-3 py-4;
+    @apply flex flex-wrap items-center gap-3 pb-4;
   }
 
   /* **Absent until there is something to save**, on a form that edits an existing record. A Save button on a
@@ -213,6 +224,6 @@
   }
 
   [data-form-dirty="true"] .tw-form-actions {
-    @apply sticky bottom-0 z-10 bg-slate-50;
+    @apply sticky bottom-0 z-10 bg-slate-50 pt-4;
   }
 }

@@ -1427,7 +1427,18 @@ across the product:
 
 Second person ("you sign in with this") and third ("they sign in with this") were both in use, sometimes on
 one page. The subject of a hint is the *field*, so the sentence does not need a person in it at all - which
-is also what removes the awkwardness of writing about a teacher and their student in the same line. And where a fact is true of a
+is also what removes the awkwardness of writing about a teacher and their student in the same line.
+
+**A page description follows the same register, with the entity as a plural subject.** "Teachers are assigned
+to classrooms, not schools, and can hold more than one" - not "A teacher is assigned to classrooms rather
+than to a school, and they can hold classrooms in more than one". Plural because the page is about the type
+rather than about one record; `not X` because a contrast is the shortest way to correct a wrong assumption;
+and no pronoun, because on a **create** page "they" has no antecedent - the record does not exist yet.
+`admin/students#new` opened "They can sign in straight away" about a student nobody had created.
+
+The exception is the **student-facing** half, which addresses its reader about their own things: "You still
+own shares in these", "Your cash plus your shares". That is not drift - a page about your portfolio uses the
+second person, and a page about a type of record does not. And where a fact is true of a
 whole card rather than one field, say it once in the page description: sixteen stock fields were each
 gesturing at "students read this", which is one sentence about the page.
 

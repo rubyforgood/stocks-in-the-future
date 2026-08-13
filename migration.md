@@ -4991,3 +4991,34 @@ does not reintroduce the same stacking.
   padding instead; `spacing_test` asserts the gap is zero and the pitch equals the row height.
 - The teacher form's `classrooms_hint` branch is gone - the same sentence serves both pages now, because
   each row names its school and the multi-school fact no longer needs stating in words.
+
+## Page descriptions join the hint register, and the save button moves up 16px
+
+**Descriptions.** `admin/teachers#new` was rewritten by a reader - "Teachers are assigned to classrooms, not
+schools, and can hold more than one" - and five other pages now match it: plural subject, no pronoun, a
+`not X` contrast where one corrects an assumption. Two of them opened with **"They"** on a create page,
+where the record does not exist yet and the pronoun refers to nothing: `admin/students#new` said "They can
+sign in straight away", and its app-side twin "They can sign in as soon as you save". `admin/users#index`
+said "Every account there is ... teachers that have their own pages", which is loose and uses `that` for
+people.
+
+The student-facing pages keep the second person deliberately - "You still own shares in these" is about the
+reader's own portfolio - and design.md now says where the line is.
+
+**The save button.** `.tw-form-actions` was `py-4` and is a `space-y-6` sibling of the card, so the button
+sat 24 + 16 = **40px** below it on all ten forms. Same defect as the card's own bottom padding two commits
+ago: one gap declared twice. GOV.UK puts 30px above a submit, Tailwind UI 24px, Polaris 20px - 40px was more
+than any of them, and design.md's stacked rhythm is 24px. The row keeps `pb-4` and the top padding moves to
+the sticky state, which is the only state that needs air above the button.
+
+### What this breaks
+
+- **An update form's action row grows 16px on the first keystroke**, when `data-form-dirty` adds `pt-4`
+  along with the sticky positioning. That is the transition where Polaris's ContextualSaveBar appears out of
+  nothing, so it is within the pattern this rule was modelled on - but it is a layout change on input, and
+  worth knowing before something else is hung off that state.
+- **A form that shows its action row without the dirty flag has no top padding on it.** Every form is either
+  a create (row always visible, 24px from the card) or an update (row hidden until dirty), so nothing sits
+  in between today. A third case would render the button tight against whatever is above it.
+- `card_padding_test` now measures card-to-*button* on nine forms as well as the card's own symmetry, so the
+  two spacings are pinned separately.

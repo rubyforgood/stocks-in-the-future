@@ -13,8 +13,8 @@
     already see, and its hint - "Saved when you press Create student" - repeated the button. %>
 <%= render layout: "admin/shared/record_page",
            locals: { title: "New student", breadcrumbs: @breadcrumbs,
-                     description: "They can sign in straight away. Leave the password blank and one is " \
-                                  "generated - the next screen shows it once." } do %>
+                     description: "Students can sign in as soon as the account is saved. If the password " \
+                                  "is left blank, one is generated and shown once on the next screen." } do %>
   <%= render layout: "admin/shared/record_section",
              locals: { title: "Details", sr_only: true } do %>
     <%= render "form" %>
