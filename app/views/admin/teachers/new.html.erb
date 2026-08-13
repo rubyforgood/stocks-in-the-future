@@ -9,7 +9,8 @@
     a create page is that page with no lifecycle actions and one section. %>
 <%= render layout: "admin/shared/record_page",
            locals: { title: "New teacher", breadcrumbs: @breadcrumbs,
-                     description: "A temporary password is generated and a reset email goes to this address." } do %>
+                     description: "A teacher is assigned to classrooms rather than to a school, and " \
+                                  "they can hold classrooms in more than one." } do %>
   <%= render layout: "admin/shared/record_section",
              locals: { title: "Details", sr_only: true } do %>
     <%= render "form", teacher: @teacher %>

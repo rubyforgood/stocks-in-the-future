@@ -105,14 +105,30 @@ module Admin
       params.expect(teacher: [:email, :name, { classroom_ids: [] }])
     end
 
+    # **A teacher's own classrooms are always in the list, whatever the filter says.**
+    #
+    # Nothing stops a teacher holding classrooms in more than one school - `teacher_classrooms` has no school
+    # constraint - but this form used to guarantee they could not. The list was narrowed to one school, the
+    # checkbox group is the whole of `classroom_ids`, and `update` assigns what was submitted: so a teacher
+    # with a classroom in each of two schools lost one the moment the form was saved. Measured in a console -
+    # "A room, B room" in, "A room" out - and it needed no interaction at all, because the filter defaults to
+    # the school of their *first* classroom, so opening the page and pressing Update was enough.
+    #
+    # Unioning their current classrooms into the scope fixes it at the source: whatever the filter shows, the
+    # boxes that are already ticked are rendered, so they are still there to be submitted.
     def set_form_data
       active_years = Year.current_school_year(Date.current)
       @schools = School.joins(:school_years).where(school_years: { year_id: active_years.ids }).distinct.order(:name)
 
       @selected_school_id = params[:school_id] || @teacher.classrooms.first&.school&.id
 
-      @classrooms = Classroom.active.joins(:school_year).where(school_years: { year_id: active_years.ids })
-      @classrooms = @classrooms.where(school_years: { school_id: @selected_school_id }) if @selected_school_id.present?
+      in_current_year = Classroom.active.joins(:school_year).where(school_years: { year_id: active_years.ids })
+      @classrooms = if @selected_school_id.present?
+                      of_school = in_current_year.where(school_years: { school_id: @selected_school_id })
+                      of_school.or(in_current_year.where(id: @teacher.classroom_ids))
+                    else
+                      in_current_year
+                    end
       @classrooms = @classrooms.order(:name)
     end
   end

@@ -306,5 +306,47 @@ module Admin
 
       assert_select "##{dom_id(teacher)}", count: 0
     end
+
+    # **A teacher can hold classrooms in more than one school**, and this form used to guarantee they could
+    # not. The checkbox group is the whole of `classroom_ids`, the list was narrowed to one school, and
+    # `update` assigns what was submitted - so the other school's classroom was removed. It needed no
+    # interaction: the filter defaults to the school of the teacher's *first* classroom, so opening the page
+    # and pressing Update was enough. Measured in a console: "A room, B room" in, "A room" out.
+    test "the form lists a teacher's classrooms whatever school the filter shows" do
+      teacher, first_school, other_room = a_teacher_in_two_schools
+
+      get edit_admin_teacher_path(teacher, school_id: first_school.id)
+
+      assert_response :success
+      assert_select "input[type=checkbox][value=?][checked]", other_room.id.to_s, { count: 1 },
+                    "the classroom in the other school is not on the list, so saving would drop it"
+    end
+
+    test "saving with the filter on one school keeps the classrooms in the other" do
+      teacher, first_school, other_room = a_teacher_in_two_schools
+
+      get edit_admin_teacher_path(teacher, school_id: first_school.id)
+      ids = response.parsed_body.css("input[type=checkbox][checked]").pluck("value")
+
+      patch admin_teacher_path(teacher), params: { teacher: { classroom_ids: ids } }
+
+      assert_redirected_to admin_teacher_path(teacher)
+      assert_includes teacher.reload.classroom_ids, other_room.id,
+                      "the other school's classroom was dropped by a save that never mentioned it"
+    end
+
+    def a_teacher_in_two_schools
+      year = Year.current_school_year.first_or_create!(name: Year.current_school_year_name)
+      grade = create(:grade)
+      first_school = create(:school)
+      other_school = create(:school)
+      first_room = create(:classroom, school_year: create(:school_year, school: first_school, year:), grades: [grade])
+      other_room = create(:classroom, school_year: create(:school_year, school: other_school, year:), grades: [grade])
+      teacher = create(:teacher)
+      teacher.classrooms = [first_room, other_room]
+      sign_in(create(:admin, admin: true, classroom: nil))
+
+      [teacher, first_school, other_room]
+    end
   end
 end

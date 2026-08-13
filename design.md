@@ -1388,6 +1388,19 @@ press Update transaction" is not.
 cards" - true, and meaningless to anybody who did not work on the branch that removed those cards. That
 belongs in migration.md, which is what it is for.
 
+**A fact about one field belongs on that field, not in the page description.** The new-teacher page opened
+with "A temporary password is generated and a reset email goes to this address" - a footnote about the future,
+met before there is an address to read it against. It is the **email field's** hint now: "They sign in with
+this, and their temporary password and setup link are emailed here", which is an instruction about what to
+type rather than a note about what will happen later. A description carries what is true of the *page*; a
+hint carries what is true of the *field*.
+
+**A control that filters another control is not a form field.** "School filter" sat between a teacher's name
+and their classrooms, labelled like an attribute, and read as "which school does this teacher belong to?" -
+which is not a question this app asks. It is now inside the group it filters, labelled "Show classrooms from",
+and its hint says it changes nothing about the record. GOV.UK and Polaris both place a filter with the list it
+narrows, never in the field order.
+
 **A page description states what the reader cannot see, and what happens next.** `students#new` said "You can
 add money and see attendance once the account exists", which described *other pages* to somebody filling in
 this one. What is not on the page is the consequence of submitting: the account works immediately, and a blank

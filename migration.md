@@ -4742,3 +4742,37 @@ Student" has a Students to click.
 - `spacing_test` carried a comment saying "admin index and show pages put breadcrumbs above the header";
   corrected to record pages.
 
+## A teacher can hold classrooms in two schools, and the form stopped destroying the second
+
+Asked whether a teacher can be assigned to more than one school, because "School filter" does not make sense
+on that page. Three answers, and the first one is a bug.
+
+**Yes, and the form guaranteed otherwise.** `teacher_classrooms` has no school constraint, so a teacher can
+hold classrooms anywhere. But `set_form_data` narrowed the checkbox list to one school, the group is the whole
+of `classroom_ids`, and `update` assigns what was submitted - so the other school's classroom was removed.
+It needed no interaction at all: the filter defaults to the school of the teacher's *first* classroom, so
+opening the page and pressing Update did it. Measured in a console - "A room, B room" in, "A room" out.
+
+The scope now unions the teacher's own classrooms into whatever the filter shows, so a ticked box is always
+rendered and therefore always re-submitted. Two controller tests cover it, and both fail against the old
+scope.
+
+**"School filter" was the wrong name in the wrong place.** It sat between the teacher's name and their
+classrooms, labelled like an attribute of the teacher - which school do they belong to? - and a teacher
+belongs to classrooms, not to a school. It is inside the group it filters now, labelled **"Show classrooms
+from"**, with a hint saying it changes nothing about the record and that anything already assigned stays
+listed. GOV.UK and Polaris both place a filter with the list it narrows rather than in the field order.
+
+**And the description moved onto the field it was about.** "A temporary password is generated and a reset
+email goes to this address" is a fact about the email field, met in the page description before there is an
+address to read it against. The email hint now reads "They sign in with this, and their temporary password and
+setup link are emailed here", and the description carries what a reader of *this page* actually wonders: a
+teacher is assigned to classrooms rather than to a school, and can hold them in more than one.
+
+### What this breaks
+
+- `set_form_data` returns a union when a school filter is applied, so the classroom list can contain a
+  classroom from outside the selected school. That is the point: it is one the teacher already has.
+- `admin_page_structure_test` matched the teachers description on /reset email/; it matches the multi-school
+  sentence now, and its "stated once" test still passes because the sentence moved rather than multiplied.
+

@@ -11,10 +11,15 @@
       admin/students, where it separates them. %>
   <%= render layout: "components/ui/card", locals: {} do %>
     <div>
+        <%# Two facts, both about this field: it is the login username, and it is where the setup mail goes.
+            The second used to be the page's description, which read as a footnote about the future - the
+            reader met "a reset email goes to this address" before there was an address. On the field it is
+            an instruction about what to type. %>
         <%= f.text_field :email,
                          label: "Email",
                          required: true,
-                         hint: "Also used as the teacher's login username",
+                         hint: "They sign in with this, and their temporary password and setup link " \
+                               "are emailed here.",
                          placeholder: "teacher@example.com" %>
 
         <%= f.text_field :name,
@@ -23,10 +28,19 @@
                          hint: "Teacher's full name",
                          placeholder: "John Doe" %>
 
-        <div data-controller="form-filter" data-form-filter-frame-id-value="teacher_classroom_selection">
+        <%# **"School filter" read as an attribute of the teacher** - which school do they belong to? - sitting
+            among their name and email. It is neither: a teacher belongs to *classrooms*, and nothing stops
+            those being in more than one school. It is a control for the list below it, so it sits with that
+            list, is named for what it does, and says that it changes nothing about the teacher. %>
+        <div class="mb-2" data-controller="form-filter"
+             data-form-filter-frame-id-value="teacher_classroom_selection">
           <%= f.select :school_id,
                        options_from_collection_for_select(@schools, :id, :name, @selected_school_id),
-                       { label: "School filter", hint: "Select a school to filter the classroom list", include_blank: "All schools" },
+                       { label: "Show classrooms from",
+                         width: :half,
+                         hint: "Only changes which classrooms are listed. Any already assigned stay " \
+                               "listed whichever school you pick.",
+                         include_blank: "All schools" },
                        { name: "school_id", data: { action: "change->form-filter#change" } } %>
         </div>
 
@@ -38,7 +52,8 @@
                                          :id,
                                          :name,
                                          label: "Classrooms",
-                                         hint: "Select one or more classrooms to assign to this teacher",
+                                         hint: "Tick every classroom this teacher runs. They can be in " \
+                                               "different schools.",
                                          wrapper_class: "mb-0" %>
           <% else %>
             <div class="mb-6">

@@ -150,7 +150,7 @@ class AdminPageStructureTest < ActionDispatch::IntegrationTest
     { new_admin_school_path => /school year/,
       new_admin_school_year_path => /four quarters/,
       new_admin_student_path => /password/,
-      new_admin_teacher_path => /reset email/,
+      new_admin_teacher_path => /more than one/,
       new_admin_user_path => /portfolio/,
       new_admin_stock_path => /ticker/,
       new_admin_announcement_path => /featured/,
@@ -197,7 +197,8 @@ class AdminPageStructureTest < ActionDispatch::IntegrationTest
   end
 
   # The teachers form stated its password behaviour twice: in the description, and again in a line below the
-  # last field. One statement, where it is read before the reader starts typing.
+  # last field. It is stated once now, and on the **email field**, which is the thing it is about - a reader
+  # meeting "a reset email goes to this address" in the page description has not typed an address yet.
   test "the teacher password behaviour is stated once" do
     sign_in(create(:admin, admin: true, classroom: nil))
 
