@@ -33,10 +33,14 @@
 module EnvironmentHelper
   # Am I on a deployment that should say so at all?
   #
-  # Set `PREVIEW_STAGING_CHROME=1` to see it locally. Chrome that only exists in one environment is
-  # chrome nobody looks at until it is deployed, which is how it reached staging with the app side's
-  # sidebar 32px behind the header and its text unreachable at 200%. Refused in production, where the
-  # ribbon would be an outright lie.
+  # Set `PREVIEW_STAGING_CHROME=1` to see it locally, which is the only way anybody has seen it: staging
+  # deploys `main` - `config/deploy/staging.rb` sets the branch and the workflow triggers on a push to it -
+  # and this ribbon has only ever existed on `stocksdesign`. Chrome gated on one environment is chrome that
+  # goes unlooked-at until it deploys, and the flag is what closed that gap: the app side's sidebar sitting
+  # 32px behind the header, and the text being unreachable at 200%, were both found through it.
+  #
+  # An earlier version of this comment said those two were found *on staging*. They were not, and could not
+  # have been - see the note in design-todo. Refused in production, where the ribbon would be an outright lie.
   def environment_ribbon?
     return true if ENV["PREVIEW_STAGING_CHROME"] == "1" && !Rails.env.production?
 

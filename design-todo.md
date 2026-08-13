@@ -813,8 +813,8 @@ which is its own entry above.
   migration.md. If it is ever revisited, the question to answer first is whether a teacher entering a day
   count *and* a perfect-attendance answer has ever actually produced a wrong payment, in data somebody
   typed. It had not; the evidence was seeds.
-- **The staging ribbon has never been seen on staging** - the tests stub `Rails.env`, which is the only
-  honest way to cover an environment the suite does not run in, and it is not the same as looking.
+- **The staging ribbon has never been on staging**, which is not the same thing as nobody looking - see the
+  entry below for the chain. It renders correctly under `PREVIEW_STAGING_CHROME=1`.
 
 ## 20 of 23 confirmations are one-line (2026-08) - DONE, all 29 rewritten
 
@@ -908,9 +908,25 @@ engineering; each needs somebody to say which way it goes. Ordered by what happe
    the grades.
 6. **Do students see projected earnings** - what the current, unfinalized grades would pay? The calculator
    is pure and already used by the preview, so this is a product question rather than a build.
-7. **The staging ribbon has never been seen on staging.** The tests stub `Rails.env`, which is the only
-   honest way to cover an environment the suite does not run in, and it is not the same as looking. Needs one
-   deploy and one screenshot.
+7. **The staging ribbon has never been *on* staging**, and this entry used to say "never been seen", which
+   invited the reasonable question of how nobody had looked. Nobody could have. The chain, each link checked:
+
+   - `.github/workflows/deploy-staging.yml` triggers `on: push: branches: ["main"]`.
+   - `config/deploy/staging.rb` sets `branch` to `"main"`, so even a hand-run `cap staging deploy` takes
+     main unless it is overridden.
+   - The ribbon was built on `stocksdesign` (commit `d868d71`), which is **264 commits ahead of main and has
+     never been merged**. `git cat-file -e main:app/helpers/environment_helper.rb` fails: neither the helper
+     nor `_environment_ribbon.html.erb` exists on main.
+
+   So the staging server has never had the code. Everything downstream is correct and will work on merge:
+   `set :rails_env, "staging"` makes `Rails.env.staging?` true, and both layouts render the partial.
+   Confirmed locally with `PREVIEW_STAGING_CHROME=1`, which is what the flag is for - the band reads
+   "Staging site. Test data only." with a "Hide until next login" control.
+
+   **This is not a thing to fix, it is a thing to expect**: nothing on this branch has been on staging,
+   because staging follows main. It is listed because the ribbon is the one piece of work whose whole point
+   is to be seen in an environment the branch has never reached, so it needs a look on the first deploy
+   after merge rather than a tick now.
 8. **The error summary lists errors in validation order, not field order.** GOV.UK is explicit that it should
    match the fields. Doing it properly means `shared/_form_errors` knowing the form's field order, which it
    cannot see today - so it is a small mechanism to design, not a copy fix.
