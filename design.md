@@ -1769,6 +1769,19 @@ render now.
 no badge, because the trading setting below states its state in a sentence beside the switch - a pill would be
 the third copy of one fact.
 
+**A trail is plain text. No crumb carries an icon, including the first.** The root had a house glyph and
+nothing else did, which was reported as inconsistent - and it is, because nothing distinguishes the first
+crumb except that it is first, which its position already says.
+
+The field is near-unanimous: GOV.UK, Carbon, Primer, Bootstrap and Atlassian all ship a breadcrumb with no
+icons, and Polaris ships no trail at all, only a back action. The common exception is **Tailwind UI**, whose
+example puts a house on the first item *instead of* the word - a compact home affordance, icon-only with an
+`sr-only` name. This app had the icon **and** the word: that pattern's decoration without its economy. Two
+roots also make the glyph wrong half the time, since it labelled "Dashboard" on the admin side.
+
+The **chevron between crumbs stays**, on every boundary. That is the separator, not a decoration, and it is
+what GOV.UK, Tailwind UI and Ant Design all use.
+
 **A page reached from another page gets a breadcrumb trail, on both halves.** An admin clicking "View
 portfolio" on `admin/students#show` - the only link out of that page - landed on `portfolios#show` with no
 way back. Reported, and the trail was the fix asked for; a back link was tried first and replaced, because a

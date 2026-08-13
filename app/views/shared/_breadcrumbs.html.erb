@@ -32,10 +32,19 @@
           to `currentColor`. It went unnoticed while this partial lived under `admin/`, because the focus
           audit walks the app half's forms; the first app page to render a trail failed it. Fixing it here
           fixes both halves at once, which is the reason the partial moved. %>
-      <%= link_to root_path_for_trail, class: "inline-flex items-center text-sm font-medium text-slate-700 hover:text-sitf-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary" do %>
-        <%= lucide_icon("house", class: "w-4 h-4 mr-2 shrink-0") %>
-        <%= root_label %>
-      <% end %>
+      <%# **No icon, on any crumb.** The root carried a house glyph and the rest carried none, which was
+          reported as inconsistent, and it is: nothing distinguishes the first crumb except that it is
+          first, which the position already says.
+
+          The field is near-unanimous that a trail is plain text - GOV.UK, Carbon, Primer, Bootstrap and
+          Atlassian all ship one with no icons, and Polaris has no trail at all. The one common exception is
+          Tailwind UI, whose example puts a house on the first item *instead of* a word, as a compact home
+          affordance; this had the icon **and** the word, which is that pattern's decoration without its
+          economy. Two roots also make the glyph inaccurate - it reads "Dashboard" on the admin half. %>
+      <%= link_to root_label, root_path_for_trail,
+                  class: "text-sm font-medium text-slate-700 hover:text-sitf-primary-dark " \
+                         "focus-visible:outline-2 focus-visible:outline-offset-2 " \
+                         "focus-visible:outline-sitf-primary" %>
     </li>
 
     <% breadcrumbs.each_with_index do |crumb, index| %>

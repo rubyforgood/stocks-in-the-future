@@ -5340,3 +5340,22 @@ already dropped for every admin index. It keeps its own "Back to home" button.
 - **The trail's links had no focus outline**, on either half, and no test saw it while the partial was
   admin-only - the focus audit walks the app half's forms. The first app page to render a trail failed it.
   Both links carry the named 2px outline now, which fixes the admin half too.
+
+## The breadcrumb's house icon is gone
+
+Reported: the root crumb carried a house glyph and no other crumb had one. It is inconsistent, and the
+inconsistency had no meaning behind it - nothing marks the first crumb except being first.
+
+**What the field does.** GOV.UK, Carbon, Primer, Bootstrap and Atlassian all ship a breadcrumb with no icons;
+Polaris ships no trail at all, only a back action. The exception is Tailwind UI, whose example - clearly the
+origin of the house-plus-chevron markup here - puts the icon on the first item **instead of** a word, as an
+icon-only home link with an `sr-only` name. This app had both, which is that pattern's decoration without its
+economy, and with two roots the glyph was wrong half the time: it labelled "Dashboard".
+
+The chevron separators stay. They are the separator rather than a decoration, and every reference that ships
+a trail at all uses one.
+
+### What this breaks
+
+- The root crumb is a plain text link, so a selector matching `nav[aria-label='Breadcrumb'] svg` counts two
+  per three-crumb trail rather than three. Nothing asserted the icon.
