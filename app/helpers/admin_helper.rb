@@ -191,8 +191,10 @@ module AdminHelper
     pluralize(school_year.classrooms.size, "classroom")
   end
 
+  # The admin half's trail, which is `page_breadcrumbs` rooted at the dashboard. Kept as its own name because
+  # twenty-odd admin views call it, and the root is the only thing that ever differed.
   def admin_breadcrumbs(breadcrumbs = [])
-    render "admin/shared/breadcrumbs", breadcrumbs: breadcrumbs
+    page_breadcrumbs(breadcrumbs, root: :admin)
   end
 
   # Renders action buttons (Edit, Delete, Custom)

@@ -228,7 +228,13 @@ class ClassroomPageTest < ApplicationSystemTestCase
         })()
       JS
 
-      assert_operator top, :<, 240,
+      # 260, raised from 240 when the page gained a breadcrumb trail. Measured: the trail is 20px tall with
+      # a 24px margin, so it costs **44px** and the first row moved 206 -> 250. The property this protects is
+      # that the roster's first row is on screen in a 625px viewport, and 250 clears that comfortably; the
+      # threshold is deliberately only 10px above where the page sits, so the *next* block added above the
+      # roster still fails here. That is the rule this page has already paid for twice - a stat band put the
+      # first student at 567px of 625.
+      assert_operator top, :<, 260,
                       "the first student sits #{top}px down; the viewport is 625px and the roster is " \
                       "what this page is for"
     end

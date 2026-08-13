@@ -5301,3 +5301,42 @@ type to branch on.
   student-gated and the back link is not-the-owner-gated.
 - The link's text contains the owner's display name or the classroom's name, so a test matching the header's
   links by text on that page sees one more.
+
+## The app half gets breadcrumbs, and the back link is withdrawn
+
+The previous commit answered "no way back from a portfolio" with a back link, reasoning that trails were the
+admin half's convention and this half's was `stocks#show`'s "Back to trading floor". That was the wrong call:
+the ask was a breadcrumb, for consistency with the design system, and the reason the app half had no trail
+was not a decision - the partial simply lived at `admin/shared/_breadcrumbs`.
+
+**Eight app pages were reached from somewhere and named nowhere**: `stocks#show`, `classrooms#show`,
+`classrooms#new`, `classrooms#edit`, `students#new`, `students#edit`, `grade_books#show` and
+`portfolios#show`. All have a trail now.
+
+`shared/_breadcrumbs` is one partial with the root as a local. `admin_breadcrumbs` is `page_breadcrumbs`
+rooted at the dashboard, so twenty-odd admin call sites are untouched and there is one implementation.
+
+**The root follows the reader.** An admin opens a portfolio from the student's admin record, so their trail
+is `Dashboard > Students > Robin Fields > Robin Fields's portfolio` even though the page renders in the app
+layout; a teacher opens it from their classroom roster and gets `Home > Classes > Period 3 > …`; the owner,
+whose portfolio is a navbar item, gets none.
+
+`announcements#show` gets none either - its only parent is Home, which is one level and the case the rule
+already dropped for every admin index. It keeps its own "Back to home" button.
+
+### What this breaks
+
+- **`stocks#show` lost "Back to trading floor"**, and `portfolios#show` the back link added a commit ago;
+  `ApplicationHelper#portfolio_back_link` is deleted with its test. Two controls to one destination is what
+  the trail removes.
+- **A trail costs 44px.** On `classrooms#show` the roster's first row moved 206 -> 250 in a 625px viewport,
+  and `classroom_page_test`'s threshold moved 240 -> 260 with the measurement written into it. That page has
+  twice paid for a block above its roster, so the new threshold leaves only ten pixels - the next addition
+  fails there.
+- **A failed save re-renders `new`/`edit` without the trail** unless the controller rebuilds it, which was a
+  **500** on the classroom form's invalid branch: `undefined method 'size' for nil` from the partial. Both
+  controllers rebuild it now *and* `page_breadcrumbs` wraps its argument in `Array()`, so a missed branch
+  degrades to no trail rather than taking the page down.
+- **The trail's links had no focus outline**, on either half, and no test saw it while the partial was
+  admin-only - the focus audit walks the app half's forms. The first app page to render a trail failed it.
+  Both links carry the named 2px outline now, which fixes the admin half too.

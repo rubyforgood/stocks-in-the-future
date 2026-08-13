@@ -1,4 +1,6 @@
 <div class="mx-auto max-w-3xl">
+  <%= page_breadcrumbs(@breadcrumbs) %>
+
   <%= render layout: "components/ui/page_header",
              locals: { title: "Add new student",
                        description: "Students can sign in as soon as the account is saved. Their " \

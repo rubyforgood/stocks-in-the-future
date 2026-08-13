@@ -28,6 +28,8 @@
         to a local because a nested render inside the locals hash trips erb_lint's
         Layout/FirstMethodArgumentLineBreak. %>
     <% grade_book_subtitle = [@classroom.name, "grade book"].compact.join(" ") %>
+    <%= page_breadcrumbs(@breadcrumbs) %>
+
     <%= render layout: "components/ui/page_header",
                locals: { title: @grade_book.quarter&.name || "Grade book",
                          description: grade_book_subtitle,

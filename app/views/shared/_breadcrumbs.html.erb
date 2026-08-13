@@ -6,7 +6,18 @@
     Carbon says it outright ("do not use breadcrumbs when there is only one level"), GOV.UK shows the path
     *above* the current page so a top-level page has none, and Polaris has no trail at all - a single back
     action on pages that have a parent. A record page keeps its trail, because "Dashboard > Students > Sam
-    Student" has a Students to return to. %>
+    Student" has a Students to return to.
+
+    **`shared/`, not `admin/shared/`, because both halves render it.** It lived under admin and the app half
+    had no trail at all, which is how `portfolios#show` came to be a page an admin could reach from a record
+    and not leave. The root crumb is the only thing that differed - Dashboard for admin, Home for the app -
+    so it is a local, and `admin_breadcrumbs` / `page_breadcrumbs` are the two callers that set it.
+
+    Locals:
+      breadcrumbs - array of { label:, path: }, the last being the page itself
+      root_label  - the first crumb's text
+      root_path_for_trail - where the first crumb goes. Not `root_path`: that is a route helper,
+                            and a local of the same name shadows it for the whole partial. %>
 <% return if breadcrumbs.size < 2 %>
 
 <nav class="flex mb-6" aria-label="Breadcrumb">
@@ -16,9 +27,14 @@
       matches the old space-x at one line, and gap-y spaces the wrapped rows. %>
   <ol class="flex flex-wrap items-center gap-x-1 gap-y-1 lg:gap-x-3">
     <li class="inline-flex items-center">
-      <%= link_to admin_root_path, class: "inline-flex items-center text-sm font-medium text-slate-700 hover:text-sitf-primary-dark" do %>
+      <%# **A named focus outline on both links.** They had none, so a keyboard reader got Chrome's default
+          1px auto ring - design.md asks for a 2px outline in a named colour, and an unnamed one falls back
+          to `currentColor`. It went unnoticed while this partial lived under `admin/`, because the focus
+          audit walks the app half's forms; the first app page to render a trail failed it. Fixing it here
+          fixes both halves at once, which is the reason the partial moved. %>
+      <%= link_to root_path_for_trail, class: "inline-flex items-center text-sm font-medium text-slate-700 hover:text-sitf-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary" do %>
         <%= lucide_icon("house", class: "w-4 h-4 mr-2 shrink-0") %>
-        Dashboard
+        <%= root_label %>
       <% end %>
     </li>
 
@@ -31,7 +47,7 @@
               <%= crumb[:label] %>
             </span>
           <% else %>
-            <%= link_to crumb[:label], crumb[:path], class: "ml-1 text-sm font-medium break-words text-slate-700 hover:text-sitf-primary-dark lg:ml-2" %>
+            <%= link_to crumb[:label], crumb[:path], class: "ml-1 text-sm font-medium break-words text-slate-700 hover:text-sitf-primary-dark lg:ml-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary" %>
           <% end %>
         </div>
       </li>

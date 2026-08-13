@@ -4,7 +4,12 @@
 class GradeBooksController < ApplicationController
   before_action :set_classroom_and_grade_book
   before_action :authorize_grade_book
-  def show; end
+  def show
+    @breadcrumbs = [{ label: "Classes", path: classrooms_path },
+                    { label: @classroom.name, path: classroom_path(@classroom) },
+                    # The quarter, which is this page's h1 - "Period 3 grade book" is its *description*.
+                    { label: @grade_book.quarter&.name || "Grade book" }]
+  end
 
   def update
     # **A finalized book's entries are not writable.** Only `finalize` used to check this, and the view

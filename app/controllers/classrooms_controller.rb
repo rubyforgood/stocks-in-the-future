@@ -16,6 +16,7 @@ class ClassroomsController < ApplicationController
   end
 
   def show
+    @breadcrumbs = [{ label: "Classes", path: classrooms_path }, { label: @classroom.name }]
     facade = ClassroomFacade.new(@classroom)
     @students = facade.students
     @can_manage_students = current_user.teacher_or_admin?
@@ -24,11 +25,13 @@ class ClassroomsController < ApplicationController
 
   def new
     @classroom = Classroom.new
+    @breadcrumbs = new_breadcrumbs
     classroom_form_data
   end
 
   def edit
     classroom_form_data
+    @breadcrumbs = edit_breadcrumbs
   end
 
   def create
@@ -37,6 +40,7 @@ class ClassroomsController < ApplicationController
       redirect_to classroom_url(@classroom), notice: t(".notice")
     else
       classroom_form_data
+      @breadcrumbs = new_breadcrumbs
       render :new, status: :unprocessable_content
     end
   end
@@ -46,6 +50,7 @@ class ClassroomsController < ApplicationController
       redirect_to classroom_url(@classroom), notice: t(".notice")
     else
       classroom_form_data
+      @breadcrumbs = edit_breadcrumbs
       render :edit, status: :unprocessable_content
     end
   end
@@ -60,6 +65,19 @@ class ClassroomsController < ApplicationController
   end
 
   private
+
+  # Built here rather than inline, because `create` and `update` re-render these same pages on a validation
+  # failure and a trail rebuilt in two places drifts. A nil `@breadcrumbs` was a 500 before the helper became
+  # nil-safe; this is why it never sees one.
+  def new_breadcrumbs
+    [{ label: "Classes", path: classrooms_path }, { label: "New classroom" }]
+  end
+
+  def edit_breadcrumbs
+    [{ label: "Classes", path: classrooms_path },
+     { label: @classroom.name, path: classroom_path(@classroom) },
+     { label: "Edit classroom" }]
+  end
 
   def set_classroom
     @classroom = Classroom.includes(users: :portfolio).find(params.expect(:id).to_i)

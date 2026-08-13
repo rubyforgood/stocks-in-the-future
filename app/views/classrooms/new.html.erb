@@ -15,6 +15,8 @@
 <% description = "Creating a class adds a grade book for each quarter of the school year." %>
 
 <div class="mx-auto max-w-3xl">
+  <%= page_breadcrumbs(@breadcrumbs) %>
+
   <%= render layout: "components/ui/page_header",
              locals: { title: "New classroom",
                        description: description } do %><% end %>

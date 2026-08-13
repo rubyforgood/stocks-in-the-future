@@ -8,9 +8,12 @@ class StudentsController < ApplicationController
 
   def new
     @student = Student.new(classroom: @classroom)
+    @breadcrumbs = student_breadcrumbs("Add new student")
   end
 
-  def edit; end
+  def edit
+    @breadcrumbs = student_breadcrumbs("Edit student")
+  end
 
   def create
     @student = Student.new(student_params)
@@ -23,6 +26,7 @@ class StudentsController < ApplicationController
 
       redirect_to classroom_path(@classroom), flash: { sticky: true, notice: notice }
     else
+      @breadcrumbs = student_breadcrumbs("Add new student")
       render :new, status: :unprocessable_content
     end
   end
@@ -36,6 +40,7 @@ class StudentsController < ApplicationController
     if @student.save(context: :student_form)
       redirect_to classroom_path(@classroom), notice: t(".notice")
     else
+      @breadcrumbs = student_breadcrumbs("Edit student")
       render :edit, status: :unprocessable_content
     end
   end
@@ -63,6 +68,14 @@ class StudentsController < ApplicationController
   end
 
   private
+
+  # Both student forms are reached from the classroom's roster, so both name it - and the last crumb is the
+  # page's own h1, which is what `breadcrumb_label_test` asserts on the admin half.
+  def student_breadcrumbs(title)
+    [{ label: "Classes", path: classrooms_path },
+     { label: @classroom.name, path: classroom_path(@classroom) },
+     { label: title }]
+  end
 
   def set_classroom
     @classroom = Classroom.find(params.expect(:classroom_id))

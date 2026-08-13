@@ -33,33 +33,26 @@ module ApplicationHelper
     end
   end
 
-  # The way back from a portfolio somebody else owns.
+  # The app half's breadcrumb trail. Same partial as the admin half's, rooted at Home rather than the
+  # dashboard - see `shared/_breadcrumbs`, which drops itself below two crumbs so a top-level page needs no
+  # guard at the call site.
   #
-  # A portfolio is a top-level destination for the student who owns it - the nav gets them there and back -
-  # but a teacher and an admin arrive from a *record*: an admin from `admin/students#show`, whose
-  # "View portfolio" button is the only link out of that page, and a teacher from their classroom roster,
-  # where a student's name is the link. Neither had a way back. The page renders in the app layout, which
-  # has no breadcrumb trail, so the browser's Back button was it.
-  #
-  # A back link rather than a trail, because that is this half's convention - `stocks#show` has
-  # "Back to trading floor" in the same slot - and the destination is per role rather than per page,
-  # because the two readers came from two different places.
-  #
-  # Returns nil for the owner, and for anyone whose origin cannot be named: a teacher can hold classrooms
-  # in more than one school, but a student sits in exactly one, so `classroom` is the only honest answer.
-  def portfolio_back_link(portfolio, viewer)
-    owner = portfolio.user
-    return if viewer.blank? || owner == viewer
+  # The app half had no trail at all until a reader reported being unable to get back from a portfolio, and
+  # it was not only that page: a stock, a classroom, a grade book and a student form are all reached *from*
+  # somewhere and none of them said where.
+  # `root:` because one page is reached from both halves. An admin opens a portfolio from the student's
+  # admin record, so their trail roots at the dashboard and every crumb in it goes back where they were; a
+  # teacher opens the same page from their classroom roster, and theirs roots at Home. Rooting both at Home
+  # would give the admin a first crumb that is not on their path.
+  # `Array(crumbs)` because a failed save re-renders `new` or `edit` from `create` or `update`, and a
+  # controller that forgets to rebuild `@breadcrumbs` there hands this nil. That was a 500 on the invalid
+  # branch of the classroom form - a page that renders fine until somebody submits it empty - so the trail
+  # degrades to nothing rather than taking the page down. The branches below rebuild it anyway.
+  def page_breadcrumbs(crumbs = [], root: :app)
+    label, path = root == :admin ? ["Dashboard", admin_root_path] : ["Home", root_path]
 
-    if viewer.admin?
-      # `user_show_path`, which maps a user to their own record page. `admin/users#show` links here as well
-      # as `admin/students#show`, and both send an admin to the same place - `Portfolio#user_must_be_student`
-      # means an owner is always a Student, so there is no second type to branch on. Written as a branch
-      # first, and the model rejected the fixture that would have exercised it.
-      link_to "Back to #{owner.display_name}", user_show_path(owner), class: "tw-btn-secondary"
-    elsif viewer.teacher? && owner.classroom.present?
-      link_to "Back to #{owner.classroom.name}", classroom_path(owner.classroom), class: "tw-btn-secondary"
-    end
+    render "shared/breadcrumbs", breadcrumbs: Array(crumbs),
+                                 root_label: label, root_path_for_trail: path
   end
 
   def account_role_label(user)

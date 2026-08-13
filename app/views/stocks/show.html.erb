@@ -25,10 +25,14 @@
     <% description = safe_join([description, badge], " ") %>
   <% end %>
 
+  <%= page_breadcrumbs(@breadcrumbs) %>
+
   <%= render layout: "components/ui/page_header",
              locals: { title: @stock.ticker, description: description } do %>
-    <%= link_to "Back to trading floor", stocks_path, class: "tw-btn-secondary" %>
-
+    <%# **No "Back to trading floor" button.** The trail above says it and one level more, and two controls
+        to `stocks_path` on one screen is the duplication design.md rules out - it is the same fault this
+        page already had once, when a primary "Trade" navigated to the trading floor beside a back link
+        going to the same place. The header's actions are what you can do *to this stock*. %>
     <%# The page's own trade action. It used to be a primary "Trade" that navigated to the
         trading floor - the same destination as the back link beside it - so a stock's page
         could not act on that stock. This is the trading floor's own Buy/Sell partial behind

@@ -1769,16 +1769,26 @@ render now.
 no badge, because the trading setting below states its state in a sentence beside the switch - a pill would be
 the third copy of one fact.
 
-**A page reached from a record needs a way back to it, and on the app half that is a back link.** An admin
-clicking "View portfolio" on `admin/students#show` - the only link out of that page - landed on
-`portfolios#show`, which renders in the **app** layout and therefore has no breadcrumb trail. Nothing on the
-screen returned them. Reported.
+**A page reached from another page gets a breadcrumb trail, on both halves.** An admin clicking "View
+portfolio" on `admin/students#show` - the only link out of that page - landed on `portfolios#show` with no
+way back. Reported, and the trail was the fix asked for; a back link was tried first and replaced, because a
+trail says the same thing and one level more.
 
-Trails are the admin half's convention; this half's is a back link in the page header's action slot, which is
-what `stocks#show` already does with "Back to trading floor". **The destination is per role, because the
-readers arrive from different places**: an admin from the student's record, a teacher from their classroom
-roster, where the student's name is the link. The owner gets none - they came from the nav, and a back link
-would name a page they were never on.
+Trails had been an admin convention only - the partial lived at `admin/shared/_breadcrumbs` - so **eight app
+pages were reached from somewhere and named nowhere**: a stock, a classroom, its edit form, both student
+forms, a grade book and a portfolio. `shared/_breadcrumbs` is one partial now with the root as a local, and
+`page_breadcrumbs` / `admin_breadcrumbs` are its two callers.
+
+**The root follows the reader, not the layout.** An admin opens a portfolio from the student's admin record,
+so their trail is `Dashboard > Students > Robin Fields > Robin Fields's portfolio` and every crumb goes back
+where they were - even though the page renders in the app layout. A teacher opens the same page from their
+classroom roster and gets `Home > Classes > Period 3 > …`. Rooting both at Home would give the admin a first
+crumb that was never on their path.
+
+**And it costs 44px**, which is not free on a page whose job is a list. Measured on `classrooms#show`: the
+trail is 20px tall with a 24px margin, and the roster's first row moved 206 -> 250 in a 625px viewport. That
+page has twice paid for something added above its roster, so `classroom_page_test`'s threshold moved 240 ->
+260 - ten pixels of headroom, deliberately, so the next block added above the roster still fails.
 
 The general form: before linking from one half of the product into the other, open the destination as the
 role that will click it and ask how they get back. A page that is top-level for one reader is a dead end for

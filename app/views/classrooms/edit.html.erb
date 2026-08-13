@@ -2,6 +2,8 @@
     *fraction* of the viewport - on a 1920px monitor that is a 1280px-wide single-column form, with a
     name field stretched across all of it. A form's measure does not scale with the window. %>
 <div class="mx-auto max-w-3xl">
+  <%= page_breadcrumbs(@breadcrumbs) %>
+
   <%= render layout: "components/ui/page_header",
              locals: { title: "Edit classroom",
                        description: "Moving a class to another school year gives it that year's " \

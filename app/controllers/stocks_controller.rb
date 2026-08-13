@@ -12,6 +12,9 @@ class StocksController < ApplicationController
   end
 
   def show
+    # The **ticker**, because that is this page's h1 - `admin/stocks#show` titles with the company name and
+    # its trail says that instead. A trail's last item is the page you are on, whichever page that is.
+    @breadcrumbs = [{ label: "Trading floor", path: stocks_path }, { label: @stock.ticker }]
     authorize @stock
   end
 

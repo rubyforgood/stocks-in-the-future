@@ -25,6 +25,12 @@
   <%# The heading used to upcase the username and append a comma plus the word PORTFOLIO in
       capitals - shouty all-caps, which design.md rules out. It was built with .upcase, so no copy
       sweep could have found it. A username is a proper noun, so it keeps its own capitalisation. %>
+  <%# A trail rather than a single back link, and rooted per role - see `PortfoliosController#breadcrumbs_for`.
+      The back link that was here first said only "Back to Robin Fields"; the trail says that and the list
+      above it, which is what a reader who came two levels in actually needs. It renders nothing at all for
+      the owner, whose portfolio is a navbar item. %>
+  <%= page_breadcrumbs(@breadcrumbs, root: current_user.admin? ? :admin : :app) %>
+
   <%= render layout: "components/ui/page_header",
              locals: { title: "#{@portfolio.user.display_name}'s portfolio",
                        description: "Share values use the last closing price, updated once a day - " \
@@ -39,8 +45,6 @@
       <%= link_to "Invest now", stocks_path, class: "tw-btn-primary" %>
     <% end %>
 
-    <%# And the way back, for a viewer who did not arrive from the nav - see `portfolio_back_link`. %>
-    <%= portfolio_back_link(@portfolio, current_user) %>
   <% end %>
 
   <% if @portfolio.student? && @portfolio.trading_off_notice? %>

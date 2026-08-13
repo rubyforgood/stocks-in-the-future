@@ -23,6 +23,8 @@
       switch, and a pill saying it a third time is what design.md forbids by name. %>
   <% meta = classroom_summary(@classroom) %>
 
+  <%= page_breadcrumbs(@breadcrumbs) %>
+
   <%= render layout: "components/ui/page_header",
              locals: { title: @classroom.name, description: meta } do %>
     <% if @can_manage_students %>

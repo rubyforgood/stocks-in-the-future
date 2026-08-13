@@ -1,4 +1,6 @@
 <div class="mx-auto max-w-3xl">
+  <%= page_breadcrumbs(@breadcrumbs) %>
+
   <%= render layout: "components/ui/page_header",
              locals: { title: "Edit student",
                        description: "Changes apply everywhere this student appears." } do %><% end %>

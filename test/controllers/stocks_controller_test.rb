@@ -36,7 +36,10 @@ class StocksControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "a[href=?]", new_order_path(stock_id: stock.id, transaction_type: :buy), text: "Buy"
     assert_select "a[href=?]", new_order_path(stock_id: stock.id, transaction_type: :sell), text: "Sell"
-    assert_select "a[href='#{stocks_path}']", text: "Back to trading floor"
+    # The trail, not a back button: it says the same journey and one level more, and two controls to
+    # `stocks_path` on one page is the duplication the header already lost once.
+    assert_select "nav[aria-label='Breadcrumb'] a[href='#{stocks_path}']", text: "Trading floor"
+    assert_select "a", { text: "Back to trading floor", count: 0 }
   end
 
   test "a teacher gets no trade action on a stock" do
