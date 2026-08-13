@@ -17,10 +17,11 @@
 <% content_for :title, @classroom.name %>
 
 <div class="mx-auto w-full">
-  <% meta = [
-       ("Grade #{@classroom.grades_display}" if @classroom.grades_display.present?),
-       @classroom.year_name
-     ].compact.join(", ") %>
+  <%# The same line as the admin record page, through the same helper - it read "Grade 6th, 2026 - 2027"
+      here and "6th · 2026 - 2027 · trading on" there, for one classroom.
+      No status badge on this side: the trading setting below states its own state in a sentence beside the
+      switch, and a pill saying it a third time is what design.md forbids by name. %>
+  <% meta = classroom_summary(@classroom) %>
 
   <%= render layout: "components/ui/page_header",
              locals: { title: @classroom.name, description: meta } do %>

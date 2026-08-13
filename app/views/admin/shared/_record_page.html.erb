@@ -15,7 +15,13 @@
       title       - the record's own name, which is the page's h1
       breadcrumbs - the trail
       description - optional line under the title
+      badge       - optional status pill, rendered on the title's line
       actions     - optional block for the header's actions, usually just Delete
+
+    `badge` is a pass-through to `_page_header`, which has had the slot all along - a status is not an
+    action and does not belong in the actions block. Three record pages were putting their state in the
+    *description* instead, joined to the metadata by the same separator, so "trading on" read as a third
+    attribute after the grade and the year.
 
     The sections themselves are the block, and **the order is per page, not per shape.** Eight of the nine
     record pages lead with Details, because editing the record is why you opened it. `schools#show` leads with
@@ -29,7 +35,8 @@
   <%= admin_breadcrumbs(breadcrumbs) %>
 
   <%= render layout: "components/ui/page_header",
-             locals: { title: title, description: local_assigns[:description] } do %>
+             locals: { title: title, description: local_assigns[:description],
+                       badge: local_assigns[:badge] } do %>
     <%= local_assigns[:actions] %>
   <% end %>
 

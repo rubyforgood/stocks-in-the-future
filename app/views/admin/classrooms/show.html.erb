@@ -1,6 +1,7 @@
 <%= render layout: "admin/shared/record_page",
            locals: { title: @classroom.name, breadcrumbs: @breadcrumbs,
                      description: classroom_summary(@classroom),
+                     badge: classroom_status_badge(@classroom),
                      actions: capture { classroom_archive_toggle_button(@classroom) } } do %>
   <%# **No attribute card, and no "Teachers" card.** The form edits the name, the school year, the grades and
       `teacher_ids`, so all four were being displayed a second time on a page where they could not be changed.

@@ -1,6 +1,7 @@
 <%= render layout: "admin/shared/record_page",
            locals: { title: @user.username, breadcrumbs: @breadcrumbs,
                      description: user_summary(@user),
+                     badge: user_status_badge(@user),
                      actions: capture do
                        link_to "Delete user", admin_user_path(@user),
                                data: { turbo_method: :delete, turbo_confirm: delete_confirm(@user) },

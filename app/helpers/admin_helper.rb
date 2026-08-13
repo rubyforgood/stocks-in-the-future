@@ -60,15 +60,19 @@ module AdminHelper
 
   # Renders breadcrumbs for navigation
   # @param breadcrumbs [Array<Hash>] Breadcrumb items with :label and :path keys
-  # A teacher's state and reach, as the record page's summary line.
-  #
-  # The state was a badge under the title. It reads better as a sentence beside the other fact somebody wants -
-  # how many classrooms they teach - and a page's summary is the place for a read-only fact that is not worth a
-  # section. Whether they are active is stated in words, not only by a badge's colour.
+  # A teacher's reach, as the record page's summary line. The state is a badge beside the name - see
+  # `classroom_summary` for why, and note this comment used to argue the other way: "whether they are active
+  # is stated in words, not only by a badge's colour". The worry is real and the badge answers it, because a
+  # badge carries a **label**. "Active" in a pill is words; it is not colour alone.
   def teacher_summary(teacher)
-    state = teacher.discarded? ? "Deactivated" : "Active"
+    pluralize(teacher.classrooms.size, "classroom")
+  end
 
-    "#{state} · #{pluralize(teacher.classrooms.size, 'classroom')}"
+  def teacher_status_badge(teacher, **)
+    render "components/ui/badge",
+           label: teacher.discarded? ? "Deactivated" : "Active",
+           tone: teacher.discarded? ? :danger : :success,
+           **
   end
 
   # A student's account and what is in their portfolio, as the summary line. Nil-safe for the same reason as
@@ -121,12 +125,33 @@ module AdminHelper
   # A classroom's state and size, as its summary line. Archived and trading are **not** form fields - the
   # archive toggle is a header action and trading is the teacher's switch on their own classroom page - so they
   # are read-only facts, which is exactly what a summary line is for. Stated in words, not by colour alone.
+  # **A state is a badge beside the name; the summary line is metadata.**
+  #
+  # This read "6th · 2026 - 2027 · trading on", and a reader reported it as unreadable: three values with no
+  # labels, one of which is not metadata at all. "6th" does not say what it is a 6th of, and the state was
+  # hanging off the end of a list of attributes as though it were another one.
+  #
+  # Two things separate them now. The state moves to the title's own line as a badge - which is what
+  # `_page_header`'s `badge:` slot is for, what `grade_books#show` already does, and what Linear, Stripe,
+  # GitHub and Shopify all do with an entity's status. The metadata that stays says what it is.
+  #
+  # The badge is the **same** derivation the classrooms index shows in its Status column, through the same
+  # helper, because a classroom that reads "Trading off" in a list and "trading on" on its own page is the
+  # drift that having two copies of one rule guarantees.
   def classroom_summary(classroom)
-    parts = [classroom.grades_display.presence, classroom.year_name.presence]
-    parts << (classroom.trading_enabled? ? "trading on" : "trading off")
-    parts << "archived" if classroom.archived?
+    parts = [classroom.grades_display.presence&.then { |g| "#{g} grade" }, classroom.year_name.presence]
 
     parts.compact.join(" · ")
+  end
+
+  # Archived outranks trading: an archived classroom's trading setting says nothing about what anyone can do.
+  def classroom_status_badge(classroom, **)
+    return render("components/ui/badge", label: "Archived", tone: :danger, **) if classroom.archived?
+
+    render "components/ui/badge",
+           label: classroom.trading_enabled? ? "Trading on" : "Trading off",
+           tone: classroom.trading_enabled? ? :success : :neutral,
+           **
   end
 
   # A user's role and where they sit, as the summary line. The two record pages without one were `users` and
@@ -136,10 +161,15 @@ module AdminHelper
   # `account_role_label` rather than `type`: an admin is a `User` row with `admin: true`, so the STI column
   # reads "User" for the one account that can do everything.
   def user_summary(user)
-    parts = [account_role_label(user), user.classroom&.name]
-    parts << "archived" if user.discarded?
+    [account_role_label(user), user.classroom&.name].compact.join(" · ")
+  end
 
-    parts.compact.join(" · ")
+  # Only when there is something to say: an active account is the ordinary case, and a badge reading "Active"
+  # on every one of them is a badge nobody reads. An archived account is the exception the page must state.
+  def user_status_badge(user, **)
+    return unless user.discarded?
+
+    render "components/ui/badge", label: "Archived", tone: :danger, **
   end
 
   # An announcement's state, which is the only thing about it that changes what anybody sees: exactly one is

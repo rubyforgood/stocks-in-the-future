@@ -59,15 +59,10 @@
                 <% end %>
                 <%# Archived outranks trading: an archived classroom's switch position is moot, because
                     nobody is using it. One badge, one fact, the fact that matters for this row. %>
-                <% status_cell = capture do %>
-                  <% if classroom.archived? %>
-                    <%= render "components/ui/badge", label: "Archived", tone: :danger %>
-                  <% else %>
-                    <%= render "components/ui/badge",
-                               label: classroom.trading_enabled? ? "Trading on" : "Trading off",
-                               tone: classroom.trading_enabled? ? :success : :neutral %>
-                  <% end %>
-                <% end %>
+                <%# The same helper the record page's title badge uses. It was written out here and the
+                    record page derived the same thing again as words on its summary line, which is how a
+                    classroom came to read "Trading off" in the list and "trading on" on its own page. %>
+                <% status_cell = capture { classroom_status_badge(classroom) } %>
                 <% row_actions = capture do %>
                     <% if classroom.archived? %>
                       <%= ghost_action_link "Activate", toggle_archive_admin_classroom_path(classroom),

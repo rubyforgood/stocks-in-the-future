@@ -1729,6 +1729,30 @@ opting in, which is what this is; and a switch implies the change takes effect a
 of the control on the classroom page and false here, where nothing happens until you save. The same setting
 can legitimately be a switch in one place and a checkbox in another for exactly that reason.
 
+**A state is a badge beside the name; the summary line is metadata, and it says what it is.** A classroom's
+description read **"6th · 2026 - 2027 · trading on"** and was reported as unreadable. Two faults, and the
+second is the one that generalises: "6th" does not say what it is a 6th of, and a *state* was joined to two
+*attributes* by the same separator, so it read as a third attribute hanging off the end.
+
+`_page_header` has had a `badge:` slot for this all along and `grade_books#show` uses it; three record pages
+were putting their state in the description instead. Linear, Stripe, GitHub and Shopify all put an entity's
+status on the title's line. So: classroom (Trading on / Trading off / Archived), teacher (Active /
+Deactivated), user (Archived, and nothing when active - a badge on every ordinary record is a badge nobody
+reads).
+
+`teacher_summary` argued the other way and its comment is worth answering rather than deleting: "whether they
+are active is stated in words, not only by a badge's colour." The worry is right and the badge meets it,
+because **a badge carries a label**. "Active" in a pill is words.
+
+**And the badge is derived once.** The classrooms index rendered Archived / Trading on / Trading off inline
+while the record page derived the same thing again as prose, so one classroom could read "Trading off" in the
+list and "trading on" on its own page. `classroom_status_badge` and `teacher_status_badge` are what both
+render now.
+
+**One thing a status badge is not: a second copy of a control's own label.** The app-side classroom page gets
+no badge, because the trading setting below states its state in a sentence beside the switch - a pill would be
+the third copy of one fact.
+
 **A breadcrumb's last item is the page's own title, verbatim.** `admin/school_years#show` set its crumb to
 `@school_year.to_s`; `SchoolYear` defines `#name` and no `#to_s`, so the trail read
 `Dashboard / School years / #<SchoolYear:0x0000ffff68492f88>` under an h1 reading "Test School (2026 - 2027)".

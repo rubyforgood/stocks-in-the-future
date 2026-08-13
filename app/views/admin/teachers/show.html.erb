@@ -2,6 +2,7 @@
            locals: { title: @teacher.display_name.presence || @teacher.username,
                      breadcrumbs: @breadcrumbs,
                      description: teacher_summary(@teacher),
+                     badge: teacher_status_badge(@teacher),
                      actions: capture { render "admin/teachers/record_actions", teacher: @teacher } } do %>
   <%# **No "Classrooms" card.** The form's `classroom_ids` group *is* the list of classrooms this teacher
       teaches, and a read-only copy beside it was the same fact twice - once changeable, once not. %>

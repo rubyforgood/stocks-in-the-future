@@ -5104,3 +5104,39 @@ clicking Edit sees the classrooms and cannot change them.
   moves. Nothing did - which is the point: no test read them.
 - `school_year_summary` returns one figure rather than two, and any caller wanting the quarter count has to
   ask for it. Nothing does.
+
+## "6th · 2026 - 2027 · trading on" - a state is a badge, not the tail of a metadata list
+
+Reported on `admin/classrooms#show`, as unreadable without labels and with the state hanging off the end. Two
+faults, and only the first is about that page:
+
+- **"6th" does not say what it is a 6th of.** It is "6th grade · 2026 - 2027" now, and the app-side
+  classroom page - which built the same line separately, as "Grade 6th, 2026 - 2027" - calls the same
+  helper.
+- **A state was joined to two attributes by the same separator.** `_page_header` has had a `badge:` slot for
+  exactly this since `grade_books#show` needed it, and three record pages were not using it: classroom,
+  teacher and user all put their state in the *description*. `_record_page` now passes `badge:` through, and
+  the state sits on the title's line where Linear, Stripe, GitHub and Shopify put it.
+
+**The badge is derived once.** `admin/classrooms#index` rendered Archived / Trading on / Trading off inline
+while the record page derived the same thing again as prose - so one classroom could read "Trading off" in
+the list and "trading on" on its own page. `classroom_status_badge` and `teacher_status_badge` are what both
+call.
+
+**A user gets a badge only when archived.** An "Active" pill on every ordinary account is a pill nobody
+reads; the exception is the thing worth stating.
+
+And the app-side classroom page gets **no** badge: the trading setting below already states its state in a
+sentence beside the switch, and a pill would be the third copy of one fact.
+
+### What this breaks
+
+- **`teacher_summary` and `user_summary` no longer contain the state**, and `classroom_summary` no longer
+  contains the trading or archived words. Anything asserting on those strings in a description moves to the
+  badge. Nothing did.
+- `classroom_summary` is now called from the **app** side as well, so a change to it changes both pages -
+  which is the point, and worth knowing before editing it for one of them.
+- `_record_page` takes a `badge:` local. It is optional and passes through to a slot the header already had.
+- **This overturns the reasoning in `teacher_summary`'s own comment**, which argued a state should be words
+  rather than a badge's colour. The answer is that a badge has a label; the comment is rewritten rather than
+  removed, so the argument is not made again.

@@ -41,11 +41,9 @@
                 <% email_cell = capture do %>
                   <%= teacher.email %>
                 <% end %>
-                <% status_cell = capture do %>
-                  <%= render "components/ui/badge",
-                             label: teacher.discarded? ? "Deactivated" : "Active",
-                             tone: teacher.discarded? ? :danger : :success %>
-                <% end %>
+                <%# The same helper the record page's title badge uses, so a teacher cannot read
+                    "Deactivated" here and "Active" there. %>
+                <% status_cell = capture { teacher_status_badge(teacher) } %>
                 <% row_actions = capture do %>
                     <% if teacher.discarded? %>
                       <%= ghost_action_link "Reactivate", admin_teacher_reactivation_path(teacher),
