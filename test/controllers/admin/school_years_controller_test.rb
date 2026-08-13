@@ -30,10 +30,14 @@ module Admin
 
       assert_response :success
       assert_select "h1", "#{school_name} (#{year_name})"
-      # **No "Quarters" card.** A school year always has exactly four, so listing them was an invariant
-      # rendered as data. The count is in the summary line instead.
+      # **No "Quarters" card, and no quarter count either.** A school year always has exactly four -
+      # `create_quarters` makes them, nothing else does, and there are no quarter routes - so listing them
+      # was an invariant rendered as data. The summary line kept "· 4 quarters", which is the same
+      # invariant printed smaller, and a reader reported it. The description carries what differs between
+      # one school year and the next, which is how many classrooms are in it.
       assert_select "h2", text: "Quarters", count: 0
-      assert_select "p", text: /4 quarters/
+      assert_select "p", text: /quarters/, count: 0
+      assert_select "p", text: /0 classrooms/
     end
 
     test "new" do

@@ -152,9 +152,13 @@ module AdminHelper
 
   # A school year's summary: how many classrooms run in it, and the quarter count that used to be a card of
   # four identical rows.
+  # Classrooms only. It read "2 classrooms · 4 quarters", and the second half is an invariant: `create_quarters`
+  # makes exactly four on create, nothing else makes one, and there are no quarter routes - so it says 4 on
+  # every school year that has ever existed. That is the same reason the Quarters *card* went; the count was
+  # left behind, which is the smaller version of the same thing. What the page's description is for is the
+  # figure that differs between one record and the next.
   def school_year_summary(school_year)
-    "#{pluralize(school_year.classrooms.size, 'classroom')} · " \
-      "#{pluralize(school_year.quarters.size, 'quarter')}"
+    pluralize(school_year.classrooms.size, "classroom")
   end
 
   def admin_breadcrumbs(breadcrumbs = [])

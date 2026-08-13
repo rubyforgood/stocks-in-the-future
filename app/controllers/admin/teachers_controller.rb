@@ -22,7 +22,7 @@ module Admin
 
       @breadcrumbs = [
         { label: "Teachers", path: admin_teachers_path },
-        { label: @teacher.username }
+        { label: @teacher.display_name.presence || @teacher.username }
       ]
     end
 
@@ -40,7 +40,7 @@ module Admin
       set_form_data
       @breadcrumbs = [
         { label: "Teachers", path: admin_teachers_path },
-        { label: @teacher.username, path: admin_teacher_path(@teacher) },
+        { label: @teacher.display_name.presence || @teacher.username, path: admin_teacher_path(@teacher) },
         { label: "Edit" }
       ]
     end
@@ -76,7 +76,7 @@ module Admin
         set_form_data
         @breadcrumbs = [
           { label: "Teachers", path: admin_teachers_path },
-          { label: @teacher.username, path: admin_teacher_path(@teacher) },
+          { label: @teacher.display_name.presence || @teacher.username, path: admin_teacher_path(@teacher) },
           { label: "Edit" }
         ]
         render :edit, status: :unprocessable_content

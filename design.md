@@ -1729,6 +1729,27 @@ opting in, which is what this is; and a switch implies the change takes effect a
 of the control on the classroom page and false here, where nothing happens until you save. The same setting
 can legitimately be a switch in one place and a checkbox in another for exactly that reason.
 
+**A breadcrumb's last item is the page's own title, verbatim.** `admin/school_years#show` set its crumb to
+`@school_year.to_s`; `SchoolYear` defines `#name` and no `#to_s`, so the trail read
+`Dashboard / School years / #<SchoolYear:0x0000ffff68492f88>` under an h1 reading "Test School (2026 - 2027)".
+Reported by a reader, because no test looked at a crumb's text.
+
+Two more were the same fault without being broken: teachers put the **username** in the trail under an h1
+showing the display name, and stocks the **ticker** under the company name. A trail whose last item disagrees
+with the page it sits on cannot be used to work out where you are, which is the only thing a trail does -
+GOV.UK, Primer and Polaris all specify the page title there. `breadcrumb_label_test` compares the two on
+eight record pages and separately fails on `#<Model:0x…>` anywhere in a page's text.
+
+**A figure that is the same on every record is not a summary.** A school year's description read
+"2 classrooms · 4 quarters", and every school year has four: `create_quarters` makes them on create, nothing
+else makes one, and there are no quarter routes. That is the invariant the Quarters *card* was removed for,
+printed smaller - a description carries what differs between one record and the next.
+
+**Say when a section is read-only, because the page around it usually is not.** A record page's Details is a
+live form, so a list under it reads as another thing to change there. The school year's Classrooms section
+was read-only and the only statement of that was a code comment; its hint now says where a classroom is
+edited and where a new one comes from.
+
 **A checkbox group's rows are contiguous - the row's padding is the whole of the gap.** It was `py-2` on
 each row *and* `space-y-2` between them, so 24px of air between one option's text and the next and a 60px
 pitch for a two-line row. Three spacings for one job, and reported as too much padding.

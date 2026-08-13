@@ -15,7 +15,7 @@ module Admin
     def show
       @breadcrumbs = [
         { label: "School years", path: admin_school_years_path },
-        { label: @school_year.to_s }
+        { label: @school_year.name }
       ]
     end
 
@@ -31,7 +31,7 @@ module Admin
     def edit
       @breadcrumbs = [
         { label: "School years", path: admin_school_years_path },
-        { label: @school_year.to_s, path: admin_school_year_path(@school_year) },
+        { label: @school_year.name, path: admin_school_year_path(@school_year) },
         { label: "Edit" }
       ]
     end
@@ -57,7 +57,7 @@ module Admin
       else
         @breadcrumbs = [
           { label: "School years", path: admin_school_years_path },
-          { label: @school_year.to_s, path: admin_school_year_path(@school_year) },
+          { label: @school_year.name, path: admin_school_year_path(@school_year) },
           { label: "Edit" }
         ]
         render :edit, status: :unprocessable_content

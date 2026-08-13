@@ -16,9 +16,16 @@
     <%= render "form" %>
   <% end %>
 
-  <%# A collection worth scanning: which classrooms run in this year. Read-only here - a classroom is created
-      from the classrooms screen, where it needs its grades and teachers too. %>
-  <%= render layout: "admin/shared/record_section", locals: { title: "Classrooms" } do %>
+  <%# A collection worth scanning: which classrooms run in this year.
+      **The section says it is read-only, because the page around it is not.** Details above is a live form,
+      so a list under it reads as another thing you can change here - and the only clue that it was not was
+      this comment, which nobody browsing the page can see. Each name is a link to the classroom's own page,
+      which is where it is edited; a new one comes from the Classrooms screen, where it needs its grades and
+      teachers too. %>
+  <%= render layout: "admin/shared/record_section",
+             locals: { title: "Classrooms",
+                       hint: "Open one to edit it. New classrooms are added from the Classrooms " \
+                             "screen, where they also need their grades and teachers." } do %>
     <%= render layout: "components/ui/card", locals: {} do %>
       <% if @school_year.classrooms.any? %>
         <ul class="divide-y divide-slate-100">

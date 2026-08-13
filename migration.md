@@ -5068,3 +5068,39 @@ header now renders in every state.
   exactly when there is somebody to add.
 - `empty_state_preview_test` walks eight indexes and fails on any `.tw-btn-primary` inside a
   `[data-testid='empty-state']`, so a new empty state cannot reintroduce the pair.
+
+## A breadcrumb showing `#<SchoolYear:0x…>`, and two more that disagreed with their page
+
+Reported: `admin/school_years#show` rendered **`Dashboard / School years / #<SchoolYear:0x0000ffff68492f88>`**
+under an h1 reading "Test School (2026 - 2027)". The controller set the crumb to `@school_year.to_s`, and
+`SchoolYear` defines `#name` with no `#to_s`, so it got Object's. Three occurrences in that controller -
+show, edit and the failed-update re-render.
+
+Sweeping the other eight record pages for the same shape found two that were wrong rather than broken:
+`admin/teachers` put the **username** in the trail under an h1 showing the display name, and `admin/stocks`
+the **ticker** under the company name. Both now use the page's own title expression.
+
+**`breadcrumb_label_test` is the guard**, and there was none: nothing in the suite read a crumb's text. It
+compares the last crumb with the h1 on eight record pages, and separately fails on `#<Model:0x` anywhere in
+a page's text - the shape any `to_s` on a record without an override produces. Verified by reverting the
+controller and watching both halves name it.
+
+**The quarter count went with it.** The same page's description read "2 classrooms · 4 quarters", reported in
+the same breath. Every school year has exactly four - `create_quarters` on create, nothing else makes one,
+no quarter routes - so it is the invariant the Quarters *card* was deleted for, printed smaller.
+
+**And the Classrooms section now says it is read-only.** Asked in the same report: can classrooms be edited
+from here? They can, by opening one - each name links to its record page - and a new one comes from the
+Classrooms screen, where it also needs grades and teachers. None of that was on the page; it was a code
+comment. It is the section's hint now. Note what the question implies: with a live Details form directly
+above it, a list reads as editable, and `/admin/school_years/:id/edit` renders this same page, so a reader
+clicking Edit sees the classrooms and cannot change them.
+
+### What this breaks
+
+- **`admin/school_years#show`'s description no longer matches `/quarters/`.** Its controller test asserted
+  `text: /4 quarters/` and now asserts the classroom count and the *absence* of a quarter count.
+- **Teacher and stock breadcrumbs changed text**, so anything matching a trail on `username` or `ticker`
+  moves. Nothing did - which is the point: no test read them.
+- `school_year_summary` returns one figure rather than two, and any caller wanting the quarter count has to
+  ask for it. Nothing does.
