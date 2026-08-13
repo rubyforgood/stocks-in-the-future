@@ -1,3 +1,14 @@
+<%# **A trail needs somewhere to go back to.** On a top-level index this rendered "Dashboard > Classrooms"
+    directly above an h1 reading "Classrooms" - the page's own name twice, 30px apart - and its one link
+    duplicated the sidebar's own Dashboard item. Reported as pushing the content down for no value, and
+    measured: 44px of it, taking the h1 from y=128 to y=172 on a 768px viewport.
+
+    Carbon says it outright ("do not use breadcrumbs when there is only one level"), GOV.UK shows the path
+    *above* the current page so a top-level page has none, and Polaris has no trail at all - a single back
+    action on pages that have a parent. A record page keeps its trail, because "Dashboard > Students > Sam
+    Student" has a Students to return to. %>
+<% return if breadcrumbs.size < 2 %>
+
 <nav class="flex mb-6" aria-label="Breadcrumb">
   <%# flex-wrap, not inline-flex. As a single unwrappable line the trail pushed <main> sideways on
       six admin pages - a school year's crumb reads "School name (2024-2025)" and took the page

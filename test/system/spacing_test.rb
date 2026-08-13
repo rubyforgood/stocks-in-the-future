@@ -246,8 +246,9 @@ class SpacingTest < ApplicationSystemTestCase
     sign_out(:user)
     sign_in admin
 
-    # Admin index and show pages put breadcrumbs above the header, so the title sits lower - the
-    # gutter measured here is the one above the whole content block either way.
+    # Admin *record* pages put a breadcrumb trail above the header, so their title sits lower - an index has
+    # no trail, because a one-level one names the page its h1 has just named. The gutter measured here is the
+    # one above the whole content block either way.
     assert_title_gutter(admin_root_path, 24)
   end
 

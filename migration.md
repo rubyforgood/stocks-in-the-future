@@ -4722,3 +4722,23 @@ that branch cannot render. Its empty state exists only on the Archived tab.
   test finds them.
 - Three index views branch on `current_discard_filter` for their empty row.
 
+## An index page has no breadcrumb trail
+
+Reported: the top-level admin pages all carry a breadcrumb that pushes the content down and adds nothing.
+
+Measured, and it was worse than decorative: `admin/classrooms` rendered **"Dashboard > Classrooms"** directly
+above an `h1` reading "Classrooms", so the page named itself twice 30px apart, and the trail's one link went
+to a Dashboard the sidebar already lists. The cost was 44px - a 20px nav plus its 24px margin - which took the
+h1 from y=128 to y=172 on a 768px viewport, on all nine indexes.
+
+`admin/shared/_breadcrumbs` now returns early when there are fewer than two crumbs, so the rule lives in the
+partial rather than at nine call sites. Record and create pages keep their trail: "Dashboard > Students > Sam
+Student" has a Students to click.
+
+### What this breaks
+
+- `admin_page_structure_test` asserts no index renders a `nav[aria-label=Breadcrumb]` and that a record page
+  and a create page both do, with a link back to the list.
+- `spacing_test` carried a comment saying "admin index and show pages put breadcrumbs above the header";
+  corrected to record pages.
+

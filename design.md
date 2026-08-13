@@ -1252,6 +1252,21 @@ is where a section's control goes - Polaris's card header action, Primer's `Subh
 sections - with the sentence beside it. That is what makes the pill unnecessary and what took the page
 from **six card surfaces to two**.
 
+### A breadcrumb trail needs somewhere to go back to
+
+Every admin index rendered **"Dashboard > Classrooms"** immediately above an `h1` reading "Classrooms" - the
+page's own name twice, 30px apart - and the trail's only link duplicated the sidebar's own Dashboard item.
+Reported as pushing the content down for no value, and measured at exactly that: 44px, taking the h1 from
+y=128 to y=172 in a 768px viewport.
+
+`admin/shared/_breadcrumbs` returns early below two crumbs, so the rule holds wherever the trail is rendered
+rather than at nine call sites. A record page keeps its trail - "Dashboard > Students > Sam Student" has a
+Students to click - and so does a create page.
+
+The field is unanimous: Carbon states it outright ("do not use breadcrumbs when there is only one level"),
+GOV.UK's breadcrumbs show the path *above* the current page so a top-level page has none, and Polaris has no
+trail at all, only a single back action on pages with a parent.
+
 ### A record's page edits in place
 
 **There is no separate edit page.** Stripe's customer page, Linear's project page, Shopify admin's product

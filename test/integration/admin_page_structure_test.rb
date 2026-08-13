@@ -76,6 +76,42 @@ class AdminPageStructureTest < ActionDispatch::IntegrationTest
     end
   end
 
+  # **A breadcrumb trail needs somewhere to go back to.** Every admin index rendered
+  # "Dashboard > Classrooms" directly above an h1 reading "Classrooms" - the page's own name twice, and its
+  # one link duplicated the sidebar's Dashboard item. Measured: 44px, taking the h1 from y=128 to y=172.
+  #
+  # Carbon says not to use breadcrumbs with only one level, GOV.UK shows the path above the current page so a
+  # top-level page has none, and Polaris has a back action rather than a trail.
+  test "an index page has no breadcrumb trail" do
+    sign_in(create(:admin, admin: true, classroom: nil))
+
+    [admin_students_path, admin_teachers_path, admin_classrooms_path, admin_schools_path,
+     admin_school_years_path, admin_stocks_path, admin_announcements_path,
+     admin_portfolio_transactions_path, admin_users_path].each do |path|
+      get path
+
+      assert_response :success
+      assert_select "nav[aria-label=?]", "Breadcrumb", { count: 0 },
+                    "#{path}: a one-level trail names the page the h1 has just named"
+    end
+  end
+
+  # And a page with a parent keeps its trail, because there is something to click.
+  test "a record page keeps its trail" do
+    student = create(:student, :with_portfolio, classroom: create(:classroom, :with_trading))
+    student.reload
+    sign_in(create(:admin, admin: true, classroom: nil))
+
+    [admin_student_path(student), new_admin_student_path].each do |path|
+      get path
+
+      assert_response :success
+      assert_select "nav[aria-label=?]", "Breadcrumb", { count: 1 }, "#{path}: the trail is gone"
+      assert_select "nav[aria-label='Breadcrumb'] a[href=?]", admin_students_path,
+                    { count: 1 }, "#{path}: the trail has no link back to the list"
+    end
+  end
+
   # **A create page has one section, so its heading is not drawn.** Reported on students#new: "the details
   # subhead pushes the content down and doesn't seem to add value". It does not - "Details" under
   # "New student" repeats the h1 a line above, and its hint repeated the submit button. Measured: the card
