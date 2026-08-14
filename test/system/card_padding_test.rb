@@ -78,6 +78,71 @@ class CardPaddingTest < ApplicationSystemTestCase
     end
   end
 
+  # **Both halves.** This walked admin forms only, so the question "is the bottom padding consistent across
+  # the admin and the site views?" could not be answered from it. Every padded card measures 21px top and
+  # bottom - 20px of `p-5` plus the card's 1px border - on both.
+  #
+  # A card with no padding of its own is skipped rather than asserted at 21: it holds a flush table, or a
+  # body carrying its own `px-5 pb-5 pt-4`, and `.tw-card` is deliberately unpadded so a table can clip to
+  # the rounded corner.
+  test "every card on the app half is padded equally top and bottom" do
+    classroom = create(:classroom, :with_trading, name: "Period 3")
+    student = create(:student, :with_portfolio, classroom:, name: "Robin Fields")
+    student.reload
+    student.portfolio.portfolio_transactions.create!(
+      amount_cents: 5_000, transaction_type: :deposit, reason: :attendance_earnings
+    )
+    create(:stock)
+    grade_book = create(:grade_book, classroom:)
+    sign_in(student)
+
+    { "home" => root_path,
+      "portfolio" => user_portfolio_path(student, student.portfolio),
+      "trading floor" => stocks_path }.each { |name, path| assert_cards_padded_evenly(name, path) }
+
+    teacher = create(:teacher)
+    create(:teacher_classroom, teacher:, classroom:)
+    sign_in(teacher)
+
+    { "classroom" => classroom_path(classroom),
+      "grade book" => classroom_grade_book_path(classroom, grade_book) }
+      .each { |name, path| assert_cards_padded_evenly(name, path) }
+  end
+
+  def assert_cards_padded_evenly(name, path)
+    visit path
+
+    page.evaluate_script(<<~JS).each do |card|
+      Array.from(document.querySelectorAll("main .tw-card")).map(function (card) {
+        const cb = card.getBoundingClientRect();
+        const body = card.matches("[class*='p-5']") ? card : card.querySelector(":scope > [class*='p-5']");
+        if (!body) return null;
+        const kids = Array.from(body.children).filter(function (k) { return k.getClientRects().length > 0; });
+        if (!kids.length) return null;
+        const f = kids[0].getBoundingClientRect(), l = kids[kids.length - 1].getBoundingClientRect();
+        return { top: Math.round(f.top - cb.top), bottom: Math.round(cb.bottom - l.bottom),
+                 stretched: card.classList.contains("h-full"),
+                 text: (card.innerText || "").trim().slice(0, 30) };
+      }).filter(Boolean)
+    JS
+      assert_in_delta EDGE, card["top"], TOLERANCE, "#{name}: #{card['text'].inspect} top"
+
+      # An `h-full` card is stretched by its grid row to match a taller neighbour, so slack below its last
+      # element is the row doing its job rather than a padding error - the portfolio's "Your money at work"
+      # measured 53px beside a taller chart, and the earnings breakdown 189px while rendering an empty
+      # state. What must still hold is that it is never *less* than the padding.
+      if card["stretched"]
+        assert_operator card["bottom"], :>=, EDGE - TOLERANCE,
+                        "#{name}: #{card['text'].inspect} has #{card['bottom']}px below its last element, " \
+                        "less than the card's own padding"
+      else
+        assert_in_delta EDGE, card["bottom"], TOLERANCE,
+                        "#{name}: #{card['text'].inspect} has #{card['bottom']}px below its last element " \
+                        "against #{card['top']}px above its first"
+      end
+    end
+  end
+
   test "every admin form card is padded equally top and bottom" do
     sign_in(create(:admin))
     classroom = create(:classroom)

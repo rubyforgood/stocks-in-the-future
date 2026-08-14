@@ -2657,6 +2657,22 @@ eleven times. They render `components/ui/_card`. The value stays `p-5`: the docu
 is consistent with it, and the case for `p-6` would have to be that a form is measurably cramped - it is
 not, `p-5` leaves a field 286px wide at 375px against `p-6`'s 278px.
 
+### A card that looks over-padded at the bottom may be `h-full`
+**Measure the neighbour before touching the padding.** Every padded `.tw-card` in the app is 21px inside
+its border box on both edges - 20px of `p-5` plus the 1px border - on the admin half and the app half
+alike, and `card_padding_test` now asserts that on both. Two portfolio cards still measured 53px and
+**189px** below their last element.
+
+Neither is a padding fault. Both carry `h-full` and sit in a grid row, so the shorter one stretches to the
+height of the taller: "Your money at work" beside a chart, and the earnings breakdown beside the value
+graph while rendering its *empty state*, which is short. Fill the fixture with real transactions and the
+same cards measure 1px and 6px. So the slack is the row equalising, it varies with the data, and removing
+padding to close it would break the card that is full.
+
+A stretched card is therefore asserted as a **floor** - never *less* than its own padding - and a fixed
+one as an equality. The general form: when a measurement disagrees with the class list, check whether the
+element's height is its own before concluding the padding is wrong.
+
 ### A figure inside a card, or as one
 **`_stat` renders its own card by default and takes `surface: false` when it should not.** A strip of
 separate cards is right where the figures *are* the summary and stand alone - the portfolio page. It is
