@@ -35,7 +35,7 @@ module Admin
 
     test "index shows only active teachers by default" do
       teacher1 = create(:teacher, username: "teacher1")
-      create(:teacher, username: "teacher2")
+      teacher2 = create(:teacher, username: "teacher2")
       admin = create(:admin, admin: true, classroom: nil)
       sign_in(admin)
 
@@ -45,10 +45,14 @@ module Admin
 
       assert_response :success
       assert_select "tbody tr", count: 1
-      # Asserted on the label, not the badge's fill class. These used to name bg-green-50 /
-      # bg-red-50, so replacing a hand-rolled badge with the shared component broke three tests
-      # that were not testing anything about filtering.
-      assert_select "tbody span", text: "Active"
+      # The row that is *there*, not a badge. These asserted "Active" on this tab, and the Status column no
+      # longer renders here: every row on a filtered tab carries the same value, so the column said nothing
+      # and the tab already said it. Naming the surviving teacher is what this test was always about.
+      #
+      # `display_name`, not the username passed to the factory: `sync_username_from_email` overwrites the
+      # username with the email on every save, so the literal never reaches the page.
+      assert_select "tbody", text: /#{teacher2.display_name}/
+      assert_select "tbody", { text: /#{teacher1.display_name}/, count: 0 }
     end
 
     test "index shows both active and deactivated teachers with all filter" do
@@ -78,7 +82,7 @@ module Admin
 
       assert_response :success
       assert_select "tbody tr", count: 1
-      assert_select "tbody span", text: "Deactivated"
+      assert_select "tbody", text: /#{teacher1.display_name}/
     end
 
     # Show tests

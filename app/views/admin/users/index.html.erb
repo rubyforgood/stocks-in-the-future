@@ -31,9 +31,16 @@
             <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">
               Classroom
             </th>
-            <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">
-              <%= sort_link(:discarded_at, "Status") %>
-            </th>
+            <%# **Only on the All tab.** On Active every row reads "Active" and on Archived every row reads
+                "Archived" - a column whose value never varies for this viewer in this state, which is the
+                same fault as a column of dashes and the same reason `user_status_badge` renders nothing for
+                a live account. The tab already says which population you are looking at; the column earns
+                its place on the one tab where the two are mixed. %>
+            <% if discard_filter == :all %>
+              <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">
+                <%= sort_link(:discarded_at, "Status") %>
+              </th>
+            <% end %>
             <th scope="col" class="table-header-cell table-header-cell-right table-actions-cell hidden lg:table-cell">
               <span class="sr-only">Actions</span>
             </th>
@@ -97,7 +104,8 @@
 
                   <%= render "shared/stacked_row_fields",
                              fields: [["Type", type_cell], ["Email", email_cell],
-                                      ["Classroom", classroom_cell], ["Status", status_cell]],
+                                      ["Classroom", classroom_cell],
+                                      (["Status", status_cell] if discard_filter == :all)].compact,
                              actions: row_actions %>
                 </td>
                 <td class="table-body-cell whitespace-nowrap hidden lg:table-cell">
@@ -112,9 +120,11 @@
                 <td class="table-body-cell whitespace-nowrap hidden lg:table-cell">
                   <%= classroom_cell %>
                 </td>
-                <td class="table-body-cell whitespace-nowrap hidden lg:table-cell">
-                  <%= status_cell %>
-                </td>
+                <% if discard_filter == :all %>
+                  <td class="table-body-cell whitespace-nowrap hidden lg:table-cell">
+                    <%= status_cell %>
+                  </td>
+                <% end %>
                 <td class="table-body-cell table-body-cell-right whitespace-nowrap table-actions-cell hidden lg:table-cell">
                   <div class="flex items-center justify-end gap-1"><%= row_actions %></div>
                 </td>
@@ -128,7 +138,7 @@
 
                 Every other index keeps both branches, because a school or a stock list genuinely can be
                 empty. This one is the exception and this is why. %>
-            <%= render "admin/shared/empty_row", colspan: 6, **archived_empty_state("user", keeps: "their history and records") %>
+            <%= render "admin/shared/empty_row", colspan: discard_filter == :all ? 6 : 5, **archived_empty_state("user", keeps: "their history and records") %>
           <% end %>
         </tbody>
       </table>

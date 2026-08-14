@@ -37,13 +37,20 @@
             <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">
               <%= sort_link(:created_at, "Created at") %>
             </th>
+            <%# **Only on the All tab.** On Active every row reads "Active" and on Archived every row reads
+                "Archived" - a column whose value never varies for this viewer in this state, which is the
+                same fault as a column of dashes and the same reason `user_status_badge` renders nothing for
+                a live account. The tab already says which population you are looking at; the column earns
+                its place on the one tab where the two are mixed. %>
             <%# **Sortable, which is the other half of the report.** The All tab is worth having only if a
                 reader can both tell the two apart and group them, and `discarded_at` is a real column, so
                 the existing `sort_link` does it: ascending puts the archived rows together by the date they
                 were archived and the live ones after, since Postgres sorts NULLs last. %>
-            <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">
-              <%= sort_link(:discarded_at, "Status") %>
-            </th>
+            <% if discard_filter == :all %>
+              <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">
+                <%= sort_link(:discarded_at, "Status") %>
+              </th>
+            <% end %>
             <th scope="col" class="table-header-cell table-header-cell-right table-actions-cell hidden lg:table-cell">
               <span class="sr-only">Actions</span>
             </th>
@@ -76,7 +83,7 @@
 
                   <%= render "shared/stacked_row_fields",
                              fields: [["Classroom", classroom_cell], ["Created at", created_at_cell],
-                                      ["Status", status_cell]],
+                                      (["Status", status_cell] if discard_filter == :all)].compact,
                              actions: row_actions %>
                 </td>
                 <td class="table-body-cell whitespace-nowrap hidden lg:table-cell">
@@ -85,9 +92,11 @@
                 <td class="table-body-cell whitespace-nowrap hidden lg:table-cell">
                   <%= created_at_cell %>
                 </td>
-                <td class="table-body-cell whitespace-nowrap hidden lg:table-cell">
-                  <%= status_cell %>
-                </td>
+                <% if discard_filter == :all %>
+                  <td class="table-body-cell whitespace-nowrap hidden lg:table-cell">
+                    <%= status_cell %>
+                  </td>
+                <% end %>
                 <td class="table-body-cell table-body-cell-right whitespace-nowrap table-actions-cell hidden lg:table-cell">
                   <div class="flex items-center justify-end gap-1"><%= row_actions %></div>
                 </td>
@@ -98,11 +107,11 @@
                 offered a New button, on a list of archived records. %>
             <% if discard_filter == :discarded %>
               <%= render "admin/shared/empty_row",
-                         colspan: 5,
+                         colspan: discard_filter == :all ? 5 : 4,
                          **archived_empty_state("student", keeps: "their history and records") %>
             <% else %>
               <%= render "admin/shared/empty_row",
-                         colspan: 5,
+                         colspan: discard_filter == :all ? 5 : 4,
                          title: "No students yet",
                          body: "Students are added one at a time, or imported a classroom at a time " \
                                "from a CSV. Students you add appear here." %>

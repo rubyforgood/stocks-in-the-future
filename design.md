@@ -325,6 +325,19 @@ So all three archivable indexes carry `Status` through one helper, `discard_stat
 **sortable** -- grouping them is the other half of what the tab is for. `discarded_at` is a real column, so
 `sort_link` does it, and Postgres sorting NULLs last means ascending puts the archived rows together.
 
+**And the column renders only on the All tab.** Shipped on all three at first, and reported: an "Active"
+badge on every row of the Active tab is a column whose value never varies, which is the column-of-dashes
+rule from the other direction, and it contradicts the reason `user_status_badge` renders nothing for a live
+account. The tab already names the population. The column earns its place on the one tab where the two are
+mixed -- and *there* both values are worth drawing, because a blank cell would read as missing data rather
+than as "active".
+
+**Three tabs, not two.** The alternative raised was All plus Archived, with All sorted by status. Sorting
+groups; it does not exclude, and with two hundred students and thirty archived the default view would make
+you scroll past thirty rows you did not ask for. Removing the Active tab also leaves the default state with
+no tab to return to. Shopify ships All / Active / Draft / Archived and GitHub Open / Closed / All, both
+keeping a tab for the default.
+
 The label follows each page's own action, because that is what a reader connects it to: a student and a user
 are **Archived** and restored, a teacher is **Deactivated** and reactivated. That split is in the verbs
 already and is worth revisiting as one decision rather than by renaming a badge.

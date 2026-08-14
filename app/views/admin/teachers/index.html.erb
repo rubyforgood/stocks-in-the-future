@@ -26,9 +26,13 @@
             <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">
               <%= sort_link(:email, "Email") %>
             </th>
-            <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">
-              <%= sort_link(:discarded_at, "Status") %>
-            </th>
+            <%# Only on the All tab - see the note on `admin/students#index`. On the other two every row
+                carries the same value, which is a column that says nothing. %>
+            <% if discard_filter == :all %>
+              <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">
+                <%= sort_link(:discarded_at, "Status") %>
+              </th>
+            <% end %>
             <th scope="col" class="table-header-cell table-header-cell-right table-actions-cell hidden lg:table-cell">
               <span class="sr-only">Actions</span>
             </th>
@@ -64,7 +68,8 @@
                   <%= link_to teacher.display_name, admin_teacher_path(teacher), class: "tw-link" %>
 
                   <%= render "shared/stacked_row_fields",
-                             fields: [["Email", email_cell], ["Status", status_cell]],
+                             fields: [["Email", email_cell],
+                                      (["Status", status_cell] if discard_filter == :all)].compact,
                              actions: row_actions %>
                 </td>
                 <%# No `whitespace-nowrap`, and `break-words`: an email is one unbreakable token, so a long
@@ -73,9 +78,11 @@
                 <td class="table-body-cell wrap-anywhere hidden lg:table-cell">
                   <%= email_cell %>
                 </td>
-                <td class="table-body-cell whitespace-nowrap hidden lg:table-cell">
-                  <%= status_cell %>
-                </td>
+                <% if discard_filter == :all %>
+                  <td class="table-body-cell whitespace-nowrap hidden lg:table-cell">
+                    <%= status_cell %>
+                  </td>
+                <% end %>
                 <td class="table-body-cell table-body-cell-right whitespace-nowrap table-actions-cell hidden lg:table-cell">
                   <div class="flex items-center justify-end gap-1"><%= row_actions %></div>
                 </td>
@@ -86,11 +93,11 @@
                 offered a New button, on a list of archived records. %>
             <% if discard_filter == :discarded %>
               <%= render "admin/shared/empty_row",
-                         colspan: 4,
+                         colspan: discard_filter == :all ? 4 : 3,
                          **archived_empty_state("teacher", keeps: "their classrooms and history") %>
             <% else %>
               <%= render "admin/shared/empty_row",
-                         colspan: 4,
+                         colspan: discard_filter == :all ? 4 : 3,
                          title: "No teachers yet",
                          body: "Teachers manage classrooms and enter grades for their students. " \
                                "Teachers you add appear here." %>

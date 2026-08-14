@@ -86,6 +86,22 @@ module Admin
       assert_select "tbody tr##{dom_id(archived)} td", text: /Archived/
     end
 
+    # The other half: on a filtered tab every row carries the same value, so the column is not rendered at
+    # all. Same rule as the column of dashes - ask whether any row differs for this viewer, in this state.
+    test "the status column is absent on a filtered tab" do
+      create(:student)
+      create(:student, :discarded)
+      sign_in(create(:admin, admin: true, classroom: nil))
+
+      [admin_students_path, admin_students_path(discarded: true)].each do |path|
+        get path
+
+        assert_response :success
+        assert_select "thead th", { text: /Status/, count: 0 },
+                      "#{path}: every row on a filtered tab has the same status, so the column says nothing"
+      end
+    end
+
     test "the status column sorts by it" do
       create(:student, username: "live_one")
       create(:student, :discarded, username: "archived_one")

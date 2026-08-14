@@ -5698,3 +5698,33 @@ The split lives in the actions, not the badge, so it is one decision to take rat
   test address a row rather than a position.
 - `teacher_status_badge` is a one-line call to `discard_status_badge` with its own label, so a change to the
   badge's tone or shape happens once.
+
+## The status column belongs on the All tab only
+
+Two questions on the column added in the last commit, and the first one was right.
+
+**"Do you have a badge on Active where every rule says active is redundant?"** Yes, and on two of the three
+tabs it was a column whose value never varied: the Active tab read `["Active", "Active", "Active"]` and the
+Archived tab read "Archived" on every row. That is the column-of-dashes rule from the other direction, and
+it contradicts `user_status_badge`, which renders nothing for a live account for exactly this reason - I
+wrote that rule an hour before breaking it.
+
+The column now renders **only when `discard_filter == :all`**, on all three indexes, with the header, the
+cell, the stacked field below `lg` and the empty state's colspan all reading the same flag. Within All both
+values are still drawn, because there they differ, and a blank cell would read as missing data rather than
+as "active".
+
+**"Would two tabs make more sense - All and Archived, with All sortable?"** Sorting groups; it does not
+exclude. With two hundred students and thirty archived, an All default makes you scroll past thirty rows you
+did not ask for, and dropping the Active tab leaves the default state with no tab to return to. Shopify
+ships All / Active / Draft / Archived and GitHub Open / Closed / All - both keep a tab for the default. So:
+three tabs, and the column only where it says something.
+
+### What this breaks
+
+- **The colspan is now conditional** on three indexes. A filtered tab's empty row spans one fewer column
+  than the All tab's.
+- **Two teacher tests asserted the badge on filtered tabs** as their evidence that filtering worked. They
+  assert the surviving row's `display_name` instead - and note why the literal username never worked:
+  `sync_username_from_email` overwrites it on every save, so `create(:teacher, username: "teacher1")` does
+  not put "teacher1" on the page.
