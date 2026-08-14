@@ -5461,3 +5461,38 @@ report from a broken instrument is worse than no report.
   page is not covered until it is added to one of the three lists.
 - The profile's username field now carries `autocomplete="username"`, which a browser may use to offer a
   saved value on a **readonly** field. It is readonly by design there, so nothing can be overwritten.
+
+## Every control's boundary is slate-500, for WCAG 1.4.11
+
+Taken as a decision from the audit's one outstanding finding. A control's boundary must reach 3:1 against
+what is next to it, and every field and outlined button in this app is white on a white card, so its border
+is the only thing saying a control is there.
+
+| Token | Where | Was | Now |
+| --- | --- | --- | --- |
+| `.tw-input-primary` | every input, select, textarea | 1.49:1 (slate-300) | **4.76:1** (slate-500) |
+| `.tw-btn-secondary`, `.tw-btn-danger-outline` | every outlined button | 1.23:1 (slate-200) | **4.55:1** |
+| `CHECKBOX_CLASSES` | every checkbox | slate-300 | slate-500 |
+| `.tw-switch` track | the trading switch | 2.9:1 (slate-400) | slate-500 |
+
+`slate-400` was measured first and rejected: **2.63:1**, still short. `slate-500` is the first token that
+clears the bar.
+
+**What is deliberately untouched.** A card's hairline and a table's divider keep `slate-200`: they are
+structure, not a user interface component, and 1.4.11 does not reach them. A filled primary keeps its
+border-free fill, which identifies it at well over 3:1 on its own. The audit encodes that exemption rather
+than listing the exceptions by name.
+
+**And it overrules an aesthetic note the spec carried** - that slate-300 "measured darker and read as too
+heavy" on the secondary button. That was a judgement about weight and 1.4.11 is a criterion; the criterion
+wins. Material's outlined text field ships an outline at about 3.5:1, so the heavier border is the field's
+answer too.
+
+### What this breaks
+
+- **Four tests pinned the old tokens** and are repinned with the reason: `form_field_test` on three page
+  groups and `button_variants_test`, whose message asserted the aesthetic judgement this change overrules.
+- **1.4.11 is asserted now**, not merely measured - `wcag_audit_test` fails on any control whose boundary
+  falls under 3:1, with a self-check that injects a near-invisible border and confirms it is caught.
+- Every field and outlined button in the product is visibly heavier. That is the trade the criterion asks
+  for, and it is the whole of the visual change.

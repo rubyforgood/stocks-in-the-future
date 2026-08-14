@@ -162,7 +162,8 @@ class WcagAuditTest < ApplicationSystemTestCase
 
       // 1.4.11 Non-text contrast: a control's boundary must reach 3:1 against what is next to it.
       out.borders = [];
-      document.querySelectorAll("input, select, textarea").forEach(function (el) {
+      document.querySelectorAll("input, select, textarea, button, .tw-btn-secondary, .tw-btn-danger-outline, .tw-switch")
+              .forEach(function (el) {
         if (el.type === "hidden" || !onScreen(el)) return;
         const cs = getComputedStyle(el);
         if (parseFloat(cs.borderTopWidth) === 0) return;
@@ -193,13 +194,15 @@ class WcagAuditTest < ApplicationSystemTestCase
     })()
   JS
 
-  # **1.4.11 is measured and deliberately not asserted.** Two tokens design.md names by hand fail it -
-  # `.tw-input-primary`'s `border-slate-300` at **1.49:1** and `.tw-btn-secondary`'s `border-slate-200` at
-  # **1.23:1**, each the only thing identifying its control on a white card. Fixing it means a heavier
-  # border everywhere (slate-400 measures 2.63:1 and still fails; slate-500 is the first token that clears
-  # 3:1, at 4.76:1), which is a decision about how the product looks, not a bar to quietly lower. It is in
-  # design-todo with the numbers. Asserting it would fail the suite; asserting an allowance for it would
-  # write "1.49:1 is fine" into the spec.
+  # **1.4.11 is asserted now.** It was measured-but-not-asserted for one commit, because two tokens
+  # `design.md` named by hand failed it: `.tw-input-primary`'s `border-slate-300` at **1.49:1** and
+  # `.tw-btn-secondary`'s `border-slate-200` at **1.23:1**, each the only thing identifying its control on a
+  # white card. Both are `slate-500` now - the first token that clears the bar, since `slate-400` measures
+  # 2.63:1 and does not.
+  #
+  # A **filled** control is exempt and the check knows it: a primary button is identified by its own fill,
+  # so its border carries nothing. Only a control whose inside matches the surface around it depends on its
+  # boundary to be seen at all.
   def audit(label)
     r = page.evaluate_script(AUDIT)
     failures =
@@ -212,6 +215,7 @@ class WcagAuditTest < ApplicationSystemTestCase
     failures << "2.4.2 no page title" if r["title"].to_s.strip.empty?
     failures << "1.3.1 #{r['h1']} h1 elements, expected 1" unless r["h1"] == 1
     r["smallTarget"].uniq.each { |t| failures << "2.5.8 #{t['w']}x#{t['h']} - #{t['name'].inspect}" }
+    r["borders"].uniq.each { |b| failures << "1.4.11 #{b['el']} boundary #{b['ratio']}:1 - #{b['colour']}" }
 
     assert_empty failures, "#{label}:\n  " + failures.join("\n  ")
   end
@@ -244,6 +248,7 @@ class WcagAuditTest < ApplicationSystemTestCase
         "<input type='text' name='nameless'>",
         "<h1>One</h1><h4>Skipped two levels</h4>",
         "<table><tr><th>No scope</th></tr><tbody><tr><td>x</td></tr></tbody></table>",
+        "<input type='text' name='faint' style='border:1px solid #f2f2f2;background:#fff' aria-label='Faint'>",
         "<div><a href='#' style='display:block;width:16px;height:16px'>a</a>",
         "<a href='#' style='display:block;width:16px;height:16px'>b</a></div>"
       ].join(""));
@@ -258,6 +263,7 @@ class WcagAuditTest < ApplicationSystemTestCase
     assert_operator r["headings"].size, :>, 0, "1.3.1 did not catch h1 -> h4"
     assert_operator r["thNoScope"], :>, 0, "1.3.1 did not catch a th with no scope"
     assert_operator r["smallTarget"].size, :>, 0, "2.5.8 did not catch two crowded 16px targets"
+    assert_operator r["borders"].size, :>, 0, "1.4.11 did not catch a control with a near-invisible boundary"
   end
 
   test "as a student" do

@@ -23,7 +23,7 @@ module Ui
     INPUT_CLASSES = "tw-input-primary"
     # The same native control components/ui/_checkbox renders: accent-sitf-primary rather than an
     # off-brand blue tick, a slate border, and a named focus ring.
-    CHECKBOX_CLASSES = "size-4 shrink-0 rounded-sm border-slate-300 accent-sitf-primary " \
+    CHECKBOX_CLASSES = "size-4 shrink-0 rounded-sm border-slate-500 accent-sitf-primary " \
                        "focus-visible:outline-2 focus-visible:outline-offset-2 " \
                        "focus-visible:outline-sitf-primary"
 

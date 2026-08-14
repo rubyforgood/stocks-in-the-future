@@ -13,7 +13,7 @@
     /* placeholder was gray-400 at 2.54:1 (failed AA), focus ring was off-brand
        indigo, sm: is not a supported tier, and py-1.5 fell short of the 44px
        minimum touch target. */
-    @apply block w-full min-h-11 rounded-lg bg-white px-3 py-2 text-base text-slate-900 border border-slate-300 placeholder:text-slate-500 focus:outline-2 focus:-outline-offset-2 focus:outline-sitf-primary lg:text-sm/6
+    @apply block w-full min-h-11 rounded-lg bg-white px-3 py-2 text-base text-slate-900 border border-slate-500 placeholder:text-slate-500 focus:outline-2 focus:-outline-offset-2 focus:outline-sitf-primary lg:text-sm/6
   }
 
   /* The same field, in an error state. Red is on the border and the focus outline, never on the
@@ -68,7 +68,7 @@
      invisible with no indicator anywhere - design.md's rule is that every removed outline gets a
      visible replacement. */
   .tw-switch {
-    @apply relative inline-block h-5 w-9 shrink-0 rounded-full border border-slate-400 bg-slate-300
+    @apply relative inline-block h-5 w-9 shrink-0 rounded-full border border-slate-500 bg-slate-300
            transition-colors;
   }
 

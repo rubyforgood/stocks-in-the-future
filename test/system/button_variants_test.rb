@@ -19,7 +19,11 @@ class ButtonVariantsTest < ApplicationSystemTestCase
   OUTLINED = %w[tw-btn-secondary tw-btn-danger-outline].freeze
   ALL = (FILLED + OUTLINED).freeze
 
-  SLATE_200 = "oklch(0.929 0.013 255.508)"
+  # slate-500, raised from slate-200 for WCAG 1.4.11. The note below - that slate-300 "read as too heavy" -
+  # was an aesthetic judgement, and it is overruled by a criterion: an outlined button is white on a white
+  # card, so its border is the only thing saying a control is there, and slate-200 measured **1.23:1**
+  # against the 3:1 the criterion asks for.
+  SLATE_500 = "oklch(0.554 0.046 257.417)"
 
   def computed(css_class)
     page.evaluate_script(<<~JS)
@@ -86,7 +90,7 @@ class ButtonVariantsTest < ApplicationSystemTestCase
     end
   end
 
-  test "outlined variants are medium weight on a 1px slate-200 border" do
+  test "outlined variants are medium weight on a 1px slate-500 border" do
     setup_page
 
     OUTLINED.each do |variant|
@@ -94,9 +98,9 @@ class ButtonVariantsTest < ApplicationSystemTestCase
 
       assert_equal "500", c["weight"], "#{variant} should be font-medium"
       assert_equal "1px", c["borderWidth"], "#{variant} should have a 1px border"
-      assert_equal SLATE_200, c["borderColour"],
-                   "#{variant} should be border-slate-200. slate-300 measured darker and read as " \
-                   "too heavy; a ring is not a border"
+      assert_equal SLATE_500, c["borderColour"],
+                   "#{variant} should be border-slate-500, which is what WCAG 1.4.11 needs on a " \
+                   "control whose only boundary is its border. A ring is not a border."
     end
   end
 

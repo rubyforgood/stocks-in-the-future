@@ -1642,7 +1642,7 @@ reason to bypass the container.
 
 **`tw-input-primary` is the text input, and it was on a checkbox.** Perfect attendance rendered at
 **187x44px** - a full-width bordered box with a tick in it. A checkbox takes the tokens from
-`components/ui/_checkbox`: `size-4 rounded-sm border-slate-300 accent-sitf-primary`. `accent-*` is how a
+`components/ui/_checkbox`: `size-4 rounded-sm border-slate-500 accent-sitf-primary`. `accent-*` is how a
 native checkbox is tinted; `rounded-sm` because at 16px the control radius is nearly a circle and a
 checkbox reads as a square.
 
@@ -3269,14 +3269,14 @@ truth. Never hand-write button class strings in views; they drift (that is how t
 ended up mismatched). Variants:
 - `:primary` (filled brand): `bg-sitf-primary text-sitf-on-primary font-semibold hover:bg-sitf-primary-dark`,
   focus ring `sitf-primary-dark`
-- `:secondary` (outlined): `border border-slate-200 bg-white text-slate-700 font-medium hover:bg-slate-50`
+- `:secondary` (outlined): `border border-slate-500 bg-white text-slate-700 font-medium hover:bg-slate-50`
 - `:danger` (filled rose): `bg-rose-700 text-white font-semibold hover:bg-rose-800`, focus ring
   `rose-800`. **For the accept button of a destructive confirmation, and nothing else** - see "No red at
   rest" below for why that is the one place it belongs. rose-700 rather than rose-600: measured with white
   text, 600 is **4.53:1** and clears AA by 0.03, which is no headroom, while 700 is **6.03:1** and sits
   level with the brand primary's 6.18:1, so a destructive accept does not read weaker than a benign one.
   The same one-step-darker correction this list already makes for `:success`.
-- `:danger_outline` (a **quiet outlined destructive** button): identical to `:secondary` at rest -- `border border-slate-200 bg-white text-slate-700 font-medium` -- and turns rose only on hover (`hover:border-rose-300 hover:bg-rose-50 hover:text-rose-700`, rose focus ring). Use it for a destructive action that sits **among bordered buttons** (a toolbar/section/header of `:secondary`/`:primary`), so it matches them at rest with no always-on red; use `ghost_class(:danger)` when the neighbours are ghost (see below). No red-at-rest either way.
+- `:danger_outline` (a **quiet outlined destructive** button): identical to `:secondary` at rest -- `border border-slate-500 bg-white text-slate-700 font-medium` -- and turns rose only on hover (`hover:border-rose-300 hover:bg-rose-50 hover:text-rose-700`, rose focus ring). Use it for a destructive action that sits **among bordered buttons** (a toolbar/section/header of `:secondary`/`:primary`), so it matches them at rest with no always-on red; use `ghost_class(:danger)` when the neighbours are ghost (see below). No red-at-rest either way.
 - `:success` (filled emerald, for a **prominent** positive action, e.g. reactivating a deactivated user): `bg-emerald-700 text-white font-semibold hover:bg-emerald-800` (emerald-700, not 600: white on 600 is 3.77:1, below AA). A **repeated per-row/card "resolve"** (e.g. resolving a followup reminder) recedes to `:secondary` -- a filled emerald over-emphasizes a low-frequency action next to its neutral row-mates.
 
 Every variant shares a base of `inline-flex h-10 items-center justify-center gap-2 rounded-lg
@@ -3422,7 +3422,7 @@ white on it 6.18:1):
 | design.md variant | here | notes |
 |---|---|---|
 | `:primary` | `.tw-btn-primary` | `bg-sitf-primary`, `font-semibold`, white label |
-| `:secondary` | `.tw-btn-secondary` | `border border-slate-200`, `font-medium` |
+| `:secondary` | `.tw-btn-secondary` | `border border-slate-500`, `font-medium` |
 | `:danger_outline` | `.tw-btn-danger-outline` | identical to secondary at rest, rose on hover |
 | `:danger` (filled rose) | `.tw-btn-danger` | the accept button of a destructive confirmation, and nothing else. The note here used to read "not shipped - Turbo uses the native dialog, so there is no surface for it", which stopped being true when `shared/_confirm_dialog` landed. |
 | `:success` (filled emerald) | **not shipped** | see below |
@@ -5420,7 +5420,24 @@ The per-page checklists live in
 [`design-instructions.md`](design-instructions.md). Two habits matter more than
 the lists:
 
-1. **Measure contrast, do not guess.** Every failure found here looked fine.
+1. ****A control's boundary is 3:1, which is WCAG 1.4.11, and it is `slate-500`.** Every field, select, textarea,
+checkbox, switch track and outlined button in this app is white on a white card, so its border is the only
+thing saying a control is there. Measured before: `.tw-input-primary`'s `border-slate-300` at **1.49:1** and
+`.tw-btn-secondary`'s `border-slate-200` at **1.23:1**. `slate-400` is **2.63:1** and still fails, so
+`slate-500` - **4.76:1** - is the first token that clears the bar.
+
+This **overrules an aesthetic note this document used to carry**, that slate-300 "measured darker and read as
+too heavy" on the secondary button. That was a judgement about weight; 1.4.11 is a criterion, and the
+criterion wins. It is also what Material's outlined text field ships - its outline sits at about 3.5:1 - so
+the heavier border is the field's answer as well as the spec's.
+
+**A filled control is exempt, and the rule has to say so** or it spreads to things it does not govern. A
+primary button is identified by its own fill, so its border carries nothing; a card's hairline and a table's
+divider are structure rather than a user interface component, and both keep `slate-200`. `wcag_audit_test`
+encodes exactly that: it skips any control whose own background already reaches 3:1 against what is around
+it.
+
+Measure contrast, do not guess.** Every failure found here looked fine.
 2. **Test the empty and error branches.** Every admin index page returned HTTP 200
    while its empty state was broken, because the tests all created records first.
 

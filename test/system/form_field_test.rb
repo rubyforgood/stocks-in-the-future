@@ -17,9 +17,12 @@ require "application_system_test_case"
 # user sees first, kept a 40px `rounded-md` field while everything else moved.
 class FormFieldTest < ApplicationSystemTestCase
   BORDER = "1px"
-  RADIUS = "8px"          # rounded-lg, the control token
-  SLATE_300 = "oklch(0.869 0.022 252.894)"
-  TOUCH_HEIGHT = 44       # min-h-11
+  RADIUS = "8px" # rounded-lg, the control token
+  # slate-500, raised from slate-300 for WCAG 1.4.11: a text input's boundary is the only thing identifying
+  # it on a white card, and slate-300 measured **1.49:1** where the criterion asks for 3:1. slate-400 is
+  # 2.63:1 and still fails, so slate-500 - 4.76:1 - is the first token that clears it.
+  SLATE_500 = "oklch(0.554 0.046 257.417)"
+  TOUCH_HEIGHT = 44 # min-h-11
 
   def field_shapes
     page.evaluate_script(<<~JS)
@@ -63,8 +66,8 @@ class FormFieldTest < ApplicationSystemTestCase
       assert_equal BORDER, f["border"], "#{label}: a #{f['tag']} is not on a 1px border"
       assert_equal RADIUS, f["radius"],
                    "#{label}: a #{f['tag']} is #{f['radius']}, not rounded-lg"
-      assert_equal SLATE_300, f["colour"],
-                   "#{label}: a #{f['tag']}'s border is not slate-300"
+      assert_equal SLATE_500, f["colour"],
+                   "#{label}: a #{f['tag']}'s border is not slate-500, which is what 1.4.11 needs"
       # A textarea is taller by rows; everything else sits on the touch minimum.
       next if f["tag"] == "textarea"
 
