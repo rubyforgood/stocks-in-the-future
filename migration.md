@@ -6236,3 +6236,18 @@ Two further reasons it would not have appeared even then:
   `?user_id=` survive the page parameter**. `request.query_parameters` carries them; a bare `page=2` would
   have dropped them, so a reader would sort a column, turn the page and silently get the default order.
 - Present-but-disabled rather than absent, so the buttons do not move between page 1 and page 2.
+
+### Addendum: the pagination change broke the running dev server
+
+Not the code - the process. `kaminari` was added while a Puma started **26 hours earlier** was still
+serving `localhost:3700`, and code reloading covers `app/`, not `Gemfile.lock`. Every request to
+`/admin/portfolio_transactions` returned `NoMethodError (undefined method 'page' for an instance of
+ActiveRecord::Relation)` while 996 unit and 368 system tests were green, because each test run boots a
+fresh process with the current bundle. Reported by the user, not by anything I ran.
+
+`run-app.sh --restart` did not fix it and said it had: it tracks its own pidfile, so against a
+hand-started server it printed "Nothing to stop", started nothing, and then passed its own health check
+against the stale process and printed "app is up". The old Puma had to be killed by PID.
+
+The rule this leaves: **after any change to the bundle, restart the server and load the page.** A green
+suite cannot see a stale process. Recorded in `CLAUDE.md` beside the initializer version of the same trap.

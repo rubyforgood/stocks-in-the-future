@@ -684,6 +684,21 @@ documentation of a fix nobody got.
 then raises NoMethodError at render time. `ApplicationController.helpers` has both. This bit inside
 `field_error_proc`, where the consequence was a 500 on every invalid form submit.
 
+**A new *gem* needs a boot too, and the suite cannot tell you.** Adding `kaminari` and paginating two
+controllers passed 996 unit and 368 system tests, because every test run boots a fresh process with the
+current bundle. The **already-running dev server does not**: code reloading covers `app/`, not
+`Gemfile.lock`. So `localhost` answered `NoMethodError (undefined method 'page' for an instance of
+ActiveRecord::Relation)` on every request to that page while the whole suite was green, and the work was
+reported as verified. **A green suite is not evidence that the running app works** - after any change to
+the bundle, restart and load the page.
+
+**`run-app.sh --restart` will not stop a server it did not start.** It tracks its own pidfile, so against
+a hand-started Puma it prints *"Nothing to stop"*, starts nothing, and then its own health check passes -
+against the corpse - and it reports **"app is up"** with the stale process still serving. Two misleading
+lines in a row, both green. Check `ps -eo pid,lstart,cmd | grep puma` and compare the **start time** to
+`stat -c %y Gemfile.lock`: mine was 26 hours older than the gem it was missing. Kill it by PID, since
+`pkill -f "bin/rails server"` does not match Puma (see above), then restart.
+
 **And a new initializer needs a boot, which is how that shipped.** Code reloading covers `app/`, not
 `config/initializers/`, so the running server kept executing the previous version of the proc and reported
 success on the very thing I had just changed. Twice now. If a change to an initializer appears to have done
