@@ -1113,7 +1113,9 @@ had moved. `_stocks_table` takes a `description:` and both use it:
 |---|---|
 | Active stocks | Companies you can buy shares in right now. Prices update every school day. |
 | Archived stocks you hold | You still own shares in these. They cannot be bought any more, but you can sell whenever you like. |
-| Archived stocks (N) | These companies have stopped trading here, so they cannot be bought. They stay listed for 12 months after they close, and a company you own shares in stays until you sell it. |
+
+There is no third row. "Archived stocks (N)" was the disclosure's title and the disclosure is gone; see
+the section below.
 
 The empty states already worked this way — say what appears here and what to do about it — and a
 *populated* table deserves the same courtesy. "Prices update every school day" is accurate rather
@@ -1131,20 +1133,37 @@ date, no explanation, and an **empty actions column** — because `StockPolicy#s
 withholds trading on an archived stock unless the viewer holds it. For almost every reader it was a
 price list of things they cannot buy, under the list of things they can.
 
-**The one thing the data supports is selling a position you already hold.** So:
+**The one thing the data supports is selling a position you already hold**, and that is the whole of
+the section. Decided explicitly, against a rendering of the alternative:
 
 - **Archived stocks you hold** render as a normal titled table, with Sell (and Buy withheld, which
   the policy already did).
-- **Everything else** goes behind a native `<details>` — "Archived stocks (N)" — so it costs no
-  vertical space until asked for. A teacher is not an admin and has no other view of archived
-  stocks, so hiding it outright would remove their only access.
+- **Everything else renders nothing at all.** Not a `<details>`, not a collapsed list, not a
+  paginated one.
 - **Every archived row says why it is there**: "No longer trading", plus "last priced <date>" when
-  `last_trading_day` is set. There is no `archived_at` column — `archived` is a bare boolean — and
-  `last_trading_day` is the more useful figure anyway, because it says when the price was last real.
+  `last_trading_day` is set.
 
-**Nothing purges them and nothing can, yet.** No job deletes or ages archived stocks, and with no
-`archived_at` there is no date to age them against, so the list only grows. That needs a column
-before it can need a policy — recorded in `design-todo`.
+**Pagination does not reopen this.** The question was asked directly - if the trading floor paginated,
+would listing them again be worth it - and the answer is no, because length was never the objection.
+An unusable list made shorter is still unusable. The two states were rendered against each other before
+deciding.
+
+**What it costs, stated rather than assumed.** A **teacher** holds nothing, so they see no archived
+stocks - and they cannot open `/admin/stocks` either, because `authenticate_admin` redirects any
+non-admin. So a teacher has no view of archived stocks anywhere in the app. An earlier version of this
+section flagged exactly that risk; the change that removed the disclosure overrode it with a justification
+that was **false** ("a teacher has /admin/stocks"). The cost is accepted, not unnoticed, and
+`design-todo.md` carries the options for closing it.
+
+`stocks_controller_test` asserts both directions: a holder is shown their archived stock, and a student
+or teacher holding none sees no archived heading and no link to one. Reinstating the disclosure passes
+every positive test and fails those two.
+
+**Two earlier claims here were stale and are corrected.** There **is** an `archived_at` column - added by
+`20260805215252_add_archived_at_to_stocks` - so "archived is a bare boolean" is no longer true. And the
+list does not "only grow": `Stock::LIST_RETENTION` is 12 months and `Stock.archived_recently` is what the
+admin list uses, which this same document already describes seventy lines above. One fact in two places,
+and only one of them was updated.
 
 ### A figure card with an icon is `_stat`, not a second copy of it
 

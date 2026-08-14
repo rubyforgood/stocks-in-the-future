@@ -68,19 +68,6 @@ module Admin
       ]
     end
 
-    # **A design preview.** The trading floor once listed every archived stock inside
-    # `Stock::LIST_RETENTION` to every reader, and that disclosure was removed - not because the page was
-    # long, but because nobody could act on it. Pagination changes the length problem and not that one, so
-    # this page renders the two options against each other rather than arguing about them.
-    def archived_stocks
-      @archived = Stock.archived.limit(6).to_a
-      @archived = Stock.limit(6).to_a if @archived.empty?
-      @breadcrumbs = [
-        { label: "Component demo", path: admin_component_demo_index_path },
-        { label: "Archived stocks preview" }
-      ]
-    end
-
     def form
       @user = User.first || User.new(email: "", name: "", admin: false)
 

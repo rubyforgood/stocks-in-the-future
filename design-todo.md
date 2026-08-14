@@ -1218,3 +1218,27 @@ A test that becomes somebody else signs **both** users in through the form, so n
 Note what this corrects in the entry above: the probe that "disproved" the user-switch hypothesis tested
 `sign_in` -> `sign_in`, not `sign_in` -> UI sign-out -> UI sign-in. It passed 20/20 and answered a question
 nobody had asked. The hypothesis was right and my test of it was wrong.
+
+## A teacher has no view of archived stocks (2026-08)
+
+Surfaced by settling the archived-stocks question. The rule - an archived stock is listed only to a reader
+who **holds** it - is deliberate and now asserted in both directions. Its cost is that a **teacher** sees
+none of them, because a teacher holds nothing.
+
+The comment that justified removing the old disclosure said "a teacher who wants the catalogue has
+`/admin/stocks`". That is **false**: `Admin::BaseController#authenticate_admin` redirects any non-admin, so
+a teacher cannot open it. A teacher has no view of archived stocks anywhere in the app, and the earlier
+version of design.md's section had flagged exactly this risk before it was overridden with the wrong
+premise.
+
+**Whether that matters is a product question**, and the honest answer is that nobody has reported it. A
+teacher's job here is grades and trading, not the catalogue. Three options if it does matter:
+
+1. **Accept it**, and delete this note. Defensible: the trading floor is a student's screen, and a teacher
+   looking at it is looking at what their students see, which is the point.
+2. **Give teachers a read-only stocks index** on the app side - `/stocks` already scopes by policy, so it
+   is a `StockPolicy` change plus a filter, not a new page.
+3. **Let teachers into `/admin/stocks`**, which is the largest change and the worst: `authenticate_admin`
+   is one guard protecting ten controllers, and widening it for one page widens it for all of them.
+
+Option 2 is the only one that is small and correct. It is not done because nothing has asked for it.

@@ -72,6 +72,39 @@ class StocksControllerTest < ActionDispatch::IntegrationTest
     assert_select "details[data-testid=?]", "archived-stocks", count: 0
   end
 
+  # **Decision B, and it is the negative that carries it.** Four tests cover a holder seeing their
+  # archived stock; none covered the reader who holds none, which is nearly every reader and the whole
+  # content of the rule. Reinstating the old "Archived stocks (N)" disclosure would pass every one of the
+  # positive tests and fail these two.
+  test "a student who holds none of them sees no archived section at all" do
+    dead = create(:stock, archived: true, ticker: "DEAD", price_cents: 100)
+    create(:stock, archived: false, ticker: "AAPL", price_cents: 200)
+    sign_in create(:student, :with_portfolio, classroom: create(:classroom, :with_trading))
+
+    get stocks_url
+
+    assert_select "h2", text: "Active stocks"
+    assert_select "h2", text: /Archived/, count: 0
+    assert_select "a[href=?]", stock_path(dead), count: 0
+  end
+
+  # A teacher holds nothing, so the same rule hides it from them - and unlike an admin they have no other
+  # view of it, because `Admin::BaseController#authenticate_admin` redirects any non-admin away from
+  # `/admin/stocks`. That is a real consequence of this rule rather than an accident; see design.md.
+  test "a teacher sees no archived section either" do
+    dead = create(:stock, archived: true, ticker: "DEAD", price_cents: 100)
+    create(:stock, archived: false, ticker: "AAPL", price_cents: 200)
+    classroom = create(:classroom, :with_trading)
+    teacher = create(:teacher)
+    create(:teacher_classroom, teacher:, classroom:)
+    sign_in teacher
+
+    get stocks_url
+
+    assert_select "h2", text: /Archived/, count: 0
+    assert_select "a[href=?]", stock_path(dead), count: 0
+  end
+
   test "a student who holds an archived stock still sees it, so they can sell" do
     archived = create(:stock, archived: true, ticker: "DEAD", price_cents: 100)
     student = create(:student, :with_portfolio, classroom: create(:classroom, :with_trading))

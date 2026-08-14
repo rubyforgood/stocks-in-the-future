@@ -6295,3 +6295,32 @@ useful. The section renders today only for a student who **holds** one, whose on
 A design preview renders both options against each other at
 **`/admin/component_demo/archived_stocks`** - dev-only, behind the same `Rails.env.local?` guard as the
 gallery, because the argument is easier to have against a rendering than a paragraph.
+
+## Archived stocks: option B, decided
+
+"Go with your recommendation - B." B is the status quo, so nothing in the product changed. Three things
+around it did.
+
+**The spec said A.** `design.md`'s "An archived list earns its place only where it is actionable" still
+specified the native `<details>` — "Archived stocks (N)" — that the code had already removed, and its copy
+table still carried that disclosure's sentence. It also stated two things that had stopped being true:
+that there is no `archived_at` column (`20260805215252` added one) and that nothing can purge the list
+(`Stock::LIST_RETENTION` is 12 months, and this same document describes it seventy lines earlier). A
+decision is only made once the specification of the present says so.
+
+**Nothing asserted the rule.** Four tests covered a holder being shown their archived stock; none covered
+the reader who holds none - which is nearly every reader and the entire content of the rule. Reinstating
+the disclosure would have passed all four. Two tests now assert the negative, for a student and for a
+teacher.
+
+**The justification for removing it was false.** `stocks/_archived_stocks` said "a teacher who wants the
+catalogue has `/admin/stocks`". A teacher cannot open `/admin/stocks`: `authenticate_admin` redirects any
+non-admin. So a teacher has **no view of archived stocks anywhere in the app** - which is exactly the risk
+the older design.md section had flagged before it was overridden with that premise. The cost is accepted
+and now written down as a cost, with options in `design-todo.md`; option 2, a read-only stocks index for
+teachers via `StockPolicy`, is the only small correct one, and nothing has asked for it.
+
+**The preview is deleted.** `/admin/component_demo/archived_stocks` existed to make this decision against
+a rendering rather than a paragraph. Once decided, a dev-only page presenting a rejected option as a live
+proposal is indistinguishable from a supported one - the same reason this repo deletes unused CSS. It is
+in the history if the question reopens.

@@ -5,8 +5,15 @@
 
     What went: a `<details>` listing every archived stock inside `Stock::LIST_RETENTION`, for any reader.
     It was defensible - it had a date, a window and an exemption - without ever answering who opened it
-    and to do what. A student cannot buy any of them; a teacher who wants the catalogue has
-    `/admin/stocks`, which carries more. A list nobody can act on is not oversight, it is a list.
+    and to do what. A student cannot buy any of them. A list nobody can act on is not oversight, it is a
+    list.
+
+    **What this costs, stated rather than assumed.** This note used to say "a teacher who wants the
+    catalogue has `/admin/stocks`", and that is false: `Admin::BaseController#authenticate_admin` redirects
+    any non-admin, so a teacher cannot open it. A teacher therefore has **no view of archived stocks
+    anywhere in the app**. That is the accepted cost of the rule, not an oversight - design.md states it
+    and `design-todo.md` carries the options - and it is asserted by
+    `stocks_controller_test`, so it cannot quietly become untrue in either direction.
 
     Nothing deletes these rows and nothing should: `orders.stock_id` and `portfolio_stocks.stock_id` are
     both NOT NULL with foreign keys and `dependent: :restrict_with_error`, so a stock a student has ever
