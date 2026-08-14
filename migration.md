@@ -6135,3 +6135,43 @@ one control.
   how that was caught.
 - Nothing was added to replace the button. `template_admin_students_path` still has two controller tests
   and the dialog link.
+
+## The runner records its own failures
+
+A run of the system suite returned `368 runs, 2411 assertions, 1 failures, 0 errors` and the failing
+test's **name was lost**, because the command was piped through `tail -3`. `CLAUDE.md` had carried a
+warning against exactly that since the previous occurrence, and the warning did not prevent it. So the
+mechanism changed rather than the advice.
+
+`test/support/failure_recorder.rb` is an `after_teardown` on `ActiveSupport::TestCase`. Every failing test
+appends to **`tmp/test-failures.log`**:
+
+```
+2026-08-14T18:25:47Z  seed=42022  ZzScratchSysTest#test_deliberately_failing_system_test
+    test/system/zz_scratch_sys_test.rb:6
+    replay: PARALLEL_WORKERS=1 bin/rails test test/system/zz_scratch_sys_test.rb:6 --seed 42022
+    Failure: expected to find text "..." in "Skip to main content\nSign in to your account\n..."
+```
+
+Three properties, each chosen against a way the last one was lost:
+
+- **Piping cannot defeat it.** It writes from inside the test, not from the reporter's output.
+- **Only a failing run writes.** A green run leaves the file alone, so a later pass cannot erase the
+  record of an earlier failure.
+- **It runs in the forked worker**, so a ten-way parallel run records. Verified in both suites by
+  injecting a failure and reading the file back, with the command piped through `tail -2` each time.
+
+**It is deliberately not a Minitest plugin.** `minitest/*_plugin.rb` is the documented mechanism and it
+cannot work here: Rails calls `Minitest.load_plugins` while parsing options, which is before any test file
+- and therefore before `test_helper` - has been read, so nothing a test file adds to `$LOAD_PATH` is
+found. `Gem.find_files` locates the plugin perfectly well from a console, which is what makes this
+misleading; instrumenting the plugin file and watching it never load is what settled it.
+
+### What this does not do
+
+**It does not diagnose the flake.** **46** green full-suite runs across 46 seeds - every one at exactly
+2411 assertions - plus 40 runs of the suspected file alone and 20 runs of a probe asserting who is signed
+in after each user switch. All green, and the recorder itself logged nothing during 20 of those runs. Zero
+failures in 46 gives a 95% upper bound of about **6.5%** per run against an observation of roughly 1-in-9,
+so the original rate is unlikely but a rarer flake is entirely consistent with this. `design-todo.md` carries what is known, the two hypotheses that were
+tested and disproved, and the untested one.

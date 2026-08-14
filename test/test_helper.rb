@@ -16,6 +16,7 @@ ENV["RAILS_ENV"] ||= "test"
 require_relative "../config/environment"
 require_relative "helpers/policy_test_helper"
 require_relative "support/csv_test_helper"
+require_relative "support/failure_recorder"
 require "rails/test_help"
 require "webmock/minitest"
 require "mocha/minitest"
@@ -32,6 +33,7 @@ module ActiveSupport
   class TestCase
     include FactoryBot::Syntax::Methods
     include CsvTestHelper
+    include FailureRecorder
 
     # Use PARALLEL_WORKERS=1 if you want to change the number of workers
     # For instance, PARALLEL_WORKERS=1 bin/dc rails test

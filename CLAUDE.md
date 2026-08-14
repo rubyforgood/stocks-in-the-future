@@ -112,6 +112,19 @@ diagnosable if the run that fails leaves its log behind:** `bin/flake-hunt N` ru
 serially, records the seed and the assertion count per run, and keeps the log of any run that was not
 green. Verified by breaking a test and watching it name it.
 
+**That warning did not work, so the runner no longer depends on it.** It happened again - `368 runs, 2411
+assertions, 1 failures`, piped through `tail -3`, name gone - with the instruction above already written
+down. `test/support/failure_recorder.rb` appends every failing test to **`tmp/test-failures.log`**: name,
+`file:line`, seed, a ready-to-paste `PARALLEL_WORKERS=1` replay line, and the message. It is an
+`after_teardown` on `ActiveSupport::TestCase`, so it cannot be defeated by how the command was piped, and
+only a *failing* run writes - a later green run cannot erase the record, which is the other half of how
+the last one was lost. Verified by injecting a failure into each suite and reading the file back.
+
+Note it is deliberately **not** a `minitest/*_plugin.rb`, which is the obvious implementation and does not
+work here: Rails calls `Minitest.load_plugins` while parsing options, before any test file - and therefore
+before `test_helper` - has been read, so nothing a test file adds to `$LOAD_PATH` is ever found. That was
+confirmed by instrumenting the plugin and watching it never load.
+
 Two signatures worth telling apart when reading those counts. An assertion count that **varies between
 runs** means state is leaking between tests, or some test's count depends on data. A count that drops by
 one **alongside a failure** means only that a test failed at its first assertion and never reached its

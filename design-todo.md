@@ -1125,3 +1125,37 @@ allowlisted it on that basis. The real question is different and was left rather
    several neighbours may be in exactly this state.
 
 Option 3 is the one with something to learn in it; 1 is a two-line commit that leaves that unknown.
+
+## The system-suite flake of 2026-08 - unreproduced, bound not closed
+
+One run of the system suite returned `368 runs, 2411 assertions, 1 failures, 0 errors`. The failing test's
+name was lost to a `tail -3`. What is known, and what is not:
+
+**Not state leaking between tests.** The assertion count was **identical** to every green run (2411). By
+this repo's own arithmetic a test failing at assertion *k* of *N* contributes *k*, so an unchanged total
+means the failure landed on its test's **last** assertion. A count that varied would have been the tell
+for leakage, and it did not vary across 26 runs.
+
+**Two hypotheses tested and disproved.**
+
+1. *The new `one_primary_test` walk is intrinsically flaky.* 40 consecutive runs of that file alone, green.
+2. *It switches users mid-test, which `CLAUDE.md` documents as unreliable at 4-in-10.* A probe asserting
+   **who is actually signed in** after each of three `sign_in` calls came back correct **20 times out of
+   20**. The documented trap is `sign_out` *then* `sign_in`; a bare `sign_in` queues a fresh
+   `Warden.on_next_request` that overrides, and it lands. Worth knowing, because it looked like the answer.
+
+**What is not closed.** **46** green full-suite runs across 46 seeds, every one at 2411 assertions, do
+not fully exclude the observed rate: zero failures in 46 gives a 95% upper bound of about **6.5%** per
+run, and the single observation was roughly 1-in-9. That makes the original rate unlikely but not
+impossible, and a rarer flake entirely consistent with the evidence. So "it did not reproduce" is not "it
+is gone", and this note exists rather than a claim that it is.
+
+**The one thing that changed.** `tmp/test-failures.log` now records every failure regardless of piping, so
+the next occurrence names itself. That is the fix that was available; the diagnosis is still open, and the
+next person to see a non-green system run should read that file **before** re-running, because a re-run is
+what destroys the evidence.
+
+One untested hypothesis worth writing down: the failing run was the first one after a **template edit**,
+which makes the Tailwind build regenerate. A test that measures pixels while the stylesheet is still being
+written would fail once and never again. Nothing has checked whether the suite can start before that build
+finishes.
