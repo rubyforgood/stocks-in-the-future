@@ -96,7 +96,7 @@
 
           <% fields = [["Portfolio value", holdings_cell]] %>
           <% fields << ["Available cash", cash_cell] if @can_manage_students %>
-          <%= render "shared/stacked_row_fields", fields: fields, actions: row_actions %>
+          <%= render "components/ui/stacked_row_fields", fields: fields, actions: row_actions %>
         </td>
         <td class="table-body-cell hidden whitespace-nowrap font-medium lg:table-cell">
           <%= holdings_cell %>

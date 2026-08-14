@@ -30,6 +30,25 @@
   <%# Registered here because `components/ui/` is the design system's set and this test derives its list
       from that directory. The component sat in `shared/` for one commit, where the gallery could not be
       failed for missing it - which is how it shipped without a section. %>
+  <%# The narrow-width half of every table in the app. Registered here for the same reason pagination is:
+      `components/ui/` is the set, and the gallery derives its list from that directory. %>
+  <div class="tw-card mb-6 p-5" data-testid="component-stacked-row-fields">
+    <h2 class="text-xl font-semibold text-slate-900 mb-1">Stacked row fields</h2>
+    <p class="mb-4 text-sm text-slate-600">
+      Below <code>lg</code> a table shows its first column only; the rest of the row comes back as this
+      description list inside that cell. A fixed label column and a left-aligned value, so both line up -
+      the values used to be right-aligned against the far edge, 174 to 244px from their labels.
+    </p>
+    <div class="max-w-sm rounded-lg border border-slate-200 p-3">
+      <%# `always:` so this renders at any width. In a table it is `lg:hidden`, which would leave a
+          desktop reader an empty box here. %>
+      <%= render "components/ui/stacked_row_fields",
+                 always: true,
+                 fields: [["Date", "14 Aug 2026"], ["Price per share", "$62.41"],
+                          ["Shares", "3"], ["Total cost", "$187.23"]] %>
+    </div>
+  </div>
+
   <div class="tw-card mb-6 p-5" data-testid="component-pagination">
     <h2 class="text-xl font-semibold text-slate-900 mb-1">Pagination</h2>
     <p class="mb-4 text-sm text-slate-600">

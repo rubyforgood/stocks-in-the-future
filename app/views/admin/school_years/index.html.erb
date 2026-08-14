@@ -47,7 +47,7 @@
                 <td class="table-body-cell">
                   <%= link_to school_year.school_name, admin_school_year_path(school_year), class: "tw-link" %>
 
-                  <%= render "shared/stacked_row_fields",
+                  <%= render "components/ui/stacked_row_fields",
                              fields: [["Year", year_cell], ["Created at", created_at_cell]],
                              actions: row_actions %>
                 </td>

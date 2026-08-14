@@ -6366,3 +6366,54 @@ has closed - oversight. Without it this is a price list of the dead, which is wh
 - `ONBOARDING.md` gains it under Teacher: this is a role gaining a capability.
 - The design preview at `/admin/component_demo/teacher_stocks` is deleted, having been built to choose
   between the two shapes. It is in the history if the choice is reopened.
+
+## A label and its value, and a crawl that proves the links resolve
+
+Two reports: the transactions page is hard to parse at a small viewport, and nothing should 404.
+
+### The pairs were on opposite edges
+
+Below `lg` every table shows its first column and returns the rest as a description list inside that cell.
+Those pairs were `flex justify-between` with the value right-aligned - the shape of an iOS settings row,
+which works there because those values are one short word. Measured at 375px:
+
+| | label to value | value left edges | row height |
+| --- | --- | --- | --- |
+| opposed (was) | **174-244px** | 252-307px, a 55px spread | ~341px |
+| stacked, label above value | - | 33px, aligned | 477px |
+| **fixed label column** | **12px** | **157px, all identical** | **333px** |
+
+The fixed column wins on every axis, so it is not a compromise between the other two. GOV.UK's summary
+list and Polaris's description list both *stack* at this width and both are built for keys that are whole
+questions; Carbon's structured list and every native settings list use two columns for short ones. Ours
+are one to three words, the longest being "Price per share" and "Portfolio value", and `w-28` holds both.
+
+**The measurement was nearly wrong.** The first reading of the fixed column showed ragged value edges,
+because `w-28` is a class this app had never used and `bin/rails test` does not rebuild Tailwind the way
+`test:system` does - so it was measuring stale CSS. Rebuilding gave a single left edge. A new utility
+class needs a build before it can be measured.
+
+`components/ui/_stacked_row_fields`, moved from `shared/` for the reason pagination was, registered in the
+gallery, and demonstrable there through a new `always:` local - the component is `lg:hidden` by design, so
+a desktop reader would otherwise meet an empty box.
+
+### Every link a role is shown resolves
+
+`no_broken_links_test` crawls what each role actually renders - navigation, breadcrumbs, page and row
+actions, empty-state calls to action - and checks each href. It found nothing broken, and finding that
+took two corrections worth keeping:
+
+- **A GET on a verb-specific route is not a broken link.** A row action is a `link_to` carrying
+  `data-turbo-method="patch"`, routed for PATCH only, so requesting it with GET returns 404. Three of
+  those were the crawl's first findings and none was broken.
+- **A link checker must not follow a destructive verb.** Once it used each link's declared method it
+  archived a classroom and deactivated a teacher, and its own next page then failed to render. Non-GET
+  hrefs are checked with `recognize_path`, which proves the route is wired without performing it.
+
+### Noticed, not acted on
+
+**32 action links 404 on GET** - 20 `:delete`, 8 `:patch`, 4 `:post` - because a `link_to` with
+`data-turbo-method` has an href that only answers one verb. Middle-click, new tab, copied address or no
+JavaScript all land on the 404 page. The correct element is `button_to`, which is also the accessible
+answer; it is not a sweep, because a nested `button_to` silently submits the outer form and has broken a
+page here before. `design-todo.md` carries it with the cheap half first.

@@ -240,6 +240,33 @@ written against them renders no colour at all.
   Verify these gaps at the pixel level (filter-bottom -> table-top), not by reading tokens;
   `test/system/spacing_test.rb` and `test/system/page_rhythm_test.rb` do exactly that.
 
+### A label and its value belong in one column pair, not on two edges
+
+**Below `lg` every table here shows its first column and returns the rest as a description list** inside
+that cell (`components/ui/_stacked_row_fields`). Those pairs were `flex justify-between` with the value
+right-aligned, which is the shape of an iOS settings row - and iOS gets away with it because those values
+are one short word. Reported as hard to parse, and measured at 375px:
+
+| | label to value | value left edges | row height |
+|---|---|---|---|
+| opposed (was) | **174-244px** | 252-307px, a 55px spread | ~341px |
+| stacked, label above value | - | 33px, aligned | 477px |
+| **fixed label column** | **12px** | **157px, all identical** | **333px** |
+
+The fixed column is not a compromise between the other two: it wins on every axis. `dt` is `w-28
+shrink-0`, `dd` is `flex-1` and left-aligned, `gap-3` between them.
+
+**Where the field disagrees, it is about key length.** GOV.UK's summary list and Polaris's description
+list both stack at this width, and both are built for keys that are whole questions; Carbon's structured
+list and every native settings list use two columns for short ones. Ours are one to three words - the
+longest across all eleven callers are "Price per share" and "Portfolio value", and `w-28` holds both at
+`text-xs`. **If a caller ever needs a long label, stack that one** rather than widening the column for
+everybody: a label that wraps inside its column is fine and the value column does not move.
+
+`table_stacking_test` asserts the geometry - one shared left edge, and no more than 24px between a label
+and its value - because "which side is it on" is exactly what a class list describes correctly while the
+box says otherwise.
+
 ### Measure the rendered box
 
 **Class names describe intent. Only the rendered box describes the result.** When spacing or

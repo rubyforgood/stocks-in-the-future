@@ -1,0 +1,71 @@
+<%# The rest of a table row, for the width where the table is one column.
+
+    Below `lg` every table in this app shows its first column and nothing else: the other cells are
+    `hidden lg:table-cell`, and their values come back here as labelled lines inside the primary cell.
+    That is the trading floor's treatment, generalised - it was the only table in the app that fitted
+    375px, because it was the only one that collapsed instead of scrolling. Nine tables scrolled between
+    196px and 685px sideways, which on a phone means the data is behind a gesture nobody is told about.
+
+    A description list, because a label and a value is what a `<dl>` is for, and because `sr-only` labels
+    would leave a column of bare values with nothing saying which is which. The `<th>`s stay with their
+    columns and disappear with them: a header for a column nobody can see names nothing.
+
+    Values may be pre-rendered markup - a badge, a link, an em dash for absent - so they arrive already
+    escaped or already safe from the caller.
+
+    Locals:
+      fields  - array of [label, value] pairs, in the order the columns appear
+      actions - optional pre-rendered row actions, placed after the fields %>
+<% fields = local_assigns[:fields] || [] %>
+<%# `lg:hidden` is the whole point in a table - this is the row's other columns, and above `lg` they are
+    back in their own cells. It makes the component undemonstrable in the gallery, though, where a desktop
+    reader would meet an empty box. `always:` drops the hiding for that one caller rather than the gallery
+    keeping a hand-copied twin, which is the way these drift apart. %>
+<% hide_above_lg = local_assigns.fetch(:always, false) ? nil : "lg:hidden" %>
+
+<%# **A two-column list, not two edges.** This was `flex justify-between` with a right-aligned value, so
+    the label sat against the left edge of the card and its value against the right. Measured at 375px:
+    **174 to 244px of empty space** between the two, and because right-alignment ragged them, the values'
+    left edges landed anywhere from 252px to 307px - a 55px spread. Eight fields to a transaction row is
+    eight traversals of that gap against a column that never lines up. Reported as hard to parse, and it
+    is.
+
+    Three treatments, measured rather than argued:
+
+    | | label to value | value left edges | row height |
+    | opposed (was) | 174-244px | 252-307px, ragged | ~341px |
+    | stacked | - | 33px, aligned | 477px |
+    | **fixed label column** | **12px** | **157px, identical** | **333px** |
+
+    The fixed column wins on every axis, which is why it is not a compromise between the other two.
+
+    **When the field disagrees, it is about key length.** GOV.UK's summary list and Polaris's description
+    list both *stack* below this width, and both are built for keys that are whole questions. Ours are one
+    to three short words - the longest across all callers are "Price per share" and "Portfolio value" -
+    and for short keys a two-column list is what Carbon's structured list and every native settings list
+    do. `w-28` holds both of those at `text-xs`; a longer label wraps inside its column and the value
+    column does not move, which is the graceful case.
+
+    Label-left/value-right is iOS Settings, and it works there because those values are one short word.
+    Ours are money, dates, tickers and badges. %>
+<% if fields.any? %>
+  <%= tag.dl class: ["mt-2 space-y-2", hide_above_lg] do %>
+    <% fields.each do |label, value| %>
+      <div class="flex items-baseline gap-3">
+        <dt class="w-28 shrink-0 text-xs text-slate-600"><%= label %></dt>
+        <dd class="min-w-0 flex-1 text-sm text-slate-900"><%= value %></dd>
+      </div>
+    <% end %>
+  <% end %>
+<% end %>
+
+<%# Row actions sit after the data, not before it: below lg they are the last thing in the row, which is
+    where they are at lg too. `flex-wrap` because three labelled ghosts are ~250px and the cell is ~300px
+    minus its padding, so the third can need a second line. %>
+<% if local_assigns[:actions].present? %>
+  <%# The testid is how a test tells a row *action* from any other link in the row. Since the record's
+      name became a link in its own right, `tbody tr a` no longer means "a row action" - and the test
+      that measures their height and icons was reading the 17px name link as one. %>
+  <%= tag.div class: ["mt-3 flex flex-wrap items-center gap-1", hide_above_lg],
+              data: { testid: "stacked-row-actions" } do %><%= actions %><% end %>
+<% end %>

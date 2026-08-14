@@ -67,7 +67,7 @@
                       to the username, which for a teacher is their email. %>
                   <%= link_to teacher.display_name, admin_teacher_path(teacher), class: "tw-link" %>
 
-                  <%= render "shared/stacked_row_fields",
+                  <%= render "components/ui/stacked_row_fields",
                              fields: [["Email", email_cell],
                                       (["Status", status_cell] if discard_filter == :all)].compact,
                              actions: row_actions %>

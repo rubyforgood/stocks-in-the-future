@@ -84,7 +84,7 @@
                   <%# The rest of the row, below lg, in the one cell that is always on screen. %>
                   <% if index == primary %>
                     <% secondary = columns.each_with_index.reject { |_, i| i == primary } %>
-                    <%= render "shared/stacked_row_fields",
+                    <%= render "components/ui/stacked_row_fields",
                                fields: secondary.map { |c, _| [c[:label], format_attribute(record, c[:attribute])] },
                                actions: (if options[:show_actions] == false
                                            nil

@@ -81,7 +81,7 @@
                 <td class="table-body-cell">
                   <%= link_to classroom.name, admin_classroom_path(classroom), class: "tw-link" %>
 
-                  <%= render "shared/stacked_row_fields",
+                  <%= render "components/ui/stacked_row_fields",
                              fields: [["Grade", grade_cell], ["School year", school_year_cell], ["Status", status_cell]],
                              actions: row_actions %>
                 </td>

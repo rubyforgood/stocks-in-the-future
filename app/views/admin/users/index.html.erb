@@ -103,7 +103,7 @@
                 <td class="table-body-cell wrap-anywhere">
                   <%= link_to user.username, admin_user_path(user), class: "tw-link" %>
 
-                  <%= render "shared/stacked_row_fields",
+                  <%= render "components/ui/stacked_row_fields",
                              fields: [["Type", type_cell], ["Email", email_cell],
                                       ["Classroom", classroom_cell],
                                       (["Status", status_cell] if discard_filter == :all)].compact,

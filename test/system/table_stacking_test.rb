@@ -134,6 +134,53 @@ class TableStackingTest < ApplicationSystemTestCase
   # Below lg the grade book reflows rather than collapsing, because restating an input in the primary
   # cell would put two controls with the same name in one form. So: one of each control, and each one
   # carrying a real label, which a `<th>` never gave it.
+  # **A label and its value line up, and every value starts at the same x.**
+  #
+  # Reported as hard to parse at a small viewport, and measured: the pairs were `flex justify-between`
+  # with the value right-aligned, so a label sat against the left edge of the card and its value against
+  # the right - **174 to 244px apart** - and because right-alignment ragged them, the values' left edges
+  # spread across 55px. Eight fields to a transaction row is eight traversals of that gap against a
+  # column that never lines up.
+  #
+  # This asserts the geometry rather than the class list, because "which side is it on" is exactly the
+  # kind of thing a class list describes correctly while the box says otherwise.
+  test "a stacked row's values share one left edge, close to their labels" do
+    classroom = create(:classroom, :with_trading)
+    student = create(:student, :with_portfolio, classroom:)
+    student.reload
+    create(:portfolio_transaction, :deposit, portfolio: student.portfolio, amount_cents: 500_000)
+    stock = create(:stock, ticker: "KO", company_name: "Coca-Cola", price_cents: 6_241)
+    create(:order, user: student, stock:, shares: 3, status: :pending, action: :buy)
+    sign_in student
+
+    in_phone_viewport do
+      visit orders_path
+
+      pairs = page.evaluate_script(<<~JS)
+        Array.from(document.querySelectorAll("dl > div")).map(function (row) {
+          const dt = row.querySelector("dt"), dd = row.querySelector("dd");
+          if (!dt || !dd) return null;
+          const a = dt.getBoundingClientRect(), b = dd.getBoundingClientRect();
+          return { label: dt.innerText.trim(),
+                   gap: Math.round(b.left - a.right),
+                   valueLeft: Math.round(b.left) };
+        }).filter(Boolean)
+      JS
+
+      assert_operator pairs.size, :>=, 4, "expected a stacked row with several fields"
+
+      edges = pairs.pluck("valueLeft").uniq
+
+      assert_equal 1, edges.size,
+                   "values start at #{edges.sort.inspect}; they should share one left edge"
+
+      pairs.each do |pair|
+        assert_operator pair["gap"], :<=, 24,
+                        "#{pair['label']} sits #{pair['gap']}px from its value"
+      end
+    end
+  end
+
   test "the grade book stacks without duplicating its inputs" do
     classroom = create(:classroom, :with_trading)
     student = create(:student, :with_portfolio, classroom:, name: "Ada Lovelace")

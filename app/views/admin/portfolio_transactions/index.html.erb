@@ -80,7 +80,7 @@
                 <td class="table-body-cell">
                   <%= link_to transaction.portfolio.username, admin_portfolio_transaction_path(transaction), class: "tw-link" %>
 
-                  <%= render "shared/stacked_row_fields",
+                  <%= render "components/ui/stacked_row_fields",
                              fields: [["Date", date_cell], ["Type", type_cell], ["Reason", reason_cell], ["Amount", amount_cell]],
                              actions: row_actions %>
                 </td>

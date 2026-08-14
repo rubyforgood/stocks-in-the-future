@@ -1257,3 +1257,29 @@ staff may operate.
 
 The **Held by** column is what makes it oversight rather than a price list of the dead - it answers which
 of a teacher's students still own a company that has closed.
+
+## 32 action links 404 on GET (2026-08)
+
+Found by `no_broken_links_test`, which crawls what each role is shown and requests it. Nothing the app
+renders is broken - but the crawl's first three "findings" were `link_to`s carrying
+`data-turbo-method`, and those are worth a decision.
+
+A row action is `<a href="/admin/classrooms/1/toggle_archive" data-turbo-method="patch">`. The href is
+routed for PATCH only, so **a GET returns 404**: middle-click it, open it in a new tab, copy the address,
+or read the page with JavaScript off, and that is what you get. There are **32** of them - 20 `:delete`,
+8 `:patch`, 4 `:post` - across 21 files.
+
+**The correct element is `button_to`**, which posts a form and has no href to open. It is also the
+accessible answer: an `<a>` that performs an action rather than navigating is a button, which is what the
+ARIA practices say.
+
+**Why it has not been done**, and the reason is recorded in `CLAUDE.md`: `button_to` renders a whole
+`<form>`, the browser drops a nested one during parsing, and the button then silently submits the *outer*
+form. That already broke `admin/teachers/_form` once. So this is a per-call-site change with a real
+failure mode, not a sweep - each one needs checking for an enclosing form, and the confirmation dialog
+(`confirm_dialog_controller`, which takes over `Turbo.config.forms.confirm`) has to keep working on a
+form submit as well as a link click.
+
+**The cheap half first**: the 20 `:delete` links are destructive controls, where an accidental GET is
+harmless but a middle-click landing on a 404 is the most confusing. Converting those and leaving the
+`:patch` toggles would fix the worst of it in one reviewable change.
