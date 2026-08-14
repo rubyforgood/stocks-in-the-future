@@ -26,6 +26,20 @@ class StockPolicy < ApplicationPolicy
     user.present? && (user.teacher? || user.admin?)
   end
 
+  # Staff may read the closed catalogue; a student may not.
+  #
+  # A student meets an archived company only by holding one, and that rule was settled deliberately - a
+  # list nobody can act on is not oversight. Staff are the case it left behind: `show_class_holdings?`
+  # already records that "a teacher cannot open /admin/stocks, so it was their only view of the
+  # catalogue", and with the disclosure gone a teacher had no way to reach a closed company at all.
+  #
+  # The same predicate as `show_class_holdings?`, deliberately not the same method: one answers "whose
+  # holdings do you count", the other "may you read closed companies", and they are one boolean today by
+  # coincidence rather than by meaning.
+  def show_archived_catalogue?
+    user.present? && (user.teacher? || user.admin?)
+  end
+
   def index?
     user.present?
   end

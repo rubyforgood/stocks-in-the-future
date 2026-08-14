@@ -1219,7 +1219,7 @@ Note what this corrects in the entry above: the probe that "disproved" the user-
 `sign_in` -> `sign_in`, not `sign_in` -> UI sign-out -> UI sign-in. It passed 20/20 and answered a question
 nobody had asked. The hypothesis was right and my test of it was wrong.
 
-## A teacher has no view of archived stocks (2026-08)
+## A teacher has no view of archived stocks (2026-08) - DONE, option 2
 
 Surfaced by settling the archived-stocks question. The rule - an archived stock is listed only to a reader
 who **holds** it - is deliberate and now asserted in both directions. Its cost is that a **teacher** sees
@@ -1242,3 +1242,18 @@ teacher's job here is grades and trading, not the catalogue. Three options if it
    is one guard protecting ten controllers, and widening it for one page widens it for all of them.
 
 Option 2 is the only one that is small and correct. It is not done because nothing has asked for it.
+
+### Built
+
+Option 2, as written above: `StockPolicy#show_archived_catalogue?` - staff only - and a second section
+under the active list on `/stocks`, inside `Stock::LIST_RETENTION` so the teacher list and the admin list
+agree about what "archived" means. Option 1 (accept it) was rejected once the false premise behind it was
+found; option 3 (let teachers into `/admin`) stays rejected, because `authenticate_admin` is one guard in
+front of ten controllers.
+
+A section rather than tabs, decided against a rendering of both: tabs hide one list to show the other on a
+page whose first job is what students can buy today, and they put a control on a student's page that only
+staff may operate.
+
+The **Held by** column is what makes it oversight rather than a price list of the dead - it answers which
+of a teacher's students still own a company that has closed.

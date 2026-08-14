@@ -55,13 +55,16 @@ class StocksControllerTest < ActionDispatch::IntegrationTest
   # sidebar list. The nav no longer carries a catalogue (migration.md, Map A), and this page is
   # where the stocks are - it also separates active from archived rather than hiding archived,
   # so the coverage is closer to the real behaviour than it was in the nav.
-  # An archived stock appears only to someone who holds it, because selling it is the only action the
-  # data supports. It used to be listed for every reader behind a disclosure - a price list of companies
-  # nobody on the page can buy, retained for a year, which never answered who opened it or to do what.
-  test "index lists active stocks, and no archived ones for a reader who holds none" do
+  # **For a student**, an archived stock appears only if they hold it, because selling it is the only
+  # action the data supports. It used to be listed for every reader behind a disclosure - a price list of
+  # companies nobody on the page can buy, which never answered who opened it or to do what.
+  #
+  # This test signed in an **admin** while asserting the student rule, which passed only because staff had
+  # no reading of their own. They do now, so it asserts the rule against the role the rule is about.
+  test "index lists active stocks, and no archived ones for a student who holds none" do
     active = create(:stock, archived: false, ticker: "AAPL")
     archived = create(:stock, archived: true, ticker: "DEAD")
-    sign_in create(:admin)
+    sign_in create(:student, :with_portfolio, classroom: create(:classroom, :with_trading))
 
     get stocks_url
 
@@ -88,10 +91,11 @@ class StocksControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[href=?]", stock_path(dead), count: 0
   end
 
-  # A teacher holds nothing, so the same rule hides it from them - and unlike an admin they have no other
-  # view of it, because `Admin::BaseController#authenticate_admin` redirects any non-admin away from
-  # `/admin/stocks`. That is a real consequence of this rule rather than an accident; see design.md.
-  test "a teacher sees no archived section either" do
+  # **Staff read the closed catalogue.** A teacher holds nothing, so the student rule gave them nothing -
+  # and they cannot open `/admin/stocks` either, because `authenticate_admin` redirects any non-admin, so
+  # they had no way to reach a closed company at all. `StockPolicy#show_class_holdings?` had recorded that
+  # gap in a comment for as long as it existed.
+  test "a teacher reads the closed catalogue, without any way to trade it" do
     dead = create(:stock, archived: true, ticker: "DEAD", price_cents: 100)
     create(:stock, archived: false, ticker: "AAPL", price_cents: 200)
     classroom = create(:classroom, :with_trading)
@@ -101,8 +105,36 @@ class StocksControllerTest < ActionDispatch::IntegrationTest
 
     get stocks_url
 
-    assert_select "h2", text: /Archived/, count: 0
-    assert_select "a[href=?]", stock_path(dead), count: 0
+    assert_select "h2", text: "Archived stocks"
+    assert_select "a[href=?]", stock_path(dead), text: dead.ticker
+    assert_select "a[data-testid=?]", "buy-stock-button", count: 0
+    assert_select "a[data-testid=?]", "sell-stock-button", count: 0
+  end
+
+  test "an admin reads it too" do
+    dead = create(:stock, archived: true, ticker: "DEAD", price_cents: 100)
+    sign_in create(:admin)
+
+    get stocks_url
+
+    assert_select "h2", text: "Archived stocks"
+    assert_select "a[href=?]", stock_path(dead), text: dead.ticker
+  end
+
+  # The same window the admin list uses (`Stock.archived_recently`), so the two cannot disagree about what
+  # "archived" means. A student who *holds* one still meets it however old it is - that is a separate rule,
+  # asserted above.
+  test "the staff catalogue stops at the retention window" do
+    recent = create(:stock, archived: true, ticker: "NEW", price_cents: 100)
+    recent.update!(archived_at: 1.month.ago)
+    old = create(:stock, archived: true, ticker: "OLD", price_cents: 100)
+    old.update!(archived_at: (Stock::LIST_RETENTION + 1.day).ago)
+    sign_in create(:admin)
+
+    get stocks_url
+
+    assert_select "a[href=?]", stock_path(recent), text: recent.ticker
+    assert_select "a[href=?]", stock_path(old), count: 0
   end
 
   test "a student who holds an archived stock still sees it, so they can sell" do

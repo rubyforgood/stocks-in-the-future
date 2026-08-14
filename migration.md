@@ -6324,3 +6324,45 @@ teachers via `StockPolicy`, is the only small correct one, and nothing has asked
 a rendering rather than a paragraph. Once decided, a dev-only page presenting a rejected option as a live
 proposal is indistinguishable from a supported one - the same reason this repo deletes unused CSS. It is
 in the history if the question reopens.
+
+## Teachers read the closed catalogue
+
+Option 2 from the note this created, built after previewing it against the alternative.
+
+**The gap.** A student meets an archived company only by holding one - settled deliberately, and
+asserted. A teacher holds nothing, and `authenticate_admin` redirects any non-admin away from
+`/admin/stocks`, so a teacher had **no reading of a closed company anywhere in the app**. The comment that
+justified removing the old disclosure claimed "a teacher who wants the catalogue has /admin/stocks", which
+is false; `StockPolicy#show_class_holdings?` said the opposite, in a comment a few lines from where the
+check lives. Two places, disagreeing, and the wrong one decided.
+
+**What was built.** `StockPolicy#show_archived_catalogue?` - `teacher? || admin?` - and a second branch in
+`stocks/_archived_stocks`, so one partial owns both readings and `stocks#index` cannot hand the wrong list
+to the wrong reader:
+
+| Reader | Section | Rows |
+| --- | --- | --- |
+| student | "Archived stocks you hold" | only what they hold, however old, so they can sell |
+| teacher, admin | "Archived stocks" | every archived stock inside `Stock::LIST_RETENTION` |
+
+The staff window is the same one `Stock.archived_recently` gives the admin list, so two lists cannot
+disagree about what "archived" means.
+
+**A section, not tabs**, decided against a rendering of both. Tabs hide one list to show the other on a
+page whose first job is what students can buy today, and they put a control on a student's page that only
+staff may operate. The trading floor is already a stack of sections and a teacher's copy of it is already
+read-only, so this adds a section rather than a mode.
+
+**The Held by column is what earns it.** It answers which of a teacher's students still own a company that
+has closed - oversight. Without it this is a price list of the dead, which is what the rule removed.
+
+### What this breaks
+
+- **Two tests asserted the old behaviour and now assert the new one.** One of them was pre-existing and
+  had signed in an **admin** while asserting the *student* rule - it passed only because staff had no
+  reading of their own. It signs in a student now, which is the role its own comment is about.
+- Three tests added: a teacher reads the catalogue with no buy or sell control, an admin reads it too, and
+  the staff list stops at the retention window while a holder's does not.
+- `ONBOARDING.md` gains it under Teacher: this is a role gaining a capability.
+- The design preview at `/admin/component_demo/teacher_stocks` is deleted, having been built to choose
+  between the two shapes. It is in the history if the choice is reopened.

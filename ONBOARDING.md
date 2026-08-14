@@ -115,6 +115,11 @@ Derived from `app/policies/`. Where a rule looks arbitrary, the policy is the au
   they stay with administrators (`ClassroomPolicy#permitted_attributes`).
 - On the trading floor a teacher sees **Held by** — how many of their students own each company —
   instead of Buy and Sell.
+- **Archived stocks** — companies that have stopped trading, listed under the active ones for 12 months
+  after they close (`Stock::LIST_RETENTION`), with the same **Held by** column, so a teacher can tell
+  which students still own a company that has closed. Read-only: nobody can buy an archived company, and
+  a teacher cannot buy or sell anything in any case. A **student** does not get this list — they meet an
+  archived company only if they hold one, so that they can sell it.
 - **A teacher cannot open `/admin`.** Anything under it redirects them to the app root.
 
 ### Administrator

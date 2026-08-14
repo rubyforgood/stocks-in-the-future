@@ -1136,10 +1136,16 @@ price list of things they cannot buy, under the list of things they can.
 **The one thing the data supports is selling a position you already hold**, and that is the whole of
 the section. Decided explicitly, against a rendering of the alternative:
 
-- **Archived stocks you hold** render as a normal titled table, with Sell (and Buy withheld, which
-  the policy already did).
-- **Everything else renders nothing at all.** Not a `<details>`, not a collapsed list, not a
-  paginated one.
+- **A student** meets an archived company only by holding one. "Archived stocks you hold" renders as a
+  normal titled table with Sell, and Buy withheld, which the policy already did. Everything else renders
+  **nothing at all** - not a `<details>`, not a collapsed list, not a paginated one.
+- **Staff read the closed catalogue.** "Archived stocks", inside `Stock::LIST_RETENTION`, under the
+  active list on the same page - a section rather than a tab, because the trading floor is already a
+  stack of sections and a teacher's copy of it is already read-only. `StockPolicy#show_archived_catalogue?`
+  decides, so the two readings cannot leak into each other.
+- **The Held by column is what earns staff theirs.** It answers which of their students still own a
+  company that has closed, which is oversight; without it this would be a price list of the dead, which
+  is the thing the rule removed in the first place.
 - **Every archived row says why it is there**: "No longer trading", plus "last priced <date>" when
   `last_trading_day` is set.
 
@@ -1148,12 +1154,12 @@ would listing them again be worth it - and the answer is no, because length was 
 An unusable list made shorter is still unusable. The two states were rendered against each other before
 deciding.
 
-**What it costs, stated rather than assumed.** A **teacher** holds nothing, so they see no archived
-stocks - and they cannot open `/admin/stocks` either, because `authenticate_admin` redirects any
-non-admin. So a teacher has no view of archived stocks anywhere in the app. An earlier version of this
-section flagged exactly that risk; the change that removed the disclosure overrode it with a justification
-that was **false** ("a teacher has /admin/stocks"). The cost is accepted, not unnoticed, and
-`design-todo.md` carries the options for closing it.
+**The cost this used to carry is paid.** For one release a teacher had no reading of an archived company
+anywhere: they hold nothing, and `authenticate_admin` redirects any non-admin away from `/admin/stocks`.
+An earlier version of this section flagged exactly that risk and the change that removed the disclosure
+overrode it with a justification that was **false** - "a teacher has /admin/stocks" - while
+`StockPolicy#show_class_holdings?` said the opposite in a comment a few lines from where the check lives.
+Two places, disagreeing, and the wrong one decided. `show_archived_catalogue?` closes it.
 
 `stocks_controller_test` asserts both directions: a holder is shown their archived stock, and a student
 or teacher holding none sees no archived heading and no link to one. Reinstating the disclosure passes

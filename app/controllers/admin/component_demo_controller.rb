@@ -68,22 +68,6 @@ module Admin
       ]
     end
 
-    # **A design preview**, not a product page. `StockPolicy` records that a teacher cannot open
-    # `/admin/stocks`, and the archived-stocks rule leaves them no view of a closed company at all. This
-    # renders the two shapes that would fix it so the choice is made against a rendering.
-    #
-    # An admin stands in for a teacher here: both are staff to `show_class_holdings?` and neither is a
-    # student to `show_holdings?`, so the table renders read-only either way, which is the point.
-    def teacher_stocks
-      @preview_active = Stock.active.limit(4).to_a
-      @preview_archived = Stock.archived.limit(3).to_a
-      @preview_archived = Stock.where.not(id: @preview_active).limit(3).to_a if @preview_archived.empty?
-      @breadcrumbs = [
-        { label: "Component demo", path: admin_component_demo_index_path },
-        { label: "Teacher stocks preview" }
-      ]
-    end
-
     def form
       @user = User.first || User.new(email: "", name: "", admin: false)
 
