@@ -5,8 +5,16 @@
 
   <%# Inside the data-controller="dialog" wrapper above, so the import trigger still
       reaches the dialog it opens. %>
+  <%# **Two actions, and "Download template" was a third.** It pointed at the same path as the "Download a
+      template" link already inside the import dialog, where it sits beside the list of required columns and
+      explains itself - so the header carried a full secondary button duplicating a link that was one click
+      away with better context. It is the supporting step of Import, not a peer of it: Shopify's product
+      import, Stripe's and Mailchimp's all keep the sample file inside the import modal.
+
+      Measured at 375px with three: the row wrapped and **the primary dropped below both secondaries** -
+      "New student" at top=172 under two buttons at top=124, with the header block 132px against 40px at
+      1366px. Removing the duplicate puts the page's main action back on the first line. %>
   <%= render layout: "components/ui/page_header", locals: { title: "Students" } do %>
-    <%= link_to "Download template", template_admin_students_path, class: admin_secondary_button_class %>
     <%# A control that opens a dialog is a button, not a link to "#". %>
     <button type="button"
             data-action="click->dialog#open"

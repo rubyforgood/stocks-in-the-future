@@ -1099,3 +1099,29 @@ from one 726px column to six spanning groups with paired short fields inside the
 What is left of the note: **which** fields belong beside each other is a content judgement, and the grid
 pairs them in source order. Cash flow beside Debt reads well; Sales growth ends up alone because its group
 has five fields. Reordering a group so its rows pair meaningfully is a per-form pass nobody has done.
+
+## Dead copy in `devise.en.yml` (2026-08) - decision open
+
+`registrations.destroyed` reads *"Bye! Your account has been successfully cancelled. We hope to see you
+again soon."* and **nothing can ever show it.** Routes carry `devise_for :users, skip: %i[registrations]`
+and re-add only `sign_up` and `create`, so `DELETE /users` is not routed; and `User#destroy` raises
+*"Hard delete attempted … Use #discard instead"* rather than deleting. The self-service delete flow it
+belongs to was removed - `migration.md` records that it had returned a 500 for as long as it existed.
+
+Found by the inclusive-language sweep, which flagged the "see" and then had to decide whether the string
+was worth rewording. It is not a language problem: "see you again" is a farewell idiom, and the sweep
+allowlisted it on that basis. The real question is different and was left rather than folded in.
+
+**The decision** is which of three:
+
+1. **Delete the key.** It is what this repo does with unused CSS, and for the same reason - an unused
+   string is indistinguishable from a supported one until somebody adopts it. If the flow ever returns,
+   Devise's own default renders and somebody writes copy deliberately.
+2. **Keep it** as the copy that would apply if account deletion is ever built, and accept that it is
+   currently decorative.
+3. **Audit the whole file the same way.** This key was found by accident. `devise.en.yml` was inherited
+   wholesale and nothing has checked which of its ~40 messages are reachable now that registrations,
+   confirmable and lockable are configured the way they are - `unlock_instructions` is a live mailer, but
+   several neighbours may be in exactly this state.
+
+Option 3 is the one with something to learn in it; 1 is a two-line commit that leaves that unknown.

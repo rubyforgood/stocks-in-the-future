@@ -6072,3 +6072,66 @@ no style guide flags it.
 **unreachable**: routes carry `devise_for :users, skip: %i[registrations]` and re-add only sign-up, and
 `User#destroy` raises rather than hard-deleting. It is dead copy, which is a different finding from this
 one and is left for a decision rather than folded into a language sweep.
+
+## Three buttons in a page header, and the spec that had already answered wrongly
+
+Reported on `/admin/students`: one primary and two secondary in the top-right. It was the **only**
+three-action header in the app - every other page measured 0, 1 or 2 - so the question was what the rule
+should be and where else it applied.
+
+### design.md had a rule, and none of it was real
+
+`### Header action pattern` specified **"one primary CTA plus a `More` overflow disclosure"**, with a
+mobile variant rendering each action twice behind `hidden sm:contents` and `sm:hidden`. Checked rather
+than followed:
+
+| Named by the spec | In the codebase |
+| --- | --- |
+| `button_classes` | 0 files |
+| `Dialog::GroupComponent` | 0 files |
+| `rack_test` | 0 files |
+| a `More` overflow in any header | none |
+| `dropdown_controller` | one caller - the account menu |
+| `sm:` breakpoints | banned by this same document, two sections above |
+
+It was inherited scaffolding. The passage is replaced with what the app does. Note that this is a *new
+instance of a known pattern*: design.md line 3576 already annotates a neighbouring block as "CASA prose
+naming a `button_classes` helper and a `brand-600` token that do not exist". More of that file is
+probably in the same state.
+
+### What the third button was
+
+Not a peer. **"Download template"** pointed at `/admin/students/template` - which is exactly where the
+**"Download a template"** link *inside the import dialog* already pointed, beside the list of required
+columns that makes it make sense. One destination, two controls, and the header's copy was the worse of
+the two. Shopify's product import, Stripe's and Mailchimp's all keep the sample file inside the import
+modal.
+
+**Measured at 375px, the third button cost the primary its position:**
+
+| | three actions | two actions |
+| --- | --- | --- |
+| action row | wraps - secondaries at top=124, **"New student" at top=172** | one line, all at top=124 |
+| header block | 132px | **84px** |
+| first table row | 339px | **291px** |
+| at 1366px | 40px block, no wrap | unchanged |
+
+So the page's main action sat last and lowest on a phone, below a duplicate.
+
+### The rule now
+
+At most three header actions, exactly one filled primary, and they are **peers** - each acting on the
+page's subject at the same level. A supporting step goes with the task it supports. One destination gets
+one control.
+
+### What this breaks
+
+- `one_primary_test` gains `assert_header_actions` and a test walking **25 pages**. `admin/students` was
+  not in that file's walk before, which is how the third action arrived unnoticed.
+- The duplicate key carries the **HTTP verb**. Without it, five record pages report a false duplicate: a
+  destructive `data-turbo-method: delete` link and the form's Cancel share an href and differ only in
+  method. First version of the assertion checked for duplicates *within* the header block, which cannot
+  see this bug at all - the other link is in the dialog. It passed with the defect reinstated, which is
+  how that was caught.
+- Nothing was added to replace the button. `template_admin_students_path` still has two controller tests
+  and the dialog link.

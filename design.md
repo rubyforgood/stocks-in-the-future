@@ -5113,17 +5113,40 @@ still reads with its icon (see Iconography). A form-driven modal can be a menu i
 rendering `Dialog::GroupComponent(wrapper_class: "contents")` so its trigger and dialog sit
 directly in the menu.
 
-**Header action pattern.** A page header shows **one primary CTA plus a `More` overflow
-disclosure**, not a flat row of equal buttons. Keep frequently-used, core actions visible and
-overflow only the occasional ones. Do not bury a core action in `More`: it
-is both a UX cost (an extra click on a common action) and a testability cost (rack_test
-cannot open a native `<details>`, so non-JS specs that click it break).
+**Header action pattern.** This paragraph used to describe **one primary CTA plus a `More` overflow
+disclosure**, with a mobile variant rendering each action twice behind `hidden sm:contents` and
+`sm:hidden`. None of it was real: `button_classes`, `Dialog::GroupComponent` and `rack_test` appear
+nowhere in this codebase, no page header has ever had a `More` menu, `dropdown_controller`'s only caller
+is the account menu, and `sm:` is a breakpoint this document bans two sections above. It was inherited
+scaffolding, and it was the spec being followed when the question "what do we do about three buttons?"
+was asked. What follows is what the app actually does.
 
-On **mobile**, collapse the remaining visible secondaries into `More` too, so only the primary
-CTA and `More` share the top line. Render such an action twice with responsive visibility: a
-button wrapped in `hidden sm:contents` (shown `sm+`) and a `sm:hidden` menu item (shown on
-mobile). This keeps it no-JS and unambiguous, and a non-JS click still finds the visible
-button (rack_test ignores the `hidden` class but respects the closed `<details>`).
+**A page header holds at most three actions, and this app sits at two.** Three is where the field
+converges - Atlassian, Salesforce Lightning and Material 3 all cap a header at three and send the rest to
+an overflow, and Polaris and Stripe are stricter, showing one primary and a `...`. Exactly one of them is
+the filled primary; `one_primary_test` has asserted that separately for longer.
+
+**Count is the symptom. The rule is that header actions are peers.** Each one acts on the page's subject
+at the same level. A step that exists only to support another action is not a peer and does not go here -
+it goes with the action it supports. `admin/students` had three, and the third was **"Download template"**,
+which is the thing you need *in order to* import: Shopify's product import, Stripe's and Mailchimp's all
+keep the sample file inside the import modal, and this app's import dialog already had a "Download a
+template" link beside the list of required columns.
+
+**One destination, one control.** That is what made it a defect rather than a preference: two controls
+pointed at `/admin/students/template`, and the header's was the worse of the two, because the dialog's
+sits next to the format it is a template for. The same reasoning already removed the portfolio's duplicate
+empty-state CTA.
+
+**A third action is not free at 375px.** Measured with three: the action row wrapped and the **primary
+dropped below both secondaries** - "New student" at top=172 beneath two buttons at top=124 - with the
+header block 132px against 40px at 1366px, and the first table row at 339px. With two: one line, 84px,
+first row at 291px. A header that wraps demotes the page's main action, which is the opposite of what the
+emphasis is for.
+
+`one_primary_test` asserts the ceiling and the duplicate rule across 25 pages. The duplicate key carries
+the HTTP verb, because a destructive link and a form's Cancel share an href and differ only in method -
+without that, five record pages report a duplicate that is not one.
 
 ### Disclosure (collapsible panel)
 Secondary actions (e.g. Change password / Change email) hide behind a full-width trigger
