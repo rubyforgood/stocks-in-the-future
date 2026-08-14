@@ -5612,3 +5612,28 @@ listed here rather than done.
   a prefix. Anything else asserting a row action's exact text will need the same.
 - `portfolios#show`'s "Trade" links are left alone: every one points at the trading floor, so the text is
   unambiguous even though it repeats. Same text plus one destination is not what 2.4.9 is about.
+
+## Small supporting text moves to slate-600
+
+The one AAA item worth taking without a decision attached: 1.4.6 asks 7:1 for normal text, and
+`text-slate-500` measures **4.76:1** - fine at AA, short of enhanced. slate-600 is **7.58:1**.
+
+Changed where slate-500 was carrying *text*: `_stat`'s caption, the admin dashboard's stat hint, the
+sidebar's section labels, the breadcrumb's current crumb, the em dash that stands in for an absent value in
+two index tables and two helpers, and the component gallery's definition labels.
+
+**Left at slate-500, and the distinction is the whole point:** a `lucide_icon` is non-text content, governed
+by 1.4.11's 3:1 rather than 1.4.6's 7:1, and slate-500 clears that; a placeholder darkened to slate-600
+starts reading as a filled value; and a disabled control's text is exempt by 1.4.3's own "inactive user
+interface component" carve-out.
+
+**This is an improvement, not conformance**, which is how it was offered. Measured after: `admin/students`
+is clean at 7:1, and 1.4.6 still fails on the brand primary button (white on `sitf-primary`, 6.18:1), the
+gain green (`green-700`, 4.95:1) and two marginal cases at 6.84 and 6.92. Each is a colour decision rather
+than a token sweep.
+
+### What this breaks
+
+- `admin_helper_test` asserted the absent-value dash was `text-slate-500`. That dash has now been measured
+  three times: it shipped at 2.6:1 and failed AA, went to slate-500 for AA, and is slate-600 for 1.4.6.
+- Any view adding faint supporting text should reach for slate-600. slate-500 remains correct for an icon.

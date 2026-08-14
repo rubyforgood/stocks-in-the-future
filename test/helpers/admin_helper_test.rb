@@ -28,7 +28,10 @@ class AdminHelperTest < ActionView::TestCase
     user = build(:student, name: nil)
     result = format_attribute(user, :name)
     assert_match(/—/, result)
-    assert_match(/text-slate-500/, result)
+    # slate-600, raised from slate-500 for WCAG 1.4.6: an absent value is text, and 4.76:1 clears AA but
+    # not the 7:1 the enhanced criterion asks for. slate-600 is 7.58:1. This dash has been measured twice
+    # before - it shipped at 2.6:1 and failed AA outright.
+    assert_match(/text-slate-600/, result)
   end
 
   test "format_attribute formats string" do

@@ -222,7 +222,7 @@ module AdminHelper
     when nil
       # slate-400 measures 2.6:1 on white and fails AA. slate-500 is 4.76:1 and
       # still reads as an absent value. Matches the em-dash markers in the views.
-      content_tag(:span, "—", class: "text-slate-500")
+      content_tag(:span, "—", class: "text-slate-600")
     when %r{\Ahttps?://}
       format_url(value)
     else

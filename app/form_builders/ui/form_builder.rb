@@ -546,7 +546,7 @@ module Ui
       when nil
         # text-gray-400 measured 2.54:1, a straight AA failure, and the same one admin_helper.rb
         # had for absent values - which a test caught rather than an audit.
-        @template.content_tag(:span, "—", class: "text-slate-500")
+        @template.content_tag(:span, "—", class: "text-slate-600")
       else
         value.to_s
       end

@@ -51,10 +51,10 @@
                   <%= account_role_label(user) %>
                 <% end %>
                 <% email_cell = capture do %>
-                  <%= user.email.presence || content_tag(:span, "—", class: "text-slate-500") %>
+                  <%= user.email.presence || content_tag(:span, "—", class: "text-slate-600") %>
                 <% end %>
                 <% classroom_cell = capture do %>
-                  <%= user.classroom&.name || content_tag(:span, "—", class: "text-slate-500") %>
+                  <%= user.classroom&.name || content_tag(:span, "—", class: "text-slate-600") %>
                 <% end %>
                 <% row_actions = capture do %>
                     <%# "Archive", not "Delete", because that is what happens: the controller discards,

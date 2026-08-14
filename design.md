@@ -5420,7 +5420,20 @@ The per-page checklists live in
 [`design-instructions.md`](design-instructions.md). Two habits matter more than
 the lists:
 
-1. ****Fixed chrome needs `scroll-padding`, which is WCAG 2.2's 2.4.11.** A focused control must not be
+1. ****Small supporting text is `slate-600`, not `slate-500`.** A caption, a section label, a breadcrumb's
+current crumb and the em dash standing in for an absent value are all *text*, and slate-500 measures
+**4.76:1** - which clears AA and not the 7:1 of 1.4.6. slate-600 is **7.58:1**.
+
+Two things keep slate-500, and the distinction is the point: an **icon** is non-text content, governed by
+1.4.11's 3:1, which slate-500 clears; and a **placeholder** darkened to slate-600 starts reading as a filled
+value, which trades one problem for a worse one. A disabled control's text is exempt by 1.4.3's own
+"inactive user interface component" carve-out.
+
+This is an improvement rather than conformance, and it is worth saying which: after it, 1.4.6 still fails on
+the **brand primary button** (white on `sitf-primary`, 6.18:1), the **gain green** (`green-700`, 4.95:1), and
+two marginal cases at 6.84 and 6.92. Each of those is a colour decision rather than a token sweep.
+
+**Fixed chrome needs `scroll-padding`, which is WCAG 2.2's 2.4.11.** A focused control must not be
 *entirely* hidden by author-created content, and this app has three pieces of it: the staging ribbon, the
 fixed header beneath it, and `.tw-form-actions`, which becomes `sticky bottom-0` the moment an update form is
 dirty. When the browser scrolls a Tab target into view it stops at the scrollport's edge - which is behind
