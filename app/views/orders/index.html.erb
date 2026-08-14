@@ -192,6 +192,6 @@
     <%# The same component the admin tables use, through `shared/`. This half has no `admin/shared/_table`
         shell to render it as a card footer, so the spacing is stated here: `mt-4`, matching the 16px this
         document gives a plain control strip under a table rather than the 24px section gap. %>
-    <%= render "shared/pagination", collection: @orders %>
+    <%= render "components/ui/pagination", collection: @orders %>
   </div>
 </div>

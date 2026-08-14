@@ -27,6 +27,29 @@
       Constructed data, not database records: a gallery should not depend on what happens to be seeded,
       and a component's states are the point rather than any particular row.
   --------------------------------------------------------------------------------------------- %>
+  <%# Registered here because `components/ui/` is the design system's set and this test derives its list
+      from that directory. The component sat in `shared/` for one commit, where the gallery could not be
+      failed for missing it - which is how it shipped without a section. %>
+  <div class="tw-card mb-6 p-5" data-testid="component-pagination">
+    <h2 class="text-xl font-semibold text-slate-900 mb-1">Pagination</h2>
+    <p class="mb-4 text-sm text-slate-600">
+      <code>PER_PAGE</code> rows at a time, under a table. The direction with nowhere to go is present and
+      disabled rather than absent, so the other button does not move between page 1 and page 2. It owns its
+      own wrapper: <code>footer: true</code> is the in-card form, the default sits under a table that has
+      closed its card.
+    </p>
+
+    <p class="mb-2 text-xs font-medium text-slate-600">First page - Previous is disabled</p>
+    <div class="tw-card mb-4">
+      <%= render "components/ui/pagination", collection: @pagination_first, footer: true %>
+    </div>
+
+    <p class="mb-2 text-xs font-medium text-slate-600">Last page - Next is disabled</p>
+    <div class="tw-card">
+      <%= render "components/ui/pagination", collection: @pagination_last, footer: true %>
+    </div>
+  </div>
+
   <div class="tw-card mb-6 p-5" data-testid="component-badge">
     <h2 class="text-xl font-semibold text-slate-900 mb-1">Badge</h2>
     <p class="mb-4 text-sm text-slate-600">

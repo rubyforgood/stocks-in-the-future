@@ -11,8 +11,12 @@
     the spec does not use, and `text-slate-400`, which this app's own notes name as a 2.5:1 failure. It is
     `.tw-btn-secondary` and `.tw-btn-disabled` now, so it cannot drift from the buttons again.
 
-    It lives in `shared/` rather than `admin/shared/` because both halves render it - the app's
-    Transactions page is `orders#index`. Same move `_breadcrumbs` made, for the same reason.
+    It lives in `components/ui/` because that directory **is** the design system's component set - the
+    eight things design.md names, every one of them rendered in the gallery at `/admin/component_demo`.
+    Putting it in `shared/` alongside `_modal` and `_table_container` looked reasonable and was wrong twice
+    over: it is not one of those, and `component_gallery_test` derives its list from `components/ui/`, so a
+    component filed anywhere else is a component the gallery cannot be failed for missing. Reported as
+    "pagination does not match the design system component for pagination", which is exactly what it was.
 
     **Params survive the page.** design.md names this as the thing to check when pagination is turned on,
     because `sort_link` and the filter tabs both carry query parameters and a bare `page=2` would drop

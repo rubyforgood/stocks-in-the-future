@@ -36,6 +36,14 @@ module Admin
         { attribute: :created_at, label: "Created", sortable: true }
       ]
 
+      # **A constructed array, not a query.** `Kaminari.paginate_array` gives the component a real
+      # paginated collection whatever the database holds, which is what lets the gallery show both states
+      # - a live direction and a disabled one - and keeps `component_gallery_test`'s "renders no database
+      # records" assertion true.
+      sample = Array.new(31) { |i| i + 1 }
+      @pagination_first = Kaminari.paginate_array(sample).page(1).per(PER_PAGE)
+      @pagination_last = Kaminari.paginate_array(sample).page(2).per(PER_PAGE)
+
       # Demo filters
       @filters = [
         {
@@ -57,6 +65,19 @@ module Admin
       @breadcrumbs = [
         { label: "Component demo", path: admin_component_demo_index_path },
         { label: "User details" }
+      ]
+    end
+
+    # **A design preview.** The trading floor once listed every archived stock inside
+    # `Stock::LIST_RETENTION` to every reader, and that disclosure was removed - not because the page was
+    # long, but because nobody could act on it. Pagination changes the length problem and not that one, so
+    # this page renders the two options against each other rather than arguing about them.
+    def archived_stocks
+      @archived = Stock.archived.limit(6).to_a
+      @archived = Stock.limit(6).to_a if @archived.empty?
+      @breadcrumbs = [
+        { label: "Component demo", path: admin_component_demo_index_path },
+        { label: "Archived stocks preview" }
       ]
     end
 

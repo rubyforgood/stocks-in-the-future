@@ -6251,3 +6251,47 @@ against the stale process and printed "app is up". The old Puma had to be killed
 
 The rule this leaves: **after any change to the bundle, restart the server and load the page.** A green
 suite cannot see a stale process. Recorded in `CLAUDE.md` beside the initializer version of the same trap.
+
+## The pagination component was not in the design system
+
+Reported as "pagination does not match the design system component for pagination", and that is exactly
+what it was: `_pagination` shipped in `app/views/shared/`, alongside `_modal` and `_table_container`.
+
+**`app/views/components/ui/` is the design system's set** - the eight partials design.md names, each
+rendered at `/admin/component_demo`. Filing it in `shared/` was wrong twice. It is not a shared partial in
+that sense; and `component_gallery_test` derives its list **from that directory**, so a component filed
+anywhere else is one the gallery cannot be failed for missing. The test that exists to stop precisely this
+could not see it.
+
+Moved to `components/ui/_pagination`, three call sites updated, and registered in the gallery - showing
+both states, first page and last, built from `Kaminari.paginate_array` so the section renders whatever the
+database holds and the gallery's "no database records" assertion stays true. Verified by running the
+gallery test against the move first: it named `pagination` and gave the testid to add.
+
+### The two questions that came with it
+
+**Prev/next, not numbered pages.** Numbered pages are GOV.UK's and Django admin's, and suit a reader with
+a sense of where in the sequence they are going - nobody has that about a transaction ledger. Stripe,
+Shopify and Linear ship prev/next. Infinite scroll is not a candidate: NN/g finds it hurts goal-directed
+finding, and it strands anything below the table.
+
+**25 is right for a ledger and is the wrong question for a roster.** A roster is a lookup, and no page
+size answers a lookup - the primitive is **search**. `admin/shared/_search_filter` exists and is rendered
+on exactly one page in the app: the component gallery. So every admin index is a lookup surface with no
+lookup. Raising a roster to 50 moves the median student from page 4 to page 2, which is not the
+difference between finding them and not. Recorded in `design-todo.md` as the thing to do before
+paginating `admin/users`.
+
+### Archived stocks on the trading floor: no
+
+"If the trading floor paginates, is there value in displaying the archived stocks that were removed?"
+
+No, and the reason is in `stocks/_archived_stocks`'s own note: they were not removed for length. A
+`<details>` listing every archived stock inside `Stock::LIST_RETENTION` was removed because **no reader
+could act on it** - a student cannot buy an archived company, and a teacher who wants the catalogue has
+`/admin/stocks`, which carries more. Pagination makes an unusable list shorter; it does not make it
+useful. The section renders today only for a student who **holds** one, whose one action is Sell.
+
+A design preview renders both options against each other at
+**`/admin/component_demo/archived_stocks`** - dev-only, behind the same `Rails.env.local?` guard as the
+gallery, because the argument is easier to have against a rendering than a paragraph.

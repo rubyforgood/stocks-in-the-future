@@ -95,6 +95,9 @@ Rails.application.routes.draw do
       resources :component_demo, only: %i[index show] do
         collection do
           get :form
+          # A design preview, not a product page: "if the trading floor paginates, is there value in
+          # listing the archived stocks again?" is easier to answer against a rendering than a paragraph.
+          get :archived_stocks
         end
       end
     end

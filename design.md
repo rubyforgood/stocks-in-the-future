@@ -212,10 +212,30 @@ written against them renders no colour at all.
   turns the page and silently gets the default order back. `request.query_parameters` keeps all of them.
   `pagination_test` asserts it for the sort pair and for `?user_id=`.
 
+  **The component lives in `components/ui/`,** because that directory *is* the design system's set -
+  the eight partials design.md names, each rendered in the gallery. It shipped in `shared/` for one
+  commit, which was wrong twice: it is not a `_modal`-style shared partial, and `component_gallery_test`
+  derives its list from `components/ui/`, so a component filed elsewhere is one the gallery cannot be
+  failed for missing. Reported, correctly, as "pagination does not match the design system component for
+  pagination".
+
+  **Prev/next, not numbered pages.** Numbered pages are GOV.UK's and Django admin's pattern and they suit
+  a reader who knows roughly where in the sequence they are going. Nobody knows that about a transaction
+  ledger. Stripe, Shopify and Linear all ship prev/next for exactly this, and the count sentence carries
+  the orientation a page number would. Infinite scroll is not a candidate: NN/g's finding is that it hurts
+  goal-directed *finding*, and it also strands anything under the table.
+
+  **25 is right for a ledger and is the wrong question for a roster.** A ledger is scanned newest-first
+  and rarely seeked; 25 is Stripe's figure and Kaminari's default. A roster is a **lookup** - "find
+  Jamal" - and no page size answers a lookup. The primitive for that is **search**, which every one of
+  these indexes lacks: `admin/shared/_search_filter` exists and is rendered on exactly one page, the
+  component gallery. Raising a roster to 50 would move the median student from page 4 to page 2, which is
+  not the difference between finding them and not.
+
   **Still unpaginated**, and each is a judgement rather than an oversight: students, teachers, users,
   classrooms, stocks, schools, school years and announcements. A classroom is ~25 students and the stock
   list is curated, so they are bounded in practice - but `admin/users` grows with every cohort and is the
-  next one to need it. See `design-todo.md`.
+  next one to need it, and it needs search first. See `design-todo.md`.
 
   Verify these gaps at the pixel level (filter-bottom -> table-top), not by reading tokens;
   `test/system/spacing_test.rb` and `test/system/page_rhythm_test.rb` do exactly that.
@@ -4697,9 +4717,10 @@ Money and counts are **right-aligned with `tabular-nums`** so digits line up dow
 satisfied that by accident because every other one ends in actions; the one that does not was the one
 that looked wrong.
 
-Sorting is **server-side** (`sort_link`, params). There is no bulk select, and nothing paginates --
-the footer partial exists but no controller ever gives it a paginated collection, so see the note
-under page rhythm before assuming a table has one. Keep the `thead` even when a table is empty and put an empty-state
+Sorting is **server-side** (`sort_link`, params). There is no bulk select. **The two transactions
+tables paginate** and the other eight indexes do not -- see the note under page rhythm before assuming a
+table has one. This paragraph said "nothing paginates" for one commit *after* two tables did, which is the
+usual shape: one fact stated in two places, and a change that finds only the first. Keep the `thead` even when a table is empty and put an empty-state
 row in the `tbody` (`admin/shared/_empty_row` wraps `_empty_state` for this), and remember its
 `colspan` when a column is added or removed.
 
