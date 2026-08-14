@@ -43,8 +43,9 @@ app is strict about it:
   `User#active_for_authentication?` is false for a discarded record, and Devise checks it on every request,
   so a session already open ends on the next one. Everything attached to the account is kept and an
   administrator can reactivate them.
-- **Archiving** a classroom takes it out of the lists and stops it being opened. **Nobody is signed out** -
-  a classroom has no login of its own.
+- **Archiving** a classroom ends it: its students can no longer buy or sell, it leaves the teacher's list,
+  and it can no longer be opened by anyone but an administrator. **Nobody is signed out** — a classroom has
+  no login of its own, so its students keep their accounts, their portfolios and their history.
 
 Both are reversible, and neither deletes anything. `User#destroy` is overridden to raise; only
 `admin/teachers#destroy` genuinely removes a record, by calling `really_destroy!`.

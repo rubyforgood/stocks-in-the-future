@@ -8,7 +8,7 @@ class Portfolio < ApplicationRecord
 
   # `school_name` went with the portfolio page's description: it named the school under a heading that
   # already names the student, which is context nobody acts on, and no other caller reached for it here.
-  delegate :username, :student?, :trading_enabled?, to: :user
+  delegate :username, :student?, :trading_enabled?, :trading_open?, to: :user
 
   has_many :portfolio_transactions, dependent: :destroy
   has_many :portfolio_stocks, dependent: :destroy
@@ -49,7 +49,7 @@ class Portfolio < ApplicationRecord
   # than not offering the dismissal at all. Classroom clears `trading_disabled_at` when trading comes
   # back on, so each switch-off carries its own date and outranks any earlier dismissal.
   def trading_off_notice?
-    return false if trading_enabled?
+    return false if trading_open?
 
     !user.dismissed?(Dismissal::TRADING_OFF, since: user.classroom&.trading_disabled_at)
   end

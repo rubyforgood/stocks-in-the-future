@@ -5,7 +5,7 @@ class StockPolicy < ApplicationPolicy
   # and has a portfolio (safeguard for nil portfolio) and the stock is not archived
   # (or if archived, user is holding it) and trading is enabled for their classroom.
   def show_trading_link?
-    show_holdings? && (!record.archived? || user.holding?(record)) && user.classroom&.trading_enabled?
+    show_holdings? && (!record.archived? || user.holding?(record)) && user.classroom&.trading_open?
   end
 
   # Show holdings column / counts for students with a portfolio

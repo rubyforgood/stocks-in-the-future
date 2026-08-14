@@ -518,9 +518,9 @@ module AdminHelper
         "classroom's own setting says."
     else
       "Archive #{classroom.name}?\n\n" \
-        "It leaves the active list and its teachers and students can no longer open it. Nobody is " \
-        "signed out - a classroom has no login of its own - and grades, portfolios and order history " \
-        "are kept. You can restore it from this page."
+        "Its students can no longer buy or sell, and it leaves the teacher's list. Nobody is signed " \
+        "out - a classroom has no login of its own - and grades, portfolios and order history are " \
+        "kept. You can restore it from this page."
     end
   end
 

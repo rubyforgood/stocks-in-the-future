@@ -314,6 +314,22 @@ asserts the *rendered* distance from the header block to the first thing that fo
 
 ### Deactivate a person, archive a thing
 
+**Archiving has to reach the people the thing governs, or it is only a filing action.** Archiving a
+classroom took it out of the teacher's list and stopped them opening it - `ClassroomPolicy::Scope` is
+`.active` for a teacher, `check_classroom_eligibility` redirects a non-admin - and did nothing to the
+students in it. Measured: a student in an archived classroom signed in, opened the trading floor and placed
+a buy. The class was over, the teacher could no longer see it *or reach its trading switch*, and the
+students went on trading in it.
+
+`Classroom#trading_open?` is the gate now - the switch's position **and** a live classroom - and
+`trading_enabled?` remains the switch's own position, which is what the admin badge and the form show.
+Keeping them as two questions is the point: an admin archiving a class has not moved its switch, and
+restoring the class puts trading back exactly as the teacher left it.
+
+The general form: when a container is archived, ask what its contents can still do. The answer is rarely
+"nothing changes", and if it is, the confirmation should say so.
+
+
 One idea had **three** vocabularies: Archive/Restore on students and users, Archive/**Activate** on
 classrooms, Deactivate/Reactivate on teachers. The split is by *kind* now, which is what the field does and
 the only rule that survives being said out loud.

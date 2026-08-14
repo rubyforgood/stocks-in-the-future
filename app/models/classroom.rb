@@ -47,6 +47,20 @@ class Classroom < ApplicationRecord
   # portfolios; `find_or_create_by!` per quarter means moving back and forth adds nothing twice.
   after_update :create_gradebooks_for_quarters, if: :saved_change_to_school_year_id?
 
+  # **Whether a student may trade right now**, as opposed to `trading_enabled?`, which is the switch's own
+  # position and is what the admin badge and the classroom form show.
+  #
+  # They came apart on an archived classroom. Archiving takes the class out of the teacher's list and stops
+  # them opening it - `ClassroomPolicy::Scope` is `.active` for a teacher and `check_classroom_eligibility`
+  # redirects a non-admin - and it did nothing at all to the students in it. Measured: a student in an
+  # archived classroom signed in, opened the trading floor and placed a buy. So the class was over, the
+  # teacher could no longer see it or reach its trading switch, and the students went on trading in it.
+  #
+  # Archiving is how a class ends. A class that has ended is not open for trading.
+  def trading_open?
+    trading_enabled? && !archived?
+  end
+
   scope :active, -> { where(archived: false) }
   scope :archived, -> { where(archived: true) }
   scope :order_by_name, ->(direction = :asc) { reorder(name: direction) }

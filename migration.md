@@ -5827,3 +5827,33 @@ contract: `active_for_authentication?`, `really_destroy!`, both breadcrumb helpe
 - Nothing in the app. This is documentation, and the instruction that keeps it current is the part with a
   long life: a future change that alters a role, a verb's meaning, or a first-week rule now has a fourth
   file to update.
+
+## Archiving a classroom now stops its students trading
+
+Asked what "nobody is signed out" meant for an archived classroom, and the honest answer was worse than the
+sentence suggested. Archiving took the class out of the teacher's list and stopped them opening it -
+`ClassroomPolicy::Scope` is `.active` for a teacher and `check_classroom_eligibility` redirects a non-admin
+- and did **nothing** to the students in it.
+
+Measured: a student in an archived classroom signed in, opened the trading floor and placed a buy. So the
+class was over, the teacher could no longer see it *or reach its trading switch* - that control lives on the
+classroom page they can no longer open - and the students went on trading in it unsupervised. Only an
+administrator could stop it, and only by knowing to look.
+
+**`Classroom#trading_open?`** is the gate now: the switch's position **and** a live classroom.
+`trading_enabled?` stays as the switch's own position, which is what the admin badge and the classroom form
+show. Two questions on purpose - archiving does not move the switch, so restoring a class puts trading back
+exactly as the teacher left it.
+
+One predicate, and every gate reaches it by delegation: `Order`'s validation refuses the order,
+`StockPolicy#show_trading_link?` withholds Buy and Sell so no button is offered that would be refused, and
+`Portfolio#trading_off_notice?` raises the callout that explains it.
+
+### What this breaks
+
+- **Students in an already-archived classroom lose the ability to trade** the moment this deploys. That is
+  the intent, and it is a behaviour change: anything archived before today was still trading.
+- The classroom confirmation says what now matters to the person pressing it - "Its students can no longer
+  buy or sell" - rather than the mechanical description it carried an hour ago.
+- `trading_enabled?` and `trading_open?` are different questions and both are live. A new gate should ask
+  `trading_open?`; a display of the *setting* should ask `trading_enabled?`.

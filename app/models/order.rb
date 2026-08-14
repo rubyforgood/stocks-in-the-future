@@ -210,7 +210,8 @@ class Order < ApplicationRecord
   end
 
   def trading_enabled_for_classroom
-    return if user&.classroom&.trading_enabled?
+    # `trading_open?`, not `trading_enabled?`: an archived classroom is not open, whatever its switch says.
+    return if user&.classroom&.trading_open?
 
     errors.add(:base, "Trading is currently disabled for your classroom")
   end
