@@ -60,14 +60,6 @@ class FlashWidthTest < ApplicationSystemTestCase
                  "x=#{m['content'][0]}."
   end
 
-  def sign_in_through_the_form(username)
-    visit new_user_session_path
-    fill_in "Username", with: username
-    fill_in "Password", with: "Passw0rd"
-    click_on "Sign in"
-    assert_text "Signed in successfully"
-  end
-
   # The reported bug, at the width it appears and at one where it never did - a regression that only
   # reintroduces the wide case would otherwise pass.
   test "the sign-in banner matches the page on a wide screen" do
@@ -76,7 +68,7 @@ class FlashWidthTest < ApplicationSystemTestCase
     student.reload
 
     resize_window_to(*WIDE)
-    sign_in_through_the_form("widecheck")
+    sign_in_through_the_ui("widecheck")
     assert_flash_matches_content("home at 1920")
   ensure
     resize_window_to(*DEFAULT_SIZE)
@@ -88,7 +80,7 @@ class FlashWidthTest < ApplicationSystemTestCase
     student.reload
 
     in_chromebook_viewport do
-      sign_in_through_the_form("chromecheck")
+      sign_in_through_the_ui("chromecheck")
       assert_flash_matches_content("home at 1366")
     end
   end

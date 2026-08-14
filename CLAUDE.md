@@ -684,6 +684,19 @@ documentation of a fix nobody got.
 then raises NoMethodError at render time. `ApplicationController.helpers` has both. This bit inside
 `field_error_proc`, where the consequence was a 500 on every invalid form submit.
 
+**`sign_out_through_the_ui` only fixed half of it.** A test that becomes a different user must sign
+**both** of them in through the form. `sign_in` is Warden's `login_as`, which queues a
+`Warden.on_next_request` block, and that block can fire *after* a UI sign-out and sign-in and put the
+previous user back - which is what `teacher_creates_student_test` did intermittently, asserting the
+account menu and finding **"Account menu for teacher_3"** where the student should have been. Use
+`sign_in_through_the_ui`, which waits on the account menu: `click_on` does not block, and the first
+version of that helper raced the next `visit` and broke three tests. This is the flake whose name was
+lost to a `tail`; `tmp/test-failures.log` is what recovered it.
+
+**A probe can disprove the wrong hypothesis.** Mine ran `sign_in` -> `sign_in` 20 times, passed 20/20, and
+I recorded the user-switch hypothesis as disproved. The failing shape was `sign_in` -> UI sign-out -> UI
+sign-in, which the probe never performed. **Reproduce the actual sequence, not a nearby one.**
+
 **A new *gem* needs a boot too, and the suite cannot tell you.** Adding `kaminari` and paginating two
 controllers passed 996 unit and 368 system tests, because every test run boots a fresh process with the
 current bundle. The **already-running dev server does not**: code reloading covers `app/`, not

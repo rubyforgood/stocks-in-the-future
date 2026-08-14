@@ -1126,7 +1126,7 @@ allowlisted it on that basis. The real question is different and was left rather
 
 Option 3 is the one with something to learn in it; 1 is a two-line commit that leaves that unknown.
 
-## The system-suite flake of 2026-08 - unreproduced, bound not closed
+## The system-suite flake of 2026-08 - FOUND AND FIXED
 
 One run of the system suite returned `368 runs, 2411 assertions, 1 failures, 0 errors`. The failing test's
 name was lost to a `tail -3`. What is known, and what is not:
@@ -1183,3 +1183,38 @@ params-survive assertion repeated for it.
 Also worth deciding: **25 may be wrong for a roster.** Stripe's 25 suits a ledger you scan in reverse
 order; a teacher looking for a named student on a 200-row roster is doing a different task, and Shopify's
 50 or a search box may serve it better than a page control.
+
+## Search before pagination on the rosters (2026-08)
+
+Raised by "is 25 right for a roster, where the task is finding a named student?" - and the honest answer
+is that the page size is not the variable.
+
+A ledger is scanned newest-first and rarely seeked, so 25 suits it. A roster is a **lookup**, and
+pagination is not a lookup primitive. `admin/shared/_search_filter` exists, design.md specifies it
+(`tw-card mb-6 p-5`, one field, auto-submitting on change), and it is rendered in exactly **one** place in
+the app: `/admin/component_demo`. Every real index - students, teachers, users, classrooms, stocks,
+schools, school years, announcements - is a lookup surface with no lookup.
+
+**So the order is search first, pagination second**, and `admin/users` is where both are needed: it grows
+with every cohort and never shrinks, because deactivating is a discard. Paginating it without search would
+turn "find this person" from a long scroll into a hunt through pages, which is worse.
+
+What to check when it is done: the search parameter has to survive the page the same way the sort pair and
+`?user_id=` do, and `pagination_test` has the assertion to copy.
+
+### Resolved
+
+**The recorder caught it on its first outing.** `TeacherCreatesStudentTest#test_teacher_can_reset_student_password`,
+failing with *"expected ... text 'Student 1 Example' ... Also found 'Account menu for teacher_3'"* - the
+**teacher** signed in where the student should have been. Same signature as the run whose name was lost:
+368 runs, 2411 assertions, 1 failure. `tmp/test-failures.log` named it, with the line and a replay seed,
+from a run I would otherwise have re-run and lost again.
+
+The cause is the hazard `CLAUDE.md` already described, surviving its own mitigation. `sign_out_through_the_ui`
+fixed the **logout** half; the test still reached it having called `sign_in(teacher)`, which is Warden's
+`login_as` and queues a `Warden.on_next_request` block that can fire late and set the previous user back.
+A test that becomes somebody else signs **both** users in through the form, so nothing is ever queued.
+
+Note what this corrects in the entry above: the probe that "disproved" the user-switch hypothesis tested
+`sign_in` -> `sign_in`, not `sign_in` -> UI sign-out -> UI sign-in. It passed 20/20 and answered a question
+nobody had asked. The hypothesis was right and my test of it was wrong.

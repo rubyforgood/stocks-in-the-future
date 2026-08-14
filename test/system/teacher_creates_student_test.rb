@@ -48,7 +48,12 @@ class TeacherCreatesStudentTest < ApplicationSystemTestCase
     student = create(:student, :with_portfolio, classroom:, username:)
     teacher = create(:teacher)
     create(:teacher_classroom, teacher:, classroom:)
-    sign_in(teacher)
+
+    # **Through the form, not `sign_in`.** This test signs out and becomes the student further down, and
+    # Warden's `login_as` queues a block that can fire late and put the teacher back - which is what it
+    # did, intermittently, asserting the account menu and finding "Account menu for teacher_3". Nothing is
+    # queued if nothing calls `login_as`.
+    sign_in_through_the_ui(teacher.username)
     visit classroom_path(classroom)
 
     assert_selector "##{dom_id(student)} [data-testid='reset-password']"

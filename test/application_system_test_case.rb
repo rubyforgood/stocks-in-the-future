@@ -162,6 +162,31 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
   #
   # `sign_out` is left alone and is fine where a test only signs out: nothing after it depends on the
   # session having ended by a particular moment.
+  # The other half of the same problem. `sign_out_through_the_ui` fixed the *logout*; a test that then has
+  # to be a different user still had `sign_in`'s queued `Warden.on_next_request` block behind it, and that
+  # block can fire late and set the previous user back. Measured as
+  # `TeacherCreatesStudentTest#test_teacher_can_reset_student_password` failing with **the teacher's** name
+  # in the account menu after signing out and signing in as the student - which is the failure this file's
+  # note already described, surviving the mitigation because the mitigation only covered one direction.
+  #
+  # A test that switches users signs **both** of them in through the form, so nothing is ever queued. It
+  # was written out locally in `flash_dismiss_test` and `flash_width_test` before this; two copies of a
+  # helper is how they drift, so those call it now.
+  # **It waits.** `click_on` does not block, so without the last line the next `visit` races the sign-in
+  # POST and lands signed out - which is how the first version of this broke three tests: a classroom page
+  # with no rows, and twice "no flash on screen to measure". The two local copies disagreed about exactly
+  # this, one waiting on the flash text and one not, and merging them lost the wait.
+  #
+  # The account menu rather than the flash: it names the signed-in user, renders on every signed-in page,
+  # and does not auto-dismiss after 6 seconds the way the flash does.
+  def sign_in_through_the_ui(username, password: "Passw0rd")
+    visit new_user_session_path
+    fill_in "Username", with: username
+    fill_in "Password", with: password
+    click_on "Sign in"
+    assert_selector "[data-testid='account-menu']"
+  end
+
   def sign_out_through_the_ui
     find("[data-testid='account-menu'] summary").click
     click_on "Sign out"

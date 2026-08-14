@@ -20,13 +20,6 @@ class FlashDismissTest < ApplicationSystemTestCase
   # Past the delay, so "still on screen" can only mean the timer never fired.
   PAST_THE_DELAY = 8
 
-  def sign_in_through_the_form(username)
-    visit new_user_session_path
-    fill_in "Username", with: username
-    fill_in "Password", with: "Passw0rd"
-    click_on "Sign in"
-  end
-
   def student_who_can_sign_in(username)
     classroom = create(:classroom, :with_trading)
     student = create(:student, :with_portfolio, classroom:, username:)
@@ -36,7 +29,7 @@ class FlashDismissTest < ApplicationSystemTestCase
 
   test "a success notice clears itself after six seconds" do
     student_who_can_sign_in("dismisser")
-    sign_in_through_the_form("dismisser")
+    sign_in_through_the_ui("dismisser")
 
     assert_selector "#notice", text: "Signed in successfully"
 
@@ -93,7 +86,7 @@ class FlashDismissTest < ApplicationSystemTestCase
   # WCAG 2.2.1: it cannot vanish mid-read.
   test "hovering holds the notice, and leaving lets it go" do
     student_who_can_sign_in("hoverer")
-    sign_in_through_the_form("hoverer")
+    sign_in_through_the_ui("hoverer")
 
     assert_selector "#notice"
     find("#notice").hover
@@ -152,7 +145,7 @@ class FlashDismissTest < ApplicationSystemTestCase
   # timer, the alert at all - and closing is the *only* way the alert goes.
   test "the success notice can be closed before its timer" do
     student_who_can_sign_in("closer")
-    sign_in_through_the_form("closer")
+    sign_in_through_the_ui("closer")
 
     assert_selector "#notice"
     within("#notice") { click_on "Dismiss" }
@@ -178,7 +171,7 @@ class FlashDismissTest < ApplicationSystemTestCase
   # the one case where this app uses 44px rather than the 32px a labelled ghost button gets.
   test "each flash close control is named and 44px" do
     student_who_can_sign_in("a11ycheck")
-    sign_in_through_the_form("a11ycheck")
+    sign_in_through_the_ui("a11ycheck")
 
     assert_selector "#notice button", text: "Dismiss"
 
