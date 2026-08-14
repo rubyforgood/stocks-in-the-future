@@ -3,8 +3,9 @@
 Durable context for anyone — human or agent — picking up UI work here. Kept
 short on purpose. The design system lives in [`design.md`](design.md), the
 process in [`design-instructions.md`](design-instructions.md), the backlog in
-[`design-todo.md`](design-todo.md), and long-term-consequence changes in
-[`migration.md`](migration.md).
+[`design-todo.md`](design-todo.md), long-term-consequence changes in
+[`migration.md`](migration.md), and what the app *is* — for a new user and a new
+maintainer — in [`ONBOARDING.md`](ONBOARDING.md).
 
 ## Standing instruction: keep migration.md current
 
@@ -26,6 +27,33 @@ from now.
 **Architecture work needs a migration map in `migration.md` before any code
 moves** — current structure, target structure, the order of moves, and what each
 step breaks.
+
+## Standing instruction: keep ONBOARDING.md current
+
+**When a change alters what the app does, who may do it, or what a word means,
+update [`ONBOARDING.md`](ONBOARDING.md) as part of that change — the same way
+`migration.md` and `design.md` are updated.**
+
+The three files are not interchangeable, and that is why this is a separate
+instruction:
+
+- `migration.md` is **history**: what changed, and what it broke. Append-only.
+- `design.md` is the **specification of the present**: what to build next.
+- `ONBOARDING.md` is **orientation**: what the app is, what each role can do,
+  and the handful of rules that catch a newcomer in their first week.
+
+A change lands in ONBOARDING when it would make the document *wrong* — a role
+gaining or losing a capability, a verb changing meaning (deactivating a person
+now ends their session), a rule worth a newcomer's first week, or a test suite
+they would otherwise meet for the first time as a failure. It does **not** land
+there for a spacing fix or a copy edit; the test is whether somebody reading it
+cold would be misled.
+
+Two habits that keep it honest, both from its own opening: **everything in it is
+derived from the code**, so quote the constant or the policy method rather than
+a remembered figure — and it is written for two audiences at once, so a change
+to a role section is a change a teacher or an administrator will read, not only
+a maintainer.
 
 ## Standing instruction: check both references, and both sides
 

@@ -5798,3 +5798,32 @@ the lists and cannot be opened, and nobody is signed out, because a classroom ha
 - Four tests matched the old words - two on the students index, one empty-state preview, and the classroom
   flash - and now match the new ones. The empty-state test gained the classroom case, so both vocabularies
   are asserted rather than one.
+
+## ONBOARDING.md joins the documents that are kept current
+
+Asked for, and it had gone stale in the one way that matters: it described archiving a student as an
+administrative tidy-up, which is now an action that ends their session.
+
+**What changed in it.** The vocabulary and its two consequences, right after the glossary - deactivating a
+person stops them signing in, archiving a classroom signs nobody out. Both role sections, which said
+"archive one" of a student. The three-tab shape of every list of people. `Ui::FormBuilder` covering every
+form now, including the buy/sell modal. `shared/_breadcrumbs` serving both halves. Two more rules for the
+first-week list - measure contrast by painting a pixel, and prefer an exception the code can see over a name
+in a sentence. A table of the audit suites, because a newcomer meets those as a failure rather than as a
+feature. And a note that AA is met and asserted while AAA is not, deliberately, so nobody files the four
+gaps as oversights.
+
+**And a standing instruction in `CLAUDE.md`**, alongside the one for `migration.md`. The three documents are
+not interchangeable, which is why it is its own rule: `migration.md` is history and append-only, `design.md`
+is the specification of the present, and `ONBOARDING.md` is orientation - what the app is, what each role
+can do, and the rules that catch somebody in their first week. A change lands there when it would make the
+document *wrong*, not for a spacing fix.
+
+Every claim added was checked against the code before it went in, which is the document's own opening
+contract: `active_for_authentication?`, `really_destroy!`, both breadcrumb helpers and all ten test files.
+
+### What this breaks
+
+- Nothing in the app. This is documentation, and the instruction that keeps it current is the part with a
+  long life: a future change that alters a role, a verb's meaning, or a first-week rule now has a fourth
+  file to update.

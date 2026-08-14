@@ -36,6 +36,19 @@ though the stake is not.
 | **Order** | A buy or a sell, placed by a student, executed later by a job |
 | **Trading floor** | `/stocks` — the list of companies, prices, and the Buy/Sell controls |
 
+**Deactivate a person, archive a thing.** They are different words for different consequences, and the
+app is strict about it:
+
+- **Deactivating** a student, teacher or user means they **cannot sign in** from that moment -
+  `User#active_for_authentication?` is false for a discarded record, and Devise checks it on every request,
+  so a session already open ends on the next one. Everything attached to the account is kept and an
+  administrator can reactivate them.
+- **Archiving** a classroom takes it out of the lists and stops it being opened. **Nobody is signed out** -
+  a classroom has no login of its own.
+
+Both are reversible, and neither deletes anything. `User#destroy` is overridden to raise; only
+`admin/teachers#destroy` genuinely removes a record, by calling `really_destroy!`.
+
 ### The money rules, exactly
 
 Earnings are per student per quarter, paid when a grade book is finalized. From
@@ -95,7 +108,7 @@ Derived from `app/policies/`. Where a rule looks arbitrary, the policy is the au
   lose focus. **A teacher cannot finalize**: `GradeBookPolicy#finalize?` is `user.admin?`, so the person
   who enters the grades is not the person who releases the money.
 - **Students** — add one, edit them, reset a password (shown once, on screen — no email is sent), and
-  archive one.
+  **deactivate** one, which stops them signing in until somebody reactivates them.
 - **Their classroom's name, grades and trading flag** are editable. **School, year and which teachers
   are assigned are not** — those move a classroom between school years and decide who can see it, and
   they stay with administrators (`ClassroomPolicy#permitted_attributes`).
@@ -110,8 +123,12 @@ Derived from `app/policies/`. Where a rule looks arbitrary, the policy is the au
 - **Finalizing a grade book** — the irreversible one. It deposits real balances into every student's
   portfolio and locks the entries. The page states the total before you press, and so does the
   confirmation.
-- **Archiving** rather than deleting people: `User#destroy` is overridden to discard. Only
-  `admin/teachers#destroy` genuinely removes a record, by calling `really_destroy!`.
+- **Deactivating** rather than deleting people: `User#destroy` is overridden to discard, and a discarded
+  account cannot sign in. Only `admin/teachers#destroy` genuinely removes a record, by calling
+  `really_destroy!`.
+- Every list of people or classrooms has three tabs — **Active** (the default), the exception
+  (**Deactivated** or **Archived**), and **All**. The status column appears on **All** only: on the other
+  two every row would carry the same value.
 
 ---
 
@@ -162,15 +179,29 @@ The long list is in `CLAUDE.md`. These are the ones that catch people in their f
    databases and a second run fills both with deadlocks that look like a suite bug.
 7. **`bin/lint` is the gate**, and it includes `bundler-audit` — a dependency CVE fails it even when your
    code is clean.
+8. **Measure contrast by painting a pixel.** `getComputedStyle` returns `oklch()` here, and reading those
+   three numbers as RGB has twice produced confident, wrong answers — once reporting five failures that did
+   not exist, once reporting body text at 1.18:1. `wcag_audit_test` does it with a canvas and carries a test
+   that injects one violation of each kind, because a clean report from a broken instrument is worse than
+   none.
+9. **An exception you write into a rule outlives the case for it.** `portfolios#show` was named in
+   `design.md` as the place a column of dashes was *correct*; it was not, and the exemption let the bug
+   survive three sweeps. Prefer an exception the code can see — a `type="url"`, a tag name — over a name in
+   a sentence.
 
 ### How the app is built
 
 - **Rails 8.1**, Hotwire (Turbo + Stimulus), importmap, Propshaft, Tailwind v4, Postgres, Solid Queue.
 - **Devise** for authentication, keyed on **username**. **Pundit** for authorization. **Discard** for
   soft deletion.
-- **Forms are `Ui::FormBuilder`** (`app/form_builders/ui/form_builder.rb`) — every entity form on both
-  halves of the product. It renders label, hint, input and, through
-  `config/initializers/field_error_proc.rb`, the error, in that order.
+- **Forms are `Ui::FormBuilder`** (`app/form_builders/ui/form_builder.rb`) — every form on both halves,
+  including the student-facing buy/sell modal. It renders label, hint, input and, through
+  `config/initializers/field_error_proc.rb`, the error, in that order. A form that hand-writes a label and
+  an input carries the right classes and misses the required marker and the error, which is exactly how the
+  order form drifted.
+- **Chrome is shared, and the root crumb is the only thing that differs.** `shared/_breadcrumbs` serves both
+  halves — `page_breadcrumbs` roots at Home, `admin_breadcrumbs` at the dashboard — and it drops itself
+  below two crumbs, so a page reached from the navbar needs no guard at the call site.
 - **Shared UI is `app/views/components/ui/`** — eight partials, every one of them rendered at
   `/admin/component_demo` (development and test only). `component_gallery_test` fails when a new one is
   added and the gallery is not.
@@ -184,6 +215,19 @@ Chromium. **There are no skipped tests and it should stay that way**: all six th
 investigated and none was flaky; five were stale and each carried a confident-sounding diagnosis that
 stopped anyone reading the failure.
 
+**Several suites are audits rather than feature tests**, and they fail on a rendered property rather than a
+string. Worth knowing before one of them fails you:
+
+| Suite | Fails when |
+|---|---|
+| `wcag_audit_test` | any of eleven WCAG 2.2 AA criteria breaks, across fifteen screens and all three roles |
+| `hint_copy_test` | a field hint restates its label, opens with the control's verb, or drops its full stop |
+| `empty_state_preview_test` | an empty state carries a filled button, or does not say what will appear here |
+| `dash_column_test` | a table shows a no-permission dash on every row |
+| `card_padding_test`, `spacing_test`, `page_width_test` | measured pixels move |
+| `breadcrumb_label_test`, `app_breadcrumb_test` | a trail disagrees with its page, or a page reached from another has none |
+| `deactivated_access_test` | a deactivated account can sign in |
+
 Two habits this codebase has learned the hard way:
 
 - **Verify a new test by making it fail.** A test that has never failed has never been shown to test
@@ -196,6 +240,11 @@ Two habits this codebase has learned the hard way:
 So you do not "fix" them: there is no dark mode (a `dark:` variant is a bug here), no TomSelect or
 type-ahead, no pagination on most tables, and no email on password reset — a teacher reads the new
 password off the screen and passes it on.
+
+**WCAG AA is met and asserted; AAA is not, deliberately.** W3C says outright that AAA is not achievable for
+a whole site, and the four that fail here are decisions rather than oversights: 44px targets against this
+app's 40px buttons, 7:1 contrast against the brand primary's 6.18:1, no-timing against a flash that hides
+itself, and enhanced authentication, which a password cannot meet. Each is measured in `design-todo.md`.
 
 And **a student never sees a grade.** `GradeBookPolicy#show?` is teacher-or-admin, so grade books are
 closed to them entirely. What they see is the *money*: once a grade book is finalized, their portfolio
