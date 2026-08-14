@@ -5728,3 +5728,31 @@ three tabs, and the column only where it says something.
   assert the surviving row's `display_name` instead - and note why the literal username never worked:
   `sync_username_from_email` overwrites it on every save, so `create(:teacher, username: "teacher1")` does
   not put "teacher1" on the page.
+
+## Classroom archiving pairs with Restore, and a promise that is not kept
+
+Asked how to align Deactivate/Reactivate with Archive/Restore. There were **three** vocabularies for one
+idea: Archive/Restore on students and users, Archive/**Activate** on classrooms, Deactivate/Reactivate on
+teachers.
+
+The classroom pair is fixed here, because it is wrong under every possible answer to the larger question -
+Archive pairs with Restore or Unarchive, and Activate pairs with Deactivate. The button, its icon, the
+flash and three tests move together.
+
+**The larger question is blocked on a behaviour, not a word, and the behaviour is a bug.** Five
+confirmations say "They lose access immediately and leave this list" - on students, teachers, users,
+classrooms and in the component gallery. Measured: a discarded student **signs in successfully**.
+`POST /users/sign_in` returns 303 to root and the next request is authenticated. `User` has no
+`active_for_authentication?` override and nothing anywhere reads `discarded?` for authorization. Archiving
+removes the record from the admin lists and does nothing else.
+
+That is recorded in design-todo with the two ways out and a recommendation: close the gap, then
+**deactivate a person and archive a thing**, which is what Slack, Google Workspace, Salesforce and Okta all
+do and what the confirmations already claim.
+
+### What this breaks
+
+- **"Activate" is gone** from the classroom row action, the record page button, and the flash, which now
+  reads "Classroom has been restored." Three tests matched the old string.
+- The restore icon is `rotate-ccw`, the glyph the other two restores already use, rather than
+  `circle-check`.

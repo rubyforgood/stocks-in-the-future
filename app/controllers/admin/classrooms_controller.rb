@@ -74,7 +74,8 @@ module Admin
     def toggle_archive
       authorize @classroom, :toggle_archive?
       @classroom.update!(archived: !@classroom.archived)
-      flash[:notice] = @classroom.archived? ? "Classroom has been archived." : "Classroom has been activated."
+      # "restored", pairing with "archived" - the button says Restore.
+      flash[:notice] = @classroom.archived? ? "Classroom has been archived." : "Classroom has been restored."
 
       # Back where the action was taken, not off to the record's page. Archiving is a *list* action here -
       # it is a row action on the index - and every other row action in this half already returns to its

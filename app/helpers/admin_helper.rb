@@ -512,14 +512,18 @@ module AdminHelper
     end
   end
 
+  # **"Restore", not "Activate".** Archive pairs with Restore or Unarchive; Activate pairs with Deactivate.
+  # The app had three vocabularies for one idea - Archive/Restore on students and users, Archive/Activate
+  # here, Deactivate/Reactivate on teachers - and this pair was internally inconsistent whichever way the
+  # larger question is settled, so it is the one word that is wrong under every answer.
   def activate_button(classroom)
     link_to toggle_archive_admin_classroom_path(classroom),
             data: { turbo_method: :patch, turbo_confirm: classroom_toggle_confirm(classroom) },
             class: admin_secondary_button_class do
       safe_join(
         [
-          lucide_icon("circle-check", class: "h-5 w-5 shrink-0 text-slate-500"),
-          "Activate"
+          lucide_icon("rotate-ccw", class: "h-5 w-5 shrink-0 text-slate-500"),
+          "Restore"
         ]
       )
     end

@@ -211,7 +211,7 @@ module Admin
       # did not ask for is the cost of one click on a row. With no Referer this is the fallback; the
       # test below covers the case where there is one.
       assert_redirected_to admin_classrooms_path
-      assert_equal "Classroom has been activated.", flash[:notice]
+      assert_equal "Classroom has been restored.", flash[:notice]
       assert_not classroom.archived?
     end
 

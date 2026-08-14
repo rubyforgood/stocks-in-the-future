@@ -65,8 +65,9 @@
                 <% status_cell = capture { classroom_status_badge(classroom) } %>
                 <% row_actions = capture do %>
                     <% if classroom.archived? %>
-                      <%= ghost_action_link action_label("Activate", classroom), toggle_archive_admin_classroom_path(classroom),
-                                            icon: "circle-check",
+                      <%# "Restore", pairing with Archive - see `activate_button`. %>
+                      <%= ghost_action_link action_label("Restore", classroom), toggle_archive_admin_classroom_path(classroom),
+                                            icon: "rotate-ccw",
                                             data: { turbo_method: :patch,
                                                     turbo_confirm: classroom_toggle_confirm(classroom) } %>
                     <% else %>

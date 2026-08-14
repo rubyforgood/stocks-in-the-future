@@ -895,6 +895,42 @@ The 1.4.11 entry that stood here - `border-slate-300` on inputs at 1.49:1 and `b
 buttons at 1.23:1 - was taken as a decision and fixed: both are `slate-500` now, measured at 4.76:1 and
 4.55:1. `slate-400` was checked first and rejected at 2.63:1.
 
+## Archive or deactivate, and the promise neither of them keeps (2026-08)
+
+Asked how to align the two vocabularies. There were **three**, for one idea, all implemented with `discard`
+or an `archived` boolean:
+
+| Record | Verb | Inverse | Status word |
+| --- | --- | --- | --- |
+| Student, user | Archive | Restore | Archived |
+| Teacher | Deactivate | Reactivate | Deactivated |
+| Classroom | Archive | **Activate** | Archived |
+
+The classroom pair was wrong under every possible answer - Archive pairs with Restore, Activate pairs with
+Deactivate - so it is fixed. The rest needs a decision, and the decision is not really about words.
+
+**The blocker: five confirmations promise something that does not happen.** "They lose access immediately
+and leave this list" appears on the student, teacher, user and classroom confirmations and in the component
+gallery. Measured: a discarded student **signs in successfully** - `POST /users/sign_in` returns a 303 to
+root and the next request is authenticated. There is no `active_for_authentication?` override on `User` and
+no filter anywhere reading `discarded?`. Archiving removes the record from the admin lists and nothing else.
+
+So the vocabulary question is downstream of a behaviour question:
+
+- **If archiving should revoke access** - which is what all five confirmations already tell an administrator
+  - then the code has a real gap, and afterwards **Deactivate / Reactivate** is the honest word for a person.
+  That is what the field does: Slack deactivates a member, Google Workspace suspends a user, Salesforce and
+  Okta deactivate. You *archive* a thing and *deactivate* a person, because for a person the operative fact
+  is whether they can still sign in.
+- **If archiving should only file them away**, the copy has to stop promising access is revoked, and
+  **Archive / Restore** is right everywhere - including for teachers, whose Deactivate would then be the
+  misleading word.
+
+**Recommended: close the gap and split by kind.** People - students, teachers, users - get
+Deactivate/Reactivate and actually lose access; things - classrooms - get Archive/Restore. That matches the
+field, matches what the confirmations already claim, and gives one rule a reader can hold: *deactivate a
+person, archive a thing.*
+
 ## Decisions waiting on a product owner (2026-08)
 
 One list, because they were scattered across this file and across conversations. None of them is blocked on

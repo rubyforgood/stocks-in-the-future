@@ -29,10 +29,10 @@ module Admin
       assert_text @classroom.name
 
       accept_confirmation do
-        click_on "Activate"
+        click_on "Restore"
       end
 
-      assert_text "Classroom has been activated"
+      assert_text "Classroom has been restored"
       assert_current_path admin_classroom_path(@classroom)
     end
 

@@ -153,7 +153,7 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
     # test below covers the case where there is one.
     assert_redirected_to admin_classrooms_path
     assert_not @classroom.reload.archived?
-    assert_equal "Classroom has been activated.", flash[:notice]
+    assert_equal "Classroom has been restored.", flash[:notice]
   end
 
   test "admins can see all classrooms in index" do
