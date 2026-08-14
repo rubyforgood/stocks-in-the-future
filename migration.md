@@ -5887,3 +5887,36 @@ reaches 3:1, and one that carries a shadow. That is why the audit still passes w
   `slate-500`.
 - `button_variants_test` moves back with them, and its comment now records both readings so the next person
   does not re-apply the blunt one.
+
+## One action, one glyph
+
+Reported: "Deactivate" had a different icon on students, teachers and users. It had **four**, and the fourth
+was the problem:
+
+| Where | Icon |
+| --- | --- |
+| the shared row-action helper, and the gallery | `user-x` |
+| `admin/teachers#index` | `ban` |
+| `admin/users#index` | `archive`, left from the rename |
+| `admin/teachers`'s record page | **`trash-2`** - beside a real "Permanently delete" wearing the same glyph |
+
+That last one is the one that misleads: a single icon meaning both "reversible, they keep everything" and
+"gone". Auditing the rest found "Edit" split between `pencil` and `square-pen` across three shared partials,
+and "Reactivate" between `circle-check` and `rotate-ccw`.
+
+**The vocabulary now mirrors the verbs.** A person is `user-x` / `user-check`; a thing is `archive` /
+`rotate-ccw`. That frees `ban` for Cancel alone and retires `circle-check` - the old table in `design.md`
+gave `ban` to Deactivate *and* Cancel and `circle-check` to Activate *and* Reactivate, so two glyphs each
+carried two meanings.
+
+`icon_vocabulary_test` reads the **call sites**, because `lucide_icon` renders a bare `<svg>` with no name,
+class or data attribute, so a browser test could only compare path data. It fails on any label carrying two
+icons and pins the six pairs by name. Verified twice - once by restoring `ban`, once by restoring `archive`
+- because the regex was rewritten for the line-length cop afterwards and a pattern that matches nothing
+passes every assertion.
+
+### What this breaks
+
+- **Six icons changed**: Deactivate to `user-x` in three places, Reactivate to `user-check` in three, Edit
+  to `pencil` in three. Nothing asserted an icon before this.
+- `trash-2` now means deletion only, and `archive` means a classroom only.

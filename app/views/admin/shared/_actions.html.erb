@@ -1,7 +1,7 @@
 <div class="flex flex-wrap gap-3">
   <% if actions.include?(:edit) %>
     <%= link_to [:edit, :admin, resource], class: admin_secondary_button_class do %>
-      <%= lucide_icon("square-pen", class: "h-5 w-5 shrink-0 text-slate-500") %>
+      <%= lucide_icon("pencil", class: "h-5 w-5 shrink-0 text-slate-500") %>
       Edit
     <% end %>
   <% end %>

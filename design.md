@@ -3700,9 +3700,33 @@ icon to drop.
 **`ghost_action_link` / `ghost_action_button` are what views call** -- they render the leading icon
 themselves, so an action cannot ship without one. Both sides of the product use them.
 
-**Every table row action is a ghost with a leading icon and a visible label.** The icon vocabulary
-is Lucide, not `bi-*`: `eye` View, `pencil` Edit, `trash-2` Delete, `archive` Archive,
-`rotate-ccw` Restore, `circle-check` Activate/Reactivate, `ban` Deactivate/Cancel.
+**Every table row action is a ghost with a leading icon and a visible label**, and **one action has one
+glyph**. The vocabulary is Lucide, not `bi-*`:
+
+| Action | Icon | |
+| --- | --- | --- |
+| View | `eye` | |
+| Edit | `pencil` | not `square-pen`, which three shared partials had |
+| Delete | `trash-2` | and `Permanently delete`, which is the same act |
+| **Deactivate** | `user-x` | a **person** |
+| **Reactivate** | `user-check` | a **person** |
+| **Archive** | `archive` | a **thing** |
+| **Restore** | `rotate-ccw` | a **thing** |
+| Cancel | `ban` | |
+
+The person/thing pairs mirror the verbs: `user-x` / `user-check` for an account, `archive` / `rotate-ccw`
+for a classroom. That is why `ban` is Cancel alone now and `circle-check` is gone - the old table gave
+`ban` to Deactivate *and* Cancel, and `circle-check` to Activate *and* Reactivate, so two icons each carried
+two meanings.
+
+Reported, and worse than it sounded: **"Deactivate" carried four icons** - `user-x` in the shared helper,
+`ban` on the teachers index, `archive` on the users index left from the rename, and `trash-2` on the teacher
+record page, where it sat beside a real "Permanently delete" wearing the same glyph. One icon meant both
+"reversible, they keep everything" and "gone".
+
+`icon_vocabulary_test` reads the call sites, because `lucide_icon` renders a bare `<svg>` with no name, no
+class and no data attribute - a browser test could only compare path data. It fails on any label with two
+icons, and pins the six pairs above by name.
 
 **A row action never duplicates the row's own name link.** The name in the primary cell links to the
 record's page, so `View` was two controls to one destination -- that argument removed it from all nine

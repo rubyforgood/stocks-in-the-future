@@ -51,12 +51,12 @@
                 <% row_actions = capture do %>
                     <% if teacher.discarded? %>
                       <%= ghost_action_link action_label("Reactivate", teacher), admin_teacher_reactivation_path(teacher),
-                                            icon: "circle-check",
+                                            icon: "user-check",
                                             data: { turbo_method: :post,
                                                     turbo_confirm: teacher_reactivate_confirm(teacher) } %>
                     <% else %>
                       <%= ghost_action_link action_label("Deactivate", teacher), admin_teacher_deactivation_path(teacher),
-                                            icon: "ban", variant: :danger,
+                                            icon: "user-x", variant: :danger,
                                             data: { turbo_method: :post,
                                                     turbo_confirm: teacher_deactivate_confirm(teacher) } %>
                     <% end %>

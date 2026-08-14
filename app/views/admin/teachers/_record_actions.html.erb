@@ -7,7 +7,7 @@
   <%= link_to admin_teacher_reactivation_path(teacher),
               data: { turbo_method: :post, turbo_confirm: teacher_reactivate_confirm(teacher) },
               class: admin_secondary_button_class do %>
-    <%= lucide_icon("circle-check", class: "h-5 w-5 shrink-0 text-slate-500") %>
+    <%= lucide_icon("user-check", class: "h-5 w-5 shrink-0 text-slate-500") %>
     Reactivate
   <% end %>
 
@@ -21,7 +21,9 @@
   <%= link_to admin_teacher_deactivation_path(teacher),
               data: { turbo_method: :post, turbo_confirm: teacher_deactivate_confirm(teacher) },
               class: admin_danger_button_class do %>
-    <%= lucide_icon("trash-2", class: "h-5 w-5 shrink-0") %>
+    <%# `user-x`, not `trash-2`. This wore the delete glyph on the same page as a real "Permanently
+        delete" wearing it too, so one icon meant both "reversible, they keep everything" and "gone". %>
+    <%= lucide_icon("user-x", class: "h-5 w-5 shrink-0") %>
     Deactivate
   <% end %>
 <% end %>

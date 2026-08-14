@@ -78,14 +78,14 @@
                       and the discard is reversible in the data and was irreversible only here. %>
                   <% if user.discarded? %>
                     <%= ghost_action_link action_label("Reactivate", user), restore_admin_user_path(user),
-                                          icon: "rotate-ccw",
+                                          icon: "user-check",
                                           data: { turbo_method: :patch,
                                                   turbo_confirm: "Reactivate #{user.username}?\n\n" \
                                                                  "They can sign in again and reappear " \
                                                                  "in the lists they belong to." } %>
                   <% else %>
                     <%= ghost_action_link action_label("Deactivate", user), admin_user_path(user),
-                                          icon: "archive", variant: :danger,
+                                          icon: "user-x", variant: :danger,
                                           data: { turbo_method: :delete,
                                                   turbo_confirm: "Deactivate #{user.username}?\n\n" \
                                                                  "They cannot sign in from that " \

@@ -401,7 +401,7 @@ module AdminHelper
     restore_path = send("restore_admin_#{resource_name}_path", resource)
 
     ghost_action_button action_label("Reactivate", resource), restore_path,
-                        icon: "rotate-ccw",
+                        icon: "user-check",
                         method: :patch,
                         data: { turbo_confirm: "Reactivate this #{resource_name.humanize.downcase}?\n\n" \
                                                "They can sign in again and reappear in the lists " \
