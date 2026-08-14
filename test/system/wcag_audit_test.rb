@@ -266,6 +266,98 @@ class WcagAuditTest < ApplicationSystemTestCase
     assert_operator r["borders"].size, :>, 0, "1.4.11 did not catch a control with a near-invisible boundary"
   end
 
+  # **2.4.11 Focus Not Obscured (Minimum)**, new in WCAG 2.2 AA: a focused control must not be *entirely*
+  # hidden by author-created content. This app has three pieces of it - the staging ribbon, the fixed header
+  # under it, and `.tw-form-actions`, which becomes `sticky bottom-0` the moment an update form is dirty.
+  #
+  # It failed when this was written. With the form dirty, `admin/stocks/new`'s `employees` input landed at
+  # 1213-1233 inside a save bar occupying 1161-1233: the browser scrolls a Tab target to the scrollport's
+  # edge, which is behind the bar. `scroll-padding` on `:root` tells it where the usable scrollport really
+  # starts and ends, which is why the fix is three lines of CSS rather than a scroll handler.
+  test "no focused control is entirely hidden by the fixed chrome" do
+    create(:student, classroom: create(:classroom, :with_trading))
+    create(:stock)
+    sign_in(create(:admin))
+
+    [new_admin_stock_path, admin_students_path, new_admin_teacher_path].each do |path|
+      visit path
+      # Dirty the form, so the save row is sticky and in the way where there is one. `minimum: 0` because
+      # an index page has no text field and `first` raises rather than returning nil.
+      first("input[type=text]", minimum: 0)&.set("x")
+
+      hidden = page.evaluate_script(<<~JS)
+        (function () {
+          const fixed = Array.from(document.querySelectorAll("body *")).filter(function (el) {
+            const p = getComputedStyle(el).position;
+            return (p === "fixed" || p === "sticky") && el.getClientRects().length > 0;
+          });
+          const out = [];
+          Array.from(document.querySelectorAll("a[href], button, input, select, textarea"))
+               .filter(function (el) { return el.getClientRects().length > 0 && !el.disabled; })
+               .forEach(function (el) {
+                 el.focus();
+                 const b = el.getBoundingClientRect();
+                 if (b.width === 0 || b.height === 0) return;
+                 const covered = fixed.some(function (f) {
+                   if (f.contains(el)) return false;
+                   const r = f.getBoundingClientRect();
+                   return r.left <= b.left && r.right >= b.right && r.top <= b.top && r.bottom >= b.bottom;
+                 });
+                 if (covered || b.bottom < 0 || b.top > window.innerHeight) {
+                   out.push((el.name || el.innerText || el.tagName).toString().slice(0, 30));
+                 }
+               });
+          return out;
+        })()
+      JS
+
+      assert_empty hidden,
+                   "#{path}: focusing #{hidden.inspect} left it entirely behind the fixed header or the " \
+                   "sticky save row. 2.4.11 asks that a focused control not be completely hidden; " \
+                   "`scroll-padding` on :root is what keeps the scrollport clear of both."
+    end
+  end
+
+  # 1.4.12 Text Spacing: with these four overrides applied, no content or function may be lost. `.tw-card`
+  # is `overflow-hidden`, so a clipped element never grows the page - a page-level check cannot see this,
+  # which is why each element is compared to its own card.
+  test "text spacing overrides lose no content" do
+    classroom = create(:classroom, :with_trading, name: "Period 3")
+    student = create(:student, :with_portfolio, classroom:, name: "Robin Fields")
+    create(:stock)
+    sign_in(create(:admin))
+
+    { "student record" => admin_student_path(student.reload), "classroom" => classroom_path(classroom),
+      "new stock" => new_admin_stock_path }.each do |name, path|
+      visit path
+      page.execute_script(<<~JS)
+        const s = document.createElement("style");
+        s.textContent = "* { line-height: 1.5 !important; letter-spacing: 0.12em !important;" +
+                        " word-spacing: 0.16em !important; } p { margin-bottom: 2em !important; }";
+        document.head.appendChild(s);
+      JS
+
+      clipped = page.evaluate_script(<<~JS)
+        (function () {
+          const out = [];
+          document.querySelectorAll("main .tw-card").forEach(function (card) {
+            const cb = card.getBoundingClientRect();
+            card.querySelectorAll("*").forEach(function (el) {
+              if (!el.getClientRects().length) return;
+              const b = el.getBoundingClientRect();
+              if (b.width === 0) return;
+              const over = Math.round(Math.max(b.right - cb.right, cb.left - b.left));
+              if (over > 1) out.push(over + "px: " + (el.innerText || "").trim().slice(0, 24));
+            });
+          });
+          return out.slice(0, 5);
+        })()
+      JS
+
+      assert_empty clipped, "#{name}: #{clipped.inspect} is clipped by its card at WCAG text spacing"
+    end
+  end
+
   test "as a student" do
     _classroom, student, stock = fixtures_for_audit
     sign_in(student)

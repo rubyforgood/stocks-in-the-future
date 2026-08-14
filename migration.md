@@ -5496,3 +5496,31 @@ answer too.
   falls under 3:1, with a self-check that injects a near-invisible border and confirms it is caught.
 - Every field and outlined button in the product is visibly heavier. That is the trade the criterion asks
   for, and it is the whole of the visual change.
+
+## The rest of WCAG 2.2 AA, and one more real failure
+
+The audit covered nine criteria; AA has fifty-five. Extending it to the ones a browser can check honestly
+found one more failure, in the criterion most likely to bite an app with fixed chrome.
+
+**2.4.11 Focus Not Obscured (Minimum) - failed, fixed.** New in WCAG 2.2. A focused control must not be
+*entirely* hidden by author-created content, and there are three pieces of it here: the staging ribbon, the
+fixed header, and `.tw-form-actions` once an update form is dirty. Measured on `admin/stocks/new`: the
+`employees` input landed at 1213-1233 inside a save bar occupying 1161-1233 - completely covered, which is
+the criterion's own wording. The browser scrolls a Tab target to the scrollport's edge, which is behind the
+bar. `scroll-padding-top` / `scroll-padding-bottom` on `:root`, against the chrome's own height variables,
+is the whole fix.
+
+**Checked and already passing**, so no change was made: 1.4.12 text spacing (measured per card, because
+`.tw-card` clips rather than overflows and a page-level check cannot see it), 4.1.3 status messages (the
+flash carries `role="status"` and `role="alert"`, callouts and the error summary likewise), 2.1.2 no
+keyboard trap (the modal handles Escape and traps focus with a way out), and 3.3.8 accessible authentication
+(sign-in carries `autocomplete="username"` and `"current-password"`, so a password manager works).
+
+### What this breaks
+
+- **`:root` now carries `scroll-padding`.** Anything added to the fixed chrome has to move those numbers,
+  which is why they are `calc()` against `--sitf-header-h` and `--sitf-ribbon-h` rather than written out. A
+  new sticky element at the bottom taller than 4rem would need the bottom value raised.
+- `wcag_audit_test` gains two tests and is now about 50s of the system suite. The 2.4.11 one dirties a form
+  first, because the sticky bar only exists in that state - verified by reverting the CSS and watching it
+  name the field.

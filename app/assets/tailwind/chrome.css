@@ -29,6 +29,23 @@
     top: var(--sitf-ribbon-h);
   }
 
+  /* **WCAG 2.2 AA, 2.4.11 Focus Not Obscured.** A focused control must not be *entirely* hidden by
+     author-created content, and this app has three pieces of it: the ribbon, the fixed header under it,
+     and `.tw-form-actions`, which becomes `sticky bottom-0` the moment an update form is dirty.
+
+     When the browser scrolls a Tab target into view it stops at the scrollport's edge, which is behind
+     all three. Measured on `admin/stocks/new` with the form dirty: the `employees` input landed at
+     1213-1233 inside a save bar occupying 1161-1233 - entirely covered, which is the criterion's own
+     wording.
+
+     `scroll-padding` is what tells the browser where the usable scrollport actually starts and ends, so
+     the fix is three lines rather than a scroll handler. The bottom value is the save row's own height:
+     40px of button plus its 16px of padding, and 8px so it does not sit flush against the bar. */
+  :root {
+    scroll-padding-top: calc(var(--sitf-header-h) + var(--sitf-ribbon-h) + 0.5rem);
+    scroll-padding-bottom: 4rem;
+  }
+
   /* Content clears the header plus the ribbon. Two classes because the app layout uses margin (its
      main carries the page background) and admin uses padding. */
   .chrome-main-margin {

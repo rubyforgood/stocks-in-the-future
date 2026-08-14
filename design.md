@@ -5420,7 +5420,19 @@ The per-page checklists live in
 [`design-instructions.md`](design-instructions.md). Two habits matter more than
 the lists:
 
-1. ****A control's boundary is 3:1, which is WCAG 1.4.11, and it is `slate-500`.** Every field, select, textarea,
+1. ****Fixed chrome needs `scroll-padding`, which is WCAG 2.2's 2.4.11.** A focused control must not be
+*entirely* hidden by author-created content, and this app has three pieces of it: the staging ribbon, the
+fixed header beneath it, and `.tw-form-actions`, which becomes `sticky bottom-0` the moment an update form is
+dirty. When the browser scrolls a Tab target into view it stops at the scrollport's edge - which is behind
+all three. Measured on `admin/stocks/new` with the form dirty: the `employees` input landed at 1213-1233
+inside a save bar occupying 1161-1233.
+
+`scroll-padding-top` and `scroll-padding-bottom` on `:root` tell the browser where the usable scrollport
+starts and ends, so the fix is three lines against the chrome's own height variables rather than a scroll
+handler. **Anything added to the fixed chrome has to move those numbers with it**, which is why they are
+expressed as `calc(var(--sitf-header-h) + var(--sitf-ribbon-h) + …)` rather than written out.
+
+**A control's boundary is 3:1, which is WCAG 1.4.11, and it is `slate-500`.** Every field, select, textarea,
 checkbox, switch track and outlined button in this app is white on a white card, so its border is the only
 thing saying a control is there. Measured before: `.tw-input-primary`'s `border-slate-300` at **1.49:1** and
 `.tw-btn-secondary`'s `border-slate-200` at **1.23:1**. `slate-400` is **2.63:1** and still fails, so
