@@ -5756,3 +5756,45 @@ do and what the confirmations already claim.
   reads "Classroom has been restored." Three tests matched the old string.
 - The restore icon is `rotate-ccw`, the glyph the other two restores already use, rather than
   `circle-check`.
+
+## Deactivate a person, archive a thing - and deactivating now deactivates
+
+Chosen from the two options recorded last commit: split by kind, and close the access gap first.
+
+**The behaviour.** `User#active_for_authentication?` returns false for a discarded record, and
+`#inactive_message` names a new `devise.failure.deactivated` string, because the default reads "not activated
+yet" - true of an account nobody has used, wrong for one that was turned off. Devise's `activatable` hook
+runs this on every `after_set_user`, not only at sign-in, so **a session already open ends on the next
+request**. Four tests: a deactivated student cannot sign in, an active one still can, an open session ends,
+and the same holds for a teacher.
+
+That closes a gap five confirmations had been describing as if it were closed. Before this, a discarded
+student signed in successfully.
+
+**The words.**
+
+| | Verb | Inverse | Status | Tab |
+| --- | --- | --- | --- | --- |
+| Student, teacher, user | Deactivate | Reactivate | Deactivated | Deactivated |
+| Classroom | Archive | Restore | Archived | Archived |
+
+`archived_empty_state` split in two - `deactivated_empty_state` for people, `archived_empty_state` for the
+classroom - and `teacher_status_badge` no longer overrides anything, because every person now shares the one
+default. The deactivate icon is `user-x` rather than `archive`, which is the glyph for a person rather than a
+filing action.
+
+**Two confirmations were lying in opposite directions**, and both are fixed: the people ones promised access
+was revoked when it was not, and the classroom one promised "its teachers and students lose access
+immediately", which archiving a classroom has never done. It now says what happens - the classroom leaves
+the lists and cannot be opened, and nobody is signed out, because a classroom has no login.
+
+### What this breaks
+
+- **A deactivated account can no longer sign in.** That is the point, and it is a behaviour change: anyone
+  deactivated before today could sign in until now and cannot from now on.
+- **Routes keep the old names.** `restore_admin_student_path` and `admin_students_path(discarded: true)` are
+  unchanged, so no links break; only what a reader sees moved. Renaming them is a separate change with no
+  user-visible effect.
+- Four tests matched the old words - two on the students index, one empty-state preview, and the classroom
+  flash - and now match the new ones. The empty-state test gained the classroom case, so both vocabularies
+  are asserted rather than one.

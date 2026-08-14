@@ -66,18 +66,23 @@ class EmptyStatePreviewTest < ApplicationSystemTestCase
     end
   end
 
-  # **The Archived tab is a different sentence.** With nothing archived these said "No students yet" and
-  # offered a New button - on a list of archived records, with plenty of unarchived ones a tab away. Both
-  # halves were false, and it is the state a reader meets most often, because most installations archive
-  # nothing.
-  test "the archived tabs say what is missing" do
+  # **The exception tab is a different sentence.** With nobody deactivated these said "No students yet" and
+  # offered a New button - on a list of deactivated records, with plenty of active ones a tab away. Both
+  # halves were false, and it is the state a reader meets most often, because most installations deactivate
+  # nobody.
+  #
+  # "Deactivated", not "Archived": a person with a login is deactivated and a thing is archived, which is
+  # what the field does and what the action now actually performs.
+  test "the exception tabs say what is missing" do
     create(:student, classroom: create(:classroom, :with_trading))
     create(:teacher)
     sign_in create(:admin)
 
-    { "students-archived" => [admin_students_path(discarded: true), "No archived students"],
-      "teachers-archived" => [admin_teachers_path(discarded: true), "No archived teachers"],
-      "users-archived" => [admin_users_path(discarded: true), "No archived users"] }.each do |name, (path, title)|
+    { "students-deactivated" => [admin_students_path(discarded: true), "No deactivated students"],
+      "teachers-deactivated" => [admin_teachers_path(discarded: true), "No deactivated teachers"],
+      "users-deactivated" => [admin_users_path(discarded: true), "No deactivated users"],
+      "classrooms-archived" => [admin_classrooms_path(discarded: true),
+                                "No archived classrooms"] }.each do |name, (path, title)|
       visit path
       assert_empty_state(name, title)
       # The page header keeps its New button - you can always create one - but the empty state must not

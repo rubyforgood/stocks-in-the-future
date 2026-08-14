@@ -275,12 +275,14 @@
           <%= lucide_icon("mail", class: "h-5 w-5 shrink-0") %>
           Send email
         <% end %>
-        <% demo_archive = "Archive this user?\n\n" \
-                          "They lose access immediately and leave this list. Everything attached to " \
-                          "the account is kept, and an administrator can restore it." %>
+        <%# The gallery demonstrates the real pair, so it uses the real word: a **person** is deactivated
+            and reactivated, a **thing** is archived and restored. %>
+        <% demo_archive = "Deactivate this user?\n\n" \
+                          "They cannot sign in from that moment, and they leave this list. Everything " \
+                          "attached to the account is kept, and an administrator can reactivate them." %>
         <%= link_to "#", data: { turbo_confirm: demo_archive }, class: "tw-btn-secondary" do %>
-          <%= lucide_icon("archive", class: "h-5 w-5 shrink-0") %>
-          Archive
+          <%= lucide_icon("user-x", class: "h-5 w-5 shrink-0") %>
+          Deactivate
         <% end %>
       </div>
     </div>

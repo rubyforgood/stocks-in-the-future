@@ -79,15 +79,17 @@ module AdminHelper
   #
   # The label follows each page's own action, because that is what a reader connects it to: students and
   # users are Archived and Restored, a teacher is Deactivated and Reactivated.
-  def discard_status_badge(record, archived_label: "Archived", **)
+  def discard_status_badge(record, archived_label: "Deactivated", **)
     render "components/ui/badge",
            label: record.discarded? ? archived_label : "Active",
            tone: record.discarded? ? :danger : :success,
            **
   end
 
+  # Kept as a name because five call sites read better for it, but it no longer differs: **every** person
+  # in this app is deactivated and reactivated now, and only a classroom is archived and restored.
   def teacher_status_badge(teacher, **)
-    discard_status_badge(teacher, archived_label: "Deactivated", **)
+    discard_status_badge(teacher, **)
   end
 
   # A student's account and what is in their portfolio, as the summary line. Nil-safe for the same reason as
@@ -304,15 +306,24 @@ module AdminHelper
   # `keeps:` per noun, because "everything attached to it" was the generic that made the sentence say
   # nothing: what survives archiving is a student's history, a teacher's classrooms, a classroom's grade
   # books. Naming them is the difference between a reassurance and a promise a reader can check.
-  def archived_empty_state(noun, keeps:)
+  # A **person** is deactivated; see `archived_empty_state` below for the thing that is still archived.
+  def deactivated_empty_state(noun, keeps:)
     # The article follows the **sound**, not the letter: "a user", because "user" is pronounced with a
     # consonant. A first-letter test gave "an user". The exceptions are listed rather than guessed at,
     # because the only nouns this takes are the four archivable records.
     sounds_consonant = %w[user unit].include?(noun)
     article = !sounds_consonant && noun.start_with?("a", "e", "i", "o", "u") ? "an" : "a"
 
+    { title: "No deactivated #{noun.pluralize}",
+      body: "Deactivating #{article} #{noun} is reversible and keeps #{keeps} intact. " \
+            "Deactivated #{noun.pluralize} appear here." }
+  end
+
+  # And the thing. A classroom has no login to take away, so archiving it files it out of the lists and
+  # changes nothing else - which is what the word means everywhere else in the field.
+  def archived_empty_state(noun, keeps:)
     { title: "No archived #{noun.pluralize}",
-      body: "Archiving #{article} #{noun} is reversible and keeps #{keeps} intact. " \
+      body: "Archiving a #{noun} is reversible and keeps #{keeps} intact. " \
             "Archived #{noun.pluralize} appear here." }
   end
 
@@ -389,12 +400,12 @@ module AdminHelper
     resource_name = resource.class.name.underscore
     restore_path = send("restore_admin_#{resource_name}_path", resource)
 
-    ghost_action_button action_label("Restore", resource), restore_path,
+    ghost_action_button action_label("Reactivate", resource), restore_path,
                         icon: "rotate-ccw",
                         method: :patch,
-                        data: { turbo_confirm: "Restore this #{resource_name.humanize.downcase}?\n\n" \
+                        data: { turbo_confirm: "Reactivate this #{resource_name.humanize.downcase}?\n\n" \
                                                "They can sign in again and reappear in the lists " \
-                                               "they belong to. Nothing they did while archived " \
+                                               "they belong to. Nothing they did while deactivated " \
                                                "has changed." },
                         form: { class: "inline-flex" }
   end
@@ -403,13 +414,13 @@ module AdminHelper
     resource_name = resource.class.name.underscore
     resource_path = send("admin_#{resource_name}_path", resource)
 
-    ghost_action_link action_label("Archive", resource), resource_path,
-                      icon: "archive", variant: :danger,
+    ghost_action_link action_label("Deactivate", resource), resource_path,
+                      icon: "user-x", variant: :danger,
                       data: { turbo_method: :delete,
-                              turbo_confirm: "Archive this #{resource_name.humanize.downcase}?\n\n" \
-                                             "They lose access immediately and leave this list. " \
-                                             "Everything attached to the account is kept, and an " \
-                                             "administrator can restore it." }
+                              turbo_confirm: "Deactivate this #{resource_name.humanize.downcase}?\n\n" \
+                                             "They cannot sign in from that moment, and they leave this " \
+                                             "list. Everything attached to the account is kept, and an " \
+                                             "administrator can reactivate them." }
   end
 
   # This and archive_button sit in the classrooms#show toolbar between a bordered Edit and a
@@ -481,8 +492,8 @@ module AdminHelper
   # have to read differently rather than both saying "this cannot be undone".
   def teacher_deactivate_confirm(teacher)
     "Deactivate #{teacher.display_name}?\n\n" \
-      "They lose access immediately and leave the active list. Their classrooms, the grades they " \
-      "entered and everything else are kept, and you can reactivate them here."
+      "They cannot sign in from that moment, and they leave the active list. Their classrooms, the " \
+      "grades they entered and everything else are kept, and you can reactivate them here."
   end
 
   def teacher_reactivate_confirm(teacher)
@@ -507,8 +518,9 @@ module AdminHelper
         "classroom's own setting says."
     else
       "Archive #{classroom.name}?\n\n" \
-        "Its teachers and students lose access immediately. Grades, portfolios and order history " \
-        "are kept, and you can activate it again from this page."
+        "It leaves the active list and its teachers and students can no longer open it. Nobody is " \
+        "signed out - a classroom has no login of its own - and grades, portfolios and order history " \
+        "are kept. You can restore it from this page."
     end
   end
 

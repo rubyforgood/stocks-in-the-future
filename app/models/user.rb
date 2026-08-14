@@ -67,6 +67,25 @@ class User < ApplicationRecord
 
   # `name` first: the column has existed all along and nothing ever showed it, so a user had no
   # display name they could set. Falls back to the username, which is what a student signs in with.
+  # **Deactivating actually deactivates.** Five confirmations promised "They lose access immediately" and
+  # none of them was true: `discard` removed the record from the admin lists and left the login working.
+  # Measured before this - a discarded student signed in, got a 303 to root, and the next request was
+  # authenticated.
+  #
+  # Devise's `activatable` hook calls this on every `after_set_user`, not only at sign-in, so a session that
+  # is already open ends on the next request rather than surviving until the cookie expires. That matters
+  # for the case the copy describes: an administrator deactivating somebody who is using the app right now.
+  def active_for_authentication?
+    super && !discarded?
+  end
+
+  # Which failure message Devise renders. The default is `:inactive`, which reads "Your account has not been
+  # activated yet" - true of a confirmable account that was never used, and wrong for one that was turned
+  # off. See `devise.failure.deactivated`.
+  def inactive_message
+    discarded? ? :deactivated : super
+  end
+
   def display_name
     name.presence || username.presence || email&.split("@")&.first || "User"
   end

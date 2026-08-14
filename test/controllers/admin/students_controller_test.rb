@@ -37,7 +37,7 @@ module Admin
         # `/Restore/`, not "Restore": a row action carries an `sr-only` remainder naming the record, so a
         # screen reader's link list reads "Restore Robin Fields" rather than five identical verbs. WCAG
         # 2.4.9, and the same shape `orders#index` already used.
-        assert_select "button", text: /Restore/
+        assert_select "button", text: /Reactivate/
       end
     end
 
@@ -73,7 +73,7 @@ module Admin
     #
     # `admin/teachers` already had a Status column and students and users did not, which is what having the
     # same idea in three files produces. Sortable, because grouping them is the other half of the ask.
-    test "the all tab distinguishes archived rows from live ones" do
+    test "the all tab distinguishes deactivated rows from live ones" do
       live = create(:student, username: "live_one")
       archived = create(:student, :discarded, username: "archived_one")
       sign_in(create(:admin, admin: true, classroom: nil))
@@ -83,7 +83,7 @@ module Admin
       assert_response :success
       assert_select "thead th", text: /Status/
       assert_select "tbody tr##{dom_id(live)} td", text: /Active/
-      assert_select "tbody tr##{dom_id(archived)} td", text: /Archived/
+      assert_select "tbody tr##{dom_id(archived)} td", text: /Deactivated/
     end
 
     # The other half: on a filtered tab every row carries the same value, so the column is not rendered at

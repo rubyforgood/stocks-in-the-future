@@ -312,6 +312,33 @@ asserts the *rendered* distance from the header block to the first thing that fo
    no header rhythm, which is why the audit could not see the defect until it was told to fail on the
    sr-only fallback by name.
 
+### Deactivate a person, archive a thing
+
+One idea had **three** vocabularies: Archive/Restore on students and users, Archive/**Activate** on
+classrooms, Deactivate/Reactivate on teachers. The split is by *kind* now, which is what the field does and
+the only rule that survives being said out loud.
+
+| | Verb | Inverse | Status | What it does |
+| --- | --- | --- | --- | --- |
+| **A person** -- student, teacher, user | Deactivate | Reactivate | Deactivated | cannot sign in; everything kept |
+| **A thing** -- classroom | Archive | Restore | Archived | leaves the lists and cannot be opened; nobody signed out |
+
+The field is consistent about this. Slack deactivates a member, Google Workspace suspends a user, Salesforce
+and Okta deactivate; Gmail, Shopify, GitHub and Notion *archive* mail, products, repositories and pages. The
+distinction is whether the thing has a login: for a person the operative fact is whether they can still get
+in, and "archived" says nothing about that.
+
+**And the words were only half the problem.** Five confirmations promised "They lose access immediately" and
+none of them was true - a discarded student signed in, got a 303 to root, and the next request was
+authenticated. `User#active_for_authentication?` now returns false for a discarded record, which Devise's
+`activatable` hook checks on **every** `after_set_user`, so a session already open ends on the next request
+rather than surviving until the cookie expires. That is the case the copy describes: an administrator
+turning off somebody who is using the app right now.
+
+The classroom confirmation had the mirror-image lie - "its teachers and students lose access immediately",
+which archiving a classroom has never done and should not. It says what actually happens: the classroom
+leaves the lists and cannot be opened, and nobody is signed out, because a classroom has no login.
+
 **An "All" tab needs a status column, or it merges two populations a reader cannot tell apart.** Reported on
 `admin/students`: with Active, Archived and All tabs, the All tab listed archived rows among live ones and
 the only difference on screen was the *verb on the row action* -- "Archive" against "Restore". A control is
