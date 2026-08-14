@@ -68,11 +68,26 @@ module AdminHelper
     pluralize(teacher.classrooms.size, "classroom")
   end
 
-  def teacher_status_badge(teacher, **)
+  # **The All tab lists two populations, so a row has to say which it is in.**
+  #
+  # Reported on the students list: with Active, Archived and All tabs, the All tab merged archived rows with
+  # live ones and the only difference on screen was the *verb on the row action* - "Archive" against
+  # "Restore". A control is not information, and a reader scanning the list has no reason to read one.
+  #
+  # `admin/teachers` already had a Status column; students and users did not, which is the drift that having
+  # the same idea in three files produces. This is the one helper all three call.
+  #
+  # The label follows each page's own action, because that is what a reader connects it to: students and
+  # users are Archived and Restored, a teacher is Deactivated and Reactivated.
+  def discard_status_badge(record, archived_label: "Archived", **)
     render "components/ui/badge",
-           label: teacher.discarded? ? "Deactivated" : "Active",
-           tone: teacher.discarded? ? :danger : :success,
+           label: record.discarded? ? archived_label : "Active",
+           tone: record.discarded? ? :danger : :success,
            **
+  end
+
+  def teacher_status_badge(teacher, **)
+    discard_status_badge(teacher, archived_label: "Deactivated", **)
   end
 
   # A student's account and what is in their portfolio, as the summary line. Nil-safe for the same reason as

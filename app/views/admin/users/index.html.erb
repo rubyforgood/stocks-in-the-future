@@ -31,6 +31,9 @@
             <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">
               Classroom
             </th>
+            <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">
+              <%= sort_link(:discarded_at, "Status") %>
+            </th>
             <th scope="col" class="table-header-cell table-header-cell-right table-actions-cell hidden lg:table-cell">
               <span class="sr-only">Actions</span>
             </th>
@@ -53,6 +56,7 @@
                 <% email_cell = capture do %>
                   <%= user.email.presence || content_tag(:span, "—", class: "text-slate-600") %>
                 <% end %>
+                <% status_cell = capture { discard_status_badge(user) } %>
                 <% classroom_cell = capture do %>
                   <%= user.classroom&.name || content_tag(:span, "—", class: "text-slate-600") %>
                 <% end %>
@@ -92,7 +96,8 @@
                   <%= link_to user.username, admin_user_path(user), class: "tw-link" %>
 
                   <%= render "shared/stacked_row_fields",
-                             fields: [["Type", type_cell], ["Email", email_cell], ["Classroom", classroom_cell]],
+                             fields: [["Type", type_cell], ["Email", email_cell],
+                                      ["Classroom", classroom_cell], ["Status", status_cell]],
                              actions: row_actions %>
                 </td>
                 <td class="table-body-cell whitespace-nowrap hidden lg:table-cell">
@@ -107,6 +112,9 @@
                 <td class="table-body-cell whitespace-nowrap hidden lg:table-cell">
                   <%= classroom_cell %>
                 </td>
+                <td class="table-body-cell whitespace-nowrap hidden lg:table-cell">
+                  <%= status_cell %>
+                </td>
                 <td class="table-body-cell table-body-cell-right whitespace-nowrap table-actions-cell hidden lg:table-cell">
                   <div class="flex items-center justify-end gap-1"><%= row_actions %></div>
                 </td>
@@ -120,7 +128,7 @@
 
                 Every other index keeps both branches, because a school or a stock list genuinely can be
                 empty. This one is the exception and this is why. %>
-            <%= render "admin/shared/empty_row", colspan: 5, **archived_empty_state("user", keeps: "their history and records") %>
+            <%= render "admin/shared/empty_row", colspan: 6, **archived_empty_state("user", keeps: "their history and records") %>
           <% end %>
         </tbody>
       </table>

@@ -312,6 +312,23 @@ asserts the *rendered* distance from the header block to the first thing that fo
    no header rhythm, which is why the audit could not see the defect until it was told to fail on the
    sr-only fallback by name.
 
+**An "All" tab needs a status column, or it merges two populations a reader cannot tell apart.** Reported on
+`admin/students`: with Active, Archived and All tabs, the All tab listed archived rows among live ones and
+the only difference on screen was the *verb on the row action* -- "Archive" against "Restore". A control is
+not information, and nobody scanning a list reads the buttons to work out what they are looking at.
+
+That is the pattern's own bargain, and the field keeps both halves of it. Shopify's index pages pair
+All / Active / Draft / Archived tabs with a status badge on every row; Stripe, GitHub's Open / Closed / All
+and Linear all do the same. The tab is standard; a tab **without** the column is the defect.
+
+So all three archivable indexes carry `Status` through one helper, `discard_status_badge`, and it is
+**sortable** -- grouping them is the other half of what the tab is for. `discarded_at` is a real column, so
+`sort_link` does it, and Postgres sorting NULLs last means ascending puts the archived rows together.
+
+The label follows each page's own action, because that is what a reader connects it to: a student and a user
+are **Archived** and restored, a teacher is **Deactivated** and reactivated. That split is in the verbs
+already and is worth revisiting as one decision rather than by renaming a badge.
+
 **Filters and tabs go above the card as well.** A filter is chrome above the data, so a
 plain borderless filter bar or tab rail sits on the page background, `mb-4` (16px) above
 the table — not on the card's surface. `admin/shared/_discard_filter_tabs` is the shared

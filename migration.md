@@ -5667,3 +5667,34 @@ meets. It gained the second sentence rather than losing the first.
 - `empty_state_preview_test` asserts every empty state body says what appears here and runs to at least two
   sentences. It reads the body paragraph, not the whole block - the title carries no terminal stop, so
   counting across both merges them.
+
+## The All tab needs a status column
+
+Asked what the All tab on `admin/students` does. It lists active and archived students together -
+`scoped_by_discard_status` resolves to `with_discarded` - and the reader was right that there was no way to
+tell them apart: the columns were Username, Classroom, Created at, Actions, and the **only** difference on
+screen between an archived student and a live one was the verb on the row action, "Archive" against
+"Restore". A control is not information.
+
+`admin/teachers` already had a Status column. `admin/students` and `admin/users` did not, which is what
+having the same idea in three files produces. All three now render `discard_status_badge`, and all three
+sort by it: `discarded_at` is a real column, so the existing `sort_link` handles it, and Postgres sorting
+NULLs last means ascending groups the archived rows together by when they were archived.
+
+**What the field does**, since the question was asked: Shopify's index pages pair All / Active / Draft /
+Archived tabs with a status badge on every row, and Stripe, GitHub's Open / Closed / All and Linear all do
+the same. The tab is standard - it is how you find a record without knowing which state it is in. A tab
+without the column is not.
+
+**One thing left alone and worth flagging:** a student and a user are *Archived*, a teacher is
+*Deactivated*, and the badges follow each page's own verb because that is what a reader connects them to.
+The split lives in the actions, not the badge, so it is one decision to take rather than a rename.
+
+### What this breaks
+
+- **Two indexes gained a column**, so their empty-state `colspan` moved with them - 4 to 5 on students, 5 to
+  6 on users. A colspan that does not follow leaves the empty row spanning the wrong width.
+- **Student rows now carry `dom_id`**, which three of the six admin indexes already did. It is what lets a
+  test address a row rather than a position.
+- `teacher_status_badge` is a one-line call to `discard_status_badge` with its own label, so a change to the
+  badge's tone or shape happens once.

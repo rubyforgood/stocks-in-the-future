@@ -67,6 +67,38 @@ module Admin
       assert_select "tbody td.table-actions-cell form[action*='/restore']", count: 1
     end
 
+    # **The All tab lists two populations, so a row has to say which one it is in.** Reported: with Active,
+    # Archived and All tabs, All merged archived rows with live ones and the only difference on screen was
+    # the verb on the row action - "Archive" against "Restore". A control is not information.
+    #
+    # `admin/teachers` already had a Status column and students and users did not, which is what having the
+    # same idea in three files produces. Sortable, because grouping them is the other half of the ask.
+    test "the all tab distinguishes archived rows from live ones" do
+      live = create(:student, username: "live_one")
+      archived = create(:student, :discarded, username: "archived_one")
+      sign_in(create(:admin, admin: true, classroom: nil))
+
+      get admin_students_path(all: true)
+
+      assert_response :success
+      assert_select "thead th", text: /Status/
+      assert_select "tbody tr##{dom_id(live)} td", text: /Active/
+      assert_select "tbody tr##{dom_id(archived)} td", text: /Archived/
+    end
+
+    test "the status column sorts by it" do
+      create(:student, username: "live_one")
+      create(:student, :discarded, username: "archived_one")
+      sign_in(create(:admin, admin: true, classroom: nil))
+
+      get admin_students_path(all: true, sort: "discarded_at", direction: "asc")
+
+      assert_response :success
+      # Postgres sorts NULLs last, so ascending groups the archived rows first by when they were archived.
+      first_row = css_select("tbody tr[id^='student_']").first
+      assert_match(/archived_one/, first_row.text)
+    end
+
     test "show" do
       username = "finn"
       student = create(:student, username:)
