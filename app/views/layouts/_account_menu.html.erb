@@ -64,8 +64,16 @@
         the destructive-ish action last. The item was absent because the page did not exist. %>
     <%= link_to "Edit profile", edit_profile_path, class: item_class %>
 
-    <%= link_to "Sign out", destroy_user_session_path,
-                data: { turbo_method: :delete },
-                class: item_class %>
+    <%# **A `button_to`, and the last of the 32.** Signing out is an action, and `destroy_user_session_path`
+        answers DELETE only - so as an `<a href>` it 404'd on a middle-click or in a new tab.
+
+        `form: { class: "contents" }` because the panel lays its items out directly; a form wrapping this
+        one would otherwise become a box between the menu and its row. `w-full` and the same `item_class`
+        so the button fills the row exactly as the link above it does - a `button` shrinks to its text
+        where an `a` block does not. %>
+    <%= button_to "Sign out", destroy_user_session_path,
+                  method: :delete,
+                  form: { class: "contents" },
+                  class: "#{item_class} w-full text-left" %>
   </div>
 </details>

@@ -81,8 +81,9 @@ class AccountHeaderTest < ActionDispatch::IntegrationTest
 
     get root_path
 
-    assert_select "#{MENU} a[href=?]", destroy_user_session_path, count: 1
-    assert_select "nav[aria-label='Main'] a[href=?]", destroy_user_session_path, count: 0
+    # Sign out is a `button_to` now - an action, not a link - so it is the form that carries the path.
+    assert_select "#{MENU} form[action=?]", destroy_user_session_path, count: 1
+    assert_select "nav[aria-label='Main'] form[action=?]", destroy_user_session_path, count: 0
   end
 
   test "the admin layout renders the same menu" do
@@ -92,7 +93,7 @@ class AccountHeaderTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select MENU, text: /Admin/
-    assert_select "#{MENU} a[href=?]", destroy_user_session_path
+    assert_select "#{MENU} form[action=?]", destroy_user_session_path
   end
 
   test "the way back to the site is a top-bar control, not an account action" do

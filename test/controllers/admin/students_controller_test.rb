@@ -63,7 +63,8 @@ module Admin
       # inside the primary cell - the collapse that stops the table scrolling sideways at 375px. Only
       # one copy is ever on screen, but a request test has no CSS and counts both. And scoped to the
       # table body, or the account menu's own links join the count.
-      assert_select "tbody td.table-actions-cell a[data-turbo-method='delete']", count: 2
+      # A `button_to`, not a link: an <a> whose route answers DELETE only 404s on a middle-click.
+      assert_select "tbody td.table-actions-cell form input[name='_method'][value='delete']", count: 2
       assert_select "tbody td.table-actions-cell form[action*='/restore']", count: 1
     end
 

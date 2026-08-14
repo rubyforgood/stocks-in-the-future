@@ -67,6 +67,42 @@ class NoBrokenLinksTest < ActionDispatch::IntegrationTest
     assert_operator seen.size, :>, 5, "#{role}: the crawl found almost no links, so it proved nothing"
   end
 
+  # **No anchor performs an action.** An `<a href>` whose route answers only PATCH, POST or DELETE returns
+  # 404 on a GET, so a middle-click, a new tab, a copied address or a reader without JavaScript all land
+  # on the error page. There were 32 of them. They are `button_to` now - which is also the accessible
+  # answer, since an element that acts rather than navigates is a button.
+  #
+  # Asserted on the rendered page because the source keeps `data: { turbo_method: }` as the *input* to
+  # `ghost_action_link`, which converts it; grepping the templates would report 29 of these as unfixed.
+  test "no page offers an action as a link" do
+    school = create(:school)
+    school_year = create(:school_year, school:, year: create(:year))
+    classroom = create(:classroom, :with_trading, school_year:)
+    student = create(:student, :with_portfolio, classroom:)
+    student.reload
+    teacher = create(:teacher)
+    create(:teacher_classroom, teacher:, classroom:)
+    create(:portfolio_transaction, :deposit, portfolio: student.portfolio, amount_cents: 500_000)
+    stock = create(:stock, ticker: "KO", company_name: "Coca-Cola", price_cents: 6_241)
+    Announcement.create!(title: "Notice", content: "Body.")
+    sign_in create(:admin)
+
+    offenders = []
+    [admin_root_path, admin_users_path, admin_user_path(student), admin_classrooms_path,
+     admin_classroom_path(classroom), admin_students_path, admin_student_path(student),
+     admin_teachers_path, admin_teacher_path(teacher), admin_stocks_path, admin_stock_path(stock),
+     admin_announcements_path, admin_portfolio_transactions_path, admin_schools_path,
+     admin_school_years_path, admin_school_year_path(school_year)].each do |path|
+      get path
+
+      response.parsed_body.css("a[data-turbo-method]").each do |a|
+        offenders << "#{path}: #{a.text.squish.presence || a['href']} (#{a['data-turbo-method']})"
+      end
+    end
+
+    assert_empty offenders, "these act but are links:\n  #{offenders.join("\n  ")}"
+  end
+
   test "every link a student is shown resolves" do
     classroom = create(:classroom, :with_trading)
     student = create(:student, :with_portfolio, classroom:)

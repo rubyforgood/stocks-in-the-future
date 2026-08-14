@@ -10,11 +10,12 @@
                        # attributes the user submitted, so an invalid transaction has no portfolio to name, and
                        # the confirmation names one.
                        if @portfolio_transaction.portfolio.present?
-                         link_to "Delete transaction",
-                                 admin_portfolio_transaction_path(@portfolio_transaction),
-                                 data: { turbo_method: :delete,
-                                         turbo_confirm: transaction_delete_confirm(@portfolio_transaction) },
-                                 class: admin_danger_button_class
+                         button_to "Delete transaction",
+                                   admin_portfolio_transaction_path(@portfolio_transaction),
+                                   method: :delete, form: { class: "inline-flex" }, data: {
+                                                                                      turbo_confirm: transaction_delete_confirm(@portfolio_transaction)
+                                                                                    },
+                                   class: admin_danger_button_class
                        end
                      end } do %>
   <%# **Four cards became one section.** "Portfolio", "Transaction details" and "Description" were all

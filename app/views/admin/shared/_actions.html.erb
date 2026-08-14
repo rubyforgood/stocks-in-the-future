@@ -7,9 +7,9 @@
   <% end %>
 
   <% if actions.include?(:delete) %>
-    <%= link_to [:admin, resource],
-                data: { turbo_method: :delete, turbo_confirm: delete_confirm(resource) },
-                class: admin_danger_button_class do %>
+    <%= button_to [:admin, resource],
+                  method: :delete, form: { class: "inline-flex" }, data: { turbo_confirm: delete_confirm(resource) },
+                  class: admin_danger_button_class do %>
       <%= lucide_icon("trash-2", class: "h-5 w-5 shrink-0") %>
       Delete
     <% end %>

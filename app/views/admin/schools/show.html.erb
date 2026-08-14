@@ -17,9 +17,9 @@
   <%= render layout: "components/ui/page_header",
              locals: { title: @school.name,
                        description: "Everything about this school, on one page." } do %>
-    <%= link_to "Delete school", admin_school_path(@school),
-                data: { turbo_method: :delete, turbo_confirm: delete_confirm(@school) },
-                class: admin_danger_button_class %>
+    <%= button_to "Delete school", admin_school_path(@school),
+                  method: :delete, form: { class: "inline-flex" }, data: { turbo_confirm: delete_confirm(@school) },
+                  class: admin_danger_button_class %>
   <% end %>
 
   <div class="space-y-6">

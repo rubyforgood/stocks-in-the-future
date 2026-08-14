@@ -3,9 +3,9 @@
                      description: user_summary(@user),
                      badge: user_status_badge(@user),
                      actions: capture do
-                       link_to "Delete user", admin_user_path(@user),
-                               data: { turbo_method: :delete, turbo_confirm: delete_confirm(@user) },
-                               class: admin_danger_button_class
+                       button_to "Delete user", admin_user_path(@user),
+                                 method: :delete, form: { class: "inline-flex" }, data: { turbo_confirm: delete_confirm(@user) },
+                                 class: admin_danger_button_class
                      end } do %>
   <%# Details first here, and last on a page with a collection: this record has no collection to lead with. %>
   <%= render layout: "admin/shared/record_section", locals: { title: "Details" } do %>

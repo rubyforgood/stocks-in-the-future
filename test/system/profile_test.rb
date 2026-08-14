@@ -22,9 +22,13 @@ class ProfileTest < ApplicationSystemTestCase
 
     find("[data-testid='account-menu'] summary").click
 
+    # `a, button`: Edit profile navigates and is a link, Sign out acts and is a `button_to`.
+    #
+    # The comment is here rather than in the script: Capybara evaluates it as `return <script>`, so a `//`
+    # line at the top lets ASI close the `return` and the whole thing yields nil.
     items = page.evaluate_script(<<~JS)
-      Array.from(document.querySelectorAll("[data-testid='account-menu'] a"))
-           .map(function (a) { return a.textContent.trim(); })
+      Array.from(document.querySelectorAll("[data-testid='account-menu'] a, [data-testid='account-menu'] button"))
+           .map(function (el) { return el.textContent.trim(); })
     JS
 
     assert_equal ["Edit profile", "Sign out"], items,

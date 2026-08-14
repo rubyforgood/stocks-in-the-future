@@ -16,7 +16,9 @@ class AccountMenuTest < ApplicationSystemTestCase
     assert_text "finn", count: 1
 
     within(MENU) do
-      assert_no_link "Sign out", visible: true
+      # `assert_no_button`: Sign out is a `button_to`, so `assert_no_link` would pass whether the menu
+      # were open or shut and assert nothing at all.
+      assert_no_button "Sign out", visible: true
 
       find("summary").click
 

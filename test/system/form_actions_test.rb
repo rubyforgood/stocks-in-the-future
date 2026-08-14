@@ -512,8 +512,12 @@ class FormActionsTest < ApplicationSystemTestCase
 
     row_display = <<~JS
       (function () {
-        const form = document.querySelector("main form[action='%s']");
-        const row = form.querySelector(".tw-form-actions");
+        // **The one with an action row.** The record page's Deactivate is a `button_to` posting to the
+        // same path as the edit form, so `querySelector` on the action alone now finds whichever comes
+        // first in the DOM - the header's button - and reports "no row".
+        const forms = Array.from(document.querySelectorAll("main form[action='%s']"));
+        const form = forms.find(function (f) { return f.querySelector(".tw-form-actions"); });
+        const row = form && form.querySelector(".tw-form-actions");
         return row ? getComputedStyle(row).display : "no row";
       })()
     JS

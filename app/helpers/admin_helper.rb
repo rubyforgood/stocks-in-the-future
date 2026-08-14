@@ -530,10 +530,13 @@ module AdminHelper
   # The app had three vocabularies for one idea - Archive/Restore on students and users, Archive/Activate
   # here, Deactivate/Reactivate on teachers - and this pair was internally inconsistent whichever way the
   # larger question is settled, so it is the one word that is wrong under every answer.
+  # `button_to`: the route answers PATCH only, so as a link this 404'd on a middle-click.
   def activate_button(classroom)
-    link_to toggle_archive_admin_classroom_path(classroom),
-            data: { turbo_method: :patch, turbo_confirm: classroom_toggle_confirm(classroom) },
-            class: admin_secondary_button_class do
+    button_to toggle_archive_admin_classroom_path(classroom),
+              method: :patch,
+              form: { class: "inline-flex" },
+              data: { turbo_confirm: classroom_toggle_confirm(classroom) },
+              class: admin_secondary_button_class do
       safe_join(
         [
           lucide_icon("rotate-ccw", class: "h-5 w-5 shrink-0 text-slate-500"),
@@ -543,10 +546,13 @@ module AdminHelper
     end
   end
 
+  # `button_to`: the route answers PATCH only, so as a link this 404'd on a middle-click.
   def archive_button(classroom)
-    link_to toggle_archive_admin_classroom_path(classroom),
-            data: { turbo_method: :patch, turbo_confirm: classroom_toggle_confirm(classroom) },
-            class: admin_danger_button_class do
+    button_to toggle_archive_admin_classroom_path(classroom),
+              method: :patch,
+              form: { class: "inline-flex" },
+              data: { turbo_confirm: classroom_toggle_confirm(classroom) },
+              class: admin_danger_button_class do
       safe_join(
         [
           lucide_icon("archive", class: "h-5 w-5 shrink-0"),

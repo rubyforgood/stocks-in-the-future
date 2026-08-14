@@ -113,11 +113,13 @@
       <%= f.submit_button @teacher.persisted? ? "Update teacher" : "Create teacher" %>
       <%= f.cancel_button "Cancel", url: @teacher.persisted? ? admin_teacher_path(@teacher) : admin_teachers_path %>
     </div>
-    <% if @teacher.discarded? %>
-      <%= link_to "Permanently delete",
-                  admin_teacher_path(@teacher),
-                  data: { turbo_method: :delete, turbo_confirm: teacher_delete_confirm(@teacher) },
-                  class: admin_danger_button_class %>
-    <% end %>
+    <%# **No "Permanently delete" here.** `admin/teachers/_record_actions` already renders it in the page
+        header, so a discarded teacher's page carried the same destination twice - which is the rule that
+        removed the duplicate template download from the students header.
+
+        It also could not become a `button_to` where it stood: this whole file is inside `form_with`, the
+        parser drops a nested form, and the button would silently have submitted the teacher *update*
+        instead of deleting. That is the failure `CLAUDE.md` records, and it is why this was the one call
+        site the conversion could not take mechanically. Removing the duplicate answered both. %>
   </div>
 <% end %>

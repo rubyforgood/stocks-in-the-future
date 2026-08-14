@@ -115,7 +115,8 @@ class RowActionsTest < ApplicationSystemTestCase
 
     within "##{dom_id(student)}" do
       ["Edit", "Reset password", "Delete"].each do |label|
-        action = find("a", text: label)
+        # `a, button`: a row action that navigates is a link and one that acts is a `button_to`.
+        action = find("a, button", text: label)
 
         assert_equal 1, action.all("svg", visible: :all).size,
                      "#{label} on the roster should carry exactly one leading icon"

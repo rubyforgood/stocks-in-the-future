@@ -134,17 +134,18 @@ class TableStackingTest < ApplicationSystemTestCase
   # Below lg the grade book reflows rather than collapsing, because restating an input in the primary
   # cell would put two controls with the same name in one form. So: one of each control, and each one
   # carrying a real label, which a `<th>` never gave it.
-  # **A label and its value line up, and every value starts at the same x.**
+  # **A label sits directly above its value**, both on one left edge.
   #
-  # Reported as hard to parse at a small viewport, and measured: the pairs were `flex justify-between`
-  # with the value right-aligned, so a label sat against the left edge of the card and its value against
-  # the right - **174 to 244px apart** - and because right-alignment ragged them, the values' left edges
-  # spread across 55px. Eight fields to a transaction row is eight traversals of that gap against a
-  # column that never lines up.
+  # Reported twice. First the pairs were `flex justify-between` with the value right-aligned, which put
+  # 174-244px between them at 375px. Then a fixed `w-28` label column, which I measured at a 12px gap and
+  # reported as fixed - that was the gap between the *boxes*, and because a label is left-aligned inside
+  # its column the gap the eye crossed was **45-99px**, varying by 54px across the eight fields. The
+  # second report was that it still did not look right, and it was correct.
   #
-  # This asserts the geometry rather than the class list, because "which side is it on" is exactly the
-  # kind of thing a class list describes correctly while the box says otherwise.
-  test "a stacked row's values share one left edge, close to their labels" do
+  # So this asserts what a reader actually gets: the value directly under its label, no horizontal offset
+  # between them, and one left edge down the whole list. Measuring the text rather than the box is the
+  # point - `getBoundingClientRect` on the element says 12px while the ink says 99px.
+  test "a stacked row puts each value directly under its label, on one left edge" do
     classroom = create(:classroom, :with_trading)
     student = create(:student, :with_portfolio, classroom:)
     student.reload
@@ -162,22 +163,25 @@ class TableStackingTest < ApplicationSystemTestCase
           if (!dt || !dd) return null;
           const a = dt.getBoundingClientRect(), b = dd.getBoundingClientRect();
           return { label: dt.innerText.trim(),
-                   gap: Math.round(b.left - a.right),
-                   valueLeft: Math.round(b.left) };
+                   labelLeft: Math.round(a.left),
+                   valueLeft: Math.round(b.left),
+                   valueBelow: b.top >= a.bottom - 2 };
         }).filter(Boolean)
       JS
 
       assert_operator pairs.size, :>=, 4, "expected a stacked row with several fields"
 
-      edges = pairs.pluck("valueLeft").uniq
-
-      assert_equal 1, edges.size,
-                   "values start at #{edges.sort.inspect}; they should share one left edge"
-
       pairs.each do |pair|
-        assert_operator pair["gap"], :<=, 24,
-                        "#{pair['label']} sits #{pair['gap']}px from its value"
+        assert pair["valueBelow"],
+               "#{pair['label']}: its value is beside it, not under it"
+        assert_equal pair["labelLeft"], pair["valueLeft"],
+                     "#{pair['label']}: label starts at #{pair['labelLeft']}px and its value at " \
+                     "#{pair['valueLeft']}px - they should share one edge"
       end
+
+      edges = (pairs.pluck("labelLeft") + pairs.pluck("valueLeft")).uniq
+
+      assert_equal 1, edges.size, "the list has more than one left edge: #{edges.sort.inspect}"
     end
   end
 

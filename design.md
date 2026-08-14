@@ -240,32 +240,37 @@ written against them renders no colour at all.
   Verify these gaps at the pixel level (filter-bottom -> table-top), not by reading tokens;
   `test/system/spacing_test.rb` and `test/system/page_rhythm_test.rb` do exactly that.
 
-### A label and its value belong in one column pair, not on two edges
+### A label sits directly above its value
 
 **Below `lg` every table here shows its first column and returns the rest as a description list** inside
-that cell (`components/ui/_stacked_row_fields`). Those pairs were `flex justify-between` with the value
-right-aligned, which is the shape of an iOS settings row - and iOS gets away with it because those values
-are one short word. Reported as hard to parse, and measured at 375px:
+that cell (`components/ui/_stacked_row_fields`). Label above value, both left-aligned, one edge down the
+list.
 
-| | label to value | value left edges | row height |
+Three treatments, measured at 375px, and the middle one is why this section is worth reading:
+
+| | gap the eye crosses | value left edges | row height |
 |---|---|---|---|
-| opposed (was) | **174-244px** | 252-307px, a 55px spread | ~341px |
-| stacked, label above value | - | 33px, aligned | 477px |
-| **fixed label column** | **12px** | **157px, all identical** | **333px** |
+| opposed - `justify-between`, value right-aligned | 174-244px | 252-307px, ragged | ~341px |
+| fixed `w-28` label column | **45-99px** | 157px, aligned | 333px |
+| **label above value** | **0 - shared left edge** | **33px, identical** | 477px |
 
-The fixed column is not a compromise between the other two: it wins on every axis. `dt` is `w-28
-shrink-0`, `dd` is `flex-1` and left-aligned, `gap-3` between them.
+**The fixed column measured 12px and read as 45-99px.** `getBoundingClientRect` on the `dt` returns its
+*column*, and a label is left-aligned inside it, so "Date" - 25 pixels of ink in a 112px box - sat 99px
+from its value. I measured the box, reported it fixed, and it was reported back as still wrong. When the
+question is what the eye does, measure the **text**: `range.selectNodeContents(el)` gives the ink, and it
+disagreed with the element by 87px.
 
-**Where the field disagrees, it is about key length.** GOV.UK's summary list and Polaris's description
-list both stack at this width, and both are built for keys that are whole questions; Carbon's structured
-list and every native settings list use two columns for short ones. Ours are one to three words - the
-longest across all eleven callers are "Price per share" and "Portfolio value", and `w-28` holds both at
-`text-xs`. **If a caller ever needs a long label, stack that one** rather than widening the column for
-everybody: a label that wraps inside its column is fine and the value column does not move.
+**Stacking is what the field does at this width**: GOV.UK's summary list below 40em, Polaris's description
+list on small screens, Stripe's mobile dashboard, Material 3's overline above its text.
+Label-left/value-right is iOS Settings, and it works there because those values are one short word; ours
+are money, dates, tickers and badges.
 
-`table_stacking_test` asserts the geometry - one shared left edge, and no more than 24px between a label
-and its value - because "which side is it on" is exactly what a class list describes correctly while the
-box says otherwise.
+**It costs height and that is the trade**, taken deliberately: a pair is two lines, and a transaction row
+goes from ~341px to 477px at 375px. Vertical space is the cheap axis on a phone - scrolling is free,
+horizontal hunting is not - and these pages paginate at 25 rows.
+
+`table_stacking_test` asserts the value is directly under its label and that the list has exactly one left
+edge.
 
 ### Measure the rendered box
 

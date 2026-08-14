@@ -2,9 +2,9 @@
            locals: { title: @announcement.title, breadcrumbs: @breadcrumbs,
                      description: announcement_summary(@announcement),
                      actions: capture do
-                       link_to "Delete announcement", admin_announcement_path(@announcement),
-                               data: { turbo_method: :delete, turbo_confirm: delete_confirm(@announcement) },
-                               class: admin_danger_button_class
+                       button_to "Delete announcement", admin_announcement_path(@announcement),
+                                 method: :delete, form: { class: "inline-flex" }, data: { turbo_confirm: delete_confirm(@announcement) },
+                                 class: admin_danger_button_class
                      end } do %>
   <%= render layout: "admin/shared/record_section", locals: { title: "Details" } do %>
     <%= render "form" %>

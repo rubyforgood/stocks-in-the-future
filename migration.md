@@ -6417,3 +6417,69 @@ took two corrections worth keeping:
 JavaScript all land on the 404 page. The correct element is `button_to`, which is also the accessible
 answer; it is not a sweep, because a nested `button_to` silently submits the outer form and has broken a
 page here before. `design-todo.md` carries it with the cheap half first.
+
+## Every action is a button, and a label sits above its value
+
+### The label was still not beside its value
+
+The stacked pairs went from `justify-between` (174-244px apart) to a fixed `w-28` label column, which I
+measured at a **12px** gap and reported as fixed. It was reported back as still wrong, and it was: 12px is
+the distance between the **boxes**, and a label is left-aligned inside its column, so from the end of
+"Date" to the start of its value was **99px** of white space. Across the eight fields the gap the eye
+crossed ran 45-99px.
+
+| | gap the eye crosses | value left edges | row height |
+| --- | --- | --- | --- |
+| opposed | 174-244px | 252-307px | ~341px |
+| fixed 112px label column | **45-99px** | 157px | 333px |
+| **label above value** | **0 - shared edge** | **33px** | 477px |
+
+`range.selectNodeContents(el).getBoundingClientRect()` measures the ink and disagreed with the element by
+87px. **When the question is what the eye does, measure the text, not the box.**
+
+Label above value is what the field does at this width - GOV.UK below 40em, Polaris on small screens,
+Stripe's mobile dashboard, Material 3's overline. It costs height, which is the cheap axis on a phone.
+
+### 32 action links became buttons
+
+An `<a href>` whose route answers only PATCH, POST or DELETE returns **404 on a GET** - a middle-click, a
+new tab, a copied address or no JavaScript. All 32 are `button_to` now, which is also the accessible
+answer: an element that acts rather than navigates is a button.
+
+**Done at the helper where possible.** `ghost_action_link` returns a `button_to` when the caller passes
+`data: { turbo_method: }`, so 18 row actions converted in one place and none could be missed. The rest
+were raw `link_to`s, converted per call site.
+
+**The bulk edit went wrong first, and the tests caught it.** The transformer walked back from each
+`turbo_method:` to the nearest `link_to` - and `rfind("link_to")` does not match `ghost_action_link`, so
+in files whose action used that helper it walked *past* it and rewrote an unrelated navigation link:
+**"New school year" became a `button_to`**. Three empty-state tests failed on the missing link. The second
+attempt walks back to the nearest opener *of any kind* and converts only when that opener is literally
+`link_to`.
+
+**`no_nested_forms_test` was written before any of it**, because a `button_to` inside another form is
+dropped by the parser and silently submits the outer one - which has broken a page here before. It scans
+the **raw body**, since Nokogiri drops the nested form exactly as a browser does and a parsed tree can
+never show the bug.
+
+### Two call sites that could not be converted mechanically
+
+- **`admin/teachers/_form`** sits inside `form_with`, so a `button_to` there would have submitted the
+  teacher *update* instead of deleting. It turned out to be a **duplicate**: `_record_actions` already
+  renders "Permanently delete" in the page header, so a discarded teacher's page carried the same
+  destination twice. Removing it answered both.
+- **The account menu's Sign out** is `form: { class: "contents" }` so the panel lays the button out as a
+  row, plus `w-full text-left` because a `button` shrinks to its text where a block `a` does not.
+
+### What this breaks
+
+- **Seven assertions** matched the old markup: a row action is `a, button` now, the account menu's sign
+  out is a `form[action]` rather than an `a[href]`, and `assert_no_link "Sign out"` became
+  `assert_no_button` - it would otherwise have passed whether the menu were open or shut.
+- **Two forms now post to the same path.** The student record page's edit form and its Deactivate button
+  both act on `/admin/students/:id`, so `querySelector("form[action=...]")` finds whichever comes first.
+  `form_actions_test` picks the one containing `.tw-form-actions`.
+- **A `//` comment on the first line of an `evaluate_script` heredoc returns nil.** Capybara evaluates it
+  as `return <script>`, so ASI closes the `return` before the expression. The comment moved into Ruby.
+- `erb_lint -a` corrected 34 layout errors: `link_to` is seven characters and `button_to` is nine, so
+  every continuation line the transformer touched lost its alignment.

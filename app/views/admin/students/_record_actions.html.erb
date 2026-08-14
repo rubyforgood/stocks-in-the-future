@@ -19,23 +19,25 @@
 <% end %>
 
 <% if student.discarded? %>
-  <%= link_to restore_admin_student_path(student),
-              data: { turbo_method: :patch,
-                      turbo_confirm: "Reactivate #{student.display_name}?\n\n" \
-                                     "They can sign in again and reappear in the students list. " \
-                                     "Their portfolio, transactions and grades are unchanged." },
-              class: admin_secondary_button_class do %>
+  <%= button_to restore_admin_student_path(student),
+                method: :patch, form: { class: "inline-flex" }, data: {
+                                                                  turbo_confirm: "Reactivate #{student.display_name}?\n\n" \
+                                                                                 "They can sign in again and reappear in the students list. " \
+                                                                                 "Their portfolio, transactions and grades are unchanged."
+                                                                },
+                class: admin_secondary_button_class do %>
     <%= lucide_icon("user-check", class: "h-5 w-5 shrink-0 text-slate-500") %>
     Reactivate
   <% end %>
 <% else %>
-  <%= link_to admin_student_path(student),
-              data: { turbo_method: :delete,
-                      turbo_confirm: "Deactivate #{student.display_name}?\n\n" \
-                                     "They cannot sign in from that moment, and they leave the " \
-                                     "active list. Their portfolio, transactions and grades are kept, " \
-                                     "and you can reactivate the account from the students list." },
-              class: admin_danger_button_class do %>
+  <%= button_to admin_student_path(student),
+                method: :delete, form: { class: "inline-flex" }, data: {
+                                                                   turbo_confirm: "Deactivate #{student.display_name}?\n\n" \
+                                                                                  "They cannot sign in from that moment, and they leave the " \
+                                                                                  "active list. Their portfolio, transactions and grades are kept, " \
+                                                                                  "and you can reactivate the account from the students list."
+                                                                 },
+                class: admin_danger_button_class do %>
     <%= lucide_icon("user-x", class: "h-5 w-5 shrink-0") %>
     Deactivate
   <% end %>

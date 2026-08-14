@@ -19,9 +19,9 @@
                      breadcrumbs: @breadcrumbs,
                      description: stock_price_summary(@stock),
                      actions: capture do
-                       link_to "Delete stock", admin_stock_path(@stock),
-                               data: { turbo_method: :delete, turbo_confirm: delete_confirm(@stock) },
-                               class: admin_danger_button_class
+                       button_to "Delete stock", admin_stock_path(@stock),
+                                 method: :delete, form: { class: "inline-flex" }, data: { turbo_confirm: delete_confirm(@stock) },
+                                 class: admin_danger_button_class
                      end } do %>
   <%= render layout: "admin/shared/record_section",
              locals: { title: "Details",

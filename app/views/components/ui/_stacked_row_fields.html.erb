@@ -23,6 +23,38 @@
     keeping a hand-copied twin, which is the way these drift apart. %>
 <% hide_above_lg = local_assigns.fetch(:always, false) ? nil : "lg:hidden" %>
 
+<%# **The label sits directly above its value.** Both left-aligned, one column, no horizontal travel.
+
+    This took three goes and the middle one is the instructive failure. The pairs began as `flex
+    justify-between` with the value right-aligned - label against the left edge of the card, value against
+    the right - which measured **174 to 244px** apart at 375px. I replaced that with a fixed `w-28` label
+    column and reported the gap as **12px**, which was true of the *boxes* and false of the page: a label
+    is left-aligned inside its column, so from the end of "Date" to the start of its value was **99px** of
+    white space, and across the eight fields the visible gap ran 45-99px. I had measured the box and not
+    the ink. The repo's own rule says only the rendered box describes the result; the rendered *text* box
+    is the one that matters when the question is what the eye does.
+
+    | | gap the eye sees | value left edges | row height |
+    | opposed | 174-244px | 252-307px, ragged | ~341px |
+    | fixed 112px label column | **45-99px** | 157px | 333px |
+    | **label above value** | **0 - they share a left edge** | **33px, all identical** | 477px |
+
+    Stacking is what the field does at this width - GOV.UK's summary list below 40em, Polaris's
+    description list on small screens, Stripe's mobile dashboard, Material 3's overline above its text.
+    Label-left/value-right is iOS Settings and works there because those values are one short word; ours
+    are money, dates, tickers and badges.
+
+    It costs height - a pair is two lines - and that is the trade taken deliberately. Vertical space is the
+    cheap axis on a phone, where scrolling is free and horizontal hunting is not, and this page paginates
+    at 25 rows. `space-y-2` between pairs against `mt-0.5` inside one, so a pair reads as a single thing
+    rather than as two rows. %>
+<% fields = local_assigns[:fields] || [] %>
+<%# `lg:hidden` is the whole point in a table - this is the row's other columns, and above `lg` they are
+    back in their own cells. It makes the component undemonstrable in the gallery, though, where a desktop
+    reader would meet an empty box. `always:` drops the hiding for that one caller rather than the gallery
+    keeping a hand-copied twin, which is the way these drift apart. %>
+<% hide_above_lg = local_assigns.fetch(:always, false) ? nil : "lg:hidden" %>
+
 <%# **A two-column list, not two edges.** This was `flex justify-between` with a right-aligned value, so
     the label sat against the left edge of the card and its value against the right. Measured at 375px:
     **174 to 244px of empty space** between the two, and because right-alignment ragged them, the values'
@@ -51,9 +83,9 @@
 <% if fields.any? %>
   <%= tag.dl class: ["mt-2 space-y-2", hide_above_lg] do %>
     <% fields.each do |label, value| %>
-      <div class="flex items-baseline gap-3">
-        <dt class="w-28 shrink-0 text-xs text-slate-600"><%= label %></dt>
-        <dd class="min-w-0 flex-1 text-sm text-slate-900"><%= value %></dd>
+      <div>
+        <dt class="text-xs text-slate-600"><%= label %></dt>
+        <dd class="mt-0.5 text-sm text-slate-900"><%= value %></dd>
       </div>
     <% end %>
   <% end %>

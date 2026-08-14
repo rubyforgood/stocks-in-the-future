@@ -55,10 +55,31 @@ module ButtonHelper
   # off colour. Rendering it here rather than at each call site is what stops it going missing.
   #
   # lucide_icon is aria-hidden, so the label carries the accessible name.
+  #
+  # **A caller that passes `data: { turbo_method: ... }` gets a `button_to`.** An `<a href>` whose route
+  # answers only PATCH or DELETE is not a link: a GET on it returns 404, so middle-clicking it, opening it
+  # in a new tab, copying the address or reading the page without JavaScript all land on the error page.
+  # 32 controls in this app were that shape. It is also the accessible answer, because an element that
+  # performs an action rather than navigating is a button.
+  #
+  # Done here rather than at the call sites so the whole class converts at once and none can be missed -
+  # and `no_nested_forms_test` is what makes that safe, because a `button_to` inside another form is
+  # dropped by the parser and silently submits the outer one.
   def ghost_action_link(label, path, icon:, variant: :neutral, **options)
+    return ghost_action_link_as_button(label, path, icon:, variant:, **options) if options.dig(:data, :turbo_method)
+
     link_to path, **ghost_options(options, variant) do
       safe_join([ghost_icon(icon), label])
     end
+  end
+
+  # `form: inline-flex` so the form the button lives in does not become a block in a flex row of actions.
+  def ghost_action_link_as_button(label, path, **options)
+    method = options[:data][:turbo_method]
+    data = options[:data].except(:turbo_method)
+    form = options.delete(:form) || { class: "inline-flex" }
+
+    ghost_action_button(label, path, method:, **options.merge(data:), form:)
   end
 
   # The same control where the action needs a real form submit rather than a link - a

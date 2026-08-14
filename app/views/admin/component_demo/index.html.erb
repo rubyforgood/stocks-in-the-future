@@ -287,7 +287,7 @@
     <div class="tw-card p-5">
       <h3 class="text-sm font-medium text-slate-900 mb-4">Standard actions (edit + delete)</h3>
       <div class="flex flex-wrap gap-3">
-        <%= link_to "#", class: "tw-btn-secondary" do %>
+        <%= button_to "#", class: "tw-btn-secondary" do %>
           <%= lucide_icon("pencil", class: "h-5 w-5 shrink-0 text-slate-500") %>
           Edit
         <% end %>
@@ -297,7 +297,7 @@
         <% demo_delete = "Delete stock \"Coca-Cola\"?\n\n" \
                          "It is removed permanently, along with anything that depends on it. This " \
                          "cannot be undone." %>
-        <% demo_opts = { data: { turbo_method: :delete, turbo_confirm: demo_delete },
+        <% demo_opts = { method: :delete, form: { class: "inline-flex" }, data: { turbo_confirm: demo_delete },
                          class: "tw-btn-danger-outline" } %>
         <%= link_to "#", **demo_opts do %>
           <%= lucide_icon("trash-2", class: "h-5 w-5 shrink-0") %>

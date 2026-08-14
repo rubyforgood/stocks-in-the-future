@@ -204,7 +204,8 @@ class TableActionsReachableTest < ApplicationSystemTestCase
         # Archive, not Edit: a row's Edit went where the row's own name link already goes. The property
         # under test is that whatever actions a row has come with it when the table collapses, so it
         # names the action this row actually has.
-        assert_selector "a", text: "Archive"
+        # Archive acts rather than navigates, so it is a button in its own form.
+        assert_selector "a, button", text: "Archive"
       end
     end
   end
