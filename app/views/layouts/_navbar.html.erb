@@ -49,7 +49,7 @@
         <% if current_user.portfolio && policy(current_user.portfolio).show? %>
           <% active = request.path.include?("portfolios") %>
           <%= render layout: "layouts/nav_item", locals: { path: user_portfolio_path(current_user, current_user.portfolio), label: "My portfolio", active: active } do %>
-            <%= lucide_icon("id-card", class: nav_icon_class(active: active)) %>
+            <%= lucide_icon("chart-pie", class: nav_icon_class(active: active)) %>
           <% end %>
         <% end %>
 
@@ -59,13 +59,12 @@
           <%= lucide_icon("receipt", class: nav_icon_class(active: active)) %>
         <% end %>
 
-        <%# Classes. Inline SVG, so it inherits the link colour via currentColor. %>
+        <%# Classes. `lucide_icon`, like every other item: this was a hand-written Heroicons path, so it
+            matched no inventory and drifted from the admin half's glyph for the same idea. %>
         <% if policy(Classroom).index? %>
           <% active = request.path.include?("classrooms") && request.path.exclude?("admin") %>
           <%= render layout: "layouts/nav_item", locals: { path: classrooms_path, label: "Classes", active: active } do %>
-            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
-            </svg>
+            <%= lucide_icon("presentation", class: nav_icon_class(active: active)) %>
           <% end %>
         <% end %>
 
@@ -75,7 +74,7 @@
             the row points at, which already lists them in labelled tables. %>
         <% active = request.path.include?("stocks") %>
         <%= render layout: "layouts/nav_item", locals: { path: stocks_path, label: "Trading floor", active: active } do %>
-          <%= lucide_icon("chart-no-axes-combined", class: nav_icon_class(active: active)) %>
+          <%= lucide_icon("chart-line", class: nav_icon_class(active: active)) %>
         <% end %>
       </ul>
     </div>

@@ -3724,9 +3724,31 @@ Reported, and worse than it sounded: **"Deactivate" carried four icons** - `user
 record page, where it sat beside a real "Permanently delete" wearing the same glyph. One icon meant both
 "reversible, they keep everything" and "gone".
 
+**A navigation glyph identifies one item, and the two halves share their vocabulary.** The sidebar's icons
+exist to tell its rows apart, so `presentation` labelling **both Classrooms and Teachers** was the whole
+failure of the idea. Teachers is `book-user`; Classrooms keeps `presentation`, which the dashboard tile uses
+too.
+
+| Idea | Both navs |
+| --- | --- |
+| Home / Dashboard | `house` |
+| Classes / Classrooms | `presentation` |
+| Trading floor / Stocks | `chart-line` |
+| Transactions | `receipt` |
+
+Those four had drifted apart: Transactions was `receipt` on one half and `arrow-left-right` on the other,
+the trading floor `chart-no-axes-combined` against `chart-line`, and **Classes hand-wrote a Heroicons
+path** - which is why it appeared in no inventory, since nothing greps a path definition. Every icon in the
+app comes from `lucide_icon` now, and a test counts them.
+
+**And `arrow-left-right` is retired.** It is `arrow-right-left` - the Trade glyph this document names - with
+the words swapped: two near-identical Lucide icons for one idea, one character apart in the name. Exchange
+is `arrow-right-left`; the transactions *list* is `receipt`.
+
 `icon_vocabulary_test` reads the call sites, because `lucide_icon` renders a bare `<svg>` with no name, no
 class and no data attribute - a browser test could only compare path data. It fails on any label with two
-icons, and pins the six pairs above by name.
+icons, any nav with a glyph on two items, any drift between the halves, and any navbar item drawing its own
+SVG.
 
 **A row action never duplicates the row's own name link.** The name in the primary cell links to the
 record's page, so `View` was two controls to one destination -- that argument removed it from all nine

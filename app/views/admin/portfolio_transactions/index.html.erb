@@ -99,9 +99,12 @@
               </tr>
             <% end %>
           <% else %>
+            <%# `receipt`, the glyph both navs use for this page. It was `arrow-left-right`, which is
+                `arrow-right-left` - the Trade glyph - with the words swapped: two near-identical Lucide
+                icons for one idea, one character apart in the name. %>
             <%= render "admin/shared/empty_row",
                        colspan: 6,
-                       icon: "arrow-left-right",
+                       icon: "receipt",
                        title: "No transactions yet",
                        body: "Deposits appear here when a grade book is finalized, and a debit or a " \
                              "credit each time a student buys or sells." %>

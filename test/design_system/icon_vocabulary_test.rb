@@ -35,6 +35,61 @@ class IconVocabularyTest < ActiveSupport::TestCase
     end
   end
 
+  def admin_nav
+    src = Rails.root.join("app/views/admin/shared/_navigation.html.erb").read
+    src.scan(/\{[^}]*?label:\s*"([^"]+)"[^}]*?icon:\s*"([a-z0-9-]+)"[^}]*?\}/m).to_h
+  end
+
+  # The app navbar writes each item as a `nav_item` render with the glyph a line or two away, rather than
+  # as a hash, so it is read positionally.
+  def app_nav
+    lines = Rails.root.join("app/views/layouts/_navbar.html.erb").read.lines
+    lines.each_with_object({}).with_index do |(line, out), i|
+      label = line[/label:\s*"([^"]+)"/, 1]
+      next unless label
+
+      window = lines[[0, i - 4].max..(i + 4)].join
+      icon = window[/lucide_icon\("([a-z0-9-]+)"/, 1]
+      out[label] = icon if icon
+    end
+  end
+
+  # A sidebar's icons exist to tell its items apart, so two items sharing one is the whole failure.
+  # `presentation` served **Classrooms and Teachers** in the same list.
+  test "no navigation glyph is used for two items in the same nav" do
+    [["admin", admin_nav], ["app", app_nav]].each do |name, nav|
+      repeated = nav.values.tally.select { |_icon, count| count > 1 }.keys
+
+      assert_empty repeated,
+                   "#{name} nav: #{repeated.inspect} labels more than one item - " \
+                   "#{nav.select { |_l, i| repeated.include?(i) }.inspect}"
+    end
+  end
+
+  # **Both halves, one idea, one glyph.** Transactions was `receipt` on the app navbar and
+  # `arrow-left-right` on the admin sidebar; Classes was a hand-written Heroicons path against the admin
+  # half's `presentation`; the trading floor was `chart-no-axes-combined` against `chart-line`.
+  test "an idea that appears in both navs uses the same glyph" do
+    admin = admin_nav
+    app = app_nav
+
+    { "Dashboard" => "Home", "Classrooms" => "Classes",
+      "Stocks" => "Trading floor", "Transactions" => "Transactions" }.each do |admin_label, app_label|
+      assert_equal admin[admin_label], app[app_label],
+                   "#{admin_label} and #{app_label} are the same idea on the two halves and should carry " \
+                   "the same glyph"
+    end
+  end
+
+  # The app navbar hand-wrote one item's SVG, which is why it fell out of every icon inventory: nothing
+  # greps a path definition.
+  test "every navbar item draws its glyph through lucide_icon" do
+    src = Rails.root.join("app/views/layouts/_navbar.html.erb").read
+
+    assert_equal app_nav.size, src.scan("lucide_icon(").size - src.scan('lucide_icon("chevron-down"').size,
+                 "a navbar item is drawing its own SVG; every icon in the app comes from `lucide_icon`"
+  end
+
   test "no action label carries two different icons" do
     offenders = icons_by_label.select { |_label, icons| icons.size > 1 }
 

@@ -5920,3 +5920,46 @@ passes every assertion.
 - **Six icons changed**: Deactivate to `user-x` in three places, Reactivate to `user-check` in three, Edit
   to `pencil` in three. Nothing asserted an icon before this.
 - `trash-2` now means deletion only, and `archive` means a classroom only.
+
+## The rest of the icons, audited
+
+Following the Deactivate report across every glyph in the app - 41 icons over 102 call sites.
+
+**Four ideas had two glyphs, one per half of the product:**
+
+| Idea | App navbar | Admin sidebar | Now |
+| --- | --- | --- | --- |
+| Transactions | `receipt` | `arrow-left-right` | `receipt` |
+| Classes / Classrooms | **a hand-written Heroicons path** | `presentation` | `presentation` |
+| Trading floor / Stocks | `chart-no-axes-combined` | `chart-line` | `chart-line` |
+| My portfolio | `id-card` | — | `chart-pie`, which "View portfolio" and the first-share card already used |
+
+The Classes one is worth the note: it hand-wrote its `<svg>`, so it appeared in **no** inventory - nothing
+greps a path definition - and drifted unseen. Every icon in the app comes from `lucide_icon` now, and a test
+counts them.
+
+**One glyph labelled two items in the same sidebar.** `presentation` was Classrooms *and* Teachers, which is
+the whole failure of a nav icon. Teachers is `book-user`; Classrooms keeps `presentation`, which the
+dashboard tile uses too.
+
+**And a near-duplicate is retired.** `arrow-left-right` is `arrow-right-left` - the Trade glyph design.md
+names, citing Material's `swap_horiz` - with the words swapped. Two Lucide icons, one idea, one character
+apart in the name.
+
+Glyphs that legitimately serve several places are left alone, and the audit's own noisy pass is worth
+recording: grouping by "nearby label" reported eighteen icons as ambiguous, almost all artefact, because the
+nav items sit next to each other in one file. The findings above come from structured extraction - the nav
+hashes, the dashboard tiles, the label-and-icon pairs - not from proximity.
+
+### What this breaks
+
+- **Six navigation glyphs changed**, three of them on the app half, which is the half a student sees.
+- `icon_vocabulary_test` is five tests now: no label with two icons, the six action pairs by name, no nav
+  glyph on two items, the four cross-half ideas, and every navbar item drawing through `lucide_icon`. Each
+  was verified by reintroducing the bug it was written for.
+- `arrow-left-right` and `chart-no-axes-combined` are no longer used anywhere.
+
+**Noted, not chased:** `grade_books_test#test_teacher_marks_student_with_perfect_attendance` failed once in
+a full run and passed on rerun and in every run since. The log is kept. It is the autosave assertion, which
+reads a radio's checked state after a save, so a timing suspicion is reasonable - but one failure is not a
+diagnosis, and `bin/flake-hunt` exists for when it recurs.
