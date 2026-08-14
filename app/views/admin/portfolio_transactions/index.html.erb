@@ -112,5 +112,11 @@
         </tbody>
       </table>
     </div>
+
+    <%# **This page hand-rolls its table**, so it does not get the pagination footer `admin/shared/_table`
+        renders for the shells that use it. That is why the component never appeared here even once a
+        controller paginated - the guard was never reached, not false. The border and padding match the
+        footer that shell draws, so the two look the same wherever a reader meets them. %>
+    <%= render "shared/pagination", collection: @portfolio_transactions, footer: true %>
   </div>
 </div>

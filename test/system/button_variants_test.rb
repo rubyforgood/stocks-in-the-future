@@ -15,7 +15,7 @@ require "application_system_test_case"
 # and a missing `justify-center` on the admin base. None of it is visible in a class list, and
 # "it uses the named secondary class" is not the same as "it matches the spec".
 class ButtonVariantsTest < ApplicationSystemTestCase
-  FILLED = %w[tw-btn-primary tw-btn-primary-disabled].freeze
+  FILLED = %w[tw-btn-primary tw-btn-disabled].freeze
   OUTLINED = %w[tw-btn-secondary tw-btn-danger-outline].freeze
   ALL = (FILLED + OUTLINED).freeze
 

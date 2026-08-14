@@ -7,8 +7,12 @@ class OrdersController < ApplicationController
   before_action :authenticate_user!
 
   def index
+    # A student sees their own orders, but `OrderPolicy::Scope` gives a teacher every order in their
+    # classrooms and an admin every order in the system, so this page is unbounded for two of the three
+    # roles. 60 orders already measured 8.2 screens.
     @orders = policy_scope(Order)
-    @orders = Order.apply_sorting(@orders, params[:sort], params[:direction])
+    sorted = Order.apply_sorting(@orders, params[:sort], params[:direction])
+    @orders = sorted.page(params[:page]).per(PER_PAGE)
   end
 
   def new

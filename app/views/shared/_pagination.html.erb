@@ -1,0 +1,60 @@
+<%# Pagination, rendered as an in-card footer under a table.
+
+    **It had never appeared.** The partial has existed since the admin was built, `admin/shared/_table`
+    renders it, and it is guarded on `collection.total_pages > 1` - which no collection could satisfy,
+    because **Kaminari was not installed**. design.md recorded "nothing paginates" as a deliberate state;
+    what it did not record is that the component could not have worked if a controller had tried.
+
+    Switching it on meant fixing what it had drifted into while nothing rendered it: `px-4 py-2 border
+    border-slate-300 rounded-md text-slate-400 bg-slate-100`, hand-written four times. That is the wrong
+    radius (`rounded-md` against the `rounded-lg` token), the wrong height (no `min-h-10`), a border shade
+    the spec does not use, and `text-slate-400`, which this app's own notes name as a 2.5:1 failure. It is
+    `.tw-btn-secondary` and `.tw-btn-disabled` now, so it cannot drift from the buttons again.
+
+    It lives in `shared/` rather than `admin/shared/` because both halves render it - the app's
+    Transactions page is `orders#index`. Same move `_breadcrumbs` made, for the same reason.
+
+    **Params survive the page.** design.md names this as the thing to check when pagination is turned on,
+    because `sort_link` and the filter tabs both carry query parameters and a bare `page=2` would drop
+    them. `request.query_parameters` keeps every one; `url_for` supplies the current controller and
+    action. Asserted in `pagination_test`. %>
+<% if collection.respond_to?(:total_pages) && collection.total_pages > 1 %>
+  <%# **The component owns its wrapper**, because the guard and the chrome have to agree: a caller that
+      wraps this in a bordered strip of its own draws a 1px rule and 24px of padding around nothing on
+      every single-page collection. `empty:hidden` does not save it either - ERB emits whitespace, and CSS
+      `:empty` counts a text node.
+
+      `footer: true` is the in-card form, which is how the admin tables render it - a rule across the card
+      and the shell's own gutters. The default is the standalone form, 16px under a table that has already
+      closed its card, which is the app half. Two contexts, one definition, no caller guard. %>
+  <% footer = local_assigns.fetch(:footer, false) %>
+  <% first = collection.offset_value + 1 %>
+  <% last = [collection.offset_value + collection.limit_value, collection.total_count].min %>
+  <%= tag.div class: (footer ? "border-t border-slate-200 px-4 py-3 lg:px-6" : "mt-4") do %>
+  <nav class="flex items-center justify-between gap-3" aria-label="Pagination">
+    <%# The count is the reason a reader can tell a short last page from a broken filter, so it is not
+        decoration - but at 375px two 40px buttons already fill the row, so it is the part that goes. %>
+    <p class="hidden text-sm text-slate-600 lg:block">
+      Showing <span class="font-medium text-slate-900"><%= first %></span>
+      to <span class="font-medium text-slate-900"><%= last %></span>
+      of <span class="font-medium text-slate-900"><%= collection.total_count %></span>
+    </p>
+
+    <div class="flex flex-1 justify-between gap-3 lg:flex-none lg:justify-end">
+      <% if collection.prev_page %>
+        <%= link_to "Previous", url_for(request.query_parameters.merge(page: collection.prev_page)),
+                    class: "tw-btn-secondary", rel: "prev" %>
+      <% else %>
+        <span class="tw-btn-disabled" aria-disabled="true">Previous</span>
+      <% end %>
+
+      <% if collection.next_page %>
+        <%= link_to "Next", url_for(request.query_parameters.merge(page: collection.next_page)),
+                    class: "tw-btn-secondary", rel: "next" %>
+      <% else %>
+        <span class="tw-btn-disabled" aria-disabled="true">Next</span>
+      <% end %>
+    </div>
+  </nav>
+  <% end %>
+<% end %>

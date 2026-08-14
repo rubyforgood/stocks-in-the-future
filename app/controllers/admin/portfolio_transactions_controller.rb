@@ -31,7 +31,13 @@ module Admin
       scope = PortfolioTransaction.includes(portfolio: :user)
       scope = scope.joins(:portfolio).where(portfolios: { user_id: @filtered_user.id }) if @filtered_user
 
-      @portfolio_transactions = apply_sorting(scope, default: "created_at")
+      # **Paginated**, and this is the collection that most needed it: every transaction ever written, for
+      # every student, with no upper bound - a fee and a purchase per executed order, plus a deposit per
+      # student per earnings reason per quarter. `?user_id=` narrows it; nothing bounded it.
+      #
+      # `.page` comes after `apply_sorting` so the sort decides which rows are on page 1 rather than the
+      # page being sorted after the fact.
+      @portfolio_transactions = apply_sorting(scope, default: "created_at").page(params[:page]).per(PER_PAGE)
       @breadcrumbs = [{ label: "Portfolio transactions" }]
     end
 

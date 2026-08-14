@@ -183,12 +183,39 @@ written against them renders no colour at all.
   (`space-y-6` on the wrapper, which is what `classrooms#show` uses -- note that `mt-6` on the first
   child of a header block collapses against the header's own `mb-6` and measures nothing).
 
-  **Nothing paginates.** `admin/shared/_pagination` exists and `admin/shared/_table` renders it as an
-  in-card footer, but it is guarded on `collection.total_pages > 1` and **no controller paginates**, so
-  it has never appeared: every index renders its whole collection. A classroom is ~25 students and the
-  stock list is curated, so that is fine today. Turning it on is a controller change rather than a
-  styling one, and the thing to check is that `sort_link` and any filter params survive the page
-  parameter.
+  **The two transactions pages paginate; nothing else does yet.** `shared/_pagination` is the component,
+  `ApplicationController::PER_PAGE` is **25** - Stripe's figure and Kaminari's default, against Shopify's
+  50, GitHub's 30 and Administrate's 20 - and both `admin/portfolio_transactions#index` and `orders#index`
+  use it.
+
+  This paragraph used to read "nothing paginates ... that is fine today", which was true and hid two
+  things. **Kaminari was not installed**, so the guard on `total_pages` could never be satisfied and the
+  component could not have worked if a controller had tried. And the transactions collection is the one
+  index with no upper bound: an executed order writes a purchase row *and* a fee row, and finalizing a
+  grade book writes a deposit per student per earnings reason per quarter. Measured at 1366x768, 300 rows
+  rendered **15,534px - 24.9 screens** - and 58,190px at 375px where rows stack. Paginated, the same data
+  is 1,574px and 2.5 screens.
+
+  **The component owns its wrapper**, because the guard and the chrome have to agree: a caller that draws
+  its own bordered strip around it paints a rule and 24px of padding around nothing on every single-page
+  collection, and `empty:hidden` does not save it - ERB emits whitespace and CSS `:empty` counts a text
+  node. `footer: true` is the in-card form the admin tables use; the default is the standalone form 16px
+  under a table that has closed its own card, which is the app half.
+
+  **Present but disabled, not absent**, for the direction that has nowhere to go - Polaris, Stripe and
+  GitHub. Omitting it, which is GOV.UK's pattern, moves the other button sideways between page 1 and page
+  2. The disabled state is `.tw-btn-disabled`; it was `.tw-btn-primary-disabled` with no callers, and lost
+  the half of its name that described a variant when its first caller turned out to be a secondary button.
+
+  **Params survive the page**, which is what this note has always said to check: `sort_link` and the
+  filter tabs both carry query parameters and a bare `page=2` drops them, so a reader sorts a column,
+  turns the page and silently gets the default order back. `request.query_parameters` keeps all of them.
+  `pagination_test` asserts it for the sort pair and for `?user_id=`.
+
+  **Still unpaginated**, and each is a judgement rather than an oversight: students, teachers, users,
+  classrooms, stocks, schools, school years and announcements. A classroom is ~25 students and the stock
+  list is curated, so they are bounded in practice - but `admin/users` grows with every cohort and is the
+  next one to need it. See `design-todo.md`.
 
   Verify these gaps at the pixel level (filter-bottom -> table-top), not by reading tokens;
   `test/system/spacing_test.rb` and `test/system/page_rhythm_test.rb` do exactly that.

@@ -1,6 +1,14 @@
 # frozen_string_literal: true
 
 class ApplicationController < ActionController::Base
+  # Rows per page, for every paginated index on both halves.
+  #
+  # 25 is Stripe's figure and Kaminari's default; Shopify uses 50, GitHub 30, Administrate 20. The measured
+  # argument for the low end is the Chromebook this app is used on: at 1366x768 the viewport is 625px and
+  # an admin transactions row is ~48px, so 25 rows is about two screens of scroll. Unpaginated, 300 rows
+  # measured 15,534px - **24.9 screens** - and 58,190px at 375px, where the rows stack.
+  PER_PAGE = 25
+
   include Pundit::Authorization
 
   before_action :authenticate_user!

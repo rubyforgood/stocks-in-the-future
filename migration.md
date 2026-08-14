@@ -6175,3 +6175,64 @@ in after each user switch. All green, and the recorder itself logged nothing dur
 failures in 46 gives a 95% upper bound of about **6.5%** per run against an observation of roughly 1-in-9,
 so the original rate is unlikely but a rarer flake is entirely consistent with this. `design-todo.md` carries what is known, the two hypotheses that were
 tested and disproved, and the untested one.
+
+## Pagination, and the component that could not have worked
+
+Reported as a long scroll on the transactions page. It is, and it had no upper bound.
+
+**Measured before changing anything**, at 1366x768 where the viewport is 625px:
+
+| | rows | height | screens |
+| --- | --- | --- | --- |
+| `admin/portfolio_transactions` | 300 | 15,534px | **24.9** |
+| the same at 375px, rows stacked | 300 | 58,190px | **87** |
+| `orders#index` (app half) | 60 | 5,118px | 8.2 |
+
+300 is a modest figure for this collection: an executed order writes a purchase row **and** a fee row,
+and finalizing a grade book writes a deposit per student per earnings reason per quarter. Nothing bounded
+it, and `OrderPolicy::Scope` makes the app half unbounded too - a teacher sees every order in their
+classrooms, an admin every order in the system.
+
+### The component in the design system did not work
+
+`admin/shared/_pagination` has existed since the admin was built, and `admin/shared/_table` renders it
+guarded on `collection.total_pages > 1`. **Kaminari was not installed**, so no collection could ever
+satisfy that guard. design.md recorded "nothing paginates" as a deliberate state; it did not record that
+turning it on would have rendered nothing.
+
+Two further reasons it would not have appeared even then:
+
+- `admin/portfolio_transactions/index` **hand-rolls its own `<table>`** rather than using the shell, so
+  it never reached the shell's footer at all.
+- while nothing rendered it, the partial drifted: `px-4 py-2 border border-slate-300 rounded-md
+  text-slate-400 bg-slate-100`, written out four times. Wrong radius against the `rounded-lg` token, no
+  `min-h-10`, a border shade the spec does not use, and `text-slate-400` - which this repo's own notes
+  name as a 2.5:1 failure.
+
+### What changed
+
+- **`kaminari 1.2.2` added.** Its API is exactly what the partial was already written against
+  (`total_pages`, `offset_value`, `limit_value`, `total_count`, `prev_page`, `next_page`).
+  `bundler-audit` reports no vulnerabilities.
+- **`ApplicationController::PER_PAGE = 25`**, one definition for both halves. Stripe's figure and
+  Kaminari's default; Shopify uses 50, GitHub 30, Administrate 20.
+- **The partial moved to `shared/`** - both halves render it now, the same move `_breadcrumbs` made.
+- **It is rebuilt on the tokens**: `.tw-btn-secondary` for a live direction, `.tw-btn-disabled` for the
+  one with nowhere to go. Measured 61x40 and 65x40, which is the 40px button token.
+- **`.tw-btn-primary-disabled` is renamed `.tw-btn-disabled`.** It had **no callers**, and its first one
+  is a secondary button, so the name lost the half that described a variant rather than a state.
+- **The component owns its wrapper.** `footer: true` draws the in-card rule and gutters the admin tables
+  use; the default is a standalone strip 16px under a table that has closed its own card, which is the app
+  half. A caller that wrapped it instead painted a rule and 24px of padding around nothing on every
+  single-page collection - and `empty:hidden` does not fix that, because ERB emits whitespace and CSS
+  `:empty` counts a text node. Measured: `strayStrip: false` on a 10-row page.
+
+**After:** 300 transactions render 1,574px and **2.5 screens** at 1366, 5,180px at 375px.
+
+### What this breaks
+
+- `admin/shared/_table` no longer wraps or guards the partial - both moved inside it.
+- `pagination_test` is seven tests, and covers the risk design.md had already named: **the sort pair and
+  `?user_id=` survive the page parameter**. `request.query_parameters` carries them; a bare `page=2` would
+  have dropped them, so a reader would sort a column, turn the page and silently get the default order.
+- Present-but-disabled rather than absent, so the buttons do not move between page 1 and page 2.

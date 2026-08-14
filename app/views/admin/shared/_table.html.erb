@@ -113,9 +113,5 @@
     </table>
   </div>
 
-  <% if collection.respond_to?(:total_pages) && collection.total_pages > 1 %>
-    <div class="px-4 py-3 border-t border-slate-200 lg:px-6">
-      <%= render "admin/shared/pagination", collection: collection %>
-    </div>
-  <% end %>
+  <%= render "shared/pagination", collection: collection, footer: true %>
 </div>

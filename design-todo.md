@@ -1159,3 +1159,27 @@ One untested hypothesis worth writing down: the failing run was the first one af
 which makes the Tailwind build regenerate. A test that measures pixels while the stylesheet is still being
 written would fail once and never again. Nothing has checked whether the suite can start before that build
 finishes.
+
+## The other indexes are still unpaginated (2026-08)
+
+Pagination exists now - `shared/_pagination`, `ApplicationController::PER_PAGE`, Kaminari - and only the
+two transactions pages use it, because that was the one reported and the one with no upper bound.
+
+Eight indexes still render their whole collection: **students, teachers, users, classrooms, stocks,
+schools, school years, announcements**. Each is a judgement rather than an oversight - a classroom is ~25
+students and the stock list is curated - but they are not all equally safe:
+
+- **`admin/users` grows with every cohort** and never shrinks, because deactivating is a discard rather
+  than a delete. Its "All" tab is every person who has ever had an account. This is the next one.
+- **`admin/students`** has the same shape one level down.
+- schools, school years, classrooms, stocks and announcements are bounded by how many a district actually
+  runs, and are fine.
+
+Turning one on is two lines in its controller, and the components handle the rest - but note the two
+things that bit here: a page that **hand-rolls its `<table>`** does not get the shell's footer and needs
+the partial rendered explicitly, and any page with a filter or a sort needs `pagination_test`'s
+params-survive assertion repeated for it.
+
+Also worth deciding: **25 may be wrong for a roster.** Stripe's 25 suits a ledger you scan in reverse
+order; a teacher looking for a named student on a 200-row roster is doing a different task, and Shopify's
+50 or a search box may serve it better than a page control.

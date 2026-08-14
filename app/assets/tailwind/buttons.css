@@ -65,7 +65,7 @@
   .tw-btn-secondary,
   .tw-btn-danger,
   .tw-btn-danger-outline,
-  .tw-btn-primary-disabled {
+  .tw-btn-disabled {
     @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm shadow-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2;
   }
 
@@ -142,7 +142,15 @@
     @apply cursor-pointer border border-slate-200 bg-white font-medium text-slate-700 hover:border-rose-700 hover:bg-rose-50 hover:text-rose-700 focus-visible:outline-rose-700;
   }
 
-  .tw-btn-primary-disabled {
+  /* The unavailable direction of a pagination control, and any other button that is present but cannot
+   * be pressed. It was `.tw-btn-primary-disabled` with **no callers** for as long as it existed, and its
+   * first caller is a *secondary* button - the name described a variant rather than a state, so it lost
+   * that half when it gained a user. slate-600 on slate-200 is 5.42:1: a disabled control is exempt from
+   * 1.4.3, and this app's own rule against slate-400 text is the stricter one that decided it.
+   *
+   * Present-but-disabled rather than absent, which is Polaris, Stripe and GitHub. Omitting the
+   * unavailable direction - GOV.UK's pattern - moves "Next" sideways between page 1 and page 2. */
+  .tw-btn-disabled {
     @apply cursor-not-allowed bg-slate-200 font-semibold text-slate-600;
   }
 
