@@ -5857,3 +5857,33 @@ One predicate, and every gate reaches it by delegation: `Order`'s validation ref
   buy or sell" - rather than the mechanical description it carried an hour ago.
 - `trading_enabled?` and `trading_open?` are different questions and both are live. A new gate should ask
   `trading_open?`; a display of the *setting* should ask `trading_enabled?`.
+
+## The secondary button goes back to slate-200, and 1.4.11 gets read properly
+
+Reported: the outlined button's border was too dark and did not match the design system. It did not, and
+the reasoning behind it was too blunt.
+
+**1.4.11 asks for 3:1 on visual information *required to identify* a control.** Applying it as "every
+border is 3:1" is what produced the heavy button. The real question is whether the boundary is the only
+thing doing that job, and for a button it is not: the shared base gives every one of them `shadow-sm`, and
+with a label, 16px of padding and a rounded box the border is one signal of four.
+
+A **text input** is the opposite case and keeps `slate-500`: no fill, no shadow, no text of its own. An
+empty field on a white card really is identified by its boundary alone. So do the checkbox and the switch
+track, for the same reason.
+
+**The field agrees, and agrees for this reason.** Tailwind UI ships `ring-gray-300` at about 1.5:1, GitHub a
+0.15-alpha border over a tinted fill, Polaris a light border with a shadow. Material 3's outlined button is
+about 3.4:1 - which reads as a counter-example until you notice it has neither fill nor shadow, so its
+outline is the only identifier. Same rule, different components.
+
+`wcag_audit_test` encodes the test rather than a list of exceptions: it skips a control whose own fill
+reaches 3:1, and one that carries a shadow. That is why the audit still passes with the lighter button.
+
+### What this breaks
+
+- **`.tw-btn-secondary` and `.tw-btn-danger-outline` are `border-slate-200` again**, which is what
+  `design.md` specified before this detour. Inputs, selects, textareas, checkboxes and the switch keep
+  `slate-500`.
+- `button_variants_test` moves back with them, and its comment now records both readings so the next person
+  does not re-apply the blunt one.

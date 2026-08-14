@@ -83,6 +83,19 @@
     @apply cursor-pointer bg-sitf-primary font-semibold text-sitf-on-primary hover:bg-sitf-primary-dark focus-visible:outline-sitf-primary-dark;
   }
 
+  /* **`slate-200`, and 1.4.11 does not ask for more here.** The criterion applies to "visual information
+     *required to identify*" a control, and a button carries several: a label, 16px of horizontal padding, a
+     rounded box, and `shadow-sm` from the shared base above. The border is one signal among four, not the
+     one that makes it a button.
+
+     A text input is the opposite case and keeps `slate-500`: it has no shadow and no text of its own, so an
+     empty field on a white card really is identified by its boundary alone. Same rule, different components.
+
+     This was `slate-500` for a day, applied to inputs and buttons together, and it read as heavy - reported
+     as not matching the design system, which it did not. The field agrees: Tailwind UI ships
+     `ring-gray-300` at about 1.5:1, GitHub a 0.15-alpha border over a tinted fill, Polaris a light border
+     with a shadow. Material 3's outlined button *is* about 3.4:1 - and it has no fill and no shadow, so its
+     outline is the only identifier. The rule is the same; the answer differs because the components do. */
   /* No `border border-transparent` on the filled variants. design.md rules it out by name: it is
    * a fragile compensation pinned to the outlined variant's exact border width, and the h-10
    * token already equalises the heights with box-sizing: border-box. The admin primary carried
@@ -94,7 +107,7 @@
    * is a refinement, not the affordance. If it ever needs to be a real 3:1 boundary that is a
    * deliberate change to the spec, made once here, not per call site. */
   .tw-btn-secondary {
-    @apply cursor-pointer border border-slate-500 bg-white font-medium text-slate-700 hover:bg-slate-50 focus-visible:outline-sitf-primary;
+    @apply cursor-pointer border border-slate-200 bg-white font-medium text-slate-700 hover:bg-slate-50 focus-visible:outline-sitf-primary;
   }
 
   /* design.md's :danger, and the one place it belongs: the accept button of a destructive confirmation.
@@ -126,7 +139,7 @@
    * for a destructive action sitting among bordered buttons. Use ghost_class(:danger) when the
    * neighbours are ghosts instead. Measured: rose-700 on rose-50 is 5.72:1. */
   .tw-btn-danger-outline {
-    @apply cursor-pointer border border-slate-500 bg-white font-medium text-slate-700 hover:border-rose-700 hover:bg-rose-50 hover:text-rose-700 focus-visible:outline-rose-700;
+    @apply cursor-pointer border border-slate-200 bg-white font-medium text-slate-700 hover:border-rose-700 hover:bg-rose-50 hover:text-rose-700 focus-visible:outline-rose-700;
   }
 
   .tw-btn-primary-disabled {

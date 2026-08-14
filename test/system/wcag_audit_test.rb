@@ -167,11 +167,21 @@ class WcagAuditTest < ApplicationSystemTestCase
         if (el.type === "hidden" || !onScreen(el)) return;
         const cs = getComputedStyle(el);
         if (parseFloat(cs.borderTopWidth) === 0) return;
-        // A filled control is identified by its fill, so its border is not carrying 1.4.11. Only a control
-        // whose inside matches the page around it depends on its boundary to be seen at all.
+        // 1.4.11 asks for 3:1 on visual information **required to identify** a control - so the test is
+        // whether the boundary is the only thing doing that job.
+        //
+        // A filled control is identified by its fill. A control with a **shadow** is identified by that:
+        // a shadowed, padded, rounded box with a label reads as a button whatever its border does, which
+        // is why Tailwind UI ships ring-gray-300 at 1.5:1, GitHub a 0.15-alpha border and Polaris a light
+        // border with a shadow. Material 3's outlined button is the exception that proves it - about
+        // 3.4:1, and it has neither fill nor shadow.
+        //
+        // A text input has neither. An empty field on a white card is identified by its boundary alone,
+        // which is why `.tw-input-primary` keeps slate-500 and these do not.
         const around = backdrop(el.parentElement || el);
         const own = rgb(cs.backgroundColor);
         if (own[3] > 0.95 && ratio(own, around) >= 3) return;
+        if (cs.boxShadow && cs.boxShadow !== "none") return;
         const r = ratio(rgb(cs.borderTopColor), around);
         if (r < 3) {
           out.borders.push({ el: el.tagName.toLowerCase() + (el.type ? "[" + el.type + "]" : ""),

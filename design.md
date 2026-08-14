@@ -5534,22 +5534,27 @@ starts and ends, so the fix is three lines against the chrome's own height varia
 handler. **Anything added to the fixed chrome has to move those numbers with it**, which is why they are
 expressed as `calc(var(--sitf-header-h) + var(--sitf-ribbon-h) + …)` rather than written out.
 
-**A control's boundary is 3:1, which is WCAG 1.4.11, and it is `slate-500`.** Every field, select, textarea,
-checkbox, switch track and outlined button in this app is white on a white card, so its border is the only
-thing saying a control is there. Measured before: `.tw-input-primary`'s `border-slate-300` at **1.49:1** and
-`.tw-btn-secondary`'s `border-slate-200` at **1.23:1**. `slate-400` is **2.63:1** and still fails, so
-`slate-500` - **4.76:1** - is the first token that clears the bar.
+**1.4.11 asks for 3:1 on the visual information *required to identify* a control -- so the question is
+whether the boundary is the only thing doing that job.** It is not a blanket "every border is 3:1", and
+applying it as one produced a visibly wrong button.
 
-This **overrules an aesthetic note this document used to carry**, that slate-300 "measured darker and read as
-too heavy" on the secondary button. That was a judgement about weight; 1.4.11 is a criterion, and the
-criterion wins. It is also what Material's outlined text field ships - its outline sits at about 3.5:1 - so
-the heavier border is the field's answer as well as the spec's.
+| Control | Other identifying signals | Border |
+| --- | --- | --- |
+| Input, select, textarea | none -- no fill, no shadow, no text of its own | **`slate-500`**, 4.76:1 |
+| Checkbox, switch track | none -- a 16px box with nothing in it | **`slate-500`** |
+| Outlined button | a label, 16px of padding, a rounded box, and `shadow-sm` | `slate-200`, and that is correct |
+| Filled button | its own fill, well past 3:1 | none needed |
+| Card, table divider | not a user interface component at all | `slate-200` |
 
-**A filled control is exempt, and the rule has to say so** or it spreads to things it does not govern. A
-primary button is identified by its own fill, so its border carries nothing; a card's hairline and a table's
-divider are structure rather than a user interface component, and both keep `slate-200`. `wcag_audit_test`
-encodes exactly that: it skips any control whose own background already reaches 3:1 against what is around
-it.
+The field agrees, and agrees for this reason. Tailwind UI ships `ring-gray-300` at about 1.5:1, GitHub a
+0.15-alpha border over a tinted fill, Polaris a light border with a shadow -- and **Material 3's outlined
+button is about 3.4:1**, which looks like a counter-example until you notice it has neither fill nor shadow.
+Its outline *is* the only identifier. Same rule, different components.
+
+This paragraph said `slate-500` everywhere for one day, and the secondary button was reported as too dark
+and not matching this document -- which it was. `slate-400` was measured at **2.63:1** on the way, and still
+fails where the bar does apply. `wcag_audit_test` encodes the test rather than a list: it skips a control
+whose own fill already reaches 3:1, and one that carries a shadow.
 
 Measure contrast, do not guess.** Every failure found here looked fine.
 2. **Test the empty and error branches.** Every admin index page returned HTTP 200
