@@ -95,6 +95,8 @@ Rails.application.routes.draw do
       resources :component_demo, only: %i[index show] do
         collection do
           get :form
+          # A design preview for the teacher stocks proposal, held here until it is accepted or dropped.
+          get :teacher_stocks
         end
       end
     end

@@ -37,6 +37,11 @@ class InclusiveLanguageTest < ActiveSupport::TestCase
     EXCLUSIONARY => "exclusionary technical term"
   }.freeze
 
+  # **"View" as a noun is not the failure**, and this cannot tell the difference. "A read-only view", "list
+  # view", "this view" are all a screen rather than a claim about the reader's eyes; the rule is about the
+  # verb. Reword where it is easy - "a read-only list" is clearer anyway, which is how both instances so far
+  # were resolved - and allowlist with a reason where it is not.
+  #
   # Two entries, each with a reason rather than a file name.
   #
   # The price feed does the looking, not the reader, so no wording change would make that sentence more
