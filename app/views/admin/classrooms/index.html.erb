@@ -102,12 +102,13 @@
             <%# The Archived tab is a different sentence: there are classrooms, none of them archived, and a
                 New button would not put one in this list. `archived_empty_state` is the one copy of it. %>
             <% if discard_filter == :discarded %>
-              <%= render "admin/shared/empty_row", colspan: 5, **archived_empty_state("classroom") %>
+              <%= render "admin/shared/empty_row", colspan: 5, **archived_empty_state("classroom", keeps: "its students and grade books") %>
             <% else %>
               <%= render "admin/shared/empty_row",
                          colspan: 5,
                          title: "No classrooms yet",
-                         body: "Classrooms group students with a teacher, a school year and grades." %>
+                         body: "Classrooms group students with a teacher, a school year and grades. " \
+                               "Classrooms you add appear here." %>
             <% end %>
           <% end %>
         </tbody>

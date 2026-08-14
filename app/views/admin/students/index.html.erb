@@ -87,12 +87,13 @@
             <% if discard_filter == :discarded %>
               <%= render "admin/shared/empty_row",
                          colspan: 4,
-                         **archived_empty_state("student") %>
+                         **archived_empty_state("student", keeps: "their history and records") %>
             <% else %>
               <%= render "admin/shared/empty_row",
                          colspan: 4,
                          title: "No students yet",
-                         body: "Add students one at a time, or import a whole classroom from a CSV." %>
+                         body: "Students are added one at a time, or imported a classroom at a time " \
+                               "from a CSV. Students you add appear here." %>
             <% end %>
           <% end %>
         </tbody>

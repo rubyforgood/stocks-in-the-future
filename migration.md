@@ -5637,3 +5637,33 @@ than a token sweep.
 - `admin_helper_test` asserted the absent-value dash was `text-slate-500`. That dash has now been measured
   three times: it shipped at 2.6:1 and failed AA, went to slate-500 for AA, and is slate-600 for 1.4.6.
 - Any view adding faint supporting text should reach for slate-600. slate-500 remains correct for an icon.
+
+## Every empty state is two sentences
+
+Set by a reader on the archived students list: *"Archiving a student is reversible and keeps their history
+and records intact. Archived students appear here."* Applied to all thirteen.
+
+**The second sentence was the one missing.** Half the bodies explained the record type and stopped -
+"Classrooms group students with a teacher, a school year and grades" - so a reader learned what a classroom
+*is* and not that adding one would fill the list they were looking at. The other half said only "they appear
+here", with a pronoun for a noun that was not in the sentence.
+
+`archived_empty_state` now takes **what archiving keeps**, per noun. "Keeps everything attached to it" was
+the generic that made the sentence say nothing; a student keeps their history and records, a teacher their
+classrooms, a classroom its grade books.
+
+Two things the copy turned up on the way. The users list briefly read "No archived accounts" - the noun the
+page's own description uses - which contradicts its h1 and its nav item, both "Users"; it is "user" again.
+And the article has to follow the **sound**: a first-letter test rendered "an user".
+
+**One body keeps a different first sentence, deliberately.** The student's own holdings empty state leads
+with an invitation - "Pick a company you know" - which design.md argues for as the first screen a student
+meets. It gained the second sentence rather than losing the first.
+
+### What this breaks
+
+- **`archived_empty_state` now requires `keeps:`.** A caller without it raises rather than printing a vague
+  sentence, which is the point.
+- `empty_state_preview_test` asserts every empty state body says what appears here and runs to at least two
+  sentences. It reads the body paragraph, not the whole block - the title carries no terminal stop, so
+  counting across both merges them.

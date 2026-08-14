@@ -20,7 +20,8 @@
     <%= render layout: "components/ui/empty_state",
                locals: { icon: "chart-line",
                          title: "Not enough data yet",
-                         body: "Your chart appears once two months of value have been recorded." } do %>
+                         body: "Your portfolio's value is recorded once a month. " \
+                               "Your chart appears here once there are two months of it." } do %>
     <% end %>
   <% else %>
     <div class="relative h-75">

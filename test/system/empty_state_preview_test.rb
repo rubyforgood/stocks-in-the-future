@@ -86,6 +86,43 @@ class EmptyStatePreviewTest < ApplicationSystemTestCase
     end
   end
 
+  # **Two sentences: what the thing is, then what appears here.** Set by a reader on the students list -
+  # "Archiving a student is reversible and keeps their history and records intact. Archived students appear
+  # here." - and applied to every empty state in the app.
+  #
+  # The second sentence is the one that was missing. Half of them explained the record type and stopped, so
+  # a reader learned what a classroom *is* and not that adding one would fill this list. The other half said
+  # only "they appear here", with a pronoun for a noun that was not in the sentence.
+  test "every empty state says what will appear here" do
+    classroom = create(:classroom, :with_trading)
+    teacher = create(:teacher)
+    create(:teacher_classroom, teacher:, classroom:)
+    sign_in(create(:admin, admin: true, classroom: nil))
+
+    [admin_students_path, admin_teachers_path, admin_classrooms_path, admin_school_years_path,
+     admin_students_path(discarded: true), admin_teachers_path(discarded: true),
+     admin_classrooms_path(discarded: true), admin_users_path(discarded: true)].each do |path|
+      visit path
+      # The body paragraph only. The title carries no terminal stop, so counting sentences across the
+      # whole block merges it with the first one.
+      body = page.evaluate_script(<<~JS)
+        (function () {
+          const s = document.querySelector("[data-testid='empty-state'] p:nth-of-type(2)");
+          return s ? s.innerText.replace(/\s+/g, " ").trim() : null;
+        })()
+      JS
+      next if body.nil?
+
+      assert_match(
+        /appears? here/, body,
+        "#{path}: #{body.inspect} never says what will appear here"
+      )
+      assert_operator body.split(/(?<=[.!?])\s/).size, :>=, 2,
+                      "#{path}: #{body.inspect} - an empty state body is what the thing is, then what " \
+                      "appears here"
+    end
+  end
+
   # **An empty state explains; the page header acts.**
   #
   # Four admin indexes and the classroom roster carried a filled "New teacher" / "New student" inside the

@@ -282,10 +282,23 @@ module AdminHelper
   #
   # One sentence in one place, because the three call sites would otherwise drift - and the noun is the only
   # thing that differs.
-  def archived_empty_state(noun)
+  # The shape every empty state in the app uses: **what the thing is or what the action does, then what
+  # appears here.** Set by a reader on the students list - "Archiving a student is reversible and keeps
+  # their history and records intact. Archived students appear here."
+  #
+  # `keeps:` per noun, because "everything attached to it" was the generic that made the sentence say
+  # nothing: what survives archiving is a student's history, a teacher's classrooms, a classroom's grade
+  # books. Naming them is the difference between a reassurance and a promise a reader can check.
+  def archived_empty_state(noun, keeps:)
+    # The article follows the **sound**, not the letter: "a user", because "user" is pronounced with a
+    # consonant. A first-letter test gave "an user". The exceptions are listed rather than guessed at,
+    # because the only nouns this takes are the four archivable records.
+    sounds_consonant = %w[user unit].include?(noun)
+    article = !sounds_consonant && noun.start_with?("a", "e", "i", "o", "u") ? "an" : "a"
+
     { title: "No archived #{noun.pluralize}",
-      body: "Archiving a #{noun} is reversible and keeps everything attached to it. " \
-            "The ones you archive appear here." }
+      body: "Archiving #{article} #{noun} is reversible and keeps #{keeps} intact. " \
+            "Archived #{noun.pluralize} appear here." }
   end
 
   # Returns the correct model for routing purposes

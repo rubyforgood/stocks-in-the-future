@@ -120,7 +120,7 @@
 
                 Every other index keeps both branches, because a school or a stock list genuinely can be
                 empty. This one is the exception and this is why. %>
-            <%= render "admin/shared/empty_row", colspan: 5, **archived_empty_state("user") %>
+            <%= render "admin/shared/empty_row", colspan: 5, **archived_empty_state("user", keeps: "their history and records") %>
           <% end %>
         </tbody>
       </table>

@@ -87,12 +87,13 @@
             <% if discard_filter == :discarded %>
               <%= render "admin/shared/empty_row",
                          colspan: 4,
-                         **archived_empty_state("teacher") %>
+                         **archived_empty_state("teacher", keeps: "their classrooms and history") %>
             <% else %>
               <%= render "admin/shared/empty_row",
                          colspan: 4,
                          title: "No teachers yet",
-                         body: "Teachers manage classrooms and enter grades for their students." %>
+                         body: "Teachers manage classrooms and enter grades for their students. " \
+                               "Teachers you add appear here." %>
             <% end %>
           <% end %>
         </tbody>

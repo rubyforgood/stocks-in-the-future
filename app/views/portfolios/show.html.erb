@@ -256,7 +256,8 @@
                 <%= render layout: "components/ui/empty_state",
                            locals: { icon: "sparkles",
                                      title: "You have #{number_to_currency(@portfolio.cash_balance)} ready to invest",
-                                     body: "Pick a company you know. You can buy a single share - there is no minimum, and you can sell whenever you like." } do %><% end %>
+                                     body: "Pick a company you know - you can buy a single share, and sell " \
+                                           "whenever you like. Shares you buy appear here." } do %><% end %>
               <% else %>
                 <%= render layout: "components/ui/empty_state",
                            locals: { icon: "chart-line",

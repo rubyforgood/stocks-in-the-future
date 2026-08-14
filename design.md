@@ -1405,6 +1405,22 @@ nobody looks at. `empty_state_preview_test` builds each condition, asserts a tit
 characters and no "No X found", and with `PREVIEW=1` writes `public/preview/empty-*.png`. It found the
 archived-tab defect above on its first run.
 
+**An empty state body is two sentences: what the thing is, then what will appear here.** Set by a reader on
+the archived students list -- *"Archiving a student is reversible and keeps their history and records intact.
+Archived students appear here."* -- and it is the second sentence that was missing. Half of them explained
+the record type and stopped, so a reader learned what a classroom *is* and not that adding one would fill
+this list; the other half said only "they appear here", with a pronoun for a noun that was not in the
+sentence.
+
+`archived_empty_state` takes **what archiving keeps** per noun, because "keeps everything attached to it" was
+the generic that made the sentence say nothing. A student keeps their history and records, a teacher their
+classrooms, a classroom its grade books -- naming them is the difference between a reassurance and a promise
+a reader can check. It also fixes the article by **sound**: a first-letter test produced "an user".
+
+One body keeps a different first sentence, deliberately: the student's own holdings empty state leads with
+an invitation to buy rather than a definition, which this document already argues for. It gained the second
+sentence rather than losing the first.
+
 **An empty state is the only content on the page at the moment it shows**, so it says what the thing is or how
 rows arrive: "A school year holds the quarters that earnings are calculated against", "Add students one at a
 time, or import a whole classroom from a CSV". Two got this wrong in a way worth naming - one named a
