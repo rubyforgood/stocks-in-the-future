@@ -102,7 +102,7 @@ module AdminHelper
   # The two money figures were `text-2xl` tiles in a four-across band, beside a third tile holding the
   # portfolio's **id**. This is the treatment the stock page already moved to: a read-only fact that is not
   # worth a section goes on the summary line. Shares held is not here - it is a holdings figure, and
-  # "View portfolio" is one click away.
+  # "Open portfolio" is one click away.
   def student_summary(student)
     parts = [student.username.presence, student.classroom&.name]
 
@@ -194,7 +194,7 @@ module AdminHelper
   def announcement_summary(announcement)
     return "Featured - shown on everyone's home page" if announcement.featured?
 
-    "Not featured, so nobody sees it"
+    "Not featured, so it does not appear on the home page"
   end
 
   # A school year's summary: how many classrooms run in it, and the quarter count that used to be a card of

@@ -31,7 +31,7 @@
       Students can buy and sell shares. Turning this off stops new orders - it does not sell anything
       they already hold.
     <% else %>
-      Students cannot buy or sell, and they see a note explaining why. Nothing they already hold is
+      Students cannot buy or sell, and a note explains why. Nothing they already hold is
       affected.<% if classroom.trading_disabled_at.present? %>
         Off since <%= l(classroom.trading_disabled_at.to_date, format: :long) %>.<% end %>
     <% end %>

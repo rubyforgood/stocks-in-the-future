@@ -17,7 +17,7 @@
       <% if @user.portfolio.present? %>
         <p class="text-sm text-slate-900">
           <% if @user.student? %>
-            <%= link_to "View portfolio", user_portfolio_path(@user, @user.portfolio), class: "tw-link" %>
+            <%= link_to "Open portfolio", user_portfolio_path(@user, @user.portfolio), class: "tw-link" %>
           <% else %>
             This user has a portfolio.
           <% end %>

@@ -35,7 +35,7 @@
   <%= render layout: "components/ui/page_header",
              locals: { title: "#{@portfolio.user.display_name}'s portfolio",
                        description: "Share values use the last closing price, updated once a day - " \
-                                    "so this moves overnight, not while you watch it." } do %>
+                                    "so this moves overnight, not while you are on the page." } do %>
     <%# **Rendered whatever the table holds.** This used to be suppressed while the holdings were empty,
         on the grounds that the empty state below carried the action - the two were the same destination
         twice on one screen, and that was the half that went. It is the other half now: an empty state

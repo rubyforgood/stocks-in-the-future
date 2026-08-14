@@ -105,7 +105,7 @@ class AccountHeaderTest < ActionDispatch::IntegrationTest
     # 68px past a Chromebook, which spacing_test caught.
     assert_select "#{MENU} a[href=?]", root_path, count: 0
     assert_select "nav[aria-label='Admin'] a[href=?]", root_path, count: 0
-    assert_select "body > div.fixed a[href=?]", root_path, text: /View site/
+    assert_select "body > div.fixed a[href=?]", root_path, text: /Visit site/
   end
 
   test "the account menu holds no navigation on the app side either" do

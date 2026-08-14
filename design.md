@@ -875,6 +875,45 @@ was the second, filled copy of it inside the empty state.
 **A detail page's primary action acts on the thing it is showing.** A primary that navigates to the
 list is not an action, and it is a strong signal that the page is missing one.
 
+### Copy does not presume what the reader can do
+**No sight verb, and no mouse verb.** Reported on the admin top bar's "View site", which was one of
+eleven instances across both halves. The two failures are not equally strong and the document should say
+so rather than flatten them:
+
+**"Click" presumes a mouse, and that is not contested.** Microsoft's style guide says use *select*,
+Google's says the same, GOV.UK has said "do not use click here" for a decade, and this app runs on school
+Chromebooks with touchscreens. The two worst instances were the account mailers - `Click on the link to
+login` is the first sentence a new student ever reads, and it also used *login* as a verb for a product
+whose button says **Sign in**.
+
+**A sight verb presumes the reader looks at a screen, and "view" is genuinely contested.** Polaris,
+Primer and Material all still ship "View", and it is half a dead metaphor for *access*. It goes anyway,
+because the neutral alternatives are no worse and are usually better copy:
+
+| Was | Now | Why the replacement is not a compromise |
+|---|---|---|
+| "View site" (admin top bar) | **"Visit site"** | WordPress's own admin label; "visit" presumes nothing |
+| "View all" (dashboard) | **"All transactions"** | naming the destination is GOV.UK's rule, and it survives out of context - which "View all" does not (WCAG 2.4.4) |
+| "View all transactions" | **"All transactions"** | same |
+| "View portfolio" x2 | **"Open portfolio"** | "open" is the neutral navigation verb in Microsoft's and Google's guides |
+| "watch your earnings change" | **"follow your earnings as the market changes"** | "track" was taken - it is step 4's own title |
+| "not while you watch it" | **"not while you are on the page"** | says the actual thing: the price is a daily close |
+| "who can see this classroom" | **"who can open this classroom"** | a permission, so "access" is the meaning anyway |
+
+**The line is who the verb is about.** A verb describing what the *system* does is fine; a verb
+describing what the *reader* does is not. "Featured - shown on everyone's home page" stayed for that
+reason and "Not featured, so nobody sees it" did not. So did "the ticker is what the price feed looks
+up", where the feed does the looking.
+
+**An idiom is not an ability claim.** "We hope to see you again soon" is about meeting, not eyesight; no
+style guide flags it, and it stays. (It is separately unreachable - `registrations#destroy` is not routed
+- but that is a different finding.)
+
+`inclusive_language_test` holds this, and the audit that produced it found **nothing** in four other
+categories: no gendered pronouns in any copy, no ableist metaphors, no exclusionary technical terms, and
+none of the "just / simply / easy / obviously" family that quietly tells a reader the thing they are
+stuck on is trivial.
+
 ### Button copy: three words, verb first, one label per destination
 
 **A button label is a verb-first phrase of at most three words.** `button_copy_test.rb` asserts it

@@ -67,14 +67,15 @@
               destination behind an avatar is not discoverable - which was the report.
 
               It lives in the top bar because that is where WordPress ("Visit Site") and Django
-              ("VIEW SITE") both put it, and because the sidebar has no room: a footer row there
+              ("VIEW SITE") both put it, and it takes WordPress's *wording* because "view" presumes
+              sight where "visit" presumes nothing - see the inclusive-language rule in design.md, and because the sidebar has no room: a footer row there
               pushed the admin nav 68px past a 1366x768 Chromebook, which spacing_test caught. The
               label is hidden below lg, where the bar holds a trigger, a wordmark and an avatar
               already - the icon and its accessible name carry it there. %>
-          <%= link_to root_path, class: ghost_class, title: "View site" do %>
+          <%= link_to root_path, class: ghost_class, title: "Visit site" do %>
             <%= lucide_icon("house", class: "size-4 shrink-0") %>
-            <span class="hidden lg:inline">View site</span>
-            <span class="sr-only lg:hidden">View site</span>
+            <span class="hidden lg:inline">Visit site</span>
+            <span class="sr-only lg:hidden">Visit site</span>
           <% end %>
 
           <%= render 'layouts/account_menu' %>

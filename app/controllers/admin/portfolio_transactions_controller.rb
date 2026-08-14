@@ -20,7 +20,7 @@ module Admin
     before_action :set_portfolio_transaction, only: %i[show edit update destroy]
 
     # `?user_id=` narrows the list to one person, which is what a student's record page links to when its
-    # own list is truncated. Without it, "View all transactions" had nowhere to go: truncating a list and
+    # own list is truncated. Without it, "All transactions" had nowhere to go: truncating a list and
     # leaving the rest unreachable is worse than a long page.
     #
     # An id that resolves to nobody is ignored rather than shown as an empty filtered list, and

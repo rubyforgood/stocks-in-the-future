@@ -22,7 +22,7 @@ class PortfoliosController < ApplicationController
   #
   # The owner reached this from the navbar's "My portfolio", so it is top-level for them and the partial
   # drops a trail of one. A teacher arrived from their classroom roster, where the student's name is the
-  # link; an admin from `admin/students#show`, whose "View portfolio" button is the only link out of that
+  # link; an admin from `admin/students#show`, whose "Open portfolio" button is the only link out of that
   # page - and neither had any way back, because this page renders in the app layout and the app layout had
   # no trail at all.
   def breadcrumbs_for(portfolio)

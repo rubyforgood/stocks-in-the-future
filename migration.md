@@ -6004,3 +6004,71 @@ deactivated people, `archive` for archived things.
 - One edit produced a **duplicate `icon:` key** in `grade_books/show` - the file already passed `users`, and
   the inserted key sat above it. Ruby takes the last, so it rendered correctly and the audit still reported
   two icons for the title. Worth knowing that a duplicate hash key in ERB fails silently.
+
+## Copy that presumes what the reader can do
+
+Reported on the admin top bar's **"View site"**. It was one of eleven instances, on both halves, and the
+audit split them into two failures of unequal strength.
+
+**"Click" presumes a mouse.** Microsoft's style guide, Google's and GOV.UK all say so, and the app runs on
+school Chromebooks with touchscreens. Two of the three instances were in the **account mailers**, which is
+the first sentence a new student ever reads:
+
+| File | Was | Now |
+| --- | --- | --- |
+| `devise/mailer/reset_password_instructions` | "Click on the link to login to your account and get started." | "Use the link below to set your password and sign in." |
+| `devise/mailer/unlock_instructions` | "Click the link below to unlock your account:" | "Use the link below to unlock your account:" |
+| `admin/component_demo/index` | "Click column headers to sort." | "Select a column header to sort." |
+
+The mailer also used *login* as a verb for a product whose button says **Sign in**.
+
+**A sight verb presumes the reader looks at a screen.** "View" is contested - Polaris, Primer and Material
+all still ship it - and it goes anyway, because every replacement is at least as good as the original:
+
+| Where | Was | Now |
+| --- | --- | --- |
+| `layouts/admin` top bar | "View site" x3 | **"Visit site"** - WordPress's own label |
+| `admin/dashboard` | "View all" | **"All transactions"** |
+| `admin/students#show` | "View all transactions" | **"All transactions"** |
+| `admin/users#show`, `admin/students/_record_actions` | "View portfolio" | **"Open portfolio"** |
+| `home#index` | "watch your earnings change with the market" | "follow your earnings as the market changes" |
+| `portfolios#show` | "not while you watch it" | "not while you are on the page" |
+| `classrooms/_form` | "who can see this classroom" | "who can open this classroom" |
+| `classrooms/_trading_setting` | "they see a note explaining why" | "a note explains why" |
+| `admin_helper#announcement_summary` | "Not featured, so nobody sees it" | "Not featured, so it does not appear on the home page" |
+
+Two of these are better copy independently of the reason for changing them. **"All transactions"** names
+its destination, so it still means something read out of context, which "View all" does not - that is WCAG
+2.4.4 and GOV.UK's own link rule. And **"not while you are on the page"** says the actual thing: the figure
+is a daily close.
+
+### The rule, and what it deliberately does not catch
+
+**The line is who the verb is about.** A verb about what the *system* does is fine; a verb about what the
+*reader* does is not. "Featured - shown on everyone's home page" stayed on that basis while "nobody sees
+it" went, and "the ticker is what the price feed looks up" stayed because the feed does the looking.
+
+**An idiom is not an ability claim.** "We hope to see you again soon" is about meeting, not eyesight, and
+no style guide flags it.
+
+### What this breaks
+
+- **Four test assertions** changed with the labels: `admin/dashboard_controller_test` ("View all"),
+  `admin/students_controller_test` (twice), and `account_header_test` (`/View site/`).
+- **Seven comments** named labels that no longer exist and were corrected with them - in
+  `admin/shared/_navigation`, `layouts/_account_menu`, `admin/students/_record_actions`,
+  `portfolios_controller`, `admin/portfolio_transactions_controller`, `admin_helper` and
+  `development_only_pages_test`. Nothing in `migration.md` was edited: it is history.
+- `inclusive_language_test` is new, static rather than rendered, because **a mailer is not a page and
+  `component_demo` is development-only** - a browser walk cannot reach either. It was verified by
+  reinstating both bugs. A rendered scan of every page found nothing the static one misses, which is what
+  establishes that the static one looks in the right place.
+- The audit found **nothing** in four further categories: no gendered pronouns in copy, no ableist
+  metaphors, no exclusionary technical terms, and none of the "just / simply / easy / obviously" family.
+
+### Noticed, not acted on
+
+`devise.en.yml`'s `registrations.destroyed` ("Bye! Your account has been successfully cancelled...") is
+**unreachable**: routes carry `devise_for :users, skip: %i[registrations]` and re-add only sign-up, and
+`User#destroy` raises rather than hard-deleting. It is dead copy, which is a different finding from this
+one and is left for a decision rather than folded into a language sweep.

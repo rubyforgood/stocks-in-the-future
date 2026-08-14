@@ -13,7 +13,7 @@ require "test_helper"
 # tool, and the field keeps those outside the product: Storybook is a separate application, Polaris, Primer,
 # Lightning, Material and Carbon are separate documentation sites, and Rails' own /rails/info and
 # /rails/mailers are live routes that nothing links to. It is reached by URL, documented in README.md and
-# design-instructions.md. `View site` stays in the top bar because it is a different class of thing - a way
+# design-instructions.md. `Visit site` stays in the top bar because it is a different class of thing - a way
 # out to the product, which WordPress, Django, Shopify and Craft all put in that bar.
 #
 # Nothing caught any of it, because the guard was `Rails.env.development?` and the suite runs in the test

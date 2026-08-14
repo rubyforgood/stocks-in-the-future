@@ -171,7 +171,7 @@ module Admin
       assert_select "section[aria-labelledby='transactions-heading'] tbody tr", count: 5
       assert_select "p", text: /Showing 5 of 7/
       assert_select "a[href=?]", admin_portfolio_transactions_path(user_id: student.id),
-                    text: "View all transactions"
+                    text: "All transactions"
     end
 
     test "a short list is not truncated and says nothing about it" do
@@ -183,7 +183,7 @@ module Admin
       assert_response :success
       assert_select "section[aria-labelledby='transactions-heading'] tbody tr", count: 1
       assert_select "p", text: /Showing/, count: 0
-      assert_select "a", text: "View all transactions", count: 0
+      assert_select "a", text: "All transactions", count: 0
     end
 
     # A `<details>` rather than a JavaScript panel, so the server decides whether it is open - which is what

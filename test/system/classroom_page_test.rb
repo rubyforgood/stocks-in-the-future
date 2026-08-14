@@ -70,7 +70,7 @@ class ClassroomPageTest < ApplicationSystemTestCase
 
     assert_text "Trading is off."
     assert_text "Students cannot buy or sell"
-    assert_text "note explaining why"
+    assert_text "a note explains why"
     assert_text "Off since"
   end
 
