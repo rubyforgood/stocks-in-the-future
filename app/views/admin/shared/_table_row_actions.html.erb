@@ -13,6 +13,6 @@
     the name in the primary cell became a link to the record's page; `Edit` went for the same reason once
     that page started editing in place - a row was offering two controls to one destination. What stays on
     a row is what a link cannot do: Delete, and the archive/restore pair the archivable indexes add. %>
-<%= ghost_action_link "Delete", [:admin, route_model(record)],
+<%= ghost_action_link action_label("Delete", record), [:admin, route_model(record)],
                       icon: "trash-2", variant: :danger,
                       data: { turbo_method: :delete, turbo_confirm: delete_confirm(record) } %>

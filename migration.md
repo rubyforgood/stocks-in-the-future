@@ -5570,3 +5570,45 @@ disagreed and now do not.
   repeating.
 - **The stock logo is `alt=""`.** If that image ever becomes the only thing identifying a stock in a row, it
   needs its alt back - it is decorative only because the ticker is printed beside it.
+
+## The AAA pass: one criterion fixed, the rest are decisions or impossible
+
+W3C's own note is that AAA conformance is not achievable for whole sites, and that is the finding here too.
+Every criterion was checked; the numbers are below so the choices can be argued with.
+
+**Fixed - 2.4.9 Link Purpose (Link Only).** A screen reader's link list shows link text and nothing else, so
+five rows of "Archive" were five identical links to five different students. In context the row names the
+record, which is why 2.4.4 passes at AA; the AAA bar is the link alone. `orders#index` had already solved it
+with a visible verb plus an `sr-only` remainder, so `AdminHelper#action_label` is that, in the helpers every
+row action goes through - both halves, thirteen call sites. Asserted.
+
+**Already passing at AAA**, several of them thanks to earlier work this month: 2.4.8 Location (the breadcrumb
+trail, which the app half only got last week), 2.4.10 Section Headings, 2.4.12 Focus Not Obscured (Enhanced)
+- zero *partially* obscured, because `scroll-padding` fixed more than the minimum asked for - 2.4.13 Focus
+Appearance (a 2px solid outline at 6.18:1, where AAA asks 2px and 3:1), 2.3.3 Animation from Interactions,
+and the media criteria, which are not applicable.
+
+**Failing, and each is a decision rather than an oversight:**
+
+| Criterion | Measured | What conformance would cost |
+| --- | --- | --- |
+| 1.4.6 Contrast (Enhanced), 7:1 | `slate-500` captions at 4.55-4.76:1; the **brand primary button at 6.18:1** | slate-600 for small text is easy; the primary needs the brand colour darkened |
+| 2.5.5 Target Size (Enhanced), 44x44 | nav rows 36px, buttons 40px, "View site" 32px | every button in the product to 44px - which design.md records as a mistake it already made once |
+| 1.4.8 Visual Presentation | up to **154 characters per line**; no justified text | a measure cap app-wide, plus user-selectable foreground and background colours, which nothing here offers |
+| 2.2.3 No Timing | the success flash auto-hides after 6s | removing auto-dismiss, against design.md's rule that an outcome removes itself |
+| 3.3.9 Accessible Authentication (Enhanced) | username and password | passkeys or an email link; a password is a cognitive function test by definition |
+| 3.1.3 Unusual Words | "portfolio", "ticker", "shares" have no glossary | a glossary, for an app whose subject *is* those words |
+| 3.1.5 Reading Level | not assessed | prose at lower-secondary level, plus a simpler alternative where it is not |
+
+**What I did not do, deliberately.** Three of those would have been quick and wrong to take unilaterally:
+44px targets contradict an explicit, measured decision in design.md; darkening the brand primary is a brand
+change; and removing the flash's auto-dismiss reverses a rule that document argues for at length. They are
+listed here rather than done.
+
+### What this breaks
+
+- **Every row action's text now ends with the record's name**, in an `sr-only` span. Two tests matched a
+  whole label - `assert_select "button", text: "Restore"` and a `text.strip == "Edit"` count - and now match
+  a prefix. Anything else asserting a row action's exact text will need the same.
+- `portfolios#show`'s "Trade" links are left alone: every one points at the trading floor, so the text is
+  unambiguous even though it repeats. Same text plus one destination is not what 2.4.9 is about.

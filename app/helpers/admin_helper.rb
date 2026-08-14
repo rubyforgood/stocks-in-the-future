@@ -361,7 +361,7 @@ module AdminHelper
     resource_name = resource.class.name.underscore
     restore_path = send("restore_admin_#{resource_name}_path", resource)
 
-    ghost_action_button "Restore", restore_path,
+    ghost_action_button action_label("Restore", resource), restore_path,
                         icon: "rotate-ccw",
                         method: :patch,
                         data: { turbo_confirm: "Restore this #{resource_name.humanize.downcase}?\n\n" \
@@ -375,7 +375,7 @@ module AdminHelper
     resource_name = resource.class.name.underscore
     resource_path = send("admin_#{resource_name}_path", resource)
 
-    ghost_action_link "Archive", resource_path,
+    ghost_action_link action_label("Archive", resource), resource_path,
                       icon: "archive", variant: :danger,
                       data: { turbo_method: :delete,
                               turbo_confirm: "Archive this #{resource_name.humanize.downcase}?\n\n" \
@@ -421,6 +421,21 @@ module AdminHelper
   # rendered for schools, school years, stocks, announcements and transactions, and a sentence claiming to
   # know what each one takes with it would be wrong somewhere. Where the cascade matters - a transaction
   # moving a balance, a school year taking its quarters - the call site passes its own.
+  # **WCAG 2.4.9, Link Purpose (Link Only).** A screen reader's link list shows the link text and nothing
+  # else, so five rows of "Archive" name five identical links to five different students. In context the
+  # row's own name disambiguates - which is why this passes 2.4.4 at AA - but the AAA criterion asks that
+  # the link alone be enough.
+  #
+  # `orders#index` already did this and said so: a visible label plus an `sr-only` remainder naming the
+  # record. This is that, in the helpers every admin row action goes through, so the two halves agree.
+  def action_label(text, record)
+    name = record.try(:display_name).presence || record.try(:name).presence ||
+           record.try(:username).presence || record.try(:title).presence
+    return text if name.blank?
+
+    safe_join([text, tag.span(" #{name}", class: "sr-only")])
+  end
+
   def delete_confirm(record)
     label = record.try(:name) || record.try(:username) || record.try(:title) || record.id
 

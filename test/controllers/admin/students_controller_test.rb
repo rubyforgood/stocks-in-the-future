@@ -34,7 +34,10 @@ module Admin
       assert_response :success
       assert_select "tbody tr", count: 1
       assert_select "form[action=?]", restore_admin_student_path(student) do
-        assert_select "button", text: "Restore"
+        # `/Restore/`, not "Restore": a row action carries an `sr-only` remainder naming the record, so a
+        # screen reader's link list reads "Restore Robin Fields" rather than five identical verbs. WCAG
+        # 2.4.9, and the same shape `orders#index` already used.
+        assert_select "button", text: /Restore/
       end
     end
 

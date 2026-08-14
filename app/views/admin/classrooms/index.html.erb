@@ -65,12 +65,12 @@
                 <% status_cell = capture { classroom_status_badge(classroom) } %>
                 <% row_actions = capture do %>
                     <% if classroom.archived? %>
-                      <%= ghost_action_link "Activate", toggle_archive_admin_classroom_path(classroom),
+                      <%= ghost_action_link action_label("Activate", classroom), toggle_archive_admin_classroom_path(classroom),
                                             icon: "circle-check",
                                             data: { turbo_method: :patch,
                                                     turbo_confirm: classroom_toggle_confirm(classroom) } %>
                     <% else %>
-                      <%= ghost_action_link "Archive", toggle_archive_admin_classroom_path(classroom),
+                      <%= ghost_action_link action_label("Archive", classroom), toggle_archive_admin_classroom_path(classroom),
                                             icon: "archive", variant: :danger,
                                             data: { turbo_method: :patch,
                                                     turbo_confirm: classroom_toggle_confirm(classroom) } %>

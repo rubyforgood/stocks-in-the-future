@@ -106,7 +106,7 @@
             <% row_actions = capture do %>
               <% if actions_column %>
                 <% if policy(classroom).edit? %>
-                  <%= ghost_action_link "Edit", edit_classroom_path(classroom), icon: "pencil" %>
+                  <%= ghost_action_link action_label("Edit", classroom), edit_classroom_path(classroom), icon: "pencil" %>
                 <% end %>
               <% end %>
             <% end %>
@@ -140,7 +140,7 @@
                       guard for a scope that widens; what went is the branch that could not fire. %>
                   <div class="flex items-center justify-end gap-1">
                     <% if policy(classroom).edit? %>
-                      <%= ghost_action_link "Edit", edit_classroom_path(classroom), icon: "pencil" %>
+                      <%= ghost_action_link action_label("Edit", classroom), edit_classroom_path(classroom), icon: "pencil" %>
                     <% end %>
                   </div>
                 </td>

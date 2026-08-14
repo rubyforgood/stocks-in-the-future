@@ -66,14 +66,14 @@
                       reactivation cover the two subclasses, so a user who is neither had no way back,
                       and the discard is reversible in the data and was irreversible only here. %>
                   <% if user.discarded? %>
-                    <%= ghost_action_link "Restore", restore_admin_user_path(user),
+                    <%= ghost_action_link action_label("Restore", user), restore_admin_user_path(user),
                                           icon: "rotate-ccw",
                                           data: { turbo_method: :patch,
                                                   turbo_confirm: "Restore #{user.username}?\n\n" \
                                                                  "They can sign in again and reappear " \
                                                                  "in the lists they belong to." } %>
                   <% else %>
-                    <%= ghost_action_link "Archive", admin_user_path(user),
+                    <%= ghost_action_link action_label("Archive", user), admin_user_path(user),
                                           icon: "archive", variant: :danger,
                                           data: { turbo_method: :delete,
                                                   turbo_confirm: "Archive #{user.username}?\n\n" \

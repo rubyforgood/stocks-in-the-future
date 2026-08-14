@@ -118,7 +118,8 @@ class DashColumnTest < ActionDispatch::IntegrationTest
     rows = table.css("tbody tr").size
 
     assert_operator rows, :>, 0, "the teacher should see the classroom they teach"
-    assert_equal rows, table.css("td.table-actions-cell a").count { |a| a.text.strip == "Edit" },
+    # `start_with?`, because the link now carries the classroom's name for 2.4.9.
+    assert_equal rows, table.css("td.table-actions-cell a").count { |a| a.text.strip.start_with?("Edit") },
                  "every row a teacher is shown is one they can edit, so no row needs the dash"
     assert_empty table.css(".table-no-permission")
   end

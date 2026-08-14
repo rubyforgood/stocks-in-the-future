@@ -46,12 +46,12 @@
                 <% status_cell = capture { teacher_status_badge(teacher) } %>
                 <% row_actions = capture do %>
                     <% if teacher.discarded? %>
-                      <%= ghost_action_link "Reactivate", admin_teacher_reactivation_path(teacher),
+                      <%= ghost_action_link action_label("Reactivate", teacher), admin_teacher_reactivation_path(teacher),
                                             icon: "circle-check",
                                             data: { turbo_method: :post,
                                                     turbo_confirm: teacher_reactivate_confirm(teacher) } %>
                     <% else %>
-                      <%= ghost_action_link "Deactivate", admin_teacher_deactivation_path(teacher),
+                      <%= ghost_action_link action_label("Deactivate", teacher), admin_teacher_deactivation_path(teacher),
                                             icon: "ban", variant: :danger,
                                             data: { turbo_method: :post,
                                                     turbo_confirm: teacher_deactivate_confirm(teacher) } %>

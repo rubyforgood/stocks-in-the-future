@@ -68,7 +68,7 @@
                   <%= number_to_currency(transaction.amount_cents / 100.0) %>
                 <% end %>
                 <% row_actions = capture do %>
-                    <%= ghost_action_link "Delete", admin_portfolio_transaction_path(transaction),
+                    <%= ghost_action_link action_label("Delete", transaction), admin_portfolio_transaction_path(transaction),
                                           icon: "trash-2", variant: :danger,
                                           data: { turbo_method: :delete,
                                                   turbo_confirm: transaction_delete_confirm(transaction) } %>

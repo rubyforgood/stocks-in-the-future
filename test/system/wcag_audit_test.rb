@@ -391,6 +391,45 @@ class WcagAuditTest < ApplicationSystemTestCase
     end
   end
 
+  # 2.4.9 Link Purpose (Link Only) is **AAA**, and it is the one AAA criterion this app both fails and can
+  # fix without arguing with a decision: a screen reader's link list shows link text and nothing else, so
+  # five rows of "Archive" were five identical links to five different students. In context the row names
+  # the record, which is why 2.4.4 passes at AA - the AAA bar is the link alone.
+  #
+  # `orders#index` already solved it with a visible verb plus an `sr-only` remainder, and `action_label`
+  # is that, in the helpers every row action goes through.
+  test "no two row actions share a name and point at different records" do
+    classroom = create(:classroom, :with_trading)
+    2.times { |i| create(:student, classroom:, name: "Student #{i}") }
+    create(:teacher_classroom, teacher: create(:teacher), classroom:)
+    sign_in(create(:admin, admin: true, classroom: nil))
+
+    [admin_students_path, admin_users_path, admin_classrooms_path, classrooms_path].each do |path|
+      visit path
+
+      ambiguous = page.evaluate_script(<<~JS)
+        (function () {
+          const seen = {};
+          Array.from(document.querySelectorAll("td.table-actions-cell a, td.table-actions-cell button"))
+               .forEach(function (el) {
+                 if (!el.getClientRects().length) return;
+                 const name = (el.getAttribute("aria-label") || el.innerText || "").trim()
+                                .replace(/\s+/g, " ");
+                 const target = el.getAttribute("href") || el.closest("form")?.getAttribute("action") || "";
+                 if (!name) return;
+                 seen[name] = seen[name] || [];
+                 if (seen[name].indexOf(target) === -1) seen[name].push(target);
+               });
+          return Object.keys(seen).filter(function (k) { return seen[k].length > 1; });
+        })()
+      JS
+
+      assert_empty ambiguous,
+                   "#{path}: #{ambiguous.inspect} names more than one destination. A row action needs the " \
+                   "record's name in an `sr-only` remainder - `action_label` does it."
+    end
+  end
+
   test "as a student" do
     _classroom, student, stock = fixtures_for_audit
     sign_in(student)

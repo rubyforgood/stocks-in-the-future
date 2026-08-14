@@ -50,10 +50,10 @@
       <% end %>
       <% row_actions = capture do %>
         <% if @can_manage_students %>
-          <%= ghost_action_link "Edit", edit_classroom_student_path(@classroom, student),
+          <%= ghost_action_link action_label("Edit", student), edit_classroom_student_path(@classroom, student),
                                 icon: "pencil",
                                 data: { testid: "edit-student-stacked" } %>
-          <%= ghost_action_link "Reset password",
+          <%= ghost_action_link action_label("Reset password", student),
                                 reset_password_classroom_student_path(@classroom, student),
                                 icon: "key-round",
                                 data: {
@@ -61,7 +61,7 @@
                                   turbo_confirm: reset_confirm,
                                   testid: "reset-password-stacked"
                                 } %>
-          <%= ghost_action_link "Delete", classroom_student_path(@classroom, student),
+          <%= ghost_action_link action_label("Delete", student), classroom_student_path(@classroom, student),
                                 icon: "trash-2", variant: :danger,
                                 data: {
                                   turbo_method: :delete,
@@ -112,11 +112,11 @@
               <%# Were three icon-only 32px links whose only accessible name was a title
                   attribute, coloured black / amber-600 / red-600 at rest. Now the same ghost
                   as every other row action, with the label visible. %>
-              <%= ghost_action_link "Edit", edit_classroom_student_path(@classroom, student),
+              <%= ghost_action_link action_label("Edit", student), edit_classroom_student_path(@classroom, student),
                                     icon: "pencil",
                                     data: { testid: "edit-student" } %>
 
-              <%= ghost_action_link "Reset password",
+              <%= ghost_action_link action_label("Reset password", student),
                                     reset_password_classroom_student_path(@classroom, student),
                                     icon: "key-round",
                                     data: {
@@ -125,7 +125,7 @@
                                       testid: "reset-password"
                                     } %>
 
-              <%= ghost_action_link "Delete", classroom_student_path(@classroom, student),
+              <%= ghost_action_link action_label("Delete", student), classroom_student_path(@classroom, student),
                                     icon: "trash-2", variant: :danger,
                                     data: {
                                       turbo_method: :delete,
