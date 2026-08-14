@@ -90,6 +90,44 @@ class IconVocabularyTest < ActiveSupport::TestCase
                  "a navbar item is drawing its own SVG; every icon in the app comes from `lucide_icon`"
   end
 
+  # An empty state's icon is the concept's own glyph - the one the nav and the section use - so it says what
+  # is missing rather than filling the space. **"No students yet" carried three**: `graduation-cap` on the
+  # classroom roster, `users` on the grade book, and the partial's default `inbox` on the admin list. Three
+  # more titles carried two, and twelve of twenty empty states were on the default, so the fallback was
+  # doing most of the work and doing it inconsistently.
+  #
+  # `Nothing to show` is the exception and stays on the default: it is the gallery demonstrating the
+  # component, with no concept behind it.
+  GENERIC_EMPTY_STATE = "Nothing to show"
+
+  def empty_states
+    SOURCES.flat_map do |path|
+      text = path.read
+      text.to_enum(:scan, /(?:empty_state|empty_row)/).map { Regexp.last_match.begin(0) }.filter_map do |i|
+        seg = text[i, 900].split("<% end %>").first.to_s
+        title = seg[/title:\s*"([^"]{2,60})"/, 1]
+        next unless title
+
+        [title, seg[/\bicon:\s*"([a-z0-9-]+)"/, 1] || "inbox (default)"]
+      end
+    end.uniq
+  end
+
+  test "no empty state title carries two different icons" do
+    by_title = empty_states.each_with_object({}) { |(title, icon), out| (out[title] ||= Set.new) << icon }
+    offenders = by_title.select { |_title, icons| icons.size > 1 }
+
+    assert_empty offenders, offenders.map { |t, i| "#{t.inspect}: #{i.to_a.sort.inspect}" }.join("\n")
+  end
+
+  test "every empty state names its glyph" do
+    on_default = empty_states.select { |title, icon| icon.include?("default") && title != GENERIC_EMPTY_STATE }
+
+    assert_empty on_default.map(&:first),
+                 "these fall through to `inbox`: #{on_default.map(&:first).inspect}. An empty state carries " \
+                 "the glyph of the thing that is missing - the same one its nav item and its section use."
+  end
+
   test "no action label carries two different icons" do
     offenders = icons_by_label.select { |_label, icons| icons.size > 1 }
 

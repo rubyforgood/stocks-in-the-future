@@ -5963,3 +5963,44 @@ hashes, the dashboard tiles, the label-and-icon pairs - not from proximity.
 a full run and passed on rerun and in every run since. The log is kept. It is the autosave assertion, which
 reads a radio's checked state after a save, so a timing suspicion is reasonable - but one failure is not a
 diagnosis, and `bin/flake-hunt` exists for when it recurs.
+
+## Empty state icons, audited
+
+The same audit as the glyphs, over all twenty empty states, and the same shape of finding.
+
+**"No students yet" carried three icons**: `graduation-cap` on the classroom roster, `users` on the grade
+book, and the partial's default `inbox` on the admin list. Three more titles carried two - "No classrooms
+yet", "No school years yet" and "No transactions yet" each had a meaningful glyph in one place and the
+default in another.
+
+**Twelve of the twenty were on the default**, which is the real finding: the fallback was doing most of the
+work, so the handful of pages that did pass a glyph read as the exception rather than the rule.
+
+An empty state now carries **the glyph of the thing that is missing** - the same one its nav item and its
+section use:
+
+| Missing | Glyph |
+| --- | --- |
+| students | `graduation-cap` |
+| classrooms | `presentation` |
+| school years | `calendar-check` |
+| teachers | `book-user` |
+| transactions | `receipt` |
+| announcements | `megaphone` |
+| grade books | `book-check` |
+| orders awaiting execution | `clock` |
+| holdings, the portfolio chart | `chart-line` |
+
+The two state tabs take the *state's* glyph instead, because that is what the tab is about: `user-x` for
+deactivated people, `archive` for archived things.
+
+### What this breaks
+
+- **`inbox` has one caller left** - the gallery's generic "Nothing to show", which demonstrates the
+  component with no concept behind it. It stays the partial's default, but a real empty state falling
+  through to it now fails a test.
+- `icon_vocabulary_test` is seven tests. Both new ones were verified by reintroducing their bug: putting
+  `users` back on the grade book, and removing the teachers glyph.
+- One edit produced a **duplicate `icon:` key** in `grade_books/show` - the file already passed `users`, and
+  the inserted key sat above it. Ruby takes the last, so it rendered correctly and the audit still reported
+  two icons for the title. Worth knowing that a duplicate hash key in ERB fails silently.

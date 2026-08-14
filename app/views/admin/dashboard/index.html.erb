@@ -97,6 +97,7 @@
         <div class="p-5">
           <%= render layout: "components/ui/empty_state",
                      locals: { compact: true,
+                               icon: "clock",
                                title: "Nothing waiting",
                                body: "Orders appear here between being placed and being executed." } do %>
           <% end %>
@@ -140,6 +141,7 @@
         <div class="p-5">
           <%= render layout: "components/ui/empty_state",
                      locals: { compact: true,
+                               icon: "receipt",
                                title: "No transactions yet",
                                body: "Finalizing a grade book pays every student in the class. " \
                                      "Deposits appear here once one is finalized." } do %>

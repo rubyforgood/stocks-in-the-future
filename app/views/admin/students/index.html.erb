@@ -112,6 +112,7 @@
             <% else %>
               <%= render "admin/shared/empty_row",
                          colspan: discard_filter == :all ? 5 : 4,
+                         icon: "graduation-cap",
                          title: "No students yet",
                          body: "Students are added one at a time, or imported a classroom at a time " \
                                "from a CSV. Students you add appear here." %>

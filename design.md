@@ -1478,6 +1478,20 @@ nobody looks at. `empty_state_preview_test` builds each condition, asserts a tit
 characters and no "No X found", and with `PREVIEW=1` writes `public/preview/empty-*.png`. It found the
 archived-tab defect above on its first run.
 
+**An empty state's icon is the glyph of the thing that is missing** -- the same one its nav item and its
+section use, so `graduation-cap` for students, `presentation` for classrooms, `receipt` for transactions,
+`book-user` for teachers. Audited after the icon sweep and it was the same shape: **"No students yet"
+carried three glyphs** (`graduation-cap` on the classroom roster, `users` on the grade book, the partial's
+default `inbox` on the admin list), three more titles carried two, and **twelve of twenty were on the
+default** -- so the fallback was doing most of the work and doing it inconsistently.
+
+The two state tabs take the *state's* glyph rather than the record's, because that is what the tab is about:
+`user-x` for deactivated people, `archive` for archived things.
+
+`inbox` survives as the partial's default and has exactly one caller: the gallery's generic "Nothing to
+show", which demonstrates the component with no concept behind it. `icon_vocabulary_test` fails on any title
+with two glyphs, and on any empty state falling through to the default.
+
 **An empty state body is two sentences: what the thing is, then what will appear here.** Set by a reader on
 the archived students list -- *"Archiving a student is reversible and keeps their history and records intact.
 Archived students appear here."* -- and it is the second sentence that was missing. Half of them explained

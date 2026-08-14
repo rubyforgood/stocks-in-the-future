@@ -314,7 +314,8 @@ module AdminHelper
     sounds_consonant = %w[user unit].include?(noun)
     article = !sounds_consonant && noun.start_with?("a", "e", "i", "o", "u") ? "an" : "a"
 
-    { title: "No deactivated #{noun.pluralize}",
+    { icon: "user-x",
+      title: "No deactivated #{noun.pluralize}",
       body: "Deactivating #{article} #{noun} is reversible and keeps #{keeps} intact. " \
             "Deactivated #{noun.pluralize} appear here." }
   end
@@ -322,7 +323,8 @@ module AdminHelper
   # And the thing. A classroom has no login to take away, so archiving it files it out of the lists and
   # changes nothing else - which is what the word means everywhere else in the field.
   def archived_empty_state(noun, keeps:)
-    { title: "No archived #{noun.pluralize}",
+    { icon: "archive",
+      title: "No archived #{noun.pluralize}",
       body: "Archiving a #{noun} is reversible and keeps #{keeps} intact. " \
             "Archived #{noun.pluralize} appear here." }
   end

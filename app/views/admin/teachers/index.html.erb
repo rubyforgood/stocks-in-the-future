@@ -98,6 +98,7 @@
             <% else %>
               <%= render "admin/shared/empty_row",
                          colspan: discard_filter == :all ? 4 : 3,
+                         icon: "book-user",
                          title: "No teachers yet",
                          body: "Teachers manage classrooms and enter grades for their students. " \
                                "Teachers you add appear here." %>
