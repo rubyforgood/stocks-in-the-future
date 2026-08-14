@@ -5524,3 +5524,49 @@ keyboard trap (the modal handles Escape and traps focus with a way out), and 3.3
 - `wcag_audit_test` gains two tests and is now about 50s of the system suite. The 2.4.11 one dirties a form
   first, because the sticky bar only exists in that state - verified by reverting the CSS and watching it
   name the field.
+
+## The manual WCAG pass: the criteria a script cannot judge
+
+Read rather than measured, because these ask whether copy and structure *mean* the right thing. Four
+failures, all fixed.
+
+**2.4.2 Page Titled - five app pages had no title of their own.** The portfolio, the trading floor,
+transactions, classes and the grade book all fell through to the layout's bare "Stocks in the Future". The
+machine audit only checked that a title existed, which is why it passed them. Each now sets
+`content_for :title`, and a test asserts every page's title is distinct from the site name and from every
+other page's.
+
+**2.4.2 again, on the admin dashboard**: its title read "Admin | Admin | Stocks in the Future", because the
+title is derived from the last breadcrumb and that page's crumb *is* "Admin". The layout de-duplicates the
+segments now.
+
+**3.1.1 Language of Page - the mailer layout declared none.** `layouts/mailer.html.erb` opened `<html>` with
+no `lang`, so the password reset email had no language. Both app layouts already had `lang="en"`.
+
+**1.1.1 - a logo whose alt repeated the text beside it.** The trading floor's row rendered
+`alt="AAPL logo"` immediately before printing "AAPL" and the company name, so a screen reader said the
+ticker twice. `portfolios/show` renders the same logo with `alt=""` and explains why; the two halves
+disagreed and now do not.
+
+**Checked and passing, with the evidence:**
+
+- **1.4.1 Use of Colour** - every colour-coded figure carries a second cue: the holdings change and return
+  print an explicit `+`, the fee prints `-`, `_stat`'s comparison line adds a trending arrow, badges carry a
+  word, and errors carry an icon.
+- **3.3.3 Error Suggestion** - the money errors state both figures ("You have $16.06 but need $18.06") and
+  the sell error names the limit ("3 available"), which is what lets a reader fix it. The two that suggest
+  nothing - an archived stock, a non-pending order - are cases where the reader has no action to take.
+- **2.4.3 Focus Order** - no positive `tabindex` anywhere, so focus follows the DOM.
+- **2.4.5 Multiple Ways** - persistent navigation, breadcrumbs on both halves, and search on the admin
+  indexes.
+- **3.2.4 Consistent Identification** - one label per destination, asserted by `button_copy_test`.
+- **2.4.6 Headings and Labels** - every page has exactly one `h1` and it names the page.
+
+### What this breaks
+
+- Five app views gained a `content_for :title` line at the top. A new page without one now fails
+  `wcag_audit_test` rather than quietly inheriting the site name.
+- The admin title de-duplicates its segments, so `/admin` reads "Admin | Stocks in the Future" rather than
+  repeating.
+- **The stock logo is `alt=""`.** If that image ever becomes the only thing identifying a stock in a row, it
+  needs its alt back - it is decorative only because the ticker is printed beside it.

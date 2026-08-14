@@ -5,8 +5,10 @@
         which every admin controller already sets to the current page's label. Was
         a single static string on every admin page (WCAG 2.4.2), still using the
         old un-spaced brand name. %>
-    <% admin_page_title = @breadcrumbs&.last&.dig(:label).presence || "Admin" %>
-    <title><%= admin_page_title %> | Admin | Stocks in the Future</title>
+    <% admin_page_title = @breadcrumbs&.last&.dig(:label).presence %>
+    <%# The section is not repeated when the page *is* the section: the dashboard's own crumb reads
+        "Admin", and the title came out "Admin | Admin | Stocks in the Future". %>
+    <title><%= [admin_page_title, "Admin", "Stocks in the Future"].compact.uniq.join(" | ") %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>

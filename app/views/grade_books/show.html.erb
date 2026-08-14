@@ -1,3 +1,4 @@
+<% content_for :title, "#{@grade_book.quarter&.name || 'Grade book'} - #{@classroom.name}" %>
 <%= turbo_frame_tag @grade_book do %>
   <%# This is a standalone page at /classrooms/:id/grade_books/:id, and it had no
       h1 at all - its only heading was an h3. Every page needs exactly one h1, and

@@ -358,6 +358,39 @@ class WcagAuditTest < ApplicationSystemTestCase
     end
   end
 
+  # 2.4.2 Page Titled asks for a title that describes *this page*, and the machine half of this audit only
+  # checked that one existed. Five app pages fell through to the layout's bare "Stocks in the Future": the
+  # portfolio, the trading floor, transactions, classes and a grade book. So this asserts the title is
+  # distinct from the site name and that no two pages share one - which is what "describes its topic" means
+  # in practice.
+  test "every page has a title of its own" do
+    classroom = create(:classroom, :with_trading, name: "Period 3")
+    student = create(:student, :with_portfolio, classroom:, name: "Robin Fields")
+    stock = create(:stock, ticker: "AAPL")
+    grade_book = create(:grade_book, classroom:)
+    create(:school)
+    sign_in(create(:admin, admin: true, classroom: nil))
+
+    seen = {}
+    { "portfolio" => user_portfolio_path(student.reload, student.portfolio),
+      "trading floor" => stocks_path, "stock" => stock_path(stock), "transactions" => orders_path,
+      "classes" => classrooms_path, "classroom" => classroom_path(classroom),
+      "grade book" => classroom_grade_book_path(classroom, grade_book),
+      "admin dashboard" => admin_root_path, "admin students" => admin_students_path,
+      "admin student" => admin_student_path(student) }.each do |name, path|
+      visit path
+      title = page.title
+
+      assert_not_equal "Stocks in the Future", title,
+                       "#{name} falls through to the site name; 2.4.2 asks for a title describing the page"
+      assert_nil seen[title], "#{name} and #{seen[title]} share the title #{title.inspect}"
+      # "Admin | Admin | Stocks in the Future" - the dashboard's own crumb is already the section name.
+      parts = title.split(" | ")
+      assert_equal parts.uniq, parts, "#{name}: #{title.inspect} repeats a segment"
+      seen[title] = name
+    end
+  end
+
   test "as a student" do
     _classroom, student, stock = fixtures_for_audit
     sign_in(student)
