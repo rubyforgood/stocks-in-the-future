@@ -247,7 +247,8 @@ csv.each do |row|
     calculated_balance_cents = earnings_cents - total_spent_cents
     discrepancy              = (calculated_balance_cents - expected_balance_cents).abs
     if discrepancy > 1
-      warnings << "#{username}: Balance mismatch - expected $#{expected_balance_cents / 100.0}, calculated $#{calculated_balance_cents / 100.0} (diff: $#{discrepancy / 100.0})"
+      warnings << "#{username}: Balance mismatch - expected $#{expected_balance_cents / 100.0}, " \
+                  "calculated $#{calculated_balance_cents / 100.0} (diff: $#{discrepancy / 100.0})"
     end
 
     GRADE_HEADERS.each do |quarter_num, cols|
