@@ -104,6 +104,7 @@ module Admin
         amount_cents: 500, transaction_type: :deposit,
         reason: :attendance_earnings
       )
+      portfolio.portfolio_transactions.create!(amount_cents: 400, transaction_type: :deposit, reason: :reading_earnings)
       portfolio.portfolio_transactions.create!(amount_cents: 300, transaction_type: :deposit, reason: :math_earnings)
       portfolio.portfolio_transactions.create!(amount_cents: 200, transaction_type: :deposit, reason: :awards)
 
@@ -112,10 +113,42 @@ module Admin
       assert_response :success
       assert_select "h4", text: "Earnings Summary"
       assert_select "td", text: "Attendance Earnings"
+      assert_select "td", text: "Reading Earnings"
       assert_select "td", text: "Math Earnings"
       assert_select "td", text: "Rewards"
       assert_select "td", text: "Total Earnings"
       assert_select "td", text: "Transaction Fees"
+    end
+
+    test "show displays reading earnings amount alongside the other categories" do
+      student = create(:student)
+      portfolio = student.portfolio
+      portfolio.portfolio_transactions.create!(amount_cents: 400, transaction_type: :deposit, reason: :reading_earnings)
+
+      get admin_student_path(student)
+
+      assert_response :success
+      # The total is built from every category, so a category the table omits
+      # would leave the total unexplained by the rows above it.
+      assert_select "tr" do |rows|
+        reading_row = rows.find { |row| row.text.include?("Reading Earnings") }
+
+        assert reading_row, "expected the earnings summary to include a Reading Earnings row"
+        assert_includes reading_row.text, "$4.00"
+      end
+    end
+
+    test "show displays every earnings category as zero when there are no earnings" do
+      student = create(:student)
+
+      get admin_student_path(student)
+
+      assert_response :success
+      ["Attendance Earnings", "Reading Earnings", "Math Earnings", "Rewards",
+       "Total Earnings", "Transaction Fees"].each do |category|
+        assert_select "td", text: category
+      end
+      assert_select "td", text: "$0.00", count: 6
     end
 
     test "new" do

@@ -61,4 +61,39 @@ class PortfoliosControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "canvas[data-controller='portfolio-chart']"
   end
+
+  test "show displays every earnings category as zero when there are no earnings" do
+    portfolio = create(:portfolio)
+    # Transactions without a reason still count toward cash, but not toward a category.
+    create(:portfolio_transaction, :deposit, portfolio: portfolio, amount_cents: 15_000_00)
+
+    sign_in(portfolio.user)
+
+    get portfolio_path(portfolio)
+
+    assert_response :success
+    ["Attendance Earnings", "Reading Earnings", "Math Earnings", "Rewards",
+     "Total Earnings", "Transaction Fees"].each do |category|
+      assert_select "span", text: category
+    end
+    assert_select "span", text: "$0.00", count: 6
+  end
+
+  test "show displays each earnings category with its own amount" do
+    portfolio = create(:portfolio)
+    create(:portfolio_transaction, :deposit, portfolio: portfolio, amount_cents: 500, reason: :attendance_earnings)
+    create(:portfolio_transaction, :deposit, portfolio: portfolio, amount_cents: 400, reason: :reading_earnings)
+    create(:portfolio_transaction, :deposit, portfolio: portfolio, amount_cents: 300, reason: :math_earnings)
+    create(:portfolio_transaction, :deposit, portfolio: portfolio, amount_cents: 200, reason: :awards)
+
+    sign_in(portfolio.user)
+
+    get portfolio_path(portfolio)
+
+    assert_response :success
+    assert_select "span", text: "Reading Earnings"
+    assert_select "span", text: "$4.00"
+    # Total must account for every category shown above it.
+    assert_select "span", text: "$14.00"
+  end
 end
