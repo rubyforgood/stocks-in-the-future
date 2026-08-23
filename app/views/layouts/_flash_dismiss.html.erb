@@ -1,0 +1,34 @@
+<%# The flash close control. One definition for both branches, because the only thing that differs
+    between them is the tint, and the two hand-rolled panels above are already as much duplication as
+    this file should carry.
+
+    **No `text-*` colour.** The glyph inherits the banner's ink - green-900 or red-900 - per
+    design.md: an icon in an alert or banner takes the container's text colour rather than setting its
+    own, which keeps it at the same ratio as the copy beside it. The modal and navbar closes both set
+    `text-slate-600`, correctly, because they sit on white; on a tint that would be a new unmeasured
+    pair.
+
+    44px, matching the modal close and the drawer close: this is a bare icon control with no other
+    affordance, which is the one case where the app uses that figure rather than the 32px a labelled
+    ghost button gets.
+
+    `-my-3` keeps it from making the banner taller. The 44px box would otherwise set the row height
+    against a 22px line and add 22px to every flash; pulled in by 12px top and bottom it contributes
+    20px, which the icon's 20px plus its mt-0.5 already exceeds. Measured: the banner is **56px with
+    the button and 56px without it**.
+
+    The hover fill still paints entirely inside the panel, which is the condition attached to every
+    negative-margin target in this app - measured at 5px clear of the border at the top and 7px at the
+    bottom, and 17px from the right, that being p-4 plus the hairline. %>
+<% tones = {
+     notice: { hover: "hover:bg-green-100", outline: "focus-visible:outline-green-700" },
+     alert: { hover: "hover:bg-red-100", outline: "focus-visible:outline-red-700" }
+   } %>
+<% t = tones.fetch(tone.to_sym) %>
+
+<button type="button"
+        data-action="dismiss#now"
+        class="-my-3 ml-auto flex min-h-11 min-w-11 shrink-0 cursor-pointer items-center justify-center rounded-lg transition-colors <%= t[:hover] %> focus-visible:outline-2 focus-visible:outline-offset-2 <%= t[:outline] %>">
+  <span class="sr-only">Dismiss</span>
+  <%= lucide_icon "x", class: "size-5 shrink-0" %>
+</button>

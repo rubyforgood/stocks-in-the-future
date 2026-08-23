@@ -1,0 +1,27 @@
+<%# Empty state inside a table body.
+
+    Wraps components/ui/_empty_state in the tr/td plumbing so callers do not
+    repeat the colspan arithmetic. This block was previously copy-pasted into
+    five admin index pages, each with slightly different copy and none with a
+    call to action - so a new admin was told "create your first X" and left to
+    find the button themselves.
+
+    Locals:
+      colspan      - number of columns to span
+      title        - short heading
+      body         - optional explanatory sentence
+      icon         - optional Lucide name (default: inbox)
+
+    **No action.** It took `action_label` / `action_path` and rendered a `tw-btn-primary`, which put a
+    second filled button for the same destination on four indexes and the classroom roster - the page
+    header already carries "New teacher", "New student" and the rest. An empty state explains why a list
+    is empty and what will fill it; the page header acts. That way the button is in one place whether the
+    list has nothing in it or a hundred rows, instead of moving when the first record lands. %>
+<tr>
+  <td colspan="<%= colspan %>" class="p-0">
+    <%= render layout: "components/ui/empty_state",
+               locals: { title: title,
+                         body: local_assigns[:body],
+                         icon: local_assigns.fetch(:icon, "inbox") } do %><% end %>
+  </td>
+</tr>

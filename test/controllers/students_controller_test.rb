@@ -37,6 +37,7 @@ class StudentsControllerTest < ActionDispatch::IntegrationTest
       assert_difference("Student.count") do
         post classroom_students_path(@classroom), params: {
           student: {
+            name: "Test Student",
             username: "newstudent",
             email: "newstudent@example.com"
           }
@@ -57,6 +58,7 @@ class StudentsControllerTest < ActionDispatch::IntegrationTest
     assert_difference("Portfolio.count") do
       post classroom_students_path(@classroom), params: {
         student: {
+          name: "Test Student",
           username: "newstudent",
           email: "newstudent@example.com"
         }
@@ -73,6 +75,7 @@ class StudentsControllerTest < ActionDispatch::IntegrationTest
 
     post classroom_students_path(@classroom), params: {
       student: {
+        name: "Test Student",
         username: "newstudent",
         email: "newstudent@example.com"
       }
@@ -86,6 +89,7 @@ class StudentsControllerTest < ActionDispatch::IntegrationTest
 
     patch classroom_student_path(@classroom, @student), params: {
       student: {
+        name: "Test Student",
         username: "updatedname",
         email: "updated@example.com"
       }
@@ -128,8 +132,10 @@ class StudentsControllerTest < ActionDispatch::IntegrationTest
     patch reset_password_classroom_student_path(@classroom, @student)
     follow_redirect!
 
-    assert_select "p#notice", 1
-    assert_select "p#notice", text: /Password reset/
+    # The flash is a div wrapping an icon plus text (see layouts/_flash).
+    # Still asserting it renders exactly once - that is the regression guard.
+    assert_select "#notice", 1
+    assert_select "#notice", text: /Password reset/
   end
 
   test "password reset generates memorable password" do

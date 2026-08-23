@@ -79,17 +79,41 @@ class StockPricesUpdateJobTest < ActiveJob::TestCase
     assert_not_equal initial_price, stock.price_cents
   end
 
-  test "preserves yesterday price when API call fails" do
+  # This test used to assert the opposite, under the name "preserves yesterday price when API call fails":
+  # it started with `yesterday_price_cents: nil` and expected the failed run to write today's price into it.
+  # That is not preserving anything - it is inventing a comparison point, and it made the trading floor's
+  # Change column read 0.00% for every stock the API could not reach, which is what a genuinely flat day
+  # looks like. A test's name is not evidence of what it asserts.
+  test "writes nothing when the API returns no price" do
     initial_price = 12_345
-    stock = create(:stock, ticker: "AAPL", price_cents: initial_price, yesterday_price_cents: nil)
+    stock = create(
+      :stock, ticker: "AAPL", price_cents: initial_price, yesterday_price_cents: nil,
+              last_trading_day: 3.days.ago.to_date
+    )
 
     stub_request(:get, STOCK_URL_MATCHER).to_return(status: 200, body: "{}")
 
     StockPricesUpdateJob.perform_now
 
     stock.reload
-    assert_equal initial_price, stock.yesterday_price_cents
-    assert_equal initial_price, stock.price_cents
+    assert_nil stock.yesterday_price_cents, "a failed fetch invented a yesterday price"
+    assert_equal initial_price, stock.price_cents, "a failed fetch changed the price"
+    assert_equal 3.days.ago.to_date, stock.last_trading_day,
+                 "last_trading_day moved, which is what tells the app the price is stale"
+  end
+
+  # The destructive case, and the reason this matters beyond a wrong percentage: a real change is lost.
+  test "a failed fetch does not flatten a real change to zero" do
+    stock = create(:stock, ticker: "AAPL", price_cents: 11_000, yesterday_price_cents: 10_000)
+
+    stub_request(:get, STOCK_URL_MATCHER).to_return(status: 500, body: "")
+
+    StockPricesUpdateJob.perform_now
+
+    stock.reload
+    assert_equal 10_000, stock.yesterday_price_cents
+    assert_equal "+10.00%", stock.percentage_change_formatted,
+                 "the change was overwritten with 0.00%, which is indistinguishable from a flat day"
   end
 
   test "stores trading day when updating stock price" do

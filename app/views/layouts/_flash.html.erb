@@ -1,0 +1,53 @@
+<%# Flash messages.
+    role=status/alert so screen readers announce them without a focus change.
+    Each carries an icon plus text, so meaning never rests on colour alone.
+
+    Success auto-hides after 6s and errors stay. That split is the whole convention, and it is a
+    property of what the message *is* rather than of how it looks: a notice reports that something
+    you just did worked, and is worthless a minute later; an alert is often the only record of what
+    went wrong, and `role="alert"` interrupts to say so. Nothing else in the app dismisses itself -
+    `components/ui/_callout` is page state rather than an outcome, and the error summaries on
+    students#new, students#edit and profiles are the same shape as this alert.
+
+    The removal is silent by design: `role="status"` announces the message when it appears, and
+    taking it away later is not announced. %>
+<%# **A notice carrying a credential does not auto-dismiss.** Four of them do carry one - creating a student
+    from either half, and the two password resets - and the message *is* the only copy of that password:
+    `MemorablePasswordGenerator` hands it to the flash and nothing stores it. Six seconds later it was gone,
+    and the only way back was another reset. design.md's own test for auto-dismiss is whether the sentence is
+    still true in a minute; a password is.
+
+    `flash[:sticky]` is what the controller sets alongside such a notice. `tag.div` rather than an
+    interpolated attribute, because an interpolated optional attribute renders unquoted and no selector -
+    CSS, Capybara or this app's own tests - will match it. %>
+<% if notice.present? %>
+  <% sticky = flash[:sticky].present? %>
+  <% hold_actions = "mouseenter->auto-dismiss#hold mouseleave->auto-dismiss#start" %>
+  <% hold_actions += " focusin->auto-dismiss#hold focusout->auto-dismiss#start" %>
+  <%= tag.div id: "notice", role: "status", aria: { live: "polite" },
+              data: { controller: sticky ? "dismiss" : "auto-dismiss dismiss",
+                      action: (hold_actions unless sticky) },
+              class: "mb-4 flex items-start gap-3 p-4 bg-green-50 border border-green-200 text-green-900 rounded-lg" do %>
+    <svg class="w-5 h-5 shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
+    </svg>
+    <p class="text-sm"><span class="font-semibold">Success:</span> <%= notice %></p>
+    <%= render "layouts/flash_dismiss", tone: :notice %>
+  <% end %>
+<% end %>
+
+<% if alert.present? %>
+  <%# No auto-dismiss here, and that is the whole point of the split. It is dismissible, though:
+      sticking until the reader clears it is different from sticking until they navigate away, and
+      every system that ships an error banner - Primer flash, Polaris Banner with onDismiss, Carbon
+      inline notification - lets it be closed. %>
+  <div id="alert" role="alert"
+       data-controller="dismiss"
+       class="mb-4 flex items-start gap-3 p-4 bg-red-50 border border-red-200 text-red-900 rounded-lg">
+    <svg class="w-5 h-5 shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+      <path fill-rule="evenodd" d="M18 10A8 8 0 112 10a8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+    </svg>
+    <p class="text-sm"><span class="font-semibold">Error:</span> <%= alert %></p>
+    <%= render "layouts/flash_dismiss", tone: :alert %>
+  </div>
+<% end %>

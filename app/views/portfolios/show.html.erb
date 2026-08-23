@@ -1,127 +1,274 @@
-<%# Redesigned Portfolio Page %>
-<div class="max-w-[1180px] mx-auto px-4 sm:px-6 py-6 space-y-6" style="font-family: Inter, system-ui, sans-serif;">
-  <!-- Header with badge icons and title -->
-  <div class="flex items-center gap-2 sm:gap-3">
-    <div class="flex items-center gap-1 text-xl sm:text-2xl"><span>📙💰</span></div>
-    <h1 class="text-sm sm:text-base md:text-lg lg:text-xl font-medium tracking-wide">
-      <%= @portfolio.username.upcase %>, PORTFOLIO
-      <span class="font-normal text-gray-500 block sm:inline">
-        <span class="hidden sm:inline">| </span><%= @portfolio.school_name %>
-      </span>
-    </h1>
-  </div>
+<% content_for :title, "#{@portfolio.user.display_name}'s portfolio" %>
+<%# Student portfolio.
 
-  <% if @portfolio.student? && !@portfolio.trading_enabled? %>
-    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-lg">
-      <div class="flex items-start">
-        <div class="flex-shrink-0">
-          <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-          </svg>
-        </div>
-        <div class="ml-3">
-          <p class="text-sm font-medium text-yellow-800">Trading is currently disabled for your classroom.</p>
-          <p class="mt-1 text-sm text-yellow-700">You cannot place buy or sell orders at this time. Please contact your teacher for more information.</p>
-        </div>
-      </div>
-    </div>
+    Laid out as the standard dashboard shape rather than a two-column split: a KPI row, then the
+    chart beside the earnings breakdown, then holdings full width. Robinhood, Fidelity, Wealthfront
+    and Stripe all read top-down like this - the headline figures, then the trend, then the detail
+    table - and it is what fixes the reported problem. Before, a six-column holdings table was
+    squeezed into a two-thirds column while a narrow label/value list took the other third, so the
+    widest content had the least room and the page had no alignment to read down.
+
+    One gutter, 24px, everywhere. It used to be gap-8 between the columns, gap-6 inside them and
+    gap-4 between the stats: three rhythms on one screen, which is most of what "does not line up"
+    means. Every card is .tw-card now too - the stat cards had their own rounded-xl/shadow-xs, so
+    there were four card treatments here.
+
+    The KPI row decomposes the total rather than repeating it: value = cash + invested, which is a
+    thing worth showing a student learning what a portfolio is. It also removes two duplications -
+    cash was in a stat *and* in the earnings-to-invest card, and earnings were in a stat *and* in
+    the breakdown card, which is why the page felt busy. Earnings now live only in the breakdown.
+
+    The page's one primary action is in the header, which is where a page CTA belongs. It was the
+    earnings-to-invest card's "Invest now"; that card stays on the trading floor, where the balance
+    is context for shopping rather than a repeat of the stat above it. %>
+
+<div class="max-w-7xl mx-auto space-y-6">
+  <%# The heading used to upcase the username and append a comma plus the word PORTFOLIO in
+      capitals - shouty all-caps, which design.md rules out. It was built with .upcase, so no copy
+      sweep could have found it. A username is a proper noun, so it keeps its own capitalisation. %>
+  <%# A trail rather than a single back link, and rooted per role - see `PortfoliosController#breadcrumbs_for`.
+      The back link that was here first said only "Back to Robin Fields"; the trail says that and the list
+      above it, which is what a reader who came two levels in actually needs. It renders nothing at all for
+      the owner, whose portfolio is a navbar item. %>
+  <%= page_breadcrumbs(@breadcrumbs, root: current_user.admin? ? :admin : :app) %>
+
+  <%= render layout: "components/ui/page_header",
+             locals: { title: "#{@portfolio.user.display_name}'s portfolio",
+                       description: "Share values use the last closing price, updated once a day - " \
+                                    "so this moves overnight, not while you are on the page." } do %>
+    <%# **Rendered whatever the table holds.** This used to be suppressed while the holdings were empty,
+        on the grounds that the empty state below carried the action - the two were the same destination
+        twice on one screen, and that was the half that went. It is the other half now: an empty state
+        explains, the page header acts, so the button is in one place in every state rather than moving
+        when the first share lands. A student with nothing yet is exactly the reader who needs the route
+        to the trading floor, and suppressing it here left them none once the empty state's went. %>
+    <% if current_user.student? && @portfolio.trading_enabled? %>
+      <%= link_to "Invest now", stocks_path, class: "tw-btn-primary" %>
+    <% end %>
+
   <% end %>
 
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-    <!-- Left area (spans 2 columns on large screens): metrics + holdings table -->
-    <div class="flex flex-col gap-6 lg:col-span-2">
-      <%= render 'portfolios/portfolio_chart' %>
+  <% if @portfolio.student? && @portfolio.trading_off_notice? %>
+    <%= render layout: "components/ui/callout",
+               locals: { title: "Trading is turned off for your classroom",
+                         body: "You cannot buy or sell right now. Your teacher can turn it back on." } do %>
+      <%= render "portfolios/trading_off_dismiss", portfolio: @portfolio %>
+    <% end %>
+  <% end %>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-        <%# Total Earnings Card %>
-        <div class="bg-white rounded-[22px] border border-black/30 py-4 px-5 flex flex-col justify-between min-h-[120px]">
-          <div class="text-sm text-gray-600">Total Earnings</div>
-          <div class="text-2xl font-semibold"><%= number_to_currency(@portfolio.cash_balance) %></div>
-          <div><%# Trending up/down this month will go here %></div>
-        </div>
-        <%# Total Cash Value %>
-        <div class="bg-white rounded-[22px] border border-black/30 py-4 px-5 flex flex-col justify-between min-h-[120px]" data-testid="cash-balance">
-          <div class="text-sm text-gray-600">Total Cash Value</div>
-          <div class="text-2xl font-semibold"><%= number_to_currency(@portfolio.cash_balance) %></div>
-          <div><%# Trending up/down this month will go here %></div>
-        </div>
-        <%# Total Stocks %>
-        <div class="bg-white rounded-[22px] border border-black/30 py-4 px-5 flex flex-col justify-between min-h-[120px]" data-testid="total-stocks">
-          <div class="text-sm text-gray-600">Total Stocks</div>
-          <div class="text-2xl font-semibold"><%= @portfolio.portfolio_stocks.sum(:shares).to_i %></div>
-          <div><%# Trending up/down this month will go here %></div>
-        </div>
-      </div>
-      <!-- Holdings Table -->
-      <div class="rounded-xl border border-black/60 bg-white overflow-hidden" data-testid="holdings-table">
-        <div class="overflow-x-auto">
-          <table class="w-full min-w-[700px] border-collapse">
-          <colgroup class="hidden lg:table-column-group">
-            <col class="w-[34%]">
-            <col class="w-[8%]">
-            <col class="w-[18%]">
-            <col class="w-[18%]">
-            <col class="w-[18%]">
-            <col class="w-[14%]">
-          </colgroup>
-          <thead>
-            <tr class="bg-amber-300/95 text-xs sm:text-[13px]">
-              <th scope="col" class="text-left py-3 pl-6 pr-4 font-medium">Current Holdings</th>
-              <th scope="col" class="text-left py-3 px-4 font-medium">Qty.</th>
-              <th scope="col" class="text-left py-3 px-4 font-medium">Last Price</th>
-              <th scope="col" class="text-left py-3 px-4 font-medium">Change</th>
-              <th scope="col" class="text-left py-3 px-4 font-medium">Total Return</th>
-              <th class="py-3 pr-6"></th>
-            </tr>
-          </thead>
-          <tbody class="text-xs sm:text-[14px]">
-            <% @portfolio.positions.each do |position| %>
-              <% price = position.stock_current_price %>
-              <% shares = position.shares %>
-              <% change_amount = position.change_amount %>
-              <% total_return_amount = position.total_return_amount %>
-              <% logo_path = "stock_logos/#{position.stock_ticker}-logo.svg" %>
-              <tr class="border-t first:border-t-0 border-black/40">
-                <td class="py-4 pl-6 pr-4 align-middle">
-                  <div class="flex items-center gap-4">
-                    <% if File.exist?("app/assets/images/#{logo_path}") %>
-                      <%= image_tag asset_path(logo_path),
-                                    class: "w-10 h-10 rounded-lg flex-shrink-0",
-                                    alt: "#{position.stock_ticker} logo",
-                                    loading: "lazy" %>
-                    <% end %>
-                    <div class="flex flex-col">
-                      <span class="font-medium"><%= position.stock_ticker %></span>
-                    </div>
+  <%= render "portfolios/first_share" %>
+
+  <%# Four equal cards, so the row reads as one band. Value, then the two things it is made of,
+      then the count. %>
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-4">
+    <%# The comparison is withheld in a student's first month, when there is no snapshot before
+        this one to compare against - an honest absence rather than a change of zero. %>
+    <%= render "components/ui/stat",
+               label: "Portfolio value",
+               value: number_to_currency(@portfolio.calculate_total_value),
+               change: portfolio_change_label(@insights),
+               change_up: @insights.change_up?,
+               hint: "Your cash plus your shares",
+               testid: "portfolio-value" %>
+
+    <%= render "components/ui/stat",
+               label: "Cash to invest",
+               value: number_to_currency(@portfolio.cash_balance),
+               hint: "Ready to spend on shares",
+               testid: "cash-balance" %>
+
+    <%= render "components/ui/stat",
+               label: "Invested",
+               value: number_to_currency(@portfolio.holdings_value),
+               hint: "What your shares are worth today",
+               testid: "holdings-value" %>
+
+    <%= render "components/ui/stat",
+               label: "Shares held",
+               value: @portfolio.portfolio_stocks.sum(:shares).to_i,
+               hint: "Across all companies",
+               testid: "total-stocks" %>
+  </div>
+
+  <%# The chart takes two thirds and the breakdown one, which is the way round they want: a trend
+      needs width, a label/value list does not. %>
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+    <div class="lg:col-span-2">
+      <%= render "portfolios/portfolio_chart" %>
+    </div>
+    <div class="lg:col-span-1">
+      <%= render "shared/earnings_breakdown",
+                 summary: @earnings_summary,
+                 title: "Earnings breakdown",
+                 subtitle: "How you earned your cash to invest",
+                 class: "h-full" %>
+    </div>
+  </div>
+
+  <%# Two thirds and one third, the same rhythm as the chart row above: the summary is a sentence
+      and wants width, the personal best is a stat and does not.
+
+      This was three equal thirds, with a "Companies you own" card in the middle. That card is gone.
+      It was a second list of the companies the holdings table below already lists, with the same
+      logos - the duplication this page was rebuilt to remove - and it was a wall of unlabelled
+      logos, which only works if you already recognise the brands. The logos are still there, in
+      the table, now beside the company's name. Removing it also removed the reported dead space:
+      grid children stretch to the tallest in the row, so its wrapping logo strip was padding out
+      the bottom of its neighbours. %>
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+    <div class="lg:col-span-2"><%= render "portfolios/money_at_work" %></div>
+    <div class="lg:col-span-1"><%= render "portfolios/best_month" %></div>
+  </div>
+
+  <%# Holdings, on the shared table system.
+
+      Was a saturated amber header band inside a black/60 border with a
+      black/40 rule under every row, and a min-w-[700px] that forced a
+      horizontal scroll at any width. Money columns were left-aligned.
+
+      Numeric columns are now right-aligned with tabular figures so they read
+      down the column, and there is an empty state - previously an empty
+      portfolio rendered a header with nothing under it. %>
+  <%# **The actions column exists only if some row can act.** `Trade` is gated on the *viewer* being a
+      student, not on anything about the row, so the column is all links or all dashes and never mixed -
+      and a teacher or an admin got a trailing column of italic hyphens, one per holding.
+
+      design.md already had the rule ("a column of dashes is not a column") and this page was written into
+      `table_consistency_test` as its exception: "the dash convention stays where a column holds actions for
+      some rows and not others - portfolios#show". That exemption was wrong about this table and nobody
+      rendered it as a non-student to find out. The dash is right on `classrooms#index`, where the
+      permission genuinely varies per row.
+
+      One flag, read by the header, the cells and the empty state's colspan, because three places deciding
+      the same thing separately is how a header outlives its cells. %>
+  <% holdings_actions = current_user.student? %>
+  <div data-testid="holdings-table">
+    <%= render layout: "components/ui/data_table", locals: { caption: "Your current holdings" } do %>
+      <%# The class belongs on the row, not the thead - it is the header row's border. Every
+          other table in the app puts it there, and a computed-style sweep found this one
+          carrying its separator one element up. %>
+      <thead>
+        <tr class="table-header-row">
+          <th scope="col" class="table-header-cell table-header-cell-left">Company</th>
+          <th scope="col" class="table-header-cell table-header-cell-right hidden lg:table-cell">Qty.</th>
+          <th scope="col" class="table-header-cell table-header-cell-right hidden lg:table-cell">Last price</th>
+          <th scope="col" class="table-header-cell table-header-cell-right hidden lg:table-cell">Change</th>
+          <th scope="col" class="table-header-cell table-header-cell-right hidden lg:table-cell">Total return</th>
+          <% if holdings_actions %>
+            <th scope="col" class="table-header-cell hidden lg:table-cell"><span class="sr-only">Actions</span></th>
+          <% end %>
+        </tr>
+      </thead>
+      <tbody>
+        <% if @portfolio.positions.any? %>
+          <% @portfolio.positions.each do |position| %>
+            <% change_amount = position.change_amount %>
+            <% total_return_amount = position.total_return_amount %>
+            <% logo_path = "stock_logos/#{position.stock_ticker}-logo.svg" %>
+            <%# Below lg this table is one column: the company, then its figures as labelled lines and
+                the Trade action beneath them. Each figure is captured once so the two widths cannot
+                diverge. Measured before: 101px of sideways scroll at 375px, which put Total return and
+                Trade off the edge on the first screen a student sees. The sign stays inside the capture
+                so direction is never carried by colour alone at either width. %>
+            <% qty_cell = capture { share_count(position.shares) } %>
+            <% price_cell = capture { number_to_currency(position.stock_current_price) } %>
+            <% change_cell = capture do %>
+              <span class="<%= change_amount >= 0 ? "text-green-700" : "text-red-700" %>">
+                <%= change_amount >= 0 ? "+" : "" %><%= number_to_currency(change_amount) %>
+              </span>
+            <% end %>
+            <% return_cell = capture do %>
+              <span class="<%= total_return_amount >= 0 ? "text-green-700" : "text-red-700" %>">
+                <%= total_return_amount >= 0 ? "+" : "" %><%= number_to_currency(total_return_amount) %>
+              </span>
+            <% end %>
+            <% row_actions = capture do %>
+              <% if holdings_actions %>
+                <%= ghost_action_link "Trade", stocks_path, icon: "arrow-right-left" %>
+              <% end %>
+            <% end %>
+
+            <tr class="table-body-row">
+              <td class="table-body-cell">
+                <div class="flex items-center gap-3">
+                  <% if File.exist?("app/assets/images/#{logo_path}") %>
+                    <%# alt="" is correct: the company name sits beside it, so a description
+                        here would be read out twice. size-9 matches the icon tile token. %>
+                    <%= image_tag asset_path(logo_path),
+                                  class: "size-9 shrink-0 rounded-lg",
+                                  alt: "",
+                                  loading: "lazy" %>
+                  <% end %>
+                  <%# The standard three-part identity: logo, company name, ticker. It was the
+                      ticker alone, so a student read "KO" with no way to know that is Coca-Cola -
+                      the same clarity problem the logo-only collection card had. Every brokerage
+                      list (Robinhood, Fidelity, Schwab) leads with the name and keeps the ticker
+                      as the secondary line. design.md's primary-cell rule: body size, medium
+                      weight, with a text-xs slate-600 line beneath. %>
+                  <div class="flex flex-col">
+                    <span class="font-medium text-slate-900"><%= position.stock.company_name %></span>
+                    <span class="text-xs text-slate-600"><%= position.stock_ticker %></span>
+                  </div>
+                </div>
+
+                <%= render "components/ui/stacked_row_fields",
+                           fields: [["Qty.", qty_cell], ["Last price", price_cell],
+                                    ["Change", change_cell], ["Total return", return_cell]],
+                           actions: row_actions %>
+              </td>
+              <td class="table-body-cell table-body-cell-right hidden whitespace-nowrap lg:table-cell"><%= qty_cell %></td>
+              <td class="table-body-cell table-body-cell-right hidden whitespace-nowrap lg:table-cell"><%= price_cell %></td>
+
+              <%# A sign as well as a colour, so the direction is not carried by
+                  colour alone. green-700/red-700 clear AA where 600 does not. %>
+              <td class="table-body-cell table-body-cell-right hidden whitespace-nowrap lg:table-cell"><%= change_cell %></td>
+              <td class="table-body-cell table-body-cell-right hidden whitespace-nowrap lg:table-cell"><%= return_cell %></td>
+
+              <%# A row action, so it is the ghost, like every other row action in the app. It was a filled
+                  primary repeated down every holding - the shape design.md rules out for a per-row action.
+
+                  No dash branch: the cell is not rendered at all for a viewer who cannot trade, because
+                  then *no* row can and a column of hyphens says nothing. See the note on the flag above.
+
+                  arrow-right-left, not arrow-up-down. A vertical two-arrow glyph is the *sort* icon -
+                  Material's swap_vert, and this app's own sort_icon renders exactly that as an unsorted
+                  column's caret - so a vertical pair as a row action means "sort" in the one context where
+                  sorting is a thing you do to rows. Horizontal is the exchange glyph: Material's
+                  swap_horiz, and what TD, Chase, Monzo and Revolut all use for a transfer. %>
+              <% if holdings_actions %>
+                <td class="table-body-cell table-body-cell-right hidden table-actions-cell lg:table-cell">
+                  <div class="flex items-center justify-end gap-1">
+                    <%= ghost_action_link "Trade", stocks_path, icon: "arrow-right-left" %>
                   </div>
                 </td>
-                <td class="py-4 px-4 align-middle"><%= shares %></td>
-                <td class="py-4 px-4 align-middle tabular-nums"><%= number_to_currency(price) %></td>
-                <td class="py-4 px-4 align-middle tabular-nums <%= change_amount >= 0 ? 'text-green-600' : 'text-red-600' %>">
-                  <% if change_amount >= 0 %>+<% end %> <%= number_to_currency(change_amount) %>
-                </td>
-                <td class="py-4 px-4 align-middle tabular-nums <%= total_return_amount >= 0 ? 'text-green-600' : 'text-red-600' %>">
-                  <% if total_return_amount >= 0 %>+<% end %> <%= number_to_currency(total_return_amount) %>
-                </td>
-                <td class="py-3 pr-6 align-middle">
-                  <% if current_user.student? %>
-                    <%= link_to "Trade", stocks_path, class: "inline-flex items-center justify-center rounded-full bg-sky-800 text-white px-6 py-2 text-xs sm:text-sm font-medium shadow hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-1 transition-colors" %>
-                  <% else %>
-                    <span class="inline-flex items-center justify-center rounded-full px-6 py-2 text-xs sm:text-sm font-medium shadow cursor-not-allowed bg-[var(--sitf-8)] text-[var(--sitf-7)]">Trade</span>
-                  <% end %>
-                </td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- Right column (single column on large screens): My Earnings to Invest + Summary -->
-    <div class="flex flex-col gap-6 lg:col-span-1">
-      <%= render 'shared/earnings_to_invest_card' %>
-      <%= render 'portfolios/earnings_summary_card' %>
-    </div>
+              <% end %>
+            </tr>
+          <% end %>
+        <% else %>
+          <tr class="table-body-row">
+            <td colspan="<%= holdings_actions ? 6 : 5 %>" class="p-0">
+              <%# Leads with the student's own balance: this is the first screen every student
+                  sees, and "you have $24.00 ready" is about them in a way "no holdings yet" is
+                  not. "You can buy a single share" removes the thing that stops people starting.
+                  Someone viewing another student's portfolio gets the plain version - it is not
+                  their balance to be invited to spend. %>
+              <% if current_user.student? %>
+                <%= render layout: "components/ui/empty_state",
+                           locals: { icon: "sparkles",
+                                     title: "You have #{number_to_currency(@portfolio.cash_balance)} ready to invest",
+                                     body: "Pick a company you know - you can buy a single share, and sell " \
+                                           "whenever you like. Shares you buy appear here." } do %><% end %>
+              <% else %>
+                <%= render layout: "components/ui/empty_state",
+                           locals: { icon: "chart-line",
+                                     title: "No holdings yet",
+                                     body: "Shares bought on the trading floor appear here." } do %>
+                <% end %>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    <% end %>
   </div>
 </div>

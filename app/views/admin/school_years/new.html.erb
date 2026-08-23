@@ -1,7 +1,17 @@
-<div class="max-w-7xl mx-auto">
-  <%= admin_breadcrumbs(@breadcrumbs) %>
+<%# Create, on the shared record-page shell: one column, one heading, the form in a Details section.
 
-  <h1 class="text-3xl font-bold text-gray-900 mb-8">New School Year</h1>
+    Measured at 1366px before this, on the input rather than the wrapper: this form's fields were 1020px
+    wide while the record page it leads to is 726px, because the page had no column of its own and inherited
+    the layout's `max-w-7xl`. Five different form measures existed across the app - 384, 630, 726, 854 and
+    1020px of field - and a form's measure should not change between creating a record and editing it.
 
-  <%= render "form", school_year: @school_year %>
-</div>
+    The shell is `admin/shared/_record_page`, the same partial the record page uses, so the two cannot drift:
+    a create page is that page with no lifecycle actions and one section. %>
+<%= render layout: "admin/shared/record_page",
+           locals: { title: "New school year", breadcrumbs: @breadcrumbs,
+                     description: "Creating a school year adds its four quarters." } do %>
+  <%= render layout: "admin/shared/record_section",
+             locals: { title: "Details", sr_only: true } do %>
+    <%= render "form", school_year: @school_year %>
+  <% end %>
+<% end %>

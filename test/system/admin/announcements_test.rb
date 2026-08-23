@@ -18,14 +18,14 @@ module Admin
     #   visit admin_announcements_url
     #   assert_text "Announcements"
 
-    #   click_on "New Announcement"
+    #   click_on "New announcement"
 
     #   fill_in "Title", with: "New Admin Announcement"
     #   # Fill in the rich text area by finding the hidden input
     #   fill_in "announcement_content", with: "Admin created this announcement"
 
     #   assert_difference("Announcement.count", 1) do
-    #     click_on "Create Announcement"
+    #     click_on "Create announcement"
 
     #     assert_text "Announcement was successfully created"
     #   end
@@ -43,7 +43,7 @@ module Admin
     #   fill_in "announcement_content", with: "Updated content by admin"
 
     #   assert_no_difference("Announcement.count") do
-    #     click_on "Update Announcement"
+    #     click_on "Update announcement"
 
     #     assert_text "Announcement was successfully updated"
     #   end
@@ -58,7 +58,7 @@ module Admin
       visit admin_announcement_url(@announcement)
 
       assert_difference("Announcement.count", -1) do
-        accept_confirm { click_on "Delete", match: :first }
+        accept_confirmation { click_on "Delete", match: :first }
 
         assert_text "Announcement deleted successfully."
       end
@@ -72,8 +72,10 @@ module Admin
       visit admin_announcements_url
       # Should be redirected away from admin area
       assert_current_path root_path
-      # Verify we're on the home page, not the admin interface
-      assert_text "WELCOME TO YOUR FINANCIAL JOURNEY!"
+      # Verify we're on the home page, not the admin interface. Assert the
+      # denial itself plus the home heading, rather than only page copy.
+      assert_text "Access denied"
+      assert_text "Welcome to your financial journey"
     end
   end
 end

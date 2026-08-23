@@ -1,0 +1,106 @@
+<%# A school's years.
+
+    **Each row is provisioned data, not a preference.** Creating a school year writes four quarters and
+    removing it destroys them. The edit form used to carry a `collection_check_boxes` on `year_ids`, which did
+    both silently - and raised `PG::ForeignKeyViolation`, a 500, when the year had a classroom, because the
+    join was deleted before `restrict_with_error` could speak. Both measured.
+
+    A list row, not a card each: a name with some metadata and one action is Polaris's ResourceList, and a
+    card per row on a page that already has surfaces is the card soup this document forbids.
+
+    Locals:
+      school       - the school
+      school_years - loaded, with :year, :classrooms and :quarters
+      addable      - years not yet added, newest first
+      manage       - render the add and remove controls. **False on the show page**, because a show page
+                     shows: the same controls in two places is two things to keep in step, and the write
+                     belongs where the rest of the writing happens.
+
+    The controls cannot live *inside* the school's form even on the edit page: `button_to` renders a whole
+    `<form>` and the add is a form of its own, and the browser drops a nested one - the button would silently
+    submit the outer form. So this sits below the form as a sibling section, which is what this document says
+    to do rather than nesting. %>
+<section aria-labelledby="school-years-heading">
+  <h2 id="school-years-heading" class="text-base font-semibold text-slate-900">School years</h2>
+  <p class="mt-1 text-sm text-slate-600">
+    <% if manage %>
+      Changes here apply immediately. Adding a year sets up its four quarters; removing one deletes them, so
+      a year with classrooms in it cannot be removed.
+    <% else %>
+      Each year has its own quarters. Add or remove them on the edit page.
+    <% end %>
+  </p>
+
+  <div class="tw-card mt-3 divide-y divide-slate-100" data-testid="school-years">
+    <% school_years.each do |school_year| %>
+      <div class="flex flex-wrap items-center justify-between gap-3 p-4">
+        <div class="min-w-0">
+          <p class="flex flex-wrap items-center gap-2 text-sm font-medium text-slate-900">
+            <%= school_year.year_name %>
+            <% if school_year.year.current? %>
+              <%= render "components/ui/badge", label: "Current", tone: :info %>
+            <% end %>
+          </p>
+          <%# **No metadata line.** It said "4 quarters", and a school year always has exactly four: they come
+              from `SchoolYear#create_quarters`, nothing else creates one, and there are no quarter routes at
+              all. An invariant rendered as data on every row is a column of identical values - the same defect
+              as a column of dashes. The number still appears in the removal confirmation, where it is the
+              consequence rather than decoration.
+
+              What varies is the classroom count, and that is on the right, where it is the reason removal is
+              refused. Stating it on both sides had the blocked row reading "1 classroom" twice. %>
+        </div>
+
+        <% if manage %>
+          <%# The consequence is in the confirmation because it is not recoverable and not obvious: four
+              quarters go with the year. A row that cannot act says why in its place rather than offering a
+              control that would only refuse - the column-of-dashes rule. %>
+          <% if school_year.removable? %>
+            <%= button_to "Remove",
+                          admin_school_school_year_path(school, school_year),
+                          method: :delete,
+                          class: ghost_class(:danger),
+                          data: { testid: "remove-school-year",
+                                  turbo_confirm: "Remove #{school_year.year_name} from #{school.name}?" \
+                                                 "\n\nIts " \
+                                                 "#{pluralize(school_year.quarters.size, 'quarter')} " \
+                                                 "will be deleted. This cannot be undone." } %>
+          <% else %>
+            <p class="text-xs text-slate-600">
+              In use by <%= pluralize(school_year.classrooms.size, "classroom") %>
+            </p>
+          <% end %>
+        <% elsif !school_year.removable? %>
+          <p class="text-xs text-slate-600">
+            In use by <%= pluralize(school_year.classrooms.size, "classroom") %>
+          </p>
+        <% end %>
+      </div>
+    <% end %>
+
+    <% if school_years.empty? %>
+      <div class="p-4">
+        <%= render layout: "components/ui/empty_state",
+                   locals: { icon: "calendar-check",
+                             title: "No school years yet",
+                             body: manage ? "Add one to set up its quarters." : "Add one on the edit page." } do %><% end %>
+      </div>
+    <% end %>
+
+    <%# The add control, as the card's last row - the shape a table footer uses. Every year not already
+        added, newest first: a select can carry the whole list, so no year is unreachable and there is no
+        window to invent. %>
+    <% if manage && addable.any? %>
+      <%= form_with url: admin_school_school_years_path(school), method: :post,
+                    class: "flex flex-wrap items-end gap-3 p-4" do |f| %>
+        <div class="min-w-0 flex-1">
+          <%= f.label :year_id, "Add a school year", class: "tw-label-primary" %>
+          <%= f.select :year_id,
+                       options_for_select(addable.map { |y| [year_option_text(y), y.id] }),
+                       {}, class: "tw-input-primary mt-1" %>
+        </div>
+        <%= f.submit "Add school year", class: "tw-btn-secondary" %>
+      <% end %>
+    <% end %>
+  </div>
+</section>

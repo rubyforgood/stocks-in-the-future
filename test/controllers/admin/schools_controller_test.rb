@@ -16,7 +16,7 @@ module Admin
       get admin_schools_path
 
       assert_response :success
-      assert_select "h3", "Schools"
+      assert_select "h1", "Schools"
       assert_select "tbody tr", count: 2
     end
 
@@ -26,59 +26,101 @@ module Admin
       get admin_school_path(school)
 
       assert_response :success
-      assert_select "h2", school.name
+      assert_select "h1", school.name
     end
 
-    test "show displays associated years" do
-      school = create(:school, name: "Test School")
-      year1 = create(:year, name: "2024 - 2025")
-      year2 = create(:year, name: "2025 - 2026")
-      school.years << [year1, year2]
+    test "show lists the school's years with what each one holds" do
+      year = a_year(0)
+      school = create(:school)
+      school_year = SchoolYear.create!(school:, year:)
+      create(:classroom, school_year:, name: "Sixth grade")
 
       get admin_school_path(school)
 
       assert_response :success
-      assert_select "li", text: year1.name
-      assert_select "li", text: year2.name
+      assert_select "[data-testid='school-years']"
+      assert_select "[data-testid='school-years']", text: /#{year.name}/
+
+      # **Not "4 quarters".** A school year always has exactly four - `create_quarters` makes them, nothing
+      # else does, and there are no quarter routes - so on every row it was an invariant dressed as data. The
+      # number survives where it is the *consequence*, in the removal confirmation.
+      assert_select "[data-testid='school-years']", text: /4 quarters/, count: 0
+
+      # The classroom count does vary, and it is the reason removal is refused.
+      assert_select "[data-testid='school-years']", text: /1 classroom/
     end
 
     test "new" do
       get new_admin_school_path
 
       assert_response :success
-      assert_select "h1", "New School"
+      assert_select "h1", "New school"
     end
 
-    test "new shows year checkboxes" do
-      year1 = create(:year, name: "2024 - 2025")
-      year2 = create(:year, name: "2025 - 2026")
+    # Relative to the current school year, never hardcoded: the window moves, and a literal "2024 - 2025"
+    # here would have started failing in July whichever way this was written.
+    def a_year(offset)
+      start = Year.current_school_year_name.split(" - ").first.to_i + offset
+      create(:year, name: "#{start} - #{start + 1}")
+    end
 
-      get new_admin_school_path
+    # On the **edit** page: the show page renders the same list read-only. Managing a record's collection on
+    # its show page while the edit page held only a name field was reported as friction, correctly.
+    test "the add control offers every year the school does not have, newest first" do
+      distant = a_year(-6)
+      current = a_year(0)
+      following = a_year(1)
+      school = create(:school)
+      SchoolYear.create!(school:, year: following)
 
-      assert_response :success
-      assert_select "input[type='checkbox'][name='school[year_ids][]']", count: 2
-      assert_select "label", text: year1.name
-      assert_select "label", text: year2.name
+      get edit_admin_school_path(school)
+
+      options = css_select("select[name='year_id'] option").map(&:text)
+
+      assert_includes options, "#{current.name} (current)", "the current year is marked in the option text"
+      assert_includes options, distant.name, "a select carries the whole list, so no year is unreachable"
+      assert_not_includes options, following.name, "already added"
+    end
+
+    test "a year already added is not offered twice" do
+      year = a_year(0)
+      school = create(:school)
+      SchoolYear.create!(school:, year:)
+
+      get edit_admin_school_path(school)
+
+      assert_select "select[name='year_id'] option", text: /#{year.name}/, count: 0
+    end
+
+    # **The guard against silent data loss.** `year_ids=` replaces the whole collection, so a school linked
+    # to a year outside the window would have that association destroyed by any save from a form that never
+    # showed it - along with the four quarters on the `SchoolYear`, or a failure if it has classrooms, since
+    # both are `restrict_with_error`.
+    # The edit form no longer touches years at all, which is what removed the two defects: unchecking a box
+    # silently destroyed four quarters, and doing it to a year with a classroom raised a foreign-key
+    # violation.
+    # The *form* does not post years; the page manages them through their own actions beside it.
+    test "the edit form does not post year_ids" do
+      school = create(:school)
+      SchoolYear.create!(school:, year: a_year(0))
+
+      get edit_admin_school_path(school)
+
+      assert_select "input[name='school[year_ids][]']", count: 0
     end
 
     test "create" do
-      year1 = create(:year, name: "2024 - 2025")
-      year2 = create(:year, name: "2025 - 2026")
-      params = {
-        school: {
-          name: "New School",
-          year_ids: [year1.id, year2.id]
-        }
-      }
+      params = { school: { name: "New School" } }
 
       assert_difference("School.count") do
         post(admin_schools_path, params:)
       end
 
       school = School.last
+
       assert_redirected_to admin_school_path(school)
       assert_equal "School created successfully.", flash[:notice]
-      assert_equal [year1, year2].sort_by(&:id), school.years.sort_by(&:id)
+      assert_empty school.years, "a school's years are provisioned afterwards, one at a time"
     end
 
     test "create without years" do
@@ -111,65 +153,44 @@ module Admin
       assert_response :unprocessable_content
     end
 
-    test "edit" do
+    # `/edit` renders the record page, so its heading is the school's name rather than "Edit school".
+    # In the merged shape there is no separate edit page at all; this keeps every existing Edit link working
+    # while the design is under review.
+    test "edit renders the record page" do
       school = create(:school, name: "Test School")
 
       get edit_admin_school_path(school)
 
       assert_response :success
-      assert_select "h1", "Edit School"
-    end
-
-    test "edit shows current year selections" do
-      year1 = create(:year, name: "2024 - 2025")
-      year2 = create(:year, name: "2025 - 2026")
-      school = create(:school, name: "Test School")
-      school.years << year1
-
-      get edit_admin_school_path(school)
-
-      assert_response :success
-      assert_select "input[type='checkbox'][name='school[year_ids][]'][value='#{year1.id}'][checked='checked']"
-      assert_select "input[type='checkbox'][name='school[year_ids][]'][value='#{year2.id}']:not([checked])"
+      assert_select "h1", "Test School"
+      assert_select "[data-testid='school-years']"
     end
 
     test "update" do
-      year1 = create(:year, name: "2024 - 2025")
-      year2 = create(:year, name: "2025 - 2026")
+      year = a_year(0)
       school = create(:school, name: "Original Name")
-      school.years << year1
-      params = {
-        school: {
-          name: "Updated Name",
-          year_ids: [year2.id]
-        }
-      }
+      SchoolYear.create!(school:, year:)
 
-      patch(admin_school_path(school), params:)
+      patch admin_school_path(school), params: { school: { name: "Updated Name" } }
       school.reload
 
       assert_redirected_to admin_school_path(school)
       assert_equal "School updated successfully.", flash[:notice]
       assert_equal "Updated Name", school.name
-      assert_equal [year2], school.years
+      assert_equal [year], school.years, "editing the name leaves the school's years alone"
     end
 
-    test "update can remove all years" do
-      year1 = create(:year, name: "2024 - 2025")
+    # `year_ids` is no longer permitted, so a form post cannot remove a year - which is the point. Removal
+    # goes through its own action, where it can refuse and say why.
+    test "update cannot remove years" do
+      year = a_year(0)
       school = create(:school, name: "Test School")
-      school.years << year1
-      params = {
-        school: {
-          name: school.name,
-          year_ids: []
-        }
-      }
+      SchoolYear.create!(school:, year:)
 
-      patch(admin_school_path(school), params:)
-      school.reload
+      patch admin_school_path(school), params: { school: { name: school.name, year_ids: [""] } }
 
       assert_redirected_to admin_school_path(school)
-      assert_empty school.years
+      assert_equal [year.id], school.reload.year_ids
     end
 
     test "update with invalid params" do

@@ -1,0 +1,40 @@
+<%# Attendance as recorded in each quarter's grade book. Read-only here: the numbers are
+    entered on the grade book, which is where a teacher works.
+
+    Same treatment as the transactions table, and the same reasons: the shared table surface rather than a
+    hand-rolled `overflow-x-auto`, a named region because there is nothing focusable inside it, and
+    `table-stacked` below lg - it overflowed by 152px at 375px. %>
+<%= render "shared/table_container", table_class: "table-stacked", region_label: "Attendance" do %>
+  <thead>
+    <tr class="table-header-row">
+      <th scope="col" class="table-header-cell table-header-cell-left">Year</th>
+      <th scope="col" class="table-header-cell table-header-cell-left">Quarter</th>
+      <th scope="col" class="table-header-cell table-header-cell-right">Attendance days</th>
+      <th scope="col" class="table-header-cell table-header-cell-center">Perfect attendance</th>
+    </tr>
+  </thead>
+  <tbody class="bg-white">
+    <% entries.each do |entry| %>
+      <tr class="table-body-row">
+        <td class="table-body-cell whitespace-nowrap">
+          <span class="table-stacked-label lg:hidden">Year</span>
+          <%= entry.year_name %>
+        </td>
+        <td class="table-body-cell whitespace-nowrap">
+          <span class="table-stacked-label lg:hidden">Quarter</span>
+          <%= entry.quarter_name %>
+        </td>
+        <td class="table-body-cell table-body-cell-right whitespace-nowrap tabular-nums">
+          <span class="table-stacked-label lg:hidden">Attendance days</span>
+          <%= entry.attendance_days_display %>
+        </td>
+        <td class="table-body-cell table-body-cell-center whitespace-nowrap">
+          <span class="table-stacked-label lg:hidden">Perfect attendance</span>
+          <%= render "components/ui/badge",
+                     label: entry.perfect_attendance? ? "Yes" : "No",
+                     tone: entry.perfect_attendance? ? :success : :neutral %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+<% end %>

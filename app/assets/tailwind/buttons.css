@@ -1,41 +1,183 @@
-.tw-btn-sell {
-  @apply box-border content-stretch flex gap-2 h-9 items-center justify-center px-4 py-2 relative rounded-[16px] shrink-0 inline-flex bg-[var(--sitf-primary-blue)] text-white;
-}
+/* Wrapped in @layer components so that Tailwind utilities override these.
+ *
+ * These files are imported after `@import "tailwindcss"`, and an *unlayered* rule beats every
+ * layered one no matter its specificity - so `.tw-btn-buy { display: inline-flex }` was winning
+ * against `.hidden { display: none }`. The order form's Back and submit buttons both carry
+ * `hidden` and both rendered anyway: the buy/sell modal showed Cancel, Back, Review order and
+ * Buy shares all at once. The flow still worked, so no test caught it.
+ *
+ * A component class must lose to a utility. That is the whole reason utilities come last.
+ */
+@layer components {
+  /* Shared button classes.
+   *
+   * design.md, Buttons: every variant shares a base of
+   *
+   *   inline-flex h-10 items-center justify-center gap-2 rounded-lg px-4 text-sm shadow-sm
+   *
+   * plus a focus-visible ring. The fixed h-10 (40px) height token is deliberate: with
+   * box-sizing: border-box it absorbs an outlined variant's 1px border or ring, so filled
+   * and outlined buttons are the same height by construction. 40px is the mainstream
+   * medium-button height - Material 3, Chakra, shadcn.
+   *
+   * These had drifted off that token: min-h-11 (44px) with px-5 py-3 and, on the primary and
+   * tertiary variants, no text-size class at all - so they inherited 16px body text and
+   * rendered noticeably taller and wider than everything else. 40px is the documented height
+   * and still clears WCAG 2.5.8 (AA), which asks for 24x24; 44px is the AAA / Apple HIG
+   * figure, and the design system chose 40.
+   *
+   * Two other things this file has been caught with, kept here as a warning:
+   *
+   *  - .tw-btn-secondary set bg-[#BOEAE5], which is not a valid hex. That is the letter O,
+   *    not a zero. Tailwind emitted it verbatim, the browser dropped the declaration, and the
+   *    button rendered white text on no background.
+   *  - .tw-btn-buy put white text on #80cec8, which measures 1.81:1 - the least readable
+   *    button in the app was the Buy control on the trading floor.
+   *
+   * .tw-btn-buy, .tw-btn-sell and .tw-btn-tertiary are gone: nothing references them. An unused class
+   * is indistinguishable from a supported one until someone adopts it.
+   *
+   * .tw-btn-danger went the same way and is back, deliberately and with one caller: the accept button
+   * of a destructive confirmation, defined below. It was removed the first time for having no callers,
+   * then I re-added it on my own judgement with the wrong shade and a property the spec forbids, and
+   * that was reverted. The difference now is that design.md names its use.
+   * .tw-btn-tertiary was a filled slate-100 button that is not one of design.md's variants at
+   * all - the spec's tertiary is the ghost in ButtonHelper - and its six call sites were all
+   * standalone "Back to X" / "Edit class" actions, which the spec calls :secondary.
+   *
+   * Buy and Sell are .tw-btn-secondary now. A filled teal Buy beside a filled amber Sell put two
+   * saturated fills, in two hues, on every row of the densest page in the app; the report was
+   * that they were garish and did not work. The two actions are distinguished by label and arrow
+   * rather than by colour, which is what the colour rules ask for regardless. Emphasis moved to
+   * the order modal, where one primary button sits alone at the confirm step.
+   *
+   * The old pair read: teal for buy, amber for sell, both dark enough to
+   * carry a white label.
+   */
 
-.tw-btn-buy {
-  @apply box-border content-stretch flex gap-2 h-9 items-center justify-center px-4 py-2 relative rounded-[16px] shrink-0 inline-flex bg-[var(--sitf-4)] text-white;
-}
+  /* The base, written once and shared by selector rather than copy-pasted into each variant.
+   *
+   * It was pasted four times, and that is exactly how the variants drifted apart: the outlined
+   * one ended up on `ring-1 ring-slate-300 ring-inset` while the spec says
+   * `border border-slate-200`, and the filled ones stayed `font-medium` where the spec says
+   * `font-semibold`. A shared base cannot drift from itself. */
+  .tw-btn-primary,
+  .tw-btn-secondary,
+  .tw-btn-danger,
+  .tw-btn-danger-outline,
+  .tw-btn-disabled {
+    @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm shadow-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2;
+  }
 
-.tw-btn-primary {
-  @apply rounded-lg py-3 px-5 bg-[var(--sitf-primary-blue)] text-white block font-medium cursor-pointer hover:bg-blue-600 transition-colors
-}
+  /* `min-h-10 py-2`, not `h-10`. Identical at every size this app actually renders - `text-sm` is a 20px
+   * line box, plus 16px of padding is 36px, so the minimum holds it at the 40px token and
+   * `form_actions_test` still measures 40. What it changes is the case a fixed height cannot survive: at
+   * **200% text** (WCAG 1.4.4) a label that has to wrap inside `h-10` is clipped by its own button. Found
+   * on the first label in the product long enough to wrap - "Add a transaction" measured 305px against a
+   * 305px viewport at 320px and 200% text - and a fixed height would have been wrong for every translated
+   * label after it. A button grows with its text; it does not crop it. */
 
-.tw-btn-primary-disabled {
-    @apply rounded-lg py-3 px-5 bg-gray-300 text-white block font-medium cursor-not-allowed
-}
+  /* Filled variants are font-semibold, outlined are font-medium - the weight carries part of the
+   * emphasis hierarchy, so they are not interchangeable. */
+  .tw-btn-primary {
+    @apply cursor-pointer bg-sitf-primary font-semibold text-sitf-on-primary hover:bg-sitf-primary-dark focus-visible:outline-sitf-primary-dark;
+  }
 
-.tw-btn-secondary {
-  @apply rounded-md bg-[#BOEAE5] px-4 py-2 text-sm font-semibold text-white ring-1 ring-gray-300 ring-inset hover:bg-gray-50
-}
+  /* **`slate-200`, and 1.4.11 does not ask for more here.** The criterion applies to "visual information
+     *required to identify*" a control, and a button carries several: a label, 16px of horizontal padding, a
+     rounded box, and `shadow-sm` from the shared base above. The border is one signal among four, not the
+     one that makes it a button.
 
-.tw-btn-tertiary {
-  @apply ml-2 rounded-lg py-3 px-5 bg-gray-100 inline-block font-medium
-}
+     A text input is the opposite case and keeps `slate-500`: it has no shadow and no text of its own, so an
+     empty field on a white card really is identified by its boundary alone. Same rule, different components.
 
-.tw-btn-danger {
-  @apply rounded-lg py-3 ml-2 px-5 bg-red-100 text-red-500 inline-block font-medium hover:text-red-900
-}
+     This was `slate-500` for a day, applied to inputs and buttons together, and it read as heavy - reported
+     as not matching the design system, which it did not. The field agrees: Tailwind UI ships
+     `ring-gray-300` at about 1.5:1, GitHub a 0.15-alpha border over a tinted fill, Polaris a light border
+     with a shadow. Material 3's outlined button *is* about 3.4:1 - and it has no fill and no shadow, so its
+     outline is the only identifier. The rule is the same; the answer differs because the components do. */
+  /* No `border border-transparent` on the filled variants. design.md rules it out by name: it is
+   * a fragile compensation pinned to the outlined variant's exact border width, and the h-10
+   * token already equalises the heights with box-sizing: border-box. The admin primary carried
+   * it anyway, because it was defined separately in Ruby. */
 
-/* Font Awesome icon styles */
-.fa-pencil, .fa-ban {
-  font-size: 1.5rem;
-  vertical-align: middle;
-}
+  /* border border-slate-200, not ring-1 ring-slate-300. Measured on white: slate-200 is 1.23:1
+   * and slate-300 is 1.48:1 - neither is a 3:1 boundary, and the report was that the darker one
+   * read as too heavy. The control is identified by its 10.35:1 label plus shadow-sm; the border
+   * is a refinement, not the affordance. If it ever needs to be a real 3:1 boundary that is a
+   * deliberate change to the spec, made once here, not per call site. */
+  .tw-btn-secondary {
+    @apply cursor-pointer border border-slate-200 bg-white font-medium text-slate-700 hover:bg-slate-50 focus-visible:outline-sitf-primary;
+  }
 
-.fa-pencil {
-  color: #3b82f6; /* Blue color for edit */
-}
+  /* design.md's :danger, and the one place it belongs: the accept button of a destructive confirmation.
+   *
+   * Not a general-purpose red button. "No red at rest" still holds for every control that sits on a
+   * page, which is the 15 ghost and bordered destructive actions - a red control alarms you while you
+   * are doing something else, and that is the whole of the rule. A confirmation exists only because you
+   * asked for the action a moment ago and its job is to describe it, so the argument does not reach it.
+   * Polaris renders a modal's destructive primaryAction as a critical fill, GOV.UK reserves its warning
+   * button for serious or irreversible consequences, and Atlassian, Carbon and Ant Design agree.
+   *
+   * rose-700, not the rose-600 the variant list used to state: measured with white text, 600 is 4.53:1
+   * and clears AA by 0.03, which is no headroom, while 700 is 6.03:1 - level with the brand primary's
+   * 6.18:1, so the destructive accept does not read weaker than a benign one. The same one-step-darker
+   * correction the spec already makes for :success ("emerald-700, not 600: white on 600 is 3.77:1").
+   *
+   * font-semibold because the filled variants are semibold and the outlined ones font-medium - the
+   * weight carries part of the emphasis hierarchy. No `border border-transparent`: the spec rules it out
+   * by name and the h-10 token already equalises the heights.
+   *
+   * The focus ring is rose-800, a darker shade of the control's own colour, which is the same
+   * relationship .tw-btn-primary has with sitf-primary-dark. It sits outside the button on the page, so
+   * what it needs contrast against is the page: 7.92:1 on white. */
+  .tw-btn-danger {
+    @apply cursor-pointer bg-rose-700 font-semibold text-white hover:bg-rose-800 focus-visible:outline-rose-800;
+  }
 
-.fa-ban {
-  color: #ef4444; /* Red color for cancel */
+  /* design.md's :danger_outline. Identical to :secondary at rest - no red anywhere until hover -
+   * for a destructive action sitting among bordered buttons. Use ghost_class(:danger) when the
+   * neighbours are ghosts instead. Measured: rose-700 on rose-50 is 5.72:1. */
+  .tw-btn-danger-outline {
+    @apply cursor-pointer border border-slate-200 bg-white font-medium text-slate-700 hover:border-rose-700 hover:bg-rose-50 hover:text-rose-700 focus-visible:outline-rose-700;
+  }
+
+  /* The unavailable direction of a pagination control, and any other button that is present but cannot
+   * be pressed. It was `.tw-btn-primary-disabled` with **no callers** for as long as it existed, and its
+   * first caller is a *secondary* button - the name described a variant rather than a state, so it lost
+   * that half when it gained a user. slate-600 on slate-200 is 5.42:1: a disabled control is exempt from
+   * 1.4.3, and this app's own rule against slate-400 text is the stricter one that decided it.
+   *
+   * Present-but-disabled rather than absent, which is Polaris, Stripe and GitHub. Omitting the
+   * unavailable direction - GOV.UK's pattern - moves "Next" sideways between page 1 and page 2. */
+  .tw-btn-disabled {
+    @apply cursor-not-allowed bg-slate-200 font-semibold text-slate-600;
+  }
+
+  /* Inline text link.
+   *
+   * Named once because 34 links across the app hand-wrote a generic Tailwind blue
+   * (text-blue-600 hover:text-blue-800, plus blue-700/800/900 variants) while newer
+   * code used the brand teal - two link colours in one product. Contrast was never
+   * the problem: blue-600 is 5.17:1 on white. Brand consistency was.
+   *
+   * sitf-primary-dark is 9.01:1 on white and 8.61:1 on the slate-50 page. Underline
+   * on hover rather than always, so a table dense with links is not a field of rules.
+   */
+  .tw-link {
+    @apply font-medium text-sitf-primary-dark underline-offset-2 transition-colors hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary;
+  }
+
+  /* A standalone text link that is the only tap target where it sits - the two auth forms. It
+     carries the 44px height design.md reserves for bare targets, and it is underlined at rest
+     rather than on hover: .tw-link drops the rest-state underline so a table dense with links is
+     not a field of rules, and a lone link in a form is the opposite case.
+
+     sitf-primary is 5.9:1 on the page and sitf-primary-dark 8.61:1, so the hover darkens.
+     sessions/new built this inline as `min-h-11 text-sm font-semibold text-sitf-primary underline
+     hover:text-sitf-primary-dark ...`; the only change is font-medium, matching .tw-link. */
+  .tw-link-tap {
+    @apply inline-flex min-h-11 items-center rounded-sm text-sm font-medium text-sitf-primary underline underline-offset-2 transition-colors hover:text-sitf-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary;
+  }
+
 }

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_09_141805) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_11_171337) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -90,9 +90,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_09_141805) do
     t.datetime "created_at", null: false
     t.string "name"
     t.bigint "school_year_id"
+    t.datetime "trading_disabled_at"
     t.boolean "trading_enabled", default: false, null: false
     t.datetime "updated_at", null: false
     t.index ["school_year_id"], name: "index_classrooms_on_school_year_id"
+  end
+
+  create_table "dismissals", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "dismissed_at", null: false
+    t.string "key", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["user_id", "key"], name: "index_dismissals_on_user_id_and_key", unique: true
+    t.index ["user_id"], name: "index_dismissals_on_user_id"
   end
 
   create_table "grade_books", force: :cascade do |t|
@@ -171,10 +182,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_09_141805) do
     t.integer "amount_cents", null: false
     t.datetime "created_at", null: false
     t.text "description"
+    t.bigint "grade_book_id"
     t.bigint "portfolio_id", null: false
     t.integer "reason"
     t.integer "transaction_type", null: false
     t.datetime "updated_at", null: false
+    t.index ["grade_book_id"], name: "index_portfolio_transactions_on_grade_book_id"
     t.index ["portfolio_id"], name: "index_portfolio_transactions_on_portfolio_id"
   end
 
@@ -334,6 +347,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_09_141805) do
 
   create_table "stocks", force: :cascade do |t|
     t.boolean "archived", default: false, null: false
+    t.datetime "archived_at"
     t.decimal "cash_flow", precision: 15, scale: 2
     t.string "company_name"
     t.string "company_website"
@@ -404,6 +418,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_09_141805) do
   add_foreign_key "classroom_grades", "classrooms"
   add_foreign_key "classroom_grades", "grades"
   add_foreign_key "classrooms", "school_years"
+  add_foreign_key "dismissals", "users"
   add_foreign_key "grade_books", "classrooms"
   add_foreign_key "grade_books", "quarters"
   add_foreign_key "grade_entries", "grade_books"
@@ -415,6 +430,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_09_141805) do
   add_foreign_key "portfolio_snapshots", "portfolios"
   add_foreign_key "portfolio_stocks", "portfolios"
   add_foreign_key "portfolio_stocks", "stocks"
+  add_foreign_key "portfolio_transactions", "grade_books"
   add_foreign_key "portfolio_transactions", "portfolios"
   add_foreign_key "portfolios", "users"
   add_foreign_key "quarters", "school_years", on_delete: :cascade

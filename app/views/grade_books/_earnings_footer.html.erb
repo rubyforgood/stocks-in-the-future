@@ -1,0 +1,27 @@
+<%# One row: the label in the Student column, the sum under Earns. Nothing else.
+
+    A `<tfoot>` is for a **column summary** - Polaris's DataTable `totals`, GOV.UK's table totals, and
+    the bottom row of every spreadsheet. What makes this row readable is that both of its cells sit
+    under headers that describe them: the first column is where a row says which row it is, so "Total
+    for 25 students" is a row identifier, and the figure is under Earns with the figures it adds up.
+
+    I briefly put the three-way split in here as three more `colspan="5"` rows, and it was reported as
+    unreadable - correctly. A row in a grid claims the columns above it describe it, and
+    "Attendance, including bonuses" spanning Student/Math/Reading/Days/Perfect is described by none of
+    them; four prose-labelled rows read as a second, differently-shaped table wearing the first one's
+    columns. **A stack of components is not table rows.** It is an invoice totals block or a summary
+    beside the action that commits it - which is where the split lives, on the finalize block.
+
+    No rule above it: `divide-y` already separates rows and design.md's Dividers section forbids adding
+    one where something else is already separating. The weight on this row carries it. %>
+<%= tag.tfoot id: "earnings-footer" do %>
+  <tr class="table-body-row">
+    <th scope="row" class="table-body-cell text-left font-medium text-slate-900" colspan="5">
+      Total for <%= pluralize(earnings.student_count, "student") %>
+    </th>
+    <td class="table-body-cell table-body-cell-right font-semibold text-slate-900"
+        data-testid="earnings-total">
+      <%= number_to_currency(earnings.total_cents / 100.0) %>
+    </td>
+  </tr>
+<% end %>

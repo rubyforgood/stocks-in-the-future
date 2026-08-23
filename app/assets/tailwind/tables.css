@@ -1,78 +1,252 @@
-/* Table Styles */
-.table-container {
-  @apply mb-4;
-}
+@layer components {
+  /* Data tables.
 
-.table-wrapper {
-  @apply bg-white border-2 border-black rounded-[20px];
-}
+     Reworked to industry standard (Stripe, Airbnb, Material data tables). The
+     previous treatment drew a heavy black grid - a 2px black outer border, a
+     black rule under every cell, a 20px radius and a saturated teal header band.
+     That fights the data for attention.
 
-.table-base {
-  @apply w-full border-collapse font-sans bg-white rounded-[20px];
-}
+     Principles applied:
+     - Hairline horizontal dividers only. No vertical rules, no outer heavy
+       border. Columns are separated by alignment and whitespace, not lines.
+     - The header is chrome, not content: text-xs, semibold, muted foreground on a
+       very light fill, and no uppercase transform - design.md says to use size,
+       weight and colour for hierarchy rather than shouting. design.md reserves
+       text-xs for exactly this: short glanceable strings like column headers.
+     - Rows are tall enough to be a comfortable touch target and to let dense
+       text breathe (min-h-14 = 56px, above the 44px floor).
+     - Row hover gives a scanning anchor on wide screens.
+     - Money and counts are right-aligned with tabular-nums so digits line up
+       across rows. This is the single biggest legibility win on a financial
+       table and was previously missing.
+     - Contrast: slate-600 header text on slate-50 is 6.9:1; slate-900 body text
+       on white is 17.9:1. Dividers are non-text boundaries and need no ratio.
+  */
 
-.table-header-row {
-  @apply border-b border-black bg-[#00B8B0];
-}
+  .table-container {
+    @apply mb-6;
+  }
 
-.table-header-cell {
-  @apply h-10 px-7 py-3 font-medium text-base text-black border-b border-black;
-}
+  /* Card-style surface. Overflow hidden so the header fill respects the radius,
+     and x-scroll so wide tables scroll rather than squashing on small screens. */
+  /* The same surface as .tw-card - rounded-2xl and shadow-sm, not rounded-xl and shadow-xs. A
+     table card is a panel, and design.md's radius token is `cards/panels rounded-2xl`. This was a
+     near-duplicate of .tw-card that differed only in radius and shadow, so on the portfolio page a
+     12px-cornered table sat directly under four 16px-cornered cards. */
+  .table-wrapper {
+    @apply overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm;
+  }
 
-.table-header-cell-left {
-  @apply text-left;
-}
+  /* min-w-full, not w-full: inside an overflow-x-auto wrapper the table has to be free to grow
+     past the container so it can scroll, which is what the pinned actions cell depends on. */
+  .table-base {
+    @apply min-w-full border-collapse text-left font-sans;
+  }
 
-.table-header-cell-left:nth-child(3) {
-  @apply text-left px-4 lg:px-7;
-}
+  /* Unfilled. design.md: "the thead itself is unfilled - a border-b under the header row is the
+     only separator, never a bg-slate-50 fill". The grey strip was written two ways at once, as
+     this class on the app side and as an inline `<thead class="bg-slate-50">` on fourteen admin
+     and teacher tables, so the fill outlived every previous sweep.
+   *
+   * The border stays slate-200 rather than the spec's slate-100 because body rows here are
+   * slate-100 (.table-body-row): matching them would make the header read as one more row. The
+   * spec's pair assumes CASA's slate-50 row dividers; what transfers is the relationship - the
+   * header separator is one step stronger than the row lines - not the literal token. */
+  .table-header-row {
+    @apply border-b border-slate-200;
+  }
 
-.table-header-cell-right {
-  @apply text-right;
-  min-width: 150px;
-}
+  /* No uppercase transform: design.md says to use size, weight and colour for
+     hierarchy rather than shouting. text-xs semibold slate-600 is enough to read
+     as chrome against slate-900 body text. */
+  /* align-top on the header too. design.md: a column whose header wraps to two lines should anchor
+     every header to one top line, instead of the browser's vertical-align: middle centring the
+     single-line neighbours against it, which reads as stray space. Measured before: every th in
+     the app computed to `middle`. */
+  .table-header-cell {
+    @apply align-top px-4 py-3 text-xs font-semibold text-slate-600 whitespace-nowrap;
+  }
 
-.table-header-cell-center {
-  @apply text-center;
-}
+  .table-header-cell-left {
+    @apply text-left;
+  }
 
-.table-body-row {
-  @apply h-14 border-b border-black;
-}
+  /* Numeric columns: right-aligned so digits align down the column. */
+  .table-header-cell-right {
+    @apply text-right;
+  }
 
-.table-body-cell {
-  @apply px-7 py-2 border-b border-black;
-}
+  .table-header-cell-center {
+    @apply text-center;
+  }
 
-.table-body-cell:nth-child(3) {
-  @apply px-4 lg:px-7;
-}
+  .table-body-row {
+    @apply border-b border-slate-100 transition-colors last:border-0 hover:bg-slate-50;
+  }
 
-.table-body-cell-right {
-  @apply text-right;
-  min-width: 150px;
-}
+  /* align-top, not align-middle - design.md's table tokens say so, and the transactions table
+     shows why. Its Stock cell stacks a company name over a ticker while every other cell is one
+     line, so with middle alignment the single-line cells floated to the vertical centre of a
+     taller row and nothing shared a baseline. Top alignment is what Polaris, Primer, Stripe and
+     Tailwind UI use as soon as any cell can wrap or stack; middle is only safe when every cell in
+     the table is a single line, which is not a property you can rely on staying true. */
+  .table-body-cell {
+    @apply px-4 py-3 align-top text-sm text-slate-900;
+  }
 
-.table-body-cell-center {
-  @apply text-center;
-}
+  .table-body-cell-right {
+    @apply text-right tabular-nums;
+  }
 
-.table-cell-content {
-  @apply text-base text-black;
-}
+  .table-body-cell-center {
+    @apply text-center;
+  }
 
-.table-empty-cell {
-  @apply px-7 py-4 text-center text-gray-500 border-b border-black;
-}
+  .table-cell-content {
+    @apply text-sm text-slate-900;
+  }
 
-.table-no-permission {
-  @apply text-gray-400;
-}
+  .table-empty-cell {
+    @apply px-4 py-10 text-center text-sm text-slate-600;
+  }
 
-.table-action-link {
-  @apply text-blue-600 hover:text-blue-800;
-}
+  /* The trailing actions cell, pinned to the right edge below lg.
+   *
+   * Every admin index table overflowed at 375px - between 212px and 699px of it - and the actions
+   * were the last column, so View / Edit / Delete sat past the right edge of the scroll. Measured on
+   * admin/users: Edit at right=887 against a visible edge of 343. Three labelled ghosts are about
+   * 250px, roughly 73% of a 343px viewport, so no amount of column-hiding fits data and actions side
+   * by side on a phone - the column has to stop scrolling instead. Pinning the last column is what
+   * AG Grid, Polaris (lastColumnSticky) and Material data tables do.
+   *
+   * Only below lg, where the overflow is. At lg it is an ordinary cell, so the row hover tint is
+   * unbroken at the width this is actually used at, and the vertical rule does not become a divider
+   * the Dividers rule would not allow.
+   */
+  /* The trailing actions cell.
+   *
+   * **It used to be `sticky right-0`, and it is not any more.** A frozen trailing column necessarily
+   * covers whatever is scrolled under it at every intermediate scroll position, which was reported as
+   * "half a column is displayed, and the rest is covered by the column on the right with the action
+   * buttons". Making it opaque with a separator - which is what AG Grid and Airtable do for a frozen
+   * column - made that legible rather than removing it.
+   *
+   * Two measurements decided it. These tables overflow **only between 1024px and about 1200px**: at
+   * 1366 and 1920 the overflow is 0 on every one of them, so the pin served a single narrow band. And
+   * below `lg` the whole row collapses into the primary cell, where `shared/_stacked_row_fields`
+   * already repeats the actions - so nothing is lost on a phone either.
+   *
+   * The convention it was reaching for freezes the **leading** column, not the trailing one: Excel's
+   * frozen panes, Airtable, AG Grid and Material's data tables all pin the identifier so you know which
+   * row you are on while scrolling across. Pinning the actions is rare, and where it exists it is an
+   * explicit user-controlled choice.
+   *
+   * The real problem was the width: this cell measured 253-280px at 1024px, the widest column in every
+   * table, against 175-340px of overflow. It is an overflow menu now - see the row actions - which is
+   * what removed the overflow instead of managing it. */
+  /* The trailing actions cell takes 6px of top padding rather than the shared cell's 12px, so its control
+   * sits **on the row's first line** instead of 7px below it.
+   *
+   * Reported as the Edit button not looking aligned on the classrooms table, and measured, it was every
+   * table in the app: a 32px ghost and a 17px line of text both start at the cell's content edge, so the
+   * button's box top-aligns correctly while its centred label lands 6.5px low. design.md's own criterion is
+   * centre-to-first-line-centre - it says so for a lone checkbox, with `mt-0.5` as the mechanism and
+   * "checkbox center == the name's first-line center, not just top==top" as the test. A 32px control needs
+   * the offset in the other direction, and a negative margin is out: it would drag the hover fill above the
+   * content edge, which this codebase has already recorded as the wrong fix three times.
+   *
+   * Padding on the cell keeps every pixel of paint inside the cell. Measured on admin/users: off by 6.5px
+   * before, 0.5px after, and the row drops from 57px to 51px - nearer design.md's 48px row than it was.
+   *
+   * `td` only: the same class is on the header cell, where there is no control to align.
+   *
+   * This is deliberately a cell that carries its own `py-*`, which this document elsewhere calls a bug. The
+   * distinction is that this is the shared token for one kind of cell, compensating for a control that is
+   * taller than a line of text - not an ad-hoc padding at a call site, which is what that rule is about and
+   * what put one classrooms cell 14px below its neighbours.
+   *
+   * Not the trading floor: its Buy/Sell are 40px against a stacked primary cell and its actions cell does
+   * not carry this class. That case is noted in design-todo rather than bent to fit this one. */
+  td.table-actions-cell {
+    @apply pt-1.5;
+  }
 
-.table-action-button {
-  @apply text-red-600 hover:text-red-800 cursor-pointer;
+  /* A table of form controls cannot use the collapse the other tables use.
+   *
+   * Everywhere else, below lg the secondary cells are `hidden lg:table-cell` and their values are
+   * restated inside the primary cell. That works because those values are text, badges and links, and
+   * a duplicate link is harmless - the copy that is not in play is display:none. Restating an **input**
+   * would put two controls with the same name in one form, and the second would overwrite the first on
+   * submit. The grade book has four per row.
+   *
+   * So this one reflows instead: one DOM, one input per field, and below lg the table stops being a
+   * grid. Each row becomes a block with its student's name as the heading and one labelled line per
+   * field. Measured before: 398px of sideways scroll at 375px, with two selects, the days input and the
+   * Yes/No control off the right edge - and no actions column, so the pinned-cell rule never applied to
+   * it and `table_actions_reachable_test` never looked at it.
+   *
+   * The trade this makes: display:block removes table semantics from the accessibility tree in Chrome
+   * and Firefox below lg. In exchange every control gains a real `<label for>`, which a `<th>` never
+   * gave it - a column header does not name a form control. For a form that is the better half of the
+   * trade.
+   *
+   * 63.9375rem is Tailwind's lg (64rem) minus one pixel at the default root size, so this and the
+   * `lg:` utilities in the markup switch at the same width. */
+  @media (max-width: 63.9375rem) {
+    .table-stacked,
+    .table-stacked > tbody,
+    .table-stacked > tfoot {
+      @apply block;
+    }
+
+    /* A header for a column that is no longer a column names nothing. */
+    .table-stacked > thead {
+      @apply hidden;
+    }
+
+    .table-stacked > tbody > tr {
+      @apply block px-4 py-3;
+    }
+
+    .table-stacked > tbody > tr + tr {
+      @apply border-t border-slate-100;
+    }
+
+    .table-stacked > tbody > tr > td {
+      @apply flex flex-wrap items-center justify-between gap-x-4 gap-y-1 px-0 py-1.5;
+    }
+
+    /* A cell can hold more than its control - the days cell carries the bonus warning underneath - so
+     * anything after the control takes the full width rather than being squeezed beside it. */
+    .table-stacked > tbody > tr > td > *:nth-child(n + 3) {
+      @apply w-full;
+    }
+
+    /* The first cell is the row's heading - who this row is about - so it spans the block rather
+     * than sitting opposite a label it does not have. */
+    .table-stacked > tbody > tr > td:first-child {
+      @apply block pt-0 pb-2;
+    }
+
+    /* The footer keeps its two cells on one line: a label and the figure it labels. */
+    .table-stacked > tfoot > tr {
+      @apply flex items-baseline justify-between gap-4 border-t border-slate-200 px-4 py-3;
+    }
+
+    .table-stacked > tfoot > tr > th,
+    .table-stacked > tfoot > tr > td {
+      @apply p-0;
+    }
+  }
+
+  /* The field name, visible only where the column header is not. `lg:hidden` on the element handles
+   * the other half; this carries the type treatment so it is not repeated at every call site. */
+  .table-stacked-label {
+    @apply shrink-0 text-xs font-normal text-slate-600;
+  }
+
+  /* .table-action-link and .table-action-button are gone. Row actions are the ghost button from
+   * ButtonHelper#ghost_class, so a table action is one treatment across both sides of the product
+   * instead of a brand-coloured link plus a red-at-rest button. */
+
 }

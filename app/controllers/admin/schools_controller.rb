@@ -16,6 +16,8 @@ module Admin
     end
 
     def show
+      set_form_data
+
       @breadcrumbs = [
         { label: "Schools", path: admin_schools_path },
         { label: @school.name }
@@ -27,10 +29,13 @@ module Admin
       set_form_data
       @breadcrumbs = [
         { label: "Schools", path: admin_schools_path },
-        { label: "New School" }
+        { label: "New school" }
       ]
     end
 
+    # `edit` renders the record page, so /admin/schools/:id and /admin/schools/:id/edit are the same
+    # screen. In the merged shape there is no separate edit page at all - this keeps every existing Edit link
+    # working while the design is being looked at.
     def edit
       set_form_data
       @breadcrumbs = [
@@ -38,12 +43,14 @@ module Admin
         { label: @school.name, path: admin_school_path(@school) },
         { label: "Edit" }
       ]
+
+      # After the breadcrumbs, not before: the template renders them, and returning early left them nil and
+      # blew up in the partial with `undefined method 'each_with_index' for nil`.
+      render :show
     end
 
     def create
-      year_ids = school_params[:year_ids]&.reject(&:blank?)
-      @school = School.new(school_params.except(:year_ids))
-      @school.year_ids = year_ids if year_ids.present?
+      @school = School.new(school_params)
 
       if @school.save
         redirect_to admin_school_path(@school), notice: t(".notice")
@@ -51,18 +58,18 @@ module Admin
         set_form_data
         @breadcrumbs = [
           { label: "Schools", path: admin_schools_path },
-          { label: "New School" }
+          { label: "New school" }
         ]
         render :new, status: :unprocessable_content
       end
     end
 
+    # **The name, and nothing else.** This used to rebuild `year_ids` by hand and default it to `[]`, so an
+    # update with no years in the params removed every one - which, with the checkbox group gone from the
+    # form, would have made *every name edit* destroy the school's years and their quarters, or 500 on the
+    # first one with a classroom. The tests caught it; the assignment is gone.
     def update
-      year_ids = school_params[:year_ids]&.reject(&:blank?)
-      update_params = school_params.except(:year_ids)
-      update_params[:year_ids] = year_ids || []
-
-      if @school.update(update_params)
+      if @school.update(school_params)
         redirect_to admin_school_path(@school), notice: t(".notice")
       else
         set_form_data
@@ -86,12 +93,22 @@ module Admin
       @school = School.find(params.expect(:id))
     end
 
+    # The school's years, for both `show` (read-only) and `edit` (with the add and remove controls). Loaded
+    # here rather than queried from a view, and eager-loaded because each row states its quarter count -
+    # without it that is a query per year.
     def set_form_data
-      @years = Year.ordered_by_start_year
+      return if @school.nil?
+
+      @school_years = @school.school_years.includes(:year, :classrooms, :quarters).to_a
+      @addable_years = Year.addable_to(@school).to_a
     end
 
+    # **No `year_ids`.** It was the mechanism behind two defects: unchecking a box silently destroyed a
+    # school year and its four quarters, and doing so to a year with a classroom raised
+    # `PG::ForeignKeyViolation` - a 500 - because the join was deleted before `restrict_with_error` ran.
+    # Both measured. Years are added and removed through their own actions now.
     def school_params
-      params.expect(school: [:name, { year_ids: [] }])
+      params.expect(school: [:name])
     end
   end
 end

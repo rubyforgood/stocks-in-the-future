@@ -1,21 +1,41 @@
-<%= form_with model: @school, url: @school.persisted? ? admin_school_path(@school) : admin_schools_path, builder: Admin::FormBuilder, class: "space-y-6" do |f| %>
-  <div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg">
-    <div class="px-6 py-6">
-      <h3 class="text-lg font-medium text-gray-900 mb-6">School Details</h3>
+<%= form_with model: @school, url: @school.persisted? ? admin_school_path(@school) : admin_schools_path, builder: Ui::FormBuilder, class: "space-y-6" do |f| %>
+  <%= render "shared/form_errors", record: @school, subject: "school" %>
 
-      <%= f.text_field :name,
-                       label: "Name",
-                       hint: "Enter the school name",
-                       placeholder: "Lincoln Elementary School" %>
+  <%# `components/ui/_card`, and no heading of its own.
 
-      <%= f.collection_check_boxes :year_ids, @years, :id, :name,
-                                   label: "Years",
-                                   hint: "Select the school years this school will be active" %>
+      The surface was hand-rolled in ten form partials - `<div class="tw-card"><div class="p-5">` - so it
+      was declared eleven times, which is the mechanism that produced four different padding values before
+      anyone noticed. And each opened with an `h3` naming the record type, under a page header that had
+      just named it: "Teacher details" below "Edit teacher", 24px apart, in two sizes. Polaris drops a
+      card's header when the page has one card. A heading returns the moment a form has two - see
+      admin/students, where it separates them. %>
+  <%= render layout: "components/ui/card", locals: {} do %>
+    <div>
+        <%= f.text_field :name,
+                         label: "Name",
+                         width: :half,
+                         required: true,
+                         placeholder: "Lincoln elementary school" %>
+
+        <%# **No years here.** They were a `collection_check_boxes` on `year_ids`, and that was two defects
+            rather than a layout problem: unchecking a box silently destroyed a school year and its four
+            quarters, and doing it to a year with a classroom raised `PG::ForeignKeyViolation` - a 500 - because
+            the join went before `restrict_with_error` could speak.
+
+            A year is provisioned, not preferred, so it is a list with an explicit add and remove on the
+            school's own page. That is also what the field does rather than a multi-select: GOV.UK advises
+            against `select multiple` outright, and Polaris, Material and Carbon ship none. %>
     </div>
-  </div>
+    <% end %>
 
-  <div class="flex items-center justify-end gap-x-4">
-    <%= f.cancel_button "Cancel", url: @school.persisted? ? admin_school_path(@school) : admin_schools_path %>
-    <%= f.submit_button @school.persisted? ? "Update School" : "Create School" %>
+  <div class="tw-form-actions">
+    <%# On a detail page the submit names what it saves, and there is nothing to cancel *to* -
+        you are already on the record. On `new` it still needs both. %>
+    <% if @school.persisted? %>
+      <%= f.submit_button "Save details" %>
+    <% else %>
+      <%= f.submit_button "Create school" %>
+      <%= f.cancel_button "Cancel", url: admin_schools_path %>
+    <% end %>
   </div>
 <% end %>

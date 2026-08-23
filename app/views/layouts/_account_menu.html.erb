@@ -1,0 +1,79 @@
+<%# Header account menu: who is signed in, and the account actions. Nothing else.
+
+    design.md names this pattern - a native <details>/<summary> disclosure of links, not an
+    ARIA menu widget with arrow-key roving. Native means it still opens without JS; the
+    dropdown controller adds outside-click and Escape, and returns focus to the summary.
+
+    Why it exists at all: nothing in the chrome said who was signed in. On a shared school
+    Chromebook a student can land on a session someone else left open, and signing out was
+    the last item in a sidebar that collapses behind a hamburger on a phone.
+
+    **The trigger is the avatar and a chevron, nothing else.** The name used to sit beside it at
+    lg. Initials plus the panel is what GitHub, Google, Stripe and Linear all show, and a name of
+    unpredictable length in fixed chrome is what pushed this control around. The identity signal
+    the menu exists for is carried by the initials at a glance and by the panel on open.
+
+    **The panel carries name, email and role.** The email is the line that tells you *which*
+    account you are in - it is why Google and Stripe both lead with it - and it matters here for
+    the same reason the menu does: shared machines. Students may have no email, so that line is
+    omitted rather than rendered blank.
+
+    **No product navigation lives in here.** It held "Visit site" in admin and "My portfolio" in the
+    app; both are destinations, both are now in the sidebar where the app's Admin row already was.
+    A destination hidden behind an avatar is not discoverable, and "My portfolio" was a second
+    copy of a row the sidebar already had. "Edit profile" is the exception every reference makes -
+    it is an account action, about the identity this panel exists to show, and nowhere else in the
+    chrome would carry it.
+
+    No rule separates the identity block from the actions - it sits on a slate-50 tint
+    instead, so the panel groups without drawing a divider. %>
+<% item_class = "flex min-h-11 items-center gap-2 px-4 py-2 text-sm text-slate-700 " \
+                "hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 " \
+                "focus-visible:outline-sitf-primary" %>
+
+<%# data-testid because the sidebar's Trading floor disclosure is also a <details>/
+    <summary>, so "the summary" is ambiguous in a test. %>
+<details class="relative" data-controller="dropdown" data-testid="account-menu">
+  <summary class="flex min-h-11 cursor-pointer list-none items-center gap-2 rounded-lg py-1 pl-1 pr-2 hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary [&::-webkit-details-marker]:hidden">
+    <%# The avatar and the chevron are both aria-hidden, so this is the control's whole
+        accessible name. It names the user because the visible trigger is now initials only:
+        "Account menu" alone would not say whose. %>
+    <span class="sr-only">Account menu for <%= current_user.display_name %></span>
+    <%= avatar_tag(current_user) %>
+    <%= lucide_icon("chevron-down", class: "h-4 w-4 shrink-0 text-slate-600") %>
+  </summary>
+
+  <%# w-64, not w-56: an email is longer than a name, and truncating it defeats the point of
+      showing it. %>
+  <div class="account-menu-panel absolute right-0 z-20 mt-2 overflow-hidden rounded-xl border border-slate-200 bg-white py-1 shadow-lg">
+    <div class="bg-slate-50 px-4 py-3">
+      <p class="truncate text-sm font-medium text-slate-900"><%= current_user.display_name %></p>
+      <% if current_user.email.present? %>
+        <p class="truncate text-xs text-slate-600"><%= current_user.email %></p>
+      <% end %>
+      <%# The role is a badge, not a line of muted text. design.md: "blue that stays is
+          categorical rather than interactive - the :info badge tone", and a role is categorical,
+          not a status. The classrooms index already badges teacher names the same way. blue-700
+          on blue-50 is 6.16:1, and the label states the role so nothing rests on the hue. %>
+      <div class="mt-2">
+        <%= render "components/ui/badge", label: account_role_label(current_user), tone: :info %>
+      </div>
+    </div>
+
+    <%# Edit profile above Sign out, which is the order GitHub, Google, Stripe and Linear all use -
+        the destructive-ish action last. The item was absent because the page did not exist. %>
+    <%= link_to "Edit profile", edit_profile_path, class: item_class %>
+
+    <%# **A `button_to`, and the last of the 32.** Signing out is an action, and `destroy_user_session_path`
+        answers DELETE only - so as an `<a href>` it 404'd on a middle-click or in a new tab.
+
+        `form: { class: "contents" }` because the panel lays its items out directly; a form wrapping this
+        one would otherwise become a box between the menu and its row. `w-full` and the same `item_class`
+        so the button fills the row exactly as the link above it does - a `button` shrinks to its text
+        where an `a` block does not. %>
+    <%= button_to "Sign out", destroy_user_session_path,
+                  method: :delete,
+                  form: { class: "contents" },
+                  class: "#{item_class} w-full text-left" %>
+  </div>
+</details>

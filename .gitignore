@@ -31,6 +31,12 @@
 
 /public/assets
 
+# Design previews: before/after captures and the comparison page, written by
+# `bin/rails test:system test/system/empty_state_preview_test.rb` with PREVIEW=1 and by the ad-hoc
+# screenshot scripts. They are development artefacts - `public/` is served, so committing them would
+# publish a student's name, balance and transaction history at a guessable URL on staging.
+/public/preview
+
 # Ignore master key for decrypting credentials and more.
 /config/master.key
 /config/api_keys.rb

@@ -9,6 +9,9 @@ en:
     failure:
       already_authenticated: "You are already signed in."
       inactive: "Your account is not activated yet."
+      # A deactivated account is not an unactivated one. The default `inactive` message reads "not activated
+      # yet", which is true of an account nobody has used and wrong for one an administrator turned off.
+      deactivated: "Your account has been deactivated. Ask your teacher or an administrator."
       invalid: "Invalid %{authentication_keys} or password."
       locked: "Your account is locked."
       last_attempt: "You have one more attempt before your account is locked."

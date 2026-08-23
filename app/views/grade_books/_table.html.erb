@@ -1,22 +1,41 @@
-<div class="overflow-x-auto">
-  <table class="min-w-full divide-y divide-gray-200">
-    <thead class="bg-gray-50">
-      <tr>
-        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
-        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Math Grade</th>
-        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reading Grade</th>
-        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Attendance Days</th>
-        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Perfect Attendance?</th>
-      </tr>
-    </thead>
-    <tbody class="bg-white divide-y divide-gray-200">
-      <%= render partial: "grade_entry", collection: grade_book.grade_entries.sort_by { it.user.username }, as: :entry, locals: { disabled: grade_book.completed? } %>
-    </tbody>
-  </table>
-</div>
+<%# On shared/_table_container, like every other table in the app.
 
-<% if grade_book.grade_entries.empty? %>
-  <div class="text-center py-8">
-    <p class="text-gray-500">No grade entries for this grade book yet.</p>
-  </div>
+    This was a hand-rolled `overflow-x-auto` div, so measured on a Chromebook the grades table sat on
+    **no surface at all**: 0px border, transparent background, 0px radius, against a slate-50 page. The
+    roster on classrooms#show had exactly this defect and design.md records it as fixed there.
+
+    region_label keeps the keyboard-scroll affordance the hand-rolled version was written for: a
+    scrolling container needs to be focusable or its right-hand columns are unreachable without a mouse
+    (axe scrollable-region-focusable). It is a container option now rather than a reason to bypass the
+    container.
+
+    The Earns column is the trailing one, so it right-aligns with tabular-nums and the figures line up
+    down the column - which is also why nothing else goes in those cells. The <tfoot> carries the
+    subtotals and the total: see _earnings_footer for why they belong to the table rather than to a card
+    of their own. %>
+<% earnings = grade_book_earnings %>
+
+<%# table-stacked: below lg this stops being a grid and each student becomes a block of labelled
+    fields. A table of inputs cannot use the collapse the other tables use, because restating a control
+    in the primary cell would submit two inputs with the same name. See tables.css. %>
+<%= render "shared/table_container", region_label: "Grades", table_class: "table-stacked" do %>
+  <thead>
+    <tr class="table-header-row">
+      <th scope="col" class="table-header-cell table-header-cell-left">Student</th>
+      <th scope="col" class="table-header-cell table-header-cell-left">Math</th>
+      <th scope="col" class="table-header-cell table-header-cell-left">Reading</th>
+      <th scope="col" class="table-header-cell table-header-cell-left">Days attended</th>
+      <th scope="col" class="table-header-cell table-header-cell-left">Perfect attendance</th>
+      <th scope="col" class="table-header-cell table-header-cell-right">Earns</th>
+    </tr>
+  </thead>
+
+  <tbody class="bg-white">
+    <%= render partial: "grade_entry",
+               collection: grade_book.grade_entries.sort_by { it.user.display_name.to_s },
+               as: :entry,
+               locals: { disabled: grade_book.completed?, grade_book_earnings: earnings } %>
+  </tbody>
+
+  <%= render "earnings_footer", earnings: earnings %>
 <% end %>

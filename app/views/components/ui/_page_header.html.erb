@@ -1,0 +1,60 @@
+<%# Page header - title, optional description, optional actions on the right.
+
+    design.md scale: page title is text-2xl font-bold tracking-tight, body is
+    text-sm. Airbnb reading: the title owns the top of the page with real
+    breathing room beneath it, and actions sit on the same optical line.
+
+    This renders the page's single h1, so it declares :own_heading. The admin layout
+    reads that and steps its own visually hidden h1 aside; without it an admin page
+    using this partial would carry two h1s. The application layout does not read it,
+    so declaring it is harmless elsewhere.
+
+    Locals:
+      title       - page title (renders the single h1)
+      description - optional supporting sentence
+      badge       - optional status pill, rendered on the title's line
+      actions     - optional block of buttons/links, passed as a block
+
+    `badge` exists because the block is the *actions* slot and a status is not an action. The grade
+    book put its Draft pill there and it floated in the top-right corner among where "Add student"
+    and "Edit classroom" live - the same fault as the trading switch in a page header, one page over.
+    An entity's state belongs beside its name: Linear, Stripe and GitHub all put it there. %>
+<% content_for :own_heading, true %>
+<%# mb-6 and nothing else. The pb-5 that used to sit here existed to hold content off
+    the rule beneath the title; with the rule gone it was surplus, stacking 20px of
+    padding on top of 24px of margin. design.md's page rhythm is a 24px header block.
+
+    items-end when the title stands alone, items-start when it carries a subtitle - design.md
+    is explicit about this and records it as a bug it had already measured once. A 40px CTA in
+    a row with a 32px h1 makes the block 40px tall; with items-start the title sits at the top
+    and leaves 8px of dead space beneath it, so the gap to the content below measured 32px
+    instead of the intended 24px. items-end puts the CTA on the h1's baseline and closes it.
+    With a subtitle the reverse applies: items-end would drop the CTA to the subtitle. %>
+<% align = local_assigns[:description].present? ? "lg:items-start" : "lg:items-end" %>
+<div class="mb-6 flex flex-col gap-3 lg:flex-row <%= align %> lg:justify-between">
+  <div class="min-w-0">
+    <div class="flex flex-wrap items-center gap-3">
+      <%# `min-w-0 break-words`, and it needs both. A title is one long word often enough -
+        "Announcements" at 200% text is 346px against a 305px viewport - and a word that cannot break
+        pushes the whole page sideways.
+
+        `break-words` alone did nothing here, which is worth knowing: this h1 is a **flex item** (the
+        row it sits in also holds the status badge), so its `min-width: auto` floors it at min-content,
+        and the min-content of a single unbreakable word is the whole word. `min-w-0` removes the floor;
+        only then does `overflow-wrap` get to break it. %>
+      <h1 class="min-w-0 text-2xl font-bold tracking-tight break-words text-slate-900"><%= title %></h1>
+      <%= local_assigns[:badge] %>
+    </div>
+    <% if local_assigns[:description].present? %>
+      <p class="mt-1 text-sm text-slate-600"><%= description %></p>
+    <% end %>
+  </div>
+
+  <%# Always rendered with `layout:`, so yield is available. An empty block just
+      yields blank, which is why this checks content rather than block_given? -
+      that is unreliable inside a partial layout. %>
+  <% actions = yield %>
+  <% if actions.present? %>
+    <div class="flex shrink-0 flex-wrap items-center gap-2"><%= actions %></div>
+  <% end %>
+</div>

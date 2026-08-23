@@ -1,86 +1,126 @@
-<%# Home Dashboard Page - aligns with portfolio card styling and app color palette %>
-<div class="max-w-[1180px] mx-auto space-y-6 pb-16" style="font-family: Inter, system-ui, sans-serif;">
-  <!-- Welcome / Funds Banner (Hero) -->
-  <div class="relative mb-8 mt-10">
-    <div class="hero-banner rounded-[16px] border-2 border-black bg-gradient-to-r from-[#F4D18D] to-[#F8DBA8] px-4 md:px-6 py-2 md:py-3 flex flex-col md:flex-row gap-2 md:gap-3 items-start md:items-center justify-between relative">
-      <!-- Decorative coins scattered in background -->
-      <div class="flex-1 flex flex-col gap-1 pr-0 md:pr-6 relative z-10">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:gap-4">
-          <% if current_user&.student? && current_user.portfolio %>
-            <% if current_user.portfolio.cash_balance > 0 %>
-              <div class="funds-pill inline-flex items-center gap-1 rounded-full border-2 border-black bg-white py-1 px-8 md:px-12 text-xs md:text-sm font-medium shadow-md relative tracking-tight">
-                <%= image_tag 'party_popper.png', class: 'object-contain absolute w-6 h-6 md:w-8 md:h-8', style: 'margin-left: -2rem; top: -0.75rem;', alt: 'Party popper celebration' %>
-                <span class="leading-snug">You have <strong><%= number_to_currency(current_user.portfolio.cash_balance) %></strong> to invest! Lets Get Trading!</span>
-              </div>
-            <% else %>
-              <div class="funds-pill inline-flex items-center gap-1 rounded-full border-2 border-black bg-white py-1 px-8 md:px-12 text-xs md:text-sm font-medium shadow-md relative tracking-tight">
-                <span class="leading-snug">Sorry, you don't have any earnings to invest yet</span>
-              </div>
-            <% end %>
-          <% end %>
-        </div>
-        <h1 class="text-[20px] md:text-[24px] font-bold tracking-tight leading-tight mt-1 text-gray-900">WELCOME TO YOUR FINANCIAL JOURNEY!</h1>
-        <p class="text-xs md:text-sm text-gray-800 mt-1 font-medium">This Is Your Launchpad To Earn, Invest, And Grow.</p>
-      </div>
-      <!-- Piggy Bank Illustration -->
-      <div class="hidden sm:block absolute -bottom-8 right-4 md:right-8 z-20">
-        <%= image_tag 'piggy_bank.png', class: 'w-24 md:w-32 lg:w-36 xl:w-40 h-auto object-contain', alt: 'Piggy bank with coins' %>
-      </div>
-    </div>
-  </div>
+<% content_for :title, "Home" %>
 
-  <!-- Middle Two-Column Section: Images (left) + Announcements (right) -->
-  <div class="grid grid-cols-1 gap-4 lg:gap-8 lg:grid-cols-2 items-stretch mt-6">
-    <!-- Left Images -->
-    <div class="flex items-center justify-center">
-      <div class="flex gap-4 justify-center items-center w-full">
-        <%= image_tag 'girl_skateboarding_holding_laptop.png', class: 'w-full max-w-48 md:max-w-56 lg:max-w-64 h-auto object-contain pointer-events-none select-none mx-auto -mt-8 relative z-10', alt: 'SITF Home Teens' %>
-      </div>
-    </div>
+<%# Home dashboard, rebuilt on the ui primitives.
 
-    <!-- Right Announcements -->
-    <div class="flex ml-0 relative z-20">
-      <div class="rounded-xl border-2 border-black overflow-hidden bg-white w-full flex flex-col" role="region" aria-label="Announcements">
-        <div class="bg-teal-500 text-white py-1.5 px-3 font-semibold text-xs tracking-wide border-b-2 border-black">Announcements</div>
-        <div class="p-4 text-xs text-gray-600 flex flex-col">
-          <% if @current_announcement %>
-            <% cache @current_announcement do %>
-              <div class="space-y-3">
-                <h3 class="font-semibold text-gray-900 text-sm"><%= @current_announcement.title %></h3>
-                <div class="text-gray-700 trix-content max-h-[480px] overflow-y-auto">
-                  <%= @current_announcement.content %>
-                </div>
-              </div>
-            <% end %>
-          <% else %>
-            <p class="italic text-gray-400">No announcements yet.</p>
-          <% end %>
-        </div>
-      </div>
-    </div>
-  </div>
+    Copy is sentence case throughout per design.md - the previous version used
+    ALL CAPS for the h1 and Title Case On Every Word in the step copy.
 
-  <!-- Getting Started Full Width -->
-  <div class="rounded-xl border-2 border-black bg-white overflow-hidden">
-    <div class="bg-[#d3df44] py-3 px-5 font-semibold text-base tracking-wide border-b-2 border-black">Getting Started</div>
-    <div class="px-4 pt-4 pb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
-      <% steps = [
-           { num: '1', title: 'Earn Funds', body: 'Show Up, Stay Engaged, And Earn Investment Funds Based On Your Attendance, Participation, And Performance.' },
-           { num: '2', title: 'Go To The Trading Floor', body: "Once You Have Funds, Explore The Trading Floor And The Company's To Buy Your First Stock." },
-           { num: '3', title: 'Buy & Sell', body: 'Choose Your Companies Wisely! You Can Buy And Sell As Your Portfolio Grows. Watch Your Earnings Change Based On The Market.' },
-           { num: '4', title: 'Track Your Progress', body: 'Your Portfolio Shows How Your Investments Are Performing Over Time, Plus Summaries Of Your Grades And Attendance.' }
-         ] %>
-      <% steps.each do |s| %>
-        <div class="flex flex-cols-2 gap-3 md:gap-2 items-start">
-          <div class="pr-1 flex-none"><%= image_tag "#{s[:num]}_Number.png", alt: "Step #{s[:num]}", class: "h-10 md:h-14 lg:h-16" %></div>
-          <div class="space-y-1">
-            <p class="text-xl font-semibold leading-snug"><%= s[:title] %></p>
-            <p class="text-[13px] text-gray-700 leading-snug"><%= s[:body] %></p>
+    Airbnb/Stripe reading: one clear primary action, generous whitespace, and
+    hairline borders rather than the heavy black outlines used before. %>
+<div class="mx-auto max-w-7xl">
+
+  <%= render layout: "components/ui/page_header",
+             locals: { title: "Welcome to your financial journey",
+                       description: "This is your launchpad to earn, invest, and grow." } do %>
+    <% if current_user&.student? && current_user.portfolio %>
+      <%# "Invest now", not "Go to the trading floor". Five words for a button, and it was the
+          third label pointing at stocks_path - "Invest now" already existed twice for the same
+          destination, and "invest" is the verb this page's own copy uses ("Earnings to invest"). %>
+      <%= link_to "Invest now", stocks_path, class: "tw-btn-primary" %>
+    <% end %>
+  <% end %>
+
+  <div class="space-y-6">
+
+    <%# Funds available. The single number a student most wants, given the room
+        to be read at a glance rather than buried in a pill. %>
+    <% if current_user&.student? && current_user.portfolio %>
+      <% balance = current_user.portfolio.cash_balance %>
+      <%# .tw-card, not a gradient. This was bg-gradient-to-r from-sitf-hero-from to-sitf-hero-to -
+          #f4d18d to #f8dba8, a tan-gold - and it was the only gradient in the app and the only use
+          of those two tokens. Contrast was never the problem (slate-800 on it is 10:1); it was the
+          one surface that belonged to no system. It also carried rounded-xl and shadow-xs where the
+          panel tokens are rounded-2xl and shadow-sm.
+
+          The piggy bank PNG is replaced by design.md's icon tile. Every finance app makes the
+          numeral the hero on a plain surface - Robinhood, Monzo, Revolut, Fidelity, Vanguard, Cash
+          App - and puts illustration in empty states and onboarding, not beside a live balance,
+          where it competes with the figure and reads as marketing. The tile also fixes something the
+          raster could not: the image was `hidden lg:block`, so on the phones most of these students
+          use there was nothing there at all. %>
+      <%# The tile sits on the label's line, not in a column beside the whole card. It used to be
+          an items-start gutter, which indented the label, the figure and the supporting line
+          alike - the balance, the one number a student is here to read, measured 77px from the
+          card edge instead of 0. design.md had already ruled on this and measured it once, on the
+          case-contact card. %>
+      <section class="tw-card" aria-labelledby="funds-heading">
+        <div class="p-5">
+          <div class="flex items-center gap-2">
+            <%= render "components/ui/icon_tile", icon: "piggy-bank", tone: :success, compact: true %>
+            <h2 id="funds-heading" class="text-sm font-medium text-slate-600">Earnings to invest</h2>
           </div>
+
+          <p class="mt-2 text-3xl font-bold tracking-tight text-slate-900 tabular-nums">
+            <%= number_to_currency(balance) %>
+          </p>
+          <p class="mt-1 text-sm text-slate-600">
+            <% if balance > 0 %>
+              Ready when you are. Pick a company and buy your first shares.
+            <% else %>
+              You have no earnings to invest yet. Attendance and grades earn funds.
+            <% end %>
+          </p>
         </div>
+      </section>
+    <% end %>
+
+    <%# Announcements. The card is always padded now: the empty state is the compact
+        variant, which carries no padding of its own.
+
+        It used to render the full-height centred empty state - a 48px icon tile and py-12
+        inside a card that already says "Announcements" and has three siblings. That is the
+        page-level treatment, and it made a card with nothing to say the tallest thing on
+        the screen. %>
+    <%= render layout: "components/ui/card", locals: { title: "Announcements", icon: "megaphone", icon_tone: :info } do %>
+      <% if @current_announcement %>
+        <% cache @current_announcement do %>
+          <h3 class="text-sm font-semibold text-slate-900"><%= @current_announcement.title %></h3>
+          <div class="trix-content mt-2 max-h-120 overflow-y-auto text-sm text-slate-700">
+            <%= @current_announcement.content %>
+          </div>
+        <% end %>
+      <% else %>
+        <%= render layout: "components/ui/empty_state",
+                   locals: { compact: true,
+                             icon: "megaphone",
+                             title: "No announcements yet",
+                             body: "Your teacher posts announcements for the whole class. " \
+                                   "Announcements appear here once one is posted." } do %>
+        <% end %>
       <% end %>
-    </div>
+    <% end %>
+
+    <%# Getting started %>
+    <%= render layout: "components/ui/card",
+               locals: { title: "Getting started",
+                         icon: "compass",
+                         subtitle: "Four steps from earning to tracking your progress." } do %>
+      <% steps = [
+           { title: "Earn funds", body: "Show up, stay engaged, and earn investment funds based on your attendance, participation, and performance." },
+           { title: "Go to the trading floor", body: "Once you have funds, explore the trading floor and the companies you can buy shares in." },
+           { title: "Buy and sell", body: "Choose your companies wisely. You can buy and sell as your portfolio grows, and follow your earnings as the market changes." },
+           { title: "Track your progress", body: "Your portfolio shows how your investments are performing over time, plus summaries of your grades and attendance." }
+         ] %>
+      <%# Four across at lg, one column below it. A 2x2 grid makes a numbered sequence ambiguous -
+          1,2 reads across and 1,3 reads down, and nothing in the layout says which - so four
+          short columns read left to right the way the numbers claim. This is the shape Stripe and
+          Shopify use for "how it works"; neither draws connectors, which also avoids a decoration
+          that only makes sense at one width.
+
+          The numeral is a tile, not a filled circle. It was white on bg-sitf-primary at
+          rounded-full: four saturated brand discs shouting over the copy they label, against
+          design.md's rule that a tile carries the hue and a numeral is always slate-900. %>
+      <ol class="grid grid-cols-1 gap-6 lg:grid-cols-4">
+        <% steps.each_with_index do |step, i| %>
+          <li class="flex gap-3 lg:flex-col lg:gap-2">
+            <%= render "components/ui/icon_tile", label: i + 1, compact: true %>
+            <div class="min-w-0">
+              <h3 class="text-sm font-semibold text-slate-900"><%= step[:title] %></h3>
+              <p class="mt-1 text-sm text-slate-600"><%= step[:body] %></p>
+            </div>
+          </li>
+        <% end %>
+      </ol>
+    <% end %>
   </div>
 </div>
-
-<%# Future ideas: render partials for announcements, dynamic steps, and maybe a quick links panel %>

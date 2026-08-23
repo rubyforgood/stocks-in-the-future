@@ -1,0 +1,44 @@
+<%# The shape every admin record page has: one column, one header, one section stack.
+
+    **Declared here rather than nine times.** The three school pages were measured before this existed and
+    disagreed on all of it: view was 768px with three cards, edit 768px with two, create 1062px with one and no
+    section headings at all. A form's measure should not change between creating a record and editing it -
+    design.md records that defect on `classrooms#edit` - and a section that looks different on each page is the
+    inconsistency this partial exists to remove.
+
+    **View and edit are the same page.** Stripe's customer page, Linear's project page, Shopify admin's product
+    page and Polaris's resource detail pages all hold a record's attributes *and* its collections on one
+    screen, edited in place. A separate edit screen is a Rails scaffold convention; it earns its place for a
+    long form, not for a record with a handful of fields.
+
+    Locals:
+      title       - the record's own name, which is the page's h1
+      breadcrumbs - the trail
+      description - optional line under the title
+      badge       - optional status pill, rendered on the title's line
+      actions     - optional block for the header's actions, usually just Delete
+
+    `badge` is a pass-through to `_page_header`, which has had the slot all along - a status is not an
+    action and does not belong in the actions block. Three record pages were putting their state in the
+    *description* instead, joined to the metadata by the same separator, so "trading on" read as a third
+    attribute after the grade and the year.
+
+    The sections themselves are the block, and **the order is per page, not per shape.** Eight of the nine
+    record pages lead with Details, because editing the record is why you opened it. `schools#show` leads with
+    its years, because provisioning them is - measured, with Details above them the years started at y=618 of
+    a 625px viewport. So the question is what this page is for, and the answer is not the same on all nine.
+
+    This paragraph read "a collection first where there is one, because that is what the page is for" - which
+    was the school page's reason generalised into a rule, stated on the partial that renders the eight pages
+    that do the opposite. A docstring that contradicts every caller is worse than none. %>
+<div class="mx-auto max-w-3xl">
+  <%= admin_breadcrumbs(breadcrumbs) %>
+
+  <%= render layout: "components/ui/page_header",
+             locals: { title: title, description: local_assigns[:description],
+                       badge: local_assigns[:badge] } do %>
+    <%= local_assigns[:actions] %>
+  <% end %>
+
+  <div class="space-y-6"><%= yield %></div>
+</div>

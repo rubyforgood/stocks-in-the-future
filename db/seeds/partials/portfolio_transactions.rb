@@ -5,6 +5,9 @@ student = User.find_by(email: "student@example.com")
 
 if student
   portfolio = Portfolio.find_or_create_by(user: student)
+end
+
+if student && portfolio.portfolio_transactions.none?
 
   # Initial deposit to give student starting balance
   PortfolioTransaction.create(
@@ -42,18 +45,24 @@ if student
     reason: :awards
   )
 
+  # A fee, written the way `TransactionFeeProcessor` writes one: `transaction_type: :fee`, at the flat
+  # `TRANSACTION_FEE_CENTS`. It was a **deposit** of $25.00 tagged `transaction_fees` - a shape nothing in
+  # the app can produce - and it was the only row in a seeded database that matched the equally wrong
+  # `deposits.where(reason: :transaction_fees)` in `EarningsSummary`. So the seed made the bug look like
+  # working code: the fees line showed a plausible -$25.00 while every real fee was excluded from it.
   PortfolioTransaction.create(
     portfolio: portfolio,
-    transaction_type: :deposit,
-    amount_cents: 25_00,
+    transaction_type: :fee,
+    amount_cents: PortfolioTransaction::TRANSACTION_FEE_CENTS,
     reason: :transaction_fees
   )
 
   puts "Seeded portfolio transactions for Student user"
   Rails.logger.info "Seeded portfolio transactions for Student user"
 else
-  puts "Student user not found. Skipping Student portfolio transactions seeding."
-  Rails.logger.warn "Student user not found. Skipping Student portfolio transactions seeding."
+  msg = student ? "Student portfolio already has transactions. Skipping." : "Student user not found. Skipping Student portfolio transactions seeding."
+  puts msg
+  Rails.logger.warn msg
 end
 
 # Create transactions for Mike user
@@ -61,6 +70,9 @@ mike = User.find_by(email: "mike@example.com")
 
 if mike
   portfolio = Portfolio.find_or_create_by(user: mike)
+end
+
+if mike && portfolio.portfolio_transactions.none?
 
   pt = PortfolioTransaction.create(
     portfolio: portfolio,
@@ -137,6 +149,7 @@ if mike
   puts "Seeded three completed orders and transactions for the Student user 'Mike'"
   Rails.logger.info "Seeded three completed orders and transactions for the Student user 'Mike"
 else
-  puts "Student user 'Mike' not found. Skipping portfolio transactions seeding."
-  Rails.logger.warn "Student user 'Mike' not found. Skipping portfolio transactions seeding."
+  msg = mike ? "Mike's portfolio already has transactions. Skipping." : "Student user 'Mike' not found. Skipping portfolio transactions seeding."
+  puts msg
+  Rails.logger.warn msg
 end

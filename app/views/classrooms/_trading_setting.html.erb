@@ -1,0 +1,57 @@
+<%# Student trading: the state as a sentence, with its control on the same line.
+
+    Three arrangements in, and the previous two were both wrong in the same direction - inventing a
+    shape rather than using the system.
+
+      1. A bare switch labelled "Trading" in the page header's action area, beside "Add student". A
+         setting is not a page action, and the state was carried by the track's colour alone.
+      2. Its own card, with a status pill sitting to the *left* of the sentence and the switch
+         labelled with a verb ("Turn off"). No design system puts a pill inline before body text:
+         Polaris, Primer and Carbon all place one against a title or on its own line. It was also the
+         third copy of one fact - pill, sentence, and switch position all said on or off - and
+         Polaris's verb belongs on a *button*, not on a switch, so "Turn on" beside a pill reading
+         "Trading off" gave the reader two things to reconcile.
+
+    So: no pill, and the label is the noun. A switch's position is its state, which is the whole
+    convention - iOS, Material and Polaris all pair a noun with a switch and never a verb - and the
+    sentence beside it says the state in words for anyone who should not have to read a control. The
+    consequence follows in the same sentence, because that is the thing a teacher is actually deciding.
+
+    No card of its own either. It sits in the Students section, on the line under the heading, which is
+    where a section's control goes in Polaris (card header action), Primer (Subhead) and Stripe. That
+    took the page from six surfaces to two. %>
+<% on = classroom.trading_enabled? %>
+
+<div class="mt-1 flex flex-wrap items-start justify-between gap-x-6 gap-y-2">
+  <p class="min-w-0 flex-1 text-sm text-slate-600">
+    <span class="font-medium text-slate-900">
+      <%= on ? "Trading is on." : "Trading is off." %>
+    </span>
+    <% if on %>
+      Students can buy and sell shares. Turning this off stops new orders - it does not sell anything
+      they already hold.
+    <% else %>
+      Students cannot buy or sell, and a note explains why. Nothing they already hold is
+      affected.<% if classroom.trading_disabled_at.present? %>
+        Off since <%= l(classroom.trading_disabled_at.to_date, format: :long) %>.<% end %>
+    <% end %>
+  </p>
+
+  <%= form_with url: toggle_trading_classroom_path(classroom), method: :patch, class: "contents" do %>
+    <label class="inline-flex shrink-0 cursor-pointer items-center gap-2">
+      <span class="text-sm font-medium text-slate-700 select-none">Trading</span>
+      <%= check_box_tag "trading", "1", on,
+                        class: "sr-only",
+                        disabled: !policy(classroom).toggle_trading?,
+                        data: { controller: "submit-on-change",
+                                action: "change->submit-on-change#submit" } %>
+      <%# .tw-switch, one definition in forms.css. The thumb is a real element so its inset can be
+          measured - as a pseudo-element it had 0px of gap at the bottom and, when checked, at the
+          right, and three passes over this markup did not catch it because there was no box to
+          measure. %>
+      <span class="tw-switch">
+        <span class="tw-switch-thumb"></span>
+      </span>
+    </label>
+  <% end %>
+</div>

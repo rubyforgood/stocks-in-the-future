@@ -1,20 +1,38 @@
 ---
 en:
+  activemodel:
+    errors:
+      models:
+        cash_adjustment:
+          attributes:
+            amount:
+              greater_than_zero: must be more than zero
+              invalid: must be an amount in dollars, like 12.50
+            portfolio:
+              blank: must exist before money can move
+            reason:
+              inclusion: must be one of the listed reasons
+            transaction_type:
+              inclusion: must be a deposit or a debit
   activerecord:
     attributes:
       portfolio_transaction:
         reasons:
-          administrative_adjustments: Administrative Adjustment
-          attendance_earnings: Earnings from Attendance
+          administrative_adjustments: Administrative adjustment
+          attendance_earnings: Earnings from attendance
           awards: Award
-          grade_earnings: Earnings from Grades
-          math_earnings: Earnings from Math
-          reading_earnings: Earnings from Reading
-          transaction_fees: Transaction Fees
+          grade_earnings: Earnings from grades
+          math_earnings: Earnings from math
+          reading_earnings: Earnings from reading
+          transaction_fees: Transaction fees
       user:
         type: Role
     errors:
       models:
+        school_year:
+          attributes:
+            year_id:
+              taken: is already added to this school
         stock:
           attributes:
             company_website:
@@ -62,6 +80,18 @@ en:
         notice: School created successfully.
       destroy:
         notice: School deleted successfully.
+      school_years:
+        create:
+          notice:
+            one: "%{year} added, with 1 quarter."
+            other: "%{year} added, with %{count} quarters."
+        destroy:
+          has_classrooms:
+            one: "%{year} still has 1 classroom, so it cannot be removed."
+            other: "%{year} still has %{count} classrooms, so it cannot be removed."
+          notice:
+            one: "%{year} removed, along with its quarter."
+            other: "%{year} removed, along with its %{count} quarters."
       update:
         notice: School updated successfully.
     stocks:
@@ -73,10 +103,6 @@ en:
         notice: Stock updated successfully.
     students:
       add_transaction:
-        errors:
-          amount_blank: Amount must be present
-          reason_blank: Reason must be present
-          transaction_type_blank: Transaction Type must be present
         notice: Transaction added successfully.
       create:
         notice: 'Student %{username} created successfully. Password: %{password}'
@@ -152,38 +178,44 @@ en:
       already_completed: Cannot finalize because it's already completed.
       incomplete: 'Cannot finalize: Some entries are incomplete.'
       notice: Grade book finalized. Funds have been distributed.
+    populate:
+      completed: This grade book is complete, so students cannot be added to it.
+      none_added: Every student in this class already has a row.
+      notice:
+        one: Added 1 student to this grade book.
+        other: Added %{count} students to this grade book.
+    reopen:
+      not_completed: That grade book is not finalized, so there is nothing to reopen.
+      notice: Grade book reopened for corrections. The payment already made is unchanged.
+    update:
+      completed: This grade book is finalized. An admin can reopen it to make corrections.
+      notice: Grades saved.
   helpers:
     label:
       portfolio_transaction:
         amount_cents: Amount
       student:
-        portfolio_path: Portfolio Link
+        portfolio_path: Portfolio link
   orders:
     cancel:
-      confirm: Are you sure you want to cancel this order? This action cannot be undone.
+      confirm: |-
+        Cancel this order?
+
+        It will not be filled, and the cash it was holding goes back to your balance straight
+        away. You can place it again whenever you like.
       pending_only: Only pending orders can be canceled
       success: Order was successfully canceled
       unauthorized: You can only cancel your own orders
     create:
       notice: Order was successfully created.
-    destroy:
-      notice: Order was successfully destroyed.
     update:
       notice: Order was successfully updated.
-  schools:
-    create:
-      notice: School was successfully created.
-    destroy:
-      notice: School was successfully destroyed.
+  profiles:
+    password:
+      success: Your password was changed.
     update:
-      notice: School was successfully updated.
+      success: Your profile was updated.
   students:
-    add_transaction:
-      errors:
-        amount_blank: Amount must be present
-        reason_blank: Reason must be present
-        transaction_type_blank: Transaction Type must be present
-      success: Transaction added to student successfully.
     create:
       notice: 'Student %{username} created successfully. Initial password: %{password}'
     destroy:
@@ -195,6 +227,3 @@ en:
       notice: 'Password reset for %{username}. New password: %{password}'
     update:
       notice: Student updated successfully.
-  teachers:
-    create:
-      notice: Teacher created successfully. An account setup email has been sent.

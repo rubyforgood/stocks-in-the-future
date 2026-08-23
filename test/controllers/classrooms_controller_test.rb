@@ -136,7 +136,10 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
     assert_no_difference("Classroom.count") do
       patch toggle_archive_admin_classroom_path(@classroom)
     end
-    assert_redirected_to admin_classroom_path(@classroom)
+    # The list, not the record. Archiving is a row action on the index, and being moved to a page you
+    # did not ask for is the cost of one click on a row. With no Referer this is the fallback; the
+    # test below covers the case where there is one.
+    assert_redirected_to admin_classrooms_path
     assert @classroom.reload.archived?
     assert_equal "Classroom has been archived.", flash[:notice]
   end
@@ -145,9 +148,12 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
     sign_in(@admin)
     @classroom.update!(archived: true)
     patch toggle_archive_admin_classroom_path(@classroom)
-    assert_redirected_to admin_classroom_path(@classroom)
+    # The list, not the record. Archiving is a row action on the index, and being moved to a page you
+    # did not ask for is the cost of one click on a row. With no Referer this is the fallback; the
+    # test below covers the case where there is one.
+    assert_redirected_to admin_classrooms_path
     assert_not @classroom.reload.archived?
-    assert_equal "Classroom has been activated.", flash[:notice]
+    assert_equal "Classroom has been restored.", flash[:notice]
   end
 
   test "admins can see all classrooms in index" do
@@ -246,9 +252,19 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
     assert @classroom.reload.trading_enabled
   end
 
-  test "teachers cannot edit classrooms" do
+  # Was "teachers cannot edit classrooms", asserting a redirect from their *own* classroom - the same
+  # one the test above lets them open and close trading on. A teacher trusted with the trading switch
+  # but not with the classroom's name was the inconsistency; editing is per classroom now, so this
+  # splits into the two cases.
+  test "teachers can edit the classrooms they teach" do
     sign_in @teacher
     get edit_classroom_path(@classroom)
+    assert_response :success
+  end
+
+  test "teachers cannot edit other teachers' classrooms" do
+    sign_in @teacher
+    get edit_classroom_path(create(:classroom, name: "Not Mine"))
     assert_redirected_to root_path
   end
 

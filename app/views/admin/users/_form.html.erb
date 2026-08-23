@@ -1,62 +1,89 @@
-<%= form_with model: @user, scope: :user, url: @user.persisted? ? admin_user_path(@user) : admin_users_path, builder: Admin::FormBuilder, class: "space-y-6" do |f| %>
-  <div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg">
-    <div class="px-6 py-6">
-      <h3 class="text-lg font-medium text-gray-900 mb-6">User Details</h3>
+<%= form_with model: @user, scope: :user, url: @user.persisted? ? admin_user_path(@user) : admin_users_path, builder: Ui::FormBuilder, class: "space-y-6" do |f| %>
+  <%= render "shared/form_errors", record: @user, subject: "user" %>
 
-      <%= f.text_field :username,
-                       label: "Username",
-                       hint: "Unique username for the user",
-                       placeholder: "johndoe" %>
+  <%# `components/ui/_card`, and no heading of its own.
 
-      <%= f.select :type,
-                   options_for_select(
-                     %w[User Student Teacher].map { |t| [t, t] },
-                     @user.type
-                   ),
-                   label: "User Type",
-                   hint: "Select the type of user (Student, Teacher, or generic User)",
-                   include_blank: false %>
+      The surface was hand-rolled in ten form partials - `<div class="tw-card"><div class="p-5">` - so it
+      was declared eleven times, which is the mechanism that produced four different padding values before
+      anyone noticed. And each opened with an `h3` naming the record type, under a page header that had
+      just named it: "Teacher details" below "Edit teacher", 24px apart, in two sizes. Polaris drops a
+      card's header when the page has one card. A heading returns the moment a form has two - see
+      admin/students, where it separates them. %>
+  <%= render layout: "components/ui/card", locals: {} do %>
+    <%# `derived-field` watches the Type select: choosing Teacher makes the username read-only, because
+        `Teacher#sync_username_from_email` replaces it with the email on save. A field whose value is silently
+        discarded looks like a save that worked - measured in a console, "typed_by_hand" came back as the
+        email address. Read-only rather than disabled, because a disabled field is skipped by keyboard
+        navigation; the profile page's username records the same decision. %>
+    <div data-controller="derived-field" data-derived-field-when-value="Teacher">
+        <%= f.text_field :username,
+                         label: "Username",
+                         width: :half,
+                         required: true,
+                         hint: "Used to sign in. For a teacher it is taken from the email field.",
+                         placeholder: "johndoe",
+                         data: { derived_field_target: "field" } %>
 
-      <%= f.text_field :email,
-                       label: "Email",
-                       hint: "Email address (required for Teachers and Admins, optional for Students)",
-                       placeholder: "user@example.com" %>
+        <%= f.select :type,
+                     options_for_select(
+                       %w[User Student Teacher].map { |t| [t, t] },
+                       @user.type
+                     ),
+                     { label: "User type",
+                       width: :half,
+                       hint: "A plain account has neither a portfolio nor a classroom.",
+                       include_blank: false },
+                     { data: { derived_field_target: "source",
+                               action: "change->derived-field#refresh" } } %>
 
-      <%= f.boolean_field :admin,
-                          label: "Admin",
-                          hint: "Grant admin privileges to this user" %>
+        <%= f.text_field :email,
+                         label: "Email",
+                         width: :half,
+                         hint: "Used to sign in by teachers, so a teacher needs one. Optional for " \
+                               "everyone else, including admins.",
+                         placeholder: "user@example.com" %>
 
-      <%= f.select :classroom_id,
-                   options_from_collection_for_select(
-                     Classroom.order(:name),
-                     :id,
-                     :name,
-                     @user.classroom_id
-                   ),
-                   label: "Classroom",
-                   hint: "Optional classroom assignment",
-                   include_blank: "No classroom" %>
+        <%= f.boolean_field :admin,
+                            label: "Admin",
+                            hint: "Grants access to every school, classroom and account, including " \
+                                  "moving money in a portfolio." %>
 
-      <% if @user.new_record? %>
-        <div class="mt-6 pt-6 border-t border-gray-200">
-          <h4 class="text-md font-medium text-gray-900 mb-4">Password</h4>
+        <%= f.select :classroom_id,
+                     options_from_collection_for_select(
+                       Classroom.order(:name),
+                       :id,
+                       :name,
+                       @user.classroom_id
+                     ),
+                     label: "Classroom",
+                     width: :half,
+                     hint: "Determines which grade book pays a student and whether they can trade. " \
+                           "Not needed for teachers or admins.",
+                     include_blank: "No classroom" %>
 
-          <%= f.password_field :password,
-                               label: "Password",
-                               hint: "Minimum 6 characters",
-                               placeholder: "••••••••" %>
+        <% if @user.new_record? %>
+          <div class="mt-6 pt-6 border-t border-slate-200">
+            <h4 class="text-md font-medium text-slate-900 mb-4">Password</h4>
 
-          <%= f.password_field :password_confirmation,
-                               label: "Password Confirmation",
-                               hint: "Re-enter password to confirm",
-                               placeholder: "••••••••" %>
-        </div>
-      <% end %>
+            <%= f.password_field :password,
+                                 label: "Password",
+                                 width: :half,
+                                 required: true,
+                                 hint: "At least 6 characters.",
+                                 placeholder: "••••••••" %>
+
+            <%= f.password_field :password_confirmation,
+                                 label: "Password confirmation",
+                                 width: :half,
+                                 required: true,
+                                 placeholder: "••••••••" %>
+          </div>
     </div>
-  </div>
+    <% end %>
+  <% end %>
 
-  <div class="flex items-center justify-end gap-x-4">
+  <div class="tw-form-actions">
+    <%= f.submit_button @user.persisted? ? "Update user" : "Create user" %>
     <%= f.cancel_button "Cancel", url: @user.persisted? ? admin_user_path(@user) : admin_users_path %>
-    <%= f.submit_button @user.persisted? ? "Update User" : "Create User" %>
   </div>
 <% end %>

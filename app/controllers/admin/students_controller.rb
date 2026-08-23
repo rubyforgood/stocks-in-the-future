@@ -5,6 +5,17 @@ module Admin
   class StudentsController < BaseController
     include SoftDeletableFiltering
 
+    # How many distinct skip reasons the import flash names before it summarises the rest.
+    SKIP_REASONS_SHOWN = 3
+
+    # How many of a student's transactions the record page shows before linking to the full list.
+    #
+    # The section was every row a portfolio had: 13 rows measured 739px, a quarter of the page, and it is
+    # the only thing on that page with no ceiling - a student trading weekly for a year has ~150 rows,
+    # which is about 7,400px. Five is what fits under the fold's neighbour without dominating it, and the
+    # rest are one click away on a list that can be sorted and filtered.
+    RECENT_TRANSACTIONS = 5
+
     before_action :set_student, only: %i[show edit update destroy add_transaction]
     before_action :set_discarded_student, only: %i[restore]
 
@@ -17,13 +28,7 @@ module Admin
     end
 
     def show
-      @attendance_entries = AttendanceEntryPresenter.for_student(@student)
-      @earnings_summary = EarningsSummary.new(@student.portfolio) if @student.portfolio.present?
-
-      @breadcrumbs = [
-        { label: "Students", path: admin_students_path },
-        { label: @student.username }
-      ]
+      load_record_page
     end
 
     def new
@@ -31,16 +36,16 @@ module Admin
 
       @breadcrumbs = [
         { label: "Students", path: admin_students_path },
-        { label: "New Student" }
+        { label: "New student" }
       ]
     end
 
+    # The record page edits in place, so `edit` renders it - which means it needs everything that
+    # page reads. Every path that renders the record page has to load the same data, and there are three:
+    # show, edit, and a failed update. Missing one is a NoMethodError on nil, which is how the other eight
+    # conversions found this twice.
     def edit
-      @breadcrumbs = [
-        { label: "Students", path: admin_students_path },
-        { label: @student.username, path: admin_student_path(@student) },
-        { label: "Edit" }
-      ]
+      load_record_page
     end
 
     def create
@@ -55,27 +60,27 @@ module Admin
         generated_password = @student.password
       end
 
-      if @student.save
-        redirect_to admin_student_path(@student),
-                    notice: t(".notice", username: @student.username, password: generated_password)
+      if @student.save(context: :student_form)
+        # `sticky`, because this notice *is* the only copy of the password - see layouts/_flash.
+        notice = t(".notice", username: @student.username, password: generated_password)
+
+        redirect_to admin_student_path(@student), flash: { sticky: true, notice: notice }
       else
         @breadcrumbs = [
           { label: "Students", path: admin_students_path },
-          { label: "New Student" }
+          { label: "New student" }
         ]
         render :new, status: :unprocessable_content
       end
     end
 
     def update
-      if @student.update(student_params)
+      @student.assign_attributes(student_params)
+
+      if @student.save(context: :student_form)
         redirect_to admin_student_path(@student), notice: t(".notice")
       else
-        @breadcrumbs = [
-          { label: "Students", path: admin_students_path },
-          { label: @student.username, path: admin_student_path(@student) },
-          { label: "Edit" }
-        ]
+        load_record_page
         render :edit, status: :unprocessable_content
       end
     end
@@ -92,25 +97,18 @@ module Admin
       redirect_to admin_students_path(discarded: true), notice: t(".notice", username: username)
     end
 
+    # A rejected adjustment re-renders the record page rather than redirecting: the errors belong against
+    # the fields, and a redirect discards what was typed. `CashAdjustment` holds the validation - see the
+    # class for the two things a blank check could not catch.
     def add_transaction
-      errors = validate_transaction_params
+      @cash_adjustment = CashAdjustment.new(cash_adjustment_params)
+      @cash_adjustment.portfolio = @student.portfolio
 
-      if errors.present?
-        redirect_to edit_admin_student_path(@student), alert: errors.join(", ")
+      if @cash_adjustment.save
+        redirect_to admin_student_path(@student), notice: t(".notice")
       else
-        transaction = PortfolioTransaction.new(
-          portfolio: @student.portfolio,
-          amount_cents: transaction_amount_cents,
-          transaction_type: transaction_type,
-          reason: transaction_reason,
-          description: transaction_description
-        )
-
-        if transaction.save
-          redirect_to admin_student_path(@student), notice: t(".notice")
-        else
-          redirect_to edit_admin_student_path(@student), alert: transaction.errors.full_messages.join(", ")
-        end
+        load_record_page
+        render :show, status: :unprocessable_content
       end
     end
 
@@ -134,6 +132,29 @@ module Admin
 
     private
 
+    # Everything the record page renders, in one place: the two collections, the earnings summary, and the
+    # trail. `@transactions` is loaded here rather than queried in the template because both the section's
+    # count and the table read it - a derived figure and the thing it derives from must come from one query.
+    def load_record_page
+      @attendance_entries = AttendanceEntryPresenter.for_student(@student)
+
+      if @student.portfolio.present?
+        @earnings_summary = EarningsSummary.new(@student.portfolio)
+        transactions = @student.portfolio.portfolio_transactions.order(created_at: :desc)
+        # Both the count and the rows, from one query's relation: the section's "Showing 5 of 13" has to
+        # derive from the same thing the table renders, or the two can disagree.
+        @transactions_count = transactions.count
+        @transactions = transactions.limit(RECENT_TRANSACTIONS).to_a
+        # `||=`, so a rejected adjustment keeps the one carrying the errors and the values typed into it.
+        @cash_adjustment ||= CashAdjustment.new(portfolio: @student.portfolio)
+      end
+
+      @breadcrumbs = [
+        { label: "Students", path: admin_students_path },
+        { label: @student.display_name }
+      ]
+    end
+
     def set_discarded_student
       @student = Student.with_discarded.find(params.expect(:id))
     end
@@ -143,36 +164,13 @@ module Admin
     end
 
     def student_params
-      params.expect(student: %i[username classroom_id password password_confirmation])
+      params.expect(student: %i[name username classroom_id password password_confirmation])
     end
 
-    def transaction_params
-      params.permit(:add_fund_amount, :transaction_type, :transaction_reason, :transaction_description)
-    end
-
-    def transaction_amount_cents
-      amount = transaction_params[:add_fund_amount]
-      amount.present? ? (amount.to_f * 100).to_i : nil
-    end
-
-    def transaction_type
-      transaction_params[:transaction_type]
-    end
-
-    def transaction_reason
-      transaction_params[:transaction_reason]
-    end
-
-    def transaction_description
-      transaction_params[:transaction_description]
-    end
-
-    def validate_transaction_params
-      errors = []
-      errors << t("admin.students.add_transaction.errors.transaction_type_blank") if transaction_type.blank?
-      errors << t("admin.students.add_transaction.errors.amount_blank") if transaction_amount_cents.blank?
-      errors << t("admin.students.add_transaction.errors.reason_blank") if transaction_reason.blank?
-      errors
+    # `fetch` with a default, so a post with no `cash_adjustment` key at all validates and reports rather
+    # than raising `ParameterMissing` - the same reason every other form here tolerates an empty submit.
+    def cash_adjustment_params
+      params.fetch(:cash_adjustment, {}).permit(:transaction_type, :amount, :reason, :description)
     end
 
     def redirect_with_missing_file_error
@@ -216,8 +214,17 @@ module Admin
       "Successfully created #{created.count} students: #{usernames.join(', ')}"
     end
 
+    # Derived from the reasons the rows were actually skipped, not from an assumption about what a skip
+    # means. It said "Skipped N existing usernames", which was true while a duplicate was the only thing
+    # that produced a skip and became a lie the moment anything else did - a nameless row briefly landed
+    # here and was reported as a duplicate. Now the wording cannot drift from the cause: a new skip reason
+    # describes itself, and the bucket carries no meaning of its own.
     def build_skipped_message(skipped)
-      "Skipped #{skipped.count} existing usernames"
+      reasons = skipped.map { |item| item.result.error_message }.uniq
+      shown = reasons.first(SKIP_REASONS_SHOWN)
+      shown << "and #{reasons.size - SKIP_REASONS_SHOWN} more" if reasons.size > SKIP_REASONS_SHOWN
+
+      "Skipped #{skipped.count} #{'row'.pluralize(skipped.count)}: #{shown.to_sentence}"
     end
 
     def redirect_with_mixed_results(success_messages, failed)

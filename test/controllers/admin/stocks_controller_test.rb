@@ -18,7 +18,7 @@ module Admin
       get admin_stocks_path
 
       assert_response :success
-      assert_select "h3", "Stocks"
+      assert_select "h1", "Stocks"
     end
 
     test "index shows all stocks" do
@@ -29,19 +29,50 @@ module Admin
     end
 
     # Show tests
+    # The company name, not the ticker: a record page's h1 is what the record is called, and the ticker is in
+    # the breadcrumb and the form's first field.
     test "should show stock" do
       get admin_stock_path(@stock1)
 
       assert_response :success
-      assert_select "h2", @stock1.ticker
+      assert_select "h1", @stock1.company_name
     end
 
-    test "should show stock price information" do
+    # **No "Price information" card.** The form edits both prices, so a read-only card of them was the same
+    # numbers twice - once changeable and once not. The derived figure, which the form cannot express, is the
+    # header's summary line, and the editable values are fields.
+    test "the price is a header summary and a pair of fields, not a read-only card" do
       get admin_stock_path(@stock1)
 
       assert_response :success
-      assert_select "h3", "Price Information"
-      assert_select "dt", text: "Current Price"
+      assert_select "h2", text: "Price information", count: 0
+      assert_select "p", text: /#{Regexp.escape(ActiveSupport::NumberHelper.number_to_currency(@stock1.current_price))}/
+      assert_select "input[name=?]", "stock[price_cents]"
+      assert_select "input[name=?]", "stock[yesterday_price_cents]"
+    end
+
+    # **The holders fact is a metadata line, not a section.** It was one line in a card at the foot of a
+    # 3468px page, so reaching it meant scrolling past seventeen form fields. A section earns a heading when it
+    # holds a collection you can scan or act on. Stated either way, because "nobody holds this" is the fact
+    # that makes archiving safe.
+    test "whether the stock is held is stated in the header, not a section" do
+      get admin_stock_path(@stock1)
+
+      assert_select "h2", text: "Held by", count: 0
+      assert_select "p", text: /not held by any student/
+    end
+
+    test "and it names the number when somebody does hold it" do
+      classroom = create(:classroom, :with_trading)
+      student = create(:student, :with_portfolio, classroom:)
+      create(
+        :portfolio_stock, portfolio: student.portfolio, stock: @stock1, shares: 2,
+                          purchase_price: @stock1.price_cents
+      )
+
+      get admin_stock_path(@stock1)
+
+      assert_select "p", text: /held in 1 portfolio/
     end
 
     # New tests
@@ -49,7 +80,7 @@ module Admin
       get new_admin_stock_path
 
       assert_response :success
-      assert_select "h1", "New Stock"
+      assert_select "h1", "New stock"
     end
 
     # Create tests
@@ -103,7 +134,8 @@ module Admin
       get edit_admin_stock_path(@stock1)
 
       assert_response :success
-      assert_select "h1", "Edit Stock"
+      # The record's page edits in place, so its heading is the record's name.
+      assert_select "h1", @stock1.company_name
     end
 
     # Update tests

@@ -1,0 +1,31 @@
+<%# One section inside a record page: a heading, an optional line under it, and the content.
+
+    A partial rather than nine hand-written `<section>`s, because the heading level, the hint's colour and the
+    12px gap between them and the content are exactly the things that drift. `space-y-6` on the parent puts 24px
+    between sections, so this adds no margin of its own.
+
+    Locals: title, content as the block, and an optional `hint`. `sr_only` for a section whose heading would
+    repeat the only label inside it.
+
+    **A create page uses `sr_only`, and that is not the inconsistency this partial was written to prevent.**
+    Reported on `students#new`: "the details subhead pushes the content down and doesn't seem to add value".
+    It does not - a record page has four sections and "Details" tells you which one you are in, while a create
+    page has exactly one, so the heading only repeats the h1 that named it a line above. Polaris drops a
+    card's header when the page has one card, and design.md already records this defect at card level:
+    "Teacher details" below "Edit teacher", 24px apart, in two sizes. The section keeps its accessible name;
+    only the duplicate ink goes.
+
+    And the content loses its `mt-3` with the heading, because 12px of gap under an invisible heading is the
+    "delete the rule, leave its padding" mistake this repo has made three times. %>
+<section aria-labelledby="<%= title.parameterize %>-heading">
+  <h2 id="<%= title.parameterize %>-heading"
+      class="<%= local_assigns[:sr_only] ? "sr-only" : "text-base font-semibold text-slate-900" %>">
+    <%= title %>
+  </h2>
+
+  <% if local_assigns[:hint].present? %>
+    <p class="mt-1 text-sm text-slate-600"><%= hint %></p>
+  <% end %>
+
+  <div class="<%= "mt-3" unless local_assigns[:sr_only] %>"><%= yield %></div>
+</section>

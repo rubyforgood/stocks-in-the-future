@@ -6,19 +6,52 @@ class Portfolio < ApplicationRecord
   belongs_to :user
   validate :user_must_be_student
 
-  delegate :username, :student?, :school_name, :trading_enabled?, to: :user
+  # `school_name` went with the portfolio page's description: it named the school under a heading that
+  # already names the student, which is context nobody acts on, and no other caller reached for it here.
+  delegate :username, :student?, :trading_enabled?, :trading_open?, to: :user
 
   has_many :portfolio_transactions, dependent: :destroy
   has_many :portfolio_stocks, dependent: :destroy
   has_many :stocks, through: :portfolio_stocks
   has_many :portfolio_snapshots, dependent: :destroy
 
+  # Integer cents. Use this for any arithmetic or comparison. Converting to a
+  # Float and back loses value for most two-decimal amounts, which previously
+  # made an exactly-affordable order read as unaffordable.
+  def cash_balance_cents
+    cash_on_hand_in_cents
+  end
+
+  # Float, for display only. Never multiply this back up to get cents.
   def cash_balance
     cash_on_hand
   end
 
   def path
     portfolio_path(self)
+  end
+
+  # The first-share moment shows once: when a student holds something and has not dismissed it.
+  #
+  # No `since:`, because this cannot recur - a student's first share happens once, and the celebration
+  # is over whether or not they later sell it. That is the difference between this and the notice
+  # below, and it is the only reason one passes an onset and the other does not.
+  def celebrate_first_share?
+    !user.dismissed?(Dismissal::FIRST_SHARE) && portfolio_stocks.exists?(shares: 1..)
+  end
+
+  # Whether to show the "trading is turned off" callout: trading is off, and this student has not
+  # dismissed *this* switch-off.
+  #
+  # `since:` is what keeps the dismissal from being a mute button. A student who closed the message
+  # once would otherwise never see it again, including next term when their teacher switches trading
+  # off for a different reason - and hiding a condition that is still true and newly relevant is worse
+  # than not offering the dismissal at all. Classroom clears `trading_disabled_at` when trading comes
+  # back on, so each switch-off carries its own date and outranks any earlier dismissal.
+  def trading_off_notice?
+    return false if trading_open?
+
+    !user.dismissed?(Dismissal::TRADING_OFF, since: user.classroom&.trading_disabled_at)
   end
 
   def shares_owned(stock_id)

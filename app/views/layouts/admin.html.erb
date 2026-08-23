@@ -1,80 +1,149 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <title>Admin - StocksInTheFuture</title>
+    <%# Per-page title, derived from the last breadcrumb - the one without a path,
+        which every admin controller already sets to the current page's label. Was
+        a single static string on every admin page (WCAG 2.4.2), still using the
+        old un-spaced brand name. %>
+    <% admin_page_title = @breadcrumbs&.last&.dig(:label).presence %>
+    <%# The section is not repeated when the page *is* the section: the dashboard's own crumb reads
+        "Admin", and the title came out "Admin | Admin | Stocks in the Future". %>
+    <title><%= [admin_page_title, "Admin", "Stocks in the Future"].compact.uniq.join(" | ") %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
     <%= stylesheet_link_tag :app, 'data-turbo-track': "reload" %>
     <%= stylesheet_link_tag "actiontext", 'data-turbo-track': "reload" %>
     <%= javascript_importmap_tags %>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   </head>
-  <body class="min-h-screen bg-gray-50" data-controller="admin-sidebar">
-    <!-- Admin Header -->
-    <div class="fixed top-0 left-0 w-full z-50 bg-white border-b border-gray-200">
-      <div class="flex items-center justify-between py-3 px-6 h-16">
-        <div class="flex items-center gap-4">
-          <button
-            type="button"
-            data-action="click->admin-sidebar#toggle"
-            class="lg:hidden inline-flex items-center justify-center w-10 h-10 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-            aria-label="Toggle menu">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <body class="min-h-screen bg-slate-50" data-controller="drawer form-dirty">
+    <%# Admin Header %>
+    <%= render "layouts/environment_ribbon" %>
+
+    <%# The `chrome-offset` controller goes on the box that carries the border, in both layouts, so the
+        published height means the same thing on each. See the controller. %>
+    <div class="chrome-header fixed left-0 w-full z-50 bg-white border-b border-slate-200"
+         data-controller="chrome-offset"
+         data-chrome-offset-variable-value="--sitf-header-h">
+      <%# `min-h-16` and `gap-2`, not `h-16` with no gap: at 200% text the wordmark alone is 166px and
+          the account group 216px, which together push a 305px viewport to 507px. `reflow_test` caught
+          it on every admin page at once. A fixed-height bar cannot hold text that has grown, and the
+          two groups had nothing telling them they were allowed to shrink or wrap.
+
+          Fluid rather than a breakpoint, which is what the responsive rules ask for: the groups may
+          shrink (`min-w-0`), the wordmark truncates rather than pushing, and the bar grows if it must. %>
+      <div class="flex min-h-16 flex-wrap items-center justify-between gap-2 px-4 lg:px-6">
+        <div class="flex min-w-0 items-center gap-4">
+          <%# A button, not a label driving a hidden checkbox, and it reports its own state. %>
+          <button type="button"
+                  data-drawer-target="trigger"
+                  data-action="drawer#toggle"
+                  data-testid="open-navigation"
+                  aria-expanded="false"
+                  aria-controls="admin-navigation"
+                  class="lg:hidden inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary">
+            <span class="sr-only">Open navigation menu</span>
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
-          <h1 class="text-xl font-semibold text-gray-900">
-            <%= link_to admin_root_path do %>
-              <i class="fas fa-tools text-blue-600 mr-2"></i>
-              Admin Dashboard
+<%# Branding and a link home, not a page heading. This was an h1, so every
+    admin page announced the same title regardless of what it showed, and
+    /admin ended up with three. The real heading is in the content area. %>
+<span class="min-w-0 truncate text-xl font-semibold text-slate-900">
+            <%= link_to admin_root_path, class: "inline-flex max-w-full items-center rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary" do %>
+              <%= lucide_icon("wrench", class: "text-sitf-primary mr-2 w-4 h-4 shrink-0") %>
+              Admin
             <% end %>
-          </h1>
-        </div>
-        <div class="flex items-center gap-4">
-          <span class="hidden sm:inline text-sm text-gray-600">
-            <%= current_user.email %>
           </span>
-          <%= link_to "View Site", root_path, class: "text-sm text-blue-600 hover:text-blue-800" %>
-          <%= link_to "Sign Out", destroy_user_session_path, data: { turbo_method: :delete }, class: "text-sm text-red-600 hover:text-red-800" %>
+        </div>
+        <%# Was the email as plain text plus two bare links, one of them "Sign out" in
+            red-600 on white - 4.0:1, under the gate. Same account menu as the main app, so
+            there is one place to see who is signed in and one way to leave. %>
+        <div class="flex shrink-0 items-center gap-2">
+          <%= render "layouts/environment_badge" %>
+          <%# The way back to the student-facing app. It was an item inside the account menu, which
+              is wrong twice over: it is a destination rather than an account action, and a
+              destination behind an avatar is not discoverable - which was the report.
+
+              It lives in the top bar because that is where WordPress ("Visit Site") and Django
+              ("VIEW SITE") both put it, and it takes WordPress's *wording* because "view" presumes
+              sight where "visit" presumes nothing - see the inclusive-language rule in design.md, and because the sidebar has no room: a footer row there
+              pushed the admin nav 68px past a 1366x768 Chromebook, which spacing_test caught. The
+              label is hidden below lg, where the bar holds a trigger, a wordmark and an avatar
+              already - the icon and its accessible name carry it there. %>
+          <%= link_to root_path, class: ghost_class, title: "Visit site" do %>
+            <%= lucide_icon("house", class: "size-4 shrink-0") %>
+            <span class="hidden lg:inline">Visit site</span>
+            <span class="sr-only lg:hidden">Visit site</span>
+          <% end %>
+
+          <%= render 'layouts/account_menu' %>
         </div>
       </div>
     </div>
 
-    <!-- Admin Sidebar Navigation -->
-    <div class="fixed top-16 left-0 h-[calc(100vh-4rem)] w-64 bg-white border-r border-gray-200 overflow-y-auto lg:block hidden" id="admin-sidebar">
-      <nav class="p-4">
+    <%# One nav element that translates, rather than a desktop copy plus a mobile copy of the
+        same markup. The scrim toggles a single `hidden` class - it used to toggle that class
+        *and* an inline display style, which fought each other. %>
+    <div class="fixed inset-0 z-40 hidden bg-black/50 lg:hidden"
+         data-drawer-target="scrim"
+         data-action="click->drawer#close"
+         aria-hidden="true"></div>
+
+    <nav id="admin-navigation"
+         aria-label="Admin"
+         data-drawer-target="panel"
+         data-action="click->drawer#closeIfLink"
+         class="chrome-drawer fixed left-0 z-50 w-64 -translate-x-full transform overflow-y-auto border-r border-slate-200 bg-white transition-transform duration-300 lg:translate-x-0">
+      <div class="p-4">
+        <%# Mobile only: at lg the sidebar is permanent, so there is nothing to close. %>
+        <button type="button"
+                data-action="drawer#close"
+                data-testid="close-navigation"
+                class="lg:hidden mb-2 ml-auto flex min-h-11 min-w-11 items-center justify-center rounded-lg text-slate-700 transition-colors hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary">
+          <span class="sr-only">Close navigation menu</span>
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+
         <%= render "admin/shared/navigation" %>
-      </nav>
-    </div>
+      </div>
+    </nav>
 
-    <!-- Mobile Sidebar Overlay -->
-    <div class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden"
-         data-admin-sidebar-target="overlay"
-         data-action="click->admin-sidebar#toggle"
-         style="display: none;"></div>
+    <%# Main Content %>
+    <main class="chrome-main-padding lg:pl-64 min-h-screen">
+      <div class="p-4 lg:p-6">
+        <%# The content column, around the flash and the page both, exactly as the app layout does
+            it. Admin had the same split: every admin page wraps itself in `max-w-7xl mx-auto` while
+            the flash was a bare child of this wrapper, so at 1920px a flash measured 1616px against
+            content of 1280px. One product, one rule - a fix on the app side alone would have left
+            admin as the only half where a banner is wider than the page. %>
+        <div class="mx-auto max-w-7xl">
+          <%# The shared partial, so admin gets the same role=status announcement and
+              the icon-plus-text treatment as the rest of the app. %>
+          <%= render "layouts/flash" %>
 
-    <!-- Mobile Sidebar -->
-    <div class="fixed top-16 left-0 h-[calc(100vh-4rem)] w-64 bg-white border-r border-gray-200 overflow-y-auto z-50 transform -translate-x-full transition-transform duration-300 lg:hidden"
-         data-admin-sidebar-target="mobileSidebar">
-      <nav class="p-4">
-        <%= render "admin/shared/navigation" %>
-      </nav>
-    </div>
+          <%# The page heading, from the same breadcrumb the title uses. Admin pages
+              previously had no heading describing them - their only h1 was the
+              branding in the header bar, identical on every page.
 
-    <!-- Main Content -->
-    <main class="pt-16 lg:pl-64 min-h-screen">
-      <div class="p-6">
-        <!-- Flash Messages -->
-        <% if notice.present? %>
-          <p class="mb-4 p-4 bg-green-50 border border-green-200 text-green-800 rounded-lg" id="notice"><%= notice %></p>
-        <% end %>
-        <% if alert.present? %>
-          <p class="mb-4 p-4 bg-red-50 border border-red-200 text-red-800 rounded-lg" id="alert"><%= alert %></p>
-        <% end %>
+              Index and show pages lead with a section title rather than a page
+              title, so this is visually hidden to avoid saying the same word twice
+              on screen while still naming the page for assistive tech. A page that
+              has its own visible h1 declares `content_for :own_heading` and this
+              steps aside. %>
+          <% unless content_for?(:own_heading) %>
+            <h1 class="sr-only"><%= @breadcrumbs&.last&.dig(:label).presence || "Admin dashboard" %></h1>
+          <% end %>
 
-        <%= yield %>
+          <%= yield %>
+        </div>
       </div>
     </main>
+
+    <%# One product, one confirmation dialog. Admin carries most of the destructive actions in the app. %>
+    <%= render "shared/confirm_dialog" %>
   </body>
 </html>

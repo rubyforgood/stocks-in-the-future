@@ -1,0 +1,51 @@
+<%# Archived stocks a student still holds.
+
+    **A student who holds an archived stock must be able to sell it.** That is the only action the data
+    supports on a closed company, and it is the whole of this section.
+
+    What went: a `<details>` listing every archived stock inside `Stock::LIST_RETENTION`, for any reader.
+    It was defensible - it had a date, a window and an exemption - without ever answering who opened it
+    and to do what. A student cannot buy any of them. A list nobody can act on is not oversight, it is a
+    list.
+
+    **Staff are the case that rule left behind, and they have their own reading now.** This note used to
+    say "a teacher who wants the catalogue has `/admin/stocks`", which is false - `authenticate_admin`
+    redirects any non-admin - so removing the disclosure left a teacher with no way to reach a closed
+    company at all. `StockPolicy#show_class_holdings?` had recorded that gap in a comment the whole time.
+    `show_archived_catalogue?` closes it: staff read the catalogue inside the retention window, a student
+    still meets an archived company only by holding one, and `stocks_controller_test` asserts both so
+    neither can quietly become the other.
+
+    Nothing deletes these rows and nothing should: `orders.stock_id` and `portfolio_stocks.stock_id` are
+    both NOT NULL with foreign keys and `dependent: :restrict_with_error`, so a stock a student has ever
+    traded cannot be removed without destroying that student's trade history. `Stock::LIST_RETENTION`
+    still governs the admin list; what changed is only who is shown one they cannot use. %>
+<%# **Two readings of one section**, chosen by policy rather than by the caller, so `stocks#index` cannot
+    hand the wrong list to the wrong reader.
+
+    Staff read the closed catalogue inside `Stock::LIST_RETENTION`, which is the same window
+    `Stock.archived_recently` gives the admin list - two lists disagreeing about what "archived" means is
+    the drift this avoids. A student still meets an archived company only by holding one. %>
+<% if policy(Stock).show_archived_catalogue? %>
+  <% recent = stocks.select { |stock| stock.archived_at.nil? || stock.archived_at > Stock::LIST_RETENTION.ago } %>
+
+  <% if recent.any? %>
+    <%# The Held by column is what earns this a place for staff - it answers which of their students still
+        own a company that has closed, which is oversight. Without it this is a price list of the dead. %>
+    <%= render "stocks/stocks_table",
+               title: "Archived stocks",
+               description: "These companies no longer trade here, so nobody can buy them. They stay " \
+                            "listed for 12 months after they close.",
+               stocks: recent %>
+  <% end %>
+<% else %>
+  <% held = stocks.select { |stock| current_user.holding?(stock) } %>
+
+  <% if held.any? %>
+    <%= render "stocks/stocks_table",
+               title: "Archived stocks you hold",
+               description: "You still own shares in these. They cannot be bought any more, " \
+                            "but you can sell whenever you like.",
+               stocks: held %>
+  <% end %>
+<% end %>

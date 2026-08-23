@@ -1,20 +1,39 @@
+<%# Trading modal shell. Content is streamed into #modal_frame by the order forms.
+
+    role="dialog" + aria-modal tells assistive tech this is a modal layer.
+    aria-label describes it generically because the frame content is dynamic; if
+    this shell is ever reused for something other than orders, point
+    aria-labelledby at the loaded heading instead.
+
+    The scrim is bg-black/50, the same as the import dialog's. They were black/70 and
+    slate-500/75 - two modals, two scrims.
+
+    Focus management (move in on open, trap while open, restore on close) lives
+    in modal_controller.js. tabindex="-1" makes the panel itself focusable as a
+    fallback when it contains no focusable children yet. %>
 <div id="modal_overlay"
      data-controller="modal"
      data-modal-target="overlay"
      data-action="click->modal#backdropClick"
-     class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 hidden">
+     class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 hidden">
 
   <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 p-6 relative"
-       data-modal-target="content">
+       data-modal-target="content"
+       role="dialog"
+       aria-modal="true"
+       aria-label="Order form"
+       tabindex="-1">
 
     <button type="button"
             data-action="modal#close"
-            aria-label="Close modal"
-            class="absolute top-4 right-4 w-8 h-8 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full flex items-center justify-center text-xl font-bold transition-colors cursor-pointer">
-      ×
+            class="absolute top-2 right-2 flex min-w-11 min-h-11 cursor-pointer items-center justify-center rounded-lg text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary">
+      <span class="sr-only">Close order form</span>
+      <%# lucide, and rounded-lg: the radius token is `controls rounded-lg`, and this was the last
+          inline close SVG in a modal. %>
+      <%= lucide_icon "x", class: "size-5 shrink-0" %>
     </button>
 
-    <!-- The form will be loaded here -->
+    <%# The form is loaded here %>
     <turbo-frame id="modal_frame"></turbo-frame>
 
   </div>

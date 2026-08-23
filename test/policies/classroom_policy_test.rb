@@ -20,7 +20,9 @@ class ClassroomPolicyTest < ActiveSupport::TestCase
     assert_permit admin, classroom, :toggle_archive
   end
 
-  test "classroom policy allows teacher only `index` and `show` classroom routes" do
+  # A classroom this teacher does not teach. Editing is per classroom, not per role, so the same
+  # teacher gets a different answer in the test below.
+  test "classroom policy allows teacher only `index` and `show` on someone else's classroom" do
     classroom = create(:classroom)
     teacher = create(:teacher)
 
@@ -31,6 +33,53 @@ class ClassroomPolicyTest < ActiveSupport::TestCase
     refute_permit teacher, classroom, :edit
     refute_permit teacher, classroom, :update
     refute_permit teacher, classroom, :toggle_archive
+  end
+
+  test "classroom policy lets a teacher edit a classroom they teach" do
+    classroom = create(:classroom)
+    teacher = create(:teacher)
+    create(:teacher_classroom, teacher:, classroom:)
+
+    assert_permit teacher, classroom, :edit
+    assert_permit teacher, classroom, :update
+    assert_permit teacher, classroom, :toggle_trading
+
+    # Editing their own classroom is not a route into the administrative ones.
+    refute_permit teacher, classroom, :new
+    refute_permit teacher, classroom, :create
+    refute_permit teacher, classroom, :toggle_archive
+  end
+
+  # The narrower half of the grant. A teacher may rename their classroom and set how it is taught;
+  # school, year and the teacher assignment are administrative, and teacher_ids in particular is who
+  # may see and edit the classroom at all.
+  test "a teacher may not change the school, the year or who teaches the classroom" do
+    classroom = create(:classroom)
+    teacher = create(:teacher)
+    create(:teacher_classroom, teacher:, classroom:)
+
+    permitted = ClassroomPolicy.new(teacher, classroom).permitted_attributes
+
+    assert_includes permitted, :name
+    assert_includes permitted, :trading_enabled
+    assert_includes permitted, { grade_ids: [] }
+    assert_not_includes permitted, :school_id
+    assert_not_includes permitted, :year_id
+    assert_not_includes permitted, { teacher_ids: [] }
+  end
+
+  test "an admin may change all of them" do
+    permitted = ClassroomPolicy.new(create(:admin), create(:classroom)).permitted_attributes
+
+    assert_includes permitted, :school_id
+    assert_includes permitted, :year_id
+    assert_includes permitted, { teacher_ids: [] }
+  end
+
+  # A policy can be built around the class rather than a record - `policy(Classroom).new?` in the
+  # index view - and the teacher check reads record.id.
+  test "the teacher check refuses a class rather than raising" do
+    refute_permit create(:teacher), Classroom, :edit
   end
 
   test "classroom policy does not allow student any classroom routes" do

@@ -23,11 +23,9 @@ module Admin
         created_at: Time.current
       )
 
-      # Demo breadcrumbs
-      @breadcrumbs = [
-        { label: "Components", path: admin_component_demo_index_path },
-        { label: "Demo" }
-      ]
+      # The trail read "Components / Demo" on the page that *is* the component index, which also made the
+      # document title "Demo | Admin | ...", since the layout derives the title from the last crumb.
+      @breadcrumbs = [{ label: "Component demo" }]
 
       # Demo table columns
       @columns = [
@@ -38,11 +36,19 @@ module Admin
         { attribute: :created_at, label: "Created", sortable: true }
       ]
 
+      # **A constructed array, not a query.** `Kaminari.paginate_array` gives the component a real
+      # paginated collection whatever the database holds, which is what lets the gallery show both states
+      # - a live direction and a disabled one - and keeps `component_gallery_test`'s "renders no database
+      # records" assertion true.
+      sample = Array.new(31) { |i| i + 1 }
+      @pagination_first = Kaminari.paginate_array(sample).page(1).per(PER_PAGE)
+      @pagination_last = Kaminari.paginate_array(sample).page(2).per(PER_PAGE)
+
       # Demo filters
       @filters = [
         {
           name: :type,
-          label: "User Type",
+          label: "User type",
           options: [["All", ""], ["Admin", "admin"], ["Teacher", "teacher"], ["Student", "student"]]
         },
         {
@@ -57,8 +63,8 @@ module Admin
     def show
       @user = User.find(params.expect(:id))
       @breadcrumbs = [
-        { label: "Components", path: admin_component_demo_index_path },
-        { label: "User Details" }
+        { label: "Component demo", path: admin_component_demo_index_path },
+        { label: "User details" }
       ]
     end
 
@@ -72,8 +78,8 @@ module Admin
       end
 
       @breadcrumbs = [
-        { label: "Components", path: admin_component_demo_index_path },
-        { label: "Form Builder Demo" }
+        { label: "Component demo", path: admin_component_demo_index_path },
+        { label: "Form builder demo" }
       ]
     end
   end

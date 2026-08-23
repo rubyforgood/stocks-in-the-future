@@ -1,9 +1,15 @@
-<div class="max-w-7xl mx-auto">
+<div class="mx-auto max-w-3xl">
   <%= admin_breadcrumbs(@breadcrumbs) %>
 
-  <div class="mb-6">
-    <h1 class="text-3xl font-bold text-gray-900">New Classroom</h1>
-  </div>
+  <%# max-w-3xl and the shared classroom form, so this page and /classrooms/new are one page rendered at
+      two URLs. It was max-w-7xl around a form of its own - a single-column form stretched across a
+      1280px column, which is the width bug the app side already fixed once. %>
+  <% description = "Creating a class adds a grade book for each quarter of the school year." %>
+  <%= render layout: "components/ui/page_header",
+             locals: { title: "New classroom", description: description } do %><% end %>
 
-  <%= render "form" %>
+  <%= render "classrooms/form",
+             classroom: @classroom,
+             url: admin_classrooms_path,
+             cancel_path: admin_classrooms_path %>
 </div>

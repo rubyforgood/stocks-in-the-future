@@ -1,92 +1,83 @@
-<div class="space-y-6">
-  <!-- Dashboard -->
-  <div>
-    <%= link_to root_path, class: "flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-lg transition-colors" do %>
-      <i class="fas fa-home w-5 mr-3 text-gray-500"></i>
-      Dashboard
-    <% end %>
-  </div>
+<%# Admin sidebar navigation.
 
-  <!-- Academic Section -->
-  <div>
-    <h3 class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-      Academic
-    </h3>
-    <div class="space-y-1">
-      <%= link_to admin_classrooms_path, class: "flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-lg transition-colors" do %>
-        <i class="fas fa-chalkboard w-5 mr-3 text-gray-500"></i>
-        Classrooms
-      <% end %>
-      <%= link_to admin_schools_path, class: "flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-lg transition-colors" do %>
-        <i class="fas fa-school w-5 mr-3 text-gray-500"></i>
-        Schools
-      <% end %>
-      <%= link_to admin_school_years_path, class: "flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-lg transition-colors" do %>
-        <i class="fas fa-calendar-check w-5 mr-3 text-gray-500"></i>
-        School Years
-      <% end %>
-    </div>
-  </div>
+    Rows use NavHelper, the same treatment as the app nav, so moving between the two is not a
+    change of scenery. Before this the app sidebar was a saturated teal panel and this one was
+    white with no selected state at all - you could not tell which admin section you were in.
 
-  <!-- Users Section -->
-  <div>
-    <h3 class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-      Users
-    </h3>
-    <div class="space-y-1">
-      <%= link_to admin_students_path, class: "flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-lg transition-colors" do %>
-        <i class="fas fa-user-graduate w-5 mr-3 text-gray-500"></i>
-        Students
-      <% end %>
-      <%= link_to admin_teachers_path, class: "flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-lg transition-colors" do %>
-        <i class="fas fa-chalkboard-teacher w-5 mr-3 text-gray-500"></i>
-        Teachers
-      <% end %>
-      <%= link_to admin_users_path, class: "flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-lg transition-colors" do %>
-        <i class="fas fa-users w-5 mr-3 text-gray-500"></i>
-        Users
-      <% end %>
-    </div>
-  </div>
+    nav_section_active? matches the section and anything below it, so a show or edit page keeps
+    its parent row highlighted. aria-current carries that to assistive tech, since a tint and a
+    bar are colour alone (WCAG 1.4.1). %>
+<% sections = [
+     { heading: nil,
+       items: [{ label: "Dashboard", path: admin_root_path, icon: "house", exact: true }] },
+     { heading: "Academic",
+       items: [{ label: "Classrooms", path: admin_classrooms_path, icon: "presentation" },
+               { label: "Schools", path: admin_schools_path, icon: "school" },
+               { label: "School years", path: admin_school_years_path, icon: "calendar-check" }] },
+     { heading: "Users",
+       items: [{ label: "Students", path: admin_students_path, icon: "graduation-cap" },
+               { label: "Teachers", path: admin_teachers_path, icon: "book-user" },
+               { label: "Users", path: admin_users_path, icon: "users" }] },
+     { heading: "Portfolio",
+       items: [{ label: "Stocks", path: admin_stocks_path, icon: "chart-line" },
+               { label: "Transactions", path: admin_portfolio_transactions_path,
+                 icon: "receipt" }] },
+     { heading: "Content",
+       items: [{ label: "Announcements", path: admin_announcements_path, icon: "megaphone" }] }
+   ] %>
 
-  <!-- Portfolio Section -->
-  <div>
-    <h3 class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-      Portfolio
-    </h3>
-    <div class="space-y-1">
-      <%= link_to admin_stocks_path, class: "flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-lg transition-colors" do %>
-        <i class="fas fa-chart-line w-5 mr-3 text-gray-500"></i>
-        Stocks
-      <% end %>
-    </div>
-  </div>
-
-  <!-- Content Section -->
-  <div>
-    <h3 class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-      Content
-    </h3>
-    <div class="space-y-1">
-      <%= link_to admin_announcements_path, class: "flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-lg transition-colors" do %>
-        <i class="fas fa-bullhorn w-5 mr-3 text-gray-500"></i>
-        Announcements
-      <% end %>
-    </div>
-  </div>
-
-  <!-- Development Section (remove in production) -->
-  <% if Rails.env.development? %>
+<div class="space-y-4">
+  <% sections.each do |section| %>
     <div>
-      <h3 class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-        Development
-      </h3>
+      <% if section[:heading] %>
+        <h2 class="px-3 mb-1 text-xs font-semibold text-slate-600"><%= section[:heading] %></h2>
+      <% end %>
+
       <div class="space-y-1">
-        <%= link_to admin_component_demo_index_path, class: "flex items-center px-3 py-2 text-sm font-medium text-purple-700 hover:bg-purple-50 hover:text-purple-900 rounded-lg transition-colors" do %>
-          <i class="fas fa-flask w-5 mr-3 text-purple-500"></i>
-          Component Demo
+        <% section[:items].each do |item| %>
+          <% active = nav_section_active?(item[:path], exact: item.fetch(:exact, false)) %>
+          <%= link_to item[:path],
+                      aria: { current: ("page" if active) },
+                      class: nav_row_class(active: active) do %>
+            <span class="<%= nav_indicator_class(active: active) %>" aria-hidden="true"></span>
+            <%= lucide_icon(item[:icon], class: nav_icon_class(active: active)) %>
+            <span><%= item[:label] %></span>
+          <% end %>
         <% end %>
       </div>
     </div>
   <% end %>
+
+  <%# The component demo is **not here**, and that is the second time this sidebar has run out of room.
+
+      It was a `Development` section with one purple row. Two problems, and the second is why it moved
+      rather than just losing the colour:
+
+      **A hand-rolled row drifts.** It kept `min-h-11 py-2` with no `lg:` step after NavHelper moved a
+      desktop row to 36px, so it rendered 44px against every neighbour's 36px. Nothing caught it, because
+      the guard was `Rails.env.development?` and the suite runs in the test environment - the row was
+      invisible to every test in this repo.
+
+      **And it did not fit.** Measured on a 1366x768 Chromebook, the ten product rows are 561px in 561px of
+      available height: exact, with no slack at all. The section cost 67px, so in development this sidebar
+      has always scrolled, and `spacing_test`'s "fits a Chromebook" assertion passed only because it could
+      not see the row. A group of two under a subheader - the obvious next proposal, with `Visit site` moved
+      down here beside it - costs 96px and measures 107px over; even collapsing Students, Teachers and Users
+      into one row and dropping the one-item `Content` subheader leaves it 7px short. This sidebar is full.
+
+      **It is not in the top bar either.** A component gallery is a developer tool, and the field does not
+      put developer tools in a product's navigation: Storybook is a separate application, Polaris, Primer,
+      Lightning, Material and Carbon are separate documentation sites, and Rails' own `/rails/info` and
+      `/rails/mailers` are live routes that nothing links to. It is reached by URL, documented in
+      `README.md` and `design-instructions.md`. `Visit site` stays in the top bar, which is a different
+      class of thing - a way out to the product, which every admin ships and which WordPress, Django,
+      Shopify and Craft all put in that bar.
+
+      The purple is worth recording as its own mistake. It was explained as "deliberately off the shared
+      treatment so it is obviously not a production destination", but the sidebar has one colour vocabulary
+      and it means "you are here": measured, purple-700's chroma is 0.265 against slate-700's 0.044, so the
+      idle demo row was about six times more saturated than the ten real rows and read louder than the
+      *selected* row of the section you were actually in. Contrast was never the problem - 7.07:1 idle,
+      5.54:1 on the icon, 6.58:1 on the active tint. Colour was the wrong instrument: a page can say "this
+      is not the product" in a sentence, which is what the environment banner does. %>
 </div>

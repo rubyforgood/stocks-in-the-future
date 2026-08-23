@@ -1,134 +1,181 @@
-<div class="flex flex-col h-full w-full">
-  <% if notice.present? %>
-    <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-lg inline-block" id="notice">
-      <%= notice %>
-    </p>
-  <% end %>
+<% content_for :title, "Transactions" %>
+<%# A plain block, like every other index page.
 
-  <header class="flex items-center justify-between px-6 py-4 border-b">
-    <h1 class="text-2xl font-bold py-2">Transactions</h1>
-  </header>
+    This was `flex flex-col h-full w-full` wrapping the page header in a bare `<div>` and the content in
+    `flex-1 pb-6` - a shell only this page and classrooms#index used, for no layout this page needs: there
+    is nothing here to stretch to the viewport's height, and `pb-6` duplicates padding `<main>` already
+    provides. It also hid the one relationship design.md states about this seam - the header block's `mb-6`
+    against whatever follows it - because the header was not a sibling of the content. `display: contents`
+    does not fix that either: `nextElementSibling` walks the DOM, not the layout tree. %>
+<div>
 
-  <main class="flex-1 p-6">
+  <%# The page had no description, and the question it exists to answer is the one a pending row raises:
+      why has this not happened yet. `OrderExecutionJob` runs every 15 minutes (config/recurring.yml), and
+      until it does the money has not moved - `ExecuteOrder` writes the debit at execution, so a pending buy
+      has taken nothing except the trading fee, which `Portfolio#pending_transaction_fee` sets aside while
+      any order is outstanding.
+
+      The fee is interpolated from `TRANSACTION_FEE_CENTS` rather than typed, so the sentence cannot claim a
+      figure the code does not charge. %>
+  <% fee = number_to_currency(PortfolioTransaction::TRANSACTION_FEE_CENTS / 100.0) %>
+  <%= render layout: "components/ui/page_header",
+             locals: { title: "Transactions",
+                       description: "Orders are filled every 15 minutes. Until one is, no money has " \
+                                    "moved - only the #{fee} trading fee is set aside." } do %><% end %>
+
+  <div>
     <%= render "shared/table_container" do %>
       <thead>
         <tr class="table-header-row min-w-full">
-          <th class="table-header-cell table-header-cell-left">
+          <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">
             <%= sort_link(:created_at, "Date") %>
           </th>
           <% if current_user&.teacher_or_admin? %>
-            <th class="table-header-cell table-header-cell-left">
+            <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">
               <%= sort_link(:username, "Username") %>
             </th>
-            <th class="table-header-cell table-header-cell-left">
+            <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">
               <%= sort_link(:classroom, "Class") %>
             </th>
           <% end %>
-          <th class="table-header-cell table-header-cell-left">
+          <th scope="col" class="table-header-cell table-header-cell-left">
             <%= sort_link(:stock, "Stock") %>
           </th>
-          <th class="table-header-cell table-header-cell-left">
+          <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">
             <%= sort_link(:price_per_share, "Price per share") %>
           </th>
-          <th class="table-header-cell table-header-cell-left">
+          <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">
             <%= sort_link(:shares, "Shares") %>
           </th>
-          <th class="table-header-cell table-header-cell-left">
+          <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">
             <%= sort_link(:status, "Status") %>
           </th>
-          <th class="table-header-cell table-header-cell-left">
+          <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">
             Type
           </th>
-          <th class="table-header-cell table-header-cell-right">
-            <%= sort_link(:total_cost, "Total Cost") %>
+          <th scope="col" class="table-header-cell table-header-cell-right hidden lg:table-cell">
+            <%= sort_link(:total_cost, "Total cost") %>
           </th>
-          <th class="table-header-cell table-header-cell-right" />
+          <%# Not an empty <th />: that is invalid self-closing HTML, and a header cell with no
+              text gives the actions column no accessible name. %>
+          <th scope="col" class="table-header-cell table-header-cell-right table-actions-cell hidden lg:table-cell">
+            <span class="sr-only">Actions</span>
+          </th>
         </tr>
       </thead>
       <tbody>
         <% if @orders.any? %>
           <% @orders.each do |order| %>
-            <tr id="<%= dom_id(order) %>" class="table-body-row">
-              <td class="table-body-cell">
-                <span class="table-cell-content">
+            <tr class="table-body-row" id="<%= dom_id(order) %>">
+                <% date_cell = capture do %>
+                  <span class="table-cell-content">
                   <%= order.created_at.to_date %>
                 </span>
-              </td>
-              <% if current_user&.teacher_or_admin? %>
-                <td class="table-body-cell">
+                <% end %>
+                <% username_cell = capture do %>
                   <span class="table-cell-content">
                     <%= order.user.username %>
                   </span>
-                </td>
-                <td class="table-body-cell">
+                <% end %>
+                <% class_cell = capture do %>
                   <span class="table-cell-content">
                     <%= order.user.classroom&.name || "-" %>
                   </span>
-                </td>
-              <% end %>
-              <td class="table-body-cell">
-                <div class="flex flex-col gap-1">
-                  <span class="font-medium text-base text-black leading-tight">
-                    <%= order.stock.company_name %>
-                  </span>
-                  <span class="text-sm text-gray-600 leading-tight">
-                    <%= order.stock.ticker %>
-                  </span>
-                </div>
-              </td>
-              <td class="table-body-cell">
-                <span class="table-cell-content">
-                  $<%= order.stock.current_price %>
+                <% end %>
+                <% price_per_share_cell = capture do %>
+                  <span class="table-cell-content">
+                  <%# Was interpolated raw, so a whole-dollar price rendered as "$15.0". %>
+                  <%= number_to_currency(order.stock.current_price) %>
                 </span>
-              </td>
-              <td class="table-body-cell">
-                <span class="table-cell-content">
+                <% end %>
+                <% shares_cell = capture do %>
+                  <span class="table-cell-content">
                   <%= order.shares %>
                 </span>
-              </td>
-              <td class="table-body-cell">
-                <div class="box-border content-stretch flex gap-2 h-9 items-center justify-center px-4 py-2 relative rounded-[16px] shrink-0 inline-flex
-                  <%= case order.status
-                      when 'pending'
-                        'bg-yellow-100 text-yellow-800'
-                      when 'completed'
-                        'bg-green-100 text-green-800'
-                      when 'canceled'
-                        'bg-red-100 text-red-800'
-                      else
-                        'bg-gray-100 text-gray-800'
-                      end %>">
-                  <div class="font-medium leading-[0] relative shrink-0 text-[14px] text-nowrap">
-                    <p class="leading-[20px] whitespace-pre"><%= order.status.capitalize %></p>
-                  </div>
-                </div>
-              </td>
-              <td class="table-body-cell">
-                <%= order.action.capitalize %>
-              </td>
-              <td class="table-body-cell table-body-cell-right">
-                <span class="table-cell-content">
+                <% end %>
+                <% status_cell = capture do %>
+                  <%# Was a 36px-tall pill: h-9, px-4 py-2, 14px text, rounded-[16px], with a
+                    leading-[0] that means nothing - Figma-export markup, button-sized and
+                    bypassing the tokens. A badge is chrome: text-xs, px-2 py-0.5. %>
+                <%= render "components/ui/badge",
+                           label: order.status.capitalize,
+                           tone: order_status_tone(order) %>
+                <% end %>
+                <% type_cell = capture do %>
+                  <%= order.action.capitalize %>
+                <% end %>
+                <% total_cost_cell = capture do %>
+                  <span class="table-cell-content">
                   <% if order.stock.price_cents && order.shares %>
                     <%= number_to_currency(order.purchase_cost / 100.0) %>
                   <% else %>
-                    <span class="text-gray-600">Price unavailable</span>
+                    <span class="text-slate-600">Price unavailable</span>
                   <% end %>
                 </span>
-              </td>
-              <td class="table-body-cell table-body-cell-center">
-                <div class="flex justify-center space-x-2">
+                <% end %>
+                <% row_actions = capture do %>
                   <% if order.pending? %>
-                    <%= link_to edit_order_path(order), class: "table-action-link", data: { turbo_frame: "modal_frame", testid: "edit-order-button" } do %>
-                      <i class="fa fa-pencil fa-lg"></i>
-                    <% end %>
-                    <%= form_with url: cancel_order_path(order), method: :patch, data: { confirm: t("orders.cancel.confirm"), turbo_confirm: t("orders.cancel.confirm") } do %>
-                      <button type="submit" class="table-action-button" title="Cancel" data-testid="cancel-order-button">
-                        <i class="fa fa-ban fa-lg"></i>
-                      </button>
-                    <% end %>
+                    <%# These were icon-only, which left the edit link with no accessible name at
+                        all (WCAG 4.1.2) because lucide_icon is aria-hidden. They now carry a
+                        visible label like every other row action, and the sr-only remainder names
+                        the stock so the action is still unambiguous out of row context. %>
+                    <%= ghost_action_link safe_join(["Edit", tag.span(" order for #{order.stock.ticker}", class: "sr-only")]),
+                                          edit_order_path(order),
+                                          icon: "pencil",
+                                          data: { turbo_frame: "modal_frame", testid: "edit-order-button" } %>
+                    <%= ghost_action_button safe_join(["Cancel", tag.span(" order for #{order.stock.ticker}", class: "sr-only")]),
+                                            cancel_order_path(order),
+                                            icon: "ban", variant: :danger,
+                                            method: :patch,
+                                            data: { turbo_confirm: t("orders.cancel.confirm"), testid: "cancel-order-button" },
+                                            form: { class: "inline-flex" } %>
                   <% end %>
+                <% end %>
+
+                <td class="table-body-cell hidden lg:table-cell">
+                  <%= date_cell %>
+                </td>
+                <td class="table-body-cell hidden lg:table-cell">
+                  <%= username_cell %>
+                </td>
+                <td class="table-body-cell hidden lg:table-cell">
+                  <%= class_cell %>
+                </td>
+                <td class="table-body-cell">
+                  <%# The primary identifier in a table cell is body size with medium weight, not a
+                    larger face - text-base text-black outweighed every other cell and made the
+                    row look like a heading. Same scale as the rest of the table. %>
+                <div class="flex flex-col">
+                  <span class="font-medium text-slate-900">
+                    <%= order.stock.company_name %>
+                  </span>
+                  <span class="text-xs text-slate-600">
+                    <%= order.stock.ticker %>
+                  </span>
                 </div>
-              </td>
+
+                  <%= render "components/ui/stacked_row_fields",
+                             fields: [["Date", date_cell], ["Username", username_cell], ["Class", class_cell], ["Price per share", price_per_share_cell], ["Shares", shares_cell], ["Status", status_cell], ["Type", type_cell], ["Total cost", total_cost_cell]],
+                             actions: row_actions %>
+                </td>
+                <td class="table-body-cell hidden lg:table-cell">
+                  <%= price_per_share_cell %>
+                </td>
+                <td class="table-body-cell hidden lg:table-cell">
+                  <%= shares_cell %>
+                </td>
+                <td class="table-body-cell hidden lg:table-cell">
+                  <%= status_cell %>
+                </td>
+                <td class="table-body-cell hidden lg:table-cell">
+                  <%= type_cell %>
+                </td>
+                <td class="table-body-cell table-body-cell-right hidden lg:table-cell">
+                  <%= total_cost_cell %>
+                </td>
+                <td class="table-body-cell table-body-cell-right table-actions-cell hidden lg:table-cell">
+                  <div class="flex items-center justify-end gap-1"><%= row_actions %></div>
+                </td>
             </tr>
           <% end %>
         <% else %>
@@ -141,5 +188,10 @@
         <% end %>
       </tbody>
     <% end %>
-  </main>
+
+    <%# The same component the admin tables use, through `shared/`. This half has no `admin/shared/_table`
+        shell to render it as a card footer, so the spacing is stated here: `mt-4`, matching the 16px this
+        document gives a plain control strip under a table rather than the 24px section gap. %>
+    <%= render "components/ui/pagination", collection: @orders %>
+  </div>
 </div>

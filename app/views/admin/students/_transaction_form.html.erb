@@ -1,0 +1,67 @@
+<%# The one place an administrator moves a student's money by hand.
+
+    It was the second half of `_form`, in a card headed "Add portfolio transaction" under a card headed
+    "Student details". The record page's section heading names it now, so the card carries no header of
+    its own - the same treatment as every other form on this shape.
+
+    **Rendered only when the student has a portfolio.** It used to render regardless, reading
+    `portfolio&.cash_balance || 0` for its display and posting to `add_transaction`, which builds a
+    `PortfolioTransaction` with a nil portfolio - a `belongs_to` - so every submit failed validation and
+    redirected with an alert. A control whose only possible outcome is an error is not a control.
+
+    **No read-only "Current cash balance" line.** The header's summary states the balance, and on a merged
+    page this block would have been the third copy of one number: summary line, figure tile, and here.
+
+    **Bound to `CashAdjustment`**, so each field carries its own error and a rejected submit keeps what was
+    typed. The four fields were loose params reported by a redirect with `alert:`, which put the message at
+    the top of the page and emptied the form on the way. See the class for what that could not validate. %>
+<%= form_with model: adjustment,
+              url: add_transaction_admin_student_path(student), method: :post,
+              builder: Ui::FormBuilder, class: "space-y-6" do |f| %>
+  <%= render "shared/form_errors", record: adjustment, subject: "transaction" %>
+
+  <%= render layout: "components/ui/card", locals: {} do %>
+    <div>
+      <%= f.select :transaction_type,
+                   CashAdjustment::DIRECTIONS.map { |direction| [direction.humanize, direction] },
+                   label: "Transaction type",
+                   width: :half,
+                   required: true,
+                   hint: "Deposit adds to the cash balance. Debit takes from it.",
+                   include_blank: "Select a transaction type" %>
+
+      <%# A text field with `inputmode`, not `number_field`. GOV.UK's money pattern is explicit about this:
+          a number input carries spinners, changes value on a stray scroll, and silently rejects a pasted
+          "$12.50". The keypad on a phone is the same either way. %>
+      <%= f.text_field :amount,
+                       label: "Amount",
+                       width: :half,
+                       required: true,
+                       hint: "In dollars, like 12.50.",
+                       placeholder: "0.00",
+                       inputmode: "decimal",
+                       autocomplete: "off" %>
+
+      <%= f.select :reason,
+                   CashAdjustment::REASONS.map { |key| [PortfolioTransaction.human_attribute_name("reason.#{key}"), key] },
+                   label: "Reason",
+                   width: :half,
+                   required: true,
+                   hint: "Records where the money came from, or what it was for.",
+                   include_blank: "Select a reason" %>
+
+      <%= f.text_area :description,
+                      label: "Description (optional)",
+                      hint: "Notes for other administrators. Never shown to the student.",
+                      placeholder: "Enter transaction details...",
+                      rows: 3 %>
+    </div>
+    <% end %>
+
+  <%# Not `tw-form-actions`: that class hides an update form's row until a field changes and then sticks
+      it to the bottom of the viewport. This form *creates* something, so there is nothing to compare
+      against and nothing to reveal - and two sticky rows on one page would fight. %>
+  <div class="flex flex-wrap items-center gap-3">
+    <%= f.submit_button "Add transaction", variant: :secondary %>
+  </div>
+<% end %>

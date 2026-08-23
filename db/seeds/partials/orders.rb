@@ -93,10 +93,13 @@ if students.any?
   
   students.each do |student_user|
     if student_user&.portfolio
-      [1, 2].sample.times do |i|
+      # Deterministic on purpose. This block guards on find_by(shares: ...), so
+      # randomising the count and the share size defeated its own guard: a second
+      # run picked different values, matched nothing, and created more orders.
+      2.times do |i|
         stock = stocks[i + 2]
         if stock
-          shares = [1, 2].sample
+          shares = i + 1
           existing_order = Order.find_by(
             user: student_user,
             stock: stock,

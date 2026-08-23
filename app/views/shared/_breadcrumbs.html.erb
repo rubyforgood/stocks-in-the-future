@@ -1,0 +1,65 @@
+<%# **A trail needs somewhere to go back to.** On a top-level index this rendered "Dashboard > Classrooms"
+    directly above an h1 reading "Classrooms" - the page's own name twice, 30px apart - and its one link
+    duplicated the sidebar's own Dashboard item. Reported as pushing the content down for no value, and
+    measured: 44px of it, taking the h1 from y=128 to y=172 on a 768px viewport.
+
+    Carbon says it outright ("do not use breadcrumbs when there is only one level"), GOV.UK shows the path
+    *above* the current page so a top-level page has none, and Polaris has no trail at all - a single back
+    action on pages that have a parent. A record page keeps its trail, because "Dashboard > Students > Sam
+    Student" has a Students to return to.
+
+    **`shared/`, not `admin/shared/`, because both halves render it.** It lived under admin and the app half
+    had no trail at all, which is how `portfolios#show` came to be a page an admin could reach from a record
+    and not leave. The root crumb is the only thing that differed - Dashboard for admin, Home for the app -
+    so it is a local, and `admin_breadcrumbs` / `page_breadcrumbs` are the two callers that set it.
+
+    Locals:
+      breadcrumbs - array of { label:, path: }, the last being the page itself
+      root_label  - the first crumb's text
+      root_path_for_trail - where the first crumb goes. Not `root_path`: that is a route helper,
+                            and a local of the same name shadows it for the whole partial. %>
+<% return if breadcrumbs.size < 2 %>
+
+<nav class="flex mb-6" aria-label="Breadcrumb">
+  <%# flex-wrap, not inline-flex. As a single unwrappable line the trail pushed <main> sideways on
+      six admin pages - a school year's crumb reads "School name (2024-2025)" and took the page
+      130px past the viewport at 375px, which carried the row actions off screen with it. gap-x
+      matches the old space-x at one line, and gap-y spaces the wrapped rows. %>
+  <ol class="flex flex-wrap items-center gap-x-1 gap-y-1 lg:gap-x-3">
+    <li class="inline-flex items-center">
+      <%# **A named focus outline on both links.** They had none, so a keyboard reader got Chrome's default
+          1px auto ring - design.md asks for a 2px outline in a named colour, and an unnamed one falls back
+          to `currentColor`. It went unnoticed while this partial lived under `admin/`, because the focus
+          audit walks the app half's forms; the first app page to render a trail failed it. Fixing it here
+          fixes both halves at once, which is the reason the partial moved. %>
+      <%# **No icon, on any crumb.** The root carried a house glyph and the rest carried none, which was
+          reported as inconsistent, and it is: nothing distinguishes the first crumb except that it is
+          first, which the position already says.
+
+          The field is near-unanimous that a trail is plain text - GOV.UK, Carbon, Primer, Bootstrap and
+          Atlassian all ship one with no icons, and Polaris has no trail at all. The one common exception is
+          Tailwind UI, whose example puts a house on the first item *instead of* a word, as a compact home
+          affordance; this had the icon **and** the word, which is that pattern's decoration without its
+          economy. Two roots also make the glyph inaccurate - it reads "Dashboard" on the admin half. %>
+      <%= link_to root_label, root_path_for_trail,
+                  class: "text-sm font-medium text-slate-700 hover:text-sitf-primary-dark " \
+                         "focus-visible:outline-2 focus-visible:outline-offset-2 " \
+                         "focus-visible:outline-sitf-primary" %>
+    </li>
+
+    <% breadcrumbs.each_with_index do |crumb, index| %>
+      <li>
+        <div class="flex items-center">
+          <%= lucide_icon("chevron-right", class: "w-3 h-3 text-slate-500 mx-1 shrink-0") %>
+          <% if index == breadcrumbs.length - 1 %>
+            <span class="ml-1 text-sm font-medium break-words text-slate-600 lg:ml-2">
+              <%= crumb[:label] %>
+            </span>
+          <% else %>
+            <%= link_to crumb[:label], crumb[:path], class: "ml-1 text-sm font-medium break-words text-slate-700 hover:text-sitf-primary-dark lg:ml-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary" %>
+          <% end %>
+        </div>
+      </li>
+    <% end %>
+  </ol>
+</nav>

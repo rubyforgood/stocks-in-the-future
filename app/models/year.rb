@@ -9,13 +9,29 @@ class Year < ApplicationRecord
 
   scope :ordered_by_start_year, -> { order(Arel.sql("CAST(SUBSTRING(name FROM 1 FOR 4) AS INTEGER) DESC")) }
 
+  # A school year runs across two calendar years, so "which one are we in" turns on the month. July is the
+  # boundary: before it, we are still in the year that began last calendar year.
+  #
+  # The rule lives here once. It was written out inside `current_school_year` and nowhere else, and both
+  # `#current?` and the window below need it - two copies of a date rule is how they come to disagree in
+  # July.
+  def self.current_school_year_name(date = Date.current)
+    date.month <= 6 ? "#{date.year - 1} - #{date.year}" : "#{date.year} - #{date.year + 1}"
+  end
+
   def self.current_school_year(date = Date.current)
-    name = if date.month <= 6
-             "#{date.year - 1} - #{date.year}"
-           else
-             "#{date.year} - #{date.year + 1}"
-           end
-    where(name: name)
+    where(name: current_school_year_name(date))
+  end
+
+  # The years a school has not added yet, newest first. A one-at-a-time select can carry the whole list -
+  # that is what a select is for - so there is no window to invent here, and no year is silently
+  # unreachable. The checkbox group this replaced needed one, because it showed every option at once.
+  def self.addable_to(school)
+    where.not(id: school.year_ids).ordered_by_start_year
+  end
+
+  def current?
+    name == self.class.current_school_year_name
   end
 
   def previous_year

@@ -123,7 +123,7 @@ class TeachersControllerTest < ActionDispatch::IntegrationTest
     email = emails.first
     assert_equal ["newteacher@example.com"], email.to
     assert_match(/reset_password_token=/, email.body.encoded)
-    assert_match(/Change my password/, email.body.encoded)
+    assert_match(/Reset password/, email.body.encoded)
   end
 
   test "teacher can set password via reset link from creation email" do

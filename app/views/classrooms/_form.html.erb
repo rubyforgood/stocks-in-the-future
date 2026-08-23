@@ -1,131 +1,141 @@
-<%= form_with(model: classroom, class: "contents") do |form| %>
-  <% if classroom.errors.any? %>
-    <div id="error_explanation" class="bg-red-50 text-red-500 px-3 py-2 font-medium rounded-lg mt-3">
-      <h2>
-        <%= pluralize(classroom.errors.count, "error") %> prohibited this classroom from being saved:
-      </h2>
+<%# The classroom form, for both #new and #edit.
 
-      <ul>
-        <% classroom.errors.each do |error| %>
-          <li><%= error.full_message %></li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
+    Rebuilt. What was wrong with it, measured rather than asserted:
 
-  <div class="my-5">
-    <%= form.label :name, class: 'tw-label-primary' do %>
-      Name<span class="required-indicator">*</span>
-    <% end %>
-    <div class="mt-2">
-      <%= form.text_field :name, class: "tw-input-primary", required: true %>
-    </div>
-  </div>
+    - **Five elements shared `id="classroom_grade_ids_"`** - the hidden field and all four grade
+      checkboxes - because `check_box_tag "classroom[grade_ids][]"` derives one id from the name. Invalid
+      HTML, and any `for=` or `aria-*` reference resolves to whichever came first.
+    - **The "Grades" label labelled nothing.** `form.label :grade_ids` emits `for="classroom_grade_ids"`,
+      and no element has that id - the checkboxes end in an underscore. The group had no accessible name
+      at all. It is a `<fieldset>` with a `<legend>` now, which is what a group of checkboxes is, and what
+      design.md expects for a hand-placed group.
+    - **Both option lists were `max-h-60 overflow-y-auto` boxes with a slate-50 fill** around content that
+      trivially fits: four grades and, in this database, one teacher. A scroll container that can never
+      scroll, and a tinted panel inside what is now a card - the same "conditional affordance with no
+      condition" shape recorded elsewhere here.
+    - **Two HTML comments** shipped to the browser. A view comment belongs in an ERB comment tag, which
+      the server strips; an HTML one is sent and the reader can read it.
+    - The form sat on **no surface** while students#new and #edit and every admin form use `.tw-card`.
+    - `my-5` on each group, so the first and last field carried outer margin the card then doubled.
 
-  <div class="my-5">
-    <%= form.label :school_id, "School Name", class: 'tw-label-primary' %>
-    <div class="mt-2">
-      <% school_year = classroom&.school_year
-         selected_school_id = school_year&.school&.id %>
-      <%= form.select :school_id,
-                      options_from_collection_for_select(@schools, :id, :name, selected_school_id),
-                      { prompt: "Select a school" },
-                      { class: "tw-input-primary" } %>
-    </div>
-  </div>
+    School, year and the teacher assignment are admin-only, matching ClassroomPolicy's permitted
+    attributes. A teacher who saw these would be filling in fields whose values are dropped on submit,
+    which is worse than not offering them: the page would look like it saved and quietly would not. The
+    check is the same policy the parameter filter uses, so the two cannot drift apart. %>
+<%# **One classroom form, for both halves of the product.**
 
-  <div class="my-5">
-    <%= form.label :year_id, "Year", class: 'tw-label-primary' %>
-    <div class="mt-2">
-      <% school_year = classroom&.school_year
-         selected_year_id = school_year&.year&.id %>
-      <%= form.select :year_id,
-                      options_from_collection_for_select(@years, :id, :name, selected_year_id),
-                      { prompt: "Select a year" },
-                      { class: "tw-input-primary" } %>
-    </div>
-  </div>
+    `/classrooms/new` and `/admin/classrooms/new` were two different forms for one model, and they had
+    drifted into two different products: this one asks for a school and a year and offers the teacher
+    assignment; the admin one asked for a single school year, offered no teachers, wrapped every field in a
+    `mb-6` and led with an `h3` restating the page title. An admin creating a classroom got different
+    fields depending on which URL they came in through.
 
-  <div class="my-5">
-  <%= form.label :grade_ids, class: 'tw-label-primary flex items-center gap-2' do %>
-    Grades<span class="required-indicator">*</span>
-  <% end %>
+    They render the same partial now, so the two cannot diverge again. What varies is what has to vary: the
+    URL it posts to and where Cancel goes. Everything else - which fields exist, in what order, with what
+    validation - is one decision made once. %>
+<% admin_fields = policy(classroom).permitted_attributes.include?(:school_id) %>
+<% url = local_assigns.fetch(:url, nil) %>
+<% cancel_path = local_assigns.fetch(:cancel_path) { classroom.persisted? ? classroom : classrooms_path } %>
 
-  <!-- Single hidden field to handle empty selections -->
-  <%= hidden_field_tag "classroom[grade_ids][]", "" %>
+<%= form_with(model: classroom, url: url, builder: Ui::FormBuilder, class: "contents") do |form| %>
+  <%= render "shared/form_errors", record: classroom, subject: "classroom" %>
 
-  <div class="mt-3 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 max-h-60 overflow-y-auto p-3 border border-gray-200 rounded-lg bg-gray-50">
-    <% Grade.where(level: Classroom::GRADE_RANGE).order(:level).each do |grade| %>
-      <%# Check if this grade is selected for the classroom %>
-      <% is_checked = classroom.persisted? ? classroom.grades.include?(grade) : false %>
+  <%# No `mt-*`. It carried `mt-4`, which did nothing in the ordinary case: adjacent vertical margins collapse
+      to the larger, and the page header's own `mb-6` is bigger - measured, the gap was 24px with it and 24px
+      without. An inert declaration is worse than none, because it reads as load-bearing and it *became*
+      load-bearing the moment an error summary appeared between the two, giving that state a 16px gap where
+      the rest of the page uses 24. The summary spaces itself now. %>
+  <div class="tw-card p-5">
+    <%# `space-y-5` went with the grid experiment and is not coming back: it was inert anyway, 20px against
+        each field wrapper's own 24px `mb-6`, collapsed to 24px. %>
+    <div>
+      <%= form.text_field :name,
+                          label: "Name",
+                          width: :half,
+                          required: true,
+                          hint: "Displayed to the teacher and their students." %>
 
-      <label class="flex items-center gap-3 p-3 hover:bg-white rounded-lg cursor-pointer transition-colors">
-        <%= check_box_tag "classroom[grade_ids][]",
-                          grade.id,
-                          is_checked,
-                          class: "rounded border-gray-300 text-blue-600 focus:ring-blue-500" %>
+      <%# **School** and **Year**, which are what `SchoolYearFields` accepts - the model resolves the pair
+          into a SchoolYear on validation. The view used to reach through `classroom.school_year.school.id`
+          to preselect each one; the model's readers do that now, so `form.select` finds its own value.
 
-        <div class="flex-1">
-          <div class="font-medium text-gray-900">
-            <%= grade.name %>
-          </div>
-        </div>
-      </label>
-    <% end %>
-  </div>
+          The labels match the attributes they validate. "School name" here produced "School can't be
+          blank" in the summary, naming something the reader could not find on the page - which is the
+          whole reason the validation moved onto these two fields. %>
+      <% if admin_fields %>
+        <%= form.select :school_id,
+                        options_from_collection_for_select(@schools, :id, :name, classroom.school_id),
+                        { label: "School", prompt: "Select a school", width: :half },
+                        { required: true } %>
 
-  <p class="text-sm text-gray-600 mt-2">
-    <span class="text-red-500 font-medium">* Required:</span> Select at least one grade that applies to this classroom.
-  </p>
-  </div>
-
-  <div class="my-5">
-    <div class="flex items-center gap-3">
-      <%= form.check_box :trading_enabled, class: "rounded border-gray-300 text-blue-600 focus:ring-blue-500" %>
-      <%= form.label :trading_enabled, "Enable Trading", class: 'tw-label-primary' %>
-    </div>
-    <p class="text-sm text-gray-600 mt-1">When enabled, students in this classroom can place buy and sell orders.</p>
-  </div>
-
-  <div class="my-5">
-    <%= label_tag :teacher_ids, "Teachers", class: 'tw-label-primary flex items-center gap-2' %>
-
-    <!-- Single hidden field to handle empty selections -->
-    <%= hidden_field_tag "classroom[teacher_ids][]", "" %>
-
-    <div class="mt-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 max-h-60 overflow-y-auto p-2 border border-gray-200 rounded-lg bg-gray-50">
-      <% @teachers.each do |teacher| %>
-        <%# Check if teacher is assigned to this classroom %>
-        <% is_checked = classroom.persisted? ? classroom.teachers.include?(teacher) : false %>
-
-        <label class="flex items-start gap-2 p-3 hover:bg-white rounded-lg cursor-pointer transition-colors">
-          <%= check_box_tag "classroom[teacher_ids][]",
-                            teacher.id,
-                            is_checked,
-                            {
-                              class: "rounded border-gray-300 text-blue-600 focus:ring-blue-500 mt-0.5",
-                              id: "classroom_teacher_ids_#{teacher.id}"
-                            } %>
-
-          <div class="flex items-start gap-2 min-w-0 flex-1">
-            <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-medium flex-shrink-0 mt-1">
-              <%= teacher.display_name.first.upcase %>
-            </div>
-            <div class="min-w-0 flex-1">
-              <div class="text-gray-900 font-medium truncate">
-                <%= teacher.display_name %>
-              </div>
-              <div class="text-xs text-gray-500 truncate">
-                @<%= teacher.email %>
-              </div>
-            </div>
-          </div>
-        </label>
+        <%= form.select :year_id,
+                        options_from_collection_for_select(@years, :id, :name, classroom.year_id),
+                        { label: "Year", prompt: "Select a year", width: :half },
+                        { required: true } %>
       <% end %>
+
+      <%# The builder renders the fieldset, the legend, the hint under it and the group's error - all of
+          which this did by hand, because the builder used to emit a `<label>` over a group with no single
+          control to point at. That fix lives in `Ui::FormBuilder` now, so every group in the app gets it
+          rather than the one form that was rebuilt.
+
+          `Classroom::GRADE_RANGE`, not `Grade.all`: the admin half queried the latter straight from its
+          view, which is how the two forms came to offer different grades. %>
+      <%= form.collection_check_boxes :grade_ids,
+                                      Grade.where(level: Classroom::GRADE_RANGE).order(:level),
+                                      :id, :name,
+                                      label: "Grades",
+                                      required: true,
+                                      errors_on: :grades,
+                                      hint: "Select every grade level this class covers." %>
+
+      <% if admin_fields %>
+        <%# Checkboxes, and no avatars.
+
+            **The control is right for the volume.** A checkbox list is what GOV.UK, Polaris and Primer all
+            use for a short, fully known set of options. Beyond roughly ten it should become a searchable
+            multi-select with chips - GitHub's assignees picker, Linear's, Jira's - because a list you have
+            to scroll to find a name in is a list you should be able to type into. That threshold is the
+            trigger, not a redesign for its own sake.
+
+            **The avatar is gone.** A 32px disc containing one letter makes nobody recognisable: two
+            teachers whose names begin with T get the same disc, so it identified no one while taking the
+            widest column in the row. The name and the email do the identifying, and the email is what
+            disambiguates - which is why the label is a callable rendering two lines rather than a single
+            `display_name`. %>
+        <%= form.collection_check_boxes :teacher_ids, @teachers, :id, teacher_option_label,
+                                        label: "Teachers",
+                                        errors_on: :teachers,
+                                        hint: "Select every teacher who can open this classroom and " \
+                                              "edit its grades and trading setting." %>
+      <% end %>
+
+      <%# **Last in the form**, after what the classroom *is* and who can see it.
+
+          It is the only field here with a runtime effect on students, it is optional with a default, and it
+          is the one setting that also has its own control on the classroom page - so in a form it is "and
+          one more thing", not part of the classroom's identity. Required identity first, access next,
+          behaviour last is the order GOV.UK and Polaris both use when fields are grouped on one page.
+
+          A single checkbox is the right control and not a switch: GOV.UK reserves a lone checkbox for
+          opting in, which is what this is, and a switch implies the change takes effect as you flip it -
+          which it does on the classroom page, and does not here, where nothing happens until you save. %>
+      <%= form.boolean_field :trading_enabled,
+                             label: "Enable trading",
+                             hint: "When on, students in this class can place buy and sell orders." %>
     </div>
   </div>
 
-  <div class="inline">
-    <%= form.submit class: "tw-btn-primary" %>
+  <%# Leading edge, primary first, on the page background below the card - design.md's form-actions rule.
+      The submit label is explicit: a bare `form.submit` lets Rails generate "Create Classroom" from the
+      model name, which is Title Case and invisible to any copy sweep, since the string exists nowhere in
+      the source.
+
+      Cancel replaces the pair of `tw-btn-secondary` links that used to sit under the form - "View
+      classroom" and "Back to classrooms" - which put three actions on the page in two groups with the
+      primary orphaned above them. Going back is one action, and on #edit it goes where Cancel goes. %>
+  <div class="tw-form-actions mt-6">
+    <%= form.submit classroom.persisted? ? "Update classroom" : "Create classroom", class: "tw-btn-primary" %>
+    <%= link_to "Cancel", cancel_path, class: "tw-btn-secondary" %>
   </div>
 <% end %>

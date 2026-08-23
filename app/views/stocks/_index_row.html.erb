@@ -1,45 +1,159 @@
 <tr class="table-body-row">
   <td class="table-body-cell">
-    <div class="flex items-center gap-4">
+    <%# items-start, and a 40px logo at every width.
+        design.md: body cells, action buttons and checkboxes all top-align to the row's *first
+        line*. This cell was `items-center` around a logo that grew to 64px at lg, so the ticker
+        sat 13px below the top of its own row while the price and holdings text sat at 12px, and
+        the taller the logo the further they diverged. 40px is exactly the height of the two-line
+        ticker-over-company block, so the logo no longer sets the row height at all. %>
+    <div class="flex items-start gap-3">
       <% logo_path = "stock_logos/#{stock.ticker}-logo.svg" %>
+      <%# `alt=""`, because the ticker is printed immediately beside this and a screen reader would
+          otherwise say it twice - "AAPL logo, AAPL, Apple Inc.". `portfolios/show` already renders the
+          same logo that way and says so; this one said "AAPL logo". %>
       <% if File.exist?("app/assets/images/#{logo_path}") %>
         <%= image_tag asset_path(logo_path),
-                      class: "w-16 h-16 rounded-lg flex-shrink-0",
-                      alt: "#{stock.ticker} logo",
+                      class: "size-10 shrink-0 rounded-lg",
+                      alt: "",
                       loading: "lazy" %>
       <% end %>
       <div class="flex flex-col">
-        <%= link_to stock.ticker, stock_path(stock), class: "font-semibold text-lg" %>
-        <span class="text-gray-500 text-sm"><%= stock.company_name %></span>
+        <%# text-lg font-semibold made the ticker the largest text on the page after the h1,
+          in a cell whose neighbours are text-sm. A table's primary identifier is body size with
+          medium weight - Tailwind UI, Polaris and Primer all render it that way. %>
+        <%# Line one is the security: the ticker and the market it trades on. The header above has said
+            "Company (exchange)" since it was written and this cell had never contained an exchange -
+            `stock_exchange` is populated on every active stock and was rendered only on stocks#show. A
+            ticker without its market is ambiguous, which is why Bloomberg, Yahoo Finance and Google
+            Finance all render the pair. %>
+        <span class="flex flex-wrap items-baseline gap-x-1.5">
+          <%= link_to stock.ticker, stock_path(stock), class: "tw-link" %>
+          <% if (market = stock_market_note(stock)) %>
+            <span class="text-xs text-slate-600">&middot; <%= market %></span>
+          <% end %>
+        </span>
+
+        <%# Line two is the company: its name, and what it does.
+            **Industry is here rather than in a column of its own**, which is a change from the preview,
+            and the reason is measurable. It is populated on all ten active stocks and none of the eight
+            archived ones, so a column would be empty on every archived row - and worse, a column present
+            on one table and absent on the other gives the two stacked tables different geometry, which
+            moves every column at the boundary and steps the page sideways. In the cell it costs nothing
+            when absent, needs no width, and reads as what it is: a fact about the company, on the
+            company's line. %>
+        <span class="text-sm text-slate-600">
+          <%= stock.company_name %><% if stock.industry.present? %> &middot; <%= stock.industry %><% end %>
+        </span>
+
+        <%# What "archived" means, for the one table where it is not obvious. There is no
+            archived_at column - `archived` is a bare boolean - so the date shown is
+            last_trading_day, which the price job maintains and which is the more useful figure
+            anyway: it says when this price was last real. Omitted when the job has never seen the
+            stock, rather than printing a blank. %>
+        <% if stock.archived? %>
+          <span class="mt-1 text-xs text-slate-600">
+            No longer trading<% if stock.last_trading_day.present? %> &middot; last priced <%= stock.last_trading_day.strftime("%-d %b %Y") %><% end %>
+          </span>
+        <% end %>
+
+        <%# Below lg the holdings count and the trade buttons live here, in the one cell that is
+            always on screen. As their own trailing columns they sat at left=370 in a viewport
+            326px wide - the trading floor's only call to action was off the right edge of a
+            horizontal scroll on a phone, which is the width most students are on. %>
+        <%# Below lg the Held by figure moves into this cell, exactly as a student's holdings line does -
+            the trailing columns are `hidden` there, and a teacher on a phone would otherwise be back to
+            the two-column page this column exists to fix. %>
+        <% if policy(stock).show_class_holdings? && @class_students&.positive? %>
+          <% held = @class_holdings&.dig(stock.id) %>
+          <span class="mt-1 text-xs text-slate-600 lg:hidden">
+            <% if held %>
+              Held by <%= held[:holders] %> of <%= @class_students %> &middot;
+              <%= shares_label(held[:shares]) %>
+            <% else %>
+              Nobody owns this yet
+            <% end %>
+          </span>
+        <% end %>
+
+        <% if policy(stock).show_holdings? %>
+          <span class="mt-1 text-xs text-slate-600 lg:hidden">
+            You own <%= share_count(@portfolio&.shares_owned(stock.id) || 0) %>
+          </span>
+
+          <% if policy(stock).show_trading_link? %>
+            <%= render "stocks/trade_actions", stock: stock, class: "mt-2 lg:hidden" %>
+          <% end %>
+        <% end %>
       </div>
     </div>
   </td>
+  <%# The price, and how old it is.
+
+      **Stale means "older than the freshest price on this page"**, which needs no calendar knowledge - and
+      that matters, because the job runs at 02:00 for the *previous* close, so a perfectly fresh price
+      normally carries yesterday's date. Comparing against today would mark every row.
+
+      When the whole page is behind, no row is marked and the page's own description carries the date, which
+      is the honest way round: "prices as of 3 August" is the fact, not "every company is stale".
+
+      slate-600, not amber or rose: a price that has not been refreshed is a fact about the data, not an
+      error the student has made or a warning about the company. %>
   <td class="table-body-cell table-body-cell-right">
-    <span class="table-cell-content">
+    <span class="table-cell-content block">
       <%= number_to_currency(stock.current_price) %>
     </span>
+
+    <% if stock.last_trading_day.blank? %>
+      <span class="mt-0.5 block text-xs text-slate-600">Not priced yet</span>
+    <% elsif local_assigns[:freshest_price_on].present? && stock.last_trading_day < freshest_price_on %>
+      <span class="mt-0.5 block text-xs text-slate-600">
+        as of <%= stock.last_trading_day.strftime("%-d %b") %>
+      </span>
+    <% end %>
   </td>
+
+  <%# Same condition as the header in _stocks_table, so the column counts cannot diverge. It used
+      to be current_user.student? there and policy(stock).show_holdings? here - a student with no
+      persisted portfolio got four header cells over two body cells. %>
   <% if policy(stock).show_holdings? %>
-    <td class="table-body-cell">
+    <td class="table-body-cell hidden lg:table-cell">
       <span class="table-cell-content">
-        <%= @portfolio&.shares_owned(stock.id) || 0 %>
+        <%= share_count(@portfolio&.shares_owned(stock.id) || 0) %>
       </span>
     </td>
-    <td class="table-body-cell table-body-cell-center whitespace-nowrap" colspan="2">
+    <%# `align-top`, so a 40px control sits on the row's first line instead of on its centre.
+        Measured before: the primary cell stacks a 40px logo over a ticker and a company name, so the row
+        is 65px and the buttons' centre landed 10.5px below the ticker. The `pt-1.5` used for a 32px row
+        action is the wrong number here and any number would be - it is tuned to one row's height and
+        breaks the moment a company name wraps to a third line. design.md already asks for top alignment
+        on every other trailing cell. %>
+    <td class="table-body-cell table-body-cell-right hidden whitespace-nowrap align-top lg:table-cell">
       <% if policy(stock).show_trading_link? %>
-        <div class="flex gap-2 justify-center">
-          <%= link_to new_order_path(stock_id: stock.id, transaction_type: :buy),
-                      class: "tw-btn-buy -ml-1",
-                      data: { turbo_frame: "modal_frame", testid: "buy-stock-button" } do %>
-              <%= lucide_icon("arrow-up") %> Buy
-          <% end if !stock.archived? %>
+        <%= render "stocks/trade_actions", stock: stock, class: "justify-end" %>
+      <% end %>
+    </td>
+  <% end %>
 
-          <%= link_to new_order_path(stock_id: stock.id, transaction_type: :sell),
-                      class: "tw-btn-sell -mr-1",
-                      data: { turbo_frame: "modal_frame", testid: "sell-stock-button" } do %>
-              <%= lucide_icon("arrow-down") %> Sell
-          <% end %>
-        </div>
+  <%# Who owns this, among the people this viewer can see. Same condition as the header in
+      _stocks_table, so the column counts cannot diverge - that has happened here before, when one used
+      current_user.student? and the other a policy.
+
+      A figure, not a sentence: "9 of 25 students" repeated down a column is twenty-five copies of the
+      denominator, so the word lives in the header and the section's description says which twenty-five.
+      Zero is stated rather than left blank - nobody owning a stock is information, and an empty cell
+      reads as missing data. %>
+  <% if policy(stock).show_class_holdings? && @class_students&.positive? %>
+    <% held = @class_holdings&.dig(stock.id) %>
+    <td class="table-body-cell table-body-cell-right hidden lg:table-cell">
+      <% if held %>
+        <span class="table-cell-content block tabular-nums">
+          <%= held[:holders] %> of <%= @class_students %>
+        </span>
+        <span class="mt-0.5 block text-xs text-slate-600 tabular-nums">
+          <%= shares_label(held[:shares]) %>
+        </span>
+      <% else %>
+        <span class="table-cell-content block text-slate-600">None</span>
       <% end %>
     </td>
   <% end %>

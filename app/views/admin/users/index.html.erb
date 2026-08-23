@@ -1,92 +1,145 @@
 <div class="max-w-7xl mx-auto">
   <%= admin_breadcrumbs(@breadcrumbs) %>
 
-  <div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg overflow-hidden">
-    <div class="px-4 py-5 sm:px-6 border-b border-gray-200 flex justify-between items-center">
-      <h3 class="text-lg font-semibold text-gray-900">Users</h3>
-      <div class="flex gap-2">
-        <%= link_to "New User", new_admin_user_path,
-                    class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700" %>
-      </div>
-    </div>
+  <%= render layout: "components/ui/page_header",
+             locals: { title: "Users",
+                       description: "Every account in the app, including the students and teachers " \
+                                    "with their own pages in the sidebar." } do %>
+    <%= link_to "New user", new_admin_user_path, class: admin_primary_button_class %>
+  <% end %>
 
+  <%= render "admin/shared/discard_filter_tabs",
+             current: discard_filter,
+             tabs: [["Active", :active, admin_users_path],
+                    ["Deactivated", :discarded, admin_users_path(discarded: true)],
+                    ["All", :all, admin_users_path(all: true)]] %>
+
+  <div class="tw-card">
     <div class="overflow-x-auto">
-      <table class="min-w-full divide-y divide-gray-300">
-        <thead class="bg-gray-50">
-          <tr>
-            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-              <%= sort_link(:id, "ID") %>
-            </th>
-            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+      <table class="table-base">
+        <thead>
+          <tr class="table-header-row">
+            <th scope="col" class="table-header-cell table-header-cell-left">
               <%= sort_link(:username, "Username") %>
             </th>
-            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+            <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">
               <%= sort_link(:type, "Type") %>
             </th>
-            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+            <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">
               <%= sort_link(:email, "Email") %>
             </th>
-            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+            <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">
               Classroom
             </th>
-            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-              <%= sort_link(:admin, "Admin") %>
-            </th>
-            <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
+            <%# **Only on the All tab.** On Active every row reads "Active" and on Archived every row reads
+                "Archived" - a column whose value never varies for this viewer in this state, which is the
+                same fault as a column of dashes and the same reason `user_status_badge` renders nothing for
+                a live account. The tab already says which population you are looking at; the column earns
+                its place on the one tab where the two are mixed. %>
+            <% if discard_filter == :all %>
+              <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">
+                <%= sort_link(:discarded_at, "Status") %>
+              </th>
+            <% end %>
+            <th scope="col" class="table-header-cell table-header-cell-right table-actions-cell hidden lg:table-cell">
               <span class="sr-only">Actions</span>
             </th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-gray-200 bg-white">
+        <tbody class="bg-white">
           <% if @users.any? %>
             <% @users.each do |user| %>
-              <tr class="hover:bg-gray-50 transition-colors cursor-pointer"
+              <tr class="table-body-row cursor-pointer"
                   data-controller="clickable-row"
                   data-clickable-row-url-value="<%= user_show_path(user) %>"
                   data-action="click->clickable-row#navigate">
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">
-                  <%= user.id %>
-                </td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">
-                  <%= user.username %>
-                </td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">
-                  <%= user.type %>
-                </td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">
-                  <%= user.email.presence || content_tag(:span, "—", class: "text-gray-400") %>
-                </td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">
-                  <%= user.classroom&.name || content_tag(:span, "—", class: "text-gray-400") %>
-                </td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">
-                  <% if user.admin? %>
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Yes</span>
+                <%# The role, not the STI class name. An admin is `type: "User"` with `admin: true`, so this
+                    column read "User" for the one account that can do everything, while the Admin column
+                    beside it carried the actual answer in a yes/no badge. `account_role_label` is the helper
+                    the account menu uses, so a role reads the same wherever it appears. %>
+                <% type_cell = capture do %>
+                  <%= account_role_label(user) %>
+                <% end %>
+                <% email_cell = capture do %>
+                  <%= user.email.presence || content_tag(:span, "—", class: "text-slate-600") %>
+                <% end %>
+                <% status_cell = capture { discard_status_badge(user) } %>
+                <% classroom_cell = capture do %>
+                  <%= user.classroom&.name || content_tag(:span, "—", class: "text-slate-600") %>
+                <% end %>
+                <% row_actions = capture do %>
+                    <%# "Archive", not "Delete", because that is what happens: the controller discards,
+                        and `User#destroy` raises rather than hard-delete a person. The old label and its
+                        "This cannot be undone" were both false - and the same string on the students
+                        list already reads "They will lose access, but their data is preserved". %>
+                    <%# Restore on a discarded row, Archive on a live one - never both, and never neither.
+                      There was no Restore at all: `admin/students#restore` and the teachers'
+                      reactivation cover the two subclasses, so a user who is neither had no way back,
+                      and the discard is reversible in the data and was irreversible only here. %>
+                  <% if user.discarded? %>
+                    <%= ghost_action_link action_label("Reactivate", user), restore_admin_user_path(user),
+                                          icon: "user-check",
+                                          data: { turbo_method: :patch,
+                                                  turbo_confirm: "Reactivate #{user.username}?\n\n" \
+                                                                 "They can sign in again and reappear " \
+                                                                 "in the lists they belong to." } %>
                   <% else %>
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">No</span>
+                    <%= ghost_action_link action_label("Deactivate", user), admin_user_path(user),
+                                          icon: "user-x", variant: :danger,
+                                          data: { turbo_method: :delete,
+                                                  turbo_confirm: "Deactivate #{user.username}?\n\n" \
+                                                                 "They cannot sign in from that " \
+                                                                 "moment, and they leave this list. " \
+                                                                 "Nothing is deleted: " \
+                                                                 "the account and everything attached " \
+                                                                 "to it are kept." } %>
                   <% end %>
+                <% end %>
+
+                <%# `break-words` here too, and for a reason particular to this table: a **teacher's** username
+                    *is* their email - `Teacher#sync_username_from_email` - so this column holds an
+                    unbreakable 192px token on any list that includes staff. Allowed to break it shrinks and
+                    the row actions stay on screen at 1024px. %>
+                <td class="table-body-cell wrap-anywhere">
+                  <%= link_to user.username, admin_user_path(user), class: "tw-link" %>
+
+                  <%= render "components/ui/stacked_row_fields",
+                             fields: [["Type", type_cell], ["Email", email_cell],
+                                      ["Classroom", classroom_cell],
+                                      (["Status", status_cell] if discard_filter == :all)].compact,
+                             actions: row_actions %>
                 </td>
-                <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                  <div class="flex justify-end gap-2">
-                    <%= link_to "View", user_show_path(user), class: "text-blue-600 hover:text-blue-800" %>
-                    <%= link_to "Edit", edit_admin_user_path(user), class: "text-gray-600 hover:text-gray-800" %>
-                    <%= link_to "Delete", admin_user_path(user),
-                                data: { turbo_method: :delete, turbo_confirm: "Are you sure?" },
-                                class: "text-red-600 hover:text-red-800" %>
-                  </div>
+                <td class="table-body-cell whitespace-nowrap hidden lg:table-cell">
+                  <%= type_cell %>
+                </td>
+                <%# No `whitespace-nowrap`, and `break-words`: an email is one unbreakable token, so a long
+                    one sets this column's minimum width - which is what pushed the row actions off screen at
+                    1024px. Nothing is truncated; the row grows by a line when it has to. %>
+                <td class="table-body-cell wrap-anywhere hidden lg:table-cell">
+                  <%= email_cell %>
+                </td>
+                <td class="table-body-cell whitespace-nowrap hidden lg:table-cell">
+                  <%= classroom_cell %>
+                </td>
+                <% if discard_filter == :all %>
+                  <td class="table-body-cell whitespace-nowrap hidden lg:table-cell">
+                    <%= status_cell %>
+                  </td>
+                <% end %>
+                <td class="table-body-cell table-body-cell-right whitespace-nowrap table-actions-cell hidden lg:table-cell">
+                  <div class="flex items-center justify-end gap-1"><%= row_actions %></div>
                 </td>
               </tr>
             <% end %>
           <% else %>
-            <tr>
-              <td colspan="7" class="px-3 py-12 text-center text-sm text-gray-500">
-                <div class="flex flex-col items-center">
-                  <i class="fas fa-inbox text-4xl text-gray-300 mb-3"></i>
-                  <p class="font-medium">No records found</p>
-                  <p class="text-gray-400 mt-1">No users found. Create your first user to get started.</p>
-                </div>
-              </td>
-            </tr>
+            <%# One sentence, because only one is reachable. The viewer is a `User` and is not discarded, so
+                the Active and All tabs always contain at least the admin reading the page - this index has no
+                search and no pagination, so nothing else can empty them. The "No users yet" branch that used
+                to sit here could not render, and offered a New button for a state the app cannot be in.
+
+                Every other index keeps both branches, because a school or a stock list genuinely can be
+                empty. This one is the exception and this is why. %>
+            <%= render "admin/shared/empty_row", colspan: discard_filter == :all ? 6 : 5, **deactivated_empty_state("user", keeps: "their history and records") %>
           <% end %>
         </tbody>
       </table>

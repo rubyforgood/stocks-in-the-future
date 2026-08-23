@@ -1,9 +1,12 @@
-<div class="max-w-7xl mx-auto">
-  <%= admin_breadcrumbs(@breadcrumbs) %>
-
-  <div class="mb-6">
-    <h1 class="text-3xl font-bold text-gray-900">New School</h1>
-  </div>
-
-  <%= render "form" %>
-</div>
+<%# Create, on the shared record-page shell - `admin/shared/_record_page`, the same partial the record page
+    uses, so a create page is that page with no lifecycle actions and one section. It hand-rolled the same
+    column, breadcrumbs and header, which is how six other create pages came to be four different widths. %>
+<%= render layout: "admin/shared/record_page",
+           locals: { title: "New school", breadcrumbs: @breadcrumbs,
+                     description: "Classrooms belong to a school year, not to the school, so nothing " \
+                                  "can use a school until it has one." } do %>
+  <%= render layout: "admin/shared/record_section",
+             locals: { title: "Details", sr_only: true } do %>
+    <%= render "form" %>
+  <% end %>
+<% end %>

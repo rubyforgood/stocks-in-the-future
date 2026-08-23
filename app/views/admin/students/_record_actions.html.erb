@@ -1,0 +1,44 @@
+<%# A student's lifecycle actions, in the page header.
+
+    **No "Edit".** The record's page edits in place, so a control that navigates to the page you are on
+    has nothing to do - the same reason it came off the teacher page.
+
+    **Deactivate or reactivate, never both.** `Student.find` has no discard scope, so an archived student's page
+    renders exactly like an active one, and it offered "Archive" - which discards an already discarded
+    record and changes nothing. A control that can only report that it did nothing is not a control.
+
+    **"Open portfolio" is the one link out.** It was a `#3` tile among the money figures, styled as a
+    fourth KPI; a portfolio id is not a metric, and the useful part of that tile was that it was a link.
+    `PortfolioPolicy#show?` returns true for an admin, so it is a page an admin can actually open - worth
+    checking before linking, since two roles here get redirected instead. %>
+<% if student.portfolio.present? %>
+  <%= link_to portfolio_path(student.portfolio), class: admin_secondary_button_class do %>
+    <%= lucide_icon("chart-pie", class: "h-5 w-5 shrink-0 text-slate-500") %>
+    Open portfolio
+  <% end %>
+<% end %>
+
+<% if student.discarded? %>
+  <%= button_to restore_admin_student_path(student),
+                method: :patch, form: { class: "inline-flex" }, data: {
+                                                                  turbo_confirm: "Reactivate #{student.display_name}?\n\n" \
+                                                                                 "They can sign in again and reappear in the students list. " \
+                                                                                 "Their portfolio, transactions and grades are unchanged."
+                                                                },
+                class: admin_secondary_button_class do %>
+    <%= lucide_icon("user-check", class: "h-5 w-5 shrink-0 text-slate-500") %>
+    Reactivate
+  <% end %>
+<% else %>
+  <%= button_to admin_student_path(student),
+                method: :delete, form: { class: "inline-flex" }, data: {
+                                                                   turbo_confirm: "Deactivate #{student.display_name}?\n\n" \
+                                                                                  "They cannot sign in from that moment, and they leave the " \
+                                                                                  "active list. Their portfolio, transactions and grades are kept, " \
+                                                                                  "and you can reactivate the account from the students list."
+                                                                 },
+                class: admin_danger_button_class do %>
+    <%= lucide_icon("user-x", class: "h-5 w-5 shrink-0") %>
+    Deactivate
+  <% end %>
+<% end %>

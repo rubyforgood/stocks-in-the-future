@@ -1,0 +1,27 @@
+<%# Data table wrapper.
+
+    Handles the parts that are easy to get wrong and easy to forget:
+      - an accessible name, via <caption> visually hidden
+      - horizontal scroll on narrow screens, in a focusable, labelled region so
+        keyboard users can actually reach and scroll it (WCAG 2.1.1). A plain
+        overflow div is not keyboard-scrollable without a tabindex.
+      - the card surface, hairline dividers and hover states from tables.css
+
+    Locals:
+      caption - required. Describes the table for assistive tech.
+      class   - extra classes on the wrapper
+
+    Pass <thead>/<tbody> as a block. %>
+<div class="table-container <%= local_assigns[:class] %>">
+  <div class="table-wrapper">
+    <div class="overflow-x-auto focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary"
+         tabindex="0"
+         role="region"
+         aria-label="<%= caption %>">
+      <table class="table-base">
+        <caption class="sr-only"><%= caption %></caption>
+        <%= yield %>
+      </table>
+    </div>
+  </div>
+</div>

@@ -1,41 +1,55 @@
-<%= form_with model: portfolio_transaction, url: portfolio_transaction.persisted? ? admin_portfolio_transaction_path(portfolio_transaction) : admin_portfolio_transactions_path, builder: Admin::FormBuilder, class: "space-y-6" do |f| %>
-  <div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg">
-    <div class="px-6 py-6">
-      <h3 class="text-lg font-medium text-gray-900 mb-6">Transaction Details</h3>
+<%= form_with model: portfolio_transaction, url: portfolio_transaction.persisted? ? admin_portfolio_transaction_path(portfolio_transaction) : admin_portfolio_transactions_path, builder: Ui::FormBuilder, class: "space-y-6" do |f| %>
+  <%= render "shared/form_errors", record: portfolio_transaction, subject: "transaction" %>
 
-      <%= f.association_select :portfolio_id,
-                               collection: Portfolio.includes(:user).order("users.username"),
-                               label: "Portfolio",
-                               label_method: ->(portfolio) { "#{portfolio.user.username} (ID: #{portfolio.id})" },
-                               hint: "Select the portfolio for this transaction" %>
+  <%# `components/ui/_card`, and no heading of its own.
 
-      <%= f.select :transaction_type,
-                   PortfolioTransaction.transaction_types.keys.map { |type| [type.humanize, type] },
-                   label: "Transaction Type",
-                   hint: "Type of transaction (deposit, withdrawal, credit, debit, fee)",
-                   include_blank: "Select transaction type..." %>
+      The surface was hand-rolled in ten form partials - `<div class="tw-card"><div class="p-5">` - so it
+      was declared eleven times, which is the mechanism that produced four different padding values before
+      anyone noticed. And each opened with an `h3` naming the record type, under a page header that had
+      just named it: "Teacher details" below "Edit teacher", 24px apart, in two sizes. Polaris drops a
+      card's header when the page has one card. A heading returns the moment a form has two - see
+      admin/students, where it separates them. %>
+  <%= render layout: "components/ui/card", locals: {} do %>
+    <div>
+        <%= f.association_select :portfolio_id,
+                                 collection: Portfolio.includes(:user).order("users.username"),
+                                 label: "Portfolio",
+                                 width: :half,
+                                 required: true,
+                                 label_method: ->(portfolio) { "#{portfolio.user.username} (ID: #{portfolio.id})" } %>
 
-      <%= f.select :reason,
-                   PortfolioTransaction.reasons.keys.map { |r| [r.humanize, r] },
-                   label: "Reason",
-                   hint: "Reason for this transaction (optional)",
-                   include_blank: "Select reason..." %>
+        <%= f.select :transaction_type,
+                     PortfolioTransaction.transaction_types.keys.map { |type| [type.humanize, type] },
+                     label: "Transaction type",
+                     width: :half,
+                     required: true,
+                     hint: "Deposit and credit add to the balance. Withdrawal, debit and fee take " \
+                           "from it.",
+                     include_blank: "Select transaction type..." %>
 
-      <%= f.currency_field :amount_cents,
-                           label: "Amount",
-                           hint: "Transaction amount in dollars",
-                           multiplier: 0.01,
-                           decimals: 2 %>
+        <%= f.select :reason,
+                     PortfolioTransaction.reasons.keys.map { |r| [r.humanize, r] },
+                     label: "Reason",
+                     width: :half,
+                     include_blank: "Select reason..." %>
 
-      <%= f.text_area :description,
-                      label: "Description",
-                      hint: "Optional description for this transaction",
-                      rows: 4 %>
+        <%= f.currency_field :amount_cents,
+                             label: "Amount",
+                             width: :half,
+                             required: true,
+                             hint: "In dollars, like 12.50.",
+                             multiplier: 0.01,
+                             decimals: 2 %>
+
+        <%= f.text_area :description,
+                        label: "Description",
+                        hint: "Notes for other administrators. Never shown to the student.",
+                        rows: 4 %>
     </div>
-  </div>
+    <% end %>
 
-  <div class="flex items-center justify-end gap-x-4">
+  <div class="tw-form-actions">
+    <%= f.submit_button portfolio_transaction.persisted? ? "Update portfolio transaction" : "Create portfolio transaction" %>
     <%= f.cancel_button "Cancel", url: portfolio_transaction.persisted? ? admin_portfolio_transaction_path(portfolio_transaction) : admin_root_path %>
-    <%= f.submit_button portfolio_transaction.persisted? ? "Update Portfolio Transaction" : "Create Portfolio Transaction" %>
   </div>
 <% end %>

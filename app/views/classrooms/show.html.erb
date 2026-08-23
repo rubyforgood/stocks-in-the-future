@@ -1,42 +1,134 @@
-<div class="mx-auto w-full flex">
-  <div class="mx-auto w-full">
-    <div class="flex gap-4 items-center justify-between my-6">
-      <div class="flex gap-4">
-        <h1 class="text-3xl font-bold">
-          <%= [
-                @classroom.name,
-                ("Grade #{@classroom.grades_display}" if @classroom.grades_display.present?),
-                @classroom.year_name
-              ].compact.join(', ') %>
-        </h1>
+<%# Classroom detail, rebuilt on the shared page header.
 
-        <%= form_with url: toggle_trading_classroom_path(@classroom), method: :patch, class: "contents" do %>
-          <label class="inline-flex items-center cursor-pointer">
-            <%= check_box_tag "trading", "1", @classroom.trading_enabled?, class: "sr-only peer", disabled: !policy(@classroom).toggle_trading?, onchange: "this.form.requestSubmit()" %>
-            <span class="select-none text-sm font-medium">Trading:</span>
-            <div class="relative ms-1 w-9 h-5 bg-gray-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-buffer after:content-[''] after:absolute after:top-0.5 after:start-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600"></div>
-          </label>
-        <% end %>
-      </div>
+    It hand-rolled its own h1 and actions row inside two redundant `mx-auto w-full` wrappers, with
+    `my-6` on the row rather than the header block's own `mb-6`. The h1 joined three facts with
+    commas - name, grade and year - so the page's accessible name carried its metadata; the name is
+    the title now and the rest is the description.
+
+    The trading switch has moved twice. It started inside the h1's flex row, which put a form control
+    in the heading; it then went to the header's action area, which is for the page's *actions* and is
+    where it read as one. It is a setting, so it is a setting card now - see `_trading_setting`. Its
+    inline `onchange="this.form.requestSubmit()"` became a Stimulus action along the way; it was the
+    last inline handler in the app.
+
+    Section order is the summary band, the setting, the roster, then the grade books - figures first
+    because that is what an entity detail page opens with, and the two collections stacked full width
+    rather than side by side. %>
+<% content_for :title, @classroom.name %>
+
+<div class="mx-auto w-full">
+  <%# The same line as the admin record page, through the same helper - it read "Grade 6th, 2026 - 2027"
+      here and "6th · 2026 - 2027 · trading on" there, for one classroom.
+      No status badge on this side: the trading setting below states its own state in a sentence beside the
+      switch, and a pill saying it a third time is what design.md forbids by name. %>
+  <% meta = classroom_summary(@classroom) %>
+
+  <%= page_breadcrumbs(@breadcrumbs) %>
+
+  <%= render layout: "components/ui/page_header",
+             locals: { title: @classroom.name, description: meta } do %>
+    <% if @can_manage_students %>
+      <%= link_to "Add student", new_classroom_student_path(@classroom), class: "tw-btn-primary" %>
+      <% if policy(@classroom).edit? %>
+        <%= link_to "Edit classroom", edit_classroom_path(@classroom), class: "tw-btn-secondary" %>
+      <% end %>
+    <% end %>
+  <% end %>
+
+  <%# Stacked sections, each the full column width, rather than the roster and the grade book rail
+      side by side. `lg:flex-row` gave one collection about 760px and the other 256px at 1366px, which
+      says "the narrow one is supporting detail" - and Polaris, whose two-column layout this imitated,
+      is explicit that a secondary column carries metadata rather than a second collection. Stripe's
+      customer page, GitHub's repository page and Linear's project page all stack an entity's related
+      collections full width and let the order say which is primary.
+
+      space-y-6 is the section rhythm this document sets, and it is on the wrapper so each child is a
+      top-level section - which is also why the grade books partial emits a single <section>.
+
+      No `mt-6` on it. Adjacent vertical margins collapse to the larger, and the page header's own `mb-6`
+      is the same 24px, so it measured nothing - and an inert margin is worse than none, because it reads
+      as load-bearing and becomes load-bearing the moment anything is inserted above it. The header block
+      owns this gap, everywhere. %>
+  <div class="space-y-6">
+    <%# No four-across stat band here, deliberately, and this is the one place the page departs from
+        what the field does. Stripe leads a customer with its figures and the portfolio page in this app
+        uses exactly that strip - but measured at 1366x768 it is 134px tall, and with the setting card
+        above the roster it put the first student at **567px of a 625px viewport**. The roster is why a
+        teacher opens this page; a summary that pushes it off screen costs more than it tells.
+
+        ClassroomsController still computes @classroom_stats - total students, students who have traded,
+        class portfolio value, orders this week - and nothing renders it, which is four queries a
+        request thrown away. That is a real finding and it is recorded in design-todo rather than
+        answered by putting a 134px band above the thing the page is for. A one-line meta summary beside
+        the title is the shape that would fit. %>
+    <%# The roster, with student trading on the line under the heading rather than in a card of its
+        own. A section's control belongs on its header row - Polaris's card header action, Primer's
+        Subhead, Stripe's list sections - and pairing the switch with the sentence that states the
+        state is what removes any need for a status pill beside it.
+
+        Heading, no separate description line: "Students" against "Grade books" is not the ambiguous
+        case design.md's table-description rule came from, and the trading sentence is the line here. %>
+    <section aria-labelledby="students-heading">
+      <h2 id="students-heading" class="text-base font-semibold text-slate-900">Students</h2>
 
       <% if @can_manage_students %>
-        <div class="flex justify-end gap-3">
-          <%= link_to "Add Student", new_classroom_student_path(@classroom),
-                      class: "tw-btn-primary" %>
-          <% if policy(@classroom).edit? %>
-            <%= link_to "Edit Class", edit_classroom_path(@classroom), class: "tw-btn-secondary !rounded-lg !py-3 !px-5 !text-base !text-black !ring-black" %>
-          <% end %>
-          <!-- TODO: Add bulk functionality in future PR -->
-        </div>
+        <%= render "trading_setting", classroom: @classroom %>
       <% end %>
-    </div>
 
-    <div class="flex gap-8">
-      <div class="flex-1">
-        <%= render 'classroom_students_table', students: @classroom.users %>
+      <div class="mt-3">
+        <%= render "classroom_students_table", students: @classroom.users %>
       </div>
-      <!-- Temporary UI, remove when tabbed table is wired up: -->
-      <%= render "grade_books_list", grade_books: @classroom.grade_books %>
-    </div>
+    </section>
+
+    <%= render "grade_books_list", grade_books: @classroom.grade_books %>
+
+    <%# **At the foot, not the top.** `ClassroomFacade#stats` has computed these four figures on every
+        teacher's and admin's visit to this page and no template has ever read them - four queries whose
+        result went nowhere.
+
+        They belong here rather than above the roster, and that is a measured decision: at 1366x768 this
+        viewport is 625px, the roster's first row starts at 270px, and a four-across `_stat` band is
+        134px. Putting one above the roster once pushed the first student to 567px of 625px, which is the
+        page's own recorded mistake. Below the grade books it is the summary you scroll to *after* the
+        work, which is when "how is this class doing?" is actually asked.
+
+        Deleting the four queries was the alternative. It is worse: the figures answer a question a
+        teacher has and nothing else in the app answers - the trading floor's Held by column says what is
+        being bought, not how this class is doing. %>
+    <% if @classroom_stats.present? %>
+      <section aria-labelledby="classroom-summary-heading">
+        <h2 id="classroom-summary-heading" class="text-base font-semibold text-slate-900">
+          How this class is doing
+        </h2>
+        <p class="mt-1 text-sm text-slate-600">Across every student on the roster.</p>
+
+        <%# One card holding four figures, not four cards. `surface: false` on each - see the note in
+            `_stat`. Four `_stat` cards here took the page from two surfaces to six, which is exactly the
+            shape this page was rebuilt to remove and which `classroom_page_test` asserts against. %>
+        <div class="tw-card mt-3 grid grid-cols-1 gap-5 p-5 lg:grid-cols-4">
+          <%= render "components/ui/stat",
+                     label: "Students",
+                     value: @classroom_stats[:total_students].to_s,
+                     testid: "stat-students",
+                     surface: false %>
+          <%= render "components/ui/stat",
+                     label: "Have traded",
+                     value: @classroom_stats[:active_students].to_s,
+                     hint: "Placed at least one order",
+                     testid: "stat-active-students",
+                     surface: false %>
+          <%= render "components/ui/stat",
+                     label: "Class portfolio",
+                     value: number_to_currency(@classroom_stats[:total_portfolio_value_cents].to_i / 100.0),
+                     testid: "stat-portfolio-value",
+                     surface: false %>
+          <%= render "components/ui/stat",
+                     label: "Orders this week",
+                     value: @classroom_stats[:recent_orders_count].to_s,
+                     testid: "stat-recent-orders",
+                     surface: false %>
+        </div>
+      </section>
+    <% end %>
   </div>
 </div>

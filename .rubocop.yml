@@ -83,3 +83,13 @@ Layout/MultilineMethodCallIndentation:
 
 Layout/FirstArgumentIndentation:
   EnforcedStyle: consistent
+
+# `staging` is a real environment here - config/environments/staging.rb, a deploy workflow and an
+# EnvironmentHelper that shows a ribbon in it. The cop's default list does not include it, so without
+# this every reference to Rails.env.staging? is flagged as a typo.
+Rails/UnknownEnv:
+  Environments:
+    - development
+    - test
+    - production
+    - staging

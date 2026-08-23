@@ -1,0 +1,78 @@
+<%# Empty state.
+
+    Airbnb reading: an empty state is friendly and tells you what to do next,
+    rather than apologising. Icon is decorative (aria-hidden via lucide_icon's
+    defaults) because the heading and body carry the meaning.
+
+    Two sizes, and the distinction matters. Polaris, Stripe and Material all draw the
+    same line:
+
+      default - page or table level, where the emptiness IS the screen. Centred, a
+                48px icon tile, py-12. It earns the room because there is nothing else
+                on the page competing for it.
+      compact - section level, inside a card that already has a title and siblings. Text
+                only, left-aligned, with no padding of its own so the card's p-5 sets the
+                spacing. A centred full-height state here makes a card with nothing to say
+                the tallest thing on the screen.
+
+    **The compact variant carries no icon**, and that is the difference between the two rather
+    than a size. An icon in an empty state is a focal point for a region where the emptiness
+    *is* the screen - Polaris's EmptyState illustration, Primer's Blankslate visual. Inside a
+    titled card the header already carries one, so a second is a competing focal point 40px
+    below the first; Stripe's card empty states and GOV.UK's are text.
+
+    Reported on the announcements card, where it was the same `megaphone` twice in two
+    treatments: 16px in a 32x32 blue-50 tile in the header, and 20px bare slate-500 in the body.
+    Bigger, in a different colour, with no tile - so the pair read as unrelated.
+
+    It also moved the text. The glyph plus its gap indented the copy **32px** past the card's
+    content edge, so the empty state did not sit where the content it replaces sits: an
+    announcement's title starts flush, and arriving shifted the text left. An empty state
+    occupies the same box as the thing it stands in for.
+
+    Locals:
+      title   - short heading, sentence case
+      body    - optional sentence explaining what will appear here
+      icon    - optional Lucide icon name for the default variant (default: inbox);
+                ignored by compact, which has none
+      compact - true for the section-level treatment
+      action  - optional block for a call to action %>
+<% icon = local_assigns.fetch(:icon, "inbox") %>
+
+<%# See _page_header: check the yielded content, not block_given?. %>
+<% action = yield %>
+
+<%# `data-testid`, because an empty state is the hardest thing in the app to look at - it renders only
+    when a list is empty - and the test that photographs them needs to find them. %>
+<% if local_assigns[:compact] %>
+  <div class="min-w-0" data-testid="empty-state">
+    <p class="text-sm font-medium text-slate-900"><%= title %></p>
+
+    <% if local_assigns[:body].present? %>
+      <p class="mt-0.5 text-sm text-slate-600"><%= body %></p>
+    <% end %>
+
+    <% if action.present? %>
+      <div class="mt-3"><%= action %></div>
+    <% end %>
+  </div>
+<% else %>
+  <div class="flex flex-col items-center justify-center px-6 py-12 text-center" data-testid="empty-state">
+    <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-slate-100">
+      <%= lucide_icon(icon, class: "h-6 w-6 text-slate-500") %>
+    </div>
+
+    <p class="text-base font-semibold text-slate-900"><%= title %></p>
+
+    <% if local_assigns[:body].present? %>
+      <%# This cap stays too. The block is centred, so the cap gives the sentence a readable measure with
+          equal space on both sides - which is centring, not a gutter. Polaris's EmptyState and Primer's
+          Blankslate both constrain their body text this way. %>
+      <p class="mt-1 max-w-md text-sm text-slate-600"><%= body %></p>
+    <% end %>
+
+    <% if action.present? %>
+      <div class="mt-4"><%= action %></div>
+    <% end %>
+  </div>
+<% end %>

@@ -13,7 +13,7 @@ module Admin
       get admin_school_years_path
 
       assert_response :success
-      assert_select "h3", "School Years"
+      assert_select "h1", "School years"
       assert_select "tbody tr", count: 2
     end
 
@@ -29,8 +29,15 @@ module Admin
       get admin_school_year_path(school_year)
 
       assert_response :success
-      assert_select "h2", "#{school_name} (#{year_name})"
-      assert_select "h3", "Quarters"
+      assert_select "h1", "#{school_name} (#{year_name})"
+      # **No "Quarters" card, and no quarter count either.** A school year always has exactly four -
+      # `create_quarters` makes them, nothing else does, and there are no quarter routes - so listing them
+      # was an invariant rendered as data. The summary line kept "· 4 quarters", which is the same
+      # invariant printed smaller, and a reader reported it. The description carries what differs between
+      # one school year and the next, which is how many classrooms are in it.
+      assert_select "h2", text: "Quarters", count: 0
+      assert_select "p", text: /quarters/, count: 0
+      assert_select "p", text: /0 classrooms/
     end
 
     test "new" do
@@ -40,7 +47,7 @@ module Admin
       get new_admin_school_year_path
 
       assert_response :success
-      assert_select "h1", "New School Year"
+      assert_select "h1", "New school year"
     end
 
     test "create" do
@@ -88,7 +95,12 @@ module Admin
       end
 
       assert_response :unprocessable_content
-      assert_select "p.text-red-600", /already exists/
+      # In the error summary, which is where every admin form lists its errors now - including the ones
+      # on :base. This asserted `p.text-red-600`, the markup of a builder method that existed only to
+      # render base errors and was a second copy of the same list.
+      # The model's message now, not a base error built by hand in the controller: the same rule is
+      # reached from a school's own page, so it had to live on the record.
+      assert_select "[data-testid=?] li", "form-errors", /already added to this school/
     end
 
     test "edit" do
@@ -99,7 +111,8 @@ module Admin
       get edit_admin_school_year_path(school_year)
 
       assert_response :success
-      assert_select "h1", "Edit School Year"
+      # The record's page edits in place, so its heading is the record's name.
+      assert_select "h1", school_year.name
     end
 
     test "update" do

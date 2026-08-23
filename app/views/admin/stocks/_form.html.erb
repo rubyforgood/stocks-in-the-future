@@ -1,126 +1,154 @@
-<%= form_with model: @stock, url: @stock.persisted? ? admin_stock_path(@stock) : admin_stocks_path, builder: Admin::FormBuilder, class: "space-y-6" do |f| %>
-  <div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg">
-    <div class="px-6 py-6">
-      <h3 class="text-lg font-medium text-gray-900 mb-6">Basic Information</h3>
+<%= form_with model: @stock, url: @stock.persisted? ? admin_stock_path(@stock) : admin_stocks_path, builder: Ui::FormBuilder, class: "space-y-6" do |f| %>
+  <%= render "shared/form_errors", record: @stock, subject: "stock" %>
 
-      <%= f.text_field :ticker,
-                       label: "Ticker Symbol",
-                       hint: "Stock ticker symbol (e.g., AAPL, GOOGL)",
-                       placeholder: "AAPL" %>
+  <%# `components/ui/_card`, and no heading of its own.
 
-      <%= f.text_field :company_name,
-                       label: "Company Name",
-                       hint: "Full company name",
-                       placeholder: "Apple Inc." %>
+      The surface was hand-rolled in ten form partials - `<div class="tw-card"><div class="p-5">` - so it
+      was declared eleven times, which is the mechanism that produced four different padding values before
+      anyone noticed. And each opened with an `h3` naming the record type, under a page header that had
+      just named it: "Teacher details" below "Edit teacher", 24px apart, in two sizes. Polaris drops a
+      card's header when the page has one card. A heading returns the moment a form has two - see
+      admin/students, where it separates them. %>
+  <%# **Sixteen hints removed, four kept.**
+      "Full company name" under a field labelled Company name, "Industry sector" under Industry, "Company
+      cash flow" under Cash flow - sixteen of the twenty said the label again in different words, which is
+      what GOV.UK, Polaris, Carbon and Material all name as the thing hint text must not do. A hint that
+      restates is worse than none: it adds a line to read, and it teaches a reader that the hints on this
+      page carry nothing, so they stop reading the four that do.
 
-      <%= f.text_field :company_website,
-                       label: "Company Website",
-                       hint: "Company website URL (must be HTTP or HTTPS)",
-                       placeholder: "https://www.apple.com" %>
+      The four that stay each carry something the label cannot: a format the record is validated against,
+      two fields a background job overwrites, and what archiving does to a student.
 
-      <%= f.text_field :stock_exchange,
-                       label: "Stock Exchange",
-                       hint: "Exchange where stock is traded (e.g., NASDAQ, NYSE)",
-                       placeholder: "NASDAQ" %>
+      What the deleted ones were reaching for - that these fields are read by students - is true of the
+      whole card, so it is said once in the page description rather than sixteen times. %>
+  <%= render layout: "components/ui/card", locals: {} do %>
+    <div>
+        <%= f.text_field :ticker,
+                         label: "Ticker symbol",
+                         width: :half,
+                         required: true,
+                         placeholder: "AAPL" %>
 
-      <%= f.text_area :description,
-                      label: "Description",
-                      hint: "Company description and overview",
-                      rows: 4 %>
+        <%= f.text_field :company_name,
+                         label: "Company name",
+                         width: :half,
+                         placeholder: "Apple Inc." %>
 
-      <div class="mt-6 pt-6 border-t border-gray-200">
-        <h4 class="text-md font-medium text-gray-900 mb-4">Pricing</h4>
+        <%# **The one single-line field that keeps the full measure**, and `type="url"` is what says so. A web
+            address is genuinely long - `page_width_test` recorded the exception when the widths were first
+            set - and every other exception in this app has been a name in a list, which is how the column of
+            dashes survived three sweeps. A type is a property of the field, so the width rule can read it:
+            "half unless it is a textarea or a url". The type also gets the right keyboard on a phone. %>
+        <%= f.text_field :company_website,
+                         label: "Company website",
+                         type: "url",
+                         hint: "Must be a full web address, starting with http or https.",
+                         placeholder: "https://www.apple.com" %>
 
-        <%= f.currency_field :price_cents,
-                             label: "Current Price",
-                             hint: "Current stock price in dollars",
-                             multiplier: 0.01,
-                             decimals: 2 %>
+        <%= f.text_field :stock_exchange,
+                         label: "Stock exchange",
+                         width: :half,
+                         placeholder: "NASDAQ" %>
 
-        <%= f.currency_field :yesterday_price_cents,
-                             label: "Yesterday's Price",
-                             hint: "Previous day's closing price in dollars",
-                             multiplier: 0.01,
-                             decimals: 2 %>
-      </div>
-
-      <div class="mt-6 pt-6 border-t border-gray-200">
-        <h4 class="text-md font-medium text-gray-900 mb-4">Company Details</h4>
-
-        <%= f.number_field :employees,
-                           label: "Number of Employees",
-                           hint: "Total number of employees" %>
-
-        <%= f.text_field :industry,
-                         label: "Industry",
-                         hint: "Industry sector",
-                         placeholder: "Technology" %>
-      </div>
-
-      <div class="mt-6 pt-6 border-t border-gray-200">
-        <h4 class="text-md font-medium text-gray-900 mb-4">Financial Metrics</h4>
-
-        <%= f.text_field :cash_flow,
-                         label: "Cash Flow",
-                         hint: "Company cash flow" %>
-
-        <%= f.text_field :debt,
-                         label: "Debt",
-                         hint: "Total company debt" %>
-
-        <%= f.text_field :debt_to_equity,
-                         label: "Debt to Equity Ratio",
-                         hint: "Debt to equity ratio" %>
-
-        <%= f.text_field :profit_margin,
-                         label: "Profit Margin",
-                         hint: "Company profit margin" %>
-
-        <%= f.text_field :sales_growth,
-                         label: "Sales Growth",
-                         hint: "Sales growth percentage" %>
-      </div>
-
-      <div class="mt-6 pt-6 border-t border-gray-200">
-        <h4 class="text-md font-medium text-gray-900 mb-4">Industry Averages</h4>
-
-        <%= f.text_field :industry_avg_debt_to_equity,
-                         label: "Industry Avg Debt to Equity",
-                         hint: "Industry average debt to equity ratio" %>
-
-        <%= f.text_field :industry_avg_profit_margin,
-                         label: "Industry Avg Profit Margin",
-                         hint: "Industry average profit margin" %>
-
-        <%= f.text_field :industry_avg_sales_growth,
-                         label: "Industry Avg Sales Growth",
-                         hint: "Industry average sales growth" %>
-      </div>
-
-      <div class="mt-6 pt-6 border-t border-gray-200">
-        <h4 class="text-md font-medium text-gray-900 mb-4">Additional Information</h4>
-
-        <%= f.text_area :management,
-                        label: "Management",
-                        hint: "Information about company management",
+        <%= f.text_area :description,
+                        label: "Description",
                         rows: 4 %>
 
-        <%= f.text_area :competitor_names,
-                        label: "Competitor Names",
-                        hint: "List of competitor companies",
-                        rows: 3 %>
-      </div>
+        <div class="mt-6 pt-6 border-t border-slate-200">
+          <h3 class="mb-4 text-sm font-semibold text-slate-900">Pricing</h3>
 
-      <div class="mt-6 pt-6 border-t border-gray-200">
-        <%= f.boolean_field :archived,
-                            label: "Archived",
-                            hint: "Mark this stock as archived (hidden from active listings)" %>
-      </div>
+          <%= f.currency_field :price_cents,
+                               label: "Current price",
+                               width: :half,
+                               hint: "Replaced each weekday by the price feed.",
+                               multiplier: 0.01,
+                               decimals: 2 %>
+
+          <%= f.currency_field :yesterday_price_cents,
+                               label: "Yesterday's price",
+                               width: :half,
+                               hint: "Set by the price feed. Holds whatever the last refresh " \
+                                     "replaced.",
+                               multiplier: 0.01,
+                               decimals: 2 %>
+        </div>
+
+        <div class="mt-6 pt-6 border-t border-slate-200">
+          <h3 class="mb-4 text-sm font-semibold text-slate-900">Company details</h3>
+
+          <%= f.number_field :employees,
+                             label: "Number of employees",
+                             width: :half %>
+
+          <%= f.text_field :industry,
+                           label: "Industry",
+                           width: :half,
+                           placeholder: "Technology" %>
+        </div>
+
+        <div class="mt-6 pt-6 border-t border-slate-200">
+          <h3 class="mb-4 text-sm font-semibold text-slate-900">Financial metrics</h3>
+
+          <%= f.text_field :cash_flow,
+                           label: "Cash flow",
+                           width: :half %>
+
+          <%= f.text_field :debt,
+                           label: "Debt",
+                           width: :half %>
+
+          <%= f.text_field :debt_to_equity,
+                           label: "Debt to equity ratio",
+                           width: :half %>
+
+          <%= f.text_field :profit_margin,
+                           label: "Profit margin",
+                           width: :half %>
+
+          <%= f.text_field :sales_growth,
+                           label: "Sales growth",
+                           width: :half %>
+        </div>
+
+        <div class="mt-6 pt-6 border-t border-slate-200">
+          <h3 class="mb-4 text-sm font-semibold text-slate-900">Industry averages</h3>
+
+          <%= f.text_field :industry_avg_debt_to_equity,
+                           label: "Industry avg debt to equity",
+                           width: :half %>
+
+          <%= f.text_field :industry_avg_profit_margin,
+                           label: "Industry avg profit margin",
+                           width: :half %>
+
+          <%= f.text_field :industry_avg_sales_growth,
+                           label: "Industry avg sales growth",
+                           width: :half %>
+        </div>
+
+        <div class="mt-6 pt-6 border-t border-slate-200">
+          <h3 class="mb-4 text-sm font-semibold text-slate-900">Additional information</h3>
+
+          <%= f.text_area :management,
+                          label: "Management",
+                          rows: 4 %>
+
+          <%= f.text_area :competitor_names,
+                          label: "Competitor names",
+                          rows: 3 %>
+        </div>
+
+        <div class="mt-6 pt-6 border-t border-slate-200">
+          <%= f.boolean_field :archived,
+                              label: "Archived",
+                              hint: "Students can no longer buy it. Anyone holding shares keeps " \
+                                    "them and can still sell." %>
+        </div>
     </div>
-  </div>
+    <% end %>
 
-  <div class="flex items-center justify-end gap-x-4">
+  <div class="tw-form-actions">
+    <%= f.submit_button @stock.persisted? ? "Update stock" : "Create stock" %>
     <%= f.cancel_button "Cancel", url: @stock.persisted? ? admin_stock_path(@stock) : admin_stocks_path %>
-    <%= f.submit_button @stock.persisted? ? "Update Stock" : "Create Stock" %>
   </div>
 <% end %>

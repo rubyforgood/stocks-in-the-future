@@ -1,0 +1,109 @@
+<% content_for :title, "Your profile" %>
+
+<%# `scope: :user` on both forms is load-bearing. User is an STI base, so form_with derives the
+    param key from the record's class: a Student posted `student[name]` and a Teacher
+    `teacher[name]`, while the controller expects `user`, and params.expect raised
+    ParameterMissing -> 400 for every submit.
+
+    It is `scope:`, not `as:`. `as:` is form_for's keyword; form_with accepts it silently into
+    **options and keeps deriving the scope from the model, so the fix looks applied and changes
+    nothing. The rendered input names are the only proof.
+
+    A controller test that hand-writes `params: { user: ... }` cannot catch any of this: it agrees
+    with the controller rather than with the browser. Only clicking the button did.
+
+    Two forms, because the two changes have different costs. A display name should not require
+    proving your password; a password change must. GitHub, Stripe and Linear all split them the
+    same way, and it is the specific complaint design-todo recorded about Devise's
+    registrations#edit - which demanded the current password before it would save anything.
+
+    Username is shown, not edited. It is what a student signs in with and a teacher assigns it. %>
+<div class="mx-auto w-full max-w-3xl space-y-6">
+  <%# No description. It read "How your name appears, and your password", which is what the two section
+      headings below already say - and a description is for what the reader cannot see. %>
+  <%= render layout: "components/ui/page_header",
+             locals: { title: "Your profile" } do %><% end %>
+
+  <%= render layout: "components/ui/card", locals: { title: "Your details" } do %>
+    <%# `scope: :user` survives the builder, and it is load-bearing: `User` is an STI base, so
+        `form_with model:` alone derives the param key from the record's class and a Student would post
+        `student[name]` to a controller expecting `user`. That is a 400 on every submit, and a controller
+        test that hand-writes its params cannot see it. %>
+    <%# Two branches because the consequence differs, not the wording. "Optional. Used to reset your
+        password if you have one" was ambiguous - "one" reads as a password - and it buried the thing that
+        matters: `devise/passwords/new` asks for an email address, so a student without one cannot recover
+        their own account and has to ask an admin. %>
+    <% email_hint = if current_user.email_required?
+                      "Used to reset your password."
+                    else
+                      "Optional. Without an email address you cannot reset your own password."
+                    end %>
+    <%= form_with model: @user, scope: :user, url: profile_path, method: :patch,
+                  builder: Ui::FormBuilder, class: "contents" do |f| %>
+      <%= render "profiles/errors", user: @user, on: %i[name email] %>
+
+      <%= f.text_field :name,
+                       label: "Display name",
+                       width: :half,
+                       autocomplete: "name",
+                       hint: "Displayed on your portfolio and in the account menu. If left blank, " \
+                             "your username is shown instead." %>
+
+      <%# `required:` follows `User#email_required?`, which is true for a teacher or an admin and false
+          for a student - so the asterisk appears exactly when the model would reject a blank. A field
+          marked required that is not, or required and unmarked, are the same defect in two directions. %>
+      <%= f.email_field :email,
+                        label: "Email address",
+                        autocomplete: "email",
+                        required: current_user.email_required?,
+                        hint: email_hint %>
+
+      <%# Read-only rather than disabled: a disabled field is skipped by keyboard navigation, so the
+          value a student needs to remember becomes unreachable. %>
+      <%= f.text_field :username,
+                       label: "Username",
+                       width: :half,
+                       readonly: true,
+                       # WCAG 1.3.5, which applies to a field collecting the *reader's own* data - this is
+                       # your account. The admin forms that collect a student's or a teacher's details are
+                       # out of its scope, and giving them an autocomplete would offer the admin their own
+                       # name for somebody else's field.
+                       autocomplete: "username",
+                       class: "bg-slate-50 text-slate-600",
+                       hint: "Used to sign in. Ask your teacher if it needs to change." %>
+
+      <%= f.submit "Save details", class: "tw-btn-primary" %>
+    <% end %>
+  <% end %>
+
+  <%= render layout: "components/ui/card", locals: { title: "Password" } do %>
+    <% length_hint = "At least #{@minimum_password_length} characters." if @minimum_password_length %>
+    <%= form_with model: @user, scope: :user, url: password_profile_path, method: :patch,
+                  builder: Ui::FormBuilder, class: "contents" do |f| %>
+      <%= render "profiles/errors", user: @user, on: %i[current_password password password_confirmation] %>
+
+      <%= f.password_field :current_password,
+                           label: "Current password",
+                           width: :half,
+                           required: true,
+                           autocomplete: "current-password" %>
+
+      <%= f.password_field :password,
+                           label: "New password",
+                           width: :half,
+                           required: true,
+                           autocomplete: "new-password",
+                           hint: length_hint %>
+
+      <%= f.password_field :password_confirmation,
+                           label: "Confirm new password",
+                           width: :half,
+                           required: true,
+                           autocomplete: "new-password" %>
+
+      <%# Secondary, not primary: design.md allows one filled primary per page and "Save details"
+          above is this page's main action. A second card's submit is the sub-form case. %>
+      <%= f.submit "Change password", class: "tw-btn-secondary" %>
+    <% end %>
+  <% end %>
+</div>

@@ -1,32 +1,67 @@
-<div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
-  <h1 class="text-2xl font-bold text-gray-900 mb-6">Add New Student</h1>
+<div class="mx-auto max-w-3xl">
+  <%= page_breadcrumbs(@breadcrumbs) %>
 
-  <%= form_with model: [@classroom, @student], local: true, class: "space-y-6" do |f| %>
-    <% if @student.errors.any? %>
-      <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-smrelative" role="alert">
-        <strong class="font-bold">Error:</strong>
-        <ul>
-          <% @student.errors.full_messages.each do |message| %>
-            <li><%= message %></li>
-          <% end %>
-        </ul>
-      </div>
-    <% end %>
+  <%= render layout: "components/ui/page_header",
+             locals: { title: "Add new student",
+                       description: "Students can sign in as soon as the account is saved. Their " \
+                                    "password is shown once, on the next screen." } do %><% end %>
 
-    <div class="bg-white shadow-sm overflow-hidden sm:rounded-md">
-      <div class="px-4 py-5 sm:p-6">
-        <div class="grid grid-cols-6 gap-6">
-          <div class="col-span-6 sm:col-span-4">
-            <%= f.label :username, class: "block text-sm font-medium text-gray-700" %>
-            <%= f.text_field :username, class: "mt-1 block w-full shadow-xs sm:text-sm border-gray-300 rounded-md", required: true, placeholder: "e.g., john_doe" %>
-            <p class="mt-2 text-sm text-gray-500">A password will be automatically generated for the student.</p>
-          </div>
-        </div>
+  <%= form_with model: [@classroom, @student], builder: Ui::FormBuilder do |f| %>
+    <%= render "shared/form_errors", record: @student, subject: "student" %>
+
+    <%# `.tw-card`, not a hand-rolled surface. This was `bg-white shadow-sm overflow-hidden lg:rounded-md`:
+        no border at any width and no radius at all below lg, so on a phone the form sat on a white
+        rectangle with square corners against a slate-50 page while every other panel in the app was a
+        rounded-2xl bordered card.
+
+        One column, not `grid grid-cols-6` with `col-span-6 lg:col-span-4`. Two fields do not need a
+        twelve-column grid, and at lg that grid made the inputs two thirds of a container that is already
+        capped at 672px. A single-column stack is what GOV.UK, Polaris and Tailwind UI use for a short
+        form, and one field per row is what makes a form scannable. %>
+    <div class="tw-card p-5">
+      <div>
+        <%# `users.name` has existed the whole time and `User#display_name` prefers it, but nothing ever
+            collected it - so every student's name was nil and every screen fell back to a lowercased
+            username. Reported as "why are all the student names lowercase": they were not names. Required
+            here, on the form, rather than on every create: bulk CSV import takes a username and a
+            classroom id and nothing else, so a model-wide requirement would fail every row of a class
+            being onboarded. See Student. %>
+        <%# The hint sits **under the label, above the input** now, which is where GOV.UK, Polaris, Carbon
+            and Material all put it: it tells you what to type before you type it, rather than after. These
+            two forms had it below the control, which is the app half's hand-written shape and the reason
+            the two halves read differently. `Ui::FormBuilder` owns the shape now. %>
+        <%= f.text_field :name,
+                         label: "Full name",
+                         width: :half,
+                         required: true,
+                         placeholder: "e.g., Jordan Smith",
+                         hint: "Displayed wherever this student appears. If left blank, their " \
+                               "username is shown instead." %>
+
+        <%= f.text_field :username,
+                         label: "Username",
+                         width: :half,
+                         required: true,
+                         placeholder: "e.g., jordan_s",
+                         hint: "Used to sign in. A password is generated automatically." %>
       </div>
-      <div class="px-4 py-3 bg-gray-50 text-right sm:px-6">
-        <%= f.submit "Create Student", class: "inline-flex justify-center py-2 px-4 border border-transparent shadow-xs text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
-        <%= link_to "Cancel", classroom_path(@classroom), class: "ml-3 inline-flex justify-center py-2 px-4 border border-gray-300 shadow-xs text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
-      </div>
+    </div>
+
+    <%# Actions on the **leading edge**, below the card, on the page background.
+
+        They were in a `bg-slate-50 text-right` strip inside the card - reported as a grey background
+        behind the buttons - and design.md is explicit: form actions anchor to the leading edge, never
+        centred, which is where the classroom form and the grade book both put theirs. A tinted footer
+        inside the card is Polaris's and Stripe's variant of the same rule, and it is a different
+        decision, not a free one: it needs the card to own its own padding and it fills a strip with a
+        colour that means nothing here. One shape for the product, and this is it.
+
+        Primary first, because at the leading edge the eye reads left to right and the primary is what the
+        form is for. Trailing alignment reverses that - Polaris and Stripe put Cancel first there - which
+        is exactly why the two cannot be mixed. %>
+    <div class="tw-form-actions mt-6">
+      <%= f.submit "Create student", class: "tw-btn-primary" %>
+      <%= link_to "Cancel", classroom_path(@classroom), class: "tw-btn-secondary" %>
     </div>
   <% end %>
 </div>

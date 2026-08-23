@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+#
+# Runs the test suite N times and reports any run that was not green.
+#
+# This exists because a flake was seen once and could not be diagnosed. The run reported
+# `930 runs, 3768 assertions, 1 failures` and the failure's **name was never captured**, because the
+# command had been piped through `tail -3`. Twenty-four subsequent runs were identical - 3769 assertions,
+# zero failures - so there was nothing left to look at. A one-in-many failure is only diagnosable if the
+# run that fails leaves a log behind, and that is all this script does.
+#
+# Usage:
+#   bin/flake-hunt          # 10 runs of the unit and integration suite
+#   bin/flake-hunt 25       # 25 runs
+#   bin/flake-hunt 10 system # 10 runs of the system suite instead
+#
+# Notes that matter here:
+#
+#   - **Serial, one invocation at a time.** The parallel workers share ten numbered databases
+#     (`stocks_in_the_future_test_0` … `_9`), so a second concurrent run collides with the first and both
+#     fill with `PG::TRDeadlockDetected` across unrelated tests. That looks exactly like a parallelism bug
+#     in the suite and is not one.
+#   - **The seed is recorded per run**, so a failure can be replayed with `bin/rails test --seed N`.
+#   - **The assertion count is recorded too.** A count that varies between runs is the tell that state is
+#     leaking between tests, or that some test's assertion count depends on data. A count that drops by one
+#     *alongside* a failure means something simpler: a test failed at its first assertion and never reached
+#     its second.
+#   - If something does fail, try replaying it with `PARALLEL_WORKERS=1 bin/rails test --seed N`. If it only
+#     reproduces with workers, it is shared state or the databases; if it reproduces serially, it is
+#     ordering or the clock.
+set -uo pipefail
+
+RUNS="${1:-10}"
+SUITE="${2:-unit}"
+LOGS="tmp/flake"
+
+if [[ "$SUITE" == "system" ]]; then
+  COMMAND=(bin/rails test:system)
+else
+  COMMAND=(bin/rails test)
+fi
+
+mkdir -p "$LOGS"
+rm -f "$LOGS"/run-*.log "$LOGS"/summary.txt
+
+failed=0
+
+for i in $(seq 1 "$RUNS"); do
+  log="$LOGS/run-$i.log"
+  "${COMMAND[@]}" > "$log" 2>&1
+  status=$?
+  result=$(grep -E "^[0-9]+ runs," "$log" | tail -1)
+  seed=$(grep -o -- "--seed [0-9]*" "$log" | head -1)
+
+  printf '%3d  %s  (%s)\n' "$i" "${result:-no summary line - the run did not finish}" "${seed:-no seed}" \
+    | tee -a "$LOGS/summary.txt"
+
+  if [[ $status -ne 0 ]] || [[ "$result" != *"0 failures, 0 errors"* ]]; then
+    failed=$((failed + 1))
+    echo "    ^ kept at $log" | tee -a "$LOGS/summary.txt"
+  else
+    rm -f "$log"
+  fi
+done
+
+echo
+if [[ $failed -eq 0 ]]; then
+  echo "$RUNS runs, all green. Assertion counts above should be identical; if they are not, that is the"
+  echo "finding even though nothing failed."
+else
+  echo "$failed of $RUNS runs were not green. Their logs are in $LOGS - each one names the failing test,"
+  echo "and the seed beside it replays that order."
+fi
+
+exit $((failed > 0 ? 1 : 0))

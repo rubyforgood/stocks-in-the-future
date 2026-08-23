@@ -23,6 +23,11 @@ To understand the project better, read the [project documentation](docs/README.m
 
 Then follow our [contributing guide](CONTRIBUTING.md) to get started.
 
+## New here?
+
+[`ONBOARDING.md`](ONBOARDING.md) covers what the app is, what each role can do, the money rules with
+their constants, and — for maintainers — the setup, the architecture and the rules that bite first.
+
 # Local Development
 ## Requirements
 
@@ -80,6 +85,21 @@ Use the **username** and **password** to log in and test the application locally
 ## URL
 
 Access the app via `localhost:3000`
+
+## Component gallery
+
+`localhost:3000/admin/component_demo` renders the shared UI components and the admin form builder in
+one place, with the call that produces each one. Sign in as **admin** first: everything under `/admin`
+redirects any other role to the app root.
+
+It exists in **development and test only** - `config/routes.rb` guards it with `Rails.env.local?`, so the
+path 404s on staging and production. It is also where one-off design previews get built and reviewed
+before a decision, and then deleted.
+
+It is not linked from the app's navigation, deliberately. A component gallery is a developer tool, and
+neither Storybook nor Polaris, Primer, Lightning, Material or Carbon lives inside the product it
+documents; Rails' own `/rails/info` and `/rails/mailers` are reached the same way this is. If you have
+forgotten the path, `bin/rails routes | grep component_demo` or `/rails/info/routes` will find it.
 
 # Operations
 

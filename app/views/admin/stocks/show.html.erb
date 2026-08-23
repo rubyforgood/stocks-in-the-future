@@ -1,150 +1,42 @@
-<div class="max-w-7xl mx-auto">
-  <%= admin_breadcrumbs(@breadcrumbs) %>
+<%# The worst case for merging view and edit, and the one that shows why the merge is a
+    simplification rather than a rearrangement.
 
-  <div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg mb-6">
-    <div class="px-6 py-6">
-      <div class="flex items-center justify-between mb-6">
-        <h2 class="text-2xl font-bold text-gray-900"><%= @stock.ticker %></h2>
-        <div class="flex gap-3">
-          <%= link_to edit_admin_stock_path(@stock),
-                      class: "inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" do %>
-            <i class="fas fa-edit -ml-1 mr-2 h-5 w-5 text-gray-500"></i>
-            Edit
-          <% end %>
-          <%= link_to admin_stock_path(@stock),
-                      data: { turbo_method: :delete, turbo_confirm: "Are you sure you want to delete this stock?" },
-                      class: "inline-flex items-center px-4 py-2 border border-red-300 shadow-sm text-sm font-medium rounded-md text-red-700 bg-white hover:bg-red-50" do %>
-            <i class="fas fa-trash -ml-1 mr-2 h-5 w-5 text-red-500"></i>
-            Delete
-          <% end %>
-        </div>
-      </div>
+    **Eight read-only cards became two sections.** The old page rendered Description, Price information,
+    Company information, Financial metrics, Industry averages, Management, Competitor names and Portfolio
+    stocks. The edit form edits **every one of those attributes** - seventeen fields including both prices - so
+    six of the eight cards were the form's own fields displayed a second time, on a different page, where they
+    could not be changed. Nothing was lost by deleting them; the fields *are* the display now.
 
-      <%= admin_show_attributes(
-            @stock,
-            attributes: %i[id ticker company_name company_website stock_exchange archived created_at updated_at]
-          ) %>
+    What genuinely is not editable is the **derived** figure - the percentage change, computed from the two
+    prices - and the **collection** of portfolios holding the stock. The first is a glanceable summary, so it
+    goes in the header beside the price; the second is a section of its own.
 
-      <!-- Description -->
-      <% if @stock.description.present? %>
-        <div class="mt-6 pt-6 border-t border-gray-200">
-          <h3 class="text-sm font-medium text-gray-500 mb-3">Description</h3>
-          <p class="text-sm text-gray-900 whitespace-pre-wrap"><%= @stock.description %></p>
-        </div>
-      <% end %>
+    **Order follows what the page is for, while the shape stays fixed.** On a school the collection leads,
+    because managing years is why you open it. On a stock the fundamentals lead, because editing them is. The
+    shared partial fixes the column, the header and the section grammar; it does not fix the order. %>
+<%= render layout: "admin/shared/record_page",
+           locals: { title: @stock.company_name.presence || @stock.ticker,
+                     breadcrumbs: @breadcrumbs,
+                     description: stock_price_summary(@stock),
+                     actions: capture do
+                       button_to "Delete stock", admin_stock_path(@stock),
+                                 method: :delete, form: { class: "inline-flex" }, data: { turbo_confirm: delete_confirm(@stock) },
+                                 class: admin_danger_button_class
+                     end } do %>
+  <%= render layout: "admin/shared/record_section",
+             locals: { title: "Details",
+                       hint: "Prices refresh each weekday from the ticker, so most of this is " \
+                             "replaced at the next update. The rest is what a student reads on the " \
+                             "stock's page before deciding to buy." } do %>
+    <%= render "form" %>
+  <% end %>
 
-      <!-- Price Information -->
-      <div class="mt-6 pt-6 border-t border-gray-200">
-        <h3 class="text-sm font-medium text-gray-500 mb-3">Price Information</h3>
-        <dl class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <div>
-            <dt class="text-sm font-medium text-gray-500">Current Price</dt>
-            <dd class="mt-1 text-sm text-gray-900"><%= number_to_currency(@stock.current_price) %></dd>
-          </div>
-          <div>
-            <dt class="text-sm font-medium text-gray-500">Yesterday's Price</dt>
-            <dd class="mt-1 text-sm text-gray-900"><%= number_to_currency(@stock.yesterday_price) %></dd>
-          </div>
-          <div>
-            <dt class="text-sm font-medium text-gray-500">Percentage Change</dt>
-            <dd class="mt-1 text-sm">
-              <span class="<%= @stock.percentage_change.positive? ? 'text-green-600' : 'text-red-600' %>">
-                <%= @stock.percentage_change_formatted %>
-              </span>
-            </dd>
-          </div>
-        </dl>
-      </div>
+  <%# **No "Held by" section.** It was one line - "Held in 3 portfolios" - in a card of its own at the foot of
+      a 3468px page, so a single fact needed scrolling past seventeen form fields to reach. A section earns a
+      heading when it holds a collection you can scan or act on; a lone read-only fact is a metadata line, and
+      it belongs in the record's summary where you see it on arrival. Stripe and Linear both put this kind of
+      fact beside the title rather than below the content.
 
-      <!-- Company Information -->
-      <div class="mt-6 pt-6 border-t border-gray-200">
-        <h3 class="text-sm font-medium text-gray-500 mb-3">Company Information</h3>
-        <dl class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div>
-            <dt class="text-sm font-medium text-gray-500">Employees</dt>
-            <dd class="mt-1 text-sm text-gray-900"><%= @stock.employees || "—" %></dd>
-          </div>
-          <div>
-            <dt class="text-sm font-medium text-gray-500">Industry</dt>
-            <dd class="mt-1 text-sm text-gray-900"><%= @stock.industry || "—" %></dd>
-          </div>
-        </dl>
-      </div>
-
-      <!-- Financial Metrics -->
-      <div class="mt-6 pt-6 border-t border-gray-200">
-        <h3 class="text-sm font-medium text-gray-500 mb-3">Financial Metrics</h3>
-        <dl class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <div>
-            <dt class="text-sm font-medium text-gray-500">Cash Flow</dt>
-            <dd class="mt-1 text-sm text-gray-900"><%= @stock.cash_flow || "—" %></dd>
-          </div>
-          <div>
-            <dt class="text-sm font-medium text-gray-500">Debt</dt>
-            <dd class="mt-1 text-sm text-gray-900"><%= @stock.debt || "—" %></dd>
-          </div>
-          <div>
-            <dt class="text-sm font-medium text-gray-500">Debt to Equity</dt>
-            <dd class="mt-1 text-sm text-gray-900"><%= @stock.debt_to_equity || "—" %></dd>
-          </div>
-          <div>
-            <dt class="text-sm font-medium text-gray-500">Profit Margin</dt>
-            <dd class="mt-1 text-sm text-gray-900"><%= @stock.profit_margin || "—" %></dd>
-          </div>
-          <div>
-            <dt class="text-sm font-medium text-gray-500">Sales Growth</dt>
-            <dd class="mt-1 text-sm text-gray-900"><%= @stock.sales_growth || "—" %></dd>
-          </div>
-        </dl>
-      </div>
-
-      <!-- Industry Averages -->
-      <div class="mt-6 pt-6 border-t border-gray-200">
-        <h3 class="text-sm font-medium text-gray-500 mb-3">Industry Averages</h3>
-        <dl class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <div>
-            <dt class="text-sm font-medium text-gray-500">Avg Debt to Equity</dt>
-            <dd class="mt-1 text-sm text-gray-900"><%= @stock.industry_avg_debt_to_equity || "—" %></dd>
-          </div>
-          <div>
-            <dt class="text-sm font-medium text-gray-500">Avg Profit Margin</dt>
-            <dd class="mt-1 text-sm text-gray-900"><%= @stock.industry_avg_profit_margin || "—" %></dd>
-          </div>
-          <div>
-            <dt class="text-sm font-medium text-gray-500">Avg Sales Growth</dt>
-            <dd class="mt-1 text-sm text-gray-900"><%= @stock.industry_avg_sales_growth || "—" %></dd>
-          </div>
-        </dl>
-      </div>
-
-      <!-- Management -->
-      <% if @stock.management.present? %>
-        <div class="mt-6 pt-6 border-t border-gray-200">
-          <h3 class="text-sm font-medium text-gray-500 mb-3">Management</h3>
-          <p class="text-sm text-gray-900 whitespace-pre-wrap"><%= @stock.management %></p>
-        </div>
-      <% end %>
-
-      <!-- Competitors -->
-      <% if @stock.competitor_names.present? %>
-        <div class="mt-6 pt-6 border-t border-gray-200">
-          <h3 class="text-sm font-medium text-gray-500 mb-3">Competitor Names</h3>
-          <p class="text-sm text-gray-900 whitespace-pre-wrap"><%= @stock.competitor_names %></p>
-        </div>
-      <% end %>
-
-      <!-- Portfolio Stocks -->
-      <% if @stock.portfolio_stocks.any? %>
-        <div class="mt-6 pt-6 border-t border-gray-200">
-          <h3 class="text-sm font-medium text-gray-500 mb-3">Portfolio Stocks (<%= @stock.portfolio_stocks.count %>)</h3>
-          <p class="text-sm text-gray-500">This stock is held in <%= @stock.portfolio_stocks.count %> portfolio(s)</p>
-        </div>
-      <% end %>
-    </div>
-  </div>
-
-  <div class="flex gap-3">
-    <%= link_to "Back to Stocks", admin_stocks_path,
-                class: "inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" %>
-  </div>
-</div>
+      It is in the header now, at no vertical cost, and it matters there: whether anyone holds a stock is what
+      decides whether archiving it is safe. %>
+<% end %>

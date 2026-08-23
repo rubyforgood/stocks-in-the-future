@@ -1,26 +1,59 @@
-<div class="mt-8 w-64 flex-initial">
-  <h3 class="bg-amber-300 py-3 px-5 font-medium text-sm tracking-wide rounded-t-xl">
-    <i class="fas fa-book w-4 h-4"></i>
-    Grade Books
-  </h3>
+<%# Grade books: one card, four rows, a rule between them.
 
-  <% if grade_books.any? %>
-    <ul class="divide-y divide-gray-200 bg-white rounded-md shadow">
-      <% grade_books.each do |book| %>
-        <li class="px-6 py-4 hover:bg-gray-50">
-          <%= link_to classroom_grade_book_path(@classroom, book),
-                      class: "text-black underline hover:text-[var(--sitf-secondary-chart2)] font-medium" do %>
-            <span class="flex flex-between items-center justify-between w-full">
-              <%= book.quarter.name %>
-              <i class="fa-solid fa-arrow-right"></i>
-            </span>
+    This has been three shapes. A 256px rail beside the roster (a secondary column used for a
+    collection, which Polaris reserves for metadata). Then four separate `.tw-card` link cards across
+    the full width - which fixed the width and broke the surface count: with the roster's table card and
+    the trading card, one page carried six card surfaces. Card soup, and it was reported as exactly that.
+
+    A card per item is for items that need one - a summary figure, a person, a preview. Four quarters
+    with a name and a status are list rows, which is what Polaris's ResourceList, Primer's Box rows and
+    Stripe's list sections all are: **one surface, `divide-y` between rows**. design.md's Dividers
+    section allows a row separator and nothing else, so this is the only divider shape available here -
+    the `divide-x` between grid cells I first reached for is not in that list.
+
+    The original rail was right about all of this and wrong only about its width. What it could not do
+    at 256px was carry each quarter's status, which a teacher otherwise discovers by opening all four.
+
+    The pill's wording comes from `grade_book_status_badge`. The enum's own words were printed here and
+    on the grade book page, from two separate `tones` hashes - and "Draft" was reported as unreadable
+    on that page, where it sits near a Save button. One mapping now, so the list and the page cannot
+    disagree about what a state is called. %>
+
+<section aria-labelledby="grade-books-heading">
+  <h2 id="grade-books-heading" class="text-base font-semibold text-slate-900">Grade books</h2>
+  <p class="mt-1 text-sm text-slate-600">
+    One per quarter. Recording attendance and grades is what pays students their funds to invest.
+  </p>
+
+  <div class="mt-3">
+    <%= render layout: "components/ui/card", locals: { padded: false } do %>
+      <% if grade_books.any? %>
+        <ul class="divide-y divide-slate-200">
+          <% grade_books.each do |book| %>
+            <li>
+              <%# The row is the link, so the target is the row rather than a word in it. %>
+              <%= link_to classroom_grade_book_path(@classroom, book),
+                          class: "flex items-center justify-between gap-3 px-5 py-3 transition-colors " \
+                                 "hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 " \
+                                 "focus-visible:outline-sitf-primary" do %>
+                <span class="flex min-w-0 items-center gap-3">
+                  <span class="text-sm font-medium text-slate-900"><%= book.quarter.name %></span>
+                  <%= grade_book_status_badge(book) %>
+                </span>
+                <%= lucide_icon("arrow-right", class: "size-4 shrink-0 text-slate-500") %>
+              <% end %>
+            </li>
           <% end %>
-        </li>
+        </ul>
+      <% else %>
+        <%= render layout: "components/ui/empty_state",
+                   locals: { compact: true,
+                             icon: "book-check",
+                             title: "No grade books yet",
+                             body: "A grade book is created for each quarter of the school year. " \
+                                   "Grade books appear here once those quarters have them." } do %>
+        <% end %>
       <% end %>
-    </ul>
-  <% else %>
-    <div class="text-center py-8 text-gray-500">
-      No grade books created for this classroom yet.
-    </div>
-  <% end %>
-</div>
+    <% end %>
+  </div>
+</section>

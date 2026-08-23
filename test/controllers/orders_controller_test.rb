@@ -64,6 +64,35 @@ class OrdersControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  # **One summary, one message per field.** The order form hand-rolled its own error panel - "Please fix the
+  # following errors:" over a bulleted list - which is the third shape `shared/_form_errors` was written to
+  # remove. It survived the sweep that replaced the other two because that sweep went through the forms
+  # already on `Ui::FormBuilder`, and this one was not on it.
+  #
+  # The pair matters together: the builder's wrapper deliberately renders no message, because
+  # `field_error_proc` renders one for every text-like control. Adding a second put two under every invalid
+  # admin field once, so this asserts exactly one of each.
+  test "an invalid order renders the shared summary and one message per field" do
+    student = create(:student)
+    student.portfolio.portfolio_transactions.create!(amount_cents: 10_000, transaction_type: :deposit)
+    stock = create(:stock, price_cents: 1_000)
+    sign_in(student)
+
+    post orders_path, params: { order: { stock_id: stock.id, shares: "", action: :buy } }
+
+    assert_response :unprocessable_content
+    assert_select "[data-testid='form-errors']", count: 1
+    # The summary's heading counts the errors - "1 error prohibited ..." - which is what GOV.UK, Polaris and
+    # Primer put there and what "Please fix the following errors:" did not say.
+    assert_select "[data-testid='form-errors'] p", text: /error/i
+    assert_select "p", text: /Please fix the following errors/, count: 0
+    # And exactly one message under the field itself, from `field_error_proc`, which gives it an id derived
+    # from the attribute. The builder's wrapper adds none on purpose - two messages under one field is a
+    # failure this pairing has produced before. Asserted on the message, not on `.field_with_errors`: Rails
+    # wraps the label and the input separately, so two of those is one invalid field.
+    assert_select "p#order_shares_error", count: 1
+  end
+
   test "edit" do
     user = create(:student)
     stock = create(:stock)

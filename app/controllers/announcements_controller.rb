@@ -3,6 +3,9 @@
 class AnnouncementsController < ApplicationController
   before_action :set_announcement, only: %i[show]
 
+  # **No trail.** An announcement's only parent is Home, which is a navbar item, so a trail here would be
+  # "Home > this page" - one level, which is the case Carbon names outright and the case that had every
+  # admin index rendering its own title twice. The partial would drop it anyway; not building it says so.
   def show; end
 
   private

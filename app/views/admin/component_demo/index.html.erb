@@ -1,78 +1,275 @@
-<div class="max-w-7xl mx-auto">
-  <!-- Page Header -->
-  <div class="mb-8">
-    <h1 class="text-3xl font-bold text-gray-900 mb-2">Admin Components Demo</h1>
-    <p class="text-gray-600">Showcase of all reusable admin components</p>
-  </div>
+<% content_for :own_heading, true %>
+<div class="mx-auto max-w-7xl">
+  <%= render "admin/component_demo/environment_banner" %>
 
-  <!-- Alert Box -->
-  <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-    <div class="flex items-start">
-      <i class="fas fa-info-circle text-blue-600 mt-1 mr-3"></i>
-      <div>
-        <h3 class="font-semibold text-blue-900 mb-1">Component Demo Page</h3>
-        <p class="text-sm text-blue-800">
-          This page demonstrates all the reusable components created for the Admin V2 interface.
-          These components will be used across all admin resource pages.
-        </p>
-      </div>
-    </div>
-  </div>
+  <%# The description was "Showcase of all reusable admin components", which restated the title in
+      different words. It says what the list is for instead. %>
+  <%= render layout: "components/ui/page_header",
+             locals: { title: "Admin components demo",
+                       description: "Every shared admin component, rendered, with the call that produces it." } do %><% end %>
 
-  <!-- Quick Links -->
-  <div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg p-4 mb-6">
-    <h3 class="text-sm font-semibold text-gray-900 mb-3">Component Demos</h3>
+  <%# Quick Links %>
+  <div class="tw-card mb-6 p-5">
+    <h3 class="text-sm font-semibold text-slate-900 mb-3">Component demos</h3>
     <div class="flex gap-3">
-      <%= link_to form_admin_component_demo_index_path, class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700" do %>
-        <i class="fas fa-edit mr-2"></i>
-        Form Builder Demo
+      <%= link_to form_admin_component_demo_index_path, class: "tw-btn-primary" do %>
+        <%= lucide_icon("pencil", class: "mr-2 w-4 h-4 shrink-0") %>
+        Form builder demo
       <% end %>
     </div>
   </div>
 
-  <!-- Breadcrumbs Demo -->
-  <div class="mb-8">
-    <h2 class="text-xl font-semibold text-gray-900 mb-4">Breadcrumbs Component</h2>
+  <%# ---------------------------------------------------------------------------------------------
+      Shared UI components. Everything in app/views/components/ui/ appears here, and
+      `component_gallery_test` fails by name when a partial is added and this page is not - which is how
+      it came to render three of eleven while design-instructions.md said twice to register them.
+
+      Constructed data, not database records: a gallery should not depend on what happens to be seeded,
+      and a component's states are the point rather than any particular row.
+  --------------------------------------------------------------------------------------------- %>
+  <%# Registered here because `components/ui/` is the design system's set and this test derives its list
+      from that directory. The component sat in `shared/` for one commit, where the gallery could not be
+      failed for missing it - which is how it shipped without a section. %>
+  <%# The narrow-width half of every table in the app. Registered here for the same reason pagination is:
+      `components/ui/` is the set, and the gallery derives its list from that directory. %>
+  <div class="tw-card mb-6 p-5" data-testid="component-stacked-row-fields">
+    <h2 class="text-xl font-semibold text-slate-900 mb-1">Stacked row fields</h2>
+    <p class="mb-4 text-sm text-slate-600">
+      Below <code>lg</code> a table shows its first column only; the rest of the row comes back as this
+      description list inside that cell. A fixed label column and a left-aligned value, so both line up -
+      the values used to be right-aligned against the far edge, 174 to 244px from their labels.
+    </p>
+    <div class="max-w-sm rounded-lg border border-slate-200 p-3">
+      <%# `always:` so this renders at any width. In a table it is `lg:hidden`, which would leave a
+          desktop reader an empty box here. %>
+      <%= render "components/ui/stacked_row_fields",
+                 always: true,
+                 fields: [["Date", "14 Aug 2026"], ["Price per share", "$62.41"],
+                          ["Shares", "3"], ["Total cost", "$187.23"]] %>
+    </div>
+  </div>
+
+  <div class="tw-card mb-6 p-5" data-testid="component-pagination">
+    <h2 class="text-xl font-semibold text-slate-900 mb-1">Pagination</h2>
+    <p class="mb-4 text-sm text-slate-600">
+      <code>PER_PAGE</code> rows at a time, under a table. The direction with nowhere to go is present and
+      disabled rather than absent, so the other button does not move between page 1 and page 2. It owns its
+      own wrapper: <code>footer: true</code> is the in-card form, the default sits under a table that has
+      closed its card.
+    </p>
+
+    <p class="mb-2 text-xs font-medium text-slate-600">First page - Previous is disabled</p>
+    <div class="tw-card mb-4">
+      <%= render "components/ui/pagination", collection: @pagination_first, footer: true %>
+    </div>
+
+    <p class="mb-2 text-xs font-medium text-slate-600">Last page - Next is disabled</p>
+    <div class="tw-card">
+      <%= render "components/ui/pagination", collection: @pagination_last, footer: true %>
+    </div>
+  </div>
+
+  <div class="tw-card mb-6 p-5" data-testid="component-badge">
+    <h2 class="text-xl font-semibold text-slate-900 mb-1">Badge</h2>
+    <p class="mb-4 text-sm text-slate-600">
+      A status, on the thing it describes. Five tones; <code>boolean_badge</code> wraps the first two.
+    </p>
+    <div class="flex flex-wrap items-center gap-2">
+      <% { neutral: "Draft", success: "Finalized", warning: "Pending", danger: "Archived",
+           info: "Scheduled" }.each do |tone, label| %>
+        <%= render "components/ui/badge", label: label, tone: tone %>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="tw-card mb-6 p-5" data-testid="component-card">
+    <h2 class="text-xl font-semibold text-slate-900 mb-1">Card</h2>
+    <p class="mb-4 text-sm text-slate-600">
+      A surface. The body pads <code>p-5</code>; a titled card pads its seam at 16px instead, which is
+      what stops a <code>py-4</code> header stacking on a <code>p-5</code> body.
+    </p>
+    <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
+      <%= render layout: "components/ui/card", locals: {} do %>
+        <p class="text-sm text-slate-700">Body only. No header, so the body keeps the full padding.</p>
+      <% end %>
+
+      <%= render layout: "components/ui/card", locals: { title: "With a title" } do %>
+        <p class="text-sm text-slate-700">A header rule, and a smaller seam beneath it.</p>
+      <% end %>
+
+      <%= render layout: "components/ui/card",
+                 locals: { title: "With an icon", subtitle: "And a subtitle under it",
+                           icon: "chart-line", icon_tone: :success } do %>
+        <p class="text-sm text-slate-700">The icon is a 32px tile on the title's line.</p>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="tw-card mb-6 p-5" data-testid="component-stat">
+    <h2 class="text-xl font-semibold text-slate-900 mb-1">Stat</h2>
+    <p class="mb-4 text-sm text-slate-600">
+      One figure and what it is. The numeral is always <code>slate-900</code> - the tile carries the tone,
+      never the number.
+    </p>
+    <div class="grid grid-cols-1 gap-4 lg:grid-cols-4">
+      <%= render "components/ui/stat", label: "Cash to invest", value: "$1,204.50" %>
+      <%= render "components/ui/stat",
+                 label: "Portfolio value",
+                 value: "$8,317.02",
+                 icon: "wallet",
+                 icon_tone: :info %>
+      <%= render "components/ui/stat",
+                 label: "Total return",
+                 value: "$412.19",
+                 change: "+5.2% this month",
+                 change_up: true %>
+      <%= render "components/ui/stat",
+                 label: "Total return",
+                 value: "-$88.40",
+                 change: "-1.1% this month",
+                 change_up: false,
+                 hint: "Since you started" %>
+    </div>
+  </div>
+
+  <div class="tw-card mb-6 p-5" data-testid="component-icon-tile">
+    <h2 class="text-xl font-semibold text-slate-900 mb-1">Icon tile</h2>
+    <p class="mb-4 text-sm text-slate-600">
+      The hue-coded square a KPI or a section header leads with. 32px beside a label, 36px on its own
+      line. It is never the marker on a message - a callout uses a bare glyph.
+    </p>
+    <div class="flex flex-wrap items-center gap-3">
+      <% %i[neutral success warning danger info].each do |tone| %>
+        <%= render "components/ui/icon_tile", icon: "chart-line", tone: tone %>
+      <% end %>
+      <%= render "components/ui/icon_tile", icon: "wallet", tone: :info, compact: true %>
+      <%= render "components/ui/icon_tile", label: "4", tone: :neutral, compact: true %>
+    </div>
+  </div>
+
+  <div class="tw-card mb-6 p-5" data-testid="component-empty-state">
+    <h2 class="text-xl font-semibold text-slate-900 mb-1">Empty state</h2>
+    <p class="mb-4 text-sm text-slate-600">
+      What appears here, and what to do about it. <code>compact</code> is the section-level version; the
+      default leads with an icon.
+    </p>
+    <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <div class="tw-card p-5">
+        <%= render "components/ui/empty_state",
+                   title: "No classrooms yet",
+                   body: "A classroom groups students with a teacher and a school year. " \
+                         "Classrooms you add appear here, each with a grade book per quarter.",
+                   icon: "presentation" %>
+      </div>
+      <div class="tw-card p-5">
+        <%= render "components/ui/empty_state",
+                   title: "Nothing to show",
+                   body: "Stocks appear here once your teacher adds them.",
+                   compact: true %>
+      </div>
+    </div>
+  </div>
+
+  <div class="tw-card mb-6 p-5" data-testid="component-data-table">
+    <h2 class="text-xl font-semibold text-slate-900 mb-1">Data table</h2>
+    <p class="mb-4 text-sm text-slate-600">
+      The wrapper that gives a table its surface, its scroll container and a caption for assistive tech.
+      The caption is required: a table with no accessible name is one nobody can find.
+    </p>
+    <%= render layout: "components/ui/data_table", locals: { caption: "Example holdings" } do %>
+      <thead>
+        <tr class="table-header-row">
+          <th scope="col" class="table-header-cell table-header-cell-left">Company</th>
+          <th scope="col" class="table-header-cell table-header-cell-right">Shares</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% { "Coca-Cola" => "12", "Ford" => "3" }.each do |company, shares| %>
+          <tr class="table-body-row">
+            <td class="table-body-cell"><span class="table-cell-content"><%= company %></span></td>
+            <td class="table-body-cell table-body-cell-right">
+              <span class="table-cell-content tabular-nums"><%= shares %></span>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    <% end %>
+  </div>
+
+  <div class="tw-card mb-6 p-5" data-testid="component-callout">
+    <h2 class="text-xl font-semibold text-slate-900 mb-1">Callout</h2>
+    <p class="mb-4 text-sm text-slate-600">
+      An inline notice, which the layout's flash is not. A bare tone-coloured glyph beside the text, never
+      an icon tile.
+    </p>
+    <div class="space-y-3">
+      <%= render "components/ui/callout",
+                 title: "Trading is turned off for your classroom",
+                 body: "You cannot buy or sell right now. Your teacher can turn it back on." %>
+      <%= render "components/ui/callout",
+                 tone: :info,
+                 title: "Prices update once a day",
+                 body: "They are fetched after the market closes, so a price can be a day old." %>
+    </div>
+  </div>
+
+  <div class="tw-card mb-6 p-5" data-testid="component-page-header">
+    <h2 class="text-xl font-semibold text-slate-900 mb-1">Page header</h2>
+    <p class="mb-4 text-sm text-slate-600">
+      The page's single <code>h1</code>, its optional description and its actions. <code>mb-6</code> and
+      nothing else - the 24px under it is the page rhythm, asserted in <code>page_rhythm_test</code>.
+    </p>
+    <div class="rounded-xl border border-dashed border-slate-300 p-4">
+      <%= render layout: "components/ui/page_header",
+                 locals: { title: "Classrooms", description: "Every classroom you teach." } do %>
+        <span class="tw-btn-primary">New classroom</span>
+      <% end %>
+    </div>
+  </div>
+
+  <%# Breadcrumbs Demo %>
+  <div class="mb-6">
+    <h2 class="text-xl font-semibold text-slate-900 mb-4">Breadcrumbs component</h2>
     <%= admin_breadcrumbs(@breadcrumbs) %>
   </div>
 
-  <hr class="my-8">
+  <hr class="my-6">
 
-  <!-- Search/Filter Demo -->
-  <div class="mb-8">
-    <h2 class="text-xl font-semibold text-gray-900 mb-4">Search & Filter Component</h2>
+  <%# Search/Filter Demo %>
+  <div class="mb-6">
+    <h2 class="text-xl font-semibold text-slate-900 mb-4">Search & filter component</h2>
     <%= admin_search_filter(
           filters: @filters,
           search_placeholder: "Search users..."
         ) %>
   </div>
 
-  <hr class="my-8">
+  <hr class="my-6">
 
-  <!-- Table Demo -->
-  <div class="mb-8">
-    <h2 class="text-xl font-semibold text-gray-900 mb-4">Table Component</h2>
-    <p class="text-gray-600 mb-4">
+  <%# Table Demo %>
+  <div class="mb-6">
+    <h2 class="text-xl font-semibold text-slate-900 mb-4">Table component</h2>
+    <p class="text-slate-600 mb-4">
       Responsive table with sortable columns and empty states.
-      Click column headers to sort. (Action buttons disabled in demo - see Action Buttons section below)
+      Select a column header to sort. Row actions do nothing here - the action buttons section below is the live one.
     </p>
 
+    <%# No title or actions: the table card holds the table only, and a page title and
+        its actions are rendered by components/ui/_page_header above the card. %>
     <%= admin_table(
           @users,
           columns: @columns,
-          title: "Users",
-          actions: link_to("New User", "#", class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"),
           empty_message: "No users found. Create your first user to get started.",
           show_actions: false
         ) %>
   </div>
 
-  <hr class="my-8">
+  <hr class="my-6">
 
-  <!-- Show Attributes Demo -->
-  <div class="mb-8">
-    <h2 class="text-xl font-semibold text-gray-900 mb-4">Show Attributes Component</h2>
-    <p class="text-gray-600 mb-4">Clean attribute display for show/detail pages.</p>
+  <%# Show Attributes Demo %>
+  <div class="mb-6">
+    <h2 class="text-xl font-semibold text-slate-900 mb-4">Show attributes component</h2>
+    <p class="text-slate-600 mb-4">Clean attribute display for show/detail pages.</p>
 
     <%= admin_show_attributes(
           @sample_user,
@@ -80,111 +277,127 @@
         ) %>
   </div>
 
-  <hr class="my-8">
+  <hr class="my-6">
 
-  <!-- Action Buttons Demo -->
-  <div class="mb-8">
-    <h2 class="text-xl font-semibold text-gray-900 mb-4">Action Buttons Component</h2>
-    <p class="text-gray-600 mb-4">Standard and custom action buttons with icons.</p>
+  <%# Action Buttons Demo %>
+  <div class="mb-6">
+    <h2 class="text-xl font-semibold text-slate-900 mb-4">Action buttons component</h2>
+    <p class="text-slate-600 mb-4">Standard and custom action buttons with icons.</p>
 
-    <div class="bg-white p-6 rounded-lg shadow-sm ring-1 ring-gray-900/5">
-      <h3 class="text-sm font-medium text-gray-900 mb-4">Standard Actions (Edit + Delete)</h3>
+    <div class="tw-card p-5">
+      <h3 class="text-sm font-medium text-slate-900 mb-4">Standard actions (edit + delete)</h3>
       <div class="flex flex-wrap gap-3">
-        <%= link_to "#", class: "inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" do %>
-          <i class="fas fa-edit -ml-1 mr-2 h-5 w-5 text-gray-500"></i>
+        <%= button_to "#", class: "tw-btn-secondary" do %>
+          <%= lucide_icon("pencil", class: "h-5 w-5 shrink-0 text-slate-500") %>
           Edit
         <% end %>
-        <%= link_to "#", data: { turbo_method: :delete, turbo_confirm: "Are you sure?" }, class: "inline-flex items-center px-4 py-2 border border-red-300 shadow-sm text-sm font-medium rounded-md text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500" do %>
-          <i class="fas fa-trash -ml-1 mr-2 h-5 w-5 text-red-500"></i>
+        <%# The gallery teaches whoever copies it, so its example is the two-part shape: a question,
+            a blank line, then what the action does. It said "Are you sure?", which is the phrasing
+            shared/_confirm_dialog exists to replace. %>
+        <% demo_delete = "Delete stock \"Coca-Cola\"?\n\n" \
+                         "It is removed permanently, along with anything that depends on it. This " \
+                         "cannot be undone." %>
+        <% demo_opts = { method: :delete, form: { class: "inline-flex" }, data: { turbo_confirm: demo_delete },
+                         class: "tw-btn-danger-outline" } %>
+        <%= link_to "#", **demo_opts do %>
+          <%= lucide_icon("trash-2", class: "h-5 w-5 shrink-0") %>
           Delete
         <% end %>
       </div>
 
       <hr class="my-6">
 
-      <h3 class="text-sm font-medium text-gray-900 mb-4">With Custom Actions</h3>
+      <h3 class="text-sm font-medium text-slate-900 mb-4">With custom actions</h3>
       <div class="flex flex-wrap gap-3">
-        <%= link_to "#", class: "inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" do %>
-          <i class="fas fa-edit -ml-1 mr-2 h-5 w-5 text-gray-500"></i>
+        <%= link_to "#", class: "tw-btn-secondary" do %>
+          <%= lucide_icon("pencil", class: "h-5 w-5 shrink-0 text-slate-500") %>
           Edit
         <% end %>
-        <%= link_to "#", class: "inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-blue-700 bg-blue-50 hover:bg-blue-100 border-blue-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" do %>
-          <i class="fas fa-envelope -ml-1 mr-2 h-5 w-5"></i>
-          Send Email
+        <%= link_to "#", class: "tw-btn-secondary" do %>
+          <%= lucide_icon("mail", class: "h-5 w-5 shrink-0") %>
+          Send email
         <% end %>
-        <%= link_to "#", data: { turbo_confirm: "Archive this user?" }, class: "inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" do %>
-          <i class="fas fa-archive -ml-1 mr-2 h-5 w-5"></i>
-          Archive
+        <%# The gallery demonstrates the real pair, so it uses the real word: a **person** is deactivated
+            and reactivated, a **thing** is archived and restored. %>
+        <% demo_archive = "Deactivate this user?\n\n" \
+                          "They cannot sign in from that moment, and they leave this list. Everything " \
+                          "attached to the account is kept, and an administrator can reactivate them." %>
+        <%= link_to "#", data: { turbo_confirm: demo_archive }, class: "tw-btn-secondary" do %>
+          <%= lucide_icon("user-x", class: "h-5 w-5 shrink-0") %>
+          Deactivate
         <% end %>
       </div>
     </div>
   </div>
 
-  <hr class="my-8">
+  <hr class="my-6">
 
-  <!-- Boolean Badge Demo -->
-  <div class="mb-8">
-    <h2 class="text-xl font-semibold text-gray-900 mb-4">Boolean Badges</h2>
-    <div class="bg-white p-6 rounded-lg shadow-sm ring-1 ring-gray-900/5">
+  <%# Boolean Badge Demo %>
+  <div class="mb-6">
+    <h2 class="text-xl font-semibold text-slate-900 mb-4">Boolean badges</h2>
+    <div class="tw-card p-5">
       <div class="flex gap-4 items-center">
         <div>
-          <span class="text-sm text-gray-600 mr-2">True:</span>
+          <span class="text-sm text-slate-600 mr-2">True:</span>
           <%= boolean_badge(true) %>
         </div>
         <div>
-          <span class="text-sm text-gray-600 mr-2">False:</span>
+          <span class="text-sm text-slate-600 mr-2">False:</span>
           <%= boolean_badge(false) %>
         </div>
       </div>
     </div>
   </div>
 
-  <hr class="my-8">
+  <hr class="my-6">
 
-  <!-- Format Attribute Demo -->
-  <div class="mb-8">
-    <h2 class="text-xl font-semibold text-gray-900 mb-4">Attribute Formatting Examples</h2>
-    <div class="bg-white p-6 rounded-lg shadow-sm ring-1 ring-gray-900/5">
+  <%# Format Attribute Demo %>
+  <div class="mb-6">
+    <h2 class="text-xl font-semibold text-slate-900 mb-4">Attribute formatting examples</h2>
+    <div class="tw-card p-5">
       <dl class="space-y-4">
         <div class="flex justify-between">
-          <dt class="text-sm font-medium text-gray-500">String:</dt>
-          <dd class="text-sm text-gray-900"><%= format_attribute(@sample_user, :email) %></dd>
+          <dt class="text-sm font-medium text-slate-600">String:</dt>
+          <dd class="text-sm text-slate-900"><%= format_attribute(@sample_user, :email) %></dd>
         </div>
         <div class="flex justify-between">
-          <dt class="text-sm font-medium text-gray-500">Boolean:</dt>
-          <dd class="text-sm text-gray-900"><%= format_attribute(@sample_user, :admin) %></dd>
+          <dt class="text-sm font-medium text-slate-600">Boolean:</dt>
+          <dd class="text-sm text-slate-900"><%= format_attribute(@sample_user, :admin) %></dd>
         </div>
         <div class="flex justify-between">
-          <dt class="text-sm font-medium text-gray-500">Date:</dt>
-          <dd class="text-sm text-gray-900"><%= format_attribute(@sample_user, :created_at) %></dd>
+          <dt class="text-sm font-medium text-slate-600">Date:</dt>
+          <dd class="text-sm text-slate-900"><%= format_attribute(@sample_user, :created_at) %></dd>
         </div>
         <div class="flex justify-between">
-          <dt class="text-sm font-medium text-gray-500">Nil Value:</dt>
-          <dd class="text-sm text-gray-900"><%= format_attribute(User.new, :name) %></dd>
+          <dt class="text-sm font-medium text-slate-600">Nil value:</dt>
+          <dd class="text-sm text-slate-900"><%= format_attribute(User.new, :name) %></dd>
         </div>
       </dl>
     </div>
   </div>
 
-  <hr class="my-8">
+  <hr class="my-6">
 
-  <!-- Component Usage Examples -->
-  <div class="mb-8">
-    <h2 class="text-xl font-semibold text-gray-900 mb-4">Usage Examples</h2>
-    <div class="bg-gray-50 p-6 rounded-lg">
-      <h3 class="text-sm font-semibold text-gray-900 mb-3">Table Component</h3>
-      <pre class="text-xs bg-white p-4 rounded border border-gray-200 overflow-x-auto"><code>&lt;%= admin_table(
+  <%# Component Usage Examples %>
+  <div class="mb-6">
+    <h2 class="text-xl font-semibold text-slate-900 mb-4">Usage examples</h2>
+    <div class="bg-slate-50 p-6 rounded-lg">
+      <h3 class="text-sm font-semibold text-slate-900 mb-3">Table component</h3>
+      <pre class="text-xs bg-white p-4 rounded border border-slate-200 overflow-x-auto"><code>&lt;%= admin_table(
   @resources,
   columns: [
     { attribute: :name, label: "Name", sortable: true, link: true },
     { attribute: :status, label: "Status", sortable: true }
-  ],
-  title: "Resources",
-  actions: link_to("New", [:new, :admin, :resource])
-) %&gt;</code></pre>
+  ]
+) %&gt;
 
-      <h3 class="text-sm font-semibold text-gray-900 mb-3 mt-6">Show Attributes</h3>
-      <pre class="text-xs bg-white p-4 rounded border border-gray-200 overflow-x-auto"><code>&lt;%= admin_show_attributes(
+&lt;%# The title and actions go above the card, not into it: %&gt;
+&lt;%= render layout: "components/ui/page_header", locals: { title: "Resources" } do %&gt;
+  &lt;%= link_to "New resource", [:new, :admin, :resource], class: admin_primary_button_class %&gt;
+&lt;% end %&gt;</code></pre>
+
+      <h3 class="text-sm font-semibold text-slate-900 mb-3 mt-6">Show attributes</h3>
+      <pre class="text-xs bg-white p-4 rounded border border-slate-200 overflow-x-auto"><code>&lt;%= admin_show_attributes(
   @resource,
   attributes: [:name, :email, :created_at]
 ) %&gt;</code></pre>

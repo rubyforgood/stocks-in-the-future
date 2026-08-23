@@ -7,12 +7,19 @@ class OrdersController < ApplicationController
   before_action :authenticate_user!
 
   def index
+    # A student sees their own orders, but `OrderPolicy::Scope` gives a teacher every order in their
+    # classrooms and an admin every order in the system, so this page is unbounded for two of the three
+    # roles. 60 orders already measured 8.2 screens.
     @orders = policy_scope(Order)
-    @orders = Order.apply_sorting(@orders, params[:sort], params[:direction])
+    sorted = Order.apply_sorting(@orders, params[:sort], params[:direction])
+    @orders = sorted.page(params[:page]).per(PER_PAGE)
   end
 
   def new
-    @order = Order.new(action: params[:transaction_type], stock: @stock)
+    # The user is assigned here as well as in create, because the form shows the
+    # trading fee and that depends on whether this user already has a pending
+    # order. Without it the form would quote the fee to every student regardless.
+    @order = Order.new(action: params[:transaction_type], stock: @stock, user: current_user)
   end
 
   def edit; end
@@ -80,6 +87,11 @@ class OrdersController < ApplicationController
     @shares_owned = current_user.portfolio&.shares_owned(@stock&.id)
   end
 
+  # These three read `t(".key")` from private helpers, and Rails resolves a lazy lookup against the current
+  # **action** rather than the enclosing method - so all of them land under `orders.cancel.*`, which is where
+  # the keys are. `i18n-tasks` infers the scope from the method name instead, so it reports
+  # `orders.cancel_order.success` as missing and `orders.cancel.success` as unused. Both are wrong; the
+  # lookups were checked at runtime. Do not "fix" either list by moving the keys.
   def unauthorized_response
     respond_to do |format|
       format.html { redirect_to orders_url, alert: t(".unauthorized") }
@@ -99,15 +111,6 @@ class OrdersController < ApplicationController
     respond_to do |format|
       format.html { redirect_to orders_url, alert: t(".pending_only") }
       format.json { render json: { error: t(".pending_only") }, status: :unprocessable_content }
-    end
-  end
-
-  def destroy
-    @order.destroy!
-
-    respond_to do |format|
-      format.html { redirect_to orders_url, notice: t(".notice") }
-      format.json { head :no_content }
     end
   end
 end

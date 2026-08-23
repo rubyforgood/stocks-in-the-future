@@ -1,52 +1,53 @@
-<div class="max-w-7xl mx-auto">
+<%# A single detail page holding both the school's attributes and its years.
+    `/admin/schools/:id/edit` renders this same page, so every existing Edit link still works.
+
+    **What the field ships.** Stripe's customer page, Linear's project page, GitHub's repository settings and
+    Polaris's resource detail pages all hold a record's attributes *and* its related collections on one
+    screen, with editing in place. None of them has a separate edit screen for a record with one attribute -
+    that is a Rails scaffold convention, and it earns its place for a long form.
+
+    The saving is what changes, not just the layout: this page has **two independent writes**. The name form
+    saves the name; the years manage themselves. So there is no single "Save" that means everything on screen,
+    which is the thing to look at - Polaris solves it with a contextual save bar that appears when a field is
+    dirty, and Stripe with per-section saves. This page does both: per-section writes, and an action row
+    that stays hidden until a field changes - see `.tw-form-actions`. %>
+<div class="mx-auto max-w-3xl">
   <%= admin_breadcrumbs(@breadcrumbs) %>
 
-  <div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg mb-6">
-    <div class="px-6 py-6">
-      <div class="flex items-center justify-between mb-6">
-        <h2 class="text-2xl font-bold text-gray-900"><%= @school.name %></h2>
-        <div class="flex gap-3">
-          <%= link_to edit_admin_school_path(@school),
-                      class: "inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" do %>
-            <i class="fas fa-edit -ml-1 mr-2 h-5 w-5 text-gray-500"></i>
-            Edit
-          <% end %>
-          <%= link_to admin_school_path(@school),
-                      data: { turbo_method: :delete, turbo_confirm: "Are you sure you want to delete this school?" },
-                      class: "inline-flex items-center px-4 py-2 border border-red-300 shadow-sm text-sm font-medium rounded-md text-red-700 bg-white hover:bg-red-50" do %>
-            <i class="fas fa-trash -ml-1 mr-2 h-5 w-5 text-red-500"></i>
-            Delete
-          <% end %>
-        </div>
+  <%= render layout: "components/ui/page_header",
+             locals: { title: @school.name,
+                       description: "Everything about this school, on one page." } do %>
+    <%= button_to "Delete school", admin_school_path(@school),
+                  method: :delete, form: { class: "inline-flex" }, data: { turbo_confirm: delete_confirm(@school) },
+                  class: admin_danger_button_class %>
+  <% end %>
+
+  <div class="space-y-6">
+    <%# **The years first.** Measured on the first draft of this page, with Details above them, they
+        started at y=618 of a 625px viewport - below the fold, on the page you came to them for. That is the
+        same cost `classrooms#show` already paid: adding to the top of a page costs the thing the page is for.
+        A one-field Details section is not worth the 280px it put above them. %>
+    <%= render "school_years", school: @school, school_years: @school_years,
+                               addable: @addable_years, manage: true %>
+
+    <%# A visible heading, matching create. It was `sr-only` on the grounds that one field needs no heading,
+        and that is true in isolation and wrong here: create shows the same section, and a heading on one page
+        and not the other is the inconsistency this shape exists to remove.
+
+        The hint carries the one genuinely confusing thing about a page that mixes a form with immediate
+        actions: **what saves when.** Details waits for the button; the years above apply as you click. %>
+    <section aria-labelledby="details-heading">
+      <h2 id="details-heading" class="text-base font-semibold text-slate-900">Details</h2>
+      <p class="mt-1 text-sm text-slate-600">Saved when you press Save details.</p>
+
+      <div class="mt-3">
+        <%= render "form" %>
       </div>
+    </section>
 
-      <%= admin_show_attributes(
-            @school,
-            attributes: %i[id name created_at updated_at]
-          ) %>
-
-      <!-- Associated Years -->
-      <% if @school.years.any? %>
-        <div class="mt-6 pt-6 border-t border-gray-200">
-          <h3 class="text-sm font-medium text-gray-500 mb-3">Associated Years</h3>
-          <ul class="space-y-2">
-            <% @school.years.each do |year| %>
-              <li class="text-sm text-gray-900">
-                <%= year.name %>
-              </li>
-            <% end %>
-          </ul>
-        </div>
-      <% else %>
-        <div class="mt-6 pt-6 border-t border-gray-200">
-          <p class="text-sm text-gray-500">No years associated with this school yet.</p>
-        </div>
-      <% end %>
-    </div>
-  </div>
-
-  <div class="flex gap-3">
-    <%= link_to "Back to Schools", admin_schools_path,
-                class: "inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" %>
+    <%# **No "Record" card.** It held an id and two timestamps in a 160px card: the id is already in the URL,
+        and a school's `created_at` is not something anybody acts on. design.md: a card earns its edges for a
+        summary figure, a person or a preview. Where the field shows this at all it is a muted metadata line -
+        and Stripe shows an id because you need it for the API, which has no equivalent here. %>
   </div>
 </div>

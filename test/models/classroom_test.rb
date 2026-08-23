@@ -7,6 +7,70 @@ class ClassroomTest < ActiveSupport::TestCase
     assert build(:classroom).validate!
   end
 
+  # SchoolYearFields. No form asks for a SchoolYear - both halves offer a School and a Year and the pair
+  # is found-or-created - so the validation is on the two fields a reader can see.
+  test "a blank form reports the two fields it has, not the association they combine into" do
+    classroom = Classroom.new(name: "5B")
+
+    assert_not classroom.valid?
+    assert_includes classroom.errors[:school_id], "can't be blank"
+    assert_includes classroom.errors[:year_id], "can't be blank"
+    # "School year must exist" named a field neither form has, so nothing was marked.
+    assert_empty classroom.errors[:school_year]
+  end
+
+  test "a school year assigned directly satisfies it, even unsaved" do
+    # `build` hands over an unsaved SchoolYear whose own school_id is still nil, which is why this checks
+    # the association rather than the ids.
+    assert_predicate build(:classroom), :valid?
+  end
+
+  test "the two fields are found or created into a school year" do
+    school = create(:school)
+    year = create(:year)
+    classroom = create(
+      :classroom, school_year: nil, school_id: school.id, year_id: year.id,
+                  grades: [create(:grade)]
+    )
+
+    assert_equal school, classroom.school_year.school
+    assert_equal year, classroom.school_year.year
+  end
+
+  test "an existing school year is reused rather than duplicated" do
+    existing = create(:school_year)
+    classroom = create(
+      :classroom, school_year: nil, school_id: existing.school_id,
+                  year_id: existing.year_id, grades: [create(:grade)]
+    )
+
+    assert_equal existing, classroom.school_year
+  end
+
+  test "a failed save leaves no orphan school year behind" do
+    school = create(:school)
+    year = create(:year)
+
+    assert_no_difference("SchoolYear.count") do
+      Classroom.new(name: "", school_id: school.id, year_id: year.id).save
+    end
+  end
+
+  test "clearing a select clears the field rather than silently keeping the old value" do
+    classroom = create(:classroom)
+    classroom.assign_attributes(school_id: "", year_id: "")
+
+    assert_not classroom.valid?
+    assert_includes classroom.errors[:school_id], "can't be blank"
+  end
+
+  test "the readers fall back to the association, so an edit form repopulates itself" do
+    classroom = create(:classroom)
+
+    assert_equal classroom.school_year.school_id, classroom.school_id
+    assert_equal classroom.school_year.year_id, classroom.year_id
+  end
+
   test "name is required" do
     classroom = build(:classroom, name: "")
     assert_not classroom.valid?
@@ -163,5 +227,53 @@ class ClassroomTest < ActiveSupport::TestCase
 
     classrooms = Classroom.apply_sorting(nil, "student_count", :desc)
     assert_equal classroom1.id, classrooms.first.id
+  end
+
+  # Moving a classroom to another school year used to leave its four grade books attached to the *old* year's
+  # quarters, so the year it had just been moved into had none at all and a teacher had nowhere to enter marks.
+  # Measured before the fix: the books still read 1/Q1..1/Q4 after a move to year 2.
+  test "grade books follow the classroom when it moves to another school year" do
+    school = create(:school)
+    from_year = create(:school_year, school:, year: create(:year))
+    to_year = create(:school_year, school:, year: create(:year))
+    classroom = create(:classroom, school_year: from_year)
+
+    assert_equal 4, classroom.grade_books.count
+
+    classroom.update!(school_year: to_year)
+
+    covered = classroom.grade_books
+      .joins(quarter: :school_year)
+      .where(quarters: { school_year_id: to_year.id })
+      .count
+
+    assert_equal 4, covered, "the new year's four quarters do not all have a grade book"
+  end
+
+  # The old ones stay: they hold entered grades and, once finalized, money already paid into portfolios.
+  test "moving a classroom keeps the grade books of the year it came from" do
+    school = create(:school)
+    from_year = create(:school_year, school:, year: create(:year))
+    to_year = create(:school_year, school:, year: create(:year))
+    classroom = create(:classroom, school_year: from_year)
+    original = classroom.grade_books.pluck(:id)
+
+    classroom.update!(school_year: to_year)
+
+    assert_equal original.sort, (classroom.grade_books.pluck(:id) & original).sort
+    assert_equal 8, classroom.grade_books.count
+  end
+
+  # And moving back and forth does not add a second set: `find_or_create_by!` is keyed on quarter and classroom.
+  test "moving a classroom back adds no duplicate grade books" do
+    school = create(:school)
+    from_year = create(:school_year, school:, year: create(:year))
+    to_year = create(:school_year, school:, year: create(:year))
+    classroom = create(:classroom, school_year: from_year)
+
+    classroom.update!(school_year: to_year)
+    classroom.update!(school_year: from_year)
+
+    assert_equal 8, classroom.grade_books.count
   end
 end

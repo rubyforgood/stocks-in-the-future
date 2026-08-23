@@ -1,0 +1,41 @@
+<%# The money form, closed until asked for.
+
+    **`<details>`, not a Stimulus panel**, which is the decision `dropdown_controller` already records for the
+    account menu: without JavaScript a native disclosure still opens and closes, and there is no state to
+    keep in sync. It also solves the case that catches every hand-rolled version - a **rejected** submit
+    re-renders the page, and the panel has to come back open with the values in it. Here that is one
+    server-rendered attribute rather than a controller reading the DOM.
+
+    `tag.details` rather than interpolating `open` into the markup: an interpolated attribute renders
+    unquoted, and a CSS or Capybara selector will not match it.
+
+    The trigger is not on the section's heading line, for a structural reason rather than a stylistic one: a
+    summary must be inside its own details element, so a trigger up there with the panel down here needs
+    JavaScript to connect them - which is the no-JS behaviour above, traded away for 40px. %>
+<%= tag.details class: "group mb-4",
+                open: adjustment.errors.any?,
+                data: { testid: "add-transaction-disclosure" } do %>
+  <%# `max-w-full`, because an `inline-flex` box sizes itself to its content and nothing else bounds it: at
+      320px and 200% text this label measured 305px inside a 305px viewport, starting 32px in. With the
+      cap it wraps instead, and the button base grows rather than cropping it - see the note on
+      `min-h-10` in buttons.css. %>
+  <%= tag.summary class: "tw-btn-secondary max-w-full cursor-pointer list-none " \
+                         "[&::-webkit-details-marker]:hidden" do %>
+    <%= lucide_icon "plus", class: "size-4 shrink-0 text-slate-500" %>
+    Add a transaction
+    <%= lucide_icon "chevron-down",
+                    class: "size-4 shrink-0 text-slate-500 transition-transform group-open:rotate-180" %>
+  <% end %>
+
+  <%# The sentence that used to be the section's hint. It belongs to the form, not to the list, and it is
+      the one thing about this control a reader cannot work out by looking: it applies at once, with no
+      confirmation, and it moves real money. %>
+  <div class="mt-4">
+    <p class="mb-4 text-sm text-slate-600">
+      Applies as soon as you press Add transaction: it changes what this student can invest, and appears in
+      the transactions below.
+    </p>
+
+    <%= render "transaction_form", student: student, adjustment: adjustment %>
+  </div>
+<% end %>

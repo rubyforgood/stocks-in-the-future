@@ -2,19 +2,53 @@
 
 # rubocop:disable Metrics/ModuleLength
 module AdminHelper
+  # Admin button classes, named once instead of repeated as a long literal on every page.
+  # The literals they replaced had no focus style at all, so keyboard focus was invisible on
+  # every admin action. The ring colour is always named, because Tailwind v4 resolves an
+  # unset ring/outline colour to currentColor.
+  #
+  # h-10 (40px), matching design.md's button height token and the .tw-btn-* classes. This
+  # first shipped as min-h-11 (44px) on the strength of the "minimum 44px touch targets"
+  # note, which made every admin button visibly taller than the rest of the app. 40px is
+  # what the design system specifies - the mainstream medium-button height, per Material 3,
+  # Chakra and shadcn - and it clears WCAG 2.5.8 (AA), which asks for 24x24. The 44px figure
+  # is AAA / Apple HIG.
+  #
+  # gap-2 rather than per-icon margins, so a leading icon needs no -ml-1 mr-2 of its own.
+  # Admin uses the same three button classes as the app side. These are thin aliases so the
+  # eleven call sites that ask for a class name keep working.
+  #
+  # They used to build their own strings from an ADMIN_BUTTON_BASE constant - a second base for
+  # the same product, kept in step by hand, which it was not: the base omitted `justify-center`,
+  # the primary carried a `border border-transparent` that design.md rules out by name, the
+  # outlined pair used `border-slate-300` against the spec's `slate-200`, and none of them used
+  # the `font-semibold` the filled variant is supposed to have. Two bases is the drift mechanism,
+  # so there is one now, in buttons.css.
+  def admin_primary_button_class
+    "tw-btn-primary"
+  end
+
+  def admin_secondary_button_class
+    "tw-btn-secondary"
+  end
+
+  # design.md's :danger_outline - slate at rest like :secondary, rose only on hover, because it
+  # sits among bordered buttons.
+  def admin_danger_button_class
+    "tw-btn-danger-outline"
+  end
+
   # Renders a table for index pages with sortable columns
   # @param collection [ActiveRecord::Relation] The records to display
   # @param columns [Array<Hash>] Column definitions with :attribute, :label, :sortable keys
   # @param options [Hash] Additional options for the table
+  # The table card holds the table only. A page title and its actions belong at page
+  # level, so they are rendered by components/ui/_page_header above this, not passed in.
   def admin_table(collection, columns: [], **options)
-    title = options.delete(:title)
-    actions = options.delete(:actions)
     render "admin/shared/table",
            collection: collection,
            columns: columns,
-           options: options,
-           title: title,
-           actions: actions
+           options: options
   end
 
   # Renders attribute rows for show pages
@@ -26,8 +60,158 @@ module AdminHelper
 
   # Renders breadcrumbs for navigation
   # @param breadcrumbs [Array<Hash>] Breadcrumb items with :label and :path keys
+  # A teacher's reach, as the record page's summary line. The state is a badge beside the name - see
+  # `classroom_summary` for why, and note this comment used to argue the other way: "whether they are active
+  # is stated in words, not only by a badge's colour". The worry is real and the badge answers it, because a
+  # badge carries a **label**. "Active" in a pill is words; it is not colour alone.
+  def teacher_summary(teacher)
+    pluralize(teacher.classrooms.size, "classroom")
+  end
+
+  # **The All tab lists two populations, so a row has to say which it is in.**
+  #
+  # Reported on the students list: with Active, Archived and All tabs, the All tab merged archived rows with
+  # live ones and the only difference on screen was the *verb on the row action* - "Archive" against
+  # "Restore". A control is not information, and a reader scanning the list has no reason to read one.
+  #
+  # `admin/teachers` already had a Status column; students and users did not, which is the drift that having
+  # the same idea in three files produces. This is the one helper all three call.
+  #
+  # The label follows each page's own action, because that is what a reader connects it to: students and
+  # users are Archived and Restored, a teacher is Deactivated and Reactivated.
+  def discard_status_badge(record, archived_label: "Deactivated", **)
+    render "components/ui/badge",
+           label: record.discarded? ? archived_label : "Active",
+           tone: record.discarded? ? :danger : :success,
+           **
+  end
+
+  # Kept as a name because five call sites read better for it, but it no longer differs: **every** person
+  # in this app is deactivated and reactivated now, and only a classroom is archived and restored.
+  def teacher_status_badge(teacher, **)
+    discard_status_badge(teacher, **)
+  end
+
+  # A student's account and what is in their portfolio, as the summary line. Nil-safe for the same reason as
+  # the transaction helpers above: a failed save re-renders this page.
+  #
+  # **The username leads**, because the h1 is the student's name and the students list links by username -
+  # without it here, clicking "jsmith2" would land on a page headed "Jordan Smith" with the identifier you
+  # searched for nowhere above the fold except in a form field.
+  #
+  # The two money figures were `text-2xl` tiles in a four-across band, beside a third tile holding the
+  # portfolio's **id**. This is the treatment the stock page already moved to: a read-only fact that is not
+  # worth a section goes on the summary line. Shares held is not here - it is a holdings figure, and
+  # "Open portfolio" is one click away.
+  def student_summary(student)
+    parts = [student.username.presence, student.classroom&.name]
+
+    if student.portfolio.present?
+      parts << "#{number_to_currency(student.portfolio.cash_balance)} cash"
+      parts << "#{number_to_currency(student.portfolio.total_portfolio_worth)} total value"
+    end
+
+    parts.compact.join(" · ").presence || "No classroom"
+  end
+
+  # What the transaction *is*, as its heading. An id is not a name - and this page already moved its id into
+  # the breadcrumb once, for the same reason.
+  # **Everything here tolerates a nil.** Now that view and edit are one page, a failed save re-renders the
+  # record's own page - and an invalid record is one whose `portfolio_id`, type or amount is missing. This is
+  # the second helper to learn it the hard way: `SchoolYear#name` raised from a page title while the form was
+  # trying to show the validation message. Anything a merged page's header reads must survive an invalid
+  # record.
+  def transaction_title(transaction)
+    return "Transaction" if transaction.transaction_type.blank? || transaction.amount_cents.blank?
+
+    amount = number_to_currency(transaction.amount_cents / 100.0)
+
+    "#{transaction.transaction_type.humanize} of #{amount}"
+  end
+
+  # The two facts the form cannot express: when the money moved, and the order that caused it. One line each,
+  # so they belong in the summary rather than in sections of their own.
+  def transaction_summary(transaction)
+    parts = [transaction.portfolio&.user&.username,
+             transaction.created_at && l(transaction.created_at.to_date, format: :long)]
+    parts << "from order ##{transaction.order.id}" if transaction.order.present?
+
+    parts.compact.join(" · ")
+  end
+
+  # A classroom's state and size, as its summary line. Archived and trading are **not** form fields - the
+  # archive toggle is a header action and trading is the teacher's switch on their own classroom page - so they
+  # are read-only facts, which is exactly what a summary line is for. Stated in words, not by colour alone.
+  # **A state is a badge beside the name; the summary line is metadata.**
+  #
+  # This read "6th · 2026 - 2027 · trading on", and a reader reported it as unreadable: three values with no
+  # labels, one of which is not metadata at all. "6th" does not say what it is a 6th of, and the state was
+  # hanging off the end of a list of attributes as though it were another one.
+  #
+  # Two things separate them now. The state moves to the title's own line as a badge - which is what
+  # `_page_header`'s `badge:` slot is for, what `grade_books#show` already does, and what Linear, Stripe,
+  # GitHub and Shopify all do with an entity's status. The metadata that stays says what it is.
+  #
+  # The badge is the **same** derivation the classrooms index shows in its Status column, through the same
+  # helper, because a classroom that reads "Trading off" in a list and "trading on" on its own page is the
+  # drift that having two copies of one rule guarantees.
+  def classroom_summary(classroom)
+    parts = [classroom.grades_display.presence&.then { |g| "#{g} grade" }, classroom.year_name.presence]
+
+    parts.compact.join(" · ")
+  end
+
+  # Archived outranks trading: an archived classroom's trading setting says nothing about what anyone can do.
+  def classroom_status_badge(classroom, **)
+    return render("components/ui/badge", label: "Archived", tone: :danger, **) if classroom.archived?
+
+    render "components/ui/badge",
+           label: classroom.trading_enabled? ? "Trading on" : "Trading off",
+           tone: classroom.trading_enabled? ? :success : :neutral,
+           **
+  end
+
+  # A user's role and where they sit, as the summary line. The two record pages without one were `users` and
+  # `announcements`, which made them the odd pages out of nine - a summary line is where a read-only fact that
+  # is not worth a section goes, and for a user the role is exactly that.
+  #
+  # `account_role_label` rather than `type`: an admin is a `User` row with `admin: true`, so the STI column
+  # reads "User" for the one account that can do everything.
+  def user_summary(user)
+    [account_role_label(user), user.classroom&.name].compact.join(" · ")
+  end
+
+  # Only when there is something to say: an active account is the ordinary case, and a badge reading "Active"
+  # on every one of them is a badge nobody reads. An archived account is the exception the page must state.
+  def user_status_badge(user, **)
+    return unless user.discarded?
+
+    render "components/ui/badge", label: "Archived", tone: :danger, **
+  end
+
+  # An announcement's state, which is the only thing about it that changes what anybody sees: exactly one is
+  # featured, and that is the one rendered on the home page.
+  def announcement_summary(announcement)
+    return "Featured - shown on everyone's home page" if announcement.featured?
+
+    "Not featured, so it does not appear on the home page"
+  end
+
+  # A school year's summary: how many classrooms run in it, and the quarter count that used to be a card of
+  # four identical rows.
+  # Classrooms only. It read "2 classrooms · 4 quarters", and the second half is an invariant: `create_quarters`
+  # makes exactly four on create, nothing else makes one, and there are no quarter routes - so it says 4 on
+  # every school year that has ever existed. That is the same reason the Quarters *card* went; the count was
+  # left behind, which is the smaller version of the same thing. What the page's description is for is the
+  # figure that differs between one record and the next.
+  def school_year_summary(school_year)
+    pluralize(school_year.classrooms.size, "classroom")
+  end
+
+  # The admin half's trail, which is `page_breadcrumbs` rooted at the dashboard. Kept as its own name because
+  # twenty-odd admin views call it, and the root is the only thing that ever differed.
   def admin_breadcrumbs(breadcrumbs = [])
-    render "admin/shared/breadcrumbs", breadcrumbs: breadcrumbs
+    page_breadcrumbs(breadcrumbs, root: :admin)
   end
 
   # Renders action buttons (Edit, Delete, Custom)
@@ -53,10 +237,35 @@ module AdminHelper
     when ActiveRecord::Base
       format_association(value)
     when nil
-      content_tag(:span, "—", class: "text-gray-400")
+      # slate-400 measures 2.6:1 on white and fails AA. slate-500 is 4.76:1 and
+      # still reads as an absent value. Matches the em-dash markers in the views.
+      content_tag(:span, "—", class: "text-slate-600")
+    when %r{\Ahttps?://}
+      format_url(value)
     else
       value.to_s
     end
+  end
+
+  # A URL in a dense table shows its host and links to the whole thing.
+  #
+  # Printed in full it was the widest cell in the app: admin/stocks carried a 267px
+  # "https://www.verizon.com/..." in a `whitespace-nowrap` cell, which was the entire reason that
+  # table still overflowed a Chromebook by 38px after every other column had been dealt with. The
+  # host is the part an admin reads to confirm the right company; the rest is noise they can click.
+  # Stripe, Linear and GitHub all shorten a URL to its host in a table.
+  #
+  # The full URL stays available to assistive tech through the title and the href, so nothing is
+  # lost - and an invalid one falls back to printing what is there rather than raising.
+  def format_url(value)
+    host = begin
+      URI.parse(value).host&.delete_prefix("www.")
+    rescue URI::InvalidURIError
+      nil
+    end
+    return value.to_s if host.blank?
+
+    link_to host, value, class: "tw-link", title: value, rel: "noopener", target: "_blank"
   end
 
   # Renders a boolean badge
@@ -64,52 +273,15 @@ module AdminHelper
   # @return [String] HTML badge
   def boolean_badge(value)
     if value
-      content_tag(
-        :span, "Yes",
-        class: "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800"
-      )
+      render("components/ui/badge", label: "Yes", tone: :success)
     else
-      content_tag(
-        :span, "No",
-        class: "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800"
-      )
+      render("components/ui/badge", label: "No", tone: :neutral)
     end
   end
 
-  # Generates a sort link for table headers
-  # @param column [Symbol] The column name
-  # @param label [String] The display label
-  # @return [String] HTML link
-  def sort_link(column, label)
-    direction = params[:sort] == column.to_s && params[:direction] == "asc" ? "desc" : "asc"
-    icon = sort_icon(column)
-
-    # Build URL with query parameters
-    url = url_for(sort: column, direction: direction, only_path: true)
-
-    link_to url, class: "group inline-flex items-center" do
-      safe_join(
-        [
-          label,
-          content_tag(
-            :span, icon,
-            class: "ml-2 flex-none rounded text-gray-900 group-hover:text-gray-900"
-          )
-        ]
-      )
-    end
-  end
-
-  # Returns the sort icon for a column
-  # @param column [Symbol] The column name
-  # @return [String] Icon HTML
-  def sort_icon(column)
-    if params[:sort] == column.to_s
-      params[:direction] == "asc" ? "↑" : "↓"
-    else
-      "⇅"
-    end
-  end
+  # `sort_link` and `sort_icon` are **not** here. They were defined identically in this module and in
+  # ApplicationHelper - and since Rails mixes every helper into the same view context, which copy answered
+  # depended on include order. One definition, in ApplicationHelper, which both halves of the product use.
 
   # Renders search and filter form
   # @param filters [Array<Hash>] Filter definitions with :name, :label, :options keys
@@ -118,16 +290,43 @@ module AdminHelper
     render "admin/shared/search_filter", filters: filters, search_placeholder: search_placeholder
   end
 
-  # Determines the current discard filter state based on query parameters
-  # @return [Symbol] :active, :discarded, or :all
-  def current_discard_filter
-    if params[:discarded].present?
-      :discarded
-    elsif params[:all].present?
-      :all
-    else
-      :active
-    end
+  # The empty state for the **Archived** tab, which is a different sentence from an empty list.
+  #
+  # With nothing archived, all three filtered indexes said "No students yet" / "No teachers yet" / "No users
+  # yet" and offered a New button - on a tab that lists archived records. Both halves are wrong: there are
+  # records, none of them archived, and creating one would not put anything in this list. Measured on live
+  # data, where every one of those tabs is empty and the page claims the app has no students.
+  #
+  # One sentence in one place, because the three call sites would otherwise drift - and the noun is the only
+  # thing that differs.
+  # The shape every empty state in the app uses: **what the thing is or what the action does, then what
+  # appears here.** Set by a reader on the students list - "Archiving a student is reversible and keeps
+  # their history and records intact. Archived students appear here."
+  #
+  # `keeps:` per noun, because "everything attached to it" was the generic that made the sentence say
+  # nothing: what survives archiving is a student's history, a teacher's classrooms, a classroom's grade
+  # books. Naming them is the difference between a reassurance and a promise a reader can check.
+  # A **person** is deactivated; see `archived_empty_state` below for the thing that is still archived.
+  def deactivated_empty_state(noun, keeps:)
+    # The article follows the **sound**, not the letter: "a user", because "user" is pronounced with a
+    # consonant. A first-letter test gave "an user". The exceptions are listed rather than guessed at,
+    # because the only nouns this takes are the four archivable records.
+    sounds_consonant = %w[user unit].include?(noun)
+    article = !sounds_consonant && noun.start_with?("a", "e", "i", "o", "u") ? "an" : "a"
+
+    { icon: "user-x",
+      title: "No deactivated #{noun.pluralize}",
+      body: "Deactivating #{article} #{noun} is reversible and keeps #{keeps} intact. " \
+            "Deactivated #{noun.pluralize} appear here." }
+  end
+
+  # And the thing. A classroom has no login to take away, so archiving it files it out of the lists and
+  # changes nothing else - which is what the word means everywhere else in the field.
+  def archived_empty_state(noun, keeps:)
+    { icon: "archive",
+      title: "No archived #{noun.pluralize}",
+      body: "Archiving a #{noun} is reversible and keeps #{keeps} intact. " \
+            "Archived #{noun.pluralize} appear here." }
   end
 
   # Returns the correct model for routing purposes
@@ -197,50 +396,166 @@ module AdminHelper
     end
   end
 
+  # Both of these are row actions, so they are ghosts like every other row action. Restore was
+  # green-600 on white, which measures 3.30:1 and failed AA outright.
   def restore_button(resource)
     resource_name = resource.class.name.underscore
     restore_path = send("restore_admin_#{resource_name}_path", resource)
 
-    button_to "Restore", restore_path,
-              method: :patch,
-              data: { turbo_confirm: "Are you sure you want to restore this #{resource_name.humanize.downcase}?" },
-              class: "text-green-600 hover:text-green-800",
-              form: { style: "display: inline;" }
+    ghost_action_button action_label("Reactivate", resource), restore_path,
+                        icon: "user-check",
+                        method: :patch,
+                        data: { turbo_confirm: "Reactivate this #{resource_name.humanize.downcase}?\n\n" \
+                                               "They can sign in again and reappear in the lists " \
+                                               "they belong to. Nothing they did while deactivated " \
+                                               "has changed." },
+                        form: { class: "inline-flex" }
   end
 
   def discard_link(resource)
     resource_name = resource.class.name.underscore
     resource_path = send("admin_#{resource_name}_path", resource)
 
-    link_to "Archive", resource_path,
-            data: { turbo_method: :delete, turbo_confirm: "Are you sure you want to archive this #{resource_name.humanize.downcase}?" }, # rubocop:disable Layout/LineLength
-            class: "text-red-600 hover:text-red-800"
+    ghost_action_link action_label("Deactivate", resource), resource_path,
+                      icon: "user-x", variant: :danger,
+                      data: { turbo_method: :delete,
+                              turbo_confirm: "Deactivate this #{resource_name.humanize.downcase}?\n\n" \
+                                             "They cannot sign in from that moment, and they leave this " \
+                                             "list. Everything attached to the account is kept, and an " \
+                                             "administrator can reactivate them." }
   end
 
+  # This and archive_button sit in the classrooms#show toolbar between a bordered Edit and a
+  # bordered Delete, so they are bordered too rather than ghosts.
+  #
+  # Both used to draw their icon with `content_tag(:i, class: "fas fa-*")`. The font-awesome
+  # stylesheet is not linked in either layout, so those two elements rendered an empty <i> with no
+  # glyph - an icon that was never once visible. They were also the only Font Awesome references
+  # left in the app, and off-palette besides (green-300/yellow-300 borders, rounded-md at py-2
+  # rather than the 40px h-10 token).
+  # A portfolio transaction is not a record of a balance - the balance is **derived from** the
+  # transactions, so deleting one moves a student's money. That is the consequence worth stating, and the
+  # old message ("Delete this deposit of $5.00 for ada? This cannot be undone.") did not.
+  def transaction_delete_confirm(transaction)
+    amount = number_to_currency(transaction.amount_cents / 100.0)
+    direction = transaction.transaction_type.in?(%w[deposit credit]) ? "fall" : "rise"
+
+    "Delete this #{transaction.transaction_type} of #{amount}?\n\n" \
+      "#{transaction.portfolio.username}'s cash balance is worked out from their transactions, so it " \
+      "will #{direction} by #{amount} as soon as this goes. This cannot be undone."
+  end
+
+  # A school year owns its four quarters, and those refuse to go while grade books hang off them
+  # (`Quarter has_many :grade_books, dependent: :restrict_with_error`), as does the school year itself
+  # while it has classrooms. So the honest message says what will happen *and* what will stop it.
+  def school_year_delete_confirm(school_year)
+    "Delete #{school_year.name}?\n\n" \
+      "Its four quarters go with it. A school year that still has classrooms, or quarters with grade " \
+      "books, cannot be deleted at all. This cannot be undone."
+  end
+
+  # The generic delete confirmation, for the three shared admin partials that each wrote their own -
+  # `_actions` said "Are you sure you want to delete this classroom?", which names no record and gives no
+  # basis for the decision, and the other two said the same thing in two more shapes.
+  #
+  # The body is deliberately about **what a delete is**, not about a particular model's cascade: this is
+  # rendered for schools, school years, stocks, announcements and transactions, and a sentence claiming to
+  # know what each one takes with it would be wrong somewhere. Where the cascade matters - a transaction
+  # moving a balance, a school year taking its quarters - the call site passes its own.
+  # **WCAG 2.4.9, Link Purpose (Link Only).** A screen reader's link list shows the link text and nothing
+  # else, so five rows of "Archive" name five identical links to five different students. In context the
+  # row's own name disambiguates - which is why this passes 2.4.4 at AA - but the AAA criterion asks that
+  # the link alone be enough.
+  #
+  # `orders#index` already did this and said so: a visible label plus an `sr-only` remainder naming the
+  # record. This is that, in the helpers every admin row action goes through, so the two halves agree.
+  def action_label(text, record)
+    name = record.try(:display_name).presence || record.try(:name).presence ||
+           record.try(:username).presence || record.try(:title).presence
+    return text if name.blank?
+
+    safe_join([text, tag.span(" #{name}", class: "sr-only")])
+  end
+
+  def delete_confirm(record)
+    label = record.try(:name) || record.try(:username) || record.try(:title) || record.id
+
+    "Delete #{record.class.model_name.human.downcase} \"#{label}\"?\n\n" \
+      "It is removed permanently, along with anything that depends on it. This cannot be undone, and " \
+      "there is no archived copy to restore from."
+  end
+
+  # The three teacher confirmations, written once - they appeared in three files with three different
+  # sentences for the same two actions, and the delete one said only "Are you sure you want to
+  # permanently delete this teacher?", which is the phrasing the confirmation dialog exists to replace.
+  #
+  # Deactivating **discards**: `User#destroy` is overridden to soft-delete, so nothing is lost.
+  # `really_destroy!` is the one that is not, and only the delete action calls it - which is why these two
+  # have to read differently rather than both saying "this cannot be undone".
+  def teacher_deactivate_confirm(teacher)
+    "Deactivate #{teacher.display_name}?\n\n" \
+      "They cannot sign in from that moment, and they leave the active list. Their classrooms, the " \
+      "grades they entered and everything else are kept, and you can reactivate them here."
+  end
+
+  def teacher_reactivate_confirm(teacher)
+    "Reactivate #{teacher.display_name}?\n\n" \
+      "They can sign in again and return to the active list, with the same classrooms they had."
+  end
+
+  def teacher_delete_confirm(teacher)
+    "Permanently delete #{teacher.display_name}?\n\n" \
+      "The account is removed for good, along with their assignment to any classroom. The classrooms " \
+      "themselves and the grades they entered stay. This cannot be undone - deactivating keeps the " \
+      "record and can be reversed."
+  end
+
+  # The archive/activate confirmations, written once. `activate_button` and `archive_button` render the
+  # bordered toolbar version on classrooms#show, and the classrooms index repeats the pair as ghost row
+  # actions - which is how the two came to carry differently worded copy for one action.
+  def classroom_toggle_confirm(classroom)
+    if classroom.archived?
+      "Activate #{classroom.name}?\n\n" \
+        "Its teachers and students can open it again, and trading returns to whatever the " \
+        "classroom's own setting says."
+    else
+      "Archive #{classroom.name}?\n\n" \
+        "Its students can no longer buy or sell, and it leaves the teacher's list. Nobody is signed " \
+        "out - a classroom has no login of its own - and grades, portfolios and order history are " \
+        "kept. You can restore it from this page."
+    end
+  end
+
+  # **"Restore", not "Activate".** Archive pairs with Restore or Unarchive; Activate pairs with Deactivate.
+  # The app had three vocabularies for one idea - Archive/Restore on students and users, Archive/Activate
+  # here, Deactivate/Reactivate on teachers - and this pair was internally inconsistent whichever way the
+  # larger question is settled, so it is the one word that is wrong under every answer.
+  # `button_to`: the route answers PATCH only, so as a link this 404'd on a middle-click.
   def activate_button(classroom)
-    button_class = "inline-flex items-center px-4 py-2 border border-green-300 shadow-sm " \
-                   "text-sm font-medium rounded-md text-green-700 bg-white hover:bg-green-50"
-    link_to toggle_archive_admin_classroom_path(classroom),
-            data: { turbo_method: :patch, turbo_confirm: "Are you sure you want to activate this classroom?" },
-            class: button_class do
+    button_to toggle_archive_admin_classroom_path(classroom),
+              method: :patch,
+              form: { class: "inline-flex" },
+              data: { turbo_confirm: classroom_toggle_confirm(classroom) },
+              class: admin_secondary_button_class do
       safe_join(
         [
-          content_tag(:i, "", class: "fas fa-check-circle -ml-1 mr-2 h-5 w-5 text-green-500"),
-          "Activate"
+          lucide_icon("rotate-ccw", class: "h-5 w-5 shrink-0 text-slate-500"),
+          "Restore"
         ]
       )
     end
   end
 
+  # `button_to`: the route answers PATCH only, so as a link this 404'd on a middle-click.
   def archive_button(classroom)
-    button_class = "inline-flex items-center px-4 py-2 border border-yellow-300 shadow-sm " \
-                   "text-sm font-medium rounded-md text-yellow-700 bg-white hover:bg-yellow-50"
-    link_to toggle_archive_admin_classroom_path(classroom),
-            data: { turbo_method: :patch, turbo_confirm: "Are you sure you want to archive this classroom?" },
-            class: button_class do
+    button_to toggle_archive_admin_classroom_path(classroom),
+              method: :patch,
+              form: { class: "inline-flex" },
+              data: { turbo_confirm: classroom_toggle_confirm(classroom) },
+              class: admin_danger_button_class do
       safe_join(
         [
-          content_tag(:i, "", class: "fas fa-archive -ml-1 mr-2 h-5 w-5 text-yellow-500"),
+          lucide_icon("archive", class: "h-5 w-5 shrink-0"),
           "Archive"
         ]
       )

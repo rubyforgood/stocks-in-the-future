@@ -5,7 +5,8 @@ class Classroom < ApplicationRecord
   MAX_GRADE = 8
   GRADE_RANGE = (MIN_GRADE..MAX_GRADE).to_a.freeze
 
-  belongs_to :school_year
+  include SchoolYearFields
+
   has_one :school, through: :school_year
   has_one :year, through: :school_year
 
@@ -23,10 +24,42 @@ class Classroom < ApplicationRecord
   has_many :grade_books, dependent: :destroy
 
   validates :name, presence: true
-  validate :school_year_presence
   validate :grade_level
 
+  # One place keeps `trading_disabled_at` true to the flag, the same shape Stock uses for
+  # `archived_at`. `||=` so re-saving a classroom whose trading is already off does not keep moving
+  # the date forward, and clearing it when trading is switched back on so the *next* switch-off
+  # reports its own date rather than the first one.
+  #
+  # That last part is what makes the callout's dismissal safe: a student's dismissal is compared
+  # against this, so switching trading off again produces a date newer than any dismissal and the
+  # message returns. Without the clear, a dismissal made last term would suppress this term's notice.
+  before_save :stamp_trading_disabled_at
+
   after_create :create_gradebooks_for_quarters
+
+  # **And again when the classroom moves year.** `after_create` alone left a classroom that an admin moved to
+  # another school year holding four grade books attached to the *old* year's quarters - measured: move a
+  # classroom from year 1 to year 2 and its books still read 1/Q1..1/Q4, so the year it is now in has no grade
+  # books at all and the teacher has nowhere to enter marks.
+  #
+  # The old books stay. They hold entered grades and, once finalized, money that has already been paid into
+  # portfolios; `find_or_create_by!` per quarter means moving back and forth adds nothing twice.
+  after_update :create_gradebooks_for_quarters, if: :saved_change_to_school_year_id?
+
+  # **Whether a student may trade right now**, as opposed to `trading_enabled?`, which is the switch's own
+  # position and is what the admin badge and the classroom form show.
+  #
+  # They came apart on an archived classroom. Archiving takes the class out of the teacher's list and stops
+  # them opening it - `ClassroomPolicy::Scope` is `.active` for a teacher and `check_classroom_eligibility`
+  # redirects a non-admin - and it did nothing at all to the students in it. Measured: a student in an
+  # archived classroom signed in, opened the trading floor and placed a buy. So the class was over, the
+  # teacher could no longer see it or reach its trading switch, and the students went on trading in it.
+  #
+  # Archiving is how a class ends. A class that has ended is not open for trading.
+  def trading_open?
+    trading_enabled? && !archived?
+  end
 
   scope :active, -> { where(archived: false) }
   scope :archived, -> { where(archived: true) }
@@ -109,6 +142,24 @@ class Classroom < ApplicationRecord
 
   private
 
+  # Three cases, and the middle one is the bug this had. `||=` alone kept whatever was already in the
+  # column, so a row sitting in the inconsistent state - trading on with a date still set, which is
+  # what any write that skips callbacks leaves behind, `update_column` or a row predating this method -
+  # reported the *previous* switch-off as the onset of the new one. A dismissal made in between then
+  # outranked it and the callout never came back, which is the exact failure the timestamp exists to
+  # prevent. Found by reading the live page, not by the suite: the test always enabled first, and
+  # enabling nils the column, so `||=` never met a stale value.
+  def stamp_trading_disabled_at
+    if trading_enabled?
+      self.trading_disabled_at = nil
+    elsif will_save_change_to_trading_enabled? || trading_disabled_at.nil?
+      # A real transition to off, or a row that never had a date. Either way this switch-off is now.
+      self.trading_disabled_at = Time.current
+    end
+    # Otherwise: already off and saved for some other reason. Leave the date where it is rather than
+    # dragging it forward, or every unrelated save would re-open every dismissal.
+  end
+
   def create_gradebooks_for_quarters
     school_year.quarters.each do |quarter|
       GradeBook.find_or_create_by!(quarter: quarter, classroom: self)
@@ -119,7 +170,8 @@ class Classroom < ApplicationRecord
     errors.add(:grades, "must have at least one grade") if grades.empty?
   end
 
-  def school_year_presence
-    errors.add(:school_year_id, :blank) if school_year_id.blank? && school_year.nil?
-  end
+  # `school_year_presence` is gone. It added a second `:blank` error, on `school_year_id`, for the one
+  # thing `belongs_to :school_year` already reports on `school_year` - so a classroom saved without one
+  # listed "School year must exist" and "School year can't be blank" in the same error summary, which is
+  # the same defect as a field carrying two messages. One problem, one error.
 end

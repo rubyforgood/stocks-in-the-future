@@ -15,7 +15,7 @@ module Admin
     def show
       @breadcrumbs = [
         { label: "Stocks", path: admin_stocks_path },
-        { label: @stock.ticker }
+        { label: @stock.company_name.presence || @stock.ticker }
       ]
     end
 
@@ -24,14 +24,14 @@ module Admin
 
       @breadcrumbs = [
         { label: "Stocks", path: admin_stocks_path },
-        { label: "New Stock" }
+        { label: "New stock" }
       ]
     end
 
     def edit
       @breadcrumbs = [
         { label: "Stocks", path: admin_stocks_path },
-        { label: @stock.ticker, path: admin_stock_path(@stock) },
+        { label: @stock.company_name.presence || @stock.ticker, path: admin_stock_path(@stock) },
         { label: "Edit" }
       ]
     end
@@ -44,7 +44,7 @@ module Admin
       else
         @breadcrumbs = [
           { label: "Stocks", path: admin_stocks_path },
-          { label: "New Stock" }
+          { label: "New stock" }
         ]
         render :new, status: :unprocessable_content
       end
@@ -56,7 +56,7 @@ module Admin
       else
         @breadcrumbs = [
           { label: "Stocks", path: admin_stocks_path },
-          { label: @stock.ticker, path: admin_stock_path(@stock) },
+          { label: @stock.company_name.presence || @stock.ticker, path: admin_stock_path(@stock) },
           { label: "Edit" }
         ]
         render :edit, status: :unprocessable_content

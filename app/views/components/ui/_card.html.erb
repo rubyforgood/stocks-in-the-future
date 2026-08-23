@@ -1,0 +1,60 @@
+<%# Card surface - the default container for a block of related content.
+
+    Stripe/Airbnb reading: a card earns its edges from a hairline border and a
+    low shadow, not a heavy drop shadow, with generous internal padding. Its
+    header is separated by a hairline: the title and the data below it are two
+    different things, and stating that boundary is what the references do.
+
+    Locals:
+      title    - optional heading text
+      subtitle - optional supporting line under the title
+      icon     - optional Lucide name, rendered as a 32px tile on the title's line
+      icon_tone- tone for that tile (:neutral default, see components/ui/_icon_tile)
+      padded   - false to remove body padding (for flush tables)
+      class    - extra classes on the outer element
+
+    Body content is passed as a block, so render with `layout:`. %>
+<% padded = local_assigns.fetch(:padded, true) %>
+<section class="tw-card <%= local_assigns[:class] %>">
+  <% if local_assigns[:title].present? %>
+    <%# The header carries a rule, matching Stripe's Box, Primer's Box.Header and Tailwind
+        UI's card-with-header. It was removed once on the strength of design.md's line about
+        a border-b over-segmenting a card - but that line is about a *compact* content card,
+        and it names the substitute structure it relies on ("that detail divider and the
+        footer border-t"). Most cards here hold an attribute list or a table and have
+        neither, so removing the rule left them with no boundary at all and the header
+        floating 36px above its content. %>
+    <header class="border-b border-slate-200 px-5 py-4">
+      <%# A leading icon goes on the title's line, never in a full-height column beside the
+          whole card. design.md measured that mistake once already: an items-start icon gutter
+          indents every body line behind it, so the body hangs off the icon instead of the
+          card edge. The subtitle stays flush for the same reason. %>
+      <div class="flex items-center gap-2">
+        <% if local_assigns[:icon].present? %>
+          <%= render "components/ui/icon_tile",
+                     icon: icon, tone: local_assigns.fetch(:icon_tone, :neutral), compact: true %>
+        <% end %>
+        <h2 class="text-base font-semibold text-slate-900"><%= title %></h2>
+      </div>
+      <% if local_assigns[:subtitle].present? %>
+        <p class="mt-1 text-sm text-slate-600"><%= subtitle %></p>
+      <% end %>
+    </header>
+  <% end %>
+
+  <%# Padding either side of the header rule is symmetric, and smaller than the card's own
+      p-5. With a full p-5 body under a py-4 header the seam carried 16px + 20px, measured at
+      37px from the header text to the first line of content - which read as a gap rather than
+      as a boundary. 16px either side (32px total) is what Stripe's Box and Primer's Box.Header
+      use. A card with no header keeps the full p-5. %>
+  <% body_padding = if !padded
+                      ""
+                    elsif local_assigns[:title].present?
+                      "px-5 pb-5 pt-4"
+                    else
+                      "p-5"
+                    end %>
+  <div class="<%= body_padding %>">
+    <%= yield %>
+  </div>
+</section>

@@ -15,18 +15,33 @@ class ImportStudentService
     end
   end
 
-  def self.call(username:, classroom_id:)
-    new.call(username: username, classroom_id: classroom_id)
+  def self.call(username:, classroom_id:, name: nil)
+    new.call(username: username, classroom_id: classroom_id, name: name)
   end
 
-  def call(username:, classroom_id:)
+  # A name is required here as well as on the forms, so the rule is the same however a student arrives.
+  # It was optional for one commit, on the argument that an import should not drop a row it could
+  # otherwise create - but that just moves the problem: a bulk-imported class is exactly where a roster of
+  # lowercased usernames is least navigable, and it is the path that creates twenty-five of them at once.
+  #
+  # Refused before the record is built, so the import report names the row and says what is missing.
+  def call(username:, classroom_id:, name: nil)
     username = sanitize_input(username)
     classroom_id = sanitize_input(classroom_id)
-    return skip_result("Username is required") if username.blank?
+    name = sanitize_input(name).presence
+    # A missing required field is a failure, not a skip - the same call the name required. A skip means
+    # "this row was fine and there was nothing to do", which is a duplicate; a row with no username is
+    # something the operator has to go and fix, and the per-row failure list is what tells them where.
+    return failure_result("Username is required") if username.blank?
     return skip_result("Student with username '#{username}' already exists") if Student.exists?(username: username)
-    return skip_result("Classroom ID is required") if classroom_id.blank?
+    return failure_result("Classroom ID is required") if classroom_id.blank?
+    # A *failure*, not a skip. The two buckets are reported differently: the controller describes skips
+    # as "Skipped N existing usernames", which is true of a duplicate and a lie about a row that simply
+    # has no name, while failures are reported per row as "Row N: <message>" - which is what someone
+    # fixing a spreadsheet needs.
+    return failure_result("Name is required") if name.blank?
 
-    import_student(username: username, classroom_id: classroom_id)
+    import_student(username: username, classroom_id: classroom_id, name: name)
   end
 
   private
@@ -35,8 +50,9 @@ class ImportStudentService
     input&.to_s&.strip
   end
 
-  def import_student(username:, classroom_id:)
+  def import_student(username:, classroom_id:, name: nil)
     student = Student.new(
+      name: name,
       username: username,
       classroom_id: classroom_id,
       password: MemorablePasswordGenerator.generate
@@ -67,6 +83,16 @@ class ImportStudentService
       student: nil,
       error_message: message,
       action: :skipped
+    )
+  end
+
+  # For a row that is wrong before a record is built, so there is no model to read errors from.
+  def failure_result(message)
+    Result.new(
+      success?: false,
+      student: nil,
+      error_message: message,
+      action: :failed
     )
   end
 

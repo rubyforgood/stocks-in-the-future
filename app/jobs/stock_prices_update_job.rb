@@ -50,16 +50,24 @@ class StockPricesUpdateJob < ApplicationJob
     false
   end
 
+  # `yesterday_price_cents` is **not** assigned here. It used to be, before the fetch, which meant an API
+  # failure saved `yesterday = today` and destroyed the real comparison point: a stock at 110 against
+  # yesterday's 100 came out of a failed run reporting **0.00%** instead of +10.00%, which is exactly what a
+  # genuinely flat day looks like. Every failure mode in AlphaVantageApiClient returns nil rather than
+  # raising - no API key, network error, parse error, invalid response - so `retry_on` never fired and
+  # nothing anywhere said the number was fabricated.
+  #
+  # It is set in `save_updated_price` now, where a new price is actually being written, so "yesterday" only
+  # ever means the price this one replaced.
   def update_stock_with_transaction(stock, symbol)
     Stock.transaction do
-      stock.yesterday_price_cents = stock.price_cents
       process_price_update(stock, symbol)
     end
   end
 
   def process_price_update(stock, symbol)
     price_data = @api_client.fetch_quote(symbol)
-    return persist_yesterday_price_with_warning(stock, symbol) unless price_data
+    return no_price_available(stock, symbol) unless price_data
 
     unless should_update?(stock, price_data[:trading_day])
       Rails.logger.info "Skipping #{symbol}: no trading since #{stock.last_trading_day}"
@@ -69,10 +77,16 @@ class StockPricesUpdateJob < ApplicationJob
     save_updated_price(stock, symbol, price_data[:price], price_data[:trading_day])
   end
 
-  def persist_yesterday_price_with_warning(stock, symbol)
-    stock.save!
-    Rails.logger.warn "Could not fetch new price for #{symbol}, saved yesterday price only"
-    stock
+  # Nothing is written. There is no new price, so there is nothing true to record - and writing the old
+  # price into `yesterday_price_cents` (which this used to do) turned "we could not reach the market" into
+  # "the price did not move", which is a different claim and a false one.
+  #
+  # `last_trading_day` is left alone too, which is what lets the trading floor tell that the price it is
+  # showing is not today's.
+  def no_price_available(stock, symbol)
+    Rails.logger.warn "Could not fetch a new price for #{symbol}; leaving #{stock.ticker} untouched " \
+                      "(last priced #{stock.last_trading_day || 'never'})"
+    nil
   end
 
   def should_update?(stock, latest_trading_day)
@@ -80,6 +94,8 @@ class StockPricesUpdateJob < ApplicationJob
   end
 
   def save_updated_price(stock, symbol, price, trading_day)
+    # Assigned here and only here: yesterday's price is the one this call is replacing.
+    stock.yesterday_price_cents = stock.price_cents
     stock.price_cents = convert_to_cents(price)
     stock.last_trading_day = trading_day.to_date
     stock.save!

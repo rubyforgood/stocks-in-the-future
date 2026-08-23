@@ -1,8 +1,13 @@
 @import "tailwindcss";
+/* navbar.css is gone: it held nothing but the scrolling stock ticker's four rules and its
+   keyframes, and the ticker was removed - see design.md and migration.md. An empty stylesheet is worse
+   than no stylesheet, because the next reader has to work out whether it is a stub or an omission. */
+@import "./figtree.css";
 @import "./shadcn.css";
 @import "./tailwind.config.css";
-@import "./navbar.css";
 @import "./tables.css";
 @import "./buttons.css";
+@import "./cards.css";
 @import "./forms.css";
-@import "./admin.css";
+@import "./chrome.css";
+@import "./motion.css";

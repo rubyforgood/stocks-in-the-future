@@ -1,8 +1,13 @@
-<div class="mx-auto md:w-2/3 w-full">
-  <h1 class="font-bold text-4xl">Editing classroom</h1>
+<%# max-w-3xl, which is what every other form page in the app uses. This was `lg:w-2/3`, a
+    *fraction* of the viewport - on a 1920px monitor that is a 1280px-wide single-column form, with a
+    name field stretched across all of it. A form's measure does not scale with the window. %>
+<div class="mx-auto max-w-3xl">
+  <%= page_breadcrumbs(@breadcrumbs) %>
 
-  <%= render "form", classroom: @classroom %>
+  <%= render layout: "components/ui/page_header",
+             locals: { title: "Edit classroom",
+                       description: "Moving a class to another school year gives it that year's " \
+                                    "four grade books." } do %><% end %>
 
-  <%= link_to "Show this classroom", @classroom, class: "tw-btn-tertiary" %>
-  <%= link_to "Back to classrooms", classrooms_path, class: "tw-btn-tertiary" %>
+  <%= render "classrooms/form", classroom: @classroom %>
 </div>

@@ -1,3 +1,42 @@
-<%= turbo_stream.replace "submit-button", partial: "grade_books/submit_button" %>
-<%= turbo_stream.replace "finalize-button", partial: "grade_books/finalize_button" %>
+<%# A save refreshes the buttons *and* every figure derived from the entries. Replacing only the
+    buttons left the Earns column and its total showing what the grades used to earn.
 
+    The cells are replaced rather than the table: the teacher's cursor is in an input, and swapping the
+    table out from under them would take the focus and any half-typed value with it. %>
+<% earnings = GradeBookEarnings.new(@grade_book) %>
+
+<%= turbo_stream.replace "submit-button", partial: "grade_books/submit_button" %>
+<%= turbo_stream.replace "finalize-button", partial: "grade_books/finalize_button",
+                         locals: { earnings: earnings } %>
+
+<% @grade_book.grade_entries.each do |entry| %>
+  <%= turbo_stream.replace dom_id(entry, :earnings),
+                           partial: "grade_books/entry_earnings",
+                           locals: { entry: entry, earnings: earnings } %>
+
+  <%# The warning is derived from the same entries as the figures, so it goes stale the same way. It
+      did: correcting the days left the notification on screen, still accusing. %>
+  <%= turbo_stream.replace dom_id(entry, :bonus_warning),
+                           partial: "grade_books/entry_bonus_warning",
+                           locals: { entry: entry } %>
+<% end %>
+
+<%= turbo_stream.replace "unattended-bonus-callout",
+                         partial: "grade_books/unattended_bonus_callout",
+                         locals: { earnings: earnings } %>
+
+<%= turbo_stream.replace "earnings-footer", partial: "grade_books/earnings_footer",
+                         locals: { earnings: earnings } %>
+
+<%# The finalize block's split is derived from the same entries. It is admin-only and not rendered for a
+    completed book, so for anyone else there is no target and Turbo no-ops - which is right, because
+    there is nothing on their page to go stale. The sentence beside it carries the total, so that is
+    replaced too. %>
+<%= turbo_stream.replace "finalize-breakdown", partial: "grade_books/finalize_breakdown",
+                         locals: { earnings: earnings } %>
+
+<%# And the sentence above it, which is the same figure in words. It was the one derived thing on this page
+    not in this list, and on a reopened book it told the admin nothing more was owed while the total beside
+    it said $3.60. %>
+<%= turbo_stream.replace "finalize-consequence", partial: "grade_books/finalize_consequence",
+                         locals: { earnings: earnings, grade_book: @grade_book } %>

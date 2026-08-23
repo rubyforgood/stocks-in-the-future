@@ -1,38 +1,96 @@
-<tr id="<%= dom_id(entry) %>">
+<%# One student's row.
+
+    **Inputs are sized to their content.** They were `w-full`, which is right for a form column and
+    wrong in a table cell: the days input rendered at **322px** for a value that cannot exceed two
+    digits, because the column took the table's slack. GOV.UK states the rule and ships width-2/3/4/5
+    modifiers for exactly this. All three are w-24 (96px): a grade needs two characters plus the chevron's
+    36px, and days needs two digits plus Chrome's spinner, which lands under the same figure. Days was
+    w-20, which is enough for its content and **16px narrower than its neighbours** - and below lg, where
+    the row stacks and every control is right-aligned against the same edge, three controls of two widths
+    read as a misalignment rather than as sizing. Reported that way. Sizing to content is still the rule;
+    it just does not mean sizing each field to a different width when the difference is one digit.
+
+    **Perfect attendance is a segmented Yes/No, not a checkbox.** A bare tick said nothing about what
+    was being answered; GOV.UK reserves a single checkbox for opting in and gives a yes/no question
+    radios. `.tw-segmented` is two native radios, so the keyboard behaviour is the browser's.
+
+    **Every control names itself**, including the student, because a row is identified visually only. A
+    `<th>` names a data cell, never a form control.
+
+    **Below lg this row is a block, not a grid** - see `.table-stacked` in tables.css - so every cell
+    carries a `<label>` that shows at that width and hides at lg, where the column header does the job.
+    A real `<label for>` rather than a span: the ids are per-row (`grade_entries_2_math_grade`), so it
+    associates properly, and a control in a table cell has never had a label - a `<th>` names a data
+    cell, not a form control. The `aria-label` stays because it names the *row* as well as the field,
+    which the visible label cannot do without repeating the student's name four times.
+
+    display_name, not username: it prefers the student's name and falls back to the username. Nothing
+    changes today because no student has a name - the add-student form collects only a username, which
+    is in design-todo - but the lowercase identifiers on screen are usernames, and capitalising them
+    would be wrong. %>
+<% who = entry.user.display_name %>
+
+<tr id="<%= dom_id(entry) %>" class="table-body-row">
   <%= fields_for "grade_entries[]", entry do |f| %>
-    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-      <%= entry.username.presence || content_tag(:span, "No username set", class: "text-gray-400 italic") %>
+    <td class="table-body-cell whitespace-nowrap">
+      <% if entry.username.present? %>
+        <span class="font-medium text-slate-900"><%= who %></span>
+      <% else %>
+        <span class="text-slate-600 italic">No username set</span>
+      <% end %>
     </td>
-    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+
+    <td class="table-body-cell whitespace-nowrap">
+      <%= f.label :math_grade, "Math", class: "table-stacked-label lg:hidden" %>
       <%= f.select :math_grade,
                    options_for_select(GradeEntry::GRADE_OPTIONS, entry.math_grade),
                    { include_blank: true },
                    disabled:,
-                   class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm",
+                   class: "tw-input-primary w-24",
+                   aria: { label: "Math grade for #{who}" },
                    data: { testid: "math-grade-select" } %>
     </td>
 
-    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+    <td class="table-body-cell whitespace-nowrap">
+      <%= f.label :reading_grade, "Reading", class: "table-stacked-label lg:hidden" %>
       <%= f.select :reading_grade,
                    options_for_select(GradeEntry::GRADE_OPTIONS, entry.reading_grade),
                    { include_blank: true },
                    disabled:,
-                   class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm",
+                   class: "tw-input-primary w-24",
+                   aria: { label: "Reading grade for #{who}" },
                    data: { testid: "reading-grade-select" } %>
     </td>
-    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+
+    <td class="table-body-cell whitespace-nowrap">
+      <%= f.label :attendance_days, "Days attended", class: "table-stacked-label lg:hidden" %>
       <%= f.number_field :attendance_days,
-                         class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm",
+                         class: "tw-input-primary w-24",
                          disabled:,
                          min: 0,
+                         aria: { label: "Days attended by #{who}" },
                          data: { testid: "attendance-days-input" } %>
-    </td>
-    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-      <%= f.checkbox :is_perfect_attendance,
-                     disabled:,
-                     class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm",
-                     data: { testid: "perfect-attendance-checkbox" } %>
+
+      <%= render "entry_bonus_warning", entry: entry %>
     </td>
 
+    <td class="table-body-cell whitespace-nowrap">
+      <%# A span, not a label: the control is two radios, each already labelled Yes or No, and a
+          `<label for>` pointing at one of them would name the group after one of its options. %>
+      <span class="table-stacked-label lg:hidden">Perfect attendance</span>
+      <span class="tw-segmented" data-testid="perfect-attendance-control">
+        <% { true => "Yes", false => "No" }.each do |value, label| %>
+          <%= f.radio_button :is_perfect_attendance, value,
+                             class: "sr-only",
+                             disabled:,
+                             aria: { label: "Perfect attendance bonus for #{who}: #{label}" } %>
+          <%= f.label :is_perfect_attendance, label,
+                      value: value,
+                      class: "tw-segmented-option" %>
+        <% end %>
+      </span>
+    </td>
+
+    <%= render "entry_earnings", entry: entry, earnings: grade_book_earnings %>
   <% end %>
 </tr>

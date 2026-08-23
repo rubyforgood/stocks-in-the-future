@@ -1,0 +1,122 @@
+<%# Portfolio transactions.
+
+    This page did not exist: the route excluded :index, so a transaction was reachable only if
+    you already had its id. Every other CRUD action was there, the sidebar had no entry, and the
+    dashboard listed "Portfolio transactions" as grey text with nothing to link to.
+
+    Written out rather than using admin_table because that helper renders each cell through
+    format_attribute, which stringifies - amount_cents would print as raw cents. Money goes
+    through number_to_currency, right-aligned, tabular-nums. %>
+<div class="max-w-7xl mx-auto">
+  <%= admin_breadcrumbs(@breadcrumbs) %>
+
+  <%# A filtered list says so, in the description rather than only in the URL - and it offers the way out.
+      A page that quietly shows one person's rows under the heading "Portfolio transactions" is the same
+      class of error as a summary that describes a bucket it no longer matches. %>
+  <%= render layout: "components/ui/page_header",
+             locals: { title: "Portfolio transactions",
+                       description: (
+                         if @filtered_user
+                           "Only #{@filtered_user.display_name}'s transactions."
+                         else
+                           "Every movement of money in the app. A student's cash balance is the sum " \
+                             "of their rows here."
+                         end
+                       ) } do %>
+    <% if @filtered_user %>
+      <%= link_to "Show all transactions", admin_portfolio_transactions_path,
+                  class: admin_secondary_button_class %>
+    <% end %>
+    <%= link_to "New transaction", new_admin_portfolio_transaction_path, class: admin_primary_button_class %>
+  <% end %>
+
+  <div class="tw-card">
+    <div class="overflow-x-auto">
+      <table class="table-base">
+        <caption class="sr-only">
+          <%= @filtered_user ? "#{@filtered_user.display_name}'s portfolio transactions, most recent first" : "Every portfolio transaction, most recent first" %>
+        </caption>
+        <thead>
+          <tr class="table-header-row">
+            <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell"><%= sort_link(:created_at, "Date") %></th>
+            <th scope="col" class="table-header-cell table-header-cell-left">Student</th>
+            <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell"><%= sort_link(:transaction_type, "Type") %></th>
+            <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell"><%= sort_link(:reason, "Reason") %></th>
+            <th scope="col" class="table-header-cell table-header-cell-right hidden lg:table-cell"><%= sort_link(:amount_cents, "Amount") %></th>
+            <th scope="col" class="table-header-cell table-header-cell-right table-actions-cell hidden lg:table-cell"><span class="sr-only">Actions</span></th>
+          </tr>
+        </thead>
+        <tbody class="bg-white">
+          <% if @portfolio_transactions.any? %>
+            <% @portfolio_transactions.each do |transaction| %>
+              <tr class="table-body-row" id="<%= dom_id(transaction) %>">
+                <% date_cell = capture do %>
+                  <%= link_to admin_portfolio_transaction_path(transaction),
+                              class: "font-medium tw-link focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sitf-primary" do %>
+                    <%= transaction.created_at.strftime("%b %d, %Y") %>
+                  <% end %>
+                <% end %>
+                <% type_cell = capture do %>
+                  <%= render "components/ui/badge",
+                             label: transaction.transaction_type.humanize,
+                             tone: transaction.deposit? ? :success : :neutral %>
+                <% end %>
+                <% reason_cell = capture do %>
+                  <%= transaction.reason&.humanize || "—" %>
+                <% end %>
+                <% amount_cell = capture do %>
+                  <%= number_to_currency(transaction.amount_cents / 100.0) %>
+                <% end %>
+                <% row_actions = capture do %>
+                    <%= ghost_action_link action_label("Delete", transaction), admin_portfolio_transaction_path(transaction),
+                                          icon: "trash-2", variant: :danger,
+                                          data: { turbo_method: :delete,
+                                                  turbo_confirm: transaction_delete_confirm(transaction) } %>
+                <% end %>
+
+                <td class="table-body-cell whitespace-nowrap hidden lg:table-cell">
+                  <%= date_cell %>
+                </td>
+                <td class="table-body-cell">
+                  <%= link_to transaction.portfolio.username, admin_portfolio_transaction_path(transaction), class: "tw-link" %>
+
+                  <%= render "components/ui/stacked_row_fields",
+                             fields: [["Date", date_cell], ["Type", type_cell], ["Reason", reason_cell], ["Amount", amount_cell]],
+                             actions: row_actions %>
+                </td>
+                <td class="table-body-cell whitespace-nowrap hidden lg:table-cell">
+                  <%= type_cell %>
+                </td>
+                <td class="table-body-cell hidden lg:table-cell">
+                  <%= reason_cell %>
+                </td>
+                <td class="table-body-cell table-body-cell-right whitespace-nowrap font-medium hidden lg:table-cell">
+                  <%= amount_cell %>
+                </td>
+                <td class="table-body-cell table-body-cell-right whitespace-nowrap table-actions-cell hidden lg:table-cell">
+                  <div class="flex items-center justify-end gap-1"><%= row_actions %></div>
+                </td>
+              </tr>
+            <% end %>
+          <% else %>
+            <%# `receipt`, the glyph both navs use for this page. It was `arrow-left-right`, which is
+                `arrow-right-left` - the Trade glyph - with the words swapped: two near-identical Lucide
+                icons for one idea, one character apart in the name. %>
+            <%= render "admin/shared/empty_row",
+                       colspan: 6,
+                       icon: "receipt",
+                       title: "No transactions yet",
+                       body: "Deposits appear here when a grade book is finalized, and a debit or a " \
+                             "credit each time a student buys or sells." %>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <%# **This page hand-rolls its table**, so it does not get the pagination footer `admin/shared/_table`
+        renders for the shells that use it. That is why the component never appeared here even once a
+        controller paginated - the guard was never reached, not false. The border and padding match the
+        footer that shell draws, so the two look the same wherever a reader meets them. %>
+    <%= render "components/ui/pagination", collection: @portfolio_transactions, footer: true %>
+  </div>
+</div>

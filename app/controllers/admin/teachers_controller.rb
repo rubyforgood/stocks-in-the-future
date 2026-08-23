@@ -16,9 +16,13 @@ module Admin
     end
 
     def show
+      # The record's page renders the form, so it needs what the form needs. `edit` was the only action that
+      # called this; merging the two pages means `show` does too.
+      set_form_data
+
       @breadcrumbs = [
         { label: "Teachers", path: admin_teachers_path },
-        { label: @teacher.username }
+        { label: @teacher.display_name.presence || @teacher.username }
       ]
     end
 
@@ -28,7 +32,7 @@ module Admin
 
       @breadcrumbs = [
         { label: "Teachers", path: admin_teachers_path },
-        { label: "New Teacher" }
+        { label: "New teacher" }
       ]
     end
 
@@ -36,7 +40,7 @@ module Admin
       set_form_data
       @breadcrumbs = [
         { label: "Teachers", path: admin_teachers_path },
-        { label: @teacher.username, path: admin_teacher_path(@teacher) },
+        { label: @teacher.display_name.presence || @teacher.username, path: admin_teacher_path(@teacher) },
         { label: "Edit" }
       ]
     end
@@ -55,7 +59,7 @@ module Admin
         set_form_data
         @breadcrumbs = [
           { label: "Teachers", path: admin_teachers_path },
-          { label: "New Teacher" }
+          { label: "New teacher" }
         ]
         render :new, status: :unprocessable_content
       end
@@ -72,7 +76,7 @@ module Admin
         set_form_data
         @breadcrumbs = [
           { label: "Teachers", path: admin_teachers_path },
-          { label: @teacher.username, path: admin_teacher_path(@teacher) },
+          { label: @teacher.display_name.presence || @teacher.username, path: admin_teacher_path(@teacher) },
           { label: "Edit" }
         ]
         render :edit, status: :unprocessable_content
@@ -101,15 +105,33 @@ module Admin
       params.expect(teacher: [:email, :name, { classroom_ids: [] }])
     end
 
+    # **A teacher's own classrooms are always in the list, whatever the filter says.**
+    #
+    # Nothing stops a teacher holding classrooms in more than one school - `teacher_classrooms` has no school
+    # constraint - but this form used to guarantee they could not. The list was narrowed to one school, the
+    # checkbox group is the whole of `classroom_ids`, and `update` assigns what was submitted: so a teacher
+    # with a classroom in each of two schools lost one the moment the form was saved. Measured in a console -
+    # "A room, B room" in, "A room" out - and it needed no interaction at all, because the filter defaults to
+    # the school of their *first* classroom, so opening the page and pressing Update was enough.
+    #
+    # Unioning their current classrooms into the scope fixes it at the source: whatever the filter shows, the
+    # boxes that are already ticked are rendered, so they are still there to be submitted.
+    # Every active classroom in the current school year, in school order.
+    #
+    # **The school filter is gone**, and with it `@schools`, `@selected_school_id` and the union that made
+    # the filter safe. It defaulted to the school of the teacher's *first* classroom, so it narrowed the
+    # list without anyone choosing anything - which is how it came to drop the second school's classroom on
+    # save, and why the list had to be unioned back together afterwards. Nothing is hidden now, so there is
+    # nothing to put back.
+    #
+    # Ordered by school then name, because the row shows both - see `classroom_option_label`.
     def set_form_data
       active_years = Year.current_school_year(Date.current)
-      @schools = School.joins(:school_years).where(school_years: { year_id: active_years.ids }).distinct.order(:name)
 
-      @selected_school_id = params[:school_id] || @teacher.classrooms.first&.school&.id
-
-      @classrooms = Classroom.active.joins(:school_year).where(school_years: { year_id: active_years.ids })
-      @classrooms = @classrooms.where(school_years: { school_id: @selected_school_id }) if @selected_school_id.present?
-      @classrooms = @classrooms.order(:name)
+      @classrooms = Classroom.active
+        .joins(school_year: :school)
+        .where(school_years: { year_id: active_years.ids })
+        .order("schools.name", :name)
     end
   end
 end

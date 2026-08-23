@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class ClassroomsController < ApplicationController
+  include ClassroomFormFields
+
   before_action :set_classroom, only: %i[show edit update toggle_trading]
   before_action :authorize_classroom, except: %i[edit update toggle_trading]
   before_action :authorize_classroom_instance, only: %i[edit update toggle_trading]
@@ -14,6 +16,7 @@ class ClassroomsController < ApplicationController
   end
 
   def show
+    @breadcrumbs = [{ label: "Classes", path: classrooms_path }, { label: @classroom.name }]
     facade = ClassroomFacade.new(@classroom)
     @students = facade.students
     @can_manage_students = current_user.teacher_or_admin?
@@ -22,32 +25,32 @@ class ClassroomsController < ApplicationController
 
   def new
     @classroom = Classroom.new
-    dropdown_data
+    @breadcrumbs = new_breadcrumbs
+    classroom_form_data
   end
 
   def edit
-    dropdown_data
+    classroom_form_data
+    @breadcrumbs = edit_breadcrumbs
   end
 
   def create
-    @classroom = Classroom.new(classroom_params.except(:school_id, :year_id))
-    assign_school_year_to_classroom
-
+    @classroom = Classroom.new(classroom_params)
     if @classroom.save
       redirect_to classroom_url(@classroom), notice: t(".notice")
     else
-      dropdown_data
+      classroom_form_data
+      @breadcrumbs = new_breadcrumbs
       render :new, status: :unprocessable_content
     end
   end
 
   def update
-    assign_school_year_to_classroom
-
-    if @classroom.update(classroom_params.except(:school_id, :year_id))
+    if @classroom.update(classroom_params)
       redirect_to classroom_url(@classroom), notice: t(".notice")
     else
-      dropdown_data
+      classroom_form_data
+      @breadcrumbs = edit_breadcrumbs
       render :edit, status: :unprocessable_content
     end
   end
@@ -63,6 +66,19 @@ class ClassroomsController < ApplicationController
 
   private
 
+  # Built here rather than inline, because `create` and `update` re-render these same pages on a validation
+  # failure and a trail rebuilt in two places drifts. A nil `@breadcrumbs` was a 500 before the helper became
+  # nil-safe; this is why it never sees one.
+  def new_breadcrumbs
+    [{ label: "Classes", path: classrooms_path }, { label: "New classroom" }]
+  end
+
+  def edit_breadcrumbs
+    [{ label: "Classes", path: classrooms_path },
+     { label: @classroom.name, path: classroom_path(@classroom) },
+     { label: "Edit classroom" }]
+  end
+
   def set_classroom
     @classroom = Classroom.includes(users: :portfolio).find(params.expect(:id).to_i)
   end
@@ -75,23 +91,19 @@ class ClassroomsController < ApplicationController
     authorize @classroom
   end
 
+  # The permitted list comes from the policy, not from here, because it differs by role: an admin may
+  # move a classroom between school years and change who teaches it, a teacher may not. Keeping it in
+  # ClassroomPolicy puts "may they?" and "what of it?" in one file - a teacher's crafted request
+  # carrying school_id or teacher_ids is dropped here rather than relying on the form not to show them.
+  #
+  # Pundit's `permitted_attributes` does the permitting itself - it returns filtered params, not the
+  # list - so this replaces the whole `params.expect(...)` rather than being handed to it. Passing its
+  # return value into `expect` raises ParameterMissing and every update 400s.
+  #
+  # Classroom.new for create: only an admin can reach it, and permitted_attributes needs a record to be
+  # asked about even though this policy's answer depends on the user alone.
   def classroom_params
-    params.expect(classroom: [:name, :trading_enabled, :school_id, :year_id, { grade_ids: [] }, { teacher_ids: [] }])
-  end
-
-  def dropdown_data
-    @schools = School.order(:name)
-    @years = Year.order(:name)
-    @teachers = Teacher.all.sort_by(&:display_name)
-  end
-
-  def assign_school_year_to_classroom
-    return unless classroom_params[:school_id].present? && classroom_params[:year_id].present?
-
-    school = School.find(classroom_params[:school_id])
-    year = Year.find(classroom_params[:year_id])
-    school_year = SchoolYear.find_or_create_by!(school: school, year: year)
-    @classroom.school_year = school_year
+    permitted_attributes(@classroom || Classroom.new)
   end
 
   def check_classroom_eligibility

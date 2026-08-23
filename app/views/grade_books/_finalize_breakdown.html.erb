@@ -1,0 +1,40 @@
+<%# How the payment is written, next to the button that writes it.
+
+    This needed a sentence, and the lack of one was reported as exactly the confusion it caused: *"I
+    still don't understand the distinction between the two or the relationship between the two."* Three
+    bare amounts beside a table that already totals to the same figure look like a second, competing
+    summary. They are not. They are the **same money**, cut along the other axis - the Earns column adds
+    up **per student**, this adds up **per reason** - and the two corners are the same number.
+
+    So the split does not stand alone: the line above it says what it is. And the reason it is worth
+    showing at all is the last clause of that line - `DistributeEarnings` writes **one transaction per
+    reason**, so a student does not receive one deposit of their Earns figure, they receive three. This
+    is the only place in the product that says so, and it is what their statement will list.
+
+    Labels name what earned the money, not the subject: "Math grades", not "Math". On this page "Math"
+    is already a column of letter grades, so the bare word would mean a grade in one place and a sum of
+    money in another, twelve inches apart.
+
+    No total line: the sentence above the block names it, and the confirmation names it again at the
+    commitment. A fourth copy would be a fourth place to disagree. %>
+<%= tag.div id: "finalize-breakdown", class: "mt-4" do %>
+  <%# No measure cap, for the same reason as the sentence above this block: 106 characters is one line at
+      the card's width, so the cap only left the card unfinished on the right. %>
+  <p class="text-sm text-slate-600">
+    Each student is paid in three deposits, which is how the total divides and what their statement
+    will show.
+  </p>
+
+  <dl class="mt-2 max-w-xs space-y-1 text-sm">
+    <% { attendance: "Attendance, including bonuses",
+         math: "Math grades",
+         reading: "Reading grades" }.each do |reason, label| %>
+      <div class="flex items-baseline justify-between gap-4">
+        <dt class="text-slate-600"><%= label %></dt>
+        <dd class="tabular-nums text-slate-900">
+          <%= number_to_currency(earnings.totals_by_reason[reason] / 100.0) %>
+        </dd>
+      </div>
+    <% end %>
+  </dl>
+<% end %>

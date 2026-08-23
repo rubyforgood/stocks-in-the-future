@@ -1,11 +1,229 @@
-.tw-label-primary {
-  @apply block text-sm/6 font-medium text-gray-900
+@layer components {
+  .tw-label-primary {
+    @apply block text-sm/6 font-medium text-slate-900
+  }
+
+  .required-indicator {
+    /* red-500 measured 3.76:1 on white and failed AA; red-600 is 4.83:1. */
+    @apply text-red-600 ml-1
+  }
+
+  /* rounded-lg, not rounded-md: the radius token is `controls rounded-lg`. */
+  .tw-input-primary {
+    /* placeholder was gray-400 at 2.54:1 (failed AA), focus ring was off-brand
+       indigo, sm: is not a supported tier, and py-1.5 fell short of the 44px
+       minimum touch target. */
+    @apply block w-full min-h-11 rounded-lg bg-white px-3 py-2 text-base text-slate-900 border border-slate-500 placeholder:text-slate-500 focus:outline-2 focus:-outline-offset-2 focus:outline-sitf-primary lg:text-sm/6
+  }
+
+  /* The same field, in an error state. Red is on the border and the focus outline, never on the
+     ink: the value a user typed stays slate-900 so it is still the most legible thing in the
+     field, and the message beneath says what is wrong. Measured: red-600 border on white 4.83:1,
+     which clears the 3:1 UI gate with room. */
+  /* The rose border comes from the class *and* from the attribute. `tw-input-error` covers the inputs
+   * the form builders and the field_error_proc rewrite; `[aria-invalid="true"]` covers everything else,
+   * including a control whose class list this app does not own. Belt and braces on purpose: a field that
+   * is announced as invalid and does not look invalid is the failure this pair prevents.
+   *
+   * red-600 rather than rose-500: measured against white, rose-500 is 3.76:1 and red-600 is 4.83:1, and
+   * a border is a non-text boundary needing 3:1 - but this one is the only visual signal a sighted user
+   * gets before reading, so it takes the text threshold. */
+  [aria-invalid="true"] {
+    @apply border-red-600;
+  }
+
+  .tw-input-error {
+    @apply block w-full min-h-11 rounded-lg bg-white px-3 py-2 text-base text-slate-900 border border-red-600 placeholder:text-slate-500 focus:outline-2 focus:-outline-offset-2 focus:outline-red-700 lg:text-sm/6
+  }
+
+  /* The hint above a field. It was slate-500 written inline in four different places.
+
+     `.tw-field-error` used to sit here and is gone: a field-level message is built by
+     `FormErrorsHelper#field_error_message`, which is one component with an icon in it, and this token was
+     the second definition - red text with no icon, which is how an admin field ended up with two messages
+     under it in two colours. An unused class is indistinguishable from a supported one until someone
+     adopts it. */
+  .tw-field-hint {
+    @apply mt-1 text-sm text-slate-600
+  }
+
+  /* Switch. One definition, because the hand-rolled version was wrong three commits running and
+     nobody could see it.
+
+     The knob was an `::after` on the track, `size-4` (16px) at a 2px inset, moved by
+     `translate-x-full`. The track is h-5 w-9 with a 1px border, so its padding box is 34x18: a 16px
+     knob at top 2px ends at 18px, flush against the bottom, and translating by its own width puts its
+     right edge at 34px, flush against the right. Reported as "no padding around the white circle
+     within the green oblong". Both were true, in every state.
+
+     14px in an 18px box at a 2px inset leaves 2px on all four sides, and the travel is then
+     34 - 14 - 2 - 2 = 16px, which is translate-x-4 - both on the scale, no arbitrary values.
+
+     The thumb is a real element rather than a pseudo-element, and that is the point: a pseudo-element
+     has no box to measure, so `getBoundingClientRect` cannot see it and a test cannot assert its
+     inset. That is why three passes over this markup never caught a 0px gap. A descendant cannot use
+     `peer-checked:`, which is why this is CSS rather than utilities.
+
+     The focus ring is new. The input is `sr-only`, so keyboard focus previously landed on something
+     invisible with no indicator anywhere - design.md's rule is that every removed outline gets a
+     visible replacement. */
+  .tw-switch {
+    @apply relative inline-block h-5 w-9 shrink-0 rounded-full border border-slate-500 bg-slate-300
+           transition-colors;
+  }
+
+  .tw-switch-thumb {
+    @apply pointer-events-none absolute top-0.5 start-0.5 size-3.5 rounded-full bg-white
+           transition-transform;
+  }
+
+  /* green-700 is 4.79:1 against the page, slate-400 2.9:1 - so the unchecked track keeps its border
+     to clear the 3:1 a UI boundary needs. */
+  input:checked + .tw-switch {
+    @apply border-green-700 bg-green-700;
+  }
+
+  input:checked + .tw-switch .tw-switch-thumb {
+    @apply translate-x-4;
+  }
+
+  input:focus-visible + .tw-switch {
+    @apply outline-2 outline-offset-2 outline-sitf-primary;
+  }
+
+  input:disabled + .tw-switch {
+    @apply cursor-not-allowed;
+  }
+
+  /* A <select> wearing the field class. Styled by element rather than by a new class, so all ten
+     selects in the app are fixed without touching a call site.
+
+     The native arrow's inset is not controllable: `.tw-input-primary` is `px-3`, and Chrome draws its
+     own arrow hard against the right edge of that 12px, so the glyph sat visibly tighter to the border
+     than every other control's contents - reported as the chevron not having enough padding on the
+     right. Tailwind UI, Polaris and Primer all replace it for exactly this reason.
+
+     appearance-none removes the native arrow, the chevron is lucide's chevron-down in slate-500 (4.77:1,
+     and it is a decorative glyph beside a named control), and it is positioned 12px from the right so it
+     matches the field's own px-3. pr-9 (36px) keeps a long option from running under it. */
+  select.tw-input-primary,
+  select.tw-input-error {
+    @apply appearance-none bg-no-repeat pr-9;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-position: right 0.75rem center;
+    background-size: 1rem 1rem;
+  }
+
+  /* Segmented control: two or three mutually exclusive options, shown as one control.
+     Built on native radios - the inputs are `sr-only` and the labels are what you see - so
+     arrow-key navigation, single selection, the click target and the accessible name all come from
+     the browser. No JavaScript, and nothing to get wrong on a keyboard.
+
+     Replaces a bare checkbox for a yes/no answer. GOV.UK is explicit that a single checkbox is for
+     opting in and a yes/no question takes radios; the checkbox in the grade book said nothing about
+     what ticking it meant, and a badge - the other idea - has no editing affordance at all.
+
+     The selected option is a *light* raised surface, not a brand fill. iOS raises the chosen segment
+     in white on a grey track and Material 3 uses a light container tint; a saturated fill repeated
+     down 25 table rows is the same over-emphasis the row-action rule forbids for buttons. Measured:
+     slate-900 on white 16.9:1, slate-600 on slate-100 6.92:1 - both clear AA, and the label always
+     states the option so meaning is never the fill. */
+  /* Sized to match a field, not to its own content. In the grade book this control sits in a row with
+   * two selects and a number input, and below lg they are all right-aligned against the same edge -
+   * measured, the fields are 96x44 and this was 89x28, so it read as a misalignment rather than as a
+   * different kind of control. iOS and Material both give a segmented control the height of the field
+   * it sits with. `min-w-24` rather than `w-24` so a longer pair of options grows instead of clipping.
+   *
+   * `items-stretch` so each option fills the height rather than centring a 20px label in a 44px box. */
+  .tw-segmented {
+    @apply inline-flex min-h-11 min-w-24 items-stretch gap-0.5 rounded-lg bg-slate-100 p-0.5 text-xs font-medium;
+  }
+
+  .tw-segmented-option {
+    @apply flex flex-1 cursor-pointer items-center justify-center rounded-md px-3 text-slate-600 transition-colors select-none;
+  }
+
+  input:checked + .tw-segmented-option {
+    @apply bg-white text-slate-900 shadow-sm;
+  }
+
+  input:focus-visible + .tw-segmented-option {
+    @apply outline-2 outline-offset-2 outline-sitf-primary;
+  }
+
+  input:disabled + .tw-segmented-option {
+    @apply cursor-not-allowed text-slate-500;
+  }
 }
 
-.required-indicator {
-  @apply text-red-500 ml-1
-}
+@layer components {
+  /* A form's action row. In normal flow until something changes, then pinned to the bottom of the viewport.
+   *
+   * **Conditional, because a permanent bar for a form you are only reading is not what anybody ships.**
+   * Polaris's ContextualSaveBar appears when there are unsaved changes; Shopify admin slides it in the moment
+   * a field goes dirty; Stripe reveals its save the same way. This carried `sticky` unconditionally for two
+   * commits and was reported twice - once for the rule it drew, once for hovering on a page whose only form
+   * field is a name nobody was editing.
+   *
+   * It cannot simply come off, either: measured against a 625px Chromebook viewport, the submit would sit at
+   * y=3298 on `admin/stocks#edit`, 1043 on `students#new`, 910 on `classrooms#new`, 772 on `teachers#edit`
+   * and 694 on `students#edit`. Five forms need it; the three school pages do not.
+   *
+   * **Progressive enhancement, deliberately.** The base is a plain row at the end of the form, which is what
+   * the app had before any of this - so with no JavaScript nothing is unreachable, it just needs a scroll on
+   * a long form. `form-dirty` sets the attribute on first input, and only then does it pin.
+   *
+   * No border: design.md's Dividers section rules out an extra rule, and the page-coloured background is
+   * what stops content showing through when it is pinned. */
+  /* **A short field is one column wide, and the fields still stack.**
+     `calc(50% - 0.75rem)` is half the card's content box less half of a 24px gutter - 351px of 726px - which
+     is the width a field would have *if* another sat beside it in a two-column layout. Asked for exactly
+     that, and I built the two-column layout instead: "were there another field beside it" is the
+     subjunctive, and pairing the fields was the indicative.
 
-.tw-input-primary {
-  @apply block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 border border-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6
+     Why the subjunctive is the better rule here. A form of stacked fields has one scan line, which is what
+     makes a short form readable - GOV.UK stacks and sizes, and its research is about error rates rather than
+     density. Pairing is Tailwind UI's and Polaris's answer to a *long* form on a wide page, and it costs a
+     second scan line and a decision per row about which two fields belong together. The width still does the
+     work: a 351px box for a two-letter ticker no longer says "type a sentence here".
+
+     On the input, not the wrapper, so the label and hint keep the full measure and a two-line hint does not
+     wrap into four. That is where GOV.UK puts its width modifiers too. */
+  .tw-field-half {
+    max-width: calc(50% - 0.75rem);
+  }
+
+  /* **No top padding: the form's own `space-y-6` is the gap above this row.**
+
+     It was `py-4`, and the row is a `space-y-6` sibling of the card, so the button sat 24px + 16px = **40px**
+     below the card on all ten forms while design.md's stacked-section rhythm is 24px. GOV.UK puts 30px above
+     a submit, Tailwind UI 24px, Polaris 20px; 40px was more than any of them, and it was the same defect as
+     the card's own bottom padding - one gap declared twice.
+
+     The bottom padding stays, and the top comes back in the sticky state below, because a pinned bar needs
+     air on both sides of the button. That means the row grows by 16px on the first keystroke of an update
+     form - which is the same transition where Polaris's ContextualSaveBar appears out of nothing, so it is
+     within the pattern this rule is modelled on rather than a layout jump on an idle page. */
+  .tw-form-actions {
+    @apply flex flex-wrap items-center gap-3 pb-4;
+  }
+
+  /* **Absent until there is something to save**, on a form that edits an existing record. A Save button on a
+     page you are only reading is friction, and Polaris's ContextualSaveBar is not merely unpinned when the
+     form is clean - it is not there. Shopify admin and Stripe behave the same way.
+   *
+   * Note the distinction from design.md's "enabled + validate, not disabled-until-input": that rule is about
+   * a control the user might reasonably press, so it must be pressable and explain the refusal. A save with
+   * nothing to save has nothing to explain. Hidden, not disabled.
+   *
+   * `form-dirty` sets `clean` on connect for an update form and swaps it for `dirty` on the first change - so
+   * with no JavaScript neither attribute is ever set and the row is simply there, which is what the app did
+   * before any of this. A create form is never marked clean: you cannot create anything without submitting. */
+  [data-form-clean="true"] .tw-form-actions {
+    @apply hidden;
+  }
+
+  [data-form-dirty="true"] .tw-form-actions {
+    @apply sticky bottom-0 z-10 bg-slate-50 pt-4;
+  }
 }

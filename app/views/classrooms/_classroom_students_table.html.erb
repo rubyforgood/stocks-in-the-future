@@ -1,86 +1,152 @@
-<div class="mt-8">
-  <div class="overflow-x-auto">
-    <table class="min-w-full divide-y divide-gray-200">
-      <thead class="bg-gray-50">
-        <tr>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student [Username]</th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Portfolio Value</th>
-          <% if @can_manage_students %>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Available Cash</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-          <% end %>
-        </tr>
-      </thead>
-      <tbody class="bg-white divide-y divide-gray-200">
-        <% @students.each do |student| %>
-          <tr class="group hover:bg-gray-50 transition-colors duration-150"
-              id="<%= dom_id(student) %>">
-            <td class="px-6 py-4 whitespace-nowrap" data-testid="student-username">
-              <% if student.username.present? %>
-                <% if student.portfolio %>
-                  <%= link_to student.username, user_portfolio_path(student, student.portfolio), class: "text-black underline hover:text-[var(--sitf-secondary-chart2)] font-medium" %>
-                <% else %>
-                  <span class="text-gray-400 italic"><%= student.username %></span>
-                <% end %>
-              <% else %>
-                <span class="text-gray-400 italic">No username set</span>
-              <% end %>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
-              <%= number_to_currency(student.portfolio&.holdings_value || 0) %>
-            </td>
-            <% if @can_manage_students %>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
-                <%= number_to_currency(student.portfolio&.cash_balance || 0) %>
-              </td>
-            <% end %>
-            <% if @can_manage_students %>
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium" data-testid="student-actions">
-                <div class="flex items-center gap-2">
-                  <%= link_to edit_classroom_student_path(@classroom, student),
-                              class: "inline-flex items-center justify-center w-8 h-8 text-black hover:text-[var(--sitf-secondary-chart2)] hover:bg-blue-50 rounded-lg transition-all duration-150 group",
-                              title: "Edit student",
-                              data: { testid: "edit-student" } do %>
-                    <i class="fa fa-pencil fa-lg group-hover:scale-110 transition-transform duration-150"></i>
-                  <% end %>
-
-                  <%= link_to reset_password_classroom_student_path(@classroom, student),
-                              data: {
-                                turbo_method: :patch,
-                                turbo_confirm: "Are you sure you want to reset #{student.username}'s password?",
-                                testid: "reset-password"
-                              },
-                              class: "inline-flex items-center justify-center w-8 h-8 text-amber-600 hover:text-amber-800 hover:bg-amber-50 rounded-lg transition-all duration-150 group",
-                              title: "Reset password" do %>
-                    <%= lucide_icon("refresh-cw") %>
-                  <% end %>
-
-                  <%= link_to classroom_student_path(@classroom, student),
-                              data: {
-                                turbo_method: :delete,
-                                turbo_confirm: "Are you sure you want to delete #{student.username}?",
-                                testid: "delete-student"
-                              },
-                              class: "inline-flex items-center justify-center w-8 h-8 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-all duration-150 group",
-                              title: "Delete student" do %>
-                    <i class="fa fa-trash fa-lg group-hover:scale-110 transition-transform duration-150"></i>
-                  <% end %>
-                </div>
-              </td>
-            <% end %>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
-  </div>
-
-  <% if @students.empty? %>
-    <div class="text-center py-8">
-      <p class="text-gray-500">No students in this classroom yet.</p>
+<%# On shared/_table_container, like every other table in the app. This was a bare div wrapping a
+    bare overflow-x-auto, so the roster sat on no surface at all - while the grade book list beside
+    it on the same screen is a card. Two panes, one of them floating. %>
+<%= render "shared/table_container" do %>
+  <thead>
+    <tr class="table-header-row">
+      <th scope="col" class="table-header-cell table-header-cell-left">Student</th>
+      <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">Portfolio value</th>
       <% if @can_manage_students %>
-        <%= link_to "Add the first student", new_classroom_student_path(@classroom),
-                    class: "mt-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700" %>
+        <th scope="col" class="table-header-cell table-header-cell-left hidden lg:table-cell">Available cash</th>
+        <th scope="col" class="table-header-cell table-header-cell-right table-actions-cell hidden lg:table-cell"><span class="sr-only">Actions</span></th>
       <% end %>
-    </div>
-  <% end %>
-</div>
+    </tr>
+  </thead>
+  <tbody class="bg-white">
+    <% @students.each do |student| %>
+      <%# Every cell's content is captured once and rendered at whichever width applies: its own column
+          at lg, a labelled line inside the Student cell below it. This table overflowed its scroller by
+          364px at 375px, so portfolio value, available cash and all three row actions were behind a
+          sideways scroll on a phone. %>
+      <%# The confirmations, written once and used by both copies of the row's actions.
+
+          **A confirmation says what the action does, not just that it will happen.** "Reset Ada's
+          password?" told a teacher nothing they did not know when they clicked, and was reported as
+          exactly that: it should say whether the student gets an email. It does not - the password is
+          generated by MemorablePasswordGenerator, set immediately, and shown to the teacher once in the
+          flash on the next screen, so passing it on is a job the teacher has to do.
+
+          **And "This cannot be undone" was false.** `StudentsController#destroy` calls `discard`, and
+          `User#destroy` raises rather than hard-delete, so the record and every portfolio, transaction
+          and grade entry attached to it survive - an admin restores it from `admin/students`. The
+          sentence a reader most needs to trust is the one about irreversibility.
+
+          The body goes after a blank line: Turbo hands the confirm hook nothing but this string for a
+          link, so structure travels in the string. See shared/_confirm_dialog. %>
+      <% reset_confirm = "Reset #{student.display_name}'s password?\n\n" \
+                         "A new password is generated now and shown to you once, on the next screen. " \
+                         "No email is sent, so you will need to pass it on. Their current password " \
+                         "stops working immediately." %>
+      <% delete_confirm = "Delete #{student.display_name}?\n\n" \
+                          "They stop being able to sign in and leave this roster. Their portfolio, " \
+                          "transactions and grades are kept, and an administrator can restore the " \
+                          "account from the students list." %>
+
+      <% holdings_cell = capture do %>
+        <%= number_to_currency(student.portfolio&.holdings_value || 0) %>
+      <% end %>
+      <% cash_cell = capture do %>
+        <%= number_to_currency(student.portfolio&.cash_balance || 0) %>
+      <% end %>
+      <% row_actions = capture do %>
+        <% if @can_manage_students %>
+          <%= ghost_action_link action_label("Edit", student), edit_classroom_student_path(@classroom, student),
+                                icon: "pencil",
+                                data: { testid: "edit-student-stacked" } %>
+          <%= ghost_action_link action_label("Reset password", student),
+                                reset_password_classroom_student_path(@classroom, student),
+                                icon: "key-round",
+                                data: {
+                                  turbo_method: :patch,
+                                  turbo_confirm: reset_confirm,
+                                  testid: "reset-password-stacked"
+                                } %>
+          <%= ghost_action_link action_label("Delete", student), classroom_student_path(@classroom, student),
+                                icon: "trash-2", variant: :danger,
+                                data: {
+                                  turbo_method: :delete,
+                                  turbo_confirm: delete_confirm,
+                                  testid: "delete-student-stacked"
+                                } %>
+        <% end %>
+      <% end %>
+
+      <tr class="table-body-row group"
+          id="<%= dom_id(student) %>">
+        <%# Name over username, which is design.md's primary-identifier shape - `font-medium slate-900`
+            for the value, `text-xs slate-600` for the line beneath - and what GitHub does for a person.
+            Both are needed: the name is who the teacher is looking for, the username is what the student
+            signs in with and what a password reset refers to. `display_name` falls back to the username,
+            so a student with no name shows one line rather than the same string twice. %>
+        <td class="table-body-cell whitespace-nowrap" data-testid="student-username">
+          <% if student.username.present? %>
+            <% if student.portfolio %>
+              <%= link_to student.display_name, user_portfolio_path(student, student.portfolio),
+                          class: "tw-link font-medium" %>
+            <% else %>
+              <span class="font-medium text-slate-900"><%= student.display_name %></span>
+            <% end %>
+
+            <% if student.name.present? %>
+              <span class="mt-0.5 block text-xs text-slate-600"><%= student.username %></span>
+            <% end %>
+          <% else %>
+            <span class="text-slate-600 italic">No username set</span>
+          <% end %>
+
+          <% fields = [["Portfolio value", holdings_cell]] %>
+          <% fields << ["Available cash", cash_cell] if @can_manage_students %>
+          <%= render "components/ui/stacked_row_fields", fields: fields, actions: row_actions %>
+        </td>
+        <td class="table-body-cell hidden whitespace-nowrap font-medium lg:table-cell">
+          <%= holdings_cell %>
+        </td>
+        <% if @can_manage_students %>
+          <td class="table-body-cell hidden whitespace-nowrap font-medium lg:table-cell">
+            <%= cash_cell %>
+          </td>
+        <% end %>
+        <% if @can_manage_students %>
+          <td class="table-body-cell table-body-cell-right hidden whitespace-nowrap table-actions-cell lg:table-cell" data-testid="student-actions">
+            <div class="flex items-center justify-end gap-1">
+              <%# Were three icon-only 32px links whose only accessible name was a title
+                  attribute, coloured black / amber-600 / red-600 at rest. Now the same ghost
+                  as every other row action, with the label visible. %>
+              <%= ghost_action_link action_label("Edit", student), edit_classroom_student_path(@classroom, student),
+                                    icon: "pencil",
+                                    data: { testid: "edit-student" } %>
+
+              <%= ghost_action_link action_label("Reset password", student),
+                                    reset_password_classroom_student_path(@classroom, student),
+                                    icon: "key-round",
+                                    data: {
+                                      turbo_method: :patch,
+                                      turbo_confirm: reset_confirm,
+                                      testid: "reset-password"
+                                    } %>
+
+              <%= ghost_action_link action_label("Delete", student), classroom_student_path(@classroom, student),
+                                    icon: "trash-2", variant: :danger,
+                                    data: {
+                                      turbo_method: :delete,
+                                      turbo_confirm: delete_confirm,
+                                      testid: "delete-student"
+                                    } %>
+            </div>
+          </td>
+        <% end %>
+      </tr>
+    <% end %>
+
+    <%# In the table body, like every other table here. It used to sit below the table as a
+        hand-rolled `text-center py-8` block, so an empty roster rendered bare column headers
+        with a sentence stranded underneath, and its CTA was a longhand rounded-md button. %>
+    <% if @students.empty? %>
+      <%= render "admin/shared/empty_row",
+                 colspan: @can_manage_students ? 4 : 2,
+                 icon: "graduation-cap",
+                 title: "No students yet",
+                 body: "Students you add appear here with their portfolio value." %>
+    <% end %>
+  </tbody>
+<% end %>

@@ -2,10 +2,14 @@
 
 module Admin
   class UsersController < BaseController
-    before_action :set_user, only: %i[show edit update destroy]
+    include SoftDeletableFiltering
 
+    before_action :set_user, only: %i[show edit update destroy restore]
+
+    # The same discard filter the students list has. Without it this list showed active users only, so a
+    # discarded user was not merely un-restorable - there was no screen anywhere that listed them.
     def index
-      @users = apply_sorting(User.all, default: "username")
+      @users = apply_sorting(scoped_by_discard_status(User), default: "username")
 
       @breadcrumbs = [
         { label: "Users" }
@@ -24,7 +28,7 @@ module Admin
 
       @breadcrumbs = [
         { label: "Users", path: admin_users_path },
-        { label: "New User" }
+        { label: "New user" }
       ]
     end
 
@@ -44,7 +48,7 @@ module Admin
       else
         @breadcrumbs = [
           { label: "Users", path: admin_users_path },
-          { label: "New User" }
+          { label: "New user" }
         ]
         render :new, status: :unprocessable_content
       end
@@ -63,8 +67,20 @@ module Admin
       end
     end
 
+    # `discard`, not `destroy`. User#destroy calls soft_delete_guard, which **raises** outside
+    # production and only then falls through to discard - so this action returned a 500 for every
+    # admin who tried it in development, and in production soft-deleted while the confirmation said
+    # "This cannot be undone". Nothing tested it. The guard exists to force this call, so make it.
+    # The way back from `destroy`, which discards. It covers every type at once, including the two that
+    # have their own - a Student restored here is the same row `admin/students#restore` would undiscard.
+    def restore
+      @user.undiscard
+      redirect_to admin_users_path(discarded: true),
+                  notice: "#{@user.display_name} has been restored."
+    end
+
     def destroy
-      @user.destroy
+      @user.discard
       redirect_to admin_users_path, notice: t(".notice")
     end
 

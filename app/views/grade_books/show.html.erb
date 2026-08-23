@@ -1,39 +1,223 @@
-<% if notice.present? %>
-  <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-lg inline-block" id="notice"><%= notice %></p>
-<% end %>
-<% if alert.present? %>
-  <p class="py-2 px-3 bg-red-50 mb-5 text-red-500 font-medium rounded-lg inline-block" id="alert"><%= alert %></p>
-<% end %>
-
+<% content_for :title, "#{@grade_book.quarter&.name || 'Grade book'} - #{@classroom.name}" %>
 <%= turbo_frame_tag @grade_book do %>
-  <div class="mt-8"
-    <% unless @grade_book.completed? %>
-      data-controller="autosave"
-      data-autosave-interval-value="30000"
-    <% end %>>
-    <div class="flex justify-between items-center mb-4">
-      <h3 class="text-lg font-medium text-gray-900">Grade Book</h3>
-      <div data-autosave-target="status" class="text-sm text-gray-500"></div>
+  <%# This is a standalone page at /classrooms/:id/grade_books/:id, and it had no
+      h1 at all - its only heading was an h3. Every page needs exactly one h1, and
+      the quarter it belongs to is the thing that identifies it.
+
+      The wrapper's data attributes are conditional, so the opening tag is built in
+      one expression rather than split across an `if`, which previously left an
+      unterminated tag mid-template. %>
+  <% autosave = @grade_book.completed? ? {} : { controller: "autosave", autosave_interval_value: 30_000 } %>
+
+  <%= tag.div data: autosave do %>
+    <%# The quarter is the title. "Grade book" identified nothing - every grade book is one, and the
+        page's accessible name was the same on all four - so the quarter leads and the classroom is the
+        description, which is what classrooms#show does with name and meta.
+
+        The status is on the page for the first time. It is a real enum the classroom list now shows on
+        every row, and the page it links to did not say which state it was in - so a teacher could see
+        it in the list and find no confirmation of it here. A pill against the title is where every
+        system puts entity state.
+
+        The wording comes from `grade_book_status_badge`, not from the enum. It printed "Draft", which
+        was read as "the grades have not saved" - a fair reading beside a Save button and a live
+        "Saving..." region. See GradeBooksHelper.
+
+        `badge:`, not the block: the block is the header's *actions* slot, which right-aligns its
+        contents, so the pill floated alone in the top-right corner where "Add student" and "Edit
+        classroom" sit on other pages - reported as exactly that. A status is not an action. Extracted
+        to a local because a nested render inside the locals hash trips erb_lint's
+        Layout/FirstMethodArgumentLineBreak. %>
+    <% grade_book_subtitle = [@classroom.name, "grade book"].compact.join(" ") %>
+    <%= page_breadcrumbs(@breadcrumbs) %>
+
+    <%= render layout: "components/ui/page_header",
+               locals: { title: @grade_book.quarter&.name || "Grade book",
+                         description: grade_book_subtitle,
+                         badge: grade_book_status_badge(@grade_book) } do %><% end %>
+
+    <%# A completed grade book has already paid out, so there is nothing to add to it. %>
+    <%# A control that can only report that it did nothing is not a control. "Add new students" was
+        offered in a fully populated grade book - the normal state - where it added nobody and flashed
+        "Every student in this class already has a row", which auto-dismissed after 6s and left the
+        button looking broken. It is offered only when somebody is actually missing an entry now. %>
+    <% can_populate = policy(@grade_book).populate? && !@grade_book.completed? &&
+                      @grade_book.students_missing_entries.exists? %>
+    <% entries = @grade_book.grade_entries.any? %>
+    <%# One instance for the page: the rows, the footer total and the finalize block all read from it,
+        and it fetches the previous quarter's entries once rather than per student. %>
+    <% earnings = GradeBookEarnings.new(@grade_book) if entries %>
+
+    <%# Section header: the heading and its description in one column, the actions in another.
+
+        The description used to be a sibling of the heading *row*, so it spanned the full width and ran
+        underneath the "Add new students" button - reported as helper text flowing under the button, and
+        it did so at every width, not just narrow ones. A title and its subtitle are one block; the
+        actions sit beside that block and nothing passes under them. This is the shape
+        `components/ui/_page_header` already uses, and design.md's rule that a header carrying a
+        subtitle is `items-start` so the action aligns to the title rather than sinking to the
+        subtitle's baseline.
+
+        The copy says what the columns pay, which the table never did. Every figure is interpolated from
+        GradeEntry's constants, so it cannot claim a rate the model does not pay. %>
+    <div class="mb-3 flex flex-wrap items-start justify-between gap-4">
+      <div class="min-w-0 flex-1">
+        <h2 class="text-base font-semibold text-slate-900">Student grades</h2>
+
+        <% if entries %>
+          <%# This cap stays. It is a section heading's description with the "Add new students" button
+              beside it, which is the page-header shape - title and subtitle in one column, actions in
+              another - and design.md records that without the cap this text ran under the button at every
+              width. The space to its right is the action's column, not a gutter. %>
+          <p class="mt-1 max-w-2xl text-sm text-slate-600">
+            Each day attended earns
+            <%= number_to_currency(GradeEntry::EARNINGS_PER_DAY_ATTENDANCE / 100.0) %>, and perfect
+            attendance adds a
+            <%= number_to_currency(GradeEntry::EARNINGS_FOR_PERFECT_ATTENDANCE / 100.0) %> bonus on top.
+            An A earns <%= number_to_currency(GradeEntry::EARNINGS_FOR_A_GRADE / 100.0) %> and a B
+            <%= number_to_currency(GradeEntry::EARNINGS_FOR_B_GRADE / 100.0) %>, per subject, with
+            <%= number_to_currency(GradeEntry::EARNINGS_FOR_IMPROVED_GRADE / 100.0) %> more for a grade
+            that improved on last quarter.
+          </p>
+        <% end %>
+      </div>
+
+      <div class="flex shrink-0 items-center gap-4">
+        <% if can_populate %>
+          <%= render partial: "populate_button", locals: { label: "Add new students", button_class: "tw-btn-secondary" } %>
+        <% end %>
+      </div>
     </div>
 
-    <%= form_with model: [@classroom, @grade_book],
-                  url: classroom_grade_book_path(@classroom, @grade_book),
-                  method: :patch,
-                  html: { data: { autosave_target: "form" } } do |f| %>
+    <%# A finalized grade book had a pill saying "Completed" and nothing else: every input disabled, a
+        dead "Save grades" button, no finalize block, and no sentence anywhere saying what had happened
+        or why none of it could be touched. Reported as the pill's "utility is unclear as a completed
+        grades page" - naming a state is not explaining it.
 
-      <%= render partial: "table", locals: { grade_book: @grade_book } %>
+        The title carries the **consequence**, not the state, because the pill beside the h1 already
+        states the state and design.md forbids a third copy of one fact. Not dismissible: this is
+        permanently true of the page, and a callout that removes itself would be lying about it. %>
+    <%# The reopen sits in the callout's action slot, which is where a control belongs when it acts on what
+        the callout is describing - and it is passed per call site rather than built into the component,
+        because `button_to` renders a form and this page has one. %>
+    <% if @grade_book.completed? %>
+      <%= render layout: "components/ui/callout",
+                 locals: { tone: :info,
+                           title: "These grades have been paid and can no longer be changed",
+                           body: finalized_payment_sentence(@grade_book),
+                           class: "mb-4",
+                           testid: "finalized-notice" } do %>
+        <% if policy(@grade_book).reopen? %>
+          <%= button_to "Reopen to correct",
+                        reopen_classroom_grade_book_path(@classroom, @grade_book),
+                        class: "tw-btn-secondary",
+                        data: { testid: "reopen-grade-book",
+                                turbo_confirm: reopen_consequence(@grade_book) } %>
+        <% end %>
+      <% end %>
+    <% end %>
 
-      <br>
+    <%# A book that has paid and is editable again. The sentence has to state both halves - what is already
+        paid, and that a correction tops up rather than repays - because otherwise the page looks like it is
+        about to pay everybody twice, which is exactly what it used to do. %>
+    <% if !@grade_book.completed? && @grade_book.paid? %>
+      <%= render "components/ui/callout",
+                 tone: :warning,
+                 title: "Reopened for corrections",
+                 body: reopened_payment_sentence(@grade_book),
+                 class: "mb-4",
+                 testid: "reopened-notice" %>
+    <% end %>
 
-      <div class="flex flex-col items-center">
-        <%= render partial: "submit_button" %>
+    <%# The populate buttons stay outside this form. A form cannot be nested inside
+        another - the browser drops the inner one - so a button_to placed within the
+        grades form would silently submit the grades instead of adding students. %>
+    <%# Both halves of the warning are always-present containers, so a save can clear them. See
+        _unattended_bonus_callout. %>
+    <% if entries %>
+      <%= render "unattended_bonus_callout", earnings: earnings %>
+    <% end %>
+
+    <% if entries %>
+      <%= form_with model: [@classroom, @grade_book],
+                    url: classroom_grade_book_path(@classroom, @grade_book),
+                    method: :patch,
+                    html: { data: { autosave_target: "form" } } do %>
+
+        <%= render partial: "table", locals: { grade_book: @grade_book, grade_book_earnings: earnings } %>
+
+        <%# Left-aligned, not centred. Nothing else in the app centres a form action - the classroom
+            form puts its submit on the left - and Polaris, Primer and Tailwind UI all anchor form
+            actions to the form's leading edge or to a footer bar, never to its centre. This was one of
+            two centred stacks on the page. %>
+        <%# Not rendered for a finalized book. It was a disabled primary that could never do anything -
+            the rule this page already applies to "Add new students", and `assert_no_button` passed
+            either way because Capybara does not match a disabled button. %>
+        <%# The save state sits **beside the button that does it**, not in the page header 400px away.
+            It was up there, and it was blank until the first save - so a page you had not touched said
+            nothing about whether it was safe to finalize, which is what an unsaved page looks like too.
+            It reads "All changes saved" from the moment it loads, because it is.
+
+            Announced politely so a screen reader hears it without losing focus. %>
+        <% unless @grade_book.completed? %>
+          <div class="mt-6 flex flex-wrap items-center gap-3">
+            <%= render partial: "submit_button" %>
+            <span data-autosave-target="status"
+                  role="status"
+                  aria-live="polite"
+                  class="text-sm text-slate-600"
+                  data-testid="autosave-status">All changes saved</span>
+          </div>
+        <% end %>
+      <% end %>
+    <% else %>
+      <div class="tw-card">
+        <%= render layout: "components/ui/empty_state",
+                   locals: { icon: "graduation-cap",
+                             title: "No students yet",
+                             body: "A grade book holds one row per student in this class. " \
+                                   "Students appear here once they are added." } do %>
+        <% end %>
       </div>
     <% end %>
 
-    <% if current_user.admin? %>
-      <div class="flex flex-col items-center pt-4">
-        <%= render partial: "finalize_button" %>
-      </div>
+    <%# Finalizing pays the students, and it cannot be undone - so it says so, next to the control,
+        rather than being a second filled primary floating at the foot of the page. Same reasoning as
+        the trading setting: the consequence belongs in the copy, never in the control.
+
+        `:secondary`, because design.md allows one filled primary per page and "Save grades" is it.
+        Irreversibility is carried by the sentence and by the existing turbo_confirm, not by making the
+        button red - a red button at rest is an always-on alarm. %>
+    <% if current_user.admin? && entries && !@grade_book.completed? %>
+      <%# The decision, with what it costs. design.md sanctions the total appearing three times, each
+          doing a different job: the table's footer while working, this block at the decision, the
+          confirmation at the commitment. The split into attendance, math and reading is here rather
+          than in the table because it is not a summary of the rows in the rows' own terms - it is what
+          the payment is made of, and it is worth reading once, here, where somebody authorises it. %>
+      <%# **The button's own words.**
+
+          This read "Then finalize the quarter", which was wrong twice: "Then" opens a heading with a
+          sentence fragment, and "the quarter" names something the control does not - the button says
+          "Finalize grades". Two names for one action is the drift this codebase keeps finding, and a
+          heading is a label rather than a step in a sentence.
+
+          The sequence has not gone anywhere; it is the line under the consequence, where it was already
+          doing the work. The page has two actions and expressed no order between them - Save is the
+          grades form's submit, on the leading edge below the table, and this is a decision panel whose
+          button is its own section's action. Both placements follow a rule; neither said one comes after
+          the other. The window itself is closed by saving on blur, in autosave_controller. %>
+      <section class="tw-card mt-6 p-5" aria-labelledby="finalize-heading">
+        <p id="finalize-heading" class="text-sm font-medium text-slate-900">Finalize grades</p>
+        <%= render partial: "finalize_consequence",
+                   locals: { earnings: earnings, grade_book: @grade_book } %>
+        <p class="mt-1 text-sm text-slate-600">Uses your saved grades, above.</p>
+
+        <%= render partial: "finalize_breakdown", locals: { earnings: earnings } %>
+
+        <div class="mt-5">
+          <%= render partial: "finalize_button", locals: { earnings: earnings } %>
+        </div>
+      </section>
     <% end %>
-  </div>
+  <% end %>
 <% end %>

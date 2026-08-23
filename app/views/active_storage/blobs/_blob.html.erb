@@ -1,6 +1,10 @@
 <figure class="attachment attachment--<%= blob.representable? ? "preview" : "file" %> attachment--<%= blob.filename.extension %>">
   <% if blob.representable? %>
-    <%= image_tag blob.representation(resize_to_limit: local_assigns[:in_gallery] ? [800, 600] : [1024, 768]) %>
+    <%# WCAG 1.1.1. The rich text editor offers no alt-text field, so the best
+        available description is the author's caption, falling back to the
+        filename. Better than the browser announcing the image URL. %>
+    <%= image_tag blob.representation(resize_to_limit: local_assigns[:in_gallery] ? [800, 600] : [1024, 768]),
+                  alt: blob.try(:caption).presence || blob.filename.to_s %>
   <% end %>
 
   <figcaption class="attachment__caption">

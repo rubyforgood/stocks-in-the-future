@@ -16,7 +16,7 @@ class StudentTradingFlowTest < ApplicationSystemTestCase
 
     visit stocks_path
 
-    assert_text "Trading Floor"
+    assert_text "Trading floor"
     assert_text stock.ticker
     assert_text stock.company_name
 
@@ -29,7 +29,8 @@ class StudentTradingFlowTest < ApplicationSystemTestCase
     fill_in "Number of shares", with: shares_to_buy
 
     assert_difference("Order.buy.pending.count", +1) do
-      click_button "Buy Shares"
+      click_button "Review order"
+      click_button "Buy shares"
 
       assert_text "Order was successfully created"
     end
@@ -57,7 +58,7 @@ class StudentTradingFlowTest < ApplicationSystemTestCase
 
     visit stocks_path
 
-    assert_text "Trading Floor"
+    assert_text "Trading floor"
     assert_text stock.ticker
     assert_text stock.company_name
 
@@ -74,7 +75,8 @@ class StudentTradingFlowTest < ApplicationSystemTestCase
     fill_in "Number of shares", with: shares_to_sell
 
     assert_difference("Order.sell.pending.count", +1) do
-      click_button "Sell Shares"
+      click_button "Review order"
+      click_button "Sell shares"
 
       assert_text "Order was successfully created"
     end
@@ -112,7 +114,8 @@ class StudentTradingFlowTest < ApplicationSystemTestCase
     fill_in "Number of shares", with: updated_shares
 
     assert_no_difference("Order.buy.pending.count") do
-      click_button "Buy Shares"
+      click_button "Review order"
+      click_button "Buy shares"
 
       assert_text "Order was successfully updated"
     end
@@ -141,7 +144,7 @@ class StudentTradingFlowTest < ApplicationSystemTestCase
     visit orders_path
 
     assert_difference -> { Order.pending.count } => -1, -> { Order.canceled.count } => +1 do
-      accept_confirm do
+      accept_confirmation do
         within "tr", text: stock.ticker do
           find("[data-testid='cancel-order-button']").click
         end
@@ -181,7 +184,8 @@ class StudentTradingFlowTest < ApplicationSystemTestCase
     fill_in "Number of shares", with: shares_to_buy
 
     assert_no_difference("Order.buy.pending.count") do
-      click_button "Buy Shares"
+      click_button "Review order"
+      click_button "Buy shares"
 
       assert_text "Insufficient funds"
     end
@@ -216,7 +220,8 @@ class StudentTradingFlowTest < ApplicationSystemTestCase
     fill_in "Number of shares", with: shares_to_sell
 
     assert_no_difference("Order.sell.pending.count") do
-      click_button "Sell Shares"
+      click_button "Review order"
+      click_button "Sell shares"
 
       assert_text "Cannot sell more shares than you own"
     end

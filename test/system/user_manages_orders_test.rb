@@ -15,7 +15,7 @@ class UserManagesOrdersTest < ApplicationSystemTestCase
 
     visit stocks_path
 
-    assert_text "Trading Floor"
+    assert_text "Trading floor"
     assert_text stock.ticker
 
     within "tr", text: stock.company_name do
@@ -24,12 +24,15 @@ class UserManagesOrdersTest < ApplicationSystemTestCase
 
     fill_in "Number of shares", with: shares_to_buy
     assert_difference("Order.buy.pending.count", +1) do
-      click_button "Buy Shares"
+      click_button "Review order"
+      click_button "Buy shares"
       assert_text "Order was successfully created"
     end
 
-    skip "Number of shares field not visible - needs modal JavaScript fix"
-
+    # The skip that was here read "Number of shares field not visible - needs modal JavaScript fix", and
+    # it sat *after* `fill_in "Number of shares"` and a successful order. The field was visible; the skip
+    # stranded the three assertions below, which are the ones that check the order is for the right stock
+    # and the right number of shares.
     order = Order.buy.pending.find_by(user: student, stock: stock)
     assert_equal shares_to_buy, order.shares
     assert_equal stock.id, order.stock_id
@@ -59,7 +62,8 @@ class UserManagesOrdersTest < ApplicationSystemTestCase
     fill_in "Number of shares", with: updated_shares
 
     assert_no_difference("Order.buy.pending.count") do
-      click_button "Buy Shares"
+      click_button "Review order"
+      click_button "Buy shares"
 
       assert_text "Order was successfully updated"
     end
@@ -82,7 +86,7 @@ class UserManagesOrdersTest < ApplicationSystemTestCase
     visit orders_path
 
     assert_difference -> { Order.pending.count } => -1, -> { Order.canceled.count } => +1 do
-      accept_confirm do
+      accept_confirmation do
         within "tr", text: order.stock.company_name do
           find("[data-testid='cancel-order-button']").click
         end

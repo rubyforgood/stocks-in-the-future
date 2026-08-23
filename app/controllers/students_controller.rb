@@ -8,27 +8,39 @@ class StudentsController < ApplicationController
 
   def new
     @student = Student.new(classroom: @classroom)
+    @breadcrumbs = student_breadcrumbs("Add new student")
   end
 
-  def edit; end
+  def edit
+    @breadcrumbs = student_breadcrumbs("Edit student")
+  end
 
   def create
     @student = Student.new(student_params)
     @student.classroom = @classroom
     @student.password = generate_memorable_password
 
-    if @student.save
-      redirect_to classroom_path(@classroom),
-                  notice: t(".notice", username: @student.username, password: @student.password)
+    if @student.save(context: :student_form)
+      # `sticky`: the notice is the only copy of the generated password.
+      notice = t(".notice", username: @student.username, password: @student.password)
+
+      redirect_to classroom_path(@classroom), flash: { sticky: true, notice: notice }
     else
+      @breadcrumbs = student_breadcrumbs("Add new student")
       render :new, status: :unprocessable_content
     end
   end
 
+  # assign-then-save, not `update`: the name requirement is a `:student_form` context validation, and
+  # `update` would write the attributes before checking it - so a blank name would be saved and *then*
+  # reported as invalid, wiping the name it was complaining about.
   def update
-    if @student.update(student_params)
+    @student.assign_attributes(student_params)
+
+    if @student.save(context: :student_form)
       redirect_to classroom_path(@classroom), notice: t(".notice")
     else
+      @breadcrumbs = student_breadcrumbs("Edit student")
       render :edit, status: :unprocessable_content
     end
   end
@@ -42,18 +54,28 @@ class StudentsController < ApplicationController
   def reset_password
     new_password = generate_memorable_password
     @student.update!(password: new_password)
-    redirect_to classroom_path(@classroom),
-                notice: t(".notice", username: @student.username, password: new_password)
+    notice = t(".notice", username: @student.username, password: new_password)
+
+    redirect_to classroom_path(@classroom), flash: { sticky: true, notice: notice }
   end
 
   def generate_password
     new_password = generate_memorable_password
     @student.update!(password: new_password)
-    redirect_to classroom_path(@classroom),
-                notice: t(".notice", username: @student.username, password: new_password)
+    notice = t(".notice", username: @student.username, password: new_password)
+
+    redirect_to classroom_path(@classroom), flash: { sticky: true, notice: notice }
   end
 
   private
+
+  # Both student forms are reached from the classroom's roster, so both name it - and the last crumb is the
+  # page's own h1, which is what `breadcrumb_label_test` asserts on the admin half.
+  def student_breadcrumbs(title)
+    [{ label: "Classes", path: classrooms_path },
+     { label: @classroom.name, path: classroom_path(@classroom) },
+     { label: title }]
+  end
 
   def set_classroom
     @classroom = Classroom.find(params.expect(:classroom_id))
@@ -70,8 +92,10 @@ class StudentsController < ApplicationController
     redirect_to classroom_path(@classroom), alert: t("students.not_found")
   end
 
+  # :name is optional and free text - it is the student's actual name, shown wherever they appear
+  # instead of the lowercased username they sign in with.
   def student_params
-    params.expect(student: %i[username email])
+    params.expect(student: %i[name username email])
   end
 
   def generate_memorable_password

@@ -1,22 +1,36 @@
+<%# Two columns fewer, measured. At 1024px - Tailwind's `lg`, where every column hidden below it appears at
+    once - the sidebar leaves this table a 718px scroller and it wanted 927px, so the row actions sat off
+    screen. Neither column that went says anything a reader acts on here:
+
+    **ID** was 62px and is in the URL of the link in the same row - design.md has moved an id off a page
+    twice for that reason. **Website** was 185px, already reduced to a host to stop it being the widest cell
+    in the app, and it is a field on the stock's own page, which is where the record shape keeps an attribute
+    the form edits.
+
+    **Archived stays**, and that is the correction to the recommendation this came from: `#index` lists
+    `Stock.all`, so this table mixes archived and active rows and the column is the only thing telling them
+    apart. Dropping it would have hidden real state - and the two columns above are enough on their own,
+    680px against a 718px scroller.
+
+    Fewer columns rather than a third breakpoint: this app has two tiers, and the columns were the problem. %>
 <div class="max-w-7xl mx-auto">
   <%= admin_breadcrumbs(@breadcrumbs) %>
+
+  <%= render layout: "components/ui/page_header",
+             locals: { title: "Stocks",
+                       description: "Prices refresh each weekday after the market closes, and this list " \
+                                    "holds archived stocks as well as active ones." } do %>
+    <%= link_to "New stock", new_admin_stock_path, class: admin_primary_button_class %>
+  <% end %>
 
   <%= admin_table(
         @stocks,
         columns: [
-          { attribute: :id, label: "ID", sortable: true },
           { attribute: :ticker, label: "Ticker", sortable: true },
-          { attribute: :company_name, label: "Company Name", sortable: true },
-          { attribute: :company_website, label: "Website", sortable: false },
-          { attribute: :current_price, label: "Current Price", sortable: false },
+          { attribute: :company_name, label: "Company name", sortable: true },
+          { attribute: :current_price, label: "Current price", sortable: false },
           { attribute: :archived, label: "Archived", sortable: true }
         ],
-        title: "Stocks",
-        actions: link_to(
-          "New Stock",
-          new_admin_stock_path,
-          class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
-        ),
         empty_message: "No stocks found. Create your first stock to get started."
       ) %>
 </div>

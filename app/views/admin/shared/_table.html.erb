@@ -1,23 +1,41 @@
-<div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg overflow-hidden">
-  <% if local_assigns[:title] || local_assigns[:actions] %>
-    <div class="px-4 py-5 sm:px-6 border-b border-gray-200 flex justify-between items-center">
-      <% if local_assigns[:title] %>
-        <h3 class="text-lg font-semibold text-gray-900"><%= title %></h3>
-      <% end %>
-      <% if local_assigns[:actions] %>
-        <div class="flex gap-2">
-          <%= actions %>
-        </div>
-      <% end %>
-    </div>
-  <% end %>
+<%# The data card. It holds the table and nothing else.
 
+    The page title and its actions used to live in a header strip inside this card.
+    They belong at page level - see components/ui/_page_header, which every admin index
+    page now renders above this. A title nested in the card reads as a section label
+    rather than as the page's title, and left one surface doing two jobs. %>
+<div class="tw-card">
   <div class="overflow-x-auto">
-    <table class="min-w-full divide-y divide-gray-300">
-      <thead class="bg-gray-50">
-        <tr>
-          <% columns.each do |column| %>
-            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+    <table class="table-base">
+<%# The identifier column, which is the one that stays visible below lg. A caller can name it with
+    `primary: true`; otherwise it is the first.
+
+    The `id` fallback that used to sit here - skip the first column if it is an id - is gone with the id
+    columns themselves. No index shows one now: an id is 62px of a 718px scroller at 1024px, and it is in the
+    URL of the link in the same row. Keeping a branch for a shape nothing produces is how an unused rule
+    starts looking like a supported one. %>
+<% primary = columns.index { it[:primary] } || 0 %>
+
+      <%# Below lg this table is **one column**: the identifier column's value, then every other as a
+          labelled line, then the actions. Nine index tables render through here and each one scrolled
+          sideways at 375px - 685px of overflow on admin/teachers, 632px on admin/users - carrying the
+          data off the right edge of a scroll a phone user has to discover.
+
+          Pinning the actions cell, which is what design.md previously called for, kept them reachable
+          and kept the scroll. The reasoning was that three labelled ghosts are ~250px against a 343px
+          viewport, so data and actions cannot share a row - true only while the actions have their own
+          column. Collapsed into the primary cell they need no width of their own, and the scroll goes.
+          The trading floor has done it this way since it was measured at left=370 in a 326px viewport,
+          and it is the one table in the app that already fitted.
+
+          This is Polaris's IndexTable condensed mode and Primer's guidance for the same problem. The
+          headers go with their columns: a `<th>` for a column nobody can see names nothing. %>
+      <thead>
+        <tr class="table-header-row">
+          <% columns.each_with_index do |column, index| %>
+            <%# Column headers are chrome, not content: smaller and muted so they
+                do not read at the same weight as the data. Matches tables.css. %>
+            <th scope="col" class="table-header-cell table-header-cell-left <%= "hidden lg:table-cell" unless index == primary %>">
               <% if column[:sortable] %>
                 <%= sort_link(column[:attribute], column[:label]) %>
               <% else %>
@@ -26,61 +44,74 @@
             </th>
           <% end %>
           <% if options[:show_actions] != false %>
-            <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
+            <th scope="col" class="table-header-cell table-header-cell-right table-actions-cell hidden lg:table-cell">
               <span class="sr-only">Actions</span>
             </th>
           <% end %>
         </tr>
       </thead>
-      <tbody class="divide-y divide-gray-200 bg-white">
+      <tbody class="bg-white">
         <% if collection.any? %>
           <% collection.each do |record| %>
-            <tr id="<%= dom_id(record) %>" class="hover:bg-gray-50 transition-colors cursor-pointer"
+            <tr class="table-body-row cursor-pointer" id="<%= dom_id(record) %>"
                 data-controller="clickable-row"
                 data-clickable-row-url-value="<%= url_for([:admin, route_model(record)]) %>"
                 data-action="click->clickable-row#navigate">
-              <% columns.each do |column| %>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900" data-testid="<%= column[:attribute] %>">
-                  <% if column[:link] %>
-                    <%= link_to format_attribute(record, column[:attribute]), [:admin, route_model(record)], class: "text-blue-600 hover:text-blue-800 font-medium" %>
+              <% columns.each_with_index do |column, index| %>
+                <%# The primary cell never gets `whitespace-nowrap`. Below lg it holds the whole row and
+                    has to wrap; at lg it holds the prose - a name, a company, an email - and it is what
+                    makes these tables wider than a Chromebook. Measured on admin/stocks at 1366px: 38px
+                    of overflow with it, 0 without. The portfolio holdings table has always worked this
+                    way, and design.md records that it "never scrolls at any width, because it adapts by
+                    wrapping the company name".
+
+                    The other cells keep it: a date breaking across two lines reads as a mistake, and a
+                    figure is short. The testid stays on the real cell either way, so a test that reads a
+                    column still reads that column. %>
+                <td class="table-body-cell <%= "hidden whitespace-nowrap lg:table-cell" unless index == primary %>"
+                    data-testid="<%= column[:attribute] %>">
+                  <%# The primary column is always a link, not only when a caller remembers `link: true`.
+                      The row navigates on click, and until this changed the only signifier of that was a
+                      `cursor-pointer` that a duplicate `class` attribute had been swallowing - so the
+                      record's own name looked like plain text on every admin index. `link: true` remains
+                      for any *other* column that should point somewhere. %>
+                  <% if index == primary || column[:link] %>
+                    <%= link_to format_attribute(record, column[:attribute]), [:admin, route_model(record)], class: "tw-link" %>
                   <% else %>
                     <%= format_attribute(record, column[:attribute]) %>
+                  <% end %>
+
+                  <%# The rest of the row, below lg, in the one cell that is always on screen. %>
+                  <% if index == primary %>
+                    <% secondary = columns.each_with_index.reject { |_, i| i == primary } %>
+                    <%= render "components/ui/stacked_row_fields",
+                               fields: secondary.map { |c, _| [c[:label], format_attribute(record, c[:attribute])] },
+                               actions: (if options[:show_actions] == false
+                                           nil
+                                         else
+                                           render("admin/shared/table_row_actions", record: record)
+                                         end) %>
                   <% end %>
                 </td>
               <% end %>
               <% if options[:show_actions] != false %>
-                <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                  <div class="flex justify-end gap-2">
-                    <%= link_to "View", [:admin, route_model(record)], class: "text-blue-600 hover:text-blue-800" %>
-                    <%= link_to "Edit", [:edit, :admin, route_model(record)], class: "text-gray-600 hover:text-gray-800" %>
-                    <%= link_to "Delete", [:admin, route_model(record)],
-                                data: { turbo_method: :delete, turbo_confirm: "Are you sure?" },
-                                class: "text-red-600 hover:text-red-800" %>
+                <td class="table-body-cell table-body-cell-right hidden whitespace-nowrap table-actions-cell lg:table-cell">
+                  <div class="flex items-center justify-end gap-1">
+                    <%= render "admin/shared/table_row_actions", record: record %>
                   </div>
                 </td>
               <% end %>
             </tr>
           <% end %>
         <% else %>
-          <tr>
-            <td colspan="<%= columns.length + (options[:show_actions] == false ? 0 : 1) %>" class="px-3 py-12 text-center text-sm text-gray-500">
-              <div class="flex flex-col items-center">
-                <i class="fas fa-inbox text-4xl text-gray-300 mb-3"></i>
-                <p class="font-medium">No records found</p>
-                <% if options[:empty_message] %>
-                  <p class="text-gray-400 mt-1"><%= options[:empty_message] %></p>
-                <% end %>
-              </div>
-            </td>
-          </tr>
+          <%= render "admin/shared/empty_row",
+                     colspan: columns.length + (options[:show_actions] == false ? 0 : 1),
+                     title: options[:empty_title] || "Nothing here yet",
+                     body: options[:empty_message] %>
         <% end %>
       </tbody>
     </table>
   </div>
 
-  <% if collection.respond_to?(:total_pages) && collection.total_pages > 1 %>
-    <div class="px-4 py-3 border-t border-gray-200 sm:px-6">
-      <%= render "admin/shared/pagination", collection: collection %>
-    </div>
-  <% end %>
+  <%= render "components/ui/pagination", collection: collection, footer: true %>
 </div>

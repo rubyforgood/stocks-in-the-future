@@ -1,11 +1,12 @@
-<div class="max-w-3xl mx-auto">
-  <%= admin_breadcrumbs(@breadcrumbs) %>
-
-  <div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg mb-6">
-    <div class="px-6 py-6">
-      <h2 class="text-2xl font-bold text-gray-900 mb-6">New Portfolio Transaction</h2>
-
-      <%= render "form", portfolio_transaction: @portfolio_transaction %>
-    </div>
-  </div>
-</div>
+<%# Create, on the shared record-page shell - `admin/shared/_record_page`, the same partial the record page
+    uses, so a create page is that page with no lifecycle actions and one section. It hand-rolled the same
+    column, breadcrumbs and header, which is how six other create pages came to be four different widths. %>
+<%= render layout: "admin/shared/record_page",
+           locals: { title: "New transaction", breadcrumbs: @breadcrumbs,
+                     description: "A balance is the sum of these rows, so saving this transaction " \
+                                  "moves money." } do %>
+  <%= render layout: "admin/shared/record_section",
+             locals: { title: "Details", sr_only: true } do %>
+    <%= render "form", portfolio_transaction: @portfolio_transaction %>
+  <% end %>
+<% end %>

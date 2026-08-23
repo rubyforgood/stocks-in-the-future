@@ -61,3 +61,5 @@ group :test do
   gem "simplecov", require: false
   gem "webmock"
 end
+
+gem "kaminari", "~> 1.2"
