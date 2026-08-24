@@ -91,6 +91,10 @@
                   <td class="px-3 py-2 text-sm text-right font-medium text-gray-900"><%= number_to_currency(@earnings_summary.attendance_earnings_cents / 100.0) %></td>
                 </tr>
                 <tr>
+                  <td class="px-3 py-2 text-sm text-gray-900">Reading Earnings</td>
+                  <td class="px-3 py-2 text-sm text-right font-medium text-gray-900"><%= number_to_currency(@earnings_summary.reading_earnings_cents / 100.0) %></td>
+                </tr>
+                <tr>
                   <td class="px-3 py-2 text-sm text-gray-900">Math Earnings</td>
                   <td class="px-3 py-2 text-sm text-right font-medium text-gray-900"><%= number_to_currency(@earnings_summary.math_earnings_cents / 100.0) %></td>
                 </tr>
