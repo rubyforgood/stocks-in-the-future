@@ -10,7 +10,8 @@ if student
   PortfolioTransaction.create(
     portfolio: portfolio,
     transaction_type: :deposit,
-    amount_cents: 10_000_00
+    amount_cents: 10_000_00,
+    reason: :administrative_adjustments
   )
 
   # Add earnings transactions with reasons for testing
@@ -65,7 +66,45 @@ if mike
   pt = PortfolioTransaction.create(
     portfolio: portfolio,
     transaction_type: :deposit,
-    amount_cents: 15_000_00
+    amount_cents: 15_000_00,
+    reason: :administrative_adjustments
+  )
+
+  # Earnings transactions, mirroring the Student user with different amounts so the
+  # two seeded students are easy to tell apart on the portfolio and admin pages.
+  PortfolioTransaction.create(
+    portfolio: portfolio,
+    transaction_type: :deposit,
+    amount_cents: 450_00,
+    reason: :attendance_earnings
+  )
+
+  PortfolioTransaction.create(
+    portfolio: portfolio,
+    transaction_type: :deposit,
+    amount_cents: 375_00,
+    reason: :reading_earnings
+  )
+
+  PortfolioTransaction.create(
+    portfolio: portfolio,
+    transaction_type: :deposit,
+    amount_cents: 150_00,
+    reason: :math_earnings
+  )
+
+  PortfolioTransaction.create(
+    portfolio: portfolio,
+    transaction_type: :deposit,
+    amount_cents: 75_00,
+    reason: :awards
+  )
+
+  PortfolioTransaction.create(
+    portfolio: portfolio,
+    transaction_type: :deposit,
+    amount_cents: 30_00,
+    reason: :transaction_fees
   )
 
   stocks = Stock.limit(3)
@@ -106,13 +145,15 @@ if mike
   pt = PortfolioTransaction.create(
     portfolio: portfolio,
     transaction_type: :withdrawal,
-    amount_cents: 100_00
+    amount_cents: 100_00,
+    reason: :administrative_adjustments
   )
 
   pt = PortfolioTransaction.create(
     portfolio: portfolio,
     transaction_type: :deposit,
-    amount_cents: 10_000_00
+    amount_cents: 10_000_00,
+    reason: :administrative_adjustments
   )
 
   existing_stock_ids = Order.where(user: mike, action: :buy).pluck(:stock_id).uniq
