@@ -37,6 +37,32 @@ module Admin
       assert_select "[data-testid='grades_display'] dd", text: "9th-10th"
     end
 
+    test "show links each student to their admin show page" do
+      classroom = create(:classroom)
+      student = create(:student, classroom: classroom)
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
+
+      get admin_classroom_path(classroom)
+
+      assert_response :success
+      assert_select "a[href=?]", admin_student_path(student), text: student.username
+    end
+
+    test "show links every listed student, not just the first" do
+      classroom = create(:classroom)
+      students = create_list(:student, 3, classroom: classroom)
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
+
+      get admin_classroom_path(classroom)
+
+      assert_response :success
+      students.each do |student|
+        assert_select "a[href=?]", admin_student_path(student), text: student.username
+      end
+    end
+
     test "should get new" do
       admin = create(:admin, admin: true, classroom: nil)
       sign_in(admin)
