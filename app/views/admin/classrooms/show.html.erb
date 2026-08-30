@@ -32,8 +32,8 @@
           <h3 class="text-sm font-medium text-gray-500 mb-3">Students (<%= @classroom.students.count %>)</h3>
           <ul class="space-y-2">
             <% @classroom.students.limit(10).each do |student| %>
-              <li class="text-sm text-gray-900">
-                <%= student.username %>
+              <li class="text-sm">
+                <%= link_to student.username, admin_student_path(student), class: "text-blue-600 hover:text-blue-800" %>
               </li>
             <% end %>
             <% if @classroom.students.count > 10 %>

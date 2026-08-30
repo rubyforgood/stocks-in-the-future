@@ -33,6 +33,44 @@ module Admin
       assert_select "h3", "Quarters"
     end
 
+    test "show links each classroom to its admin show page" do
+      school_year = create(:school_year)
+      classroom = create(:classroom, school_year: school_year)
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
+
+      get admin_school_year_path(school_year)
+
+      assert_response :success
+      assert_select "a[href=?]", admin_classroom_path(classroom), text: classroom.name
+    end
+
+    test "show links every listed classroom, not just the first" do
+      school_year = create(:school_year)
+      classrooms = create_list(:classroom, 3, school_year: school_year)
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
+
+      get admin_school_year_path(school_year)
+
+      assert_response :success
+      classrooms.each do |classroom|
+        assert_select "a[href=?]", admin_classroom_path(classroom), text: classroom.name
+      end
+    end
+
+    test "show links archived classrooms too" do
+      school_year = create(:school_year)
+      classroom = create(:classroom, school_year: school_year, archived: true)
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
+
+      get admin_school_year_path(school_year)
+
+      assert_response :success
+      assert_select "a[href=?]", admin_classroom_path(classroom), text: classroom.name
+    end
+
     test "new" do
       admin = create(:admin, admin: true, classroom: nil)
       sign_in(admin)
