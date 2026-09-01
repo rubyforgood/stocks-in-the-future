@@ -27,6 +27,13 @@
       <div class="flex flex-col items-center pt-4">
         <%= render partial: "finalize_button" %>
       </div>
+
+      <div class="flex flex-col items-center pt-6 mt-6 border-t border-gray-200">
+        <p class="text-sm text-gray-500 mb-3 text-center">
+          If this quarter's grades never arrived, give every student the same amount instead.
+        </p>
+        <%= render partial: "flat_allotment_form" %>
+      </div>
     <% end %>
   </div>
 <% end %>

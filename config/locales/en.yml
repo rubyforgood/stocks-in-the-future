@@ -152,6 +152,11 @@ en:
       already_completed: Cannot finalize because it's already completed.
       incomplete: 'Cannot finalize: Some entries are incomplete.'
       notice: Grade book finalized. Funds have been distributed.
+    flat_allotment:
+      invalid_amount: Enter an amount greater than zero to give each student.
+      notice:
+        one: Gave %{amount} to %{count} student.
+        other: Gave %{amount} to %{count} students.
   helpers:
     label:
       portfolio_transaction:

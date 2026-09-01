@@ -34,7 +34,26 @@ class GradeBooksController < ApplicationController
     end
   end
 
+  def flat_allotment
+    amount_cents = flat_allotment_amount_cents
+
+    if amount_cents.nil? || !amount_cents.positive?
+      redirect_to classroom_grade_book_path(@classroom, @grade_book), alert: t(".invalid_amount")
+    else
+      paid = DistributeFlatAllotment.execute(@grade_book, amount_cents)
+      redirect_to classroom_grade_book_path(@classroom, @grade_book),
+                  notice: t(".notice", count: paid, amount: helpers.number_to_currency(amount_cents / 100.0))
+    end
+  end
+
   private
+
+  def flat_allotment_amount_cents
+    amount = params[:flat_allotment_amount]
+    return nil if amount.blank?
+
+    (amount.to_f * 100).round
+  end
 
   def authorize_grade_book
     authorize @grade_book
