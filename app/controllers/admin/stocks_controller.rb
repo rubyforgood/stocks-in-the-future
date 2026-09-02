@@ -76,7 +76,7 @@ module Admin
       @stock = Stock.find(params.expect(:id))
     end
 
-    # rubocop:disable Metrics/MethodLength
+    # rubocop:disable-next Metrics/MethodLength
     def stock_params
       params.expect(
         stock: %i[
@@ -103,6 +103,5 @@ module Admin
         ]
       )
     end
-    # rubocop:enable Metrics/MethodLength
   end
 end

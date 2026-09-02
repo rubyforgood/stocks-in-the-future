@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Admin
-  # rubocop:disable Metrics/ClassLength
+  # rubocop:disable-next Metrics/ClassLength
   class StudentsController < BaseController
     include SoftDeletableFiltering
 
@@ -231,5 +231,4 @@ module Admin
       end
     end
   end
-  # rubocop:enable Metrics/ClassLength
 end
