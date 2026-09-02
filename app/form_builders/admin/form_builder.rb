@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Admin
-  # rubocop:disable Metrics/ClassLength
+  # rubocop:disable-next Metrics/ClassLength
   class FormBuilder < ActionView::Helpers::FormBuilder
     # Tailwind CSS classes for form elements
     INPUT_CLASSES = "block w-full rounded-md border-0 py-2 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 " \
@@ -405,5 +405,4 @@ module Admin
       end
     end
   end
-  # rubocop:enable Metrics/ClassLength
 end

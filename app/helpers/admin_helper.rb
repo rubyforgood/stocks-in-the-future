@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# rubocop:disable Metrics/ModuleLength
+# rubocop:disable-next Metrics/ModuleLength
 module AdminHelper
   # Renders a table for index pages with sortable columns
   # @param collection [ActiveRecord::Relation] The records to display
@@ -247,4 +247,3 @@ module AdminHelper
     end
   end
 end
-# rubocop:enable Metrics/ModuleLength

@@ -2,7 +2,7 @@
 
 module Admin
   class ComponentDemoController < BaseController
-    # rubocop:disable Metrics/MethodLength
+    # rubocop:disable-next Metrics/MethodLength
     def index
       # Demo data for table component - apply sorting before limit
       @users = User.all
@@ -52,7 +52,6 @@ module Admin
         }
       ]
     end
-    # rubocop:enable Metrics/MethodLength
 
     def show
       @user = User.find(params.expect(:id))
