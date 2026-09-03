@@ -128,6 +128,19 @@ class OrdersControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Order was successfully canceled", flash[:notice]
   end
 
+  test "the orders page shows a notice once, not once per place that renders it" do
+    user = create(:student)
+    stock = create(:stock)
+    create(:portfolio_stock, portfolio: user.portfolio, stock: stock, shares: 10)
+    order = create(:order, :pending, action: :sell, user: user, stock: stock, shares: 1)
+    sign_in(user)
+
+    patch(cancel_order_path(order))
+    follow_redirect!
+
+    assert_select "#notice", count: 1, text: "Order was successfully canceled"
+  end
+
   test "cancel route exists" do
     assert_routing(
       { path: "orders/1/cancel", method: "patch" },
