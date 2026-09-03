@@ -217,6 +217,63 @@ class GradeBooksControllerTest < ActionDispatch::IntegrationTest
     assert_select "input[name='flat_allotment_amount']"
   end
 
+  test "the amount field leaves validation to the server" do
+    # Browser constraints would reject some amounts with a native popup and let
+    # others reach the server, so the same mistake reports two different ways.
+    sign_in(create(:admin))
+
+    get classroom_grade_book_path(@classroom, @grade_book)
+
+    assert_response :success
+    assert_select "input[name='flat_allotment_amount']:not([min]):not([max]):not([step])"
+  end
+
+  test "an invalid amount renders exactly one flash message" do
+    sign_in(create(:admin))
+
+    post flat_allotment_classroom_grade_book_path(@classroom, @grade_book),
+         params: { flat_allotment_amount: "0" }
+    follow_redirect!
+
+    assert_select "#alert", count: 1
+  end
+
+  test "a successful allotment renders exactly one flash message" do
+    sign_in(create(:admin))
+
+    post flat_allotment_classroom_grade_book_path(@classroom, @grade_book),
+         params: { flat_allotment_amount: "2" }
+    follow_redirect!
+
+    assert_select "#notice", count: 1
+  end
+
+  test "flat allotment reports a failed deposit instead of raising" do
+    sign_in(create(:admin))
+    DistributeFlatAllotment.stubs(:execute).raises(
+      ActiveRecord::RecordInvalid.new(PortfolioTransaction.new)
+    )
+
+    assert_no_difference "PortfolioTransaction.count" do
+      post flat_allotment_classroom_grade_book_path(@classroom, @grade_book),
+           params: { flat_allotment_amount: "5" }
+    end
+
+    assert_redirected_to classroom_grade_book_path(@classroom, @grade_book)
+    assert_match(/Could not give the flat allotment/, flash[:alert])
+  end
+
+  test "a negative amount is rejected by the server, not the browser" do
+    sign_in(create(:admin))
+
+    assert_no_difference "PortfolioTransaction.count" do
+      post flat_allotment_classroom_grade_book_path(@classroom, @grade_book),
+           params: { flat_allotment_amount: "-5" }
+    end
+
+    assert_equal "Enter an amount greater than zero to give each student.", flash[:alert]
+  end
+
   test "teachers do not see the flat allotment form" do
     sign_in(@teacher)
 

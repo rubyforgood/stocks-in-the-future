@@ -18,14 +18,18 @@ class DistributeFlatAllotment
     return 0 unless @amount_cents.to_i.positive?
 
     ActiveRecord::Base.transaction do
-      students.each { |student| deposit(student) }.size
+      paid = students.to_a
+      paid.each { |student| deposit(student) }
+      paid.size
     end
   end
 
   private
 
+  # Portfolios are eager loaded because every student is deposited into, which
+  # would otherwise be one extra query per student in the classroom.
   def students
-    @grade_book.classroom.students
+    @grade_book.classroom.students.includes(:portfolio)
   end
 
   def deposit(student)

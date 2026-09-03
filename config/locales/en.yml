@@ -153,6 +153,7 @@ en:
       incomplete: 'Cannot finalize: Some entries are incomplete.'
       notice: Grade book finalized. Funds have been distributed.
     flat_allotment:
+      failed: 'Could not give the flat allotment, so no student was paid: %{message}'
       invalid_amount: Enter an amount greater than zero to give each student.
       notice:
         one: Gave %{amount} to %{count} student.

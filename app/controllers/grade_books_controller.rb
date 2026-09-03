@@ -37,17 +37,28 @@ class GradeBooksController < ApplicationController
   def flat_allotment
     amount_cents = flat_allotment_amount_cents
 
-    if amount_cents.nil? || !amount_cents.positive?
-      redirect_to classroom_grade_book_path(@classroom, @grade_book), alert: t(".invalid_amount")
+    if amount_cents&.positive?
+      give_flat_allotment(amount_cents)
     else
-      paid = DistributeFlatAllotment.execute(@grade_book, amount_cents)
-      redirect_to classroom_grade_book_path(@classroom, @grade_book),
-                  notice: t(".notice", count: paid, amount: helpers.number_to_currency(amount_cents / 100.0))
+      redirect_to classroom_grade_book_path(@classroom, @grade_book), alert: t(".invalid_amount")
     end
   end
 
   private
 
+  def give_flat_allotment(amount_cents)
+    paid = DistributeFlatAllotment.execute(@grade_book, amount_cents)
+
+    redirect_to classroom_grade_book_path(@classroom, @grade_book),
+                notice: t(".notice", count: paid, amount: helpers.number_to_currency(amount_cents / 100.0))
+  rescue ActiveRecord::RecordInvalid => e
+    redirect_to classroom_grade_book_path(@classroom, @grade_book),
+                alert: t(".failed", message: e.message)
+  end
+
+  # Read directly rather than with params.require, which raises when the field is
+  # left blank. A blank or unparseable amount is a user error reported with a
+  # flash, so it has to reach the check in #flat_allotment as nil.
   def flat_allotment_amount_cents
     amount = params[:flat_allotment_amount]
     return nil if amount.blank?

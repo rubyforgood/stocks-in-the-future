@@ -64,6 +64,25 @@ class DistributeFlatAllotmentTest < ActiveSupport::TestCase
     assert_empty other_student.portfolio.portfolio_transactions
   end
 
+  test "loads every portfolio in one query rather than one per student" do
+    create_list(:student, 5, classroom: @classroom)
+
+    portfolio_selects = []
+    collector = lambda do |_name, _start, _finish, _id, payload|
+      sql = payload[:sql]
+      portfolio_selects << sql if payload[:name] != "SCHEMA" && sql.match?(/SELECT .* FROM "portfolios"/)
+    end
+
+    ActiveSupport::Notifications.subscribed(collector, "sql.active_record") do
+      DistributeFlatAllotment.execute(@grade_book, 100)
+    end
+
+    # Without eager loading this is one SELECT per student instead of one
+    # batched SELECT covering all of them.
+    assert_equal 1, portfolio_selects.size,
+                 "expected one batched portfolio query, got #{portfolio_selects.size}"
+  end
+
   test "does not change the grade book status" do
     create(:student, classroom: @classroom)
 
