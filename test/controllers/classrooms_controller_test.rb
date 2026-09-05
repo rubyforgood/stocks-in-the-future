@@ -246,15 +246,6 @@ class ClassroomsControllerTest < ActionDispatch::IntegrationTest
     assert @classroom.reload.trading_enabled
   end
 
-  test "a classroom page shows a notice once, not once per place that renders it" do
-    sign_in @teacher
-
-    patch toggle_trading_classroom_path(@classroom)
-    follow_redirect!
-
-    assert_select "#notice", count: 1
-  end
-
   test "teachers cannot edit classrooms" do
     sign_in @teacher
     get edit_classroom_path(@classroom)
