@@ -73,4 +73,24 @@ class GradeTest < ActiveSupport::TestCase
     assert_not duplicate.valid?
     assert_includes duplicate.errors[:level], "has already been taken"
   end
+
+  # Levels a school actually uses, which tests hard code when the value matters.
+  REAL_GRADE_LEVELS = (1..12)
+
+  test "the factory generates levels clear of the ones tests hard code" do
+    generated = Array.new(20) { create(:grade).level }
+    overlapping = generated.select { |level| REAL_GRADE_LEVELS.cover?(level) }
+
+    assert_empty overlapping,
+                 "generated levels must stay out of #{REAL_GRADE_LEVELS}, or a test that " \
+                 "hard codes a real level fails once its worker's sequence reaches it"
+  end
+
+  test "a hard coded real level is still available after many generated grades" do
+    Array.new(20) { create(:grade) }
+
+    REAL_GRADE_LEVELS.each do |level|
+      assert create(:grade, level: level, name: "Real grade #{level}").persisted?
+    end
+  end
 end
