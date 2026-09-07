@@ -26,8 +26,6 @@ class DistributeFlatAllotment
 
   private
 
-  # Portfolios are eager loaded because every student is deposited into, which
-  # would otherwise be one extra query per student in the classroom.
   def students
     @grade_book.classroom.students.includes(:portfolio)
   end

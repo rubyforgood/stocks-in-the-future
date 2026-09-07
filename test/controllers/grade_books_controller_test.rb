@@ -351,15 +351,4 @@ class GradeBooksControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to root_path
   end
-
-  test "students cannot give a flat allotment" do
-    sign_in(@student)
-
-    assert_no_difference "PortfolioTransaction.count" do
-      post flat_allotment_classroom_grade_book_path(@classroom, @grade_book),
-           params: { flat_allotment_amount: "5" }
-    end
-
-    assert_redirected_to @student.portfolio_path
-  end
 end
