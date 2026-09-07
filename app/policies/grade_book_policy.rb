@@ -13,6 +13,10 @@ class GradeBookPolicy < ApplicationPolicy
     user.admin?
   end
 
+  def flat_allotment?
+    user.admin?
+  end
+
   private
 
   def user_is_teacher_of_classroom?

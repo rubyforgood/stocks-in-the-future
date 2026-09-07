@@ -35,4 +35,11 @@ class GradeBookPolicyTest < ActiveSupport::TestCase
     refute_permit @other_teacher, @grade_book, :finalize
     refute_permit @student, @grade_book, :finalize
   end
+
+  test "flat_allotment? allows only admin, denies everyone else" do
+    assert_permit @admin, @grade_book, :flat_allotment
+    refute_permit @owner_teacher, @grade_book, :flat_allotment
+    refute_permit @other_teacher, @grade_book, :flat_allotment
+    refute_permit @student, @grade_book, :flat_allotment
+  end
 end
