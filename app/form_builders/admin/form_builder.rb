@@ -258,10 +258,19 @@ module Admin
     # Build checkbox collection items
     def build_checkbox_collection_items(attribute, collection, value_method, text_method)
       @template.content_tag(:div, class: "mt-2 space-y-2") do
-        collection.map do |item|
+        items = collection.map do |item|
           build_single_checkbox(attribute, item, value_method, text_method)
-        end.join.html_safe # rubocop:disable Rails/OutputSafety
+        end
+
+        @template.safe_join([build_checkbox_collection_sentinel(attribute), *items])
       end
+    end
+
+    # Browsers send nothing for an unchecked box, so a collection with every box
+    # cleared would leave the parameter out and the association untouched. This
+    # empty value keeps the parameter present so clearing the last one sticks.
+    def build_checkbox_collection_sentinel(attribute)
+      @template.hidden_field_tag("#{object_name}[#{attribute}][]", "", id: nil, autocomplete: "off")
     end
 
     # Build a single checkbox item

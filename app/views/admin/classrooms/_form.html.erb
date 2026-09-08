@@ -16,6 +16,10 @@
             end
           end %>
 
+      <%= f.collection_check_boxes :teacher_ids, Teacher.kept.order(:username), :id, :display_name,
+                                   label: "Teachers",
+                                   hint: "Select the teachers assigned to this classroom" %>
+
       <%= f.select :school_year_id,
                    options_from_collection_for_select(
                      SchoolYear.joins(:school, :year).order("schools.name, years.name"),

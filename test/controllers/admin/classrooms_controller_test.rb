@@ -131,6 +131,103 @@ module Admin
       assert_equal name, classroom.reload.name
     end
 
+    test "edit lists the teachers that can be assigned" do
+      teacher = create(:teacher)
+      classroom = create(:classroom)
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
+
+      get edit_admin_classroom_path(classroom)
+
+      assert_response :success
+      assert_select "input[type=checkbox][name='classroom[teacher_ids][]'][value=?]", teacher.id.to_s
+    end
+
+    test "edit checks the teachers already assigned to the classroom" do
+      assigned = create(:teacher)
+      unassigned = create(:teacher)
+      classroom = create(:classroom)
+      assigned.classrooms << classroom
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
+
+      get edit_admin_classroom_path(classroom)
+
+      assert_response :success
+      assert_select "input[name='classroom[teacher_ids][]'][value=?][checked]", assigned.id.to_s
+      assert_select "input[name='classroom[teacher_ids][]'][value=?][checked]", unassigned.id.to_s, count: 0
+    end
+
+    test "edit does not offer discarded teachers" do
+      discarded = create(:teacher)
+      discarded.discard
+      classroom = create(:classroom)
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
+
+      get edit_admin_classroom_path(classroom)
+
+      assert_response :success
+      assert_select "input[name='classroom[teacher_ids][]'][value=?]", discarded.id.to_s, count: 0
+    end
+
+    test "update adds a teacher to the classroom" do
+      teacher = create(:teacher)
+      classroom = create(:classroom)
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
+
+      patch admin_classroom_path(classroom), params: { classroom: { teacher_ids: [teacher.id] } }
+
+      assert_redirected_to admin_classroom_path(classroom)
+      assert_includes classroom.reload.teachers, teacher
+    end
+
+    test "update adds a teacher without dropping the ones already assigned" do
+      existing = create(:teacher)
+      added = create(:teacher)
+      classroom = create(:classroom)
+      existing.classrooms << classroom
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
+
+      patch admin_classroom_path(classroom),
+            params: { classroom: { teacher_ids: [existing.id, added.id] } }
+
+      assert_equal [existing, added].map(&:id).sort, classroom.reload.teachers.map(&:id).sort
+    end
+
+    test "the form can clear every teacher, not just some of them" do
+      teacher = create(:teacher)
+      classroom = create(:classroom)
+      teacher.classrooms << classroom
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
+
+      get edit_admin_classroom_path(classroom)
+
+      # Unchecking every box sends nothing for the checkboxes themselves, so the
+      # form carries an empty value to keep the parameter present.
+      assert_select "input[type=hidden][name='classroom[teacher_ids][]'][value='']"
+
+      patch admin_classroom_path(classroom), params: { classroom: { teacher_ids: [""] } }
+
+      assert_empty classroom.reload.teachers
+    end
+
+    test "update removes a teacher left unchecked" do
+      kept_teacher = create(:teacher)
+      removed = create(:teacher)
+      classroom = create(:classroom)
+      [kept_teacher, removed].each { |t| t.classrooms << classroom }
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
+
+      patch admin_classroom_path(classroom), params: { classroom: { teacher_ids: [kept_teacher.id] } }
+
+      assert_equal [kept_teacher.id], classroom.reload.teachers.map(&:id)
+    end
+
     test "update with invalid params" do
       classroom = create(:classroom)
       params = { classroom: { name: "" } }
