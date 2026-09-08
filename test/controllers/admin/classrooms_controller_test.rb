@@ -131,6 +131,20 @@ module Admin
       assert_equal name, classroom.reload.name
     end
 
+    test "show names assigned teachers the same way the edit form does" do
+      teacher = create(:teacher, name: "Ada Lovelace")
+      classroom = create(:classroom)
+      teacher.classrooms << classroom
+      admin = create(:admin, admin: true, classroom: nil)
+      sign_in(admin)
+
+      get admin_classroom_path(classroom)
+
+      assert_response :success
+      assert_select "li", text: teacher.display_name
+      assert_select "li", text: teacher.username, count: 0
+    end
+
     test "edit lists the teachers that can be assigned" do
       teacher = create(:teacher)
       classroom = create(:classroom)
