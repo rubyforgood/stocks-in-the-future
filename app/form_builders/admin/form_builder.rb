@@ -258,10 +258,19 @@ module Admin
     # Build checkbox collection items
     def build_checkbox_collection_items(attribute, collection, value_method, text_method)
       @template.content_tag(:div, class: "mt-2 space-y-2") do
-        collection.map do |item|
+        items = collection.map do |item|
           build_single_checkbox(attribute, item, value_method, text_method)
-        end.join.html_safe # rubocop:disable Rails/OutputSafety
+        end
+
+        @template.safe_join([build_checkbox_collection_hidden_field(attribute), *items])
       end
+    end
+
+    # Prepend a hidden field so something is sent back to the server if all
+    # checkboxes are unchecked. Otherwise the parameter is omitted and the
+    # association is left untouched.
+    def build_checkbox_collection_hidden_field(attribute)
+      @template.hidden_field_tag("#{object_name}[#{attribute}][]", "", id: nil, autocomplete: "off")
     end
 
     # Build a single checkbox item

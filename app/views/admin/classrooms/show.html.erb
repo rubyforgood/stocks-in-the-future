@@ -56,7 +56,7 @@
           <ul class="space-y-2">
             <% @classroom.teachers.each do |teacher| %>
               <li class="text-sm text-gray-900">
-                <%= teacher.username %>
+                <%= teacher.display_name %>
               </li>
             <% end %>
           </ul>
