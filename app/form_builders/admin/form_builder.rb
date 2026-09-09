@@ -262,14 +262,14 @@ module Admin
           build_single_checkbox(attribute, item, value_method, text_method)
         end
 
-        @template.safe_join([build_checkbox_collection_sentinel(attribute), *items])
+        @template.safe_join([build_checkbox_collection_hidden_field(attribute), *items])
       end
     end
 
-    # Browsers send nothing for an unchecked box, so a collection with every box
-    # cleared would leave the parameter out and the association untouched. This
-    # empty value keeps the parameter present so clearing the last one sticks.
-    def build_checkbox_collection_sentinel(attribute)
+    # Prepend a hidden field so something is sent back to the server if all
+    # checkboxes are unchecked. Otherwise the parameter is omitted and the
+    # association is left untouched.
+    def build_checkbox_collection_hidden_field(attribute)
       @template.hidden_field_tag("#{object_name}[#{attribute}][]", "", id: nil, autocomplete: "off")
     end
 

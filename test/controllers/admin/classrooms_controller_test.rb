@@ -221,7 +221,7 @@ module Admin
       get edit_admin_classroom_path(classroom)
 
       # Unchecking every box sends nothing for the checkboxes themselves, so the
-      # form carries an empty value to keep the parameter present.
+      # form includes a hidden field with an empty value to keep the parameter present.
       assert_select "input[type=hidden][name='classroom[teacher_ids][]'][value='']"
 
       patch admin_classroom_path(classroom), params: { classroom: { teacher_ids: [""] } }
