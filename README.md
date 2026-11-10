@@ -1,3 +1,9 @@
+# UPDATE Nov 9, 2026
+
+**Stocks in the future has been turned over to the nonprofit who now have in-house software engineers to maintain and support the project.**
+
+----
+
 [![Continuous Integration](https://github.com/rubyforgood/stocks-in-the-future/actions/workflows/ci.yml/badge.svg)](https://github.com/rubyforgood/stocks-in-the-future/actions/workflows/ci.yml)
 [![Lint](https://github.com/rubyforgood/stocks-in-the-future/actions/workflows/lint.yml/badge.svg)](https://github.com/rubyforgood/stocks-in-the-future/actions/workflows/lint.yml)
 [![Dependabot Updates](https://github.com/rubyforgood/stocks-in-the-future/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/rubyforgood/stocks-in-the-future/actions/workflows/dependabot/dependabot-updates)
